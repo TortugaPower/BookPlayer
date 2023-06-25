@@ -27,27 +27,29 @@ struct RecentBooksProvider: IntentTimelineProvider {
         return
       }
 
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
+      Task { @MainActor in
+        let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-      guard
-        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-        let theme = libraryService.getLibraryCurrentTheme()
-      else {
-        completion(self.placeholder(in: context))
-        return
+        guard
+          let items = await libraryService.getLastPlayedItems(limit: self.numberOfBooks),
+          let theme = libraryService.getLibraryCurrentTheme()
+        else {
+          completion(self.placeholder(in: context))
+          return
+        }
+
+        let autoplay = configuration.autoplay?.boolValue ?? true
+        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+        let entry = LibraryEntry(date: Date(),
+                                 items: items,
+                                 theme: theme,
+                                 timerSeconds: seconds,
+                                 autoplay: autoplay)
+
+        completion(entry)
       }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = LibraryEntry(date: Date(),
-                               items: items,
-                               theme: theme,
-                               timerSeconds: seconds,
-                               autoplay: autoplay)
-
-      completion(entry)
     }
   }
 
@@ -59,27 +61,30 @@ struct RecentBooksProvider: IntentTimelineProvider {
         return
       }
 
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
+      Task { @MainActor in
 
-      guard
-        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-        let theme = libraryService.getLibraryCurrentTheme()
-      else {
-        completion(Timeline(entries: [], policy: .atEnd))
-        return
+        let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
+
+        guard
+          let items = await libraryService.getLastPlayedItems(limit: self.numberOfBooks),
+          let theme = libraryService.getLibraryCurrentTheme()
+        else {
+          completion(Timeline(entries: [], policy: .atEnd))
+          return
+        }
+
+        let autoplay = configuration.autoplay?.boolValue ?? true
+        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+        let entry = LibraryEntry(date: Date(),
+                                 items: items,
+                                 theme: theme,
+                                 timerSeconds: seconds,
+                                 autoplay: autoplay)
+
+        completion(Timeline(entries: [entry], policy: .atEnd))
       }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = LibraryEntry(date: Date(),
-                               items: items,
-                               theme: theme,
-                               timerSeconds: seconds,
-                               autoplay: autoplay)
-
-      completion(Timeline(entries: [entry], policy: .atEnd))
     }
   }
 }

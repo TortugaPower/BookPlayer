@@ -11,15 +11,15 @@ import Foundation
 /// sourcery: AutoMockable
 public protocol PlaybackServiceProtocol {
   func updatePlaybackTime(item: PlayableItem, time: Double)
-  func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem?
+  func getPlayableItem(before relativePath: String, parentFolder: String?) async -> PlayableItem?
   func getPlayableItem(
     after relativePath: String,
     parentFolder: String?,
     autoplayed: Bool,
     restartFinished: Bool
-  ) -> PlayableItem?
-  func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem?
-  func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem?
+  ) async -> PlayableItem?
+  func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) async throws -> PlayableItem?
+  func getPlayableItem(from item: SimpleLibraryItem) async throws -> PlayableItem?
   func getNextChapter(from item: PlayableItem) -> PlayableChapter?
 }
 
@@ -46,26 +46,26 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
   }
 
-  public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
+  public func getPlayableItem(before relativePath: String, parentFolder: String?) async -> PlayableItem? {
     guard
-      let orderRank = self.libraryService.getItemProperty(
+      let orderRank = libraryService.getItemProperty(
         #keyPath(LibraryItem.orderRank),
         relativePath: relativePath
       ) as? Int16
     else { return nil }
 
     guard
-      let previousItem = self.libraryService.findFirstItem(
+      let previousItem = await libraryService.findFirstItem(
         in: parentFolder,
         beforeRank: orderRank
       )
     else {
       if let parentFolderPath = parentFolder {
-        let containerPathForParentFolder = self.libraryService.getItemProperty(
+        let containerPathForParentFolder = libraryService.getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
           relativePath: parentFolderPath
         ) as? String
-        return getPlayableItem(
+        return await getPlayableItem(
           before: parentFolderPath,
           parentFolder: containerPathForParentFolder
         )
@@ -75,13 +75,13 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     if previousItem.type == .folder {
-      return try? getFirstPlayableItem(
+      return try? await getFirstPlayableItem(
         in: previousItem,
         isUnfinished: nil
       )
     }
 
-    return try? getPlayableItem(from: previousItem)
+    return try? await getPlayableItem(from: previousItem)
   }
 
   public func getPlayableItem(
@@ -89,9 +89,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     parentFolder: String?,
     autoplayed: Bool,
     restartFinished: Bool
-  ) -> PlayableItem? {
+  ) async -> PlayableItem? {
     guard
-      let orderRank = self.libraryService.getItemProperty(
+      let orderRank = libraryService.getItemProperty(
         #keyPath(LibraryItem.orderRank),
         relativePath: relativePath
       ) as? Int16
@@ -105,18 +105,18 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     guard
-      let nextItem = self.libraryService.findFirstItem(
+      let nextItem = await libraryService.findFirstItem(
         in: parentFolder,
         afterRank: orderRank,
         isUnfinished: isUnfinished
       )
     else {
       if let parentFolderPath = parentFolder {
-        let containerPathForParentFolder = self.libraryService.getItemProperty(
+        let containerPathForParentFolder = libraryService.getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
           relativePath: parentFolderPath
         ) as? String
-        return getPlayableItem(
+        return await getPlayableItem(
           after: parentFolderPath,
           parentFolder: containerPathForParentFolder,
           autoplayed: autoplayed,
@@ -128,43 +128,43 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     if nextItem.type == .folder {
-      return try? getFirstPlayableItem(
+      return try? await getFirstPlayableItem(
         in: nextItem,
         isUnfinished: isUnfinished
       )
     }
 
-    return try? getPlayableItem(from: nextItem)
+    return try? await getPlayableItem(from: nextItem)
   }
 
-  public func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem? {
-    guard let child = self.libraryService.findFirstItem(
+  public func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) async throws -> PlayableItem? {
+    guard let child = await libraryService.findFirstItem(
       in: folder.relativePath,
       isUnfinished: isUnfinished
     ) else { return nil }
 
     switch child.type {
     case .folder:
-      return try getFirstPlayableItem(in: child, isUnfinished: isUnfinished)
+      return try await getFirstPlayableItem(in: child, isUnfinished: isUnfinished)
     case .bound:
-      return try self.getPlayableItemFrom(folder: child)
+      return try getPlayableItemFrom(folder: child)
     case .book:
-      return try self.getPlayableItemFrom(book: child)
+      return try await getPlayableItemFrom(book: child)
     }
 
   }
 
-  public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+  public func getPlayableItem(from item: SimpleLibraryItem) async throws -> PlayableItem? {
     switch item.type {
     case .folder, .bound:
-      return try self.getPlayableItemFrom(folder: item)
+      return try getPlayableItemFrom(folder: item)
     case .book:
-      return try self.getPlayableItemFrom(book: item)
+      return try await getPlayableItemFrom(book: item)
     }
   }
 
-  func getPlayableItemFrom(book: SimpleLibraryItem) throws -> PlayableItem {
-    let chapters = try self.getPlayableChapters(book: book)
+  func getPlayableItemFrom(book: SimpleLibraryItem) async throws -> PlayableItem {
+    let chapters = try await getPlayableChapters(book: book)
 
     return PlayableItem(
       title: book.title,
@@ -181,9 +181,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     )
   }
 
-  func getPlayableChapters(book: SimpleLibraryItem) throws -> [PlayableChapter] {
+  func getPlayableChapters(book: SimpleLibraryItem) async throws -> [PlayableChapter] {
     guard
-      let chapters = self.libraryService.getChapters(from: book.relativePath)
+      let chapters = await libraryService.getChapters(from: book.relativePath)
     else {
       throw BookPlayerError.runtimeError(
         String.localizedStringWithFormat(
@@ -222,7 +222,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   func getPlayableItemFrom(folder: SimpleLibraryItem) throws -> PlayableItem {
-    let chapters = try self.getPlayableChapters(folder: folder)
+    let chapters = try getPlayableChapters(folder: folder)
 
     var duration: TimeInterval?
 
@@ -253,7 +253,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
   func getPlayableChapters(folder: SimpleLibraryItem) throws -> [PlayableChapter] {
     guard
-      let items = self.libraryService.fetchContents(
+      let items = libraryService.fetchContents(
         at: folder.relativePath,
         limit: nil,
         offset: nil

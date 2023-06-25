@@ -118,7 +118,7 @@ class StorageViewModelMissingFileTests: XCTestCase {
     XCTAssert(brokenItems.isEmpty)
   }
 
-  func testUnicodeMissingItem() throws {
+  func testUnicodeMissingItem() async throws {
     let folderName = "Maigretův první případ"
     let bookName = "idyllica_04_herrick_64kb.mp3"
 
@@ -135,12 +135,12 @@ class StorageViewModelMissingFileTests: XCTestCase {
         expectation.fulfill()
       }
 
-    wait(for: [expectation], timeout: 5.0)
+    await fulfillment(of: [expectation], timeout: 5.0)
 
     // Manual recreation of folder and book inside library
-    let folder = try self.viewModel.libraryService.createFolder(with: folderName, inside: nil)
-    let book = self.viewModel.libraryService.createBook(from: loadedFileURL)
-    try viewModel.libraryService.moveItems([book.relativePath], inside: folder.relativePath)
+    let folder = try await self.viewModel.libraryService.createFolder(with: folderName, inside: nil)
+    let book = await self.viewModel.libraryService.createBook(from: loadedFileURL)
+    try await viewModel.libraryService.moveItems([book.relativePath], inside: folder.relativePath)
 
     XCTAssertFalse(self.viewModel.shouldShowWarning(for: "Maigretův první případ/idyllica_04_herrick_64kb.mp3"))
   }

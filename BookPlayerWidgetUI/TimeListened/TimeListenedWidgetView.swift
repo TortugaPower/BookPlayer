@@ -18,38 +18,41 @@ struct TimeListenedProvider: IntentTimelineProvider {
   }
 
   func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (TimeListenedEntry) -> Void) {
-    let stack = DataMigrationManager().getCoreDataStack()
-    stack.loadStore { _, error in
-      guard error == nil else {
-        completion(self.placeholder(in: context))
-        return
+
+      let stack = DataMigrationManager().getCoreDataStack()
+      stack.loadStore { _, error in
+        guard error == nil else {
+          completion(self.placeholder(in: context))
+          return
+        }
+
+        Task { @MainActor in
+          let dataManager = DataManager(coreDataStack: stack)
+          let libraryService = LibraryService(dataManager: dataManager)
+
+          var records: [PlaybackRecordViewer]
+
+          if context.family == .systemMedium {
+            records = await WidgetUtils.getPlaybackRecords(with: libraryService)
+          } else {
+            records = [await WidgetUtils.getPlaybackRecord(with: libraryService)]
+          }
+
+          let autoplay = configuration.autoplay?.boolValue ?? true
+          let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+          let entry = TimeListenedEntry(
+            date: Date(),
+            title: libraryService.getLibraryLastItem()?.title,
+            theme: libraryService.getLibraryCurrentTheme(),
+            timerSeconds: seconds,
+            autoplay: autoplay,
+            playbackRecords: records
+          )
+
+          completion(entry)
+        }
       }
-
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
-
-      var records: [PlaybackRecordViewer]
-
-      if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: libraryService)
-      } else {
-        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
-      }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = TimeListenedEntry(
-        date: Date(),
-        title: libraryService.getLibraryLastItem()?.title,
-        theme: libraryService.getLibraryCurrentTheme(),
-        timerSeconds: seconds,
-        autoplay: autoplay,
-        playbackRecords: records
-      )
-
-      completion(entry)
-    }
   }
 
   func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<TimeListenedEntry>) -> Void) {
@@ -60,30 +63,32 @@ struct TimeListenedProvider: IntentTimelineProvider {
         return
       }
 
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
+      Task { @MainActor in
+        let dataManager = DataManager(coreDataStack: stack)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-      var records: [PlaybackRecordViewer]
+        var records: [PlaybackRecordViewer]
 
-      if context.family == .systemMedium {
-        records = WidgetUtils.getPlaybackRecords(with: libraryService)
-      } else {
-        records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
+        if context.family == .systemMedium {
+          records = await WidgetUtils.getPlaybackRecords(with: libraryService)
+        } else {
+          records = [await WidgetUtils.getPlaybackRecord(with: libraryService)]
+        }
+
+        let autoplay = configuration.autoplay?.boolValue ?? true
+        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+        let entry = TimeListenedEntry(
+          date: Date(),
+          title: libraryService.getLibraryLastItem()?.title,
+          theme: libraryService.getLibraryCurrentTheme(),
+          timerSeconds: seconds,
+          autoplay: autoplay,
+          playbackRecords: records
+        )
+
+        completion(Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate())))
       }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = TimeListenedEntry(
-        date: Date(),
-        title: libraryService.getLibraryLastItem()?.title,
-        theme: libraryService.getLibraryCurrentTheme(),
-        timerSeconds: seconds,
-        autoplay: autoplay,
-        playbackRecords: records
-      )
-
-      completion(Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate())))
     }
   }
 }

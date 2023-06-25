@@ -31,7 +31,7 @@ class AccountServiceTests: XCTestCase {
     account.email = ""
     account.hasSubscription = false
     account.donationMade = false
-    self.sut.dataManager.saveContext()
+    self.sut.dataManager.saveContext(context)
   }
 
   func testGetAccount() {

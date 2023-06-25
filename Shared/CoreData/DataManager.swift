@@ -76,11 +76,24 @@ public class DataManager {
     return self.coreDataStack.managedContext
   }
 
-  public func scheduleSaveContext() {
+  public func performBackgroundFetch<T: NSFetchRequestResult>(_ request: NSFetchRequest<T>) async throws -> [T] {
+    return try await withCheckedThrowingContinuation { continuation in
+      performBackgroundTask { context in
+        do {
+          let results = try context.fetch(request)
+          continuation.resume(returning: results)
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
+  public func scheduleSaveContext(_ context: NSManagedObjectContext) {
     guard self.pendingSaveContext == nil else { return }
 
     let workItem = DispatchWorkItem { [weak self] in
-      self?.coreDataStack.saveContext()
+      self?.saveContext(context)
       self?.pendingSaveContext = nil
     }
 
@@ -89,13 +102,9 @@ public class DataManager {
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: workItem)
   }
 
-  public func saveContext() {
-    self.coreDataStack.saveContext()
-  }
-
-  public func saveSyncContext() {
-    coreDataStack.managedContext.performAndWait { [weak self] in
-      self?.coreDataStack.saveContext()
+  public func saveContext(_ context: NSManagedObjectContext) {
+    context.performAndWait { [weak self] in
+      self?.coreDataStack.saveContext(context)
     }
   }
 
@@ -103,8 +112,19 @@ public class DataManager {
     return self.coreDataStack.getBackgroundContext()
   }
 
-  public func delete(_ item: NSManagedObject) {
-    self.coreDataStack.managedContext.delete(item)
-    self.saveContext()
+  public func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+    coreDataStack.performBackgroundTask(block)
+  }
+
+  public func performTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+    let context = coreDataStack.managedContext
+    context.perform {
+      block(context)
+    }
+  }
+
+  public func delete(_ item: NSManagedObject, context: NSManagedObjectContext) {
+    context.delete(item)
+    saveContext(context)
   }
 }

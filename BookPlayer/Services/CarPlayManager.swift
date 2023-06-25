@@ -105,14 +105,6 @@ class CarPlayManager: NSObject {
     }
   }
 
-  func loadLibraryItems(at relativePath: String?) -> [SimpleLibraryItem] {
-    guard
-      let libraryService = AppDelegate.shared?.libraryService
-    else { return [] }
-
-    return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
-  }
-
   // swiftlint:disable:next function_body_length
   func setupNowPlayingTemplate() {
     guard
@@ -148,31 +140,33 @@ class CarPlayManager: NSObject {
         let currentItem = playerManager.currentItem
       else { return }
 
-      let alertTitle: String
-      let currentTime = floor(currentItem.currentTime)
+      Task { @MainActor in
+        let alertTitle: String
+        let currentTime = floor(currentItem.currentTime)
 
-      if let bookmark = libraryService.createBookmark(
-        at: currentTime,
-        relativePath: currentItem.relativePath,
-        type: .user
-      ) {
-        AppDelegate.shared?.syncService?.scheduleSetBookmark(
+        if let bookmark = await libraryService.createBookmark(
+          at: currentTime,
           relativePath: currentItem.relativePath,
-          time: currentTime,
-          note: nil
-        )
-        let formattedTime = TimeParser.formatTime(bookmark.time)
-        alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
-      } else {
-        alertTitle = "file_missing_title".localized
-      }
+          type: .user
+        ) {
+          AppDelegate.shared?.syncService?.scheduleSetBookmark(
+            relativePath: currentItem.relativePath,
+            time: currentTime,
+            note: nil
+          )
+          let formattedTime = TimeParser.formatTime(bookmark.time)
+          alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
+        } else {
+          alertTitle = "file_missing_title".localized
+        }
 
-      let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
-        self.interfaceController?.dismissTemplate(animated: true, completion: nil)
-      }
-      let alertTemplate = CPAlertTemplate(titleVariants: [alertTitle], actions: [okAction])
+        let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in
+          self.interfaceController?.dismissTemplate(animated: true, completion: nil)
+        }
+        let alertTemplate = CPAlertTemplate(titleVariants: [alertTitle], actions: [okAction])
 
-      self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
+        self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
+      }
     }
 
     CPNowPlayingTemplate.shared.updateNowPlayingButtons([prevButton, controlsButton, bookmarksButton, listButton, nextButton])
@@ -248,14 +242,16 @@ class CarPlayManager: NSObject {
       let libraryService = AppDelegate.shared?.libraryService
     else { return }
 
-    let items = libraryService.getLastPlayedItems(limit: 20) ?? []
+    Task { @MainActor in
+      let items = await libraryService.getLastPlayedItems(limit: 20) ?? []
 
-    let cpitems = transformItems(items)
+      let cpitems = transformItems(items)
 
-    cpitems.first?.isPlaying = true
+      cpitems.first?.isPlaying = true
 
-    let section = CPListSection(items: cpitems)
-    self.recentTemplate?.updateSections([section])
+      let section = CPListSection(items: cpitems)
+      self.recentTemplate?.updateSections([section])
+    }
   }
 
   /// Handle playing the selected item
@@ -420,30 +416,32 @@ extension CarPlayManager {
       let currentItem = playerManager.currentItem
     else { return }
 
-    let playBookmarks = libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
-    let skipBookmarks = libraryService.getBookmarks(of: .skip, relativePath: currentItem.relativePath) ?? []
+    Task { @MainActor in
+      let playBookmarks = await libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
+      let skipBookmarks = await libraryService.getBookmarks(of: .skip, relativePath: currentItem.relativePath) ?? []
 
-    let automaticBookmarks = (playBookmarks + skipBookmarks)
-      .sorted(by: { $0.time < $1.time })
+      let automaticBookmarks = (playBookmarks + skipBookmarks)
+        .sorted(by: { $0.time < $1.time })
 
-    let automaticItems = automaticBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
-      return self?.createBookmarkCPItem(from: bookmark, includeImage: true)
+      let automaticItems = automaticBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
+        return self?.createBookmarkCPItem(from: bookmark, includeImage: true)
+      }
+
+      let userBookmarks = (await libraryService.getBookmarks(of: .user, relativePath: currentItem.relativePath) ?? [])
+        .sorted(by: { $0.time < $1.time })
+
+      let userItems = userBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
+        return self?.createBookmarkCPItem(from: bookmark, includeImage: false)
+      }
+
+      let section1 = CPListSection(items: automaticItems, header: "bookmark_type_automatic_title".localized, sectionIndexTitle: nil)
+
+      let section2 = CPListSection(items: userItems, header: "bookmark_type_user_title".localized, sectionIndexTitle: nil)
+
+      let listTemplate = CPListTemplate(title: "bookmarks_title".localized, sections: [section1, section2])
+
+      self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
     }
-
-    let userBookmarks = (libraryService.getBookmarks(of: .user, relativePath: currentItem.relativePath) ?? [])
-      .sorted(by: { $0.time < $1.time })
-
-    let userItems = userBookmarks.compactMap { [weak self] bookmark -> CPListItem? in
-      return self?.createBookmarkCPItem(from: bookmark, includeImage: false)
-    }
-
-    let section1 = CPListSection(items: automaticItems, header: "bookmark_type_automatic_title".localized, sectionIndexTitle: nil)
-
-    let section2 = CPListSection(items: userItems, header: "bookmark_type_user_title".localized, sectionIndexTitle: nil)
-
-    let listTemplate = CPListTemplate(title: "bookmarks_title".localized, sections: [section1, section2])
-
-    self.interfaceController?.pushTemplate(listTemplate, animated: true, completion: nil)
   }
 }
 

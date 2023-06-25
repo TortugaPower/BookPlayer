@@ -129,7 +129,7 @@ public final class AccountService: AccountServiceProtocol {
     account.email = ""
     account.hasSubscription = false
     account.donationMade = donationMade
-    self.dataManager.saveContext()
+    self.dataManager.saveContext(context)
   }
 
   public func updateAccount(from customerInfo: CustomerInfo) {
@@ -162,7 +162,7 @@ public final class AccountService: AccountServiceProtocol {
       account.hasSubscription = hasSubscription
     }
 
-    self.dataManager.saveContext()
+    self.dataManager.saveContext(self.dataManager.getContext())
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .accountUpdate, object: self)

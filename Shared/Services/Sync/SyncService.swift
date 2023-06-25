@@ -128,7 +128,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     guard !fetchedItems.isEmpty else { return nil }
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: relativePath) ?? []
+    let libraryIdentifiers = await libraryService.fetchItemIdentifiers(in: relativePath) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -144,7 +144,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     /// Remove items from the library that are not in the remote items
-    try libraryService.removeItems(notIn: fetchedIdentifiers, parentFolder: relativePath)
+    try await libraryService.removeItems(notIn: fetchedIdentifiers, parentFolder: relativePath)
 
     /// Store new items
     if !itemsToStore.isEmpty {
@@ -155,7 +155,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
     /// Update data or store
     if !itemsToUpdate.isEmpty {
-      libraryService.updateInfo(from: itemsToUpdate)
+      for itemToUpdate in itemsToUpdate {
+        await libraryService.updateItemInfo(from: itemToUpdate)
+      }
     }
 
     return (fetchedItems, lastItemPlayed)
@@ -176,7 +178,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: nil) ?? []
+    let libraryIdentifiers = await libraryService.fetchItemIdentifiers(in: nil) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -192,9 +194,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       try await self.storeLibraryItems(itemsToStore)
     }
 
-    if let itemsToUpload = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
+    if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
-      handleItemsToUpload(itemsToUpload)
+      await handleItemsToUpload(itemsToUpload)
     }
 
     return (itemsToStore, lastItemPlayed)
@@ -204,12 +206,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        libraryService.addBook(from: item, parentFolder: nil)
+        await libraryService.addBook(from: item, parentFolder: nil)
       case .bound:
-        libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
         try await fetchBoundContents(for: item)
       case .folder:
-        libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
       }
     }
   }
@@ -225,10 +227,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let bookmarks = try await fetchBookmarks(for: relativePath)
 
     for bookmark in bookmarks {
-      libraryService.addBookmark(from: bookmark)
+      await libraryService.addBookmark(from: bookmark)
     }
 
-    return libraryService.getBookmarks(of: .user, relativePath: relativePath)
+    return await libraryService.getBookmarks(of: .user, relativePath: relativePath)
   }
 
   func fetchBoundContents(for item: SyncableItem) async throws {
@@ -240,7 +242,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// All fetched items inside a bound folder are always books
     for fetchedItem in fetchedItems {
-      libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
+      await libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
     }
   }
 
@@ -251,12 +253,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        self.libraryService.addBook(from: item, parentFolder: parentFolder)
+        await libraryService.addBook(from: item, parentFolder: parentFolder)
       case .bound:
-        self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
         _ = try await syncListContents(at: item.relativePath)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }
     }
   }
@@ -365,7 +367,7 @@ extension SyncService {
 }
 
 extension SyncService {
-  func handleItemsToUpload(_ items: [SyncableItem]) {
+  func handleItemsToUpload(_ items: [SyncableItem]) async {
     let folders = items.filter({ $0.type != .book })
 
     var itemsToUpload = items
@@ -379,7 +381,7 @@ extension SyncService {
 
     for item in itemsToUpload {
       jobManager.scheduleLibraryItemUploadJob(for: item)
-      if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
+      if let bookmarks = await libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
         for bookmark in bookmarks {
           jobManager.scheduleSetBookmarkJob(
             with: bookmark.relativePath,
@@ -394,9 +396,11 @@ extension SyncService {
   public func scheduleUpload(items: [SimpleLibraryItem]) {
     guard isActive else { return }
 
-    let syncItems = items.map({ SyncableItem(from: $0) })
+    Task {
+      let syncItems = items.map({ SyncableItem(from: $0) })
 
-    handleItemsToUpload(syncItems)
+      await handleItemsToUpload(syncItems)
+    }
   }
 }
 

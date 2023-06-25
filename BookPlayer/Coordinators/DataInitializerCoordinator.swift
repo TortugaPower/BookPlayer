@@ -126,27 +126,29 @@ class DataInitializerCoordinator: BPLogger {
 
   func reloadLibrary(with files: [URL]) {
     let stack = self.dataMigrationManager.getCoreDataStack()
-    stack.loadStore { [weak self] _, error in
+    stack.loadStore { [unowned self] _, error in
       if let error = error {
-        self?.handleCoreDataError(error)
+        self.handleCoreDataError(error)
         return
       }
 
-      let dataManager = DataManager(coreDataStack: stack)
+      Task { @MainActor in
+        let dataManager = DataManager(coreDataStack: stack)
 
-      let libraryService = LibraryService(dataManager: dataManager)
+        let libraryService = LibraryService(dataManager: dataManager)
 
-      /// Create library on disk
-      _ = libraryService.getLibrary()
+        /// Create library on disk
+        _ = libraryService.getLibrary()
 
-      self?.setupDefaultState(
-        libraryService: libraryService,
-        dataManager: dataManager
-      )
+        self.setupDefaultState(
+          libraryService: libraryService,
+          dataManager: dataManager
+        )
 
-      libraryService.insertItems(from: files)
+        await libraryService.insertItems(from: files)
 
-      self?.onFinish?(stack)
+        self.onFinish?(stack)
+      }
     }
   }
 

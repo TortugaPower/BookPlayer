@@ -81,24 +81,26 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
 
     let currentTime = floor(currentItem.currentTime)
 
-    if let bookmark = self.libraryService.createBookmark(
-      at: currentTime,
-      relativePath: currentItem.relativePath,
-      type: .user
-    ) {
-      syncService.scheduleSetBookmark(
+    Task { @MainActor in
+      if let bookmark = await self.libraryService.createBookmark(
+        at: currentTime,
         relativePath: currentItem.relativePath,
-        time: currentTime,
-        note: nil
-      )
-      let formattedTime = TimeParser.formatTime(bookmark.time)
-      let message = String.localizedStringWithFormat(
-        "bookmark_created_title".localized,
-        formattedTime
-      )
-      eventPublisher.send(message)
-    } else {
-      eventPublisher.send("file_missing_title".localized)
+        type: .user
+      ) {
+        syncService.scheduleSetBookmark(
+          relativePath: currentItem.relativePath,
+          time: currentTime,
+          note: nil
+        )
+        let formattedTime = TimeParser.formatTime(bookmark.time)
+        let message = String.localizedStringWithFormat(
+          "bookmark_created_title".localized,
+          formattedTime
+        )
+        eventPublisher.send(message)
+      } else {
+        eventPublisher.send("file_missing_title".localized)
+      }
     }
   }
 }

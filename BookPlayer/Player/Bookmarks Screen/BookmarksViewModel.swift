@@ -42,31 +42,33 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
       .sink { [weak self] currentItem in
         guard let self else { return }
 
-        if let currentItem {
-          self.automaticBookmarks = self.getAutomaticBookmarks(for: currentItem.relativePath)
-          self.userBookmarks = self.getUserBookmarks(for: currentItem.relativePath)
-          self.syncBookmarks(for: currentItem.relativePath)
-        } else {
-          self.automaticBookmarks = []
-          self.userBookmarks = []
-        }
+        Task { @MainActor in
+          if let currentItem {
+            self.automaticBookmarks = await self.getAutomaticBookmarks(for: currentItem.relativePath)
+            self.userBookmarks = await self.getUserBookmarks(for: currentItem.relativePath)
+            self.syncBookmarks(for: currentItem.relativePath)
+          } else {
+            self.automaticBookmarks = []
+            self.userBookmarks = []
+          }
 
-        self.reloadDataPublisher.send(true)
+          self.reloadDataPublisher.send(true)
+        }
       }
       .store(in: &disposeBag)
   }
 
-  func getAutomaticBookmarks(for relativePath: String) -> [SimpleBookmark] {
-    let playBookmarks = self.libraryService.getBookmarks(of: .play, relativePath: relativePath) ?? []
-    let skipBookmarks = self.libraryService.getBookmarks(of: .skip, relativePath: relativePath) ?? []
+  func getAutomaticBookmarks(for relativePath: String) async -> [SimpleBookmark] {
+    let playBookmarks = await libraryService.getBookmarks(of: .play, relativePath: relativePath) ?? []
+    let skipBookmarks = await libraryService.getBookmarks(of: .skip, relativePath: relativePath) ?? []
 
     let bookmarks = playBookmarks + skipBookmarks
 
     return bookmarks.sorted(by: { $0.time < $1.time })
   }
 
-  func getUserBookmarks(for relativePath: String) -> [SimpleBookmark] {
-    return self.libraryService.getBookmarks(of: .user, relativePath: relativePath) ?? []
+  func getUserBookmarks(for relativePath: String) async -> [SimpleBookmark] {
+    return await libraryService.getBookmarks(of: .user, relativePath: relativePath) ?? []
   }
 
   func handleBookmarkSelected(_ bookmark: SimpleBookmark) {
@@ -111,19 +113,23 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   }
 
   func addNote(_ note: String, bookmark: SimpleBookmark) {
-    libraryService.addNote(note, bookmark: bookmark)
-    userBookmarks = getUserBookmarks(for: bookmark.relativePath)
-    syncService.scheduleSetBookmark(
-      relativePath: bookmark.relativePath,
-      time: bookmark.time,
-      note: note
-    )
+    Task { @MainActor in
+      await libraryService.addNote(note, bookmark: bookmark)
+      userBookmarks = await getUserBookmarks(for: bookmark.relativePath)
+      syncService.scheduleSetBookmark(
+        relativePath: bookmark.relativePath,
+        time: bookmark.time,
+        note: note
+      )
+    }
   }
 
   func deleteBookmark(_ bookmark: SimpleBookmark) {
-    libraryService.deleteBookmark(bookmark)
-    userBookmarks = getUserBookmarks(for: bookmark.relativePath)
-    syncService.scheduleDeleteBookmark(bookmark)
+    Task { @MainActor in
+      await libraryService.deleteBookmark(bookmark)
+      await userBookmarks = getUserBookmarks(for: bookmark.relativePath)
+      syncService.scheduleDeleteBookmark(bookmark)
+    }
   }
 
   func showExportController() {

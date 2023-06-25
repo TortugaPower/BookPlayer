@@ -307,34 +307,36 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return index
   }
 
-  private func playNextBook(in item: SimpleLibraryItem) {
+  private func playNextBook(in item: SimpleLibraryItem) async {
     guard item.type == .folder else { return }
 
     /// If the player already is playing a subset of this folder, let the player handle playback
     if let currentItem = self.playerManager.currentItem,
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
-    } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
+    } else if let nextPlayableItem = try? await self.playbackService.getFirstPlayableItem(
         in: item,
         isUnfinished: true
       ),
-      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
+      let nextItem = await libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }
 
   func handleArtworkTap(for item: SimpleLibraryItem) {
-    switch item.type {
-    case .folder:
-      playNextBook(in: item)
-    case .bound, .book:
-      switch getDownloadState(for: item) {
-      case .notDownloaded:
-        startDownload(of: item)
-      case .downloading:
-        cancelDownload(of: item)
-      case .downloaded:
-        onTransition?(.loadPlayer(relativePath: item.relativePath))
+    Task { @MainActor in
+      switch item.type {
+      case .folder:
+        await playNextBook(in: item)
+      case .bound, .book:
+        switch getDownloadState(for: item) {
+        case .notDownloaded:
+          startDownload(of: item)
+        case .downloading:
+          cancelDownload(of: item)
+        case .downloaded:
+          onTransition?(.loadPlayer(relativePath: item.relativePath))
+        }
       }
     }
   }
@@ -372,120 +374,132 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
-    do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      syncService.scheduleUpload(items: [folder])
-      if let fetchedItems = items {
-        try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-        syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
-      }
-      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
-      libraryService.rebuildFolderDetails(folder.relativePath)
+    Task { @MainActor in
+      do {
+        let folder = try await self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
+        syncService.scheduleUpload(items: [folder])
+        if let fetchedItems = items {
+          try await libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+          syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+        }
+        try await self.libraryService.updateFolder(at: folder.relativePath, type: type)
+        libraryService.rebuildFolderDetails(folder.relativePath)
 
-      // stop playback if folder items contain that current item
-      if let items = items,
-         let currentRelativePath = self.playerManager.currentItem?.relativePath,
-         items.contains(currentRelativePath) {
-        self.playerManager.stop()
+        // stop playback if folder items contain that current item
+        if let items = items,
+           let currentRelativePath = self.playerManager.currentItem?.relativePath,
+           items.contains(currentRelativePath) {
+          self.playerManager.stop()
+        }
+
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
 
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
+      self.coordinator.reloadItemsWithPadding(padding: 1)
     }
-
-    self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
-    do {
-      try folders.forEach { folder in
-        try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+    Task { @MainActor in
+      do {
+        for folder in folders {
+          try await self.libraryService.updateFolder(at: folder.relativePath, type: type)
 
-        if let currentItem = self.playerManager.currentItem,
-           currentItem.relativePath.contains(folder.relativePath) {
-          self.playerManager.stop()
+          if let currentItem = self.playerManager.currentItem,
+             currentItem.relativePath.contains(folder.relativePath) {
+            self.playerManager.stop()
+          }
         }
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
 
-    self.coordinator.reloadItemsWithPadding()
+      self.coordinator.reloadItemsWithPadding()
+    }
   }
 
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
-    let selectedItems = items.compactMap({ $0.relativePath })
-    let parentFolder = items.first?.parentFolder
+    Task { @MainActor in
+      let selectedItems = items.compactMap({ $0.relativePath })
+      let parentFolder = items.first?.parentFolder
 
-    do {
-      try libraryService.moveItems(selectedItems, inside: nil)
-      syncService.scheduleMove(items: selectedItems, to: nil)
-      if let parentFolder {
-        libraryService.rebuildFolderDetails(parentFolder)
+      do {
+        try await libraryService.moveItems(selectedItems, inside: nil)
+        syncService.scheduleMove(items: selectedItems, to: nil)
+        if let parentFolder {
+          libraryService.rebuildFolderDetails(parentFolder)
+        }
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
 
-    self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
+      self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
+    }
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
-    ArtworkService.removeCache(for: folder.relativePath)
+    Task { @MainActor in
+      await ArtworkService.removeCache(for: folder.relativePath)
 
-    let fetchedItems = items.compactMap({ $0.relativePath })
+      let fetchedItems = items.compactMap({ $0.relativePath })
 
-    do {
-      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
+      do {
+        try await libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+        syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
+
+      self.coordinator.reloadItemsWithPadding()
     }
-
-    self.coordinator.reloadItemsWithPadding()
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
-    let parentFolder = items.first?.parentFolder
+    Task { @MainActor in
+      let parentFolder = items.first?.parentFolder
 
-    do {
-      try libraryService.delete(items, mode: mode)
+      do {
+        try await libraryService.delete(items, mode: mode)
 
-      if let parentFolder {
-        libraryService.rebuildFolderDetails(parentFolder)
+        if let parentFolder {
+          libraryService.rebuildFolderDetails(parentFolder)
+        }
+
+        syncService.scheduleDelete(items, mode: mode)
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
 
-      syncService.scheduleDelete(items, mode: mode)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
+      self.coordinator.reloadItemsWithPadding()
     }
-
-    self.coordinator.reloadItemsWithPadding()
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    if let folderRelativePath = folderRelativePath {
-      ArtworkService.removeCache(for: folderRelativePath)
+    Task { @MainActor in
+      if let folderRelativePath = folderRelativePath {
+        await ArtworkService.removeCache(for: folderRelativePath)
+      }
+
+      await self.libraryService.reorderItem(
+        with: item.relativePath,
+        inside: self.folderRelativePath,
+        sourceIndexPath: sourceIndexPath,
+        destinationIndexPath: destinationIndexPath
+      )
+
+      self.loadInitialItems(pageSize: self.items.count)
     }
-
-    self.libraryService.reorderItem(
-      with: item.relativePath,
-      inside: self.folderRelativePath,
-      sourceIndexPath: sourceIndexPath,
-      destinationIndexPath: destinationIndexPath
-    )
-
-    self.loadInitialItems(pageSize: self.items.count)
   }
 
   func updateDefaultArtwork(for theme: SimpleTheme) {
@@ -932,28 +946,36 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleSort(by option: SortType) {
-    self.libraryService.sortContents(at: folderRelativePath, by: option)
-    self.reloadItems()
+    Task { @MainActor in
+      await self.libraryService.sortContents(at: folderRelativePath, by: option)
+      self.reloadItems()
+    }
   }
 
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
-    items.forEach({ self.libraryService.jumpToStart(relativePath: $0.relativePath) })
+    Task { @MainActor in
+      for item in items {
+        await self.libraryService.jumpToStart(relativePath: item.relativePath)
+      }
 
-    self.coordinator.reloadItemsWithPadding()
+      self.coordinator.reloadItemsWithPadding()
+    }
   }
 
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
-    let parentFolder = items.first?.parentFolder
+    Task { @MainActor in
+      let parentFolder = items.first?.parentFolder
 
-    items.forEach { [unowned self] in
-      self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
+      for item in items {
+        await self.libraryService.markAsFinished(flag: flag, relativePath: item.relativePath)
+      }
+
+      if let parentFolder {
+        self.libraryService.rebuildFolderDetails(parentFolder)
+      }
+
+      self.coordinator.reloadItemsWithPadding()
     }
-
-    if let parentFolder {
-      self.libraryService.rebuildFolderDetails(parentFolder)
-    }
-
-    self.coordinator.reloadItemsWithPadding()
   }
 
   private func sendEvent(_ event: ItemListViewModel.Events) {
@@ -999,38 +1021,40 @@ extension ItemListViewModel {
   }
 
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
-    guard !files.isEmpty else { return }
+    Task { @MainActor in
+      guard !files.isEmpty else { return }
 
-    let processedItems = libraryService.insertItems(from: files)
-    var itemIdentifiers = processedItems.map({ $0.relativePath })
-    do {
-      syncService.scheduleUpload(items: processedItems)
-      /// Move imported files to current selected folder so the user can see them
-      if let folderRelativePath {
-        try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
-        syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
-        /// Update identifiers after moving for the follow up action alert
-        itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+      let processedItems = await libraryService.insertItems(from: files)
+      var itemIdentifiers = processedItems.map({ $0.relativePath })
+      do {
+        syncService.scheduleUpload(items: processedItems)
+        /// Move imported files to current selected folder so the user can see them
+        if let folderRelativePath {
+          try await libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
+          syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
+          /// Update identifiers after moving for the follow up action alert
+          itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+        }
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+        return
       }
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-      return
+
+      self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
+
+      let availableFolders = await self.libraryService.getItems(
+        notIn: itemIdentifiers,
+        parentFolder: folderRelativePath
+      )?.filter({ $0.type == .folder }) ?? []
+
+      showOperationCompletedAlert(
+        with: itemIdentifiers,
+        availableFolders: availableFolders,
+        suggestedFolderName: suggestedFolderName
+      )
     }
-
-    self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
-
-    let availableFolders = self.libraryService.getItems(
-      notIn: itemIdentifiers,
-      parentFolder: folderRelativePath
-    )?.filter({ $0.type == .folder }) ?? []
-
-    showOperationCompletedAlert(
-      with: itemIdentifiers,
-      availableFolders: availableFolders,
-      suggestedFolderName: suggestedFolderName
-    )
   }
 
   func showOperationCompletedAlert(
@@ -1108,30 +1132,34 @@ extension ItemListViewModel {
   }
 
   func importIntoFolder(_ folder: SimpleLibraryItem, items: [String], type: SimpleItemType) {
-    do {
-      try libraryService.moveItems(items, inside: folder.relativePath)
-      syncService.scheduleMove(items: items, to: folder.relativePath)
-      try libraryService.updateFolder(at: folder.relativePath, type: type)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
+    Task { @MainActor in
+      do {
+        try await libraryService.moveItems(items, inside: folder.relativePath)
+        syncService.scheduleMove(items: items, to: folder.relativePath)
+        try await libraryService.updateFolder(at: folder.relativePath, type: type)
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
 
-    self.coordinator.reloadItemsWithPadding()
+      self.coordinator.reloadItemsWithPadding()
+    }
   }
 
   func importIntoLibrary(_ items: [String]) {
-    do {
-      try libraryService.moveItems(items, inside: nil)
-      syncService.scheduleMove(items: items, to: nil)
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
+    Task { @MainActor in
+      do {
+        try await libraryService.moveItems(items, inside: nil)
+        syncService.scheduleMove(items: items, to: nil)
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
 
-    self.coordinator.reloadItemsWithPadding(padding: items.count)
+      self.coordinator.reloadItemsWithPadding(padding: items.count)
+    }
   }
 
   func importData(from item: ImportableItem) {
@@ -1237,39 +1265,41 @@ extension ItemListViewModel {
   }
 
   func handleFinishedDownload(task: URLSessionDownloadTask, location: URL) {
-    guard
-      let relativePath = task.taskDescription,
-      let localItemRelativePath = ongoingTasksParentReference[relativePath]
-    else { return }
+    Task { @MainActor in
+      guard
+        let relativePath = task.taskDescription,
+        let localItemRelativePath = ongoingTasksParentReference[relativePath]
+      else { return }
 
-    /// Remove from dictionary if all the other tasks are already completed
-    if let localItemRelativePath = ongoingTasksParentReference[relativePath],
-       downloadTasksDictionary[localItemRelativePath]?
-      .filter({ $0 != task })
-      .allSatisfy({ $0.state == .completed }) == true {
-      downloadTasksDictionary[localItemRelativePath] = nil
-    }
-
-    /// cleanup individual reference
-    ongoingTasksParentReference[relativePath] = nil
-
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
-    do {
-      /// If there's already something there, replace with new finished download
-      if FileManager.default.fileExists(atPath: fileURL.path) {
-        try FileManager.default.removeItem(at: fileURL)
+      /// Remove from dictionary if all the other tasks are already completed
+      if let localItemRelativePath = ongoingTasksParentReference[relativePath],
+         downloadTasksDictionary[localItemRelativePath]?
+        .filter({ $0 != task })
+        .allSatisfy({ $0.state == .completed }) == true {
+        downloadTasksDictionary[localItemRelativePath] = nil
       }
-      try FileManager.default.moveItem(at: location, to: fileURL)
-      libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
 
-      guard let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath }) else { return }
+      /// cleanup individual reference
+      ongoingTasksParentReference[relativePath] = nil
 
-      self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
-    } catch {
-      self.sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+      do {
+        /// If there's already something there, replace with new finished download
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+          try FileManager.default.removeItem(at: fileURL)
+        }
+        try FileManager.default.moveItem(at: location, to: fileURL)
+        await libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
+
+        guard let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath }) else { return }
+
+        self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
+      } catch {
+        self.sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
     }
   }
 

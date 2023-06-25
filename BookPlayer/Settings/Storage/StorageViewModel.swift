@@ -128,10 +128,12 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   func createBook(from item: StorageItem) throws {
-    let book = self.libraryService.createBook(from: item.fileURL)
-    try moveBookFile(from: item, with: book)
-    try libraryService.moveItems([book.relativePath], inside: nil)
-    reloadLibraryItems()
+    Task { @MainActor in
+      let book = await self.libraryService.createBook(from: item.fileURL)
+      try moveBookFile(from: item, with: book)
+      try await libraryService.moveItems([book.relativePath], inside: nil)
+      reloadLibraryItems()
+    }
   }
 
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
@@ -208,37 +210,39 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   public func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
-    guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
-      // create a new book
-      try self.createBook(from: item)
+    Task { @MainActor in
+      guard let fetchedBook = await self.libraryService.findBooks(containing: item.fileURL)?.first else {
+        // create a new book
+        try self.createBook(from: item)
+        if shouldReloadItems {
+          self.loadItems()
+        }
+        return
+      }
+
+      // Relink book object if it's orphaned
+      if fetchedBook.getLibrary() == nil {
+        try await libraryService.moveItems([fetchedBook.relativePath], inside: nil)
+        reloadLibraryItems()
+      }
+
+      let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)
+
+      // Check if existing book already has its file, and this one is a duplicate
+      if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
+        try FileManager.default.removeItem(at: item.fileURL)
+        self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
+        if shouldReloadItems {
+          self.loadItems()
+        }
+        return
+      }
+
+      try self.moveBookFile(from: item, with: fetchedBook)
+
       if shouldReloadItems {
         self.loadItems()
       }
-      return
-    }
-
-    // Relink book object if it's orphaned
-    if fetchedBook.getLibrary() == nil {
-      try libraryService.moveItems([fetchedBook.relativePath], inside: nil)
-      reloadLibraryItems()
-    }
-
-    let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)
-
-    // Check if existing book already has its file, and this one is a duplicate
-    if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
-      try FileManager.default.removeItem(at: item.fileURL)
-      self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
-      if shouldReloadItems {
-        self.loadItems()
-      }
-      return
-    }
-
-    try self.moveBookFile(from: item, with: fetchedBook)
-
-    if shouldReloadItems {
-      self.loadItems()
     }
   }
 }

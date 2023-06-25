@@ -223,22 +223,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    guard let libraryItem = self.libraryService?.getSimpleItem(with: relativePath) else { return }
+    Task { @MainActor in
+      guard let libraryItem = await self.libraryService?.getSimpleItem(with: relativePath) else { return }
 
-    var item: PlayableItem?
+      var item: PlayableItem?
 
-    do {
-      item = try self.playbackService?.getPlayableItem(from: libraryItem)
-    } catch {
-      alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
-      return
+      do {
+        item = try await self.playbackService?.getPlayableItem(from: libraryItem)
+      } catch {
+        alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+        return
+      }
+
+      guard let item = item else { return }
+
+      playerManager?.load(item, autoplay: autoplay)
+
+      showPlayer?()
     }
-
-    guard let item = item else { return }
-
-    playerManager?.load(item, autoplay: autoplay)
-
-    showPlayer?()
   }
 
   @objc func messageReceived(_ notification: Notification) {

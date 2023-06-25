@@ -123,26 +123,30 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   public func sendApplicationContext() {
     guard self.validSession != nil else { return }
 
-    let applicationContext = self.generateApplicationContext()
+    Task {
+      let applicationContext = await self.generateApplicationContext()
 
-    try? self.updateApplicationContext(
-      applicationContext: self.getDictionaryFromContext(applicationContext)
-    )
+      try? self.updateApplicationContext(
+        applicationContext: self.getDictionaryFromContext(applicationContext)
+      )
 
-    guard
-      self.session?.activationState == .activated,
-      let applicationContextData = try? JSONEncoder().encode(applicationContext)
-    else { return }
+      guard
+        self.session?.activationState == .activated,
+        let applicationContextData = try? JSONEncoder().encode(applicationContext)
+      else { return }
 
-    self.sendMessageData(data: applicationContextData)
+      self.sendMessageData(data: applicationContextData)
+    }
   }
 
-  public func generateApplicationContext() -> WatchApplicationContext {
+  public func generateApplicationContext() async -> WatchApplicationContext {
     var recentItems = [PlayableItem]()
-    if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
-      recentItems = recentBooks.compactMap({ [weak self] in
-        try? self?.playbackService.getPlayableItem(from: $0)
-      })
+    if let recentBooks = await libraryService.getLastPlayedItems(limit: 20) {
+      for recentBook in recentBooks {
+        if let playableItem = try? await playbackService.getPlayableItem(from: recentBook) {
+          recentItems.append(playableItem)
+        }
+      }
     }
 
     return WatchApplicationContext(
@@ -231,10 +235,12 @@ extension PhoneWatchConnectivityService {
       return
     }
 
-    let applicationContext = generateApplicationContext()
+    Task { @MainActor in
+      let applicationContext = await generateApplicationContext()
 
-    guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
+      guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
 
-    replyHandler(applicationContextData)
+      replyHandler(applicationContextData)
+    }
   }
 }

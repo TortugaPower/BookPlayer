@@ -58,31 +58,29 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
   }
 
   func handleSaveAction() {
-    let cacheKey: String
+    Task { @MainActor [unowned self] in
+      let cacheKey: String
 
-    do {
-      cacheKey = try updateTitle(formViewModel.title, relativePath: item.relativePath)
-    } catch {
-      sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
-      return
-    }
+      do {
+        cacheKey = try await updateTitle(formViewModel.title, relativePath: item.relativePath)
+      } catch {
+        sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
+        return
+      }
 
-    if formViewModel.showAuthor {
-      updateAuthor(formViewModel.author, relativePath: item.relativePath)
-    }
+      if formViewModel.showAuthor == true {
+        await updateAuthor(formViewModel.author, relativePath: item.relativePath)
+      }
 
-    guard formViewModel.artworkIsUpdated else {
-      onTransition?(.done)
-      return
-    }
+      guard formViewModel.artworkIsUpdated else {
+        onTransition?(.done)
+        return
+      }
 
-    guard let imageData = formViewModel.selectedImage?.jpegData(compressionQuality: 0.3) else {
-      sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: "Failed to process artwork")))
-      return
-    }
-
-    Task { @MainActor [cacheKey, imageData, weak self] in
-      guard let self = self else { return }
+      guard let imageData = formViewModel.selectedImage?.jpegData(compressionQuality: 0.3) else {
+        sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: "Failed to process artwork")))
+        return
+      }
 
       self.sendEvent(.showLoader(flag: true))
 
@@ -97,7 +95,7 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
 
   /// Update the item title if necessary
   /// - Returns: The new relative path to be used as the cache key
-  func updateTitle(_ newTitle: String, relativePath: String) throws -> String {
+  func updateTitle(_ newTitle: String, relativePath: String) async throws -> String {
     var cacheKey = relativePath
     let cleanedTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -116,9 +114,9 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
 
     switch item.type {
     case .book:
-      libraryService.renameBook(at: relativePath, with: cleanedTitle)
+      await libraryService.renameBook(at: relativePath, with: cleanedTitle)
     case .bound, .folder:
-      let newRelativePath = try libraryService.renameFolder(at: relativePath, with: cleanedTitle)
+      let newRelativePath = try await libraryService.renameFolder(at: relativePath, with: cleanedTitle)
       cacheKey = newRelativePath
       syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle)
     }
@@ -127,7 +125,7 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
   }
 
   /// Update the item's author if necessary
-  func updateAuthor(_ newAuthor: String, relativePath: String) {
+  func updateAuthor(_ newAuthor: String, relativePath: String) async {
     let cleanedAuthor = newAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
 
     guard !cleanedAuthor.isEmpty else { return }
@@ -139,7 +137,7 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
 
     guard storedDetails != cleanedAuthor else { return }
 
-    libraryService.updateDetails(at: relativePath, details: cleanedAuthor)
+    await libraryService.updateDetails(at: relativePath, details: cleanedAuthor)
   }
 
   private func sendEvent(_ event: ItemDetailsViewModel.Events) {

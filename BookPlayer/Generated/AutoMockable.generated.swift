@@ -90,22 +90,6 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getLibraryReturnValue
         }
     }
-    //MARK: - getLibraryReference
-
-    var getLibraryReferenceCallsCount = 0
-    var getLibraryReferenceCalled: Bool {
-        return getLibraryReferenceCallsCount > 0
-    }
-    var getLibraryReferenceReturnValue: Library!
-    var getLibraryReferenceClosure: (() -> Library)?
-    func getLibraryReference() -> Library {
-        getLibraryReferenceCallsCount += 1
-        if let getLibraryReferenceClosure = getLibraryReferenceClosure {
-            return getLibraryReferenceClosure()
-        } else {
-            return getLibraryReferenceReturnValue
-        }
-    }
     //MARK: - getLibraryLastItem
 
     var getLibraryLastItemCallsCount = 0
@@ -177,13 +161,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var insertItemsFromReceivedFiles: [URL]?
     var insertItemsFromReceivedInvocations: [[URL]] = []
     var insertItemsFromReturnValue: [SimpleLibraryItem]!
-    var insertItemsFromClosure: (([URL]) -> [SimpleLibraryItem])?
-    func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
+    var insertItemsFromClosure: (([URL]) async -> [SimpleLibraryItem])?
+    func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
         insertItemsFromCallsCount += 1
         insertItemsFromReceivedFiles = files
         insertItemsFromReceivedInvocations.append(files)
         if let insertItemsFromClosure = insertItemsFromClosure {
-            return insertItemsFromClosure(files)
+            return await insertItemsFromClosure(files)
         } else {
             return insertItemsFromReturnValue
         }
@@ -197,15 +181,15 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var moveItemsInsideReceivedArguments: (items: [String], relativePath: String?)?
     var moveItemsInsideReceivedInvocations: [(items: [String], relativePath: String?)] = []
-    var moveItemsInsideClosure: (([String], String?) throws -> Void)?
-    func moveItems(_ items: [String], inside relativePath: String?) throws {
+    var moveItemsInsideClosure: (([String], String?) async throws -> Void)?
+    func moveItems(_ items: [String], inside relativePath: String?) async throws {
         if let error = moveItemsInsideThrowableError {
             throw error
         }
         moveItemsInsideCallsCount += 1
         moveItemsInsideReceivedArguments = (items: items, relativePath: relativePath)
         moveItemsInsideReceivedInvocations.append((items: items, relativePath: relativePath))
-        try moveItemsInsideClosure?(items, relativePath)
+        try await moveItemsInsideClosure?(items, relativePath)
     }
     //MARK: - delete
 
@@ -216,15 +200,15 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var deleteModeReceivedArguments: (items: [SimpleLibraryItem], mode: DeleteMode)?
     var deleteModeReceivedInvocations: [(items: [SimpleLibraryItem], mode: DeleteMode)] = []
-    var deleteModeClosure: (([SimpleLibraryItem], DeleteMode) throws -> Void)?
-    func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws {
+    var deleteModeClosure: (([SimpleLibraryItem], DeleteMode) async throws -> Void)?
+    func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) async throws {
         if let error = deleteModeThrowableError {
             throw error
         }
         deleteModeCallsCount += 1
         deleteModeReceivedArguments = (items: items, mode: mode)
         deleteModeReceivedInvocations.append((items: items, mode: mode))
-        try deleteModeClosure?(items, mode)
+        try await deleteModeClosure?(items, mode)
     }
     //MARK: - fetchContents
 
@@ -275,13 +259,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var getLastPlayedItemsLimitReceivedLimit: Int?
     var getLastPlayedItemsLimitReceivedInvocations: [Int?] = []
     var getLastPlayedItemsLimitReturnValue: [SimpleLibraryItem]?
-    var getLastPlayedItemsLimitClosure: ((Int?) -> [SimpleLibraryItem]?)?
-    func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]? {
+    var getLastPlayedItemsLimitClosure: ((Int?) async -> [SimpleLibraryItem]?)?
+    func getLastPlayedItems(limit: Int?) async -> [SimpleLibraryItem]? {
         getLastPlayedItemsLimitCallsCount += 1
         getLastPlayedItemsLimitReceivedLimit = limit
         getLastPlayedItemsLimitReceivedInvocations.append(limit)
         if let getLastPlayedItemsLimitClosure = getLastPlayedItemsLimitClosure {
-            return getLastPlayedItemsLimitClosure(limit)
+            return await getLastPlayedItemsLimitClosure(limit)
         } else {
             return getLastPlayedItemsLimitReturnValue
         }
@@ -295,13 +279,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var findBooksContainingReceivedFileURL: URL?
     var findBooksContainingReceivedInvocations: [URL] = []
     var findBooksContainingReturnValue: [Book]?
-    var findBooksContainingClosure: ((URL) -> [Book]?)?
-    func findBooks(containing fileURL: URL) -> [Book]? {
+    var findBooksContainingClosure: ((URL) async -> [Book]?)?
+    func findBooks(containing fileURL: URL) async -> [Book]? {
         findBooksContainingCallsCount += 1
         findBooksContainingReceivedFileURL = fileURL
         findBooksContainingReceivedInvocations.append(fileURL)
         if let findBooksContainingClosure = findBooksContainingClosure {
-            return findBooksContainingClosure(fileURL)
+            return await findBooksContainingClosure(fileURL)
         } else {
             return findBooksContainingReturnValue
         }
@@ -315,13 +299,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var getSimpleItemWithReceivedRelativePath: String?
     var getSimpleItemWithReceivedInvocations: [String] = []
     var getSimpleItemWithReturnValue: SimpleLibraryItem?
-    var getSimpleItemWithClosure: ((String) -> SimpleLibraryItem?)?
-    func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
+    var getSimpleItemWithClosure: ((String) async -> SimpleLibraryItem?)?
+    func getSimpleItem(with relativePath: String) async -> SimpleLibraryItem? {
         getSimpleItemWithCallsCount += 1
         getSimpleItemWithReceivedRelativePath = relativePath
         getSimpleItemWithReceivedInvocations.append(relativePath)
         if let getSimpleItemWithClosure = getSimpleItemWithClosure {
-            return getSimpleItemWithClosure(relativePath)
+            return await getSimpleItemWithClosure(relativePath)
         } else {
             return getSimpleItemWithReturnValue
         }
@@ -335,13 +319,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var getItemsNotInParentFolderReceivedArguments: (relativePaths: [String], parentFolder: String?)?
     var getItemsNotInParentFolderReceivedInvocations: [(relativePaths: [String], parentFolder: String?)] = []
     var getItemsNotInParentFolderReturnValue: [SimpleLibraryItem]?
-    var getItemsNotInParentFolderClosure: (([String], String?) -> [SimpleLibraryItem]?)?
-    func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+    var getItemsNotInParentFolderClosure: (([String], String?) async -> [SimpleLibraryItem]?)?
+    func getItems(notIn relativePaths: [String], parentFolder: String?) async -> [SimpleLibraryItem]? {
         getItemsNotInParentFolderCallsCount += 1
         getItemsNotInParentFolderReceivedArguments = (relativePaths: relativePaths, parentFolder: parentFolder)
         getItemsNotInParentFolderReceivedInvocations.append((relativePaths: relativePaths, parentFolder: parentFolder))
         if let getItemsNotInParentFolderClosure = getItemsNotInParentFolderClosure {
-            return getItemsNotInParentFolderClosure(relativePaths, parentFolder)
+            return await getItemsNotInParentFolderClosure(relativePaths, parentFolder)
         } else {
             return getItemsNotInParentFolderReturnValue
         }
@@ -375,13 +359,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var filterContentsAtQueryScopeLimitOffsetReceivedArguments: (relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?)?
     var filterContentsAtQueryScopeLimitOffsetReceivedInvocations: [(relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?)] = []
     var filterContentsAtQueryScopeLimitOffsetReturnValue: [SimpleLibraryItem]?
-    var filterContentsAtQueryScopeLimitOffsetClosure: ((String?, String?, SimpleItemType, Int?, Int?) -> [SimpleLibraryItem]?)?
-    func filterContents(at relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+    var filterContentsAtQueryScopeLimitOffsetClosure: ((String?, String?, SimpleItemType, Int?, Int?) async -> [SimpleLibraryItem]?)?
+    func filterContents(at relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?) async -> [SimpleLibraryItem]? {
         filterContentsAtQueryScopeLimitOffsetCallsCount += 1
         filterContentsAtQueryScopeLimitOffsetReceivedArguments = (relativePath: relativePath, query: query, scope: scope, limit: limit, offset: offset)
         filterContentsAtQueryScopeLimitOffsetReceivedInvocations.append((relativePath: relativePath, query: query, scope: scope, limit: limit, offset: offset))
         if let filterContentsAtQueryScopeLimitOffsetClosure = filterContentsAtQueryScopeLimitOffsetClosure {
-            return filterContentsAtQueryScopeLimitOffsetClosure(relativePath, query, scope, limit, offset)
+            return await filterContentsAtQueryScopeLimitOffsetClosure(relativePath, query, scope, limit, offset)
         } else {
             return filterContentsAtQueryScopeLimitOffsetReturnValue
         }
@@ -395,13 +379,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var findFirstItemInIsUnfinishedReceivedArguments: (parentFolder: String?, isUnfinished: Bool?)?
     var findFirstItemInIsUnfinishedReceivedInvocations: [(parentFolder: String?, isUnfinished: Bool?)] = []
     var findFirstItemInIsUnfinishedReturnValue: SimpleLibraryItem?
-    var findFirstItemInIsUnfinishedClosure: ((String?, Bool?) -> SimpleLibraryItem?)?
-    func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem? {
+    var findFirstItemInIsUnfinishedClosure: ((String?, Bool?) async -> SimpleLibraryItem?)?
+    func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) async -> SimpleLibraryItem? {
         findFirstItemInIsUnfinishedCallsCount += 1
         findFirstItemInIsUnfinishedReceivedArguments = (parentFolder: parentFolder, isUnfinished: isUnfinished)
         findFirstItemInIsUnfinishedReceivedInvocations.append((parentFolder: parentFolder, isUnfinished: isUnfinished))
         if let findFirstItemInIsUnfinishedClosure = findFirstItemInIsUnfinishedClosure {
-            return findFirstItemInIsUnfinishedClosure(parentFolder, isUnfinished)
+            return await findFirstItemInIsUnfinishedClosure(parentFolder, isUnfinished)
         } else {
             return findFirstItemInIsUnfinishedReturnValue
         }
@@ -415,13 +399,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var findFirstItemInBeforeRankReceivedArguments: (parentFolder: String?, beforeRank: Int16?)?
     var findFirstItemInBeforeRankReceivedInvocations: [(parentFolder: String?, beforeRank: Int16?)] = []
     var findFirstItemInBeforeRankReturnValue: SimpleLibraryItem?
-    var findFirstItemInBeforeRankClosure: ((String?, Int16?) -> SimpleLibraryItem?)?
-    func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem? {
+    var findFirstItemInBeforeRankClosure: ((String?, Int16?) async -> SimpleLibraryItem?)?
+    func findFirstItem(in parentFolder: String?, beforeRank: Int16?) async -> SimpleLibraryItem? {
         findFirstItemInBeforeRankCallsCount += 1
         findFirstItemInBeforeRankReceivedArguments = (parentFolder: parentFolder, beforeRank: beforeRank)
         findFirstItemInBeforeRankReceivedInvocations.append((parentFolder: parentFolder, beforeRank: beforeRank))
         if let findFirstItemInBeforeRankClosure = findFirstItemInBeforeRankClosure {
-            return findFirstItemInBeforeRankClosure(parentFolder, beforeRank)
+            return await findFirstItemInBeforeRankClosure(parentFolder, beforeRank)
         } else {
             return findFirstItemInBeforeRankReturnValue
         }
@@ -435,13 +419,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var findFirstItemInAfterRankIsUnfinishedReceivedArguments: (parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?)?
     var findFirstItemInAfterRankIsUnfinishedReceivedInvocations: [(parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?)] = []
     var findFirstItemInAfterRankIsUnfinishedReturnValue: SimpleLibraryItem?
-    var findFirstItemInAfterRankIsUnfinishedClosure: ((String?, Int16?, Bool?) -> SimpleLibraryItem?)?
-    func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> SimpleLibraryItem? {
+    var findFirstItemInAfterRankIsUnfinishedClosure: ((String?, Int16?, Bool?) async -> SimpleLibraryItem?)?
+    func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) async -> SimpleLibraryItem? {
         findFirstItemInAfterRankIsUnfinishedCallsCount += 1
         findFirstItemInAfterRankIsUnfinishedReceivedArguments = (parentFolder: parentFolder, afterRank: afterRank, isUnfinished: isUnfinished)
         findFirstItemInAfterRankIsUnfinishedReceivedInvocations.append((parentFolder: parentFolder, afterRank: afterRank, isUnfinished: isUnfinished))
         if let findFirstItemInAfterRankIsUnfinishedClosure = findFirstItemInAfterRankIsUnfinishedClosure {
-            return findFirstItemInAfterRankIsUnfinishedClosure(parentFolder, afterRank, isUnfinished)
+            return await findFirstItemInAfterRankIsUnfinishedClosure(parentFolder, afterRank, isUnfinished)
         } else {
             return findFirstItemInAfterRankIsUnfinishedReturnValue
         }
@@ -455,13 +439,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var getChaptersFromReceivedRelativePath: String?
     var getChaptersFromReceivedInvocations: [String] = []
     var getChaptersFromReturnValue: [SimpleChapter]?
-    var getChaptersFromClosure: ((String) -> [SimpleChapter]?)?
-    func getChapters(from relativePath: String) -> [SimpleChapter]? {
+    var getChaptersFromClosure: ((String) async -> [SimpleChapter]?)?
+    func getChapters(from relativePath: String) async -> [SimpleChapter]? {
         getChaptersFromCallsCount += 1
         getChaptersFromReceivedRelativePath = relativePath
         getChaptersFromReceivedInvocations.append(relativePath)
         if let getChaptersFromClosure = getChaptersFromClosure {
-            return getChaptersFromClosure(relativePath)
+            return await getChaptersFromClosure(relativePath)
         } else {
             return getChaptersFromReturnValue
         }
@@ -475,13 +459,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookFromReceivedUrl: URL?
     var createBookFromReceivedInvocations: [URL] = []
     var createBookFromReturnValue: Book!
-    var createBookFromClosure: ((URL) -> Book)?
-    func createBook(from url: URL) -> Book {
+    var createBookFromClosure: ((URL) async -> Book)?
+    func createBook(from url: URL) async -> Book {
         createBookFromCallsCount += 1
         createBookFromReceivedUrl = url
         createBookFromReceivedInvocations.append(url)
         if let createBookFromClosure = createBookFromClosure {
-            return createBookFromClosure(url)
+            return await createBookFromClosure(url)
         } else {
             return createBookFromReturnValue
         }
@@ -494,12 +478,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var loadChaptersIfNeededRelativePathAssetReceivedArguments: (relativePath: String, asset: AVAsset)?
     var loadChaptersIfNeededRelativePathAssetReceivedInvocations: [(relativePath: String, asset: AVAsset)] = []
-    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) -> Void)?
-    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
+    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) async -> Void)?
+    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
         loadChaptersIfNeededRelativePathAssetCallsCount += 1
         loadChaptersIfNeededRelativePathAssetReceivedArguments = (relativePath: relativePath, asset: asset)
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
-        loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
+        await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
     //MARK: - createFolder
 
@@ -511,8 +495,8 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createFolderWithInsideReceivedArguments: (title: String, relativePath: String?)?
     var createFolderWithInsideReceivedInvocations: [(title: String, relativePath: String?)] = []
     var createFolderWithInsideReturnValue: SimpleLibraryItem!
-    var createFolderWithInsideClosure: ((String, String?) throws -> SimpleLibraryItem)?
-    func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
+    var createFolderWithInsideClosure: ((String, String?) async throws -> SimpleLibraryItem)?
+    func createFolder(with title: String, inside relativePath: String?) async throws -> SimpleLibraryItem {
         if let error = createFolderWithInsideThrowableError {
             throw error
         }
@@ -520,7 +504,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         createFolderWithInsideReceivedArguments = (title: title, relativePath: relativePath)
         createFolderWithInsideReceivedInvocations.append((title: title, relativePath: relativePath))
         if let createFolderWithInsideClosure = createFolderWithInsideClosure {
-            return try createFolderWithInsideClosure(title, relativePath)
+            return try await createFolderWithInsideClosure(title, relativePath)
         } else {
             return createFolderWithInsideReturnValue
         }
@@ -534,15 +518,15 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var updateFolderAtTypeReceivedArguments: (relativePath: String, type: SimpleItemType)?
     var updateFolderAtTypeReceivedInvocations: [(relativePath: String, type: SimpleItemType)] = []
-    var updateFolderAtTypeClosure: ((String, SimpleItemType) throws -> Void)?
-    func updateFolder(at relativePath: String, type: SimpleItemType) throws {
+    var updateFolderAtTypeClosure: ((String, SimpleItemType) async throws -> Void)?
+    func updateFolder(at relativePath: String, type: SimpleItemType) async throws {
         if let error = updateFolderAtTypeThrowableError {
             throw error
         }
         updateFolderAtTypeCallsCount += 1
         updateFolderAtTypeReceivedArguments = (relativePath: relativePath, type: type)
         updateFolderAtTypeReceivedInvocations.append((relativePath: relativePath, type: type))
-        try updateFolderAtTypeClosure?(relativePath, type)
+        try await updateFolderAtTypeClosure?(relativePath, type)
     }
     //MARK: - rebuildFolderDetails
 
@@ -582,12 +566,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var renameBookAtWithReceivedArguments: (relativePath: String, newTitle: String)?
     var renameBookAtWithReceivedInvocations: [(relativePath: String, newTitle: String)] = []
-    var renameBookAtWithClosure: ((String, String) -> Void)?
-    func renameBook(at relativePath: String, with newTitle: String) {
+    var renameBookAtWithClosure: ((String, String) async -> Void)?
+    func renameBook(at relativePath: String, with newTitle: String) async {
         renameBookAtWithCallsCount += 1
         renameBookAtWithReceivedArguments = (relativePath: relativePath, newTitle: newTitle)
         renameBookAtWithReceivedInvocations.append((relativePath: relativePath, newTitle: newTitle))
-        renameBookAtWithClosure?(relativePath, newTitle)
+        await renameBookAtWithClosure?(relativePath, newTitle)
     }
     //MARK: - renameFolder
 
@@ -599,8 +583,8 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var renameFolderAtWithReceivedArguments: (relativePath: String, newTitle: String)?
     var renameFolderAtWithReceivedInvocations: [(relativePath: String, newTitle: String)] = []
     var renameFolderAtWithReturnValue: String!
-    var renameFolderAtWithClosure: ((String, String) throws -> String)?
-    func renameFolder(at relativePath: String, with newTitle: String) throws -> String {
+    var renameFolderAtWithClosure: ((String, String) async throws -> String)?
+    func renameFolder(at relativePath: String, with newTitle: String) async throws -> String {
         if let error = renameFolderAtWithThrowableError {
             throw error
         }
@@ -608,7 +592,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         renameFolderAtWithReceivedArguments = (relativePath: relativePath, newTitle: newTitle)
         renameFolderAtWithReceivedInvocations.append((relativePath: relativePath, newTitle: newTitle))
         if let renameFolderAtWithClosure = renameFolderAtWithClosure {
-            return try renameFolderAtWithClosure(relativePath, newTitle)
+            return try await renameFolderAtWithClosure(relativePath, newTitle)
         } else {
             return renameFolderAtWithReturnValue
         }
@@ -621,12 +605,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var updateDetailsAtDetailsReceivedArguments: (relativePath: String, details: String)?
     var updateDetailsAtDetailsReceivedInvocations: [(relativePath: String, details: String)] = []
-    var updateDetailsAtDetailsClosure: ((String, String) -> Void)?
-    func updateDetails(at relativePath: String, details: String) {
+    var updateDetailsAtDetailsClosure: ((String, String) async -> Void)?
+    func updateDetails(at relativePath: String, details: String) async {
         updateDetailsAtDetailsCallsCount += 1
         updateDetailsAtDetailsReceivedArguments = (relativePath: relativePath, details: details)
         updateDetailsAtDetailsReceivedInvocations.append((relativePath: relativePath, details: details))
-        updateDetailsAtDetailsClosure?(relativePath, details)
+        await updateDetailsAtDetailsClosure?(relativePath, details)
     }
     //MARK: - reorderItem
 
@@ -636,12 +620,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedArguments: (relativePath: String, folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)?
     var reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedInvocations: [(relativePath: String, folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)] = []
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure: ((String, String?, IndexPath, IndexPath) -> Void)?
-    func reorderItem(with relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
+    var reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure: ((String, String?, IndexPath, IndexPath) async -> Void)?
+    func reorderItem(with relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) async {
         reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount += 1
         reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedArguments = (relativePath: relativePath, folderRelativePath: folderRelativePath, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
         reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedInvocations.append((relativePath: relativePath, folderRelativePath: folderRelativePath, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath))
-        reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure?(relativePath, folderRelativePath, sourceIndexPath, destinationIndexPath)
+        await reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure?(relativePath, folderRelativePath, sourceIndexPath, destinationIndexPath)
     }
     //MARK: - sortContents
 
@@ -651,12 +635,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var sortContentsAtByReceivedArguments: (relativePath: String?, type: SortType)?
     var sortContentsAtByReceivedInvocations: [(relativePath: String?, type: SortType)] = []
-    var sortContentsAtByClosure: ((String?, SortType) -> Void)?
-    func sortContents(at relativePath: String?, by type: SortType) {
+    var sortContentsAtByClosure: ((String?, SortType) async -> Void)?
+    func sortContents(at relativePath: String?, by type: SortType) async {
         sortContentsAtByCallsCount += 1
         sortContentsAtByReceivedArguments = (relativePath: relativePath, type: type)
         sortContentsAtByReceivedInvocations.append((relativePath: relativePath, type: type))
-        sortContentsAtByClosure?(relativePath, type)
+        await sortContentsAtByClosure?(relativePath, type)
     }
     //MARK: - updatePlaybackTime
 
@@ -716,12 +700,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var markAsFinishedFlagRelativePathReceivedArguments: (flag: Bool, relativePath: String)?
     var markAsFinishedFlagRelativePathReceivedInvocations: [(flag: Bool, relativePath: String)] = []
-    var markAsFinishedFlagRelativePathClosure: ((Bool, String) -> Void)?
-    func markAsFinished(flag: Bool, relativePath: String) {
+    var markAsFinishedFlagRelativePathClosure: ((Bool, String) async -> Void)?
+    func markAsFinished(flag: Bool, relativePath: String) async {
         markAsFinishedFlagRelativePathCallsCount += 1
         markAsFinishedFlagRelativePathReceivedArguments = (flag: flag, relativePath: relativePath)
         markAsFinishedFlagRelativePathReceivedInvocations.append((flag: flag, relativePath: relativePath))
-        markAsFinishedFlagRelativePathClosure?(flag, relativePath)
+        await markAsFinishedFlagRelativePathClosure?(flag, relativePath)
     }
     //MARK: - jumpToStart
 
@@ -731,47 +715,47 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var jumpToStartRelativePathReceivedRelativePath: String?
     var jumpToStartRelativePathReceivedInvocations: [String] = []
-    var jumpToStartRelativePathClosure: ((String) -> Void)?
-    func jumpToStart(relativePath: String) {
+    var jumpToStartRelativePathClosure: ((String) async -> Void)?
+    func jumpToStart(relativePath: String) async {
         jumpToStartRelativePathCallsCount += 1
         jumpToStartRelativePathReceivedRelativePath = relativePath
         jumpToStartRelativePathReceivedInvocations.append(relativePath)
-        jumpToStartRelativePathClosure?(relativePath)
+        await jumpToStartRelativePathClosure?(relativePath)
     }
-    //MARK: - getCurrentPlaybackRecord
+    //MARK: - getCurrentPlaybackRecordTime
 
-    var getCurrentPlaybackRecordCallsCount = 0
-    var getCurrentPlaybackRecordCalled: Bool {
-        return getCurrentPlaybackRecordCallsCount > 0
+    var getCurrentPlaybackRecordTimeCallsCount = 0
+    var getCurrentPlaybackRecordTimeCalled: Bool {
+        return getCurrentPlaybackRecordTimeCallsCount > 0
     }
-    var getCurrentPlaybackRecordReturnValue: PlaybackRecord!
-    var getCurrentPlaybackRecordClosure: (() -> PlaybackRecord)?
-    func getCurrentPlaybackRecord() -> PlaybackRecord {
-        getCurrentPlaybackRecordCallsCount += 1
-        if let getCurrentPlaybackRecordClosure = getCurrentPlaybackRecordClosure {
-            return getCurrentPlaybackRecordClosure()
+    var getCurrentPlaybackRecordTimeReturnValue: Double!
+    var getCurrentPlaybackRecordTimeClosure: (() async -> Double)?
+    func getCurrentPlaybackRecordTime() async -> Double {
+        getCurrentPlaybackRecordTimeCallsCount += 1
+        if let getCurrentPlaybackRecordTimeClosure = getCurrentPlaybackRecordTimeClosure {
+            return await getCurrentPlaybackRecordTimeClosure()
         } else {
-            return getCurrentPlaybackRecordReturnValue
+            return getCurrentPlaybackRecordTimeReturnValue
         }
     }
-    //MARK: - getPlaybackRecords
+    //MARK: - getFirstPlaybackRecordTime
 
-    var getPlaybackRecordsFromToCallsCount = 0
-    var getPlaybackRecordsFromToCalled: Bool {
-        return getPlaybackRecordsFromToCallsCount > 0
+    var getFirstPlaybackRecordTimeFromToCallsCount = 0
+    var getFirstPlaybackRecordTimeFromToCalled: Bool {
+        return getFirstPlaybackRecordTimeFromToCallsCount > 0
     }
-    var getPlaybackRecordsFromToReceivedArguments: (startDate: Date, endDate: Date)?
-    var getPlaybackRecordsFromToReceivedInvocations: [(startDate: Date, endDate: Date)] = []
-    var getPlaybackRecordsFromToReturnValue: [PlaybackRecord]?
-    var getPlaybackRecordsFromToClosure: ((Date, Date) -> [PlaybackRecord]?)?
-    func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]? {
-        getPlaybackRecordsFromToCallsCount += 1
-        getPlaybackRecordsFromToReceivedArguments = (startDate: startDate, endDate: endDate)
-        getPlaybackRecordsFromToReceivedInvocations.append((startDate: startDate, endDate: endDate))
-        if let getPlaybackRecordsFromToClosure = getPlaybackRecordsFromToClosure {
-            return getPlaybackRecordsFromToClosure(startDate, endDate)
+    var getFirstPlaybackRecordTimeFromToReceivedArguments: (startDate: Date, endDate: Date)?
+    var getFirstPlaybackRecordTimeFromToReceivedInvocations: [(startDate: Date, endDate: Date)] = []
+    var getFirstPlaybackRecordTimeFromToReturnValue: Double!
+    var getFirstPlaybackRecordTimeFromToClosure: ((Date, Date) async -> Double)?
+    func getFirstPlaybackRecordTime(from startDate: Date, to endDate: Date) async -> Double {
+        getFirstPlaybackRecordTimeFromToCallsCount += 1
+        getFirstPlaybackRecordTimeFromToReceivedArguments = (startDate: startDate, endDate: endDate)
+        getFirstPlaybackRecordTimeFromToReceivedInvocations.append((startDate: startDate, endDate: endDate))
+        if let getFirstPlaybackRecordTimeFromToClosure = getFirstPlaybackRecordTimeFromToClosure {
+            return await getFirstPlaybackRecordTimeFromToClosure(startDate, endDate)
         } else {
-            return getPlaybackRecordsFromToReturnValue
+            return getFirstPlaybackRecordTimeFromToReturnValue
         }
     }
     //MARK: - recordTime
@@ -780,14 +764,10 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var recordTimeCalled: Bool {
         return recordTimeCallsCount > 0
     }
-    var recordTimeReceivedPlaybackRecord: PlaybackRecord?
-    var recordTimeReceivedInvocations: [PlaybackRecord] = []
-    var recordTimeClosure: ((PlaybackRecord) -> Void)?
-    func recordTime(_ playbackRecord: PlaybackRecord) {
+    var recordTimeClosure: (() -> Void)?
+    func recordTime() {
         recordTimeCallsCount += 1
-        recordTimeReceivedPlaybackRecord = playbackRecord
-        recordTimeReceivedInvocations.append(playbackRecord)
-        recordTimeClosure?(playbackRecord)
+        recordTimeClosure?()
     }
     //MARK: - getTotalListenedTime
 
@@ -796,11 +776,11 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         return getTotalListenedTimeCallsCount > 0
     }
     var getTotalListenedTimeReturnValue: TimeInterval!
-    var getTotalListenedTimeClosure: (() -> TimeInterval)?
-    func getTotalListenedTime() -> TimeInterval {
+    var getTotalListenedTimeClosure: (() async -> TimeInterval)?
+    func getTotalListenedTime() async -> TimeInterval {
         getTotalListenedTimeCallsCount += 1
         if let getTotalListenedTimeClosure = getTotalListenedTimeClosure {
-            return getTotalListenedTimeClosure()
+            return await getTotalListenedTimeClosure()
         } else {
             return getTotalListenedTimeReturnValue
         }
@@ -814,13 +794,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var getBookmarksOfRelativePathReceivedArguments: (type: BookmarkType, relativePath: String)?
     var getBookmarksOfRelativePathReceivedInvocations: [(type: BookmarkType, relativePath: String)] = []
     var getBookmarksOfRelativePathReturnValue: [SimpleBookmark]?
-    var getBookmarksOfRelativePathClosure: ((BookmarkType, String) -> [SimpleBookmark]?)?
-    func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
+    var getBookmarksOfRelativePathClosure: ((BookmarkType, String) async -> [SimpleBookmark]?)?
+    func getBookmarks(of type: BookmarkType, relativePath: String) async -> [SimpleBookmark]? {
         getBookmarksOfRelativePathCallsCount += 1
         getBookmarksOfRelativePathReceivedArguments = (type: type, relativePath: relativePath)
         getBookmarksOfRelativePathReceivedInvocations.append((type: type, relativePath: relativePath))
         if let getBookmarksOfRelativePathClosure = getBookmarksOfRelativePathClosure {
-            return getBookmarksOfRelativePathClosure(type, relativePath)
+            return await getBookmarksOfRelativePathClosure(type, relativePath)
         } else {
             return getBookmarksOfRelativePathReturnValue
         }
@@ -854,13 +834,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookmarkAtRelativePathTypeReceivedArguments: (time: Double, relativePath: String, type: BookmarkType)?
     var createBookmarkAtRelativePathTypeReceivedInvocations: [(time: Double, relativePath: String, type: BookmarkType)] = []
     var createBookmarkAtRelativePathTypeReturnValue: SimpleBookmark?
-    var createBookmarkAtRelativePathTypeClosure: ((Double, String, BookmarkType) -> SimpleBookmark?)?
-    func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+    var createBookmarkAtRelativePathTypeClosure: ((Double, String, BookmarkType) async -> SimpleBookmark?)?
+    func createBookmark(at time: Double, relativePath: String, type: BookmarkType) async -> SimpleBookmark? {
         createBookmarkAtRelativePathTypeCallsCount += 1
         createBookmarkAtRelativePathTypeReceivedArguments = (time: time, relativePath: relativePath, type: type)
         createBookmarkAtRelativePathTypeReceivedInvocations.append((time: time, relativePath: relativePath, type: type))
         if let createBookmarkAtRelativePathTypeClosure = createBookmarkAtRelativePathTypeClosure {
-            return createBookmarkAtRelativePathTypeClosure(time, relativePath, type)
+            return await createBookmarkAtRelativePathTypeClosure(time, relativePath, type)
         } else {
             return createBookmarkAtRelativePathTypeReturnValue
         }
@@ -873,12 +853,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var addNoteBookmarkReceivedArguments: (note: String, bookmark: SimpleBookmark)?
     var addNoteBookmarkReceivedInvocations: [(note: String, bookmark: SimpleBookmark)] = []
-    var addNoteBookmarkClosure: ((String, SimpleBookmark) -> Void)?
-    func addNote(_ note: String, bookmark: SimpleBookmark) {
+    var addNoteBookmarkClosure: ((String, SimpleBookmark) async -> Void)?
+    func addNote(_ note: String, bookmark: SimpleBookmark) async {
         addNoteBookmarkCallsCount += 1
         addNoteBookmarkReceivedArguments = (note: note, bookmark: bookmark)
         addNoteBookmarkReceivedInvocations.append((note: note, bookmark: bookmark))
-        addNoteBookmarkClosure?(note, bookmark)
+        await addNoteBookmarkClosure?(note, bookmark)
     }
     //MARK: - deleteBookmark
 
@@ -888,12 +868,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var deleteBookmarkReceivedBookmark: SimpleBookmark?
     var deleteBookmarkReceivedInvocations: [SimpleBookmark] = []
-    var deleteBookmarkClosure: ((SimpleBookmark) -> Void)?
-    func deleteBookmark(_ bookmark: SimpleBookmark) {
+    var deleteBookmarkClosure: ((SimpleBookmark) async -> Void)?
+    func deleteBookmark(_ bookmark: SimpleBookmark) async {
         deleteBookmarkCallsCount += 1
         deleteBookmarkReceivedBookmark = bookmark
         deleteBookmarkReceivedInvocations.append(bookmark)
-        deleteBookmarkClosure?(bookmark)
+        await deleteBookmarkClosure?(bookmark)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
@@ -921,13 +901,13 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     var getPlayableItemBeforeParentFolderReceivedArguments: (relativePath: String, parentFolder: String?)?
     var getPlayableItemBeforeParentFolderReceivedInvocations: [(relativePath: String, parentFolder: String?)] = []
     var getPlayableItemBeforeParentFolderReturnValue: PlayableItem?
-    var getPlayableItemBeforeParentFolderClosure: ((String, String?) -> PlayableItem?)?
-    func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
+    var getPlayableItemBeforeParentFolderClosure: ((String, String?) async -> PlayableItem?)?
+    func getPlayableItem(before relativePath: String, parentFolder: String?) async -> PlayableItem? {
         getPlayableItemBeforeParentFolderCallsCount += 1
         getPlayableItemBeforeParentFolderReceivedArguments = (relativePath: relativePath, parentFolder: parentFolder)
         getPlayableItemBeforeParentFolderReceivedInvocations.append((relativePath: relativePath, parentFolder: parentFolder))
         if let getPlayableItemBeforeParentFolderClosure = getPlayableItemBeforeParentFolderClosure {
-            return getPlayableItemBeforeParentFolderClosure(relativePath, parentFolder)
+            return await getPlayableItemBeforeParentFolderClosure(relativePath, parentFolder)
         } else {
             return getPlayableItemBeforeParentFolderReturnValue
         }
@@ -941,13 +921,13 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     var getPlayableItemAfterParentFolderAutoplayedRestartFinishedReceivedArguments: (relativePath: String, parentFolder: String?, autoplayed: Bool, restartFinished: Bool)?
     var getPlayableItemAfterParentFolderAutoplayedRestartFinishedReceivedInvocations: [(relativePath: String, parentFolder: String?, autoplayed: Bool, restartFinished: Bool)] = []
     var getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue: PlayableItem?
-    var getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure: ((String, String?, Bool, Bool) -> PlayableItem?)?
-    func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool, restartFinished: Bool) -> PlayableItem? {
+    var getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure: ((String, String?, Bool, Bool) async -> PlayableItem?)?
+    func getPlayableItem(after relativePath: String, parentFolder: String?, autoplayed: Bool, restartFinished: Bool) async -> PlayableItem? {
         getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount += 1
         getPlayableItemAfterParentFolderAutoplayedRestartFinishedReceivedArguments = (relativePath: relativePath, parentFolder: parentFolder, autoplayed: autoplayed, restartFinished: restartFinished)
         getPlayableItemAfterParentFolderAutoplayedRestartFinishedReceivedInvocations.append((relativePath: relativePath, parentFolder: parentFolder, autoplayed: autoplayed, restartFinished: restartFinished))
         if let getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure {
-            return getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure(relativePath, parentFolder, autoplayed, restartFinished)
+            return await getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure(relativePath, parentFolder, autoplayed, restartFinished)
         } else {
             return getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue
         }
@@ -962,8 +942,8 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     var getFirstPlayableItemInIsUnfinishedReceivedArguments: (folder: SimpleLibraryItem, isUnfinished: Bool?)?
     var getFirstPlayableItemInIsUnfinishedReceivedInvocations: [(folder: SimpleLibraryItem, isUnfinished: Bool?)] = []
     var getFirstPlayableItemInIsUnfinishedReturnValue: PlayableItem?
-    var getFirstPlayableItemInIsUnfinishedClosure: ((SimpleLibraryItem, Bool?) throws -> PlayableItem?)?
-    func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem? {
+    var getFirstPlayableItemInIsUnfinishedClosure: ((SimpleLibraryItem, Bool?) async throws -> PlayableItem?)?
+    func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) async throws -> PlayableItem? {
         if let error = getFirstPlayableItemInIsUnfinishedThrowableError {
             throw error
         }
@@ -971,7 +951,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
         getFirstPlayableItemInIsUnfinishedReceivedArguments = (folder: folder, isUnfinished: isUnfinished)
         getFirstPlayableItemInIsUnfinishedReceivedInvocations.append((folder: folder, isUnfinished: isUnfinished))
         if let getFirstPlayableItemInIsUnfinishedClosure = getFirstPlayableItemInIsUnfinishedClosure {
-            return try getFirstPlayableItemInIsUnfinishedClosure(folder, isUnfinished)
+            return try await getFirstPlayableItemInIsUnfinishedClosure(folder, isUnfinished)
         } else {
             return getFirstPlayableItemInIsUnfinishedReturnValue
         }
@@ -986,8 +966,8 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     var getPlayableItemFromReceivedItem: SimpleLibraryItem?
     var getPlayableItemFromReceivedInvocations: [SimpleLibraryItem] = []
     var getPlayableItemFromReturnValue: PlayableItem?
-    var getPlayableItemFromClosure: ((SimpleLibraryItem) throws -> PlayableItem?)?
-    func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+    var getPlayableItemFromClosure: ((SimpleLibraryItem) async throws -> PlayableItem?)?
+    func getPlayableItem(from item: SimpleLibraryItem) async throws -> PlayableItem? {
         if let error = getPlayableItemFromThrowableError {
             throw error
         }
@@ -995,7 +975,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
         getPlayableItemFromReceivedItem = item
         getPlayableItemFromReceivedInvocations.append(item)
         if let getPlayableItemFromClosure = getPlayableItemFromClosure {
-            return try getPlayableItemFromClosure(item)
+            return try await getPlayableItemFromClosure(item)
         } else {
             return getPlayableItemFromReturnValue
         }

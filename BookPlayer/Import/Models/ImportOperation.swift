@@ -116,27 +116,29 @@ public class ImportOperation: Operation {
     )
 
     SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, error in
-      try? FileManager.default.removeItem(at: file)
+      Task {
+        try? FileManager.default.removeItem(at: file)
 
-      guard success else {
-        self.processFile(from: remainingFiles)
-        return
+        guard success else {
+          await self.processFile(from: remainingFiles)
+          return
+        }
+
+        let enumerator = FileManager.default.enumerator(
+          at: tempDirectoryURL,
+          includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+          options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+            print("directoryEnumerator error at \(url): ", error)
+            return true
+          })!
+
+        var files = [URL]()
+        for case let fileURL as URL in enumerator {
+          files.append(fileURL)
+        }
+
+        await self.processFile(from: remainingFiles + files)
       }
-
-      let enumerator = FileManager.default.enumerator(
-        at: tempDirectoryURL,
-        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
-          print("directoryEnumerator error at \(url): ", error)
-          return true
-        })!
-
-      var files = [URL]()
-      for case let fileURL as URL in enumerator {
-        files.append(fileURL)
-      }
-
-      self.processFile(from: remainingFiles + files)
     }
   }
 
@@ -168,8 +170,8 @@ public class ImportOperation: Operation {
     return mutableURL
   }
 
-  private func hasExistingBook(_ fileURL: URL) -> Bool {
-    guard let existingBook = self.libraryService.findBooks(containing: fileURL)?.first,
+  private func hasExistingBook(_ fileURL: URL) async -> Bool {
+    guard let existingBook = await libraryService.findBooks(containing: fileURL)?.first,
        let existingFileURL = existingBook.fileURL,
        !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
 
@@ -191,10 +193,12 @@ public class ImportOperation: Operation {
   }
 
   public override func main() {
-    self.processFile(from: self.files)
+    Task {
+      await self.processFile(from: self.files)
+    }
   }
 
-  func processFile(from files: [URL]) {
+  func processFile(from files: [URL]) async {
     var mutableFiles = files
     guard !mutableFiles.isEmpty else {
       return self.finish()
@@ -202,8 +206,8 @@ public class ImportOperation: Operation {
 
     let currentFile = mutableFiles.removeFirst()
 
-    guard !self.hasExistingBook(currentFile) else {
-      return processFile(from: mutableFiles)
+    guard await !self.hasExistingBook(currentFile) else {
+      return await processFile(from: mutableFiles)
     }
 
     NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": currentFile.lastPathComponent])
@@ -232,6 +236,6 @@ public class ImportOperation: Operation {
     }
 
     self.processedFiles.append(destinationURL)
-    self.processFile(from: mutableFiles)
+    await self.processFile(from: mutableFiles)
   }
 }

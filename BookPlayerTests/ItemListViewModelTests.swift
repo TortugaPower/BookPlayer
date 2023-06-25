@@ -47,7 +47,7 @@ class ItemListViewModelTests: XCTestCase {
     library.addToItems(
       StubFactory.book(dataManager: self.dataManager, title: "book4", duration: 100)
     )
-    self.dataManager.saveContext()
+    self.dataManager.saveContext(self.dataManager.getContext())
   }
 
   func testLoadingInitialItems() {

@@ -415,19 +415,21 @@ extension PlayerViewModel {
       return
     }
 
-    if let bookmark = self.libraryService.createBookmark(
-      at: floor(currentTime),
-      relativePath: currentItem.relativePath,
-      type: .user
-    ) {
-      syncService.scheduleSetBookmark(
+    Task { @MainActor in
+      if let bookmark = await self.libraryService.createBookmark(
+        at: floor(currentTime),
         relativePath: currentItem.relativePath,
-        time: floor(currentTime),
-        note: nil
-      )
-      self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
-    } else {
-      vc.showAlert("error_title".localized, message: "file_missing_title".localized)
+        type: .user
+      ) {
+        syncService.scheduleSetBookmark(
+          relativePath: currentItem.relativePath,
+          time: floor(currentTime),
+          note: nil
+        )
+        self.showBookmarkSuccessAlert(vc: vc, bookmark: bookmark, existed: false)
+      } else {
+        vc.showAlert("error_title".localized, message: "file_missing_title".localized)
+      }
     }
   }
 
@@ -468,16 +470,21 @@ extension PlayerViewModel {
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { [weak self] _ in
-      guard let note = alert.textFields?.first?.text else {
+      guard
+        let self,
+        let note = alert.textFields?.first?.text
+      else {
         return
       }
 
-      self?.libraryService.addNote(note, bookmark: bookmark)
-      self?.syncService.scheduleSetBookmark(
-        relativePath: bookmark.relativePath,
-        time: bookmark.time,
-        note: note
-      )
+      Task { @MainActor in
+        await self.libraryService.addNote(note, bookmark: bookmark)
+        self.syncService.scheduleSetBookmark(
+          relativePath: bookmark.relativePath,
+          time: bookmark.time,
+          note: note
+        )
+      }
     }))
 
     vc.present(alert, animated: true, completion: nil)

@@ -148,21 +148,23 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
 
   /// Load next page items with same query and selected scope
   func loadNextItems(query: String?, scopeIndex: Int) {
-    guard
-      let fetchedItems = libraryService.filterContents(
-        at: folderRelativePath,
-        query: query,
-        scope: searchScopes[scopeIndex],
-        limit: pageSize,
-        offset: resultsOffset
-      ),
-      !fetchedItems.isEmpty
-    else {
-      return
-    }
+    Task { @MainActor in
+      guard
+        let fetchedItems = await libraryService.filterContents(
+          at: folderRelativePath,
+          query: query,
+          scope: searchScopes[scopeIndex],
+          limit: pageSize,
+          offset: resultsOffset
+        ),
+        !fetchedItems.isEmpty
+      else {
+        return
+      }
 
-    resultsOffset += fetchedItems.count
-    items.value += fetchedItems
+      resultsOffset += fetchedItems.count
+      items.value += fetchedItems
+    }
   }
 
   /// Pass callback with item selected

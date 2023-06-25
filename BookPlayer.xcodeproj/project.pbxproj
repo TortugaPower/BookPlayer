@@ -388,6 +388,8 @@
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
 		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
+		9F665EC82A47C8AD004BFE27 /* LibraryService+FetchRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F665EC72A47C8AD004BFE27 /* LibraryService+FetchRequests.swift */; };
+		9F665EC92A47C8AD004BFE27 /* LibraryService+FetchRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F665EC72A47C8AD004BFE27 /* LibraryService+FetchRequests.swift */; };
 		9F6BC86627E6D03D002CF2A6 /* WatchApplicationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */; };
 		9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */; };
 		9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64702803216100895ECC /* Account+CoreDataProperties.swift */; };
@@ -1037,6 +1039,7 @@
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
 		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
+		9F665EC72A47C8AD004BFE27 /* LibraryService+FetchRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+FetchRequests.swift"; sourceTree = "<group>"; };
 		9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApplicationContext.swift; sourceTree = "<group>"; };
 		9F7B646F28031E9300895ECC /* Audiobook Player 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 9.xcdatamodel"; sourceTree = "<group>"; };
 		9F7B64702803216100895ECC /* Account+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -1831,6 +1834,7 @@
 				9F49072B2903663800054AD6 /* SortType.swift */,
 				9FC1E4742815C6A300522FA8 /* KeychainService.swift */,
 				62AAE22B274AA3EB001EB9FF /* LibraryService.swift */,
+				9F665EC72A47C8AD004BFE27 /* LibraryService+FetchRequests.swift */,
 				9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */,
 				41EB071A2752FA6B00EFEE13 /* PlaybackService.swift */,
 				9FC1E4612814F68F00522FA8 /* Account */,
@@ -2898,6 +2902,7 @@
 				9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
+				9F665EC92A47C8AD004BFE27 /* LibraryService+FetchRequests.swift in Sources */,
 				4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */,
 				41EB07192752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
@@ -3192,6 +3197,7 @@
 				41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */,
 				41A359C5276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
+				9F665EC82A47C8AD004BFE27 /* LibraryService+FetchRequests.swift in Sources */,
 				41A1B125226F88C500EA0400 /* LibraryItem+CoreDataClass.swift in Sources */,
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,

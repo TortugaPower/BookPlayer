@@ -50,7 +50,7 @@ class LibraryListCoordinatorTests: XCTestCase {
 
   func testShowFolder() {
     let folder = try! StubFactory.folder(dataManager: self.dataManager, title: "folder 1")
-    let library = self.libraryListCoordinator.libraryService.getLibraryReference()
+    let library = self.libraryListCoordinator.libraryService.getLibrary()
     library.addToItems(folder)
 
     self.libraryListCoordinator.showFolder(folder.relativePath)

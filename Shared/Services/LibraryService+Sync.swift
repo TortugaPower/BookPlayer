@@ -13,123 +13,155 @@ import Combine
 public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
-  func getItem(with relativePath: String) -> LibraryItem?
-  func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]?
-  func getItemIdentifiers(in parentFolder: String?) -> [String]?
-  func removeItems(notIn relativePaths: [String], parentFolder: String?) throws
+  func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
+  func fetchItemIdentifiers(in parentFolder: String?) async -> [String]?
+  func removeItems(notIn relativePaths: [String], parentFolder: String?) async throws
   func fetchSyncableNestedContents(at relativePath: String) -> [SyncableItem]?
-  func getMaxItemsCount(at relativePath: String?) -> Int
-  func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
+  func getMaxItemsCount(at relativePath: String?) async -> Int
+  func getBookmarks(of type: BookmarkType, relativePath: String) async -> [SimpleBookmark]?
 
-  func updateInfo(from items: [SyncableItem])
-  func addBook(from item: SyncableItem, parentFolder: String?)
-  func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
-  func addBookmark(from bookmark: SimpleBookmark)
+  func updateItemInfo(from item: SyncableItem) async
+  func addBook(from item: SyncableItem, parentFolder: String?) async
+  func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) async
+  func addBookmark(from bookmark: SimpleBookmark) async
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func updateInfo(from items: [SyncableItem]) {
-    for item in items {
-      guard let localItem = getItem(with: item.relativePath) else { continue }
+  public func updateItemInfo(from item: SyncableItem) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { context in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), item.relativePath)
+        fetchRequest.fetchLimit = 1
 
-      localItem.title = item.title
-      localItem.details = item.details
-      localItem.currentTime = item.currentTime
-      localItem.duration = item.duration
-      localItem.isFinished = item.isFinished
-      localItem.orderRank = Int16(item.orderRank)
-      localItem.percentCompleted = item.percentCompleted
-      localItem.remoteURL = item.remoteURL
-      localItem.artworkURL = item.artworkURL
-      localItem.type = item.type.itemType
-      localItem.speed = Float(item.speed ?? 1.0)
-      if let timestamp = item.lastPlayDateTimestamp {
-        localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-      } else {
-        localItem.lastPlayDate = nil
+        guard let storedItem = try? context.fetch(fetchRequest).first else {
+          continuation.resume()
+          return
+        }
+
+        storedItem.title = item.title
+        storedItem.details = item.details
+        storedItem.currentTime = item.currentTime
+        storedItem.duration = item.duration
+        storedItem.isFinished = item.isFinished
+        storedItem.orderRank = Int16(item.orderRank)
+        storedItem.percentCompleted = item.percentCompleted
+        storedItem.remoteURL = item.remoteURL
+        storedItem.artworkURL = item.artworkURL
+        storedItem.type = item.type.itemType
+        storedItem.speed = Float(item.speed ?? 1.0)
+        if let timestamp = item.lastPlayDateTimestamp {
+          storedItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+        } else {
+          storedItem.lastPlayDate = nil
+        }
+
+        context.saveContext()
+
+        continuation.resume()
       }
     }
-
-    dataManager.saveSyncContext()
   }
 
-  public func addBook(from item: SyncableItem, parentFolder: String?) {
-    let newBook = Book(
-      syncItem: item,
-      context: self.dataManager.getContext()
-    )
+  public func addBook(from item: SyncableItem, parentFolder: String?) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        let newBook = Book(
+          syncItem: item,
+          context: context
+        )
 
-    if let relativePath = parentFolder,
-       let folder = self.getItem(with: relativePath) as? Folder {
-      folder.addToItems(newBook)
-    } else {
-      let library = self.getLibraryReference()
-      library.addToItems(newBook)
+        if let relativePath = parentFolder,
+           let folder = self.getItem(with: relativePath, context: context) as? Folder {
+          folder.addToItems(newBook)
+        } else {
+          let library = self.getLibraryReference(context: context)
+          library.addToItems(newBook)
+        }
+
+        self.dataManager.saveContext(context)
+        continuation.resume()
+      }
     }
-
-    self.dataManager.saveSyncContext()
   }
 
-  public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) {
-    // This shouldn't fail
-    try? createFolderOnDisk(title: item.title, inside: parentFolder)
+  public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        // This shouldn't fail
+        try? createFolderOnDisk(title: item.title, inside: parentFolder, context: context)
 
-    let newFolder = Folder(
-      syncItem: item,
-      context: self.dataManager.getContext()
-    )
+        let newFolder = Folder(
+          syncItem: item,
+          context: context
+        )
 
-    // insert into existing folder or library at index
-    if let relativePath = parentFolder,
-       let folder = getItemReference(with: relativePath) as? Folder {
-      folder.addToItems(newFolder)
-    } else {
-      let library = self.getLibraryReference()
-      library.addToItems(newFolder)
+        // insert into existing folder or library at index
+        if let relativePath = parentFolder,
+           let folder = getItemReference(with: relativePath, context: context) as? Folder {
+          folder.addToItems(newFolder)
+        } else {
+          let library = self.getLibraryReference(context: context)
+          library.addToItems(newFolder)
+        }
+
+        self.dataManager.saveContext(context)
+        continuation.resume()
+      }
     }
-
-    self.dataManager.saveSyncContext()
   }
 
-  public func addBookmark(from bookmark: SimpleBookmark) {
-    if let fetchedBookmark = getBookmarkReference(from: bookmark) {
-      fetchedBookmark.note = bookmark.note
-    } else if let item = getItemReference(with: bookmark.relativePath) {
-      let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: dataManager.getContext())
-      newBookmark.note = bookmark.note
-      item.addToBookmarks(newBookmark)
+  public func addBookmark(from bookmark: SimpleBookmark) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [weak self] context in
+        if let fetchedBookmark = self?.getBookmarkReference(from: bookmark, context: context) {
+          fetchedBookmark.note = bookmark.note
+        } else if let item = self?.getItemReference(with: bookmark.relativePath, context: context) {
+          let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: context)
+          newBookmark.note = bookmark.note
+          item.addToBookmarks(newBookmark)
+        }
+
+        context.saveContext()
+        continuation.resume()
+      }
     }
-
-    self.dataManager.saveSyncContext()
   }
 
-  public func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]? {
-    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-    fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
-    fetchRequest.resultType = .dictionaryResultType
-    fetchRequest.predicate = NSPredicate(
-      format: "%K != nil AND NOT (%K IN %@)",
-      #keyPath(LibraryItem.library),
-      #keyPath(LibraryItem.relativePath),
-      remoteIdentifiers
-    )
+  public func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]? {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [weak self] context in
+        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.predicate = NSPredicate(
+          format: "%K != nil AND NOT (%K IN %@)",
+          #keyPath(LibraryItem.library),
+          #keyPath(LibraryItem.relativePath),
+          remoteIdentifiers
+        )
 
-    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-
-    return parseSyncableItems(from: results)
+        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+        continuation.resume(returning: self?.parseSyncableItems(from: results))
+      }
+    }
   }
 
-  public func getItemIdentifiers(in parentFolder: String?) -> [String]? {
-    let fetchRequest = buildListContentsFetchRequest(
-      properties: ["relativePath"],
-      relativePath: parentFolder,
-      limit: nil,
-      offset: nil
-    )
+  public func fetchItemIdentifiers(in parentFolder: String?) async -> [String]? {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        let fetchRequest = buildListContentsFetchRequest(
+          properties: ["relativePath"],
+          relativePath: parentFolder,
+          limit: nil,
+          offset: nil
+        )
 
-    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-
-    return results?.compactMap({ $0["relativePath"] as? String })
+        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+        let identifiers = results?.compactMap({ $0["relativePath"] as? String })
+        continuation.resume(returning: identifiers)
+      }
+    }
   }
 
   public func fetchSyncableNestedContents(at relativePath: String) -> [SyncableItem]? {
@@ -187,15 +219,15 @@ extension LibraryService: LibrarySyncProtocol {
     })
   }
 
-  public func removeItems(notIn relativePaths: [String], parentFolder: String?) throws {
+  public func removeItems(notIn relativePaths: [String], parentFolder: String?) async throws {
     guard
-      let items = getItems(notIn: relativePaths, parentFolder: parentFolder)
+      let items = await getItems(notIn: relativePaths, parentFolder: parentFolder)
     else { return }
 
-    try delete(items, mode: .deep)
+    try await delete(items, mode: .deep)
   }
 
-  func getItems(in relativePaths: [String], parentFolder: String?) -> [LibraryItem]? {
+  func getItems(in relativePaths: [String], parentFolder: String?, context: NSManagedObjectContext) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
 
     if let parentFolder = parentFolder {
@@ -215,6 +247,6 @@ extension LibraryService: LibrarySyncProtocol {
       )
     }
 
-    return try? self.dataManager.getContext().fetch(fetchRequest)
+    return try? context.fetch(fetchRequest)
   }
 }

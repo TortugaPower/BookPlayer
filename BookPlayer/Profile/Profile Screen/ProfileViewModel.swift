@@ -162,11 +162,13 @@ class ProfileViewModel: ProfileViewModelProtocol {
   }
 
   func reloadListenedTime() {
-    let time = libraryService.getTotalListenedTime()
+    Task { @MainActor in
+      let time = await libraryService.getTotalListenedTime()
 
-    guard let formattedTime = formatTime(time) else { return }
+      guard let formattedTime = formatTime(time) else { return }
 
-    totalListeningTimeFormatted = formattedTime
+      totalListeningTimeFormatted = formattedTime
+    }
   }
 
   func formatTime(

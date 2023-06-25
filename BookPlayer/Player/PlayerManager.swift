@@ -172,10 +172,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     if currentItem?.isBoundBook == false {
-      libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
-
-      if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
-         let playbackItem = try playbackService.getPlayableItem(from: libraryItem) {
+      await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
+      if let libraryItem = await libraryService.getSimpleItem(with: chapter.relativePath),
+         let playbackItem = try await playbackService.getPlayableItem(from: libraryItem) {
         currentItem = playbackItem
       }
     }
@@ -752,13 +751,15 @@ extension PlayerManager {
   func markAsCompleted(_ flag: Bool) {
     guard let currentItem = self.currentItem else { return }
 
-    self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
+    Task { @MainActor in
+      await self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
 
-    if let parentFolderPath = currentItem.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      if let parentFolderPath = currentItem.parentFolder {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      }
+
+      NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
     }
-
-    NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
   func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
@@ -766,15 +767,17 @@ extension PlayerManager {
   }
 
   func playPreviousItem() {
-    guard
-      let currentItem = self.currentItem,
-      let previousBook = self.playbackService.getPlayableItem(
-        before: currentItem.relativePath,
-        parentFolder: currentItem.parentFolder
-      )
-    else { return }
+    Task { @MainActor in
+      guard
+        let currentItem = self.currentItem,
+        let previousBook = await self.playbackService.getPlayableItem(
+          before: currentItem.relativePath,
+          parentFolder: currentItem.parentFolder
+        )
+      else { return }
 
-    load(previousBook, autoplay: true)
+      load(previousBook, autoplay: true)
+    }
   }
 
   func playNextItem(autoPlayed: Bool = false) {
@@ -786,24 +789,26 @@ extension PlayerManager {
 
     let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
 
-    guard
-      let currentItem = self.currentItem,
-      let nextBook = self.playbackService.getPlayableItem(
-        after: currentItem.relativePath,
-        parentFolder: currentItem.parentFolder,
-        autoplayed: autoPlayed,
-        restartFinished: restartFinished
-      )
-    else { return }
+    Task { @MainActor in
+      guard
+        let currentItem = self.currentItem,
+        let nextBook = await self.playbackService.getPlayableItem(
+          after: currentItem.relativePath,
+          parentFolder: currentItem.parentFolder,
+          autoplayed: autoPlayed,
+          restartFinished: restartFinished
+        )
+      else { return }
 
-    /// If autoplaying a finished book and restart is enabled, set currentTime to 0
-    if autoPlayed,
-       nextBook.isFinished,
-       restartFinished {
-      updatePlaybackTime(item: nextBook, time: 0)
+      /// If autoplaying a finished book and restart is enabled, set currentTime to 0
+      if autoPlayed,
+         nextBook.isFinished,
+         restartFinished {
+        updatePlaybackTime(item: nextBook, time: 0)
+      }
+
+      load(nextBook, autoplay: true)
     }
-
-    load(nextBook, autoplay: true)
   }
 
   @objc
@@ -848,16 +853,18 @@ extension PlayerManager {
 // MARK: - BookMarks
 extension PlayerManager {
   public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, type: BookmarkType) {
-    /// Clean up old bookmark
-    if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
-      libraryService.deleteBookmark(bookmark)
+    Task { @MainActor in
+      /// Clean up old bookmark
+      if let bookmark = await libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
+        await libraryService.deleteBookmark(bookmark)
+      }
+
+      guard
+        let bookmark = await libraryService.createBookmark(at: floor(time), relativePath: relativePath, type: type)
+      else { return }
+
+      await libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
     }
-
-    guard
-      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, type: type)
-    else { return }
-
-    libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
   }
 }
 
