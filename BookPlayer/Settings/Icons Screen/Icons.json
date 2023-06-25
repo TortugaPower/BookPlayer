@@ -10,6 +10,24 @@
         "imageName": "retro-icon"
     },
     {
+        "id": "Heart of Glass",
+        "title": "Heart of Glass",
+        "imageName": "heart-of-glass",
+        "locked": true
+    },
+    {
+        "id": "Heart of Glass (Forest)",
+        "title": "Heart of Glass (Forest)",
+        "imageName": "heart-of-glass-forest",
+        "locked": true
+    },
+    {
+        "id": "Heart of Glass (Ayu)",
+        "title": "Heart of Glass (Ayu)",
+        "imageName": "heart-of-glass-ayu",
+        "locked": true
+    },
+    {
         "id": "Forest Green",
         "title": "Forest Green",
         "imageName": "forest-green",
