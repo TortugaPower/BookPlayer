@@ -26,6 +26,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
+    case bindImportObservers
   }
 
   enum Events {
@@ -89,9 +90,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.playbackService = playbackService
     self.syncService = syncService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
-    super.init()
-
-    self.bindObservers()
   }
 
   func getEmptyStateImageName() -> String {
@@ -119,6 +117,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   func bindObservers() {
     bindBookObservers()
     bindDownloadObservers()
+  }
+
+  func bindImportObserverIfNeeded() {
+    onTransition?(.bindImportObservers)
   }
 
   func bindBookObservers() {

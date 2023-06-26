@@ -82,8 +82,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       NotificationCenter.default.post(name: .requestReview, object: nil)
     }
 
-    /// Sync list when app is active again
-    mainCoordinator.getLibraryCoordinator()?.syncList()
+    if let libraryCoordinator = mainCoordinator.getLibraryCoordinator() {
+      /// Sync list when app is active again
+      libraryCoordinator.syncList()
+      /// Register import observer in case it's not up already
+      libraryCoordinator.bindImportObserverIfNeeded()
+    }
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
