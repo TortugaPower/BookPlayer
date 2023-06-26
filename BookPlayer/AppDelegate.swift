@@ -419,6 +419,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     SentrySDK.start { options in
       options.dsn = "https://\(sentryDSN)"
       options.debug = false
+      options.enableCoreDataTracing = false
+      options.enableFileIOTracing = false
       options.tracesSampleRate = 0.5
     }
   }

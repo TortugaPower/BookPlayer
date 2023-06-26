@@ -35,8 +35,6 @@ class LibraryListCoordinator: ItemListCoordinator {
       playbackService: playbackService,
       syncService: syncService
     )
-
-    bindImportObserver()
   }
 
   // swiftlint:disable:next function_body_length
@@ -69,6 +67,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self?.showMiniPlayer(flag: flag)
+      case .bindImportObservers:
+        self?.bindImportObserverIfNeeded()
       }
     }
     viewModel.coordinator = self
@@ -103,9 +103,11 @@ class LibraryListCoordinator: ItemListCoordinator {
     syncList()
   }
 
-  func bindImportObserver() {
-    self.fileSubscription?.cancel()
-    self.importOperationSubscription?.cancel()
+  func bindImportObserverIfNeeded() {
+    guard
+      fileSubscription == nil,
+      AppDelegate.shared?.activeSceneDelegate != nil
+    else { return }
 
     self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
       guard let self = self,

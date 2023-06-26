@@ -92,6 +92,13 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.bindTransitionActions()
     self.configureInitialState()
     self.bindNetworkObserver()
+    self.viewModel.bindObservers()
+  }
+
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    viewModel.bindImportObserverIfNeeded()
   }
 
   func addSubviews() {

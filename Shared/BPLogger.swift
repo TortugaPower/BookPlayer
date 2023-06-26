@@ -19,18 +19,19 @@ extension BPLogger {
     )
   }
 
+  /// This is only used for debug purposes in Betas, do not use in Prod build
   public static func logFile(message: String) {
     let debugLogFileURL = DataManager.getProcessedFolderURL().appendingPathComponent("debug_log_file.txt")
 
     do {
       try message.appendLineToURL(fileURL: debugLogFileURL)
-    }
-    catch {
+    } catch {
       logger.debug("Could not write to log file")
     }
   }
 }
 
+/// Helper extensions to write to debug file
 private extension Data {
   func append(fileURL: URL) throws {
     if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
@@ -39,8 +40,7 @@ private extension Data {
       }
       fileHandle.seekToEndOfFile()
       fileHandle.write(self)
-    }
-    else {
+    } else {
       try write(to: fileURL, options: .atomic)
     }
   }
