@@ -17,7 +17,7 @@ class MiniPlayerViewModel {
     let author: String
     let relativePath: String
   }
-//  typealias Data = (title: String, author: String, relativePath: String)
+
   /// Available routes
   enum Routes {
     case showPlayer

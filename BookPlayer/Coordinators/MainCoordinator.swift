@@ -131,8 +131,9 @@ class MainCoordinator: Coordinator {
         else { return }
 
         if account.hasSubscription, !account.id.isEmpty {
+          /** Disable socket lifecycle events
           self.socketService.connectSocket()
-
+           */
           let libraryCoordinator = self.getLibraryCoordinator()
 
           if !self.syncService.isActive {
@@ -142,18 +143,22 @@ class MainCoordinator: Coordinator {
             libraryCoordinator?.loadLastBookIfNeeded()
           }
         } else {
+          /** Disable socket lifecycle events
           self.socketService.disconnectSocket()
+           */
           self.syncService.isActive = false
         }
 
       })
       .store(in: &disposeBag)
 
+    /** Disable socket lifecycle events
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.socketService.disconnectSocket()
       })
       .store(in: &disposeBag)
+     */
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
