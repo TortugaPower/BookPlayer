@@ -482,6 +482,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
 
+    /** Disable socket events to test updating via regular network requests
     socketService.sendEvent(
       .timeUpdate,
       payload: [
@@ -491,6 +492,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         "lastPlayDateTimestamp": Date().timeIntervalSince1970,
       ]
     )
+     */
   }
 }
 
@@ -505,8 +507,6 @@ extension PlayerManager {
     guard let currentItem = self.currentItem else { return }
 
     let boundedTime = min(max(time, 0), currentItem.duration)
-
-    updatePlaybackTime(item: currentItem, time: boundedTime)
 
     let newTime = currentItem.isBoundBook
     ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
@@ -681,8 +681,6 @@ extension PlayerManager {
 
     if self.playbackQueued == true {
       self.play()
-    } else {
-      self.updateTime()
     }
     // Clean up flag
     self.playbackQueued = nil
