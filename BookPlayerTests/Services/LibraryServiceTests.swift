@@ -469,7 +469,6 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(record2.time == 1)
   }
 
-  // swiftlint:disable:next function_body_length
   func testGetPlaybackRecordsFromDate() {
     let calendar = Calendar.current
     let startToday = calendar.startOfDay(for: Date())

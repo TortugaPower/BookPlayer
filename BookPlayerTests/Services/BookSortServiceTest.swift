@@ -41,6 +41,5 @@ class BookSortServiceTest: XCTestCase {
         }
 
         XCTAssert(bookNames == self.orderedBookNames)
-        // swiftlint:enable force_try
     }
 }

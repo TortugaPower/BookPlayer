@@ -12,7 +12,12 @@ import UIKit
 import StoreKit
 
 class MiniPlayerViewModel {
-  typealias Data = (title: String, author: String, relativePath: String)
+  struct Data {
+    let title: String
+    let author: String
+    let relativePath: String
+  }
+//  typealias Data = (title: String, author: String, relativePath: String)
   /// Available routes
   enum Routes {
     case showPlayer
@@ -40,11 +45,11 @@ class MiniPlayerViewModel {
           return
         }
 
-        self?.currentItemInfo.value = Data((
+        self?.currentItemInfo.value = Data(
           title: currentItem.title,
           author: currentItem.author,
           relativePath: currentItem.relativePath
-        ))
+        )
       }
       .store(in: &disposeBag)
   }

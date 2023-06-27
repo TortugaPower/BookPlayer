@@ -1033,6 +1033,7 @@ extension ItemListViewModel {
     )
   }
 
+  // swiftlint:disable:next function_body_length
   func showOperationCompletedAlert(
     with items: [String],
     availableFolders: [SimpleLibraryItem],

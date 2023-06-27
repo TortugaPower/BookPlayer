@@ -95,6 +95,7 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     cell.setup(with: bookmark)
 
     return cell
+    // swiftlint:enable force_cast
   }
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

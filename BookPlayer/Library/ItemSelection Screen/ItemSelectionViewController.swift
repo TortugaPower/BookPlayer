@@ -66,6 +66,7 @@ class ItemSelectionViewController: UITableViewController {
     cell.duration = item.durationFormatted
 
     return cell
+    // swiftlint:enable force_cast
   }
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

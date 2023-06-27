@@ -408,7 +408,7 @@ extension ItemListViewController: UITableViewDataSource {
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    guard section == SectionType.data.rawValue else { return 1 }
+    guard section == BPSection.data.rawValue else { return 1 }
 
     return self.viewModel.items.count
   }

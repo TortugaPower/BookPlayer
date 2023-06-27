@@ -66,11 +66,9 @@ enum DBVersion: CaseIterable {
 extension DBVersion {
   init?(model: NSManagedObjectModel) {
     var matchedVersion: DBVersion?
-    for version in DBVersion.allCases {
-      if version.model() == model {
+    for version in DBVersion.allCases where version.model() == model {
         matchedVersion = version
         break
-      }
     }
 
     if let matchedVersion = matchedVersion {

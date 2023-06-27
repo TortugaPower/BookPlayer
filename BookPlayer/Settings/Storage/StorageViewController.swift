@@ -153,6 +153,7 @@ extension StorageViewController: UITableViewDataSource {
 
     return cell
   }
+  // swiftlint:enable force_cast
 }
 
 extension StorageViewController: UITableViewDelegate {
