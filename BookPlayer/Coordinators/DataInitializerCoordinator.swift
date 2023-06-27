@@ -201,6 +201,10 @@ class DataInitializerCoordinator: BPLogger {
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue) == nil {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
     }
+    // Set remaining time as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    }
 
     setupDefaultTheme(libraryService: libraryService)
 
