@@ -15,6 +15,8 @@ import Combine
 public protocol LibraryServiceProtocol {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+  /// Progress publisher that debounces changes during 10 seconds before emitting the last payload
+  var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
@@ -136,7 +138,9 @@ public final class LibraryService: LibraryServiceProtocol {
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
-  /// Public metadata publisher that collects changes during 4 seconds before normalizing the payload
+  /// Internal passthrough publisher for emitting item's progress update events
+  private var progressPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
+  /// Public metadata publisher that collects changes during 10 seconds before normalizing the payload
   public lazy var metadataUpdatePublisher = metadataPassthroughPublisher
     .collect(.byTime(DispatchQueue.main, .seconds(10)))
     .flatMap({ changes in
@@ -154,6 +158,10 @@ public final class LibraryService: LibraryServiceProtocol {
       let resultsArray = Array(results.values) as [[String: Any]]
       return resultsArray.publisher
     })
+    .eraseToAnyPublisher()
+  /// Public progress publisher that debounces changes during 10 seconds before emitting the last event
+  public lazy var progressUpdatePublisher = progressPassthroughPublisher
+    .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
     .eraseToAnyPublisher()
 
   public init(dataManager: DataManager) {
@@ -1339,7 +1347,8 @@ extension LibraryService {
     /// Metadata update already handled by the socket for playback
     item.currentTime = time
     item.lastPlayDate = date
-    item.percentCompleted = round((item.currentTime / item.duration) * 100)
+    let percentCompleted = round((item.currentTime / item.duration) * 100)
+    item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
@@ -1351,6 +1360,12 @@ extension LibraryService {
       dataManager.saveContext()
     }
 
+    progressPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.currentTime): time,
+      #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
+      #keyPath(LibraryItem.percentCompleted): percentCompleted,
+    ])
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {

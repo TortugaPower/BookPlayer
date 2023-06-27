@@ -105,6 +105,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       self?.scheduleMetadataUpdate(params: params)
     }
     .store(in: &disposeBag)
+
+    libraryService.progressUpdatePublisher.sink { [weak self] params in
+      self?.scheduleMetadataUpdate(params: params)
+    }
+    .store(in: &disposeBag)
   }
 
   public func syncListContents(
