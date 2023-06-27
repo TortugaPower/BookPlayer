@@ -74,6 +74,11 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         set(value) { underlyingMetadataUpdatePublisher = value }
     }
     var underlyingMetadataUpdatePublisher: AnyPublisher<[String: Any], Never>!
+    var progressUpdatePublisher: AnyPublisher<[String: Any], Never> {
+        get { return underlyingProgressUpdatePublisher }
+        set(value) { underlyingProgressUpdatePublisher = value }
+    }
+    var underlyingProgressUpdatePublisher: AnyPublisher<[String: Any], Never>!
     //MARK: - getLibrary
 
     var getLibraryCallsCount = 0
