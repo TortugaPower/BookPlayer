@@ -18,6 +18,7 @@ extension Library {
     @nonobjc public class func create(in context: NSManagedObjectContext) -> Library {
         // swiftlint:disable force_cast
         return NSEntityDescription.insertNewObject(forEntityName: "Library", into: context) as! Library
+      // swiftlint:enable force_cast
     }
 
     @NSManaged public var extractedThemes: NSOrderedSet?

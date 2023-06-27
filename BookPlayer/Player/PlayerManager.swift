@@ -687,6 +687,7 @@ extension PlayerManager {
     // Clean up flag
     self.playbackQueued = nil
   }
+  // swiftlint:enable block_based_kvo
 
   func pause(fade: Bool) {
     guard let currentItem = self.currentItem else { return }

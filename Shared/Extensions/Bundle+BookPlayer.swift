@@ -18,6 +18,7 @@ public extension Bundle {
   func configurationValue<T>(for key: ConfigurationKeys) -> T where T: LosslessStringConvertible {
     // swiftlint:disable force_try
     return try! configurationValue(for: key.rawValue)
+    // swiftlint:enable force_try
   }
 
   func configurationString(for key: ConfigurationKeys) -> String {

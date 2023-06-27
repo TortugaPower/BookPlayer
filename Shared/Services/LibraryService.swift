@@ -1683,3 +1683,4 @@ extension LibraryService {
     self.dataManager.delete(bookmarkReference)
   }
 }
+// swiftlint:enable force_cast
