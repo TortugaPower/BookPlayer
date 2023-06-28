@@ -11,10 +11,10 @@ import Foundation
 
 extension UserDefaults {
   @objc dynamic var userSettingsAppIcon: String? {
-    return string(forKey: Constants.UserDefaults.appIcon.rawValue)
+    return string(forKey: Constants.UserDefaults.appIcon)
   }
 
   @objc dynamic var userSettingsHasQueuedJobs: Bool {
-    return bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue)
+    return bool(forKey: Constants.UserDefaults.hasQueuedJobs)
   }
 }

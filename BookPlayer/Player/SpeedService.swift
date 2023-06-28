@@ -31,7 +31,7 @@ class SpeedService: SpeedServiceProtocol {
     }
 
     // set global speed
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled) {
       UserDefaults.standard.set(newValue, forKey: "global_speed")
     }
 
@@ -41,7 +41,7 @@ class SpeedService: SpeedServiceProtocol {
   public func getSpeed(relativePath: String?) -> Float {
     let speed: Float
 
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled) {
       speed = UserDefaults.standard.float(forKey: "global_speed")
     } else if let relativePath = relativePath {
       speed = self.libraryService.getItemSpeed(at: relativePath)

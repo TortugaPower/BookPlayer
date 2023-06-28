@@ -34,20 +34,20 @@ final class ThemeManager: ThemeProvider {
   }
 
   public func checkSystemMode() {
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) else { return }
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled) else { return }
 
     self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
   }
 
   private init() {
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled) {
       self.useDarkVariant = UIScreen.main.traitCollection.userInterfaceStyle == .dark
     } else {
-      self.useDarkVariant = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+      self.useDarkVariant = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled)
     }
 
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
-      let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled) {
+      let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold)
       let brightness = (UIScreen.main.brightness * 100).rounded() / 100
       self.useDarkVariant = brightness <= CGFloat(threshold)
     }
@@ -71,9 +71,9 @@ final class ThemeManager: ThemeProvider {
   }
 
   @objc private func brightnessChanged(_ notification: Notification) {
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) else { return }
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled) else { return }
 
-    let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    let threshold = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold)
     let brightness = (UIScreen.main.brightness * 100).rounded() / 100
     let shouldUseDarkVariant = brightness <= CGFloat(threshold)
 

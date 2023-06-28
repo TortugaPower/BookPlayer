@@ -142,7 +142,7 @@ class ProfileViewModel: ProfileViewModelProtocol {
   }
 
   func refreshSyncStatusMessage() {
-    let timestamp = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue)
+    let timestamp = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp)
 
     guard timestamp > 0 else { return }
 

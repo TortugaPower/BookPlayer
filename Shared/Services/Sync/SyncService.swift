@@ -117,7 +117,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws -> ([SyncableItem], SyncableItem?)? {
     guard
       isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
     else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
@@ -125,7 +125,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if relativePath == nil {
       UserDefaults.standard.set(
         Date().timeIntervalSince1970,
-        forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue
+        forKey: Constants.UserDefaults.lastSyncTimestamp
       )
     }
 
@@ -169,14 +169,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?) {
     guard
       isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
     else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
     UserDefaults.standard.set(
       Date().timeIntervalSince1970,
-      forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue
+      forKey: Constants.UserDefaults.lastSyncTimestamp
     )
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
@@ -222,7 +222,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
     guard
       isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs.rawValue) == false
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
     else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }

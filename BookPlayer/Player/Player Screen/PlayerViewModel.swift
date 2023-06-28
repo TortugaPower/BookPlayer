@@ -20,8 +20,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private let libraryService: LibraryServiceProtocol
   private let syncService: SyncServiceProtocol
   private var chapterBeforeSliderValueChange: PlayableChapter?
-  private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-  private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+  private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+  private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
 
   var eventsPublisher = InterfaceUpdater<PlayerViewModel.Events>()
 
@@ -143,14 +143,14 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
   func processToggleMaxTime() -> ProgressObject {
     self.prefersRemainingTime = !self.prefersRemainingTime
-    UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)
 
     return self.getCurrentProgressState()
   }
 
   func processToggleProgressState() -> ProgressObject {
     self.prefersChapterContext = !self.prefersChapterContext
-    UserDefaults.standard.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled)
 
     return self.getCurrentProgressState()
   }
@@ -295,7 +295,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func showList() {
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
       self.coordinator.showBookmarks()
     } else {
       self.coordinator.showChapters()
@@ -303,7 +303,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func showListFromMoreAction() {
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
       self.coordinator.showChapters()
     } else {
       self.coordinator.showBookmarks()
@@ -311,7 +311,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func getListTitleForMoreAction() -> String {
-    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
       return "chapters_title".localized
     } else {
       return "bookmarks_title".localized
