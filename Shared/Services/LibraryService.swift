@@ -288,7 +288,7 @@ public final class LibraryService: LibraryServiceProtocol {
         currentTime: currentTime,
         duration: duration,
         percentCompleted: percentCompleted,
-        isFinished:  dictionary["isFinished"] as? Bool ?? false,
+        isFinished: dictionary["isFinished"] as? Bool ?? false,
         relativePath: relativePath,
         remoteURL: dictionary["remoteURL"] as? URL,
         artworkURL: dictionary["artworkURL"] as? URL,

@@ -39,8 +39,6 @@ public protocol SyncServiceProtocol {
     delegate: URLSessionTaskDelegate
   ) async throws -> [URLSessionDownloadTask]
 
-  func uploadArtwork(relativePath: String, data: Data) async throws
-
   func scheduleUpload(items: [SimpleLibraryItem])
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
@@ -56,6 +54,8 @@ public protocol SyncServiceProtocol {
   )
 
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
+
+  func scheduleUploadArtwork(relativePath: String)
 
   /// Get all queued jobs
   func getAllQueuedJobs() -> [QueuedJobInfo]
@@ -321,19 +321,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return tasks
   }
 
-  public func uploadArtwork(relativePath: String, data: Data) async throws {
+  public func scheduleUploadArtwork(relativePath: String) {
     guard isActive else { return }
 
-    let filename = "\(UUID().uuidString)-\(Int(Date().timeIntervalSince1970)).jpg"
-    let response: ArtworkResponse = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil)
-    )
-
-    try await client.upload(data, remoteURL: response.thumbnailURL)
-
-    let _: Empty = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
-    )
+    jobManager.scheduleArtworkUpload(with: relativePath)
   }
 
   public func getAllQueuedJobs() -> [QueuedJobInfo] {

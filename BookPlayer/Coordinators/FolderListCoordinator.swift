@@ -36,6 +36,7 @@ class FolderListCoordinator: ItemListCoordinator {
     let viewModel = ItemListViewModel(
       folderRelativePath: self.folderRelativePath,
       playerManager: self.playerManager,
+      networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService,
@@ -59,6 +60,9 @@ class FolderListCoordinator: ItemListCoordinator {
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self?.showMiniPlayer(flag: flag)
+      case .bindImportObservers:
+        /// Only the library list coordinator handle these events
+        break
       }
     }
     viewModel.coordinator = self

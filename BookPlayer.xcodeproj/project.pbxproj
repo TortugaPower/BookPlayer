@@ -149,7 +149,6 @@
 		418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */; };
-		4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E1FE2439A0A1004D6A82 /* NetworkService.swift */; };
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
 		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
@@ -389,6 +388,18 @@
 		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
 		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
+		9F665ED42A4894C4004BFE27 /* heart-of-glass-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */; };
+		9F665ED52A4894C4004BFE27 /* heart-of-glass-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */; };
+		9F665ED82A4894FC004BFE27 /* heart-of-glass@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */; };
+		9F665ED92A4894FC004BFE27 /* heart-of-glass@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED72A4894FC004BFE27 /* heart-of-glass@2x.png */; };
+		9F665EDE2A4898F6004BFE27 /* heart-of-glass-ayu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EDA2A4898F5004BFE27 /* heart-of-glass-ayu@2x.png */; };
+		9F665EDF2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EDB2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png */; };
+		9F665EE02A4898F6004BFE27 /* heart-of-glass-forest@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EDC2A4898F6004BFE27 /* heart-of-glass-forest@2x.png */; };
+		9F665EE12A4898F6004BFE27 /* heart-of-glass-forest@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EDD2A4898F6004BFE27 /* heart-of-glass-forest@3x.png */; };
+		9F665EE62A48991C004BFE27 /* heart-of-glass-forest-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EE22A48991C004BFE27 /* heart-of-glass-forest-ipad@2x.png */; };
+		9F665EE72A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EE32A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png */; };
+		9F665EE82A48991C004BFE27 /* heart-of-glass-ayu-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EE42A48991C004BFE27 /* heart-of-glass-ayu-ipad@3x.png */; };
+		9F665EE92A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665EE52A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png */; };
 		9F6BC86627E6D03D002CF2A6 /* WatchApplicationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */; };
 		9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */; };
 		9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64702803216100895ECC /* Account+CoreDataProperties.swift */; };
@@ -454,7 +465,6 @@
 		9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */; };
 		9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
 		9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
-		9FC1E4562814D21400522FA8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 9FC1E4552814D21400522FA8 /* Alamofire */; };
 		9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */; };
 		9FC1E45A2814E0B000522FA8 /* NetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */; };
 		9FC1E45C2814E6A500522FA8 /* NetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */; };
@@ -824,7 +834,6 @@
 		418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTableViewCell.swift; sourceTree = "<group>"; };
 		419196341D47CC4E007A3AF3 /* BookPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayer.entitlements; sourceTree = "<group>"; };
 		4193E1FB24394CEF004D6A82 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
-		4193E1FE2439A0A1004D6A82 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		4193E201243A91AE004D6A82 /* ActionParserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionParserService.swift; sourceTree = "<group>"; };
 		4193E203243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4193E204243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1040,6 +1049,18 @@
 		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
 		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
+		9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ipad@2x.png"; sourceTree = "<group>"; };
+		9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ipad@3x.png"; sourceTree = "<group>"; };
+		9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass@3x.png"; sourceTree = "<group>"; };
+		9F665ED72A4894FC004BFE27 /* heart-of-glass@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass@2x.png"; sourceTree = "<group>"; };
+		9F665EDA2A4898F5004BFE27 /* heart-of-glass-ayu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ayu@2x.png"; sourceTree = "<group>"; };
+		9F665EDB2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ayu@3x.png"; sourceTree = "<group>"; };
+		9F665EDC2A4898F6004BFE27 /* heart-of-glass-forest@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-forest@2x.png"; sourceTree = "<group>"; };
+		9F665EDD2A4898F6004BFE27 /* heart-of-glass-forest@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-forest@3x.png"; sourceTree = "<group>"; };
+		9F665EE22A48991C004BFE27 /* heart-of-glass-forest-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-forest-ipad@2x.png"; sourceTree = "<group>"; };
+		9F665EE32A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ayu-ipad@2x.png"; sourceTree = "<group>"; };
+		9F665EE42A48991C004BFE27 /* heart-of-glass-ayu-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ayu-ipad@3x.png"; sourceTree = "<group>"; };
+		9F665EE52A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-forest-ipad@3x.png"; sourceTree = "<group>"; };
 		9F6BC86427E6D027002CF2A6 /* WatchApplicationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApplicationContext.swift; sourceTree = "<group>"; };
 		9F7B646F28031E9300895ECC /* Audiobook Player 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 9.xcdatamodel"; sourceTree = "<group>"; };
 		9F7B64702803216100895ECC /* Account+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -1186,7 +1207,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9FC1E4562814D21400522FA8 /* Alamofire in Frameworks */,
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
 				56D8A0ED28A813D30037592F /* SocketIO in Frameworks */,
@@ -1645,6 +1665,12 @@
 		41E562CB22394E2300C06BC9 /* iPhone */ = {
 			isa = PBXGroup;
 			children = (
+				9F665ED72A4894FC004BFE27 /* heart-of-glass@2x.png */,
+				9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */,
+				9F665EDA2A4898F5004BFE27 /* heart-of-glass-ayu@2x.png */,
+				9F665EDB2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png */,
+				9F665EDC2A4898F6004BFE27 /* heart-of-glass-forest@2x.png */,
+				9F665EDD2A4898F6004BFE27 /* heart-of-glass-forest@3x.png */,
 				41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */,
 				41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */,
 				4111FBE925EDEFDD0096954F /* forest-green@2x.png */,
@@ -1670,6 +1696,12 @@
 		41E562E422394FCB00C06BC9 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
+				9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */,
+				9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */,
+				9F665EE32A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png */,
+				9F665EE42A48991C004BFE27 /* heart-of-glass-ayu-ipad@3x.png */,
+				9F665EE22A48991C004BFE27 /* heart-of-glass-forest-ipad@2x.png */,
+				9F665EE52A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png */,
 				4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */,
 				4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */,
 				41E563032239570100C06BC9 /* retro-icon-ipad@2x.png */,
@@ -1856,7 +1888,6 @@
 			isa = PBXGroup;
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
-				4193E1FE2439A0A1004D6A82 /* NetworkService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
@@ -2454,7 +2485,6 @@
 				41F1A203254B09C00043FCF3 /* Themeable */,
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
-				9FC1E4552814D21400522FA8 /* Alamofire */,
 				56D8A0EC28A813D30037592F /* SocketIO */,
 			);
 			productName = "Audiobook Player";
@@ -2623,7 +2653,6 @@
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
-				41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */,
 				41F1A1DE254B08A10043FCF3 /* XCRemoteSwiftPackageReference "DeviceKit" */,
 				41F1A1F0254B09020043FCF3 /* XCRemoteSwiftPackageReference "IDZSwiftCommonCrypto" */,
@@ -2699,8 +2728,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F665ED52A4894C4004BFE27 /* heart-of-glass-ipad@3x.png in Resources */,
 				41E562D622394F8500C06BC9 /* fruit-based@3x.png in Resources */,
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
+				9F665EE92A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png in Resources */,
 				4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
@@ -2709,11 +2740,18 @@
 				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
 				418B6D051D2707F800F974FB /* Assets.xcassets in Resources */,
+				9F665EE82A48991C004BFE27 /* heart-of-glass-ayu-ipad@3x.png in Resources */,
 				418B6D031D2707F800F974FB /* Main.storyboard in Resources */,
+				9F665ED42A4894C4004BFE27 /* heart-of-glass-ipad@2x.png in Resources */,
 				419B373C23B8D12200128A8F /* AddCellView.xib in Resources */,
 				41E562EB2239531E00C06BC9 /* retro-modern-ipad@3x.png in Resources */,
+				9F665EE12A4898F6004BFE27 /* heart-of-glass-forest@3x.png in Resources */,
 				41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */,
+				9F665EE02A4898F6004BFE27 /* heart-of-glass-forest@2x.png in Resources */,
+				9F665EDF2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png in Resources */,
+				9F665EE72A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png in Resources */,
 				419B375623B8D5A500128A8F /* Localizable.strings in Resources */,
+				9F665EE62A48991C004BFE27 /* heart-of-glass-forest-ipad@2x.png in Resources */,
 				41E562F92239535D00C06BC9 /* retro-modern-ipad@2x.png in Resources */,
 				41E562FB2239535D00C06BC9 /* fruit-based-ipad@2x.png in Resources */,
 				4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */,
@@ -2724,11 +2762,13 @@
 				41E562E222394FB900C06BC9 /* songs@3x.png in Resources */,
 				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				41E562DE22394FA800C06BC9 /* retro-modern@2x.png in Resources */,
+				9F665ED92A4894FC004BFE27 /* heart-of-glass@2x.png in Resources */,
 				41E562DF22394FA800C06BC9 /* retro-modern@3x.png in Resources */,
 				41E562EF2239531E00C06BC9 /* ayu-light-ipad@3x.png in Resources */,
 				41E562F72239535D00C06BC9 /* ayu-light-ipad@2x.png in Resources */,
 				4165EE0C20A7A33500616EDF /* BookCellView.xib in Resources */,
 				4142964621F21DAE004356DA /* BulkControlsView.xib in Resources */,
+				9F665ED82A4894FC004BFE27 /* heart-of-glass@3x.png in Resources */,
 				41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */,
 				41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */,
 				41E562FE223953AE00C06BC9 /* default-icon-ipad@3x.png in Resources */,
@@ -2742,6 +2782,7 @@
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
 				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
 				415A997A264CCD3F002BFD35 /* Release.xcconfig in Resources */,
+				9F665EDE2A4898F6004BFE27 /* heart-of-glass-ayu@2x.png in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
@@ -3077,7 +3118,6 @@
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */,
-				4193E2002439A1CD004D6A82 /* NetworkService.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
@@ -4767,14 +4807,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.9.1;
-			};
-		};
 		41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cbpowell/MarqueeLabel.git";
@@ -4935,11 +4967,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */;
 			productName = SwiftQueue;
-		};
-		9FC1E4552814D21400522FA8 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A1CC254B07090043FCF3 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 

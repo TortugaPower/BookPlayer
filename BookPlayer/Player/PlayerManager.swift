@@ -223,6 +223,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     if self.currentItem != nil {
       stopPlayback()
       playerItem = nil
+      /// Clear out flag when `playerItem` is nulled out
+      hasObserverRegistered = false
       currentItem = nil
     }
 
@@ -733,6 +735,8 @@ extension PlayerManager {
 
     self.currentItem = nil
     playerItem = nil
+    /// Clear out flag when `playerItem` is nulled out
+    hasObserverRegistered = false
   }
 
   private func stopPlayback() {

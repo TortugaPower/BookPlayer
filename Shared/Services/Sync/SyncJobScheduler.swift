@@ -31,6 +31,8 @@ public protocol JobSchedulerProtocol {
   func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
   /// Rename a folder
   func scheduleRenameFolderJob(with relativePath: String, name: String)
+  /// Upload current cached artwork
+  func scheduleArtworkUpload(with relativePath: String)
   /// Get all queued jobs
   func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all stored and ongoing jobs
@@ -43,7 +45,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
 
   private var pendingOperations: [JobInfo] {
-    libraryQueueManager.getAll()["GLOBAL"] ?? []
+    if libraryQueueManager != nil {
+      return libraryQueueManager.getAll()["GLOBAL"] ?? []
+    } else {
+      return []
+    }
   }
 
   public var queuedJobsCount: Int { pendingOperations.count }
@@ -70,7 +76,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           Self.logger.trace("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
         }
 
-        self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
+        if self?.libraryQueueManager != nil {
+          self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
+        }
       }
       .store(in: &disposeBag)
 
@@ -239,6 +247,21 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .schedule(manager: libraryQueueManager)
   }
 
+  public func scheduleArtworkUpload(with relativePath: String) {
+    let params: [String: Any] = [
+      "relativePath": relativePath,
+      "jobType": JobType.uploadArtwork.rawValue
+    ]
+
+    JobBuilder(type: LibraryItemSyncJob.type)
+      .singleInstance(forId: "\(JobType.uploadArtwork.identifier)/\(relativePath)")
+      .persist()
+      .retry(limit: .unlimited)
+      .internet(atLeast: .cellular)
+      .with(params: params)
+      .schedule(manager: libraryQueueManager)
+  }
+
   public func getAllQueuedJobs() -> [QueuedJobInfo] {
     return pendingOperations.compactMap({ job -> QueuedJobInfo? in
       guard
@@ -258,7 +281,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
 
   public func cancelAllJobs() {
-    libraryQueueManager.cancelAllOperations()
+    if libraryQueueManager != nil {
+      libraryQueueManager.cancelAllOperations()
+    }
     libraryJobsPersister.clearAll()
   }
 
