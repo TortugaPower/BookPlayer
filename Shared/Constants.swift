@@ -30,6 +30,7 @@ public enum Constants {
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
+    public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"

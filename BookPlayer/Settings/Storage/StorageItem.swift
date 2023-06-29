@@ -8,7 +8,8 @@
 
 import Foundation
 
-struct StorageItem {
+struct StorageItem: Identifiable {
+  let id = UUID().uuidString
   let title: String
   let fileURL: URL
   let path: String
@@ -16,6 +17,6 @@ struct StorageItem {
   let showWarning: Bool
 
   func formattedSize() -> String {
-    return ByteCountFormatter.string(fromByteCount: self.size, countStyle: ByteCountFormatter.CountStyle.file)
+    ByteCountFormatter.string(fromByteCount: self.size, countStyle: ByteCountFormatter.CountStyle.file)
   }
 }

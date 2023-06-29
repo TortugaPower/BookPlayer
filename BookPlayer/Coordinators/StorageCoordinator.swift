@@ -8,9 +8,10 @@
 
 import Foundation
 import BookPlayerKit
+import SwiftUI
 
-class StorageCoordinator: Coordinator {
-  let libraryService: LibraryServiceProtocol
+final class StorageCoordinator: Coordinator {
+  private let libraryService: LibraryServiceProtocol
 
   init(
     libraryService: LibraryServiceProtocol,
@@ -26,22 +27,19 @@ class StorageCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = StorageViewController.instantiate(from: .Settings)
-
-    let viewModel = StorageViewModel(libraryService: self.libraryService,
+    let viewModel = StorageViewModel(libraryService: libraryService,
                                      folderURL: DataManager.getProcessedFolderURL())
     viewModel.coordinator = self
-    vc.viewModel = viewModel
-    vc.navigationItem.largeTitleDisplayMode = .never
 
-    self.navigationController.viewControllers = [vc]
-    self.navigationController.presentationController?.delegate = self
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+    let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
+//    vc.navigationItem.largeTitleDisplayMode = .never
+
+    navigationController.viewControllers = [vc]
+    navigationController.presentationController?.delegate = self
+    presentingViewController?.present(navigationController, animated: true)
   }
 
   override func interactiveDidFinish(vc: UIViewController) {
-    guard let vc = vc as? StorageViewController else { return }
-
-    vc.viewModel.coordinator.detach()
+    detach()
   }
 }
