@@ -48,9 +48,9 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
 
     // Set initial switch positions
-    self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue), animated: false)
-    self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue), animated: false)
-    self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue), animated: false)
+    self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled), animated: false)
+    self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled), animated: false)
+    self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled), animated: false)
     self.chapterTimeSwitch.setOn(self.viewModel.prefersChapterContext, animated: false)
     self.remainingTimeSwitch.setOn(self.viewModel.prefersRemainingTime, animated: false)
 
@@ -184,11 +184,11 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   }
 
     @objc func rewindToggleDidChange() {
-        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled)
     }
 
     @objc func boostVolumeToggleDidChange() {
-      UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+      UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
       guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
@@ -196,7 +196,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     }
 
     @objc func globalSpeedToggleDidChange() {
-        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled.rawValue)
+        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled)
     }
 }
 

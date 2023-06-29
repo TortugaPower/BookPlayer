@@ -89,10 +89,10 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   func bindObservers() {
     let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
-    self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+    self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
 
     self.iconObserver = userDefaults?.observe(\.userSettingsAppIcon) { [weak self] _, _ in
-        self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
     }
 
     if self.viewModel.hasMadeDonation() {
@@ -119,17 +119,17 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
 
     // Set initial switch positions
-    self.iCloudBackupsSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue), animated: false)
-    let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+    self.iCloudBackupsSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled), animated: false)
+    let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
     self.autoplayLibrarySwitch.setOn(isAutoplayEnabled, animated: false)
-    autoplayRestartSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue), animated: false)
+    autoplayRestartSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled), animated: false)
     if !isAutoplayEnabled {
       autoplayRestartSwitch.isEnabled = false
     }
-    self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue), animated: false)
-    self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue), animated: false)
-    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
-    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+    self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled), animated: false)
+    self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered), animated: false)
+    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
+    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
   }
 
     @objc func donationMade() {
@@ -137,22 +137,22 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
 
     @objc func autoplayToggleDidChange() {
-        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled)
       self.autoplayRestartSwitch.isEnabled = autoplayLibrarySwitch.isOn
     }
 
     @objc func autoplayRestartToggleDidChange() {
-      UserDefaults.standard.set(self.autoplayRestartSwitch.isOn, forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
+      UserDefaults.standard.set(self.autoplayRestartSwitch.isOn, forKey: Constants.UserDefaults.autoplayRestartEnabled)
     }
 
     @objc func disableAutolockDidChange() {
-        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled.rawValue)
+        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled)
         self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
         self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
     }
 
     @objc func autolockOnlyWhenPoweredDidChange() {
-        UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue)
+        UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered)
     }
 
   @objc func iCloudBackupsDidChange() {

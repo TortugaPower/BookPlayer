@@ -400,22 +400,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   var boostVolume: Bool = false {
     didSet {
       self.audioPlayer.volume = self.boostVolume
-      ? Constants.Volume.boosted.rawValue
-      : Constants.Volume.normal.rawValue
+      ? Constants.Volume.boosted
+      : Constants.Volume.normal
     }
   }
 
   static var rewindInterval: TimeInterval {
     get {
-      if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval.rawValue) == nil {
+      if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval) == nil {
         return 30.0
       }
 
-      return UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
+      return UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval)
     }
 
     set {
-      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.rewindInterval.rawValue)
+      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.rewindInterval)
 
       MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [newValue] as [NSNumber]
     }
@@ -423,15 +423,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   static var forwardInterval: TimeInterval {
     get {
-      if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval.rawValue) == nil {
+      if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval) == nil {
         return 30.0
       }
 
-      return UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
+      return UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval)
     }
 
     set {
-      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.forwardInterval.rawValue)
+      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.forwardInterval)
 
       MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
     }
@@ -448,8 +448,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   func setNowPlayingBookTime() {
     guard let currentItem = self.currentItem else { return }
 
-    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,
@@ -611,7 +611,7 @@ extension PlayerManager {
     self.handleSmartRewind(currentItem)
 
     self.fadeTimer?.invalidate()
-    self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+    self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
@@ -625,17 +625,17 @@ extension PlayerManager {
   }
 
   func handleSmartRewind(_ item: PlayableItem) {
-    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
 
     if smartRewindEnabled,
        let lastPlayTime = item.lastPlayDate {
       let timePassed = Date().timeIntervalSince(lastPlayTime)
-      let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold.rawValue)
+      let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold)
 
-      let delta = timePassedLimited / Constants.SmartRewind.threshold.rawValue
+      let delta = timePassedLimited / Constants.SmartRewind.threshold
 
       // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
-      let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime.rawValue
+      let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime
 
       let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTime, 0)
 
@@ -779,11 +779,11 @@ extension PlayerManager {
   func playNextItem(autoPlayed: Bool = false) {
     /// If it's autoplayed, check if setting is enabled
     if autoPlayed,
-       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled) {
       return
     }
 
-    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
+    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
 
     guard
       let currentItem = self.currentItem,

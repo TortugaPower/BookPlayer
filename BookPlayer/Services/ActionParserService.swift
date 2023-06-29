@@ -112,7 +112,7 @@ class ActionParserService {
 
     UserDefaults.standard.set(
       isOn,
-      forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue
+      forKey: Constants.UserDefaults.boostVolumeEnabled
     )
     playerManager.setBoostVolume(isOn)
   }

@@ -85,7 +85,7 @@ class CarPlayManager: NSObject {
       .store(in: &disposeBag)
 
     self.boostVolumeItem.handler = { [weak self] (_, completion) in
-      let flag = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+      let flag = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
 
       NotificationCenter.default.post(
         name: .messageReceived,
@@ -133,7 +133,7 @@ class CarPlayManager: NSObject {
     let listButton = CPNowPlayingImageButton(
       image: UIImage(named: "carplay.list.bullet")!
     ) { [weak self] _ in
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue) {
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
         self?.showBookmarkListTemplate()
       } else {
         self?.showChapterListTemplate()
@@ -451,7 +451,7 @@ extension CarPlayManager {
 
 extension CarPlayManager {
   func showPlaybackControlsTemplate() {
-    let boostTitle = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+    let boostTitle = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
     ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
     : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
 

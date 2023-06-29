@@ -28,7 +28,7 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
 
   func disableTimer(_ flag: Bool) {
     // Disregard if it's already handled by setting
-    guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+    guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled) else {
       return
     }
 

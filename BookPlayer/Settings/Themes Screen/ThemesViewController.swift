@@ -79,10 +79,10 @@ class ThemesViewController: UIViewController, Storyboarded {
 
     self.extractedThemesTableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.extractedThemesTableView.frame.size.width, height: 1))
 
-    self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
-    self.systemModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
-    self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
-    self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+    self.darkModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled)
+    self.systemModeSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled)
+    self.brightnessSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled)
+    self.brightnessSlider.value = UserDefaults.standard.float(forKey: Constants.UserDefaults.themeBrightnessThreshold)
 
     if self.brightnessSwitch.isOn {
       self.toggleAutomaticBrightness(animated: false)
@@ -190,7 +190,7 @@ class ThemesViewController: UIViewController, Storyboarded {
             sender.setValue(0.25, animated: false)
         }
 
-        UserDefaults.standard.set(sender.value, forKey: Constants.UserDefaults.themeBrightnessThreshold.rawValue)
+        UserDefaults.standard.set(sender.value, forKey: Constants.UserDefaults.themeBrightnessThreshold)
     }
 
     @IBAction func sliderUp(_ sender: UISlider) {
@@ -209,7 +209,7 @@ class ThemesViewController: UIViewController, Storyboarded {
     }
 
     @IBAction func toggleSystemMode(_ sender: UISwitch) {
-        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.systemThemeVariantEnabled)
         self.brightnessSwitch.isEnabled = !sender.isOn
         self.darkModeSwitch.isEnabled = !sender.isOn
 
@@ -219,9 +219,9 @@ class ThemesViewController: UIViewController, Storyboarded {
         }
 
         // handle switching variant if the other toggle is enabled
-        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled)
 
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue) {
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeBrightnessEnabled) {
             self.sliderUp(self.brightnessSlider)
         } else if ThemeManager.shared.useDarkVariant != darkVariantEnabled {
             ThemeManager.shared.useDarkVariant = darkVariantEnabled
@@ -229,18 +229,18 @@ class ThemesViewController: UIViewController, Storyboarded {
     }
 
     @IBAction func toggleDarkMode(_ sender: UISwitch) {
-        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeDarkVariantEnabled)
         ThemeManager.shared.useDarkVariant = sender.isOn
     }
 
     @IBAction func toggleAutomaticBrightness(_ sender: UISwitch) {
-        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled.rawValue)
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.UserDefaults.themeBrightnessEnabled)
         self.toggleAutomaticBrightness(animated: true)
         self.sliderUp(self.brightnessSlider)
 
         guard !sender.isOn else { return }
         // handle switching variant if the other toggle is enabled
-        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled.rawValue)
+        let darkVariantEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.themeDarkVariantEnabled)
 
         guard ThemeManager.shared.useDarkVariant != darkVariantEnabled else { return }
 

@@ -306,7 +306,7 @@ extension SyncJobScheduler: JobListener {
 
     UserDefaults.standard.set(
       true,
-      forKey: Constants.UserDefaults.hasQueuedJobs.rawValue
+      forKey: Constants.UserDefaults.hasQueuedJobs
     )
 
     NotificationCenter.default.post(name: .jobScheduled, object: nil)
@@ -325,7 +325,7 @@ extension SyncJobScheduler: JobListener {
 
     UserDefaults.standard.set(
       false,
-      forKey: Constants.UserDefaults.hasQueuedJobs.rawValue
+      forKey: Constants.UserDefaults.hasQueuedJobs
     )
   }
 }

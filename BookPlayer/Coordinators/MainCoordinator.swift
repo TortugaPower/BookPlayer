@@ -234,7 +234,7 @@ extension MainCoordinator: PurchasesDelegate {
 extension MainCoordinator: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     guard
-      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled)
     else {
       AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = .unspecified
       return

@@ -150,8 +150,8 @@ class LibraryListCoordinator: ItemListCoordinator {
           self?.playerManager.play()
         }
 
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer.rawValue) {
-          UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer.rawValue)
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
+          UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
           self?.showPlayer()
         }
       },

@@ -18,14 +18,14 @@ final class PlayerSettingsViewModel {
   @Published var playerListPrefersBookmarks: Bool
 
   var prefersChapterContext: Bool {
-    UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
   }
   var prefersRemainingTime: Bool {
-    UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
   }
 
   init() {
-    self.playerListPrefersBookmarks = UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
+    self.playerListPrefersBookmarks = UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks)
   }
 
   func getTitleForPlayerListPreference(_ prefersBookmarks: Bool) -> String {
@@ -36,16 +36,16 @@ final class PlayerSettingsViewModel {
   func handleOptionSelected(_ option: PlayerListDisplayOption) {
     let prefersBookmarks = option == .bookmarks
 
-    UserDefaults.standard.set(prefersBookmarks, forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
+    UserDefaults.standard.set(prefersBookmarks, forKey: Constants.UserDefaults.playerListPrefersBookmarks)
 
     self.playerListPrefersBookmarks = prefersBookmarks
   }
 
   func handlePrefersChapterContext(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled)
   }
 
   func handlePrefersRemainingTime(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled)
   }
 }

@@ -116,13 +116,13 @@ class PlayerCoordinator: Coordinator {
       return
     }
 
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled.rawValue) else {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled) else {
       UIApplication.shared.isIdleTimerDisabled = false
       UIDevice.current.isBatteryMonitoringEnabled = false
       return
     }
 
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered.rawValue) else {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered) else {
       UIApplication.shared.isIdleTimerDisabled = true
       UIDevice.current.isBatteryMonitoringEnabled = false
       return

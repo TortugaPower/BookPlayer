@@ -57,11 +57,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let defaults: UserDefaults = UserDefaults.standard
 
     // Perfrom first launch setup
-    if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch.rawValue) {
+    if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch) {
       // Set default settings
-      defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-      defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
-      defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch.rawValue)
+      defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
+      defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+      defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
     }
 
     try? AVAudioSession.sharedInstance().setCategory(
@@ -337,7 +337,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       var newTime = event.positionTime
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue),
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
          let currentChapter = currentItem.currentChapter {
         newTime += currentChapter.start
       }
@@ -473,7 +473,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       let playerManager,
       playerManager.hasLoadedBook()
     else {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer.rawValue)
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer)
       return
     }
 
