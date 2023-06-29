@@ -112,6 +112,7 @@ extension AppTabBarController: Themeable {
       : .default
     setNeedsStatusBarAppearanceUpdate()
     self.tabBar.backgroundColor = theme.systemBackgroundColor
+    self.tabBar.barTintColor = theme.systemBackgroundColor
     self.tabBar.tintColor = theme.linkColor
 
     self.miniPlayer.layer.shadowColor = theme.primaryColor.cgColor
