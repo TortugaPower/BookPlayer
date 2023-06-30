@@ -41,7 +41,6 @@ class MainCoordinator: Coordinator {
 
     super.init(navigationController: navigationController, flowType: .modal)
 
-    accountService.setDelegate(self)
     setUpTheming()
   }
 
@@ -70,7 +69,7 @@ class MainCoordinator: Coordinator {
 
     bindObservers()
 
-    accountService.loginIfUserExists()
+    accountService.loginIfUserExists(delegate: self)
 
     startLibraryCoordinator(with: tabBarController)
 
@@ -147,6 +146,7 @@ class MainCoordinator: Coordinator {
           self.socketService.disconnectSocket()
            */
           self.syncService.isActive = false
+          self.syncService.cancelAllJobs()
         }
 
       })

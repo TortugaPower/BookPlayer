@@ -67,13 +67,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   let libraryService: LibrarySyncProtocol
   var jobManager: JobSchedulerProtocol
   let client: NetworkClientProtocol
-  public var isActive = false {
-    didSet {
-      if isActive == false {
-        jobManager.cancelAllJobs()
-      }
-    }
-  }
+  public var isActive: Bool
 
   public var queuedJobsCount: Int { jobManager.queuedJobsCount }
 
@@ -82,10 +76,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
 
   public init(
+    isActive: Bool,
     libraryService: LibrarySyncProtocol,
     jobManager: JobSchedulerProtocol = SyncJobScheduler(),
     client: NetworkClientProtocol = NetworkClient()
   ) {
+    self.isActive = isActive
     self.libraryService = libraryService
     self.jobManager = jobManager
     self.client = client

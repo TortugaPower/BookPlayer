@@ -40,10 +40,9 @@ public protocol AccountServiceProtocol {
   func getAccountId() -> String?
   func getAccount() -> Account?
   func hasAccount() -> Bool
+  func hasActiveSubscription() -> Bool
 
   func createAccount(donationMade: Bool)
-
-  func setDelegate(_ delegate: PurchasesDelegate)
 
   func updateAccount(from customerInfo: CustomerInfo)
 
@@ -65,7 +64,9 @@ public protocol AccountServiceProtocol {
     with token: String,
     userId: String
   ) async throws -> Account?
-  func loginIfUserExists()
+  /// Load up stored user into RevenueCat's SDK to start listening to events
+  /// - Parameter delegate: Delegate that will handle any changes to the customer info
+  func loginIfUserExists(delegate: PurchasesDelegate)
 
   func logout() throws
   func deleteAccount() async throws -> String
@@ -120,6 +121,10 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     return false
+  }
+
+  public func hasActiveSubscription() -> Bool {
+    return getAccount()?.hasSubscription == true
   }
 
   public func createAccount(donationMade: Bool) {
@@ -258,10 +263,17 @@ public final class AccountService: AccountServiceProtocol {
     return self.getAccount()
   }
 
-  public func loginIfUserExists() {
-    guard let account = self.getAccount(), !account.id.isEmpty else { return }
+  public func loginIfUserExists(delegate: PurchasesDelegate) {
+    guard let account = self.getAccount(), !account.id.isEmpty else {
+      Purchases.shared.delegate = delegate
+      return
+    }
 
     Purchases.shared.logIn(account.id) { [weak self] customerInfo, _, _ in
+      defer {
+        Purchases.shared.delegate = delegate
+      }
+
       guard let customerInfo = customerInfo else { return }
 
       self?.updateAccount(from: customerInfo)
