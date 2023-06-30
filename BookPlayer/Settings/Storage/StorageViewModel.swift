@@ -15,7 +15,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
 
   // MARK: - Properties
   
-  private let libraryService: LibraryServiceProtocol
+  let libraryService: LibraryServiceProtocol
   private let folderURL: URL
 
   @Published var publishedFiles = [StorageItem]() {
@@ -45,7 +45,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
 
-  lazy private var library: Library = {
+  lazy var library: Library = {
     libraryService.getLibrary()
   }()
 

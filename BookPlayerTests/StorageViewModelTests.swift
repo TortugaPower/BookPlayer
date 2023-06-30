@@ -13,11 +13,10 @@ import Foundation
 import Combine
 import XCTest
 
-class StorageViewModelMissingFileTests: XCTestCase {
-  var viewModel: StorageViewModel!
-  var subscription: AnyCancellable?
-  var directoryURL: URL!
-  let testPath = "/dev/null"
+final class StorageViewModelMissingFileTests: XCTestCase {
+  private var viewModel: StorageViewModel!
+  private var directoryURL: URL!
+  private let testPath = "/dev/null"
 
   func testSetupItem(in folder: String, filename: String) {
     let bookContents = "bookcontents".data(using: .utf8)!
@@ -69,19 +68,12 @@ class StorageViewModelMissingFileTests: XCTestCase {
 
   func testGetBrokenItems() {
     self.testSetup(with: "file-storage1.txt")
-    self.subscription?.cancel()
 
     let expectation = XCTestExpectation(description: "Items load expectation")
-
-    var loadedItems: [StorageItem]!
-    self.subscription = self.viewModel.observeFiles()
-      .sink { optionalItems in
-        guard let items = optionalItems else { return }
-        loadedItems = items
-        expectation.fulfill()
-      }
-
+    expectation.isInverted = true
     wait(for: [expectation], timeout: 5.0)
+
+    let loadedItems: [StorageItem] = self.viewModel.publishedFiles
     XCTAssert(loadedItems.count == 1)
 
     let brokenItems = self.viewModel.getBrokenItems()
@@ -90,7 +82,6 @@ class StorageViewModelMissingFileTests: XCTestCase {
 
   func testHandleFixItem() throws {
     self.testSetup(with: "file-storage2.txt")
-    self.subscription?.cancel()
     let item = StorageItem(title: "item",
                            fileURL: self.directoryURL.appendingPathComponent("file-storage2.txt"),
                            path: self.directoryURL.path,
@@ -101,17 +92,10 @@ class StorageViewModelMissingFileTests: XCTestCase {
     try self.viewModel.handleFix(for: item)
 
     let expectation = XCTestExpectation(description: "Items load expectation")
-
-    var loadedItems: [StorageItem]!
-    self.subscription = self.viewModel.observeFiles()
-      .sink { optionalItems in
-        guard let items = optionalItems,
-        items.contains(where: { !$0.showWarning }) else { return }
-        loadedItems = items
-        expectation.fulfill()
-      }
-
+    expectation.isInverted = true
     wait(for: [expectation], timeout: 5.0)
+
+    let loadedItems: [StorageItem] = viewModel.publishedFiles
     XCTAssert(loadedItems.count == 1)
 
     let brokenItems = self.viewModel.getBrokenItems()
@@ -123,19 +107,15 @@ class StorageViewModelMissingFileTests: XCTestCase {
     let bookName = "idyllica_04_herrick_64kb.mp3"
 
     self.testSetupItem(in: folderName, filename: bookName)
-    self.subscription?.cancel()
 
     let expectation = XCTestExpectation(description: "Items load expectation")
-
-    var loadedFileURL: URL!
-    self.subscription = self.viewModel.observeFiles()
-      .sink { optionalItems in
-        guard let item = optionalItems?.first else { return }
-        loadedFileURL = item.fileURL
-        expectation.fulfill()
-      }
-
+    expectation.isInverted = true
     wait(for: [expectation], timeout: 5.0)
+    
+    guard let item = viewModel.publishedFiles.first else {
+      return
+    }
+    let loadedFileURL: URL = item.fileURL
 
     // Manual recreation of folder and book inside library
     let folder = try self.viewModel.libraryService.createFolder(with: folderName, inside: nil)
