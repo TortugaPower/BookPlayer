@@ -156,7 +156,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
     /// Update data or store
     if !itemsToUpdate.isEmpty {
-      libraryService.updateInfo(from: itemsToUpdate)
+      await libraryService.updateInfo(from: itemsToUpdate)
     }
 
     return (fetchedItems, lastItemPlayed)
@@ -205,12 +205,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        libraryService.addBook(from: item, parentFolder: nil)
+        await libraryService.addBook(from: item, parentFolder: nil)
       case .bound:
-        libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
         try await fetchBoundContents(for: item)
       case .folder:
-        libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
       }
     }
   }
@@ -226,7 +226,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let bookmarks = try await fetchBookmarks(for: relativePath)
 
     for bookmark in bookmarks {
-      libraryService.addBookmark(from: bookmark)
+      await libraryService.addBookmark(from: bookmark)
     }
 
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
@@ -241,7 +241,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// All fetched items inside a bound folder are always books
     for fetchedItem in fetchedItems {
-      libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
+      await libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
     }
   }
 
@@ -252,12 +252,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        self.libraryService.addBook(from: item, parentFolder: parentFolder)
+        await libraryService.addBook(from: item, parentFolder: parentFolder)
       case .bound:
-        self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
         _ = try await syncListContents(at: item.relativePath)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }
     }
   }

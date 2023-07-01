@@ -93,18 +93,24 @@ public class DataManager {
     self.coreDataStack.saveContext()
   }
 
-  public func saveSyncContext() {
-    coreDataStack.managedContext.performAndWait { [weak self] in
-      self?.coreDataStack.saveContext()
-    }
+  public func saveSyncContext(_ context: NSManagedObjectContext) {
+    coreDataStack.saveContext(context)
   }
 
   public func getBackgroundContext() -> NSManagedObjectContext {
     return self.coreDataStack.getBackgroundContext()
   }
 
+  public func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+    coreDataStack.performBackgroundTask(block)
+  }
+
+  public func delete(_ item: NSManagedObject, context: NSManagedObjectContext) {
+    context.delete(item)
+    saveSyncContext(context)
+  }
+
   public func delete(_ item: NSManagedObject) {
-    self.coreDataStack.managedContext.delete(item)
-    self.saveContext()
+    delete(item, context: coreDataStack.managedContext)
   }
 }

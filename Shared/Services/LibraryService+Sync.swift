@@ -22,86 +22,106 @@ public protocol LibrarySyncProtocol {
   func getMaxItemsCount(at relativePath: String?) -> Int
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
 
-  func updateInfo(from items: [SyncableItem])
-  func addBook(from item: SyncableItem, parentFolder: String?)
-  func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?)
-  func addBookmark(from bookmark: SimpleBookmark)
+  func updateInfo(from items: [SyncableItem]) async
+  func addBook(from item: SyncableItem, parentFolder: String?) async
+  func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) async
+  func addBookmark(from bookmark: SimpleBookmark) async
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func updateInfo(from items: [SyncableItem]) {
-    for item in items {
-      guard let localItem = getItem(with: item.relativePath) else { continue }
+  public func updateInfo(from items: [SyncableItem]) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        for item in items {
+          guard let localItem = getItem(with: item.relativePath, context: context) else { continue }
 
-      localItem.title = item.title
-      localItem.details = item.details
-      localItem.currentTime = item.currentTime
-      localItem.duration = item.duration
-      localItem.isFinished = item.isFinished
-      localItem.orderRank = Int16(item.orderRank)
-      localItem.percentCompleted = item.percentCompleted
-      localItem.remoteURL = item.remoteURL
-      localItem.artworkURL = item.artworkURL
-      localItem.type = item.type.itemType
-      localItem.speed = Float(item.speed ?? 1.0)
-      if let timestamp = item.lastPlayDateTimestamp {
-        localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-      } else {
-        localItem.lastPlayDate = nil
+          localItem.title = item.title
+          localItem.details = item.details
+          localItem.currentTime = item.currentTime
+          localItem.duration = item.duration
+          localItem.isFinished = item.isFinished
+          localItem.orderRank = Int16(item.orderRank)
+          localItem.percentCompleted = item.percentCompleted
+          localItem.remoteURL = item.remoteURL
+          localItem.artworkURL = item.artworkURL
+          localItem.type = item.type.itemType
+          localItem.speed = Float(item.speed ?? 1.0)
+          if let timestamp = item.lastPlayDateTimestamp {
+            localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+          } else {
+            localItem.lastPlayDate = nil
+          }
+        }
+
+        dataManager.saveSyncContext(context)
+        continuation.resume()
       }
     }
-
-    dataManager.saveSyncContext()
   }
 
-  public func addBook(from item: SyncableItem, parentFolder: String?) {
-    let newBook = Book(
-      syncItem: item,
-      context: self.dataManager.getContext()
-    )
+  public func addBook(from item: SyncableItem, parentFolder: String?) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        let newBook = Book(
+          syncItem: item,
+          context: context
+        )
 
-    if let relativePath = parentFolder,
-       let folder = self.getItem(with: relativePath) as? Folder {
-      folder.addToItems(newBook)
-    } else {
-      let library = self.getLibraryReference()
-      library.addToItems(newBook)
+        if let relativePath = parentFolder,
+           let folder = getItem(with: relativePath, context: context) as? Folder {
+          folder.addToItems(newBook)
+        } else {
+          let library = getLibraryReference(context: context)
+          library.addToItems(newBook)
+        }
+
+        dataManager.saveSyncContext(context)
+        continuation.resume()
+      }
     }
-
-    self.dataManager.saveSyncContext()
   }
 
-  public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) {
-    // This shouldn't fail
-    try? createFolderOnDisk(title: item.title, inside: parentFolder)
+  public func addFolder(from item: SyncableItem, type: SimpleItemType, parentFolder: String?) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        // This shouldn't fail
+        try? createFolderOnDisk(title: item.title, inside: parentFolder, context: context)
 
-    let newFolder = Folder(
-      syncItem: item,
-      context: self.dataManager.getContext()
-    )
+        let newFolder = Folder(
+          syncItem: item,
+          context: context
+        )
 
-    // insert into existing folder or library at index
-    if let relativePath = parentFolder,
-       let folder = getItemReference(with: relativePath) as? Folder {
-      folder.addToItems(newFolder)
-    } else {
-      let library = self.getLibraryReference()
-      library.addToItems(newFolder)
+        // insert into existing folder or library at index
+        if let relativePath = parentFolder,
+           let folder = getItemReference(with: relativePath, context: context) as? Folder {
+          folder.addToItems(newFolder)
+        } else {
+          let library = getLibraryReference(context: context)
+          library.addToItems(newFolder)
+        }
+
+        dataManager.saveSyncContext(context)
+        continuation.resume()
+      }
     }
-
-    self.dataManager.saveSyncContext()
   }
 
-  public func addBookmark(from bookmark: SimpleBookmark) {
-    if let fetchedBookmark = getBookmarkReference(from: bookmark) {
-      fetchedBookmark.note = bookmark.note
-    } else if let item = getItemReference(with: bookmark.relativePath) {
-      let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: dataManager.getContext())
-      newBookmark.note = bookmark.note
-      item.addToBookmarks(newBookmark)
-    }
+  public func addBookmark(from bookmark: SimpleBookmark) async {
+    return await withCheckedContinuation { continuation in
+      dataManager.performBackgroundTask { [unowned self] context in
+        if let fetchedBookmark = getBookmarkReference(from: bookmark, context: context) {
+          fetchedBookmark.note = bookmark.note
+        } else if let item = getItemReference(with: bookmark.relativePath, context: context) {
+          let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: context)
+          newBookmark.note = bookmark.note
+          item.addToBookmarks(newBookmark)
+        }
 
-    self.dataManager.saveSyncContext()
+        dataManager.saveSyncContext(context)
+        continuation.resume()
+      }
+    }
   }
 
   public func getItemsToSync(remoteIdentifiers: [String]) -> [SyncableItem]? {

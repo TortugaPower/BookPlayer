@@ -202,7 +202,7 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
-  func getItemReference(with relativePath: String) -> LibraryItem? {
+  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
@@ -211,7 +211,11 @@ public final class LibraryService: LibraryServiceProtocol {
       #keyPath(LibraryItem.originalFileName)
     ]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
+  }
+
+  func getItemReference(with relativePath: String) -> LibraryItem? {
+    return getItemReference(with: relativePath, context: dataManager.getContext())
   }
 
   public func hasItemProperty(_ property: String, relativePath: String) -> Bool {
@@ -387,13 +391,16 @@ extension LibraryService {
     return (try? context.fetch(fetch).first) ?? self.createLibrary()
   }
 
-  public func getLibraryReference() -> Library {
-    let context = self.dataManager.getContext()
+  func getLibraryReference(context: NSManagedObjectContext) -> Library {
     let fetch: NSFetchRequest<Library> = Library.fetchRequest()
     fetch.includesPropertyValues = false
     fetch.fetchLimit = 1
 
     return (try? context.fetch(fetch).first)!
+  }
+
+  public func getLibraryReference() -> Library {
+    return getLibraryReference(context: dataManager.getContext())
   }
 
   private func createLibrary() -> Library {
@@ -771,12 +778,16 @@ extension LibraryService {
     return parseFetchedItems(from: results)?.first
   }
 
-  public func getItem(with relativePath: String) -> LibraryItem? {
+  func getItem(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
+  }
+
+  public func getItem(with relativePath: String) -> LibraryItem? {
+    return getItem(with: relativePath, context: dataManager.getContext())
   }
 
   public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
@@ -986,7 +997,7 @@ extension LibraryService {
     dataManager.saveContext()
   }
 
-  func createFolderOnDisk(title: String, inside relativePath: String?) throws {
+  func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
     let processedFolder = DataManager.getProcessedFolderURL()
     let destinationURL: URL
 
@@ -996,11 +1007,15 @@ extension LibraryService {
       destinationURL = processedFolder.appendingPathComponent(title)
     }
 
-    try? removeFolderIfNeeded(destinationURL)
+    try? removeFolderIfNeeded(destinationURL, context: context)
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
   }
 
-  func hasLibraryLinked(item: LibraryItem) -> Bool {
+  func createFolderOnDisk(title: String, inside relativePath: String?) throws {
+    try createFolderOnDisk(title: title, inside: relativePath, context: dataManager.getContext())
+  }
+
+  func hasLibraryLinked(item: LibraryItem, context: NSManagedObjectContext) -> Bool {
     var keyPath = item.relativePath.split(separator: "/")
       .dropLast()
       .map({ _ in return "folder" })
@@ -1012,25 +1027,33 @@ extension LibraryService {
 
     fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
 
-    return (try? self.dataManager.getContext().fetch(fetchRequest).first) != nil
+    return (try? context.fetch(fetchRequest).first) != nil
   }
 
-  func removeFolderIfNeeded(_ fileURL: URL) throws {
+  func hasLibraryLinked(item: LibraryItem) -> Bool {
+    hasLibraryLinked(item: item, context: dataManager.getContext())
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL, context: NSManagedObjectContext) throws {
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
     let folderPath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
 
     // Delete folder if it belongs to an orphaned folder
-    if let existingFolder = getItemReference(with: folderPath) as? Folder {
-      if !self.hasLibraryLinked(item: existingFolder) {
+    if let existingFolder = getItemReference(with: folderPath, context: context) as? Folder {
+      if !self.hasLibraryLinked(item: existingFolder, context: context) {
         // Delete folder if it doesn't belong to active folder
         try FileManager.default.removeItem(at: fileURL)
-        self.dataManager.delete(existingFolder)
+        self.dataManager.delete(existingFolder, context: context)
       }
     } else {
       // Delete folder if it doesn't belong to active folder
       try FileManager.default.removeItem(at: fileURL)
     }
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL) throws {
+    try removeFolderIfNeeded(fileURL, context: dataManager.getContext())
   }
 
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
@@ -1611,8 +1634,7 @@ extension LibraryService {
     })
   }
 
-  func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
-
+  func getBookmarkReference(from bookmark: SimpleBookmark, context: NSManagedObjectContext) -> Bookmark? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "%K == %@ && type == %d && time == %f",
@@ -1628,7 +1650,11 @@ extension LibraryService {
       #keyPath(Bookmark.type),
     ]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
+  }
+
+  func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
+    return getBookmarkReference(from: bookmark, context: dataManager.getContext())
   }
 
   public func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
