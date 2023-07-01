@@ -101,10 +101,6 @@ public class DataManager {
     return self.coreDataStack.getBackgroundContext()
   }
 
-  public func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
-    coreDataStack.performBackgroundTask(block)
-  }
-
   public func delete(_ item: NSManagedObject, context: NSManagedObjectContext) {
     context.delete(item)
     saveSyncContext(context)

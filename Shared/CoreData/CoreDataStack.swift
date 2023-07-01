@@ -51,7 +51,6 @@ public class CoreDataStack {
   public func loadStore(completionHandler: ((NSPersistentStoreDescription, Error?) -> Void)?) {
     self.storeContainer.loadPersistentStores { storeDescription, error in
       self.storeContainer.viewContext.undoManager = nil
-      self.storeContainer.viewContext.automaticallyMergesChangesFromParent = true
       completionHandler?(storeDescription, error)
     }
   }
@@ -71,9 +70,5 @@ public class CoreDataStack {
 
   public func getBackgroundContext() -> NSManagedObjectContext {
     return self.storeContainer.newBackgroundContext()
-  }
-
-  public func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
-    storeContainer.performBackgroundTask(block)
   }
 }
