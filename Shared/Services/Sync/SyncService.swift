@@ -118,21 +118,19 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
+    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
     let now = Date().timeIntervalSince1970
-
-    let lastSync = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp)
+    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
       throw BookPlayerError.networkError("Throttled sync operation")
     }
 
-    if relativePath == nil {
-      UserDefaults.standard.set(
-        Date().timeIntervalSince1970,
-        forKey: Constants.UserDefaults.lastSyncTimestamp
-      )
-    }
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: userDefaultsKey
+    )
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: relativePath)
 
@@ -185,7 +183,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     UserDefaults.standard.set(
       Date().timeIntervalSince1970,
-      forKey: Constants.UserDefaults.lastSyncTimestamp
+      forKey: "\(Constants.UserDefaults.lastSyncTimestamp)_library"
     )
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
