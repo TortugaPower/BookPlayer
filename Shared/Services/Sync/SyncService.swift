@@ -120,7 +120,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let now = Date().timeIntervalSince1970
 
-    let lastSync = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue)
+    let lastSync = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp)
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
