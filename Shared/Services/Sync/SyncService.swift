@@ -118,6 +118,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
+    let now = Date().timeIntervalSince1970
+
+    let lastSync = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastSyncTimestamp.rawValue)
+
+    /// Do not sync if one minute hasn't passed since last sync
+    guard now - lastSync > 60 else {
+      throw BookPlayerError.networkError("Throttled sync operation")
+    }
+
     if relativePath == nil {
       UserDefaults.standard.set(
         Date().timeIntervalSince1970,
@@ -129,7 +138,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     guard !fetchedItems.isEmpty else { return nil }
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: relativePath) ?? []
+    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: relativePath) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -159,6 +168,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       await libraryService.updateInfo(from: itemsToUpdate)
     }
 
+    if let lastItemPlayed {
+      await libraryService.updateLastPlayedInfo(lastItemPlayed)
+    }
+
     return (fetchedItems, lastItemPlayed)
   }
 
@@ -177,7 +190,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: nil) ?? []
+    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: nil) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()

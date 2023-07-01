@@ -790,7 +790,11 @@ extension LibraryService {
     return getItem(with: relativePath, context: dataManager.getContext())
   }
 
-  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+  public func getItems(
+    notIn relativePaths: [String],
+    parentFolder: String?,
+    context: NSManagedObjectContext
+  ) -> [SimpleLibraryItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
@@ -812,9 +816,13 @@ extension LibraryService {
       )
     }
 
-    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
     return parseFetchedItems(from: results)
+  }
+
+  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+    return getItems(notIn: relativePaths, parentFolder: parentFolder, context: dataManager.getContext())
   }
 
   public func getItemProperty(_ property: String, relativePath: String) -> Any? {
@@ -831,6 +839,22 @@ extension LibraryService {
     let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any]
 
     return results?[property]
+  }
+
+  func getItemIdentifiers(in parentFolder: String?) -> [String]? {
+    return getItemIdentifiers(in: parentFolder, context: dataManager.getContext())
+  }
+
+  func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: ["relativePath"],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil
+    )
+
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+    return results?.compactMap({ $0["relativePath"] as? String })
   }
 
   public func filterContents(
