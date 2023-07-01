@@ -239,8 +239,8 @@ class LibraryListCoordinator: ItemListCoordinator {
 
     /// Check to update current time or not
     if item.relativePath == localLastItem.relativePath {
-      /// Add a padding of 5 mins to local time
-      if item.currentTime > (localLastItem.currentTime + 300) {
+      /// Add a padding of 1 min to local time
+      if item.currentTime > (localLastItem.currentTime + 60) {
         /// Continue playback after time sync
         let wasPlaying = playerManager.isPlaying
         playerManager.stop()
