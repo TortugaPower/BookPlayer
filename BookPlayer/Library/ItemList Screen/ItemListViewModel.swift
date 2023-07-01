@@ -26,7 +26,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
-    case bindImportObservers
+    case listDidAppear
   }
 
   enum Events {
@@ -119,8 +119,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     bindDownloadObservers()
   }
 
-  func bindImportObserverIfNeeded() {
-    onTransition?(.bindImportObservers)
+  /// Notify that the UI is presented and ready
+  func viewDidAppear() {
+    onTransition?(.listDidAppear)
   }
 
   func bindBookObservers() {

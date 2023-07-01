@@ -138,7 +138,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     if let sharedSyncService = AppDelegate.shared?.syncService {
       syncService = sharedSyncService
     } else {
-      syncService = SyncService(libraryService: libraryService)
+      syncService = SyncService(
+        isActive: accountService.hasActiveSubscription(),
+        libraryService: libraryService
+      )
       AppDelegate.shared?.syncService = syncService
     }
 

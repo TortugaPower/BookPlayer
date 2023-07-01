@@ -67,13 +67,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   let libraryService: LibrarySyncProtocol
   var jobManager: JobSchedulerProtocol
   let client: NetworkClientProtocol
-  public var isActive = false {
-    didSet {
-      if isActive == false {
-        jobManager.cancelAllJobs()
-      }
-    }
-  }
+  public var isActive: Bool
 
   public var queuedJobsCount: Int { jobManager.queuedJobsCount }
 
@@ -82,10 +76,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
 
   public init(
+    isActive: Bool,
     libraryService: LibrarySyncProtocol,
     jobManager: JobSchedulerProtocol = SyncJobScheduler(),
     client: NetworkClientProtocol = NetworkClient()
   ) {
+    self.isActive = isActive
     self.libraryService = libraryService
     self.jobManager = jobManager
     self.client = client
@@ -122,18 +118,25 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
-    if relativePath == nil {
-      UserDefaults.standard.set(
-        Date().timeIntervalSince1970,
-        forKey: Constants.UserDefaults.lastSyncTimestamp
-      )
+    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
+    let now = Date().timeIntervalSince1970
+    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
+
+    /// Do not sync if one minute hasn't passed since last sync
+    guard now - lastSync > 60 else {
+      throw BookPlayerError.networkError("Throttled sync operation")
     }
+
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: userDefaultsKey
+    )
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: relativePath)
 
     guard !fetchedItems.isEmpty else { return nil }
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: relativePath) ?? []
+    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: relativePath) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -160,7 +163,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
     /// Update data or store
     if !itemsToUpdate.isEmpty {
-      libraryService.updateInfo(from: itemsToUpdate)
+      await libraryService.updateInfo(from: itemsToUpdate)
+    }
+
+    if let lastItemPlayed {
+      await libraryService.updateLastPlayedInfo(lastItemPlayed)
     }
 
     return (fetchedItems, lastItemPlayed)
@@ -176,12 +183,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     UserDefaults.standard.set(
       Date().timeIntervalSince1970,
-      forKey: Constants.UserDefaults.lastSyncTimestamp
+      forKey: "\(Constants.UserDefaults.lastSyncTimestamp)_library"
     )
 
     let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
 
-    let libraryIdentifiers = libraryService.getItemIdentifiers(in: nil) ?? []
+    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: nil) ?? []
 
     var fetchedIdentifiers = [String]()
     var itemsToStore = [SyncableItem]()
@@ -209,12 +216,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        libraryService.addBook(from: item, parentFolder: nil)
+        await libraryService.addBook(from: item, parentFolder: nil)
       case .bound:
-        libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
         try await fetchBoundContents(for: item)
       case .folder:
-        libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
       }
     }
   }
@@ -230,7 +237,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let bookmarks = try await fetchBookmarks(for: relativePath)
 
     for bookmark in bookmarks {
-      libraryService.addBookmark(from: bookmark)
+      await libraryService.addBookmark(from: bookmark)
     }
 
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
@@ -245,7 +252,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// All fetched items inside a bound folder are always books
     for fetchedItem in fetchedItems {
-      libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
+      await libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
     }
   }
 
@@ -256,12 +263,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     for item in syncedItems {
       switch item.type {
       case .book:
-        self.libraryService.addBook(from: item, parentFolder: parentFolder)
+        await libraryService.addBook(from: item, parentFolder: parentFolder)
       case .bound:
-        self.libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
         _ = try await syncListContents(at: item.relativePath)
       case .folder:
-        self.libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
+        await libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
       }
     }
   }

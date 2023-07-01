@@ -11,6 +11,10 @@ import Foundation
 import RevenueCat
 
 class AccountServiceMock: AccountServiceProtocol {
+  func hasActiveSubscription() -> Bool {
+    return account?.hasSubscription == true
+  }
+
   var account: Account?
 
   init(account: Account?) {
@@ -82,7 +86,7 @@ class AccountServiceMock: AccountServiceProtocol {
     return try await Purchases.shared.customerInfo()
   }
 
-  func loginIfUserExists() {}
+  func loginIfUserExists(delegate: PurchasesDelegate) {}
 
   func login(with token: String, userId: String) async throws -> Account? {
     self.account?.id = userId

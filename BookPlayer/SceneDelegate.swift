@@ -85,6 +85,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if let libraryCoordinator = mainCoordinator.getLibraryCoordinator() {
       /// Sync list when app is active again
       libraryCoordinator.syncList()
+      /// Sync currently shown list
+      let listCoordinator = libraryCoordinator.getLastItemListCoordinator(from: libraryCoordinator)
+      if listCoordinator != libraryCoordinator {
+        listCoordinator.syncList()
+      }
       /// Register import observer in case it's not up already
       libraryCoordinator.bindImportObserverIfNeeded()
     }

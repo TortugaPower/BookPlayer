@@ -67,8 +67,8 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self?.showMiniPlayer(flag: flag)
-      case .bindImportObservers:
-        self?.bindImportObserverIfNeeded()
+      case .listDidAppear:
+        self?.handleLibraryLoaded()
       }
     }
     viewModel.coordinator = self
@@ -89,8 +89,6 @@ class LibraryListCoordinator: ItemListCoordinator {
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    self.loadLastBookIfNeeded()
-
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
         ActionParserService.handleAction(action)
@@ -100,7 +98,12 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.documentPickerDelegate = vc
 
     AppDelegate.shared?.watchConnectivityService?.startSession()
+  }
+
+  func handleLibraryLoaded() {
+    loadLastBookIfNeeded()
     syncList()
+    bindImportObserverIfNeeded()
   }
 
   func bindImportObserverIfNeeded() {
@@ -236,8 +239,8 @@ class LibraryListCoordinator: ItemListCoordinator {
 
     /// Check to update current time or not
     if item.relativePath == localLastItem.relativePath {
-      /// Add a padding of 5 mins to local time
-      if item.currentTime > (localLastItem.currentTime + 300) {
+      /// Add a padding of 1 min to local time
+      if item.currentTime > (localLastItem.currentTime + 60) {
         /// Continue playback after time sync
         let wasPlaying = playerManager.isPlaying
         playerManager.stop()

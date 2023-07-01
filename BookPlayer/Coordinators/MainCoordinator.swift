@@ -41,7 +41,6 @@ class MainCoordinator: Coordinator {
 
     super.init(navigationController: navigationController, flowType: .modal)
 
-    accountService.setDelegate(self)
     setUpTheming()
   }
 
@@ -70,7 +69,7 @@ class MainCoordinator: Coordinator {
 
     bindObservers()
 
-    accountService.loginIfUserExists()
+    accountService.loginIfUserExists(delegate: self)
 
     startLibraryCoordinator(with: tabBarController)
 
@@ -134,19 +133,16 @@ class MainCoordinator: Coordinator {
           /** Disable socket lifecycle events
           self.socketService.connectSocket()
            */
-          let libraryCoordinator = self.getLibraryCoordinator()
-
           if !self.syncService.isActive {
             self.syncService.isActive = true
-            libraryCoordinator?.syncLibrary()
-          } else if !self.playerManager.hasLoadedBook() {
-            libraryCoordinator?.loadLastBookIfNeeded()
+            self.getLibraryCoordinator()?.syncLibrary()
           }
         } else {
           /** Disable socket lifecycle events
           self.socketService.disconnectSocket()
            */
           self.syncService.isActive = false
+          self.syncService.cancelAllJobs()
         }
 
       })
