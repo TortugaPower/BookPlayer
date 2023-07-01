@@ -26,7 +26,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
-    case libraryDidAppear
+    case listDidAppear
   }
 
   enum Events {
@@ -121,10 +121,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
 
   /// Notify that the UI is presented and ready
   func viewDidAppear() {
-    /// Only pass for the root Library screen
-    if folderRelativePath == nil {
-      onTransition?(.libraryDidAppear)
-    }
+    onTransition?(.listDidAppear)
   }
 
   func bindBookObservers() {

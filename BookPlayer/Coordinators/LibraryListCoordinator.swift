@@ -67,7 +67,7 @@ class LibraryListCoordinator: ItemListCoordinator {
         self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self?.showMiniPlayer(flag: flag)
-      case .libraryDidAppear:
+      case .listDidAppear:
         self?.handleLibraryLoaded()
       }
     }
