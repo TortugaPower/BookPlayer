@@ -36,12 +36,12 @@ struct StorageRowView: View {
           .foregroundColor(themeViewModel.primaryColor)
 
         Text(item.path)
-          .font(.subheadline)
+          .font(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.secondaryColor)
 
         Text(item.formattedSize())
-          .font(.subheadline)
+          .font(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.secondaryColor)
       }

@@ -180,6 +180,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     case .fixAll:
       return fixAllAlert
     case .none:
+      // processing this case to use non-optional var for storageAlert.
+      // This case should not happen
       return Alert(title: Text(""))
     }
   }

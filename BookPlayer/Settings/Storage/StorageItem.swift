@@ -16,7 +16,7 @@ struct StorageItem: Identifiable {
   let size: Int64
   let showWarning: Bool
 
-  func formattedSize() -> String {
-    ByteCountFormatter.string(fromByteCount: self.size, countStyle: ByteCountFormatter.CountStyle.file)
+  var formattedSize: String {
+    ByteCountFormatter.string(fromByteCount: size, countStyle: ByteCountFormatter.CountStyle.file)
   }
 }
