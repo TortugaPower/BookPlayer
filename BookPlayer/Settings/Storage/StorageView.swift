@@ -55,7 +55,8 @@ struct StorageView: View {
           
           if viewModel.hasFilesWithWarning {
             Button("storage_fix_all_title".localized) {
-              viewModel.showFixAllAlert = true
+              viewModel.storageAlert = .fixAll
+              viewModel.showAlert = true
             }
             .foregroundColor(themeViewModel.linkColor)
           }
@@ -74,12 +75,12 @@ struct StorageView: View {
                 StorageRowView(
                   item: file,
                   onDeleteTap: {
-                    viewModel.actionItem = file
-                    viewModel.showDeleteAlert = true
+                    viewModel.storageAlert = .delete(item: file)
+                    viewModel.showAlert = true
                   },
                   onWarningTap: {
-                    viewModel.actionItem = file
-                    viewModel.showWarningAlert = true
+                    viewModel.storageAlert = .fix(item: file)
+                    viewModel.showAlert = true
                   }
                 )
                 .padding(.vertical, 5)
@@ -133,51 +134,8 @@ struct StorageView: View {
           }
         }
       }
-      .alert(isPresented: $viewModel.showErrorAlert) {
-        Alert(
-          title: Text("error_title".localized),
-          message: Text(viewModel.errorMessage),
-          dismissButton: .default(Text("ok_button".localized))
-        )
-      }
-      .alert(isPresented: $viewModel.showDeleteAlert) {
-        Alert(
-          title: Text(""),
-          message: Text(String(format: "delete_single_item_title".localized, viewModel.actionItem?.title ?? "")),
-          primaryButton: .cancel(
-            Text("cancel_button".localized)
-          ),
-          secondaryButton: .destructive(
-            Text("delete_button".localized),
-            action: viewModel.deleteSelectedItem
-          )
-        )
-      }
-      .alert(isPresented: $viewModel.showWarningAlert) {
-        Alert(
-          title: Text(""),
-          message: Text("storage_fix_file_description".localized),
-          primaryButton: .cancel(
-            Text("cancel_button".localized)
-          ),
-          secondaryButton: .default(
-            Text("storage_fix_file_button".localized),
-            action: viewModel.fixSelectedItem
-          )
-        )
-      }
-      .alert(isPresented: $viewModel.showFixAllAlert) {
-        Alert(
-          title: Text(""),
-          message: Text("storage_fix_files_description".localized),
-          primaryButton: .cancel(
-            Text("cancel_button".localized)
-          ),
-          secondaryButton: .default(
-            Text("storage_fix_file_button".localized),
-            action: viewModel.fixAllBrokenItems
-          )
-        )
+      .alert(isPresented: $viewModel.showAlert) {
+        viewModel.alert
       }
     }
   }

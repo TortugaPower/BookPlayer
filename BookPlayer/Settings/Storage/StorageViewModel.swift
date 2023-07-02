@@ -9,7 +9,7 @@
 import BookPlayerKit
 import Combine
 import DirectoryWatcher
-import Foundation
+import SwiftUI
 
 final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
 
@@ -24,18 +24,19 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
   @Published var hasFilesWithWarning = false
-  @Published var showErrorAlert = false
-  @Published var showDeleteAlert = false
-  @Published var showWarningAlert = false
-  @Published var showFixAllAlert = false
+  @Published var showAlert = false
   @Published var showProgressIndicator = false
 
-  var errorMessage = ""
-  var actionItem: StorageItem?
-  
-  enum SortBy: Int, CaseIterable, Identifiable {
+  enum SortBy: Int {
     case size, title
-    var id: Self { self }
+  }
+  
+  enum StorageAlert {
+    case error(errorMessage: String)
+    case delete(item: StorageItem)
+    case fix(item: StorageItem)
+    case fixAll
+    case none // to avoid optional
   }
   
   @Published var sortBy: SortBy {
@@ -44,6 +45,8 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
       UserDefaults.standard.set(sortBy.rawValue, forKey: Constants.UserDefaults.storageFilesSortOrder)
     }
   }
+  
+  var storageAlert: StorageAlert = .none
 
   lazy var library: Library = {
     libraryService.getLibrary()
@@ -124,30 +127,22 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
   
-  func deleteSelectedItem() {
-    guard let actionItem else {
-      return
-    }
+  func deleteSelectedItem(_ item: StorageItem) {
     do {
-      try handleDelete(for: actionItem)
+      try handleDelete(for: item)
     } catch {
-      errorMessage = error.localizedDescription
-      showErrorAlert = true
+      storageAlert = .error(errorMessage: error.localizedDescription)
+      showAlert = true
     }
-    self.actionItem = nil
   }
   
-  func fixSelectedItem() {
-    guard let actionItem else {
-      return
-    }
+  func fixSelectedItem(_ item: StorageItem) {
     do {
-      try handleFix(for: actionItem)
+      try handleFix(for: item)
     } catch {
-      errorMessage = error.localizedDescription
-      showErrorAlert = true
+      storageAlert = .error(errorMessage: error.localizedDescription)
+      showAlert = true
     }
-    self.actionItem = nil
   }
   
   func fixAllBrokenItems() {
@@ -166,10 +161,26 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
       } catch {
         DispatchQueue.main.async { [weak self] in
           self?.showProgressIndicator = false
-          self?.errorMessage = error.localizedDescription
-          self?.showErrorAlert = true
+          self?.storageAlert = .error(errorMessage: error.localizedDescription)
+          self?.showAlert = true
         }
       }
+    }
+  }
+  
+  var alert: Alert {
+    
+    switch storageAlert {
+    case .error(let errorMessage):
+      return errorAlert(errorMessage)
+    case .delete(let item):
+      return deleteAlert(for: item)
+    case .fix(let item):
+      return fixAlert(for: item)
+    case .fixAll:
+      return fixAllAlert
+    case .none:
+      return Alert(title: Text(""))
     }
   }
     
@@ -196,7 +207,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
         
         let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
         let fetchedTitle = self.libraryService.getItemProperty(
-          #keyPath(LibraryItem.title),
+          #keyPath(BookPlayerKit.LibraryItem.title),
           relativePath: currentRelativePath
         ) as? String
         
@@ -223,7 +234,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
 
   private func bookExists(_ relativePath: String, library: Library) -> Bool {
-    guard let items = library.items?.allObjects as? [LibraryItem] else {
+    guard let items = library.items?.allObjects as? [BookPlayerKit.LibraryItem] else {
       return false
     }
 
@@ -238,7 +249,7 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
 
-  private func getItem(with relativePath: String, from item: LibraryItem) -> LibraryItem? {
+  private func getItem(with relativePath: String, from item: BookPlayerKit.LibraryItem) -> BookPlayerKit.LibraryItem? {
     switch item {
     case let folder as Folder:
       return getItem(with: relativePath, from: folder)
@@ -249,12 +260,12 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     }
   }
 
-  private func getItem(with relativePath: String, from folder: Folder) -> LibraryItem? {
-    guard let items = folder.items?.allObjects as? [LibraryItem] else {
+  private func getItem(with relativePath: String, from folder: Folder) -> BookPlayerKit.LibraryItem? {
+    guard let items = folder.items?.allObjects as? [BookPlayerKit.LibraryItem] else {
       return nil
     }
 
-    var itemFound: LibraryItem?
+    var itemFound: BookPlayerKit.LibraryItem?
 
     for item in items {
       if let libraryItem = getItem(with: relativePath, from: item) {
@@ -307,7 +318,6 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   private func handleDelete(for item: StorageItem) throws {
     let filteredFiles = publishedFiles.filter { $0.fileURL != item.fileURL }
     publishedFiles = self.sortedItems(items: filteredFiles)
-    
     try FileManager.default.removeItem(at: item.fileURL)
   }
   
@@ -325,6 +335,60 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     try handleFix(for: currentItem, shouldReloadItems: false)
     
     try handleFix(for: mutableItems, completion: completion)
+  }
+  
+  private var fixAllAlert: Alert {
+    Alert(
+      title: Text(""),
+      message: Text("storage_fix_files_description".localized),
+      primaryButton: .cancel(
+        Text("cancel_button".localized)
+      ),
+      secondaryButton: .default(
+        Text("storage_fix_file_button".localized),
+        action: fixAllBrokenItems
+      )
+    )
+  }
+  
+  private func deleteAlert(for item: StorageItem) -> Alert {
+    Alert(
+      title: Text(""),
+      message: Text(String(format: "delete_single_item_title".localized, item.title)),
+      primaryButton: .cancel(
+        Text("cancel_button".localized)
+      ),
+      secondaryButton: .destructive(
+        Text("delete_button".localized),
+        action: { [weak self] in
+          self?.deleteSelectedItem(item)
+        }
+      )
+    )
+  }
+  
+  private func fixAlert(for item: StorageItem) -> Alert {
+    Alert(
+      title: Text(""),
+      message: Text("storage_fix_file_description".localized),
+      primaryButton: .cancel(
+        Text("cancel_button".localized)
+      ),
+      secondaryButton: .default(
+        Text("storage_fix_file_button".localized),
+        action: { [weak self] in
+          self?.fixSelectedItem(item)
+        }
+      )
+    )
+  }
+  
+  private func errorAlert(_ message: String) -> Alert {
+    Alert(
+      title: Text("error_title".localized),
+      message: Text(message),
+      dismissButton: .default(Text("ok_button".localized))
+    )
   }
 }
 
