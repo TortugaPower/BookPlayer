@@ -40,7 +40,7 @@ struct StorageRowView: View {
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.secondaryColor)
 
-        Text(item.formattedSize())
+        Text(item.formattedSize)
           .font(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.secondaryColor)
