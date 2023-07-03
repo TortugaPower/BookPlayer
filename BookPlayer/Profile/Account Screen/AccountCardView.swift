@@ -14,6 +14,7 @@ class AccountCardView: UIView {
   private lazy var containerProfileImageView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     view.layer.masksToBounds = true
     view.layer.cornerRadius = containerProfileImageWidth / 2
     return view
@@ -21,12 +22,14 @@ class AccountCardView: UIView {
 
   private lazy var profileImageView: UIImageView = {
     let imageView = UIImageView(image: UIImage(systemName: "person"))
+    imageView.isAccessibilityElement = false
     imageView.translatesAutoresizingMaskIntoConstraints = false
     return imageView
   }()
 
   private lazy var accountLabel: UILabel = {
     let label = BaseLabel()
+    label.isAccessibilityElement = false
     label.text = title
     label.font = Fonts.titleRegular
     return label
@@ -60,6 +63,9 @@ class AccountCardView: UIView {
     addSubviews()
     addConstraints()
     setUpTheming()
+
+    isAccessibilityElement = true
+    accessibilityLabel = title
   }
 
   required init?(coder: NSCoder) {
