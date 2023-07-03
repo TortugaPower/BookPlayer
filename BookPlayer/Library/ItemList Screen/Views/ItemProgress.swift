@@ -66,7 +66,6 @@ class ItemProgress: UIView {
         self.setup()
     }
 
-    // swiftlint:disable:next function_body_length
     private func setup() {
         self.isOpaque = false
         self.backgroundColor = .clear
@@ -130,7 +129,6 @@ class ItemProgress: UIView {
         self.setUpTheming()
     }
 
-    // swiftlint:disable:next function_body_length
     override func draw(_ rect: CGRect) {
         let width = self.bounds.size.width
         let height = self.bounds.size.height

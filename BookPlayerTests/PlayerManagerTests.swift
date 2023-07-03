@@ -19,8 +19,8 @@ class PlayerManagerTests: XCTestCase {
 
   override func setUp() {
     // Clean up stored configs
-    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
     self.sut = PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
       playbackService: PlaybackServiceProtocolMock(),
@@ -92,7 +92,7 @@ class PlayerManagerTests: XCTestCase {
   func testUpdatingGlobalRemainingNowPlayingBookTime() {
     // playback speed should affect duration time set
     self.sut.setSpeed(2)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 20
@@ -109,7 +109,7 @@ class PlayerManagerTests: XCTestCase {
   func testUpdatingChapterNowPlayingBookTime() {
     // playback speed shouldn't affect duration time set
     self.sut.setSpeed(2)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 10
@@ -126,8 +126,8 @@ class PlayerManagerTests: XCTestCase {
   func testUpdatingChapterRemainingNowPlayingBookTime() {
     // playback speed should affect duration time set
     self.sut.setSpeed(2)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 10

@@ -125,7 +125,7 @@ class IconsViewController: UIViewController, Storyboarded {
             return
         }
 
-        self.userDefaults?.set(iconName, forKey: Constants.UserDefaults.appIcon.rawValue)
+        self.userDefaults?.set(iconName, forKey: Constants.UserDefaults.appIcon)
 
         let icon = iconName == "Default" ? nil : iconName
 
@@ -156,7 +156,7 @@ extension IconsViewController: UITableViewDataSource {
         cell.iconImage = UIImage(named: item.imageName)
         cell.isLocked = item.isLocked && !self.viewModel.hasMadeDonation()
 
-        let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon.rawValue) ?? "Default"
+        let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
 
         cell.accessoryType = item.id == currentAppIcon
             ? .checkmark

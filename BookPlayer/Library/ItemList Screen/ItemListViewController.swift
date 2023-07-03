@@ -27,6 +27,9 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @IBOutlet weak var tableView: UITableView!
 
+  /// This is required to know if the initial Library layout is presented, and other screens can be presented on top
+  private var didAppearForFirstTime = true
+
   private lazy var searchButton: UIBarButtonItem = {
     return UIBarButtonItem(systemItem: .search, primaryAction: UIAction { [weak self] _ in
       self?.navigationItem.backButtonDisplayMode = .minimal
@@ -98,7 +101,10 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
-    viewModel.bindImportObserverIfNeeded()
+    if didAppearForFirstTime {
+      didAppearForFirstTime = false
+      viewModel.viewDidAppear()
+    }
   }
 
   func addSubviews() {
@@ -415,7 +421,7 @@ extension ItemListViewController: UITableViewDataSource {
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    guard section == SectionType.data.rawValue else { return 1 }
+    guard section == BPSection.data.rawValue else { return 1 }
 
     return self.viewModel.items.count
   }

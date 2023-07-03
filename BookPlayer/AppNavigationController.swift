@@ -80,16 +80,24 @@ extension AppNavigationController: Themeable {
 
     navigationBar.barTintColor = theme.systemBackgroundColor
     navigationBar.tintColor = theme.linkColor
-    navigationBar.titleTextAttributes = [
-      NSAttributedString.Key.foregroundColor: theme.primaryColor
-    ]
-    navigationBar.largeTitleTextAttributes = [
-      NSAttributedString.Key.foregroundColor: theme.primaryColor
-    ]
+
     self.separatorView.backgroundColor = theme.separatorColor
     navigationBar.scrollEdgeAppearance?.backgroundColor = theme.systemBackgroundColor
     navigationBar.compactAppearance?.backgroundColor = theme.systemBackgroundColor
     navigationBar.standardAppearance.backgroundColor = theme.systemBackgroundColor
+
+    let titleTextAttributes: [NSAttributedString.Key: Any] = [
+      NSAttributedString.Key.foregroundColor: theme.primaryColor
+    ]
+    navigationBar.titleTextAttributes = titleTextAttributes
+    navigationBar.largeTitleTextAttributes = titleTextAttributes
+    navigationBar.scrollEdgeAppearance?.titleTextAttributes = titleTextAttributes
+    navigationBar.scrollEdgeAppearance?.largeTitleTextAttributes = titleTextAttributes
+    navigationBar.compactAppearance?.titleTextAttributes = titleTextAttributes
+    navigationBar.compactAppearance?.largeTitleTextAttributes = titleTextAttributes
+    navigationBar.standardAppearance.titleTextAttributes = titleTextAttributes
+    navigationBar.standardAppearance.largeTitleTextAttributes = titleTextAttributes
+
     self.view.backgroundColor = theme.systemBackgroundColor
   }
 }

@@ -15,6 +15,8 @@ import Combine
 public protocol LibraryServiceProtocol {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+  /// Progress publisher that debounces changes during 10 seconds before emitting the last payload
+  var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
@@ -136,7 +138,9 @@ public final class LibraryService: LibraryServiceProtocol {
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
-  /// Public metadata publisher that collects changes during 4 seconds before normalizing the payload
+  /// Internal passthrough publisher for emitting item's progress update events
+  private var progressPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
+  /// Public metadata publisher that collects changes during 10 seconds before normalizing the payload
   public lazy var metadataUpdatePublisher = metadataPassthroughPublisher
     .collect(.byTime(DispatchQueue.main, .seconds(10)))
     .flatMap({ changes in
@@ -154,6 +158,10 @@ public final class LibraryService: LibraryServiceProtocol {
       let resultsArray = Array(results.values) as [[String: Any]]
       return resultsArray.publisher
     })
+    .eraseToAnyPublisher()
+  /// Public progress publisher that debounces changes during 10 seconds before emitting the last event
+  public lazy var progressUpdatePublisher = progressPassthroughPublisher
+    .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
     .eraseToAnyPublisher()
 
   public init(dataManager: DataManager) {
@@ -194,7 +202,7 @@ public final class LibraryService: LibraryServiceProtocol {
     }
   }
 
-  func getItemReference(with relativePath: String) -> LibraryItem? {
+  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
@@ -203,7 +211,11 @@ public final class LibraryService: LibraryServiceProtocol {
       #keyPath(LibraryItem.originalFileName)
     ]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
+  }
+
+  func getItemReference(with relativePath: String) -> LibraryItem? {
+    return getItemReference(with: relativePath, context: dataManager.getContext())
   }
 
   public func hasItemProperty(_ property: String, relativePath: String) -> Bool {
@@ -379,13 +391,16 @@ extension LibraryService {
     return (try? context.fetch(fetch).first) ?? self.createLibrary()
   }
 
-  public func getLibraryReference() -> Library {
-    let context = self.dataManager.getContext()
+  func getLibraryReference(context: NSManagedObjectContext) -> Library {
     let fetch: NSFetchRequest<Library> = Library.fetchRequest()
     fetch.includesPropertyValues = false
     fetch.fetchLimit = 1
 
     return (try? context.fetch(fetch).first)!
+  }
+
+  public func getLibraryReference() -> Library {
+    return getLibraryReference(context: dataManager.getContext())
   }
 
   private func createLibrary() -> Library {
@@ -763,15 +778,23 @@ extension LibraryService {
     return parseFetchedItems(from: results)?.first
   }
 
-  public func getItem(with relativePath: String) -> LibraryItem? {
+  func getItem(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
   }
 
-  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+  public func getItem(with relativePath: String) -> LibraryItem? {
+    return getItem(with: relativePath, context: dataManager.getContext())
+  }
+
+  public func getItems(
+    notIn relativePaths: [String],
+    parentFolder: String?,
+    context: NSManagedObjectContext
+  ) -> [SimpleLibraryItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
@@ -793,9 +816,13 @@ extension LibraryService {
       )
     }
 
-    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
     return parseFetchedItems(from: results)
+  }
+
+  public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
+    return getItems(notIn: relativePaths, parentFolder: parentFolder, context: dataManager.getContext())
   }
 
   public func getItemProperty(_ property: String, relativePath: String) -> Any? {
@@ -812,6 +839,22 @@ extension LibraryService {
     let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any]
 
     return results?[property]
+  }
+
+  func getItemIdentifiers(in parentFolder: String?) -> [String]? {
+    return getItemIdentifiers(in: parentFolder, context: dataManager.getContext())
+  }
+
+  func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: ["relativePath"],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil
+    )
+
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+    return results?.compactMap({ $0["relativePath"] as? String })
   }
 
   public func filterContents(
@@ -978,7 +1021,7 @@ extension LibraryService {
     dataManager.saveContext()
   }
 
-  func createFolderOnDisk(title: String, inside relativePath: String?) throws {
+  func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
     let processedFolder = DataManager.getProcessedFolderURL()
     let destinationURL: URL
 
@@ -988,11 +1031,15 @@ extension LibraryService {
       destinationURL = processedFolder.appendingPathComponent(title)
     }
 
-    try? removeFolderIfNeeded(destinationURL)
+    try? removeFolderIfNeeded(destinationURL, context: context)
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
   }
 
-  func hasLibraryLinked(item: LibraryItem) -> Bool {
+  func createFolderOnDisk(title: String, inside relativePath: String?) throws {
+    try createFolderOnDisk(title: title, inside: relativePath, context: dataManager.getContext())
+  }
+
+  func hasLibraryLinked(item: LibraryItem, context: NSManagedObjectContext) -> Bool {
     var keyPath = item.relativePath.split(separator: "/")
       .dropLast()
       .map({ _ in return "folder" })
@@ -1004,25 +1051,33 @@ extension LibraryService {
 
     fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
 
-    return (try? self.dataManager.getContext().fetch(fetchRequest).first) != nil
+    return (try? context.fetch(fetchRequest).first) != nil
   }
 
-  func removeFolderIfNeeded(_ fileURL: URL) throws {
+  func hasLibraryLinked(item: LibraryItem) -> Bool {
+    hasLibraryLinked(item: item, context: dataManager.getContext())
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL, context: NSManagedObjectContext) throws {
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
     let folderPath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
 
     // Delete folder if it belongs to an orphaned folder
-    if let existingFolder = getItemReference(with: folderPath) as? Folder {
-      if !self.hasLibraryLinked(item: existingFolder) {
+    if let existingFolder = getItemReference(with: folderPath, context: context) as? Folder {
+      if !self.hasLibraryLinked(item: existingFolder, context: context) {
         // Delete folder if it doesn't belong to active folder
         try FileManager.default.removeItem(at: fileURL)
-        self.dataManager.delete(existingFolder)
+        self.dataManager.delete(existingFolder, context: context)
       }
     } else {
       // Delete folder if it doesn't belong to active folder
       try FileManager.default.removeItem(at: fileURL)
     }
+  }
+
+  func removeFolderIfNeeded(_ fileURL: URL) throws {
+    try removeFolderIfNeeded(fileURL, context: dataManager.getContext())
   }
 
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
@@ -1339,7 +1394,8 @@ extension LibraryService {
     /// Metadata update already handled by the socket for playback
     item.currentTime = time
     item.lastPlayDate = date
-    item.percentCompleted = round((item.currentTime / item.duration) * 100)
+    let percentCompleted = round((item.currentTime / item.duration) * 100)
+    item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
@@ -1351,6 +1407,12 @@ extension LibraryService {
       dataManager.saveContext()
     }
 
+    progressPassthroughPublisher.send([
+      #keyPath(LibraryItem.relativePath): relativePath,
+      #keyPath(LibraryItem.currentTime): time,
+      #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
+      #keyPath(LibraryItem.percentCompleted): percentCompleted,
+    ])
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
@@ -1596,8 +1658,7 @@ extension LibraryService {
     })
   }
 
-  func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
-
+  func getBookmarkReference(from bookmark: SimpleBookmark, context: NSManagedObjectContext) -> Bookmark? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "%K == %@ && type == %d && time == %f",
@@ -1613,7 +1674,11 @@ extension LibraryService {
       #keyPath(Bookmark.type),
     ]
 
-    return try? self.dataManager.getContext().fetch(fetchRequest).first
+    return try? context.fetch(fetchRequest).first
+  }
+
+  func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
+    return getBookmarkReference(from: bookmark, context: dataManager.getContext())
   }
 
   public func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
@@ -1683,3 +1748,4 @@ extension LibraryService {
     self.dataManager.delete(bookmarkReference)
   }
 }
+// swiftlint:enable force_cast

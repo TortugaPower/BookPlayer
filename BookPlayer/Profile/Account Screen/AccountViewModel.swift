@@ -53,7 +53,7 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
       return
     }
 
-    Purchases.shared.showManageSubscriptions() { _ in }
+    Purchases.shared.showManageSubscriptions { _ in }
   }
 
   func showTermsAndConditions() {

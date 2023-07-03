@@ -43,7 +43,7 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
   }
 
   func toggleFileBackupsPreference(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue)
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
 
     // Modify the processed folder to be considered for backups
     var resourceValues = URLResourceValues()

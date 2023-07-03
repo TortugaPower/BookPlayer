@@ -56,9 +56,13 @@ public class CoreDataStack {
   }
 
   public func saveContext() {
-    guard self.managedContext.hasChanges else { return }
+    saveContext(managedContext)
+  }
+
+  public func saveContext(_ context: NSManagedObjectContext) {
+    guard context.hasChanges else { return }
     do {
-      try self.managedContext.save()
+      try context.save()
     } catch let error as NSError {
       fatalError("Unresolved error \(error), \(error.userInfo)")
     }

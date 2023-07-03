@@ -37,11 +37,11 @@ class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
   }
 
   func getBoostVolumeFlag() -> Bool {
-    return UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+    return UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
   }
 
   func handleBoostVolumeToggle(flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
     self.playerManager.setBoostVolume(flag)
   }

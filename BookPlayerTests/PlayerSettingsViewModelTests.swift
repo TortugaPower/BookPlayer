@@ -17,9 +17,9 @@ class PlayerSettingsViewModelTests: XCTestCase {
   var sut: PlayerSettingsViewModel!
 
   override func setUp() {
-    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
-    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.playerListPrefersBookmarks)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
 
     self.sut = PlayerSettingsViewModel()
   }
@@ -29,9 +29,9 @@ class PlayerSettingsViewModelTests: XCTestCase {
     XCTAssertFalse(self.sut.prefersChapterContext)
     XCTAssertFalse(self.sut.prefersRemainingTime)
 
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.playerListPrefersBookmarks.rawValue)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.playerListPrefersBookmarks)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
 
     let secondViewModel = PlayerSettingsViewModel()
     XCTAssertTrue(secondViewModel.playerListPrefersBookmarks)

@@ -63,3 +63,4 @@ extension UIColor {
                        a: mainRGBA[3] * invertedAmount + maskRGBA[3] * amount)
     }
 }
+// swiftlint:enable identifier_name

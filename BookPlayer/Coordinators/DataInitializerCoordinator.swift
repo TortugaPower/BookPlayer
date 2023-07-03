@@ -158,29 +158,29 @@ class DataInitializerCoordinator: BPLogger {
 
     // Migrate user defaults app icon
     if userDefaults?
-        .string(forKey: Constants.UserDefaults.appIcon.rawValue) == nil {
-      let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue)
-      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon.rawValue)
+        .string(forKey: Constants.UserDefaults.appIcon) == nil {
+      let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
+      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
     } else if let sharedAppIcon = userDefaults?
-                .string(forKey: Constants.UserDefaults.appIcon.rawValue),
-              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon.rawValue),
+                .string(forKey: Constants.UserDefaults.appIcon),
+              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
               sharedAppIcon != localAppIcon {
-      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon.rawValue)
-      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon.rawValue)
+      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
+      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon)
     }
 
     // Migrate protection for Processed folder
     if !(userDefaults?
-          .bool(forKey: Constants.UserDefaults.fileProtectionMigration.rawValue) ?? false) {
+          .bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
       DataManager.getProcessedFolderURL().disableFileProtection()
-      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration.rawValue)
+      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
     }
 
     // Default to include Processed folder in phone backups,
     // when migrating between phones, having the folder excluded have generated issues for users,
     // this can be set to false from within the app settings
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.iCloudBackupsEnabled.rawValue)
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.iCloudBackupsEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
 
       var resourceValues = URLResourceValues()
       resourceValues.isExcludedFromBackup = false
@@ -190,16 +190,20 @@ class DataInitializerCoordinator: BPLogger {
     }
 
     // Set system theme as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled.rawValue)
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled)
     }
     // Set autoplay enabled as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled.rawValue)
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
     }
     // Set autoplay finished enabled as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayRestartEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled)
+    }
+    // Set remaining time as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.remainingTimeEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
     }
 
     setupDefaultTheme(libraryService: libraryService)
@@ -222,9 +226,9 @@ class DataInitializerCoordinator: BPLogger {
     guard !accountService.hasAccount() else { return }
 
     accountService.createAccount(
-      donationMade: UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade.rawValue)
+      donationMade: UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade)
     )
 
-    UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.donationMade.rawValue)
+    UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.donationMade)
   }
 }

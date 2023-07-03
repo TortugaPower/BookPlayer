@@ -59,6 +59,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var periodicTimeObserver: Any?
   /// Flag determining if it should resume playback after finishing up loading an item
   @Published private var playbackQueued: Bool?
+  /// Flag determining if it's in the process of fetching the URL for playback
+  @Published private var isFetchingRemoteURL: Bool?
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -133,10 +135,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  func loadRemoteURLAsset(for chapter: PlayableChapter) async throws -> AVURLAsset {
+  func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
 
-    if let chapterURL = chapter.remoteURL {
+    if !forceRefresh,
+       let chapterURL = chapter.remoteURL {
       fileURL = chapterURL
     } else {
       fileURL = try await syncService
@@ -183,14 +186,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     return asset
   }
 
-  func loadPlayerItem(for chapter: PlayableChapter) async throws {
+  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
     let asset: AVURLAsset
 
     if syncService.isActive,
       !FileManager.default.fileExists(atPath: fileURL.path) {
-      asset = try await loadRemoteURLAsset(for: chapter)
+      isFetchingRemoteURL = true
+      asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
+      isFetchingRemoteURL = false
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
@@ -206,6 +211,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func load(_ item: PlayableItem, autoplay: Bool) {
+    load(item, autoplay: autoplay, forceRefreshURL: false)
+  }
+
+  private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task
     loadChapterTask?.cancel()
 
@@ -238,22 +247,23 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
     }
 
-    loadChapterMetadata(item.currentChapter, autoplay: autoplay)
+    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
   }
 
-  func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil) {
+  func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
     if let autoplay {
       playbackQueued = autoplay
     }
 
     loadChapterTask = Task { [unowned self] in
       do {
-        try await self.loadPlayerItem(for: chapter)
+        try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
         self.loadChapterOperation(chapter)
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {
         self.playbackQueued = nil
+        self.isFetchingRemoteURL = nil
         self.observeStatus = false
         self.showErrorAlert(error.localizedDescription)
         return
@@ -270,6 +280,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       else {
         DispatchQueue.main.async {
           self.currentItem = nil
+          self.isFetchingRemoteURL = nil
           NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
         }
         return
@@ -277,6 +288,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self.audioPlayer.replaceCurrentItem(with: nil)
       self.observeStatus = true
+      self.isFetchingRemoteURL = nil
       self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
@@ -387,12 +399,17 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
-    return Publishers.CombineLatest(
+    return Publishers.CombineLatest3(
       audioPlayer.publisher(for: \.timeControlStatus),
-      $playbackQueued
+      $playbackQueued,
+      $isFetchingRemoteURL
     )
-    .map({ (timeControlStatus, playbackQueued) in
-      return timeControlStatus != .paused || playbackQueued == true
+    .map({ (timeControlStatus, playbackQueued, isFetchingRemoteURL) -> Bool in
+      let controlStatusFlag = timeControlStatus != .paused
+      let playbackQueuedFlag = playbackQueued == true
+      return controlStatusFlag
+      || playbackQueuedFlag
+      || (isFetchingRemoteURL == true && playbackQueuedFlag)
     })
     .eraseToAnyPublisher()
   }
@@ -400,22 +417,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   var boostVolume: Bool = false {
     didSet {
       self.audioPlayer.volume = self.boostVolume
-      ? Constants.Volume.boosted.rawValue
-      : Constants.Volume.normal.rawValue
+      ? Constants.Volume.boosted
+      : Constants.Volume.normal
     }
   }
 
   static var rewindInterval: TimeInterval {
     get {
-      if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval.rawValue) == nil {
+      if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval) == nil {
         return 30.0
       }
 
-      return UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval.rawValue)
+      return UserDefaults.standard.double(forKey: Constants.UserDefaults.rewindInterval)
     }
 
     set {
-      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.rewindInterval.rawValue)
+      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.rewindInterval)
 
       MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [newValue] as [NSNumber]
     }
@@ -423,15 +440,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   static var forwardInterval: TimeInterval {
     get {
-      if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval.rawValue) == nil {
+      if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval) == nil {
         return 30.0
       }
 
-      return UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval.rawValue)
+      return UserDefaults.standard.double(forKey: Constants.UserDefaults.forwardInterval)
     }
 
     set {
-      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.forwardInterval.rawValue)
+      UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.forwardInterval)
 
       MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
     }
@@ -448,8 +465,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   func setNowPlayingBookTime() {
     guard let currentItem = self.currentItem else { return }
 
-    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled.rawValue)
-    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled.rawValue)
+    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,
@@ -482,6 +499,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
 
+    /** Disable socket events to test updating via regular network requests
     socketService.sendEvent(
       .timeUpdate,
       payload: [
@@ -491,6 +509,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         "lastPlayDateTimestamp": Date().timeIntervalSince1970,
       ]
     )
+     */
   }
 }
 
@@ -505,8 +524,6 @@ extension PlayerManager {
     guard let currentItem = self.currentItem else { return }
 
     let boundedTime = min(max(time, 0), currentItem.duration)
-
-    updatePlaybackTime(item: currentItem, time: boundedTime)
 
     let newTime = currentItem.isBoundBook
     ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
@@ -571,7 +588,11 @@ extension PlayerManager {
     guard let playerItem else {
       /// Check if the playbable item is in the process of being set
       if observeStatus == false {
-        load(currentItem, autoplay: true)
+        if isFetchingRemoteURL == true {
+          playbackQueued = true
+        } else {
+          load(currentItem, autoplay: true)
+        }
       }
       return
     }
@@ -611,7 +632,7 @@ extension PlayerManager {
     self.handleSmartRewind(currentItem)
 
     self.fadeTimer?.invalidate()
-    self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled.rawValue)
+    self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
@@ -625,17 +646,17 @@ extension PlayerManager {
   }
 
   func handleSmartRewind(_ item: PlayableItem) {
-    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled.rawValue)
+    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
 
     if smartRewindEnabled,
        let lastPlayTime = item.lastPlayDate {
       let timePassed = Date().timeIntervalSince(lastPlayTime)
-      let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold.rawValue)
+      let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold)
 
-      let delta = timePassedLimited / Constants.SmartRewind.threshold.rawValue
+      let delta = timePassedLimited / Constants.SmartRewind.threshold
 
       // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
-      let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime.rawValue
+      let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime
 
       let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTime, 0)
 
@@ -670,9 +691,14 @@ extension PlayerManager {
 
     guard item.status == .readyToPlay else {
       if item.status == .failed {
-        playbackQueued = nil
-        observeStatus = false
-        showErrorAlert(item.error?.localizedDescription)
+        if (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
+           let currentItem {
+          loadAndRefreshURL(item: currentItem)
+        } else {
+          playbackQueued = nil
+          observeStatus = false
+          showErrorAlert(item.error?.localizedDescription)
+        }
       }
       return
     }
@@ -681,12 +707,11 @@ extension PlayerManager {
 
     if self.playbackQueued == true {
       self.play()
-    } else {
-      self.updateTime()
     }
     // Clean up flag
     self.playbackQueued = nil
   }
+  // swiftlint:enable block_based_kvo
 
   func pause(fade: Bool) {
     guard let currentItem = self.currentItem else { return }
@@ -780,11 +805,11 @@ extension PlayerManager {
   func playNextItem(autoPlayed: Bool = false) {
     /// If it's autoplayed, check if setting is enabled
     if autoPlayed,
-       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled.rawValue) {
+       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled) {
       return
     }
 
-    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled.rawValue)
+    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
 
     guard
       let currentItem = self.currentItem,
@@ -842,6 +867,10 @@ extension PlayerManager {
        let parentFolder = item.parentFolder {
       libraryService.recursiveFolderProgressUpdate(from: parentFolder)
     }
+  }
+
+  private func loadAndRefreshURL(item: PlayableItem) {
+    load(item, autoplay: playbackQueued == true, forceRefreshURL: true)
   }
 }
 
