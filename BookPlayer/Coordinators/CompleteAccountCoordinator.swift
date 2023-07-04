@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import SwiftUI
 import UIKit
 
 class CompleteAccountCoordinator: Coordinator {
@@ -27,28 +28,34 @@ class CompleteAccountCoordinator: Coordinator {
   }
 
   override func start() {
-    let vc = CompleteAccountViewController()
     let viewModel = CompleteAccountViewModel(
       accountService: self.accountService,
       account: self.accountService.getAccount()!
     )
-    viewModel.coordinator = self
-    vc.viewModel = viewModel
 
+    let vc = UIHostingController(rootView: CompleteAccountView(viewModel: viewModel))
     viewModel.onTransition = { [weak self] route in
       switch route {
       case .success:
         self?.showCongrats()
       case .link(let url):
         self?.openLink(url)
+      case .dismiss:
+        self?.didFinish()
+      case .showLoader(let flag):
+        if flag {
+          self?.showLoader()
+        } else {
+          self?.stopLoader()
+        }
       }
     }
 
-    self.navigationController.navigationBar.prefersLargeTitles = false
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
 
-    if #available(iOS 15.0, *),
+    if !UIAccessibility.isVoiceOverRunning,
+       #available(iOS 15.0, *),
        let sheet = self.navigationController.sheetPresentationController {
       sheet.detents = [.medium()]
     }

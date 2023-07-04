@@ -142,8 +142,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
        let chapterURL = chapter.remoteURL {
       fileURL = chapterURL
     } else {
+      isFetchingRemoteURL = true
       fileURL = try await syncService
         .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+      isFetchingRemoteURL = false
     }
 
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -193,9 +195,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     if syncService.isActive,
       !FileManager.default.fileExists(atPath: fileURL.path) {
-      isFetchingRemoteURL = true
       asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      isFetchingRemoteURL = false
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }

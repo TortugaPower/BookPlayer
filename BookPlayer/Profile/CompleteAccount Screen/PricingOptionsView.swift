@@ -10,33 +10,40 @@ import BookPlayerKit
 import SwiftUI
 
 struct PricingOptionsView: View {
-  @ObservedObject var viewModel: PricingViewModel
-  @StateObject var themeViewModel = ThemeViewModel()
+  @Binding var options: [PricingModel]
+  @Binding var selected: PricingModel?
+  @Binding var isLoading: Bool
+  var onSelected: ((PricingModel) -> Void)?
+
+  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     VStack(spacing: Spacing.S1) {
-      ForEach(viewModel.options) { option in
+      ForEach(options) { option in
         PricingRowView(
           title: .constant(option.title),
-          isSelected: .constant(viewModel.selected == option),
-          isLoading: .constant(viewModel.isLoading)
+          isSelected: .constant(selected == option),
+          isLoading: .constant(isLoading)
         )
         .onTapGesture {
-          viewModel.selected = option
+          onSelected?(option)
         }
       }
     }
-    .environmentObject(themeViewModel)
   }
 }
 
 struct PricingOptionsView_Previews: PreviewProvider {
   static var previews: some View {
     PricingOptionsView(
-      viewModel: PricingViewModel(options: [
+      options: .constant([
         PricingModel(id: "yearly", title: "$49.99 per year"),
         PricingModel(id: "monthly", title: "$4.99 per month")
-      ])
+      ]),
+      selected: .constant(PricingModel(id: "yearly", title: "$49.99 per year")),
+      isLoading: .constant(false),
+      onSelected: nil
     )
+    .environmentObject(ThemeViewModel())
   }
 }

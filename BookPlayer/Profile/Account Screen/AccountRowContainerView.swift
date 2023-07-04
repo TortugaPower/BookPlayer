@@ -14,6 +14,7 @@ class AccountRowContainerView: UIView {
   private lazy var imageOverlay: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     view.layer.masksToBounds = true
     view.layer.cornerRadius = 10
     view.alpha = 0.2
@@ -23,6 +24,7 @@ class AccountRowContainerView: UIView {
   private lazy var imageContainerView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     view.addSubview(imageView)
     view.addSubview(imageOverlay)
     return view
@@ -32,6 +34,7 @@ class AccountRowContainerView: UIView {
     let imageView = UIImageView(image: image)
     imageView.contentMode = .scaleAspectFit
     imageView.translatesAutoresizingMaskIntoConstraints = false
+    imageView.isAccessibilityElement = false
     if flipImage {
       imageView.transform = imageView.transform.rotated(by: .pi / 2)
     }
@@ -42,18 +45,21 @@ class AccountRowContainerView: UIView {
   private lazy var titleLabel: UILabel = {
     let label = BaseLabel()
     label.setContentCompressionResistancePriority(.required, for: .horizontal)
+    label.isAccessibilityElement = false
     return label
   }()
 
   private lazy var detailLabel: UILabel = {
     let label = BaseLabel()
     label.setContentHuggingPriority(.required, for: .horizontal)
+    label.isAccessibilityElement = false
     return label
   }()
 
   private lazy var containerChevronView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     view.addSubview(chevronImageView)
     return view
   }()
@@ -61,6 +67,7 @@ class AccountRowContainerView: UIView {
   private lazy var chevronImageView: UIImageView = {
     let imageView = UIImageView(image: UIImage(systemName: "chevron.forward"))
     imageView.translatesAutoresizingMaskIntoConstraints = false
+    imageView.isAccessibilityElement = false
     imageView.contentMode = .scaleAspectFit
     return imageView
   }()
@@ -70,6 +77,7 @@ class AccountRowContainerView: UIView {
       imageContainerView, titleLabel, detailLabel, containerChevronView
     ])
     stackview.translatesAutoresizingMaskIntoConstraints = false
+    stackview.isAccessibilityElement = false
     stackview.distribution = .fillProportionally
     stackview.spacing = Spacing.S
     stackview.setCustomSpacing(Spacing.S2, after: detailLabel)
@@ -126,6 +134,14 @@ class AccountRowContainerView: UIView {
     addSubviews()
     addConstraints()
     setUpTheming()
+
+    isAccessibilityElement = true
+    accessibilityTraits = [.button]
+    var combinedAccessibilityLabel = title
+    if let detail {
+      combinedAccessibilityLabel += ", \(detail)"
+    }
+    accessibilityLabel = combinedAccessibilityLabel
   }
 
   required init?(coder: NSCoder) {

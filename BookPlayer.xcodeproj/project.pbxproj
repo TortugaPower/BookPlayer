@@ -352,7 +352,6 @@
 		9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */; };
 		9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
 		9F2DC9E62A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
-		9F2DCA422A03540C006CDF1F /* PricingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
 		9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */; };
@@ -361,7 +360,6 @@
 		9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */; };
 		9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FD286FF05C00868B2C /* SwiftQueue */; };
 		9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FF286FF06600868B2C /* SwiftQueue */; };
-		9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */; };
 		9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */; };
 		9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */; };
 		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
@@ -436,6 +434,7 @@
 		9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C427C285650064E8EA /* ChapterListView.swift */; };
 		9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */; };
 		9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
+		9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */; };
 		9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketService.swift */; };
 		9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
@@ -484,6 +483,7 @@
 		9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
 		9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
+		9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
 		9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */; };
@@ -1015,14 +1015,12 @@
 		9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingOptionsView.swift; sourceTree = "<group>"; };
 		9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingRowView.swift; sourceTree = "<group>"; };
 		9F2DC9E32A01313C006CDF1F /* PricingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingModel.swift; sourceTree = "<group>"; };
-		9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingViewModel.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewController.swift; sourceTree = "<group>"; };
 		9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewModel.swift; sourceTree = "<group>"; };
 		9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureItemRow.swift; sourceTree = "<group>"; };
-		9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewController.swift; sourceTree = "<group>"; };
 		9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewModel.swift; sourceTree = "<group>"; };
 		9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountCoordinator.swift; sourceTree = "<group>"; };
 		9F4691F42800F84800A8F0E8 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
@@ -1088,6 +1086,7 @@
 		9FA334C427C285650064E8EA /* ChapterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterListView.swift; sourceTree = "<group>"; };
 		9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControlsView.swift; sourceTree = "<group>"; };
 		9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtils.swift; sourceTree = "<group>"; };
+		9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountView.swift; sourceTree = "<group>"; };
 		9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFileURLResponse.swift; sourceTree = "<group>"; };
 		9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskDownloadDelegate.swift; sourceTree = "<group>"; };
 		9FB20EA429A281140021663B /* DownloadState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadState.swift; sourceTree = "<group>"; };
@@ -1122,6 +1121,7 @@
 		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
 		9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerShareExtension.entitlements; sourceTree = "<group>"; };
+		9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+BookPlayer.swift"; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -2002,10 +2002,9 @@
 		9F4691F32800F65400A8F0E8 /* CompleteAccount Screen */ = {
 			isa = PBXGroup;
 			children = (
-				9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */,
 				9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */,
 				9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */,
-				9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */,
+				9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */,
 				9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */,
 			);
 			path = "CompleteAccount Screen";
@@ -2318,6 +2317,7 @@
 				410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */,
 				9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */,
 				9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */,
+				9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3001,7 +3001,6 @@
 			files = (
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
-				9F2DCA422A03540C006CDF1F /* PricingViewModel.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
@@ -3126,6 +3125,7 @@
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				9FB20EA529A281140021663B /* DownloadState.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
+				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
@@ -3136,6 +3136,7 @@
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
+				9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */,
@@ -3170,7 +3171,6 @@
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */,
-				9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
