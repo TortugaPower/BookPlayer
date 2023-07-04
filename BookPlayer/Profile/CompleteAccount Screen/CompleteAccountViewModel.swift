@@ -9,20 +9,35 @@
 import BookPlayerKit
 import Foundation
 
-class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
+protocol CompleteAccountViewModelProtocol: ObservableObject {
+  var pricingOptions: [PricingModel] { get set }
+  var selectedPricingOption: PricingModel? { get set }
+  var isLoadingPricingOptions: Bool { get set }
+  var networkError: Error? { get set }
+
+  func handleSubscription()
+  func handleRestorePurchases()
+  func dismiss()
+}
+
+class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
   enum Routes {
     case link(_ url: URL)
+    case showLoader(Bool)
     case success
+    case dismiss
   }
+
+  @Published var pricingOptions: [PricingModel]
+  @Published var selectedPricingOption: PricingModel?
+  @Published var isLoadingPricingOptions: Bool = true
+
+  @Published var networkError: Error?
 
   let accountService: AccountServiceProtocol
   let account: Account
   let containerImageWidth: CGFloat = 60
   let imageWidth: CGFloat = 35
-
-  lazy var pricingViewModel = PricingViewModel(
-    options: accountService.getHardcodedSubscriptionOptions()
-  )
 
   /// Callback to handle actions on this screen
   var onTransition: Transition<Routes>?
@@ -33,41 +48,43 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   ) {
     self.accountService = accountService
     self.account = account
+    let options = accountService.getHardcodedSubscriptionOptions()
+    self.pricingOptions = options
+    self.selectedPricingOption = options.first
+    self.loadPricingOptions()
   }
 
   func loadPricingOptions() {
     Task { @MainActor [weak self] in
       if let options = try? await self?.accountService.getSubscriptionOptions() {
-        self?.pricingViewModel.options = options
-        self?.pricingViewModel.selected = options.first
+        self?.pricingOptions = options
+        self?.selectedPricingOption = options.first
       }
 
-      self?.pricingViewModel.isLoading = false
+      self?.isLoadingPricingOptions = false
     }
   }
 
   func handleSubscription() {
     guard
-      pricingViewModel.isLoading == false,
-      let selectedOption = pricingViewModel.selected
+      isLoadingPricingOptions == false,
+      let selectedOption = selectedPricingOption
     else { return }
 
     Task { @MainActor [weak self] in
       guard let self = self else { return }
 
-      self.coordinator.showLoader()
+      self.onTransition?(.showLoader(true))
 
       do {
         let userCancelled = try await self.accountService.subscribe(option: selectedOption)
-
-        self.coordinator.stopLoader()
+        self.onTransition?(.showLoader(false))
         if !userCancelled {
           self.onTransition?(.success)
         }
-
       } catch {
-        self.coordinator.stopLoader()
-        self.coordinator.showError(error)
+        self.onTransition?(.showLoader(false))
+        self.networkError = error
       }
     }
   }
@@ -75,7 +92,7 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
   func handleRestorePurchases() {
     Task { @MainActor [weak self] in
       guard let self = self else { return }
-      self.coordinator.showLoader()
+      self.onTransition?(.showLoader(true))
 
       do {
         let customerInfo = try await self.accountService.restorePurchases()
@@ -84,16 +101,20 @@ class CompleteAccountViewModel: BaseViewModel<CompleteAccountCoordinator> {
           throw AccountError.inactiveSubscription
         }
 
-        self.coordinator.stopLoader()
+        self.onTransition?(.showLoader(false))
         self.onTransition?(.success)
       } catch {
-        self.coordinator.stopLoader()
-        self.coordinator.showError(error)
+        self.onTransition?(.showLoader(false))
+        self.networkError = error
       }
     }
   }
 
   func openLink(_ url: URL) {
     onTransition?(.link(url))
+  }
+
+  func dismiss() {
+    onTransition?(.dismiss)
   }
 }
