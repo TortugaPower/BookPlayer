@@ -65,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     try? AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playback,
-      mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)),
+      mode: .spokenAudio,
       options: []
     )
 
@@ -474,9 +474,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       mainCoordinator.showPlayer()
     }
   }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-private func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
-  return input.rawValue
 }
