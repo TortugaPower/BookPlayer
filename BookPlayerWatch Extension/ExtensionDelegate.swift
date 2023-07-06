@@ -9,7 +9,7 @@
 import SwiftUI
 import WatchKit
 
-class ExtensionDelegate: NSObject, WKApplicationDelegate {
+class ExtensionDelegate: NSObject, WKExtensionDelegate {
   static var contextManager = ContextManager()
 
   /// For some reason this never gets called
