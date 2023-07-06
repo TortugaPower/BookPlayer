@@ -254,7 +254,7 @@
 "logout_title" = "Log ud";
 "delete_account_title" = "Slet konto";
 "account_title" = "Konto";
-"benefits_cloudsync_title" = "Skysynkronisering";
+"benefits_cloudsync_title" = "Skysynkronisering (Beta)";
 "benefits_themesicons_title" = "Temaer og ikoner";
 "benefits_supportus_title" = "Støt os";
 "completeaccount_title" = "Fuldfør din konto";
@@ -283,3 +283,4 @@
  Husk, at uploadopgaver kan tage noget tid, og fremskridtene vil med jævne mellemrum blive offentliggjort på den forrige skærm.
 
  Vi arbejder hårdt på at give en problemfri oplevelse, hvis det er muligt, kontakt os venligst på support@bookplayer.app med et skærmbillede af denne skærm. Tak!";
+"sort_by_size_title" = "Størrelse";

@@ -254,7 +254,7 @@
 "logout_title" = "登出";
 "delete_account_title" = "删除帐户";
 "account_title" = "帐户";
-"benefits_cloudsync_title" = "云同步";
+"benefits_cloudsync_title" = "云同步（Beta）";
 "benefits_themesicons_title" = "主题和图标";
 "benefits_supportus_title" = "支持我们";
 "completeaccount_title" = "完成您的帐户";
@@ -283,3 +283,4 @@
 请记住，上传任务可能需要一些时间，并且进度会定期发布在上一个屏幕上。
 
 我们正在努力提供无缝体验，如果可能的话，请通过 support@bookplayer.app 与我们联系并提供此屏幕的屏幕截图。谢谢！";
+"sort_by_size_title" = "尺寸";

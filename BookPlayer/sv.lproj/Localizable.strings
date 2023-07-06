@@ -254,7 +254,7 @@
 "logout_title" = "Logga ut";
 "delete_account_title" = "Radera konto";
 "account_title" = "konto";
-"benefits_cloudsync_title" = "Molnsynkronisering";
+"benefits_cloudsync_title" = "Molnsynkronisering (Beta)";
 "benefits_themesicons_title" = "Teman och ikoner";
 "benefits_supportus_title" = "Stöd oss";
 "completeaccount_title" = "Komplettera ditt konto";
@@ -283,3 +283,4 @@
  Tänk på att uppladdningsuppgifter kan ta lite tid, och framstegen kommer att publiceras med jämna mellanrum på föregående skärm.
 
  Vi arbetar hårt på att ge en sömlös upplevelse, om möjligt, kontakta oss på support@bookplayer.app med en skärmdump av den här skärmen. Tack!";
+"sort_by_size_title" = "Storlek";
