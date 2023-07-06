@@ -32,7 +32,6 @@ final class StorageCoordinator: Coordinator {
     viewModel.coordinator = self
 
     let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
-//    vc.navigationItem.largeTitleDisplayMode = .never
 
     navigationController.viewControllers = [vc]
     navigationController.presentationController?.delegate = self

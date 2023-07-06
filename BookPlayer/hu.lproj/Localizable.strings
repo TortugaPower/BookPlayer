@@ -254,7 +254,7 @@
 "logout_title" = "Kijelentkezés";
 "delete_account_title" = "Fiók törlése";
 "account_title" = "fiók";
-"benefits_cloudsync_title" = "Felhő szinkronizálás";
+"benefits_cloudsync_title" = "Felhő szinkronizálás (Beta)";
 "benefits_themesicons_title" = "Témák és ikonok";
 "benefits_supportus_title" = "Támogass minket";
 "completeaccount_title" = "Töltse ki fiókját";
@@ -283,3 +283,4 @@
  Ne feledje, hogy a feltöltési feladatok eltarthatnak egy ideig, és az előrehaladás rendszeresen megjelenik az előző képernyőn.
 
  Keményen dolgozunk a zökkenőmentes élmény biztosítása érdekében, ha lehetséges, kérjük, írjon nekünk a support@bookplayer.app címre, és küldjön képernyőképet erről a képernyőről. Kösz!";
+"sort_by_size_title" = "Méret";

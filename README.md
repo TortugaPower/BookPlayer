@@ -131,7 +131,6 @@ Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [RevenueCat](https://github.com/RevenueCat/purchases-ios) for managing in-app purchases
 - [Sentry](https://github.com/getsentry/sentry-cocoa) for crash reporting
-- [SocketIO](https://github.com/socketio/socket.io-client-swift) for real-time updating a book progress
 - [Sweetercolor](https://github.com/jathu/sweetercolor) for handling artwork colors
 - [SwiftQueue](https://github.com/bizz84/SwiftyStoreKit) for scheduling background library sync jobs
 - [Themeable](https://github.com/GianniCarlo/Themeable) for custom app themes

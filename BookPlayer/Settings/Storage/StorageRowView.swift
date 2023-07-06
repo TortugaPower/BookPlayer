@@ -28,6 +28,7 @@ struct StorageRowView: View {
           .foregroundColor(.red)
       }
       .padding(15)
+      .accessibilitySortPriority(1)
 
       VStack(alignment: .leading, spacing: 2) {
         Text(item.title)
@@ -46,6 +47,9 @@ struct StorageRowView: View {
           .foregroundColor(themeViewModel.secondaryColor)
       }
       .padding(.trailing, item.showWarning ? 10 : 32)
+      .accessibilityElement()
+      .accessibilityLabel("\(item.title), \(item.formattedSize)")
+      .accessibilitySortPriority(3)
 
       Spacer()
 
@@ -60,9 +64,11 @@ struct StorageRowView: View {
             .foregroundColor(.yellow)
         }
         .padding(15)
+        .accessibilitySortPriority(2)
       }
     }
     .background(themeViewModel.systemBackgroundColor)
+    .accessibilityElement(children: .contain)
   }
 
   init(item: StorageItem, onDeleteTap: ( () -> Void)?, onWarningTap: ( () -> Void)?) {

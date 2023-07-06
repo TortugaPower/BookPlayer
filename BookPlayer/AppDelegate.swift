@@ -36,7 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
-  var socketService: SocketServiceProtocol?
   /// Internal property used as a fallback in ``activeSceneDelegate``
   var lastSceneToResignActive: SceneDelegate?
   /// Access the current (or last) active scene delegate to present VCs or alerts
@@ -154,14 +153,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.playbackService = playbackService
     }
 
-    let socketService: SocketServiceProtocol
-    if let sharedSocketService = AppDelegate.shared?.socketService {
-      socketService = sharedSocketService
-    } else {
-      socketService = SocketService()
-      AppDelegate.shared?.socketService = socketService
-    }
-
     let playerManager: PlayerManagerProtocol
 
     if let sharedPlayerManager = AppDelegate.shared?.playerManager {
@@ -171,8 +162,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         libraryService: libraryService,
         playbackService: playbackService,
         syncService: syncService,
-        speedService: SpeedService(libraryService: libraryService),
-        socketService: socketService
+        speedService: SpeedService(libraryService: libraryService)
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -197,8 +187,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       libraryService: libraryService,
       playbackService: playbackService,
       playerManager: playerManager,
-      watchService: watchService,
-      socketService: socketService
+      watchService: watchService
     )
   }
 

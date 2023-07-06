@@ -1391,7 +1391,6 @@ extension LibraryService {
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {
     guard let item = self.getItem(with: relativePath) else { return }
 
-    /// Metadata update already handled by the socket for playback
     item.currentTime = time
     item.lastPlayDate = date
     let percentCompleted = round((item.currentTime / item.duration) * 100)

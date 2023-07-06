@@ -254,7 +254,7 @@
 "logout_title" = "Çıkış Yap";
 "delete_account_title" = "Hesabı sil";
 "account_title" = "Hesap";
-"benefits_cloudsync_title" = "Bulut senkronizasyonu";
+"benefits_cloudsync_title" = "Bulut senkronizasyonu (Beta)";
 "benefits_themesicons_title" = "Temalar ve Simgeler";
 "benefits_supportus_title" = "Bizi destekle";
 "completeaccount_title" = "hesabınızı tamamlayın";
@@ -283,3 +283,4 @@
  Yükleme görevlerinin biraz zaman alabileceğini ve ilerlemenin periyodik olarak önceki ekranda yayınlanacağını unutmayın.
 
  Kusursuz bir deneyim sağlamak için çok çalışıyoruz, mümkünse lütfen bu ekranın ekran görüntüsüyle birlikte support@bookplayer.app adresinden bizimle iletişime geçin. Teşekkürler!";
+"sort_by_size_title" = "Boyut";

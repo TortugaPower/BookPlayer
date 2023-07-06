@@ -254,7 +254,7 @@
 "logout_title" = "Deconectați-vă";
 "delete_account_title" = "Șterge cont";
 "account_title" = "Cont";
-"benefits_cloudsync_title" = "Sincronizare cloud";
+"benefits_cloudsync_title" = "Sincronizare cloud (Beta)";
 "benefits_themesicons_title" = "Teme și icoane";
 "benefits_supportus_title" = "Ajuta-ne";
 "completeaccount_title" = "Completați-vă contul";
@@ -283,3 +283,4 @@
  Rețineți că sarcinile de încărcare pot dura ceva timp, iar progresul va fi publicat periodic pe ecranul anterior.
 
  Lucrăm din greu pentru a oferi o experiență perfectă, dacă este posibil, vă rugăm să ne contactați la support@bookplayer.app cu o captură de ecran a acestui ecran. Mulțumiri!";
+"sort_by_size_title" = "mărimea";

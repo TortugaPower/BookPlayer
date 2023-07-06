@@ -254,7 +254,7 @@
 "logout_title" = "تسجيل خروج";
 "delete_account_title" = "حذف الحساب";
 "account_title" = "حساب";
-"benefits_cloudsync_title" = "المزامنة السحابية";
+"benefits_cloudsync_title" = "المزامنة السحابية (Beta)";
 "benefits_themesicons_title" = "المظاهر والأيقونات";
 "benefits_supportus_title" = "ادعمنا";
 "completeaccount_title" = "أكمل حسابك";
@@ -283,3 +283,4 @@
  ضع في اعتبارك أن مهام التحميل قد تستغرق بعض الوقت ، وسيتم نشر التقدم بشكل دوري على الشاشة السابقة.
 
  نحن نعمل بجد لتوفير تجربة سلسة ، إذا أمكن ، يرجى الاتصال بنا على support@bookplayer.app مع لقطة شاشة لهذه الشاشة. شكرًا!";
+"sort_by_size_title" = "مقاس";

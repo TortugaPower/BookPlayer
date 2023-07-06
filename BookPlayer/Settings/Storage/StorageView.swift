@@ -36,6 +36,7 @@ struct StorageView: View {
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
+          .accessibilityElement(children: .combine)
           
           Divider()
             .background(themeViewModel.separatorColor)
@@ -50,6 +51,7 @@ struct StorageView: View {
           )
           .font(Font(Fonts.subheadline))
           .foregroundColor(themeViewModel.primaryColor)
+          .accessibilityAddTraits(.isHeader)
           
           Spacer()
           
@@ -83,7 +85,7 @@ struct StorageView: View {
                     viewModel.showAlert = true
                   }
                 )
-                .padding(.vertical, 5)
+                .padding(.vertical, 10)
                 
                 Divider()
                   .padding(.leading, 75)
@@ -118,8 +120,7 @@ struct StorageView: View {
             Picker(
               selection: $viewModel.sortBy,
               label: Text("sort_button_title".localized)) {
-                // TODO: translation is missing
-                Text("sort_by_size_option".localized).tag(StorageViewModel.SortBy.size)
+                Text("sort_by_size_title".localized).tag(StorageViewModel.SortBy.size)
                 Text("title_button".localized).tag(StorageViewModel.SortBy.title)
               }
           } label: {

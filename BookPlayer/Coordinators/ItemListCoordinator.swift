@@ -189,6 +189,9 @@ extension ItemListCoordinator {
     }
 
     let vc = ItemDetailsViewController(viewModel: viewModel)
+    if UIAccessibility.isVoiceOverRunning {
+      vc.navigationItem.largeTitleDisplayMode = .never
+    }
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 

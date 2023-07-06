@@ -34,7 +34,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
-    case showSortAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
     case showProcessingView(Bool, title: String?, subtitle: String?)
   }
@@ -554,43 +553,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     return availableFolders
-  }
-
-  func showSortOptions() {
-    sendEvent(.showSortAlert(
-      content: BPAlertContent(
-        title: "sort_files_title".localized,
-        message: nil,
-        style: .actionSheet,
-        actionItems: [
-          BPActionItem(
-            title: "title_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .metadataTitle)
-            }
-          ),
-          BPActionItem(
-            title: "sort_filename_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .fileName)
-            }
-          ),
-          BPActionItem(
-            title: "sort_most_recent_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .mostRecent)
-            }
-          ),
-          BPActionItem(
-            title: "sort_reversed_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .reverseOrder)
-            }
-          ),
-          BPActionItem.cancelAction
-        ]
-      )
-    ))
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {

@@ -254,7 +254,7 @@
 "logout_title" = "Ausloggen";
 "delete_account_title" = "Konto löschen";
 "account_title" = "Konto";
-"benefits_cloudsync_title" = "Cloud-Synchronisierung";
+"benefits_cloudsync_title" = "Cloud-Synchronisierung (Beta)";
 "benefits_themesicons_title" = "Themen & Symbole";
 "benefits_supportus_title" = "Unterstütze uns";
 "completeaccount_title" = "Vervollständigen Sie Ihr Konto";
@@ -283,3 +283,4 @@
  Beachten Sie, dass Upload-Aufgaben einige Zeit in Anspruch nehmen können und der Fortschritt regelmäßig auf dem vorherigen Bildschirm angezeigt wird.
 
  Wir arbeiten hart daran, ein nahtloses Erlebnis zu bieten. Wenn möglich, kontaktieren Sie uns bitte unter support@bookplayer.app mit einem Screenshot dieses Bildschirms. Danke!";
+"sort_by_size_title" = "Größe";

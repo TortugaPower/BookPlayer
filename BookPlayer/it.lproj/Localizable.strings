@@ -254,7 +254,7 @@
 "logout_title" = "Disconnettersi";
 "delete_account_title" = "Eliminare l'account";
 "account_title" = "Account";
-"benefits_cloudsync_title" = "Sincronizzazione cloud";
+"benefits_cloudsync_title" = "Sincronizzazione cloud (Beta)";
 "benefits_themesicons_title" = "Temi e icone";
 "benefits_supportus_title" = "Supportaci";
 "completeaccount_title" = "Completa il tuo conto";
@@ -283,3 +283,4 @@
  Tieni presente che le attività di caricamento possono richiedere del tempo e l'avanzamento verrà periodicamente pubblicato nella schermata precedente.
 
  Stiamo lavorando sodo per fornire un'esperienza senza soluzione di continuità, se possibile, contattaci all'indirizzo support@bookplayer.app con uno screenshot di questa schermata. Grazie!";
+"sort_by_size_title" = "Misurare";

@@ -47,7 +47,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let playbackService: PlaybackServiceProtocol
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
-  private let socketService: SocketServiceProtocol
   private let userActivityManager: UserActivityManager
 
   private var audioPlayer = AVPlayer()
@@ -89,14 +88,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
-    speedService: SpeedServiceProtocol,
-    socketService: SocketServiceProtocol
+    speedService: SpeedServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.speedService = speedService
-    self.socketService = socketService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     super.init()
 
@@ -498,18 +495,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
-
-    /** Disable socket events to test updating via regular network requests
-    socketService.sendEvent(
-      .timeUpdate,
-      payload: [
-        "currentTime": currentItem.currentTime,
-        "percentCompleted": currentItem.percentCompleted,
-        "relativePath": currentItem.relativePath,
-        "lastPlayDateTimestamp": Date().timeIntervalSince1970,
-      ]
-    )
-     */
   }
 }
 

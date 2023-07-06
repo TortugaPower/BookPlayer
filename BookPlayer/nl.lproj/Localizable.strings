@@ -254,7 +254,7 @@
 "logout_title" = "Uitloggen";
 "delete_account_title" = "Account verwijderen";
 "account_title" = "Rekening";
-"benefits_cloudsync_title" = "Cloud synchronisatie";
+"benefits_cloudsync_title" = "Cloud synchronisatie (Beta)";
 "benefits_themesicons_title" = "Thema's & Pictogrammen";
 "benefits_supportus_title" = "Steun ons";
 "completeaccount_title" = "Maak je account compleet";
@@ -283,3 +283,4 @@
  Houd er rekening mee dat het uploaden van taken enige tijd kan duren en dat de voortgang regelmatig op het vorige scherm wordt weergegeven.
 
  We werken er hard aan om een naadloze ervaring te bieden, neem indien mogelijk contact met ons op via support@bookplayer.app met een screenshot van dit scherm. Bedankt!";
+"sort_by_size_title" = "Maat";

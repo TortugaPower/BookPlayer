@@ -254,7 +254,7 @@
 "logout_title" = "Kirjautua ulos";
 "delete_account_title" = "Poista tili";
 "account_title" = "Tili";
-"benefits_cloudsync_title" = "Pilven synkronointi";
+"benefits_cloudsync_title" = "Pilven synkronointi (Beta)";
 "benefits_themesicons_title" = "Teemat ja kuvakkeet";
 "benefits_supportus_title" = "Tue meitä";
 "completeaccount_title" = "Viimeistele tilisi";
@@ -283,3 +283,4 @@
  Muista, että lataustehtävät voivat kestää jonkin aikaa, ja edistyminen julkaistaan ajoittain edellisellä näytöllä.
 
  Teemme kovasti töitä tarjotaksemme saumattoman kokemuksen. Jos mahdollista, ota meihin yhteyttä osoitteeseen support@bookplayer.app ja anna kuvakaappaus tästä näytöstä. Kiitos!";
+"sort_by_size_title" = "Koko";

@@ -21,7 +21,6 @@ class MainCoordinator: Coordinator {
   let accountService: AccountServiceProtocol
   var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
-  let socketService: SocketServiceProtocol
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -35,7 +34,6 @@ class MainCoordinator: Coordinator {
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
     self.watchConnectivityService = coreServices.watchService
-    self.socketService = coreServices.socketService
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -130,31 +128,17 @@ class MainCoordinator: Coordinator {
         else { return }
 
         if account.hasSubscription, !account.id.isEmpty {
-          /** Disable socket lifecycle events
-          self.socketService.connectSocket()
-           */
           if !self.syncService.isActive {
             self.syncService.isActive = true
             self.getLibraryCoordinator()?.syncLibrary()
           }
         } else {
-          /** Disable socket lifecycle events
-          self.socketService.disconnectSocket()
-           */
           self.syncService.isActive = false
           self.syncService.cancelAllJobs()
         }
 
       })
       .store(in: &disposeBag)
-
-    /** Disable socket lifecycle events
-    NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        self?.socketService.disconnectSocket()
-      })
-      .store(in: &disposeBag)
-     */
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
