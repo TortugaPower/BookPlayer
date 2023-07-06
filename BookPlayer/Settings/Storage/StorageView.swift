@@ -36,6 +36,7 @@ struct StorageView: View {
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
+          .accessibilityElement(children: .combine)
           
           Divider()
             .background(themeViewModel.separatorColor)
@@ -50,6 +51,7 @@ struct StorageView: View {
           )
           .font(Font(Fonts.subheadline))
           .foregroundColor(themeViewModel.primaryColor)
+          .accessibilityAddTraits(.isHeader)
           
           Spacer()
           
