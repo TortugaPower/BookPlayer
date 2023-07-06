@@ -26,11 +26,13 @@ struct ClearableTextField: View {
     HStack {
       TextField(placeholder, text: $text)
         .foregroundColor(themeViewModel.primaryColor)
-      Image(systemName: "xmark.circle.fill")
+      Image(systemName: "clear.fill")
         .foregroundColor(themeViewModel.secondaryColor)
         .onTapGesture {
           text = ""
         }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityRemoveTraits(.isImage)
     }
   }
 }
