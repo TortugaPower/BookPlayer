@@ -33,6 +33,7 @@ class LibraryItemSyncJob: Job, BPLogger {
   let relativePath: String
   let jobType: JobType
   let parameters: [String: Any]
+  weak var uploadTask: URLSessionUploadTask?
 
   /// Initializer
   /// - Parameters:
@@ -240,7 +241,7 @@ class LibraryItemSyncJob: Job, BPLogger {
       }
     }
 
-    _ = self.client.upload(
+    uploadTask = self.client.upload(
       fileURL,
       remoteURL: remoteURL,
       taskDescription: relativePath,
@@ -257,6 +258,7 @@ class LibraryItemSyncJob: Job, BPLogger {
     case .success:
       Self.logger.trace("Finished \(self.jobType.rawValue) for: \(self.relativePath)")
     case .fail(let error):
+      uploadTask?.cancel()
       Self.logger.error("Error on jobType \(self.jobType.rawValue) for \(self.relativePath): \(error.localizedDescription)")
     }
   }

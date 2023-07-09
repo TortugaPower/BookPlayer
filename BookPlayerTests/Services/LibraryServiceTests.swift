@@ -1224,17 +1224,17 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedChapters?.last?.index == 2)
   }
 
-  func testGetItemsNotIncluded() throws {
-    let emptyResult = self.sut.getItemsToSync(remoteIdentifiers: [])
+  func testGetItemsNotIncluded() async throws {
+    let emptyResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
     XCTAssert(emptyResult?.isEmpty == true)
 
     _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
     _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
 
-    let secondResult = self.sut.getItemsToSync(remoteIdentifiers: [])
+    let secondResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
     XCTAssert(secondResult?.count == 2)
 
-    let thirdResult = self.sut.getItemsToSync(remoteIdentifiers: ["test-folder"])
+    let thirdResult = await self.sut.getItemsToSync(remoteIdentifiers: ["test-folder"])
     XCTAssert(thirdResult?.count == 1)
   }
 
