@@ -938,6 +938,7 @@ extension ItemListViewModel {
       .filter {
         $0.lastPathComponent != DataManager.processedFolderName
         && $0.lastPathComponent != DataManager.inboxFolderName
+        && $0.lastPathComponent != DataManager.backupFolderName
       }
 
     let sharedURLs = (try? FileManager.default.contentsOfDirectory(

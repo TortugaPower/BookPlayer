@@ -9,6 +9,7 @@
 import Foundation
 
 public enum LibraryAPI {
+  case syncedIdentifiers
   case contents(path: String)
   case upload(params: [String: Any])
   case update(params: [String: Any])
@@ -26,6 +27,8 @@ public enum LibraryAPI {
 extension LibraryAPI: Endpoint {
   public var path: String {
     switch self {
+    case .syncedIdentifiers:
+      return "/v1/library/keys"
     case .contents:
       return "/v1/library"
     case .upload:
@@ -55,6 +58,8 @@ extension LibraryAPI: Endpoint {
 
   public var method: HTTPMethod {
     switch self {
+    case .syncedIdentifiers:
+      return .get
     case .contents:
       return .get
     case .upload:
@@ -84,6 +89,8 @@ extension LibraryAPI: Endpoint {
 
   public var parameters: [String: Any]? {
     switch self {
+    case .syncedIdentifiers:
+      return nil
     case .contents(let path):
       return [
         "relativePath": path,
