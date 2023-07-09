@@ -41,7 +41,8 @@ extension LibraryService: LibrarySyncProtocol {
       let context = dataManager.getContext()
       context.perform { [unowned self, context] in
         guard let storedItems = getItems(in: Array(itemsDict.keys), parentFolder: parentFolder, context: context) else {
-          return continuation.resume()
+          continuation.resume()
+          return
         }
 
         for storedItem in storedItems {
@@ -121,6 +122,7 @@ extension LibraryService: LibrarySyncProtocol {
           }
         }
 
+        dataManager.saveSyncContext(context)
         continuation.resume()
       }
     }
@@ -139,8 +141,6 @@ extension LibraryService: LibrarySyncProtocol {
       let library = getLibraryReference(context: context)
       library.addToItems(newBook)
     }
-
-    dataManager.saveSyncContext(context)
   }
 
   func addFolder(from item: SyncableItem, parentFolder: String?, context: NSManagedObjectContext) {
@@ -160,8 +160,6 @@ extension LibraryService: LibrarySyncProtocol {
       let library = getLibraryReference(context: context)
       library.addToItems(newFolder)
     }
-
-    dataManager.saveSyncContext(context)
   }
 
   public func addBookmark(from bookmark: SimpleBookmark) async {
