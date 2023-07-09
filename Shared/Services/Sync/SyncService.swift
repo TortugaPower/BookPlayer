@@ -18,13 +18,11 @@ public protocol SyncServiceProtocol {
   var queuedJobsCount: Int { get }
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
-  func syncListContents(
-    at relativePath: String?
-  ) async throws -> ([SyncableItem], SyncableItem?)?
+  func syncListContents(at relativePath: String?) async throws -> SyncableItem?
 
-  /// Fetch the top level of the library, store incoming items and upload new local items
-  /// Note: Should only be called when the user logs in
-  func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?)
+  /// Fetch the synced identifiers and upload new local items
+  /// Note: Should only be called once when the user logs in
+  func syncLibraryContents() async throws -> SyncableItem?
 
   func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
 
@@ -94,6 +92,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.isActive = false
+        UserDefaults.standard.set(
+          false,
+          forKey: Constants.UserDefaults.hasScheduledLibraryContents
+        )
       })
       .store(in: &disposeBag)
 
@@ -110,7 +112,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func syncListContents(
     at relativePath: String?
-  ) async throws -> ([SyncableItem], SyncableItem?)? {
+  ) async throws -> SyncableItem? {
     guard
       isActive,
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
@@ -124,6 +126,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
+      Self.logger.log("Throttled sync operation")
       throw BookPlayerError.networkError("Throttled sync operation")
     }
 
@@ -132,48 +135,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       forKey: userDefaultsKey
     )
 
-    let (fetchedItems, lastItemPlayed) = try await fetchContents(at: relativePath)
+    Self.logger.log("Fetch list contents")
 
-    guard !fetchedItems.isEmpty else { return nil }
+    let response = try await fetchContents(at: relativePath)
 
-    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: relativePath) ?? []
+    await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
 
-    var fetchedIdentifiers = [String]()
-    var itemsToStore = [SyncableItem]()
-    var itemsToUpdate = [SyncableItem]()
-
-    for fetchedItem in fetchedItems {
-      fetchedIdentifiers.append(fetchedItem.relativePath)
-      if !libraryIdentifiers.contains(fetchedItem.relativePath) {
-        itemsToStore.append(fetchedItem)
-      } else if fetchedItem.relativePath != lastItemPlayed?.relativePath {
-        itemsToUpdate.append(fetchedItem)
-      }
-    }
-
-    /// Remove items from the library that are not in the remote items
-    try libraryService.removeItems(notIn: fetchedIdentifiers, parentFolder: relativePath)
-
-    /// Store new items
-    if !itemsToStore.isEmpty {
-      try await self.storeListItems(
-        itemsToStore,
-        parentFolder: relativePath
-      )
-    }
-    /// Update data or store
-    if !itemsToUpdate.isEmpty {
-      await libraryService.updateInfo(from: itemsToUpdate)
-    }
-
-    if let lastItemPlayed {
-      await libraryService.updateLastPlayedInfo(lastItemPlayed)
-    }
-
-    return (fetchedItems, lastItemPlayed)
+    return response.lastItemPlayed
   }
 
-  public func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?) {
+  public func syncLibraryContents() async throws -> SyncableItem? {
     guard
       isActive,
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
@@ -181,48 +152,42 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
-    UserDefaults.standard.set(
-      Date().timeIntervalSince1970,
-      forKey: "\(Constants.UserDefaults.lastSyncTimestamp)_library"
-    )
+    Self.logger.log("Fetch synced library identifiers")
 
-    let (fetchedItems, lastItemPlayed) = try await fetchContents(at: nil)
+    let fetchedIdentifiers = try await fetchSyncedIdentifiers()
 
-    let libraryIdentifiers = await libraryService.getStoredItemIdentifiers(in: nil) ?? []
-
-    var fetchedIdentifiers = [String]()
-    var itemsToStore = [SyncableItem]()
-
-    for fetchedItem in fetchedItems {
-      fetchedIdentifiers.append(fetchedItem.relativePath)
-      if !libraryIdentifiers.contains(fetchedItem.relativePath) {
-        itemsToStore.append(fetchedItem)
-      }
-    }
-
-    if !itemsToStore.isEmpty {
-      try await self.storeLibraryItems(itemsToStore)
-    }
-
-    if let itemsToUpload = libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
+    if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
+      Self.logger.log("Scheduling upload tasks")
       handleItemsToUpload(itemsToUpload)
     }
 
-    return (itemsToStore, lastItemPlayed)
+    let response = try await fetchContents(at: nil)
+
+    await processContentsResponse(response, parentFolder: nil, canDelete: false)
+
+    return response.lastItemPlayed
   }
 
-  func storeLibraryItems(_ syncedItems: [SyncableItem]) async throws {
-    for item in syncedItems {
-      switch item.type {
-      case .book:
-        await libraryService.addBook(from: item, parentFolder: nil)
-      case .bound:
-        await libraryService.addFolder(from: item, type: .bound, parentFolder: nil)
-        try await fetchBoundContents(for: item)
-      case .folder:
-        await libraryService.addFolder(from: item, type: .folder, parentFolder: nil)
-      }
+  func processContentsResponse(
+    _ response: ContentsResponse,
+    parentFolder: String?,
+    canDelete: Bool
+  ) async {
+    guard !response.content.isEmpty else { return }
+
+    let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+
+    await libraryService.updateInfo(for: itemsDict, parentFolder: parentFolder)
+
+    await libraryService.storeNewItems(from: itemsDict, parentFolder: parentFolder)
+
+    if canDelete {
+      await libraryService.removeItems(notIn: Array(itemsDict.keys), parentFolder: parentFolder)
+    }
+
+    if let lastItemPlayed = response.lastItemPlayed {
+      await libraryService.updateLastPlayedInfo(lastItemPlayed)
     }
   }
 
@@ -246,34 +211,22 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   func fetchBoundContents(for item: SyncableItem) async throws {
     guard item.type == .bound else { return }
 
-    let (fetchedItems, _) = try await fetchContents(at: item.relativePath)
+    let response = try await fetchContents(at: item.relativePath)
 
-    guard !fetchedItems.isEmpty else { return }
+    guard !response.content.isEmpty else { return }
 
-    /// All fetched items inside a bound folder are always books
-    for fetchedItem in fetchedItems {
-      await libraryService.addBook(from: fetchedItem, parentFolder: item.relativePath)
-    }
+    let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+
+    await libraryService.storeNewItems(from: itemsDict, parentFolder: item.relativePath)
   }
 
-  func storeListItems(
-    _ syncedItems: [SyncableItem],
-    parentFolder: String?
-  ) async throws {
-    for item in syncedItems {
-      switch item.type {
-      case .book:
-        await libraryService.addBook(from: item, parentFolder: parentFolder)
-      case .bound:
-        await libraryService.addFolder(from: item, type: .bound, parentFolder: parentFolder)
-        _ = try await syncListContents(at: item.relativePath)
-      case .folder:
-        await libraryService.addFolder(from: item, type: .folder, parentFolder: parentFolder)
-      }
-    }
+  func fetchSyncedIdentifiers() async throws -> [String] {
+    let response: IdentifiersResponse = try await self.provider.request(.syncedIdentifiers)
+
+    return response.content
   }
 
-  func fetchContents(at relativePath: String?) async throws -> ([SyncableItem], SyncableItem?) {
+  func fetchContents(at relativePath: String?) async throws -> ContentsResponse {
     let path: String
     if let relativePath = relativePath {
       path = "\(relativePath)/"
@@ -283,7 +236,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let response: ContentsResponse = try await self.provider.request(.contents(path: path))
 
-    return (response.content, response.lastItemPlayed)
+    return response
   }
 
   func fetchBookmarks(for relativePath: String) async throws -> [SimpleBookmark] {
@@ -378,19 +331,12 @@ extension SyncService {
 
 extension SyncService {
   func handleItemsToUpload(_ items: [SyncableItem]) {
-    let folders = items.filter({ $0.type != .book })
-
-    var itemsToUpload = items
-
-    for folder in folders {
-      if let contents = self.libraryService.fetchSyncableNestedContents(at: folder.relativePath),
-         !contents.isEmpty {
-        itemsToUpload.append(contentsOf: contents)
-      }
+    for item in items {
+      jobManager.scheduleLibraryItemUploadJob(for: item)
     }
 
-    for item in itemsToUpload {
-      jobManager.scheduleLibraryItemUploadJob(for: item)
+    /// Handle bookmarks in separate loop, as the viewContext can be unreliable
+    for item in items {
       if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
         for bookmark in bookmarks {
           jobManager.scheduleSetBookmarkJob(
@@ -403,12 +349,24 @@ extension SyncService {
     }
   }
 
+  /// Schedule upload tasks for recently imported books and folders
   public func scheduleUpload(items: [SimpleLibraryItem]) {
     guard isActive else { return }
 
     let syncItems = items.map({ SyncableItem(from: $0) })
 
-    handleItemsToUpload(syncItems)
+    let folders = items.filter({ $0.type != .book })
+
+    var itemsToUpload = syncItems
+
+    for folder in folders {
+      if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
+         !contents.isEmpty {
+        itemsToUpload.append(contentsOf: contents)
+      }
+    }
+
+    handleItemsToUpload(itemsToUpload)
   }
 }
 

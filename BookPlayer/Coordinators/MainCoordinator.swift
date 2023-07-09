@@ -130,7 +130,7 @@ class MainCoordinator: Coordinator {
         if account.hasSubscription, !account.id.isEmpty {
           if !self.syncService.isActive {
             self.syncService.isActive = true
-            self.getLibraryCoordinator()?.syncLibrary()
+            self.getLibraryCoordinator()?.syncList()
           }
         } else {
           self.syncService.isActive = false

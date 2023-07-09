@@ -198,33 +198,25 @@ class LibraryListCoordinator: ItemListCoordinator {
     vc.viewModel.coordinator.detach()
   }
 
-  func syncLibrary() {
-    Task { [weak self] in
-      guard
-        let (newItems, lastPlayed) = try await self?.syncService.syncLibraryContents()
-      else { return }
-
-      self?.processFetchedItems(newItems, lastPlayed: lastPlayed)
-    }
-  }
-
   override func syncList() {
-    Task { [weak self] in
-      guard
-        let self = self
-      else { return }
+    Task { @MainActor in
+      let lastPlayed: SyncableItem?
 
-      guard let (newItems, lastPlayed) = try await self.syncService.syncListContents(at: nil) else { return }
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+        lastPlayed = try await syncService.syncListContents(at: nil)
+      } else {
+        lastPlayed = try await syncService.syncLibraryContents()
 
-      self.processFetchedItems(newItems, lastPlayed: lastPlayed)
-    }
-  }
+        UserDefaults.standard.set(
+          true,
+          forKey: Constants.UserDefaults.hasScheduledLibraryContents
+        )
+      }
 
-  func processFetchedItems(_ items: [SyncableItem], lastPlayed: SyncableItem?) {
-    reloadItemsWithPadding(padding: items.count)
-
-    if let lastPlayed {
-      handleSyncedLastPlayed(item: lastPlayed)
+      reloadItemsWithPadding()
+      if let lastPlayed {
+        handleSyncedLastPlayed(item: lastPlayed)
+      }
     }
   }
 

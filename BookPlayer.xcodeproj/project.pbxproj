@@ -351,6 +351,8 @@
 		9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */; };
 		9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
 		9F2DC9E62A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
+		9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
+		9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
 		9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */; };
@@ -1012,6 +1014,7 @@
 		9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingOptionsView.swift; sourceTree = "<group>"; };
 		9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingRowView.swift; sourceTree = "<group>"; };
 		9F2DC9E32A01313C006CDF1F /* PricingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingModel.swift; sourceTree = "<group>"; };
+		9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiersResponse.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewController.swift; sourceTree = "<group>"; };
@@ -2109,6 +2112,7 @@
 				9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
+				9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */,
 				9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */,
 				9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */,
 				9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */,
@@ -2955,6 +2959,7 @@
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
+				9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
@@ -3259,6 +3264,7 @@
 				41A1B123226F88C500EA0400 /* Book+CoreDataClass.swift in Sources */,
 				41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */,
 				9FF383D32A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				9F07B72529B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,

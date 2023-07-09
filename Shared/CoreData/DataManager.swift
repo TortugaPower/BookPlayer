@@ -11,6 +11,7 @@ import Foundation
 
 public class DataManager {
   public static let processedFolderName = "Processed"
+  public static let backupFolderName = "BPBackup"
   public static let inboxFolderName = "Inbox"
   public static let sharedFolderName = "SharedBP"
   public static var loadingDataError: Error?
@@ -40,6 +41,22 @@ public class DataManager {
     }
 
     return processedFolderURL
+  }
+
+  public class func getBackupFolderURL() -> URL {
+    let documentsURL = self.getDocumentsFolderURL()
+
+    let backupFolderURL = documentsURL.appendingPathComponent(self.backupFolderName)
+
+    if !FileManager.default.fileExists(atPath: backupFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: backupFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Backup folder")
+      }
+    }
+
+    return backupFolderURL
   }
 
   public class func getInboxFolderURL() -> URL {
