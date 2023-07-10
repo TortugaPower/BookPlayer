@@ -284,3 +284,5 @@
 
  Vi arbetar hårt på att ge en sömlös upplevelse, om möjligt, kontakta oss på support@bookplayer.app med en skärmdump av den här skärmen. Tack!";
 "sort_by_size_title" = "Storlek";
+"settings_storage_sync_deleted_description" = "Filer borttagna (synkroniseringsåtgärder)";
+"storage_sync_deleted_recover_description" = "Du kan importera tillbaka dina lokala böcker och mappar om de raderades av en synkroniseringsåtgärd. Detta flyttar alla tillbaka till dokumentmappen, vilket utlöser importprocessen. Om mappar är inblandade kan detta betyda att originalen fortfarande finns i biblioteket, och visst namnbyte måste ske, ber om ursäkt för detta besvär";

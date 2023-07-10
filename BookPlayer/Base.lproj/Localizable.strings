@@ -284,3 +284,5 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 
 We're working hard on providing a seamless experience, if possible, please contact us at support@bookplayer.app with a screenshot of this screen. Thanks!";
 "sort_by_size_title" = "Size";
+"settings_storage_sync_deleted_description" = "Files removed (sync operations)";
+"storage_sync_deleted_recover_description" = "You can import back your local books and folders if they were deleted by a sync operation. This will move all of them back to the documents folder, triggering the import process. If folders are involved, this could mean that the originals are still in the library, and some renaming will have to take place, sorry about this inconvenience";

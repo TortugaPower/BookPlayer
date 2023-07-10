@@ -44,6 +44,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
   let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
+  let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
   let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
   let githubLinkPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
@@ -160,6 +161,11 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    if indexPath == cloudDeletedIndexPath,
+       !self.viewModel.hasMadeDonation() {
+      return 0
+    }
+
     guard indexPath.section == 0 else {
       return super.tableView(tableView, heightForRowAt: indexPath)
     }
@@ -189,33 +195,35 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     return CGFloat.leastNormalMagnitude
   }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
-        switch indexPath {
-        case self.creditsIndexPath:
-          self.viewModel.showCredits()
-        case self.playbackIndexPath:
-          self.viewModel.showPlayerControls()
-        case self.themesIndexPath:
-          self.viewModel.showThemes()
-        case self.iconsIndexPath:
-          self.viewModel.showIcons()
-        case self.tipJarPath:
-          self.viewModel.showTipJar()
-        case self.supportEmailPath:
-          self.sendSupportEmail()
-        case self.githubLinkPath:
-          self.showProjectOnGitHub()
-        case self.lastPlayedShortcutPath:
-          self.showLastPlayedShortcut()
-        case self.sleepTimerShortcutPath:
-          self.showSleepTimerShortcut()
-        case self.storageIndexPath:
-          self.viewModel.showStorageManagement()
-        default: break
-        }
+    switch indexPath {
+    case self.creditsIndexPath:
+      self.viewModel.showCredits()
+    case self.playbackIndexPath:
+      self.viewModel.showPlayerControls()
+    case self.themesIndexPath:
+      self.viewModel.showThemes()
+    case self.iconsIndexPath:
+      self.viewModel.showIcons()
+    case self.tipJarPath:
+      self.viewModel.showTipJar()
+    case self.supportEmailPath:
+      self.sendSupportEmail()
+    case self.githubLinkPath:
+      self.showProjectOnGitHub()
+    case self.lastPlayedShortcutPath:
+      self.showLastPlayedShortcut()
+    case self.sleepTimerShortcutPath:
+      self.showSleepTimerShortcut()
+    case self.storageIndexPath:
+      self.viewModel.showStorageManagement()
+    case self.cloudDeletedIndexPath:
+      self.viewModel.showCloudDeletedFiles()
+    default: break
     }
+  }
 
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     guard let settingsSection = SettingsSection(rawValue: section) else {

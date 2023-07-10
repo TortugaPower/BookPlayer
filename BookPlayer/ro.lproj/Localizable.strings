@@ -284,3 +284,5 @@
 
  Lucrăm din greu pentru a oferi o experiență perfectă, dacă este posibil, vă rugăm să ne contactați la support@bookplayer.app cu o captură de ecran a acestui ecran. Mulțumiri!";
 "sort_by_size_title" = "mărimea";
+"settings_storage_sync_deleted_description" = "Fișierele eliminate (operații de sincronizare)";
+"storage_sync_deleted_recover_description" = "Puteți importa înapoi cărțile și folderele locale dacă au fost șterse printr-o operație de sincronizare. Acest lucru le va muta pe toate înapoi în folderul documente, declanșând procesul de import. Dacă sunt implicate foldere, aceasta ar putea însemna că originalele sunt încă în bibliotecă și va trebui să aibă loc o redenumire, scuze pentru acest inconvenient";

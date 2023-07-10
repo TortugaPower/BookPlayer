@@ -223,7 +223,6 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B30A32230232D200025D69 /* CarPlayManager.swift */; };
 		41B3425123FB889200E4E3D0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
-		41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */; };
 		41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41C233FF272E195B006BC7B8 /* SimpleItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF226F559CE00825180 /* SimpleItemType.swift */; };
@@ -353,6 +352,7 @@
 		9F2DC9E62A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
 		9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
 		9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
+		9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
 		9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */; };
@@ -899,7 +899,6 @@
 		41B2A6AB21D3274500917584 /* Themeable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Themeable.framework; path = Carthage/Build/iOS/Themeable.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41B30A32230232D200025D69 /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
-		41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCoordinator.swift; sourceTree = "<group>"; };
 		41C2340B27324AB7006BC7B8 /* ItemListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModelTests.swift; sourceTree = "<group>"; };
 		41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v2_to_v3.xcmappingmodel; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
@@ -1015,6 +1014,7 @@
 		9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingRowView.swift; sourceTree = "<group>"; };
 		9F2DC9E32A01313C006CDF1F /* PricingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingModel.swift; sourceTree = "<group>"; };
 		9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiersResponse.swift; sourceTree = "<group>"; };
+		9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedViewModel.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewController.swift; sourceTree = "<group>"; };
@@ -1301,6 +1301,7 @@
 			children = (
 				4124122926D19B9100B099DB /* StorageItem.swift */,
 				4124122726D19A8600B099DB /* StorageViewModel.swift */,
+				9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */,
 				D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */,
 				D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */,
 			);
@@ -1395,7 +1396,6 @@
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
 				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 				41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */,
-				41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */,
 				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
 				9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */,
 				9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */,
@@ -3024,7 +3024,6 @@
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
-				41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
@@ -3129,6 +3128,7 @@
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
+				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,

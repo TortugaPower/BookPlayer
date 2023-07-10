@@ -284,3 +284,5 @@
 
  Estamos trabajando arduamente para brindar una experiencia perfecta, si es posible, contáctenos en support@bookplayer.app con una captura de pantalla de esta pantalla. ¡Gracias!";
 "sort_by_size_title" = "Tamaño";
+"settings_storage_sync_deleted_description" = "Archivos eliminados (operaciones de sincronización)";
+"storage_sync_deleted_recover_description" = "Puede volver a importar sus libros y carpetas locales si fueron eliminados por una operación de sincronización. Esto los moverá a todos a la carpeta de documentos, lo que desencadenará el proceso de importación. Si hay carpetas involucradas, esto podría significar que los originales todavía están en la biblioteca, y se tendrá que cambiar el nombre, disculpe las molestias.";

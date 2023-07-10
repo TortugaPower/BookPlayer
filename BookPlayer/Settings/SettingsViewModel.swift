@@ -65,6 +65,10 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
     self.coordinator.showStorageManagement()
   }
 
+  func showCloudDeletedFiles() {
+    self.coordinator.showCloudDeletedFiles()
+  }
+
   func showThemes() {
     self.coordinator.showThemes()
   }
