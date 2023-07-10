@@ -993,7 +993,8 @@ extension ItemListViewModel {
     )?.filter({ $0.type == .folder }) ?? []
 
     showOperationCompletedAlert(
-      with: itemIdentifiers,
+      itemIdentifiers: itemIdentifiers,
+      hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
       availableFolders: availableFolders,
       suggestedFolderName: suggestedFolderName
     )
@@ -1001,7 +1002,8 @@ extension ItemListViewModel {
 
   // swiftlint:disable:next function_body_length
   func showOperationCompletedAlert(
-    with items: [String],
+    itemIdentifiers: [String],
+    hasOnlyBooks: Bool,
     availableFolders: [SimpleLibraryItem],
     suggestedFolderName: String?
   ) {
@@ -1010,7 +1012,7 @@ extension ItemListViewModel {
     var firstTitle: String?
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
-    } else if let relativePath = items.first {
+    } else if let relativePath = itemIdentifiers.first {
       firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
     }
 
@@ -1022,10 +1024,10 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "library_title".localized,
-      handler: { [hasParentFolder, items, weak self] in
+      handler: { [hasParentFolder, itemIdentifiers, weak self] in
         guard hasParentFolder else { return }
 
-        self?.importIntoLibrary(items)
+        self?.importIntoLibrary(itemIdentifiers)
       }
     ))
 
@@ -1036,7 +1038,7 @@ extension ItemListViewModel {
 
         self?.showCreateFolderAlert(
           placeholder: placeholder,
-          with: items,
+          with: itemIdentifiers,
           type: .folder
         )
       }
@@ -1045,11 +1047,11 @@ extension ItemListViewModel {
     actions.append(BPActionItem(
       title: "existing_playlist_button".localized,
       isEnabled: !availableFolders.isEmpty,
-      handler: { [items, availableFolders, weak self] in
+      handler: { [itemIdentifiers, availableFolders, weak self] in
         self?.onTransition?(.showItemSelectionScreen(
           availableItems: availableFolders,
           selectionHandler: { selectedFolder in
-            self?.importIntoFolder(selectedFolder, items: items, type: .folder)
+            self?.importIntoFolder(selectedFolder, items: itemIdentifiers, type: .folder)
           }
         ))
       }
@@ -1057,11 +1059,11 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "bound_books_create_button".localized,
-      isEnabled: items is [Book],
+      isEnabled: hasOnlyBooks,
       handler: { [firstTitle, weak self] in
         let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
 
-        self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: .bound)
+        self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
       }
     ))
 
