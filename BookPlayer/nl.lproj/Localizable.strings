@@ -285,3 +285,4 @@
  We werken er hard aan om een naadloze ervaring te bieden, neem indien mogelijk contact met ons op via support@bookplayer.app met een screenshot van dit scherm. Bedankt!";
 "sort_by_size_title" = "Maat";
 "settings_storage_sync_deleted_description" = "Bestanden verwijderd (synchronisatiebewerkingen)";
+"storage_sync_deleted_recover_description" = "U kunt uw lokale boeken en mappen terug importeren als ze zijn verwijderd door een synchronisatiebewerking. Hierdoor worden ze allemaal terugverplaatst naar de documentenmap, waardoor het importproces wordt geactiveerd. Als er mappen bij betrokken zijn, kan dit betekenen dat de originelen zich nog in de bibliotheek bevinden en dat er een aantal hernoemingen moeten plaatsvinden. Excuses voor dit ongemak";

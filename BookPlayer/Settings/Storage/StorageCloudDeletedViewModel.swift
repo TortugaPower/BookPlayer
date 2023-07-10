@@ -120,7 +120,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
   private var fixAllAlert: Alert {
     Alert(
       title: Text(""),
-      message: Text("storage_fix_files_description".localized),
+      message: Text("storage_sync_deleted_recover_description".localized),
       primaryButton: .cancel(
         Text("cancel_button".localized)
       ),
