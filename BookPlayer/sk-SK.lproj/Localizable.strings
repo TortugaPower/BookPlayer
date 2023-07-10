@@ -284,3 +284,4 @@ Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bud
 
 Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";
 "sort_by_size_title" = "Veľkosť";
+"settings_storage_sync_deleted_description" = "Súbory boli odstránené (operácie synchronizácie)";

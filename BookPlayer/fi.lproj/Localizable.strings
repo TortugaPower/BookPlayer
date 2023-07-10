@@ -284,3 +284,4 @@
 
  Teemme kovasti töitä tarjotaksemme saumattoman kokemuksen. Jos mahdollista, ota meihin yhteyttä osoitteeseen support@bookplayer.app ja anna kuvakaappaus tästä näytöstä. Kiitos!";
 "sort_by_size_title" = "Koko";
+"settings_storage_sync_deleted_description" = "Tiedostot poistettu (synkronointi)";

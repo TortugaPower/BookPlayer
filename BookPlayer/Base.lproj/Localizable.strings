@@ -284,3 +284,4 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 
 We're working hard on providing a seamless experience, if possible, please contact us at support@bookplayer.app with a screenshot of this screen. Thanks!";
 "sort_by_size_title" = "Size";
+"settings_storage_sync_deleted_description" = "Files removed (sync operations)";

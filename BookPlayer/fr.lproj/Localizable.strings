@@ -284,3 +284,4 @@
 
  Nous travaillons dur pour fournir une expérience transparente, si possible, veuillez nous contacter à support@bookplayer.app avec une capture d'écran de cet écran. Merci!";
 "sort_by_size_title" = "Taille";
+"settings_storage_sync_deleted_description" = "Fichiers supprimés (opérations de synchronisation)";
