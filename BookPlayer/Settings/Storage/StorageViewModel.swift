@@ -11,42 +11,105 @@ import Combine
 import DirectoryWatcher
 import SwiftUI
 
-final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObject {
+protocol StorageViewModelProtocol: ObservableObject {
+  var folderURL: URL { get }
+  var navigationTitle: String { get }
+  var publishedFiles: [StorageItem] { get set }
+  var showFixAllButton: Bool { get set }
+  var sortBy: BPStorageSortBy { get set }
+  var storageAlert: BPStorageAlert { get set }
+  var showAlert: Bool { get set }
+  var showProgressIndicator: Bool { get set }
+  var alert: Alert { get }
+  var fixButtonTitle: String { get }
+
+  func getFolderSize() -> String
+  func dismiss()
+}
+
+extension StorageViewModelProtocol {
+  func getFolderSize() -> String {
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: folderURL,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
+  }
+}
+
+enum BPStorageSortBy: Int {
+  case size, title
+}
+
+enum BPStorageAlert {
+  case error(errorMessage: String)
+  case delete(item: StorageItem)
+  case fix(item: StorageItem)
+  case fixAll
+  case none // to avoid optional
+}
+
+final class StorageViewModel: StorageViewModelProtocol {
+  /// Available routes
+  enum Routes {
+    case showAlert(title: String, message: String)
+    case dismiss
+  }
 
   // MARK: - Properties
-  
   let libraryService: LibraryServiceProtocol
-  private let folderURL: URL
+  let folderURL: URL
 
   @Published var publishedFiles = [StorageItem]() {
     didSet {
-      self.hasFilesWithWarning = self.publishedFiles.contains { $0.showWarning }
+      self.showFixAllButton = self.publishedFiles.contains { $0.showWarning }
     }
   }
-  @Published var hasFilesWithWarning = false
+  @Published var showFixAllButton = false
   @Published var showAlert = false
   @Published var showProgressIndicator = false
-
-  enum SortBy: Int {
-    case size, title
-  }
   
-  enum StorageAlert {
-    case error(errorMessage: String)
-    case delete(item: StorageItem)
-    case fix(item: StorageItem)
-    case fixAll
-    case none // to avoid optional
-  }
-  
-  @Published var sortBy: SortBy {
+  @Published var sortBy: BPStorageSortBy {
     didSet {
       publishedFiles = sortedItems(items: publishedFiles)
       UserDefaults.standard.set(sortBy.rawValue, forKey: Constants.UserDefaults.storageFilesSortOrder)
     }
   }
-  
-  var storageAlert: StorageAlert = .none
+
+  let navigationTitle = "settings_storage_title".localized
+  let fixButtonTitle = "storage_fix_all_title".localized
+
+  var alert: Alert {
+    switch storageAlert {
+    case .error(let errorMessage):
+      return errorAlert(errorMessage)
+    case .delete(let item):
+      return deleteAlert(for: item)
+    case .fix(let item):
+      return fixAlert(for: item)
+    case .fixAll:
+      return fixAllAlert
+    case .none:
+      // processing this case to use non-optional var for storageAlert.
+      // This case should not happen
+      return Alert(title: Text(""))
+    }
+  }
+
+  /// Callback to handle actions on this screen
+  var onTransition: Transition<Routes>?
+  var storageAlert: BPStorageAlert = .none
 
   lazy var library: Library = {
     libraryService.getLibrary()
@@ -56,32 +119,12 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     self.libraryService = libraryService
     self.folderURL = folderURL
     
-    self.sortBy = SortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
+    self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
 
-    super.init()
     self.loadItems()
   }
 
   // MARK: - Public interface
-  
-  func getLibrarySize() -> String {
-    var folderSize: Int64 = 0
-    
-    let enumerator = FileManager.default.enumerator(
-      at: self.folderURL,
-      includingPropertiesForKeys: [],
-      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
-    
-    for case let fileURL as URL in enumerator {
-      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
-      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
-    }
-    
-    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
-  }
   
   func shouldShowWarning(for relativePath: String) -> Bool {
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
@@ -113,7 +156,10 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
     // Check if existing book already has its file, and this one is a duplicate
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
-      self.coordinator.showAlert("storage_duplicate_item_title".localized, message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!))
+      onTransition?(.showAlert(
+        title: "storage_duplicate_item_title".localized,
+        message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!)
+      ))
       if shouldReloadItems {
         self.loadItems()
       }
@@ -167,23 +213,9 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
       }
     }
   }
-  
-  var alert: Alert {
-    
-    switch storageAlert {
-    case .error(let errorMessage):
-      return errorAlert(errorMessage)
-    case .delete(let item):
-      return deleteAlert(for: item)
-    case .fix(let item):
-      return fixAlert(for: item)
-    case .fixAll:
-      return fixAllAlert
-    case .none:
-      // processing this case to use non-optional var for storageAlert.
-      // This case should not happen
-      return Alert(title: Text(""))
-    }
+
+  func dismiss() {
+    onTransition?(.dismiss)
   }
     
   // MARK: - Private functions
@@ -318,9 +350,9 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
   }
   
   private func handleDelete(for item: StorageItem) throws {
+    try FileManager.default.removeItem(at: item.fileURL)
     let filteredFiles = publishedFiles.filter { $0.fileURL != item.fileURL }
     publishedFiles = self.sortedItems(items: filteredFiles)
-    try FileManager.default.removeItem(at: item.fileURL)
   }
   
   private func handleFix(for items: [StorageItem], completion: @escaping () -> Void) throws {
@@ -392,31 +424,4 @@ final class StorageViewModel: BaseViewModel<StorageCoordinator>, ObservableObjec
       dismissButton: .default(Text("ok_button".localized))
     )
   }
-}
-
-// MARK: - Preview data
-
-extension StorageViewModel {
-  static var demo: StorageViewModel = {
-    let bookContents = "bookcontents".data(using: .utf8)!
-    let filename = "book volume.mp3"
-    let documentsURL = DataManager.getDocumentsFolderURL()
-    let testPath = "/dev/null"
-    
-    let directoryURL = try! FileManager.default.url(
-      for: .itemReplacementDirectory,
-      in: .userDomainMask,
-      appropriateFor: documentsURL,
-      create: true
-    )
-    
-    let destination = directoryURL.appendingPathComponent(filename)
-    try! bookContents.write(to: destination)
-    
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: testPath))
-    let libraryService = LibraryService(dataManager: dataManager)
-    _ = libraryService.getLibrary()
-    return StorageViewModel(libraryService: libraryService,
-                            folderURL: directoryURL)
-  }()
 }

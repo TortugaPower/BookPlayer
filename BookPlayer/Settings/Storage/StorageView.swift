@@ -9,10 +9,10 @@
 import SwiftUI
 import BookPlayerKit
 
-struct StorageView: View {
+struct StorageView<Model: StorageViewModelProtocol>: View {
   
   @StateObject var themeViewModel = ThemeViewModel()
-  @ObservedObject var viewModel: StorageViewModel
+  @ObservedObject var viewModel: Model
   
   var body: some View {
     if viewModel.showProgressIndicator {
@@ -31,7 +31,7 @@ struct StorageView: View {
             
             Spacer()
             
-            Text(viewModel.getLibrarySize())
+            Text(viewModel.getFolderSize())
               .foregroundColor(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
@@ -55,8 +55,8 @@ struct StorageView: View {
           
           Spacer()
           
-          if viewModel.hasFilesWithWarning {
-            Button("storage_fix_all_title".localized) {
+          if viewModel.showFixAllButton {
+            Button(viewModel.fixButtonTitle) {
               viewModel.storageAlert = .fixAll
               viewModel.showAlert = true
             }
@@ -102,7 +102,7 @@ struct StorageView: View {
           .edgesIgnoringSafeArea(.bottom)
       )
       .environmentObject(themeViewModel)
-      .navigationTitle("settings_storage_title".localized)
+      .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .navigationBarLeading) {
@@ -120,8 +120,8 @@ struct StorageView: View {
             Picker(
               selection: $viewModel.sortBy,
               label: Text("sort_button_title".localized)) {
-                Text("sort_by_size_title".localized).tag(StorageViewModel.SortBy.size)
-                Text("title_button".localized).tag(StorageViewModel.SortBy.title)
+                Text("sort_by_size_title".localized).tag(BPStorageSortBy.size)
+                Text("title_button".localized).tag(BPStorageSortBy.title)
               }
           } label: {
             HStack {
@@ -143,8 +143,22 @@ struct StorageView: View {
 }
 
 struct StorageView_Previews: PreviewProvider {
-  
+  class MockStorageViewModel: StorageViewModelProtocol, ObservableObject {
+    var folderURL: URL { URL(string: "file://")! }
+    var navigationTitle: String = "Files"
+    var publishedFiles: [StorageItem] = []
+    var storageAlert: BPStorageAlert = .none
+    var sortBy: BPStorageSortBy = .size
+    var showFixAllButton: Bool = true
+    var showAlert: Bool = false
+    var showProgressIndicator: Bool = false
+    var alert: Alert { Alert(title: Text("")) }
+    let fixButtonTitle = "Fix all"
+
+    func getFolderSize() -> String { return "0 Kb" }
+    func dismiss() {}
+  }
   static var previews: some View {
-    StorageView(viewModel: .demo)
+    StorageView(viewModel: MockStorageViewModel())
   }
 }

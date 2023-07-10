@@ -8,6 +8,7 @@
 
 import UIKit
 import BookPlayerKit
+import SwiftUI
 
 class SettingsCoordinator: Coordinator {
   weak var tabBarController: UITabBarController?
@@ -49,13 +50,40 @@ class SettingsCoordinator: Coordinator {
   }
 
   func showStorageManagement() {
-    let child = StorageCoordinator(
-      libraryService: self.libraryService,
-      presentingViewController: self.presentingViewController
+    let viewModel = StorageViewModel(
+      libraryService: libraryService,
+      folderURL: DataManager.getProcessedFolderURL()
     )
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
-    child.start()
+
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showAlert(let title, let message):
+        self?.showAlert(title, message: message)
+      case .dismiss:
+        self?.presentingViewController?.dismiss(animated: true)
+      }
+    }
+
+    let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    presentingViewController?.present(nav, animated: true)
+  }
+
+  func showCloudDeletedFiles() {
+    let viewModel = StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
+
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .showAlert(let title, let message):
+        self?.showAlert(title, message: message)
+      case .dismiss:
+        self?.presentingViewController?.dismiss(animated: true)
+      }
+    }
+
+    let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    presentingViewController?.present(nav, animated: true)
   }
 
   func showPro() {
