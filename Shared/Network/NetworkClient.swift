@@ -87,7 +87,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     let session = URLSession(
       configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background"
+        withIdentifier: "\(bundleIdentifier).background.download"
       ),
       delegate: delegate,
       delegateQueue: OperationQueue()
