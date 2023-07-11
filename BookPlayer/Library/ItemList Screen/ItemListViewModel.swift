@@ -1069,7 +1069,7 @@ extension ItemListViewModel {
 
     sendEvent(.showAlert(
       content: BPAlertContent(
-        title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+        title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
         style: .alert,
         actionItems: actions
       )
