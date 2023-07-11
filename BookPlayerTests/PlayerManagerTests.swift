@@ -25,8 +25,7 @@ class PlayerManagerTests: XCTestCase {
       libraryService: LibraryServiceProtocolMock(),
       playbackService: PlaybackServiceProtocolMock(),
       syncService: SyncServiceProtocolMock(),
-      speedService: SpeedServiceProtocolMock(),
-      socketService: SocketService()
+      speedService: SpeedServiceProtocolMock()
     )
   }
 

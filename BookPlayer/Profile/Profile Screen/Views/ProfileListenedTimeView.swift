@@ -22,6 +22,7 @@ struct ProfileListenedTimeView: View {
         .font(Font(Fonts.subheadline))
         .foregroundColor(themeViewModel.secondaryColor)
     }
+    .accessibilityElement(children: .combine)
   }
 }
 

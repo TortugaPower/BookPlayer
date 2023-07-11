@@ -254,7 +254,7 @@
 "logout_title" = "Kijelentkezés";
 "delete_account_title" = "Fiók törlése";
 "account_title" = "fiók";
-"benefits_cloudsync_title" = "Felhő szinkronizálás";
+"benefits_cloudsync_title" = "Felhő szinkronizálás (Beta)";
 "benefits_themesicons_title" = "Témák és ikonok";
 "benefits_supportus_title" = "Támogass minket";
 "completeaccount_title" = "Töltse ki fiókját";
@@ -283,3 +283,6 @@
  Ne feledje, hogy a feltöltési feladatok eltarthatnak egy ideig, és az előrehaladás rendszeresen megjelenik az előző képernyőn.
 
  Keményen dolgozunk a zökkenőmentes élmény biztosítása érdekében, ha lehetséges, kérjük, írjon nekünk a support@bookplayer.app címre, és küldjön képernyőképet erről a képernyőről. Kösz!";
+"sort_by_size_title" = "Méret";
+"settings_storage_sync_deleted_description" = "Fájlok eltávolítva (szinkronizálási műveletek)";
+"storage_sync_deleted_recover_description" = "Visszaimportálhatja a helyi könyveket és mappákat, ha szinkronizálási művelettel törölték őket. Ezzel mindegyik visszakerül a dokumentumok mappába, elindítva az importálási folyamatot. Ha mappákról van szó, ez azt jelentheti, hogy az eredetiek még mindig a könyvtárban vannak, és át kell nevezni, elnézést a kellemetlenségért";

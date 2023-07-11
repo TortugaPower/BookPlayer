@@ -254,7 +254,7 @@
 "logout_title" = "Odhlásit se";
 "delete_account_title" = "Smazat účet";
 "account_title" = "Účet";
-"benefits_cloudsync_title" = "Cloud synchronizace";
+"benefits_cloudsync_title" = "Cloud synchronizace (Beta)";
 "benefits_themesicons_title" = "Motivy a ikony";
 "benefits_supportus_title" = "Podpoř nás";
 "completeaccount_title" = "Dokončete svůj účet";
@@ -283,3 +283,6 @@
  Mějte na paměti, že úlohy nahrávání mohou nějakou dobu trvat a jejich průběh bude pravidelně zveřejňován na předchozí obrazovce.
 
  Usilovně pracujeme na zajištění bezproblémového zážitku, pokud je to možné, kontaktujte nás na adrese support@bookplayer.app se snímkem obrazovky této obrazovky. Dík!";
+"sort_by_size_title" = "Velikost";
+"settings_storage_sync_deleted_description" = "Soubory byly odstraněny (operace synchronizace)";
+"storage_sync_deleted_recover_description" = "Místní knihy a složky můžete importovat zpět, pokud byly odstraněny operací synchronizace. Tím se všechny přesunou zpět do složky dokumentů a spustí se proces importu. Pokud se jedná o složky, mohlo by to znamenat, že originály jsou stále v knihovně a bude nutné provést nějaké přejmenování, omlouváme se za tuto nepříjemnost";

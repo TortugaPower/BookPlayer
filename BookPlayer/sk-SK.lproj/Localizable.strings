@@ -254,7 +254,7 @@
 "logout_title" = "Odhlásiť sa";
 "delete_account_title" = "Zmazať účet";
 "account_title" = "účtu";
-"benefits_cloudsync_title" = "Cloudová synchronizácia";
+"benefits_cloudsync_title" = "Cloudová synchronizácia (Beta)";
 "benefits_themesicons_title" = "Témy a ikony";
 "benefits_supportus_title" = "Podpor nás";
 "completeaccount_title" = "Dokončite svoj účet";
@@ -280,6 +280,9 @@
 "queued_sync_tasks_title" = "Úlohy synchronizácie vo fronte (%d)";
 "sync_tasks_alert_description" = "Ak je synchronizačná úloha zaseknutá a nevymaže sa ani po aktívnom pripojení na internet, môžete sa odhlásiť a prihlásiť, aby ste vymazali aktuálne úlohy. Tým sa vaša knižnica vráti do posledného stavu synchronizovaného s našimi servermi.
 
- Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
+Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
 
- Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";
+Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";
+"sort_by_size_title" = "Veľkosť";
+"settings_storage_sync_deleted_description" = "Súbory boli odstránené (operácie synchronizácie)";
+"storage_sync_deleted_recover_description" = "Miestne knihy a priečinky môžete importovať späť, ak boli odstránené operáciou synchronizácie. Tým sa všetky presunú späť do priečinka dokumentov, čím sa spustí proces importu. Ak ide o priečinky, môže to znamenať, že originály sú stále v knižnici a bude potrebné vykonať určité premenovanie, ospravedlňujeme sa za túto nepríjemnosť";

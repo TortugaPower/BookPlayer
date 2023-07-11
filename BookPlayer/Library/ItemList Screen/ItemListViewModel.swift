@@ -34,7 +34,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
-    case showSortAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
     case showProcessingView(Bool, title: String?, subtitle: String?)
   }
@@ -556,43 +555,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return availableFolders
   }
 
-  func showSortOptions() {
-    sendEvent(.showSortAlert(
-      content: BPAlertContent(
-        title: "sort_files_title".localized,
-        message: nil,
-        style: .actionSheet,
-        actionItems: [
-          BPActionItem(
-            title: "title_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .metadataTitle)
-            }
-          ),
-          BPActionItem(
-            title: "sort_filename_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .fileName)
-            }
-          ),
-          BPActionItem(
-            title: "sort_most_recent_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .mostRecent)
-            }
-          ),
-          BPActionItem(
-            title: "sort_reversed_button".localized,
-            handler: { [weak self] in
-              self?.handleSort(by: .reverseOrder)
-            }
-          ),
-          BPActionItem.cancelAction
-        ]
-      )
-    ))
-  }
-
   func showItemDetails(_ item: SimpleLibraryItem) {
     onTransition?(.showItemDetails(item: item))
   }
@@ -976,6 +938,7 @@ extension ItemListViewModel {
       .filter {
         $0.lastPathComponent != DataManager.processedFolderName
         && $0.lastPathComponent != DataManager.inboxFolderName
+        && $0.lastPathComponent != DataManager.backupFolderName
       }
 
     let sharedURLs = (try? FileManager.default.contentsOfDirectory(
@@ -1030,7 +993,8 @@ extension ItemListViewModel {
     )?.filter({ $0.type == .folder }) ?? []
 
     showOperationCompletedAlert(
-      with: itemIdentifiers,
+      itemIdentifiers: itemIdentifiers,
+      hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
       availableFolders: availableFolders,
       suggestedFolderName: suggestedFolderName
     )
@@ -1038,7 +1002,8 @@ extension ItemListViewModel {
 
   // swiftlint:disable:next function_body_length
   func showOperationCompletedAlert(
-    with items: [String],
+    itemIdentifiers: [String],
+    hasOnlyBooks: Bool,
     availableFolders: [SimpleLibraryItem],
     suggestedFolderName: String?
   ) {
@@ -1047,7 +1012,7 @@ extension ItemListViewModel {
     var firstTitle: String?
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
-    } else if let relativePath = items.first {
+    } else if let relativePath = itemIdentifiers.first {
       firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
     }
 
@@ -1059,10 +1024,10 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "library_title".localized,
-      handler: { [hasParentFolder, items, weak self] in
+      handler: { [hasParentFolder, itemIdentifiers, weak self] in
         guard hasParentFolder else { return }
 
-        self?.importIntoLibrary(items)
+        self?.importIntoLibrary(itemIdentifiers)
       }
     ))
 
@@ -1073,7 +1038,7 @@ extension ItemListViewModel {
 
         self?.showCreateFolderAlert(
           placeholder: placeholder,
-          with: items,
+          with: itemIdentifiers,
           type: .folder
         )
       }
@@ -1082,11 +1047,11 @@ extension ItemListViewModel {
     actions.append(BPActionItem(
       title: "existing_playlist_button".localized,
       isEnabled: !availableFolders.isEmpty,
-      handler: { [items, availableFolders, weak self] in
+      handler: { [itemIdentifiers, availableFolders, weak self] in
         self?.onTransition?(.showItemSelectionScreen(
           availableItems: availableFolders,
           selectionHandler: { selectedFolder in
-            self?.importIntoFolder(selectedFolder, items: items, type: .folder)
+            self?.importIntoFolder(selectedFolder, items: itemIdentifiers, type: .folder)
           }
         ))
       }
@@ -1094,17 +1059,17 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "bound_books_create_button".localized,
-      isEnabled: items is [Book],
+      isEnabled: hasOnlyBooks,
       handler: { [firstTitle, weak self] in
         let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
 
-        self?.showCreateFolderAlert(placeholder: placeholder, with: items, type: .bound)
+        self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
       }
     ))
 
     sendEvent(.showAlert(
       content: BPAlertContent(
-        title: String.localizedStringWithFormat("import_alert_title".localized, items.count),
+        title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
         style: .alert,
         actionItems: actions
       )

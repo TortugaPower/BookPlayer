@@ -171,6 +171,7 @@ class LibraryItemSyncJob: Job, BPLogger {
 
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
+      try await markUploadAsSynced(relativePath: self.relativePath)
       callback.done(.success)
       return
     }
@@ -182,7 +183,7 @@ class LibraryItemSyncJob: Job, BPLogger {
         parameters: nil,
         useKeychain: false
       )
-
+      try await markUploadAsSynced(relativePath: self.relativePath)
       callback.done(.success)
       return
     }
@@ -203,10 +204,11 @@ class LibraryItemSyncJob: Job, BPLogger {
       return
     }
 
-    uploadFile(
+    await uploadFile(
       fileURL: fileURL,
       remoteURL: remoteURL,
-      relativePath: self.relativePath
+      relativePath: self.relativePath,
+      callback: callback
     )
   }
 
@@ -215,8 +217,9 @@ class LibraryItemSyncJob: Job, BPLogger {
   func uploadFile(
     fileURL: URL,
     remoteURL: URL,
-    relativePath: String
-  ) {
+    relativePath: String,
+    callback: SwiftQueue.JobResult
+  ) async {
     let uploadDelegate = BPTaskUploadDelegate()
     uploadDelegate.uploadProgressUpdated = { task, uploadProgress in
       guard let relativePath = task.taskDescription else { return }
@@ -231,21 +234,41 @@ class LibraryItemSyncJob: Job, BPLogger {
       )
     }
 
-    uploadDelegate.didFinishTask = { task, error in
-      if task.state == .completed && error == nil {
-        NotificationCenter.default.post(name: .uploadCompleted, object: task)
+    uploadDelegate.didFinishTask = { [weak self, callback] task, error in
+      if let error {
+        callback.done(.fail(error))
       } else {
-        /// Got an error, and the queue can get stuck, better to recreate it
-        NotificationCenter.default.post(name: .recreateQueue, object: task)
+        self?.handleUploadFinished(task, callback: callback)
       }
     }
 
-    _ = self.client.upload(
+    _ = await self.client.upload(
       fileURL,
       remoteURL: remoteURL,
       taskDescription: relativePath,
       delegate: uploadDelegate
     )
+  }
+
+  func handleUploadFinished(_ task: URLSessionTask, callback: SwiftQueue.JobResult) {
+    Task { [task, callback] in
+      do {
+        if let relativePath = task.taskDescription {
+          try await markUploadAsSynced(relativePath: relativePath)
+        }
+        NotificationCenter.default.post(name: .uploadCompleted, object: task)
+        callback.done(.success)
+      } catch {
+        callback.done(.fail(error))
+      }
+    }
+  }
+
+  func markUploadAsSynced(relativePath: String) async throws {
+    let _: UploadItemResponse = try await self.provider.request(.update(params: [
+      "relativePath": relativePath,
+      "synced": true
+    ]))
   }
 
   func onRetry(error: Error) -> SwiftQueue.RetryConstraint {

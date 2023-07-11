@@ -47,13 +47,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let playbackService: PlaybackServiceProtocol
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
-  private let socketService: SocketServiceProtocol
   private let userActivityManager: UserActivityManager
 
   private var audioPlayer = AVPlayer()
 
   private var fadeTimer: Timer?
 
+  private var timeControlPassthroughPublisher = CurrentValueSubject<AVPlayer.TimeControlStatus, Never>(.paused)
+  private var timeControlSubscription: AnyCancellable?
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
@@ -89,28 +90,41 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
-    speedService: SpeedServiceProtocol,
-    socketService: SocketServiceProtocol
+    speedService: SpeedServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.speedService = speedService
-    self.socketService = socketService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     super.init()
 
-    self.setupPlayerInstance()
+    setupPlayerInstance()
 
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(playerDidFinishPlaying(_:)),
-                                           name: .AVPlayerItemDidPlayToEndTime,
-                                           object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(playerDidFinishPlaying(_:)),
+      name: .AVPlayerItemDidPlayToEndTime,
+      object: nil
+    )
+
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleMediaServicesWereReset),
+      name: AVAudioSession.mediaServicesWereResetNotification,
+      object: nil
+    )
   }
 
   func setupPlayerInstance() {
+    if let observer = periodicTimeObserver {
+      audioPlayer.removeTimeObserver(observer)
+    }
+
+    audioPlayer = AVPlayer()
+
     let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    self.periodicTimeObserver = self.audioPlayer.addPeriodicTimeObserver(
+    periodicTimeObserver = audioPlayer.addPeriodicTimeObserver(
       forInterval: interval,
       queue: DispatchQueue.main
     ) { [weak self] _ in
@@ -120,7 +134,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     // Only route audio for AirPlay
-    self.audioPlayer.allowsExternalPlayback = false
+    audioPlayer.allowsExternalPlayback = false
+
+    bindTimeControlPassthroughPublisher()
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -142,8 +158,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
        let chapterURL = chapter.remoteURL {
       fileURL = chapterURL
     } else {
+      isFetchingRemoteURL = true
       fileURL = try await syncService
         .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+      isFetchingRemoteURL = false
     }
 
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -193,9 +211,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     if syncService.isActive,
       !FileManager.default.fileExists(atPath: fileURL.path) {
-      isFetchingRemoteURL = true
       asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      isFetchingRemoteURL = false
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
@@ -219,13 +235,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     loadChapterTask?.cancel()
 
     // Recover in case of failure
-    if self.audioPlayer.status == .failed {
-      if let observer = self.periodicTimeObserver {
-        self.audioPlayer.removeTimeObserver(observer)
-      }
-
-      self.audioPlayer = AVPlayer()
-      self.setupPlayerInstance()
+    if audioPlayer.status == .failed {
+      setupPlayerInstance()
     }
 
     // Preload item
@@ -386,9 +397,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     return self.audioPlayer.timeControlStatus == .playing
   }
 
+  /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,
+  /// thus invalidating the registered observers for `isPlaying`
+  func bindTimeControlPassthroughPublisher() {
+    timeControlSubscription?.cancel()
+    timeControlSubscription = audioPlayer.publisher(for: \.timeControlStatus)
+      .sink { [weak self] timeControlStatus in
+        self?.timeControlPassthroughPublisher.send(timeControlStatus)
+      }
+  }
+
   func bindPauseObserver() {
     self.isPlayingSubscription?.cancel()
-    self.isPlayingSubscription = self.audioPlayer.publisher(for: \.timeControlStatus)
+    self.isPlayingSubscription = timeControlPassthroughPublisher
       .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
       .sink { timeControlStatus in
         if timeControlStatus == .paused {
@@ -400,7 +421,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
     return Publishers.CombineLatest3(
-      audioPlayer.publisher(for: \.timeControlStatus),
+      timeControlPassthroughPublisher,
       $playbackQueued,
       $isFetchingRemoteURL
     )
@@ -498,18 +519,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     self.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackDuration
     self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] = itemProgress
-
-    /** Disable socket events to test updating via regular network requests
-    socketService.sendEvent(
-      .timeUpdate,
-      payload: [
-        "currentTime": currentItem.currentTime,
-        "percentCompleted": currentItem.percentCompleted,
-        "relativePath": currentItem.relativePath,
-        "lastPlayDateTimestamp": Date().timeIntervalSince1970,
-      ]
-    )
-     */
   }
 }
 
@@ -871,6 +880,22 @@ extension PlayerManager {
 
   private func loadAndRefreshURL(item: PlayableItem) {
     load(item, autoplay: playbackQueued == true, forceRefreshURL: true)
+  }
+
+  @objc
+  private func handleMediaServicesWereReset() {
+    /// Playback should be stopped, and wait for the user to activate it again
+    if isPlaying {
+      stopPlayback()
+    }
+
+    try? AVAudioSession.sharedInstance().setCategory(
+      AVAudioSession.Category.playback,
+      mode: .spokenAudio,
+      options: []
+    )
+
+    setupPlayerInstance()
   }
 }
 

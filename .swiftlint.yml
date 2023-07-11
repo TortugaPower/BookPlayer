@@ -10,6 +10,8 @@ disabled_rules:
   - switch_case_alignment
   - identifier_name
   - trailing_comma
+  - trailing_newline
+  - trailing_whitespace
   - private_over_fileprivate
   - force_try
   - type_body_length

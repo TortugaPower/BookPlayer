@@ -28,8 +28,6 @@
 		41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2726ED4D5C0017124E /* ItemListViewController.swift */; };
 		41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2926ED4D8E0017124E /* ItemListViewModel.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
-		4124121A26CF287600B099DB /* StorageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124121926CF287600B099DB /* StorageViewController.swift */; };
-		4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122526D1640000B099DB /* StorageTableViewCell.swift */; };
 		4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122726D19A8600B099DB /* StorageViewModel.swift */; };
 		4124122A26D19B9100B099DB /* StorageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122926D19B9100B099DB /* StorageItem.swift */; };
 		4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */; };
@@ -225,7 +223,6 @@
 		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B30A32230232D200025D69 /* CarPlayManager.swift */; };
 		41B3425123FB889200E4E3D0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
-		41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */; };
 		41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41C233FF272E195B006BC7B8 /* SimpleItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41546FF226F559CE00825180 /* SimpleItemType.swift */; };
@@ -298,7 +295,6 @@
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
-		56D8A0ED28A813D30037592F /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 56D8A0EC28A813D30037592F /* SocketIO */; };
 		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
 		6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6279361E272D0D110097837D /* MainCoordinatorTests.swift */; };
 		62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */; };
@@ -354,7 +350,9 @@
 		9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */; };
 		9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
 		9F2DC9E62A014BB5006CDF1F /* PricingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DC9E32A01313C006CDF1F /* PricingModel.swift */; };
-		9F2DCA422A03540C006CDF1F /* PricingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */; };
+		9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
+		9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */; };
+		9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
 		9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */; };
@@ -363,7 +361,6 @@
 		9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */; };
 		9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FD286FF05C00868B2C /* SwiftQueue */; };
 		9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FF286FF06600868B2C /* SwiftQueue */; };
-		9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */; };
 		9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */; };
 		9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */; };
 		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
@@ -438,8 +435,8 @@
 		9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C427C285650064E8EA /* ChapterListView.swift */; };
 		9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */; };
 		9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */; };
+		9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */; };
 		9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
-		9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D8A0EE28A838640037592F /* SocketService.swift */; };
 		9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
 		9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
 		9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
@@ -486,6 +483,7 @@
 		9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
 		9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
 		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
+		9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
 		9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */; };
@@ -522,6 +520,8 @@
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE94782080086800BCEA37 /* BookCellView.swift */; };
+		D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */; };
+		D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -690,8 +690,6 @@
 		41188D2726ED4D5C0017124E /* ItemListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewController.swift; sourceTree = "<group>"; };
 		41188D2926ED4D8E0017124E /* ItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModel.swift; sourceTree = "<group>"; };
 		41188D3026ED715D0017124E /* SimpleLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleLibraryItem.swift; sourceTree = "<group>"; };
-		4124121926CF287600B099DB /* StorageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewController.swift; sourceTree = "<group>"; };
-		4124122526D1640000B099DB /* StorageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTableViewCell.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
 		4124122926D19B9100B099DB /* StorageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageItem.swift; sourceTree = "<group>"; };
 		412451821D489204008AC0E5 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -901,7 +899,6 @@
 		41B2A6AB21D3274500917584 /* Themeable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Themeable.framework; path = Carthage/Build/iOS/Themeable.framework; sourceTree = "<group>"; };
 		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41B30A32230232D200025D69 /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
-		41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCoordinator.swift; sourceTree = "<group>"; };
 		41C2340B27324AB7006BC7B8 /* ItemListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModelTests.swift; sourceTree = "<group>"; };
 		41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v2_to_v3.xcmappingmodel; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
@@ -960,7 +957,6 @@
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
-		56D8A0EE28A838640037592F /* SocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketService.swift; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		620C73C7275DA00300D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		620C73C8275DA00400D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1017,14 +1013,14 @@
 		9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingOptionsView.swift; sourceTree = "<group>"; };
 		9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingRowView.swift; sourceTree = "<group>"; };
 		9F2DC9E32A01313C006CDF1F /* PricingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingModel.swift; sourceTree = "<group>"; };
-		9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingViewModel.swift; sourceTree = "<group>"; };
+		9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiersResponse.swift; sourceTree = "<group>"; };
+		9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedViewModel.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewController.swift; sourceTree = "<group>"; };
 		9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewModel.swift; sourceTree = "<group>"; };
 		9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeCoordinator.swift; sourceTree = "<group>"; };
 		9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureItemRow.swift; sourceTree = "<group>"; };
-		9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewController.swift; sourceTree = "<group>"; };
 		9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountViewModel.swift; sourceTree = "<group>"; };
 		9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountCoordinator.swift; sourceTree = "<group>"; };
 		9F4691F42800F84800A8F0E8 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
@@ -1090,6 +1086,7 @@
 		9FA334C427C285650064E8EA /* ChapterListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterListView.swift; sourceTree = "<group>"; };
 		9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControlsView.swift; sourceTree = "<group>"; };
 		9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtils.swift; sourceTree = "<group>"; };
+		9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteAccountView.swift; sourceTree = "<group>"; };
 		9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFileURLResponse.swift; sourceTree = "<group>"; };
 		9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskDownloadDelegate.swift; sourceTree = "<group>"; };
 		9FB20EA429A281140021663B /* DownloadState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadState.swift; sourceTree = "<group>"; };
@@ -1124,6 +1121,7 @@
 		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
 		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
 		9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerShareExtension.entitlements; sourceTree = "<group>"; };
+		9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+BookPlayer.swift"; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		9FEC87B127FA9F1C006C71D5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -1162,6 +1160,8 @@
 		C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = limitPanAngle.swift; sourceTree = "<group>"; };
 		C3FE94782080086800BCEA37 /* BookCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCellView.swift; sourceTree = "<group>"; };
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageRowView.swift; sourceTree = "<group>"; };
+		D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1207,7 +1207,6 @@
 			files = (
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
-				56D8A0ED28A813D30037592F /* SocketIO in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
 				41F1A1F2254B09020043FCF3 /* IDZSwiftCommonCrypto in Frameworks */,
 				41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */,
@@ -1300,10 +1299,11 @@
 		4124121B26CF289B00B099DB /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				4124121926CF287600B099DB /* StorageViewController.swift */,
 				4124122926D19B9100B099DB /* StorageItem.swift */,
-				4124122526D1640000B099DB /* StorageTableViewCell.swift */,
 				4124122726D19A8600B099DB /* StorageViewModel.swift */,
+				9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */,
+				D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */,
+				D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -1396,7 +1396,6 @@
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
 				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 				41A6AFA926FB666700A69E6B /* SettingsCoordinator.swift */,
-				41B68FFE2705477D00F657C3 /* StorageCoordinator.swift */,
 				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
 				9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */,
 				9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */,
@@ -1891,7 +1890,6 @@
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
-				56D8A0EE28A838640037592F /* SocketService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2002,10 +2000,9 @@
 		9F4691F32800F65400A8F0E8 /* CompleteAccount Screen */ = {
 			isa = PBXGroup;
 			children = (
-				9F2DCA412A03540C006CDF1F /* PricingViewModel.swift */,
 				9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */,
 				9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */,
-				9F4691ED2800C94B00A8F0E8 /* CompleteAccountViewController.swift */,
+				9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */,
 				9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */,
 			);
 			path = "CompleteAccount Screen";
@@ -2115,6 +2112,7 @@
 				9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
+				9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */,
 				9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */,
 				9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */,
 				9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */,
@@ -2318,6 +2316,7 @@
 				410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */,
 				9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */,
 				9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */,
+				9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2482,7 +2481,6 @@
 				41F1A203254B09C00043FCF3 /* Themeable */,
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
-				56D8A0EC28A813D30037592F /* SocketIO */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -2660,7 +2658,6 @@
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */,
-				56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -2962,6 +2959,7 @@
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
+				9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
@@ -3001,9 +2999,7 @@
 			files = (
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
-				9F2DCA422A03540C006CDF1F /* PricingViewModel.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
-				9FACAC6B2970FAB700D01EB7 /* SocketService.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */,
 				9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */,
@@ -3027,9 +3023,7 @@
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
-				4124122626D1640000B099DB /* StorageTableViewCell.swift in Sources */,
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
-				41B68FFF2705477D00F657C3 /* StorageCoordinator.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
@@ -3080,6 +3074,7 @@
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
+				D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */,
 				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
 				9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */,
 				9F00A6212950F44B005EA316 /* ImagePicker.swift in Sources */,
@@ -3126,16 +3121,19 @@
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				9FB20EA529A281140021663B /* DownloadState.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
+				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
+				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
+				9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */,
@@ -3160,17 +3158,16 @@
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
 				9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */,
+				D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */,
 				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,
 				9F7B647A2804773D00895ECC /* ThemesViewModel.swift in Sources */,
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
-				4124121A26CF287600B099DB /* StorageViewController.swift in Sources */,
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */,
-				9F4691EE2800C94B00A8F0E8 /* CompleteAccountViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3267,6 +3264,7 @@
 				41A1B123226F88C500EA0400 /* Book+CoreDataClass.swift in Sources */,
 				41A1B105226E9DBD00EA0400 /* UIColor+Sweetercolor.swift in Sources */,
 				9FF383D32A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				9F07B72529B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,
@@ -3529,7 +3527,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3539,7 +3537,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -3563,7 +3561,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3573,7 +3571,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3595,7 +3593,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3605,7 +3603,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3632,7 +3630,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -3642,7 +3640,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -3674,7 +3672,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -3684,7 +3682,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3713,7 +3711,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BookPlayerWatch_Extension;
@@ -3723,7 +3721,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3749,7 +3747,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -3758,7 +3756,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
@@ -3786,7 +3784,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -3795,7 +3793,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -3821,7 +3819,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch Extension/BookPlayerWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BookPlayerWatch Extension/Info.plist";
@@ -3830,7 +3828,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -3989,7 +3987,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -3999,7 +3997,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4027,7 +4025,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -4037,7 +4035,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4063,7 +4061,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -4073,7 +4071,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4211,7 +4209,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -4225,7 +4223,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4250,7 +4248,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4263,7 +4261,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4475,7 +4473,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4488,7 +4486,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -4515,7 +4513,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4528,7 +4526,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4553,7 +4551,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4566,7 +4564,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4645,7 +4643,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4658,7 +4656,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.0;
+				MARKETING_VERSION = 5.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4868,14 +4866,6 @@
 				minimumVersion = 2.3.0;
 			};
 		};
-		56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 16.0.1;
-			};
-		};
 		9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lucas34/SwiftQueue.git";
@@ -4929,11 +4919,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */;
 			productName = ZipArchive;
-		};
-		56D8A0EC28A813D30037592F /* SocketIO */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 56D8A0EB28A813D30037592F /* XCRemoteSwiftPackageReference "socket" */;
-			productName = SocketIO;
 		};
 		62CADBA72725BCE800A4A98F /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

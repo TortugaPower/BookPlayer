@@ -1346,9 +1346,9 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     var syncListContentsAtReceivedRelativePath: String?
     var syncListContentsAtReceivedInvocations: [String?] = []
-    var syncListContentsAtReturnValue: ([SyncableItem], SyncableItem?)?
-    var syncListContentsAtClosure: ((String?) async throws -> ([SyncableItem], SyncableItem?)?)?
-    func syncListContents(at relativePath: String?) async throws -> ([SyncableItem], SyncableItem?)? {
+    var syncListContentsAtReturnValue: SyncableItem?
+    var syncListContentsAtClosure: ((String?) async throws -> SyncableItem?)?
+    func syncListContents(at relativePath: String?) async throws -> SyncableItem? {
         if let error = syncListContentsAtThrowableError {
             throw error
         }
@@ -1368,9 +1368,9 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var syncLibraryContentsCalled: Bool {
         return syncLibraryContentsCallsCount > 0
     }
-    var syncLibraryContentsReturnValue: ([SyncableItem], SyncableItem?)!
-    var syncLibraryContentsClosure: (() async throws -> ([SyncableItem], SyncableItem?))?
-    func syncLibraryContents() async throws -> ([SyncableItem], SyncableItem?) {
+    var syncLibraryContentsReturnValue: SyncableItem?
+    var syncLibraryContentsClosure: (() async throws -> SyncableItem?)?
+    func syncLibraryContents() async throws -> SyncableItem? {
         if let error = syncLibraryContentsThrowableError {
             throw error
         }

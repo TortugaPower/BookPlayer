@@ -36,7 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var playbackService: PlaybackServiceProtocol?
   var playerManager: PlayerManagerProtocol?
   var watchConnectivityService: PhoneWatchConnectivityService?
-  var socketService: SocketServiceProtocol?
   /// Internal property used as a fallback in ``activeSceneDelegate``
   var lastSceneToResignActive: SceneDelegate?
   /// Access the current (or last) active scene delegate to present VCs or alerts
@@ -66,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     try? AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playback,
-      mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)),
+      mode: .spokenAudio,
       options: []
     )
 
@@ -154,14 +153,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegate.shared?.playbackService = playbackService
     }
 
-    let socketService: SocketServiceProtocol
-    if let sharedSocketService = AppDelegate.shared?.socketService {
-      socketService = sharedSocketService
-    } else {
-      socketService = SocketService()
-      AppDelegate.shared?.socketService = socketService
-    }
-
     let playerManager: PlayerManagerProtocol
 
     if let sharedPlayerManager = AppDelegate.shared?.playerManager {
@@ -171,8 +162,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         libraryService: libraryService,
         playbackService: playbackService,
         syncService: syncService,
-        speedService: SpeedService(libraryService: libraryService),
-        socketService: socketService
+        speedService: SpeedService(libraryService: libraryService)
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -197,8 +187,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       libraryService: libraryService,
       playbackService: playbackService,
       playerManager: playerManager,
-      watchService: watchService,
-      socketService: socketService
+      watchService: watchService
     )
   }
 
@@ -208,40 +197,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     showPlayer: (() -> Void)?,
     alertPresenter: AlertPresenter
   ) {
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    Task { @MainActor in
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    if syncService?.isActive == false,
-       !FileManager.default.fileExists(atPath: fileURL.path) {
-      alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
-      return
-    }
-
-    // Only load if loaded book is a different one
-    if playerManager?.hasLoadedBook() == true,
-       relativePath == playerManager?.currentItem?.relativePath {
-      if autoplay {
-        playerManager?.play()
+      if syncService?.isActive == false,
+         !FileManager.default.fileExists(atPath: fileURL.path) {
+        alertPresenter.showAlert("file_missing_title".localized, message: "\("file_missing_description".localized)\n\(fileURL.lastPathComponent)", completion: nil)
+        return
       }
+
+      // Only load if loaded book is a different one
+      if playerManager?.hasLoadedBook() == true,
+         relativePath == playerManager?.currentItem?.relativePath {
+        if autoplay {
+          playerManager?.play()
+        }
+        showPlayer?()
+        return
+      }
+
+      guard let libraryItem = self.libraryService?.getSimpleItem(with: relativePath) else { return }
+
+      var item: PlayableItem?
+
+      do {
+        /// If the selected item is a bound book, check that the contents are loaded
+        if syncService?.isActive == true,
+           libraryItem.type == .bound,
+           let contents = libraryService?.getMaxItemsCount(at: relativePath),
+           contents == 0 {
+          _ = try await syncService?.syncListContents(at: relativePath)
+        }
+
+        item = try self.playbackService?.getPlayableItem(from: libraryItem)
+      } catch {
+        alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
+        return
+      }
+
+      guard let item = item else { return }
+
+      playerManager?.load(item, autoplay: autoplay)
+
       showPlayer?()
-      return
     }
-
-    guard let libraryItem = self.libraryService?.getSimpleItem(with: relativePath) else { return }
-
-    var item: PlayableItem?
-
-    do {
-      item = try self.playbackService?.getPlayableItem(from: libraryItem)
-    } catch {
-      alertPresenter.showAlert("error_title".localized, message: error.localizedDescription, completion: nil)
-      return
-    }
-
-    guard let item = item else { return }
-
-    playerManager?.load(item, autoplay: autoplay)
-
-    showPlayer?()
   }
 
   @objc func messageReceived(_ notification: Notification) {
@@ -485,9 +484,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       mainCoordinator.showPlayer()
     }
   }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-private func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
-  return input.rawValue
 }

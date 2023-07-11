@@ -11,8 +11,9 @@ public enum Constants {
     public static let appIcon = "userSettingsAppIcon"
     public static let donationMade = "userSettingsDonationMade"
     public static let showPlayer = "userSettingsShowPlayer"
-    public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasQueuedJobs = "userSettingsHasQueuedJobs"
+    public static let lastSyncTimestamp = "lastSyncTimestamp"
+    public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"
 
     // User preferences
     public static let themeBrightnessEnabled = "userSettingsBrightnessEnabled"
@@ -30,6 +31,7 @@ public enum Constants {
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
+    public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"

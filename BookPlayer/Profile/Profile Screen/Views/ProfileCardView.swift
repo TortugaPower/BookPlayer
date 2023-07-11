@@ -18,6 +18,15 @@ struct ProfileCardView: View {
   @Binding var account: Account?
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
+  var titleAccessibilityLabel: String {
+    if let account,
+       !account.email.isEmpty {
+      return "account_title".localized
+    } else {
+      return "setup_account_title".localized
+    }
+  }
+
   var title: String {
     if let account,
        !account.email.isEmpty {
@@ -67,6 +76,9 @@ struct ProfileCardView: View {
     .padding([.leading, .trailing], Spacing.S)
     .background(themeViewModel.systemBackgroundColor)
     .cornerRadius(cornerRadius)
+    .accessibilityElement()
+    .accessibilityLabel(titleAccessibilityLabel)
+    .accessibilityAddTraits(.isButton)
   }
 }
 

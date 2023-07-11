@@ -17,5 +17,4 @@ struct CoreServices {
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
   let watchService: PhoneWatchConnectivityService
-  let socketService: SocketServiceProtocol
 }

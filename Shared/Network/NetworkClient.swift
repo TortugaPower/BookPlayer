@@ -32,7 +32,7 @@ public protocol NetworkClientProtocol {
     remoteURL: URL,
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
-  ) -> URLSessionUploadTask
+  ) async -> URLSessionTask
 
   func download(
     url: URL,
@@ -87,7 +87,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     let session = URLSession(
       configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background"
+        withIdentifier: "\(bundleIdentifier).background.download"
       ),
       delegate: delegate,
       delegateQueue: OperationQueue()
@@ -118,7 +118,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     remoteURL: URL,
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
-  ) -> URLSessionUploadTask {
+  ) async -> URLSessionTask {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
@@ -133,13 +133,23 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       delegateQueue: OperationQueue()
     )
 
-    Self.logger.trace("[Request] PUT \(remoteURL.path)")
+    let allTasks = await session.allTasks
 
-    let task = session.uploadTask(with: request, fromFile: fileURL)
-    task.taskDescription = taskDescription
-    task.resume()
+    /// Avoid creating a new task if one exists already to avoid double uploads
+    if let existingTask = allTasks.first(where: { task in
+      task.taskDescription == taskDescription
+    }) {
+      Self.logger.trace("Existing request for: \(remoteURL.path)")
+      return existingTask
+    } else {
+      Self.logger.trace("[Request] PUT \(remoteURL.path)")
 
-    return task
+      let task = session.uploadTask(with: request, fromFile: fileURL)
+      task.taskDescription = taskDescription
+      task.resume()
+
+      return task
+    }
   }
 
   func executeRequest<T: Decodable>(

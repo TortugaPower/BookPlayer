@@ -16,6 +16,7 @@ class LoginBenefitView: UIStackView, Themeable {
     label.numberOfLines = 0
     label.font = Fonts.title
     label.adjustsFontForContentSizeCategory = true
+    label.isAccessibilityElement = false
     return label
   }()
 
@@ -24,6 +25,7 @@ class LoginBenefitView: UIStackView, Themeable {
     label.numberOfLines = 0
     label.font = Fonts.body
     label.adjustsFontForContentSizeCategory = true
+    label.isAccessibilityElement = false
     return label
   }()
 
@@ -31,6 +33,7 @@ class LoginBenefitView: UIStackView, Themeable {
     let imageView = UIImageView()
     imageView.translatesAutoresizingMaskIntoConstraints = false
     imageView.contentMode = .scaleAspectFit
+    imageView.isAccessibilityElement = false
 
     return imageView
   }()
@@ -38,12 +41,14 @@ class LoginBenefitView: UIStackView, Themeable {
   private lazy var containerImageView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     return view
   }()
 
   private lazy var imageOverlay: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
+    view.isAccessibilityElement = false
     view.layer.masksToBounds = true
     view.layer.cornerRadius = 10
     view.alpha = 0.2
@@ -80,6 +85,9 @@ class LoginBenefitView: UIStackView, Themeable {
     addConstraints()
 
     setUpTheming()
+
+    isAccessibilityElement = true
+    accessibilityLabel = "\(title), \(description)"
   }
 
   required init(coder: NSCoder) {

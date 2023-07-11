@@ -43,8 +43,23 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
       systemImage: "chevron.down",
       imageHeight: 8
     )
+
+    button.menu = UIMenu(title: "sort_files_title".localized, children: [
+      UIAction(title: "title_button".localized) { [weak self] _ in
+        self?.viewModel.handleSort(by: .metadataTitle)
+      },
+      UIAction(title: "sort_filename_button".localized) { [weak self] _ in
+        self?.viewModel.handleSort(by: .fileName)
+      },
+      UIAction(title: "sort_most_recent_button".localized) { [weak self] _ in
+        self?.viewModel.handleSort(by: .mostRecent)
+      },
+      UIAction(title: "sort_reversed_button".localized) { [weak self] _ in
+        self?.viewModel.handleSort(by: .reverseOrder)
+      }
+    ])
+    button.showsMenuAsPrimaryAction = true
     button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-    button.addTarget(self, action: #selector(handleSortButtonPressed), for: .touchUpInside)
     return button
   }()
 
@@ -271,8 +286,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
           self?.updateDownloadState(state, for: indexPath)
         case .showAlert(let content):
           self?.showAlert(content)
-        case .showSortAlert(let content):
-          self?.showSortAlert(content)
         case .showLoader(let flag):
           self?.showLoader(flag)
         case .showProcessingView(let flag, let title, let subtitle):
@@ -378,20 +391,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
 
   @IBAction func addAction() {
     self.viewModel.showAddActions()
-  }
-
-  @objc func handleSortButtonPressed() {
-    viewModel.showSortOptions()
-  }
-
-  func showSortAlert(_ content: BPAlertContent) {
-    let alert = buildAlert(content)
-
-    alert.popoverPresentationController?.sourceRect = CGRect.null
-    alert.popoverPresentationController?.permittedArrowDirections = .any
-    alert.popoverPresentationController?.sourceView = sortButton
-
-    present(alert, animated: true, completion: nil)
   }
 
   @objc func handleSelectButtonPressed() {

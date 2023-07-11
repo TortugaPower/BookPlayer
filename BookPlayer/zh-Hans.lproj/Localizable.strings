@@ -254,7 +254,7 @@
 "logout_title" = "登出";
 "delete_account_title" = "删除帐户";
 "account_title" = "帐户";
-"benefits_cloudsync_title" = "云同步";
+"benefits_cloudsync_title" = "云同步（Beta）";
 "benefits_themesicons_title" = "主题和图标";
 "benefits_supportus_title" = "支持我们";
 "completeaccount_title" = "完成您的帐户";
@@ -283,3 +283,6 @@
 请记住，上传任务可能需要一些时间，并且进度会定期发布在上一个屏幕上。
 
 我们正在努力提供无缝体验，如果可能的话，请通过 support@bookplayer.app 与我们联系并提供此屏幕的屏幕截图。谢谢！";
+"sort_by_size_title" = "尺寸";
+"settings_storage_sync_deleted_description" = "文件已删除（同步操作）";
+"storage_sync_deleted_recover_description" = "如果同步操作删除了本地书籍和文件夹，您可以将其导回。这会将它们全部移回文档文件夹，从而触发导入过程。如果涉及文件夹，这可能意味着原始文件仍在库中，并且必须进行一些重命名，对于由此带来的不便，我们深表歉意";

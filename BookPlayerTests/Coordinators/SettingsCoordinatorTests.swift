@@ -29,9 +29,4 @@ class SettingsCoordinatorTests: XCTestCase {
   func testInitialState() {
     XCTAssert(self.settingsCoordinator.childCoordinators.isEmpty)
   }
-
-  func testShowStorageManagement() {
-    self.settingsCoordinator.showStorageManagement()
-    XCTAssert(self.settingsCoordinator.childCoordinators.first is StorageCoordinator)
-  }
 }

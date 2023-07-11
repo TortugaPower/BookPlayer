@@ -17,7 +17,7 @@ class NetworkClientMock: NetworkClientProtocol {
     remoteURL: URL,
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
-  ) -> URLSessionUploadTask {
+  ) async -> URLSessionTask {
     return URLSession.shared.uploadTask(with: URLRequest(url: URL(string: "https://google.com")!), from: Data())
   }
 

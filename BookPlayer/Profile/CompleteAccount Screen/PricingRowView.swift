@@ -49,6 +49,9 @@ struct PricingRowView: View {
         RoundedRectangle(cornerRadius: 12)
           .stroke(themeViewModel.linkColor, lineWidth: 2)
       )
+      .contentShape(Rectangle())
+      .accessibilityElement(children: .combine)
+      .accessibilityAddTraits(.isButton)
     } else {
       HStack {
         Spacer()
@@ -71,6 +74,9 @@ struct PricingRowView: View {
         RoundedRectangle(cornerRadius: 12)
           .stroke(themeViewModel.secondaryColor, lineWidth: 2)
       )
+      .contentShape(Rectangle())
+      .accessibilityElement(children: .combine)
+      .accessibilityAddTraits(.isButton)
     }
   }
 }

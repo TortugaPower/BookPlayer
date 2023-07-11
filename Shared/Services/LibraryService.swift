@@ -825,6 +825,32 @@ extension LibraryService {
     return getItems(notIn: relativePaths, parentFolder: parentFolder, context: dataManager.getContext())
   }
 
+  public func getItems(
+    in relativePaths: [String],
+    parentFolder: String?,
+    context: NSManagedObjectContext
+  ) -> [LibraryItem]? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    if let parentFolder = parentFolder {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K == %@ AND (%K IN %@)",
+        #keyPath(LibraryItem.folder.relativePath),
+        parentFolder,
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    } else {
+      fetchRequest.predicate = NSPredicate(
+        format: "%K != nil AND (%K IN %@)",
+        #keyPath(LibraryItem.library),
+        #keyPath(LibraryItem.relativePath),
+        relativePaths
+      )
+    }
+
+    return try? context.fetch(fetchRequest)
+  }
+
   public func getItemProperty(_ property: String, relativePath: String) -> Any? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = [property]
@@ -1391,7 +1417,6 @@ extension LibraryService {
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {
     guard let item = self.getItem(with: relativePath) else { return }
 
-    /// Metadata update already handled by the socket for playback
     item.currentTime = time
     item.lastPlayDate = date
     let percentCompleted = round((item.currentTime / item.duration) * 100)
