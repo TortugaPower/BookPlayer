@@ -113,11 +113,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func syncListContents(
     at relativePath: String?
   ) async throws -> SyncableItem? {
-    guard
-      isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
-    else {
+    guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
+    }
+
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false else {
+      throw BookPlayerError.runtimeError("Can't fetch items while there are sync operations in progress")
     }
 
     let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
@@ -206,18 +207,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
-  }
-
-  func fetchBoundContents(for item: SyncableItem) async throws {
-    guard item.type == .bound else { return }
-
-    let response = try await fetchContents(at: item.relativePath)
-
-    guard !response.content.isEmpty else { return }
-
-    let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
-
-    await libraryService.storeNewItems(from: itemsDict, parentFolder: item.relativePath)
   }
 
   func fetchSyncedIdentifiers() async throws -> [String] {
