@@ -170,7 +170,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
       }
     )
     self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(
+    self.artworkOverlay.accessibilityLabel = VoiceOverService.playerMetaText(
       title: title,
       author: author
     )

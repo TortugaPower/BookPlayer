@@ -309,6 +309,30 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     return index
   }
 
+  func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+    switch item.type {
+    case .book:
+      return String.localizedStringWithFormat(
+        "voiceover_book_progress".localized,
+        item.title,
+        item.details,
+        Int(item.percentCompleted)
+      )
+    case .folder:
+      return String.localizedStringWithFormat(
+        "voiceover_playlist_progress".localized,
+        item.title,
+        Int(item.percentCompleted)
+      )
+    case .bound:
+      return String.localizedStringWithFormat(
+        "voiceover_bound_books_progress".localized,
+        item.title,
+        Int(item.percentCompleted)
+      )
+    }
+  }
+
   private func playNextBook(in item: SimpleLibraryItem) {
     guard item.type == .folder else { return }
 

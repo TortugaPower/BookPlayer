@@ -2,71 +2,9 @@ import BookPlayerKit
 import Foundation
 
 class VoiceOverService {
-  var title: String?
-  var subtitle: String?
-  var type: SimpleItemType!
-  var progress: Double?
-
-  // MARK: - BookCellView
-
-  public func bookCellView(
-    type: SimpleItemType,
-    title: String?,
-    subtitle: String?,
-    progress: Double?
-  ) -> String {
-    self.type = type
-    self.title = title
-    self.subtitle = subtitle
-    self.progress = progress
-
-    switch type {
-    case .book:
-      return self.bookText()
-    case .folder:
-      return self.regularFolderText()
-    case .bound:
-      return self.boundFolderText()
-    }
-  }
-
-  fileprivate func bookText() -> String {
-    let voiceOverTitle = self.title ?? "voiceover_no_title".localized
-    let voiceOverSubtitle = self.subtitle ?? "voiceover_no_author".localized
-    return String.localizedStringWithFormat(
-      "voiceover_book_progress".localized,
-      voiceOverTitle,
-      voiceOverSubtitle,
-      self.progressPercent()
-    )
-  }
-
-  fileprivate func fileText() -> String {
-    let voiceOverTitle = self.title ?? "voiceover_no_file_title".localized
-    let voiceOverSubtitle = self.subtitle ?? "voiceover_no_file_subtitle".localized
-    return "\(voiceOverTitle) \(voiceOverSubtitle)"
-  }
-
-  fileprivate func regularFolderText() -> String {
-    let voiceOverTitle = self.title ?? "voiceover_no_playlist_title".localized
-    return String.localizedStringWithFormat("voiceover_playlist_progress".localized, voiceOverTitle, self.progressPercent())
-  }
-
-  fileprivate func boundFolderText() -> String {
-    let voiceOverTitle = self.title ?? "voiceover_no_bound_books_title".localized
-    return String.localizedStringWithFormat("voiceover_bound_books_progress".localized, voiceOverTitle, self.progressPercent())
-  }
-
-  fileprivate func progressPercent() -> Int {
-    guard let progress = progress, !progress.isNaN, !progress.isInfinite else {
-      return 0
-    }
-    return Int(progress)
-  }
-
   // MARK: PlayerMetaView
 
-  public func playerMetaText(
+  public static func playerMetaText(
     title: String,
     author: String
   ) -> String {
