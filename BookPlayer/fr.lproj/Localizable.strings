@@ -126,7 +126,7 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Sans titre";
 "voiceover_no_author" = "Aucun auteur";
-"voiceover_book_progress" = "%@ par %@, %d pour cent terminés";
+"voiceover_book_progress" = "%@ af %@, %d procent fuldført, varighed: %@";
 "voiceover_no_file_title" = "Fichier sans titre";
 "voiceover_no_file_subtitle" = "Fichier sans sous-titre";
 "voiceover_no_playlist_title" = "Aucun titre de dossier";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nouveau volume de livre";
 "bound_books_create_alert_description" = "Assurez-vous que les éléments sont dans le bon ordre. Pour réorganiser les chapitres ultérieurement, vous devez reconvertir le volume en dossier, réorganiser les éléments, puis recréer le volume.";
 "bound_books_create_alert_title" = "Créer un volume";
-"voiceover_bound_books_progress" = "%@, volume, %d pour cent terminé";
+"voiceover_bound_books_progress" = "%@, Volumen, %d procent fuldført, varighed %@";
 "voiceover_no_bound_books_title" = "Pas de titre de volume";
 "default_title" = "Défaut";
 "voiceover_default_speed_title" = "Définir la vitesse par défaut";

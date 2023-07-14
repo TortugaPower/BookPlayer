@@ -2,7 +2,35 @@ import BookPlayerKit
 import Foundation
 
 class VoiceOverService {
-  // MARK: PlayerMetaView
+  // MARK: - BookCellView
+
+  public static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+    switch item.type {
+    case .book:
+      return String.localizedStringWithFormat(
+        "voiceover_book_progress".localized,
+        item.title,
+        item.details,
+        Int(item.percentCompleted),
+        item.durationFormatted
+      )
+    case .folder:
+      return String.localizedStringWithFormat(
+        "voiceover_playlist_progress".localized,
+        item.title,
+        Int(item.percentCompleted)
+      )
+    case .bound:
+      return String.localizedStringWithFormat(
+        "voiceover_bound_books_progress".localized,
+        item.title,
+        Int(item.percentCompleted),
+        item.durationFormatted
+      )
+    }
+  }
+
+  // MARK: - PlayerMetaView
 
   public static func playerMetaText(
     title: String,

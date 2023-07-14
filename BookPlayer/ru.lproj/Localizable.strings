@@ -126,7 +126,7 @@
 "pause_title" = "Пауза";
 "voiceover_no_title" = "Без названия";
 "voiceover_no_author" = "Неизвестный автор";
-"voiceover_book_progress" = "%@, %@ %d% прослушано";
+"voiceover_book_progress" = "%@ к %@, %d процентов выполнения, продолжительность: %@";
 "voiceover_no_file_title" = "Нет названия файла";
 "voiceover_no_file_subtitle" = "Подзаголовок файла отсутствует";
 "voiceover_no_playlist_title" = "Нет названия папки";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Новая книга";
 "bound_books_create_alert_description" = "Убедитесь, что файлы расположены в правильном порядке. Чтобы позже изменить порядок глав, нужно преобразовать книгу обратно в папку, изменить порядок файлов, а затем снова создать книгу.";
 "bound_books_create_alert_title" = "Создать книгу";
-"voiceover_bound_books_progress" = "Книга %@, воспроизведено %d процентов";
+"voiceover_bound_books_progress" = "%@, Объем, %d процентов Выполнено, продолжительность %@";
 "voiceover_no_bound_books_title" = "Отсутствует название книги";
 "default_title" = "Дефолт";
 "voiceover_default_speed_title" = "Установить скорость по умолчанию";

@@ -126,7 +126,7 @@
 "pause_title" = "Pauză";
 "voiceover_no_title" = "Fără titlu";
 "voiceover_no_author" = "Fără autor";
-"voiceover_book_progress" = "%@cate%@,%dprocent finalizat";
+"voiceover_book_progress" = "%@ de %@ , %d procente finalizate, durata: %@";
 "voiceover_no_file_title" = "Fără titlu de fișier";
 "voiceover_no_file_subtitle" = "Fără fișier de subtitrare";
 "voiceover_no_playlist_title" = "Fără titlu de folder";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Volum nou de carte";
 "bound_books_create_alert_description" = "Asigurați-vă că articolele sunt în ordinea corectă. Pentru a reordona capitolele mai târziu, trebuie să convertiți volumul înapoi într-un folder, să reordonați articolele și apoi să recreați volumul.";
 "bound_books_create_alert_title" = "Creați un volum";
-"voiceover_bound_books_progress" = "%@, Volum, %d la sută Finalizat";
+"voiceover_bound_books_progress" = "%@, Volum, %d la sută Finalizat, durata %@";
 "voiceover_no_bound_books_title" = "Fără titlu de volum";
 "default_title" = "Mod implicit";
 "voiceover_default_speed_title" = "Setați viteza implicită";

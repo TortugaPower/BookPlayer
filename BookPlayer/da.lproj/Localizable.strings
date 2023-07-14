@@ -126,7 +126,7 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Ingen titel";
 "voiceover_no_author" = "Ingen forfatter";
-"voiceover_book_progress" = "%@ af %@, %d procent fuldført";
+"voiceover_book_progress" = "%@ af %@, %d procent fuldført, varighed: %@";
 "voiceover_no_file_title" = "Ingen filnavn";
 "voiceover_no_file_subtitle" = "Ingen undertekstfil";
 "voiceover_no_playlist_title" = "Ingen mappetitel";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Ny bogbind";
 "bound_books_create_alert_description" = "Sørg for, at elementerne er i den rigtige rækkefølge. Hvis du vil ændre rækkefølgen af kapitler senere skal du konvertere bindet tilbage til en mappe, omarrangere elementer og derefter genskabe bindet.";
 "bound_books_create_alert_title" = "Opret et volumen";
-"voiceover_bound_books_progress" = "%@, Volumen, %d procent fuldført";
+"voiceover_bound_books_progress" = "%@, Volumen, %d procent fuldført, varighed %@";
 "voiceover_no_bound_books_title" = "Ingen bindtitel";
 "default_title" = "Standard";
 "voiceover_default_speed_title" = "Indstil standardhastighed";
