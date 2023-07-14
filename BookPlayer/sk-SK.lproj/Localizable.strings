@@ -126,7 +126,7 @@
 "pause_title" = "Pozastaviť";
 "voiceover_no_title" = "Žiadny názov";
 "voiceover_no_author" = "Žiadny autor";
-"voiceover_book_progress" = "%@ z %@, %d percent dokončených";
+"voiceover_book_progress" = "%@ podľa %@, %d percent dokončených, trvanie: %@";
 "voiceover_no_file_title" = "Žiadny názov súboru";
 "voiceover_no_file_subtitle" = "Žiadny podtitul súboru";
 "voiceover_no_playlist_title" = "Žiadny názov priečinka";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nový zväzok knihy";
 "bound_books_create_alert_description" = "Skontrolujte, či sú položky v správnom poradí. Ak chcete neskôr zmeniť poradie kapitol, musíte zväzok previesť späť na priečinok, zmeniť poradie položiek a potom zväzok znovu vytvoriť.";
 "bound_books_create_alert_title" = "Vytváranie zväzku";
-"voiceover_bound_books_progress" = "%@, Zväzok, %d percent dokončených";
+"voiceover_bound_books_progress" = "%@, Zväzok, %d percent dokončených, trvanie %@";
 "voiceover_no_bound_books_title" = "Žiadny názov zväzku";
 "default_title" = "Predvolené";
 "voiceover_default_speed_title" = "Nastavte predvolenú rýchlosť";

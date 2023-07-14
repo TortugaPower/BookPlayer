@@ -187,7 +187,8 @@ extension SearchListViewController: UITableViewDataSource {
       placeholder: self.defaultArtwork,
       options: [.targetCache(ArtworkService.cache)]
     )
-    cell.setAccessibilityLabels()
+    let label = VoiceOverService.getAccessibilityLabel(for: item)
+    cell.setAccessibilityLabel(label)
     return cell
   }
 }

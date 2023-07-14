@@ -126,7 +126,7 @@
 "pause_title" = "Paus";
 "voiceover_no_title" = "Titel saknas";
 "voiceover_no_author" = "Författare saknas";
-"voiceover_book_progress" = "%@ av %@ %d procent läst";
+"voiceover_book_progress" = "%@ av %@, %d procent läst, varaktighet: %@";
 "voiceover_no_file_title" = "Filtitel saknas";
 "voiceover_no_file_subtitle" = "Undertext för fil saknas";
 "voiceover_no_playlist_title" = "Ingen mapptitel";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Ny boksamling";
 "bound_books_create_alert_description" = "Se till att delarna är i rätt ordning. För att ändra kapitelordning senare måste du konvertera samlingen tillbaka till en mapp, ändra ordning på delarna och sedan återskapa samlingen.";
 "bound_books_create_alert_title" = "Skapa en boksamling";
-"voiceover_bound_books_progress" = "%@, boksamling, %d procent läst";
+"voiceover_bound_books_progress" = "%@, boksamling, %d procent läst, varaktighet %@";
 "voiceover_no_bound_books_title" = "Ingen volymtitel";
 "default_title" = "Standard";
 "voiceover_default_speed_title" = "Ställ in standardhastighet";

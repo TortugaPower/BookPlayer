@@ -126,7 +126,7 @@
 "pause_title" = "Pausar";
 "voiceover_no_title" = "Sin título";
 "voiceover_no_author" = "Sin autor";
-"voiceover_book_progress" = "%@ por %@, %d porcentaje completado";
+"voiceover_book_progress" = "%@ por %@, %d porcentaje completado, duración: %@";
 "voiceover_no_file_title" = "Sin título de archivo";
 "voiceover_no_file_subtitle" = "Sin subtítulo de archivo";
 "voiceover_no_playlist_title" = "Sin título de carpeta";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nuevo Volumen";
 "bound_books_create_alert_description" = "Asegúrate de que los libros estén en el orden correcto. Para reordenar los capítulos más adelante, deberás convertir el volumen nuevamente a una carpeta, reordenar los elementos y luego volver a crear el volumen.";
 "bound_books_create_alert_title" = "Crear un volumen";
-"voiceover_bound_books_progress" = "%@, Volumen, %d porcentaje completado";
+"voiceover_bound_books_progress" = "%@, volumen, %d porcentaje completado, duración %@";
 "voiceover_no_bound_books_title" = "Sin título";
 "default_title" = "Predeterminado";
 "voiceover_default_speed_title" = "Establecer velocidad predeterminada";

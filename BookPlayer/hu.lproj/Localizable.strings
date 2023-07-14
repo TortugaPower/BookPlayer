@@ -126,7 +126,7 @@
 "pause_title" = "Szünet";
 "voiceover_no_title" = "Nincs cím";
 "voiceover_no_author" = "Nincs szerző";
-"voiceover_book_progress" = "%@ - %@, %d% meghallgatva";
+"voiceover_book_progress" = "%@ – %@, %d százalék kész, időtartam: %@";
 "voiceover_no_file_title" = "A fájlnak nincs címe";
 "voiceover_no_file_subtitle" = "A fájlnak nincsen felirata";
 "voiceover_no_playlist_title" = "Nincs mappa címe";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Új könyvkötet";
 "bound_books_create_alert_description" = "Győződjön meg arról, hogy az elemek megfelelő sorrendben vannak. A fejezetek későbbi átrendezéséhez vissza kell alakítania a kötetet mappává, át kell rendeznie az elemeket, majd újra létre kell hoznia a kötetet.";
 "bound_books_create_alert_title" = "Kötet létrehozása";
-"voiceover_bound_books_progress" = "%@, kötet, %d% kész";
+"voiceover_bound_books_progress" = "%@, kötet, %d százalék kész, időtartam %@";
 "voiceover_no_bound_books_title" = "Nincs kötet címke";
 "default_title" = "Alapértelmezett";
 "voiceover_default_speed_title" = "Állítsa be az alapértelmezett sebességet";

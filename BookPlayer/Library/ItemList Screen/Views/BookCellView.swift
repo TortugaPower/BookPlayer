@@ -212,13 +212,9 @@ class BookCellView: UITableViewCell {
 // MARK: - Voiceover
 
 extension BookCellView {
-  public func setAccessibilityLabels() {
-    let voiceOverService = VoiceOverService()
+  public func setAccessibilityLabel(_ label: String) {
     isAccessibilityElement = true
-    accessibilityLabel = voiceOverService.bookCellView(type: self.type,
-                                                       title: self.title,
-                                                       subtitle: self.subtitle,
-                                                       progress: self.progress)
+    accessibilityLabel = label
   }
 }
 
