@@ -479,13 +479,16 @@ extension PlayerViewController {
 
     let datePicker = UIDatePicker()
     datePicker.datePickerMode = .countDownTimer
+    if let customTimerDuration = viewModel.getLastCustomSleepTimerDuration() {
+      datePicker.countDownDuration = customTimerDuration
+    }
     customTimerAlert.view.addSubview(datePicker)
     customTimerAlert.addAction(
       UIAlertAction(
         title: "ok_button".localized,
         style: .default,
         handler: { [weak self] _ in
-          self?.viewModel.handleSleepTimerOptions(seconds: datePicker.countDownDuration)
+          self?.viewModel.handleCustomSleepTimerOption(seconds: datePicker.countDownDuration)
         }
       )
     )

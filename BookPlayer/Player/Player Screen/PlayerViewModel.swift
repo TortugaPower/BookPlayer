@@ -394,6 +394,19 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
     SleepTimer.shared.sleep(in: option)
   }
+
+  func handleCustomSleepTimerOption(seconds: Double) {
+    UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+    handleSleepTimerOptions(seconds: seconds)
+  }
+
+  func getLastCustomSleepTimerDuration() -> Double? {
+    let storedTime = UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+
+    guard storedTime > 0 else { return nil }
+
+    return storedTime
+  }
 }
 
 extension PlayerViewModel {
