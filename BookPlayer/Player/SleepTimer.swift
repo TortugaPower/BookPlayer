@@ -111,12 +111,13 @@ final class SleepTimer {
   }
 
   @objc private func end() {
+    let wasEndChapterActive = isEndChapterActive()
     self.reset()
     self.subscription?.cancel()
 
     guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-    playerManager.pause(fade: true)
+    playerManager.pause(fade: !wasEndChapterActive)
   }
 
   private func startEndOfChapterOption() {
