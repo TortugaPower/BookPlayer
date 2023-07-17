@@ -52,6 +52,9 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
 
+  /// Reference to displayed alert, to update the message label with the ongoing timer
+  weak var sleepTimerAlert: UIAlertController?
+
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
     let style = ThemeManager.shared.useDarkVariant ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
@@ -318,12 +321,12 @@ extension PlayerViewController {
   }
 
   func bindTimerObserver() {
-    SleepTimer.shared.timeLeftFormatted.sink { [weak self] timeFormatted in
-      guard let self = self else { return }
+    viewModel.toolbarSleepDescriptionPublisher().sink { [weak self] toolbarDescription in
+      guard let self else { return }
 
-      self.sleepLabel.title = timeFormatted
+      self.sleepLabel.title = toolbarDescription
 
-      if let timeFormatted = timeFormatted {
+      if let timeFormatted = toolbarDescription {
         self.sleepLabel.isAccessibilityElement = true
         let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted))
         self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
@@ -340,6 +343,10 @@ extension PlayerViewController {
           self.updateToolbar(false, animated: true)
         }
       }
+    }.store(in: &disposeBag)
+
+    viewModel.sleepAlertMessagePublisher().sink { [weak self] alertMessage in
+      self?.sleepTimerAlert?.message = alertMessage
     }.store(in: &disposeBag)
   }
 
@@ -462,7 +469,7 @@ extension PlayerViewController {
 
   func presentSleepTimerAlert(_ content: BPAlertContent) {
     let alert = buildAlert(content)
-    SleepTimer.shared.alert = alert
+    sleepTimerAlert = alert
 
     alert.popoverPresentationController?.permittedArrowDirections = .any
     alert.popoverPresentationController?.barButtonItem = sleepButton

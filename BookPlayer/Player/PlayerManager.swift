@@ -845,7 +845,7 @@ extension PlayerManager {
     guard let currentItem = self.currentItem else { return }
 
     // Stop book/chapter change if the EOC sleep timer is active
-    if SleepTimer.shared.isEndChapterActive() {
+    if SleepTimer.shared.state == .endOfChapter {
       NotificationCenter.default.post(name: .bookEnd, object: nil)
       return
     }

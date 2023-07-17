@@ -12,17 +12,23 @@ import Foundation
 import IntentsUI
 import UIKit
 
+/// Available sleep timer states
+enum SleepTimerState: Equatable {
+  case off
+  case countdown(TimeInterval)
+  case endOfChapter
+}
+
 final class SleepTimer {
   static let shared = SleepTimer()
 
-  let durationFormatter: DateComponentsFormatter = DateComponentsFormatter()
-
+  /// Cancellable subscription of the active timer
   private var subscription: AnyCancellable?
-  public weak var alert: UIAlertController?
-
-  @Published private var timeLeft: TimeInterval = 0.0
-
-  private let defaultMessage: String
+  /// Current time left on the timer
+  @Published public var state: SleepTimerState = .off
+  // TODO: This is meant to be used later with 'sticky' timers that are activated on each playback
+  public var lastActivedState: SleepTimerState = .off
+  /// Default available options
   public let intervals: [TimeInterval] = [
     300.0,
     600.0,
@@ -31,67 +37,19 @@ final class SleepTimer {
     3600.0
   ]
 
-  public var timeLeftFormatted: AnyPublisher<String?, Never> {
-    $timeLeft.map({ interval in
-      // End of chapter
-      if interval == -2 {
-        return "active_title".localized
-      }
-
-      // Timer finished
-      if interval == 0 {
-        return nil
-      }
-
-      return self.durationFormatter.string(from: interval)
-    }).eraseToAnyPublisher()
-  }
-
-  public func isActive() -> Bool {
-    return self.subscription != nil || self.timeLeft == -2
-  }
-
-  public func isEndChapterActive() -> Bool {
-    return self.timeLeft == -2
-  }
-
   // MARK: Internals
 
-  private init() {
-    self.defaultMessage = "player_sleep_title".localized
-    self.durationFormatter.unitsStyle = .positional
-    self.durationFormatter.allowedUnits = [.minute, .second]
-    self.durationFormatter.collapsesLargestUnit = true
+  private init() {}
 
-    self.reset()
-  }
-
-  public func reset() {
-    self.alert?.message = self.defaultMessage
-    self.timeLeft = 0
-
-    self.subscription?.cancel()
+  /// Cancels any ongoing timer, and set the state to `.off`
+  private func reset() {
+    state = .off
+    subscription?.cancel()
     NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
     NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
   }
 
-  public func getAlertMessage() -> String {
-    // End of chapter
-    if self.timeLeft == -2 {
-      return "sleep_alert_description".localized
-    }
-
-    // Timer finished
-    if self.timeLeft == 0 {
-      return "player_sleep_title".localized
-    }
-
-    return String.localizedStringWithFormat(
-      "sleep_time_description".localized,
-      self.durationFormatter.string(from: self.timeLeft)!
-    )
-  }
-
+  /// Siri intents integration
   private func donateTimerIntent(with option: TimerOption) {
     let intent = SleepTimerIntent()
     intent.option = option
@@ -100,18 +58,22 @@ final class SleepTimer {
     interaction.donate(completion: nil)
   }
 
+  /// Periodic function used for the `countdown` case of ``SleepTimerState``
   @objc private func update() {
-    self.timeLeft -= 1.0
+    guard case .countdown(let interval) = state else { return }
 
-    self.alert?.message = String.localizedStringWithFormat("sleep_time_description".localized, self.durationFormatter.string(from: self.timeLeft)!)
+    let timeLeft = interval - 1
 
-    if self.timeLeft <= 0 {
+    if timeLeft <= 0 {
       self.end()
+    } else {
+      state = .countdown(timeLeft)
     }
   }
 
+  /// Called by either the end of `.countdown` when the timer runs out or by `.endOfChapter` when a chapter or book has finished
   @objc private func end() {
-    let wasEndChapterActive = isEndChapterActive()
+    let wasEndChapterActive = state == .endOfChapter
     self.reset()
     self.subscription?.cancel()
 
@@ -120,76 +82,30 @@ final class SleepTimer {
     playerManager.pause(fade: !wasEndChapterActive)
   }
 
-  private func startEndOfChapterOption() {
-    self.reset()
-    self.alert?.message = "sleep_alert_description".localized
-    self.timeLeft = -2.0
-    NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
-    NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
-    self.donateTimerIntent(with: .endChapter)
-  }
-
   // MARK: Public methods
 
-  func intentSheet(on vc: UIViewController) -> UIAlertController {
-    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+  public func setTimer(_ newState: SleepTimerState) {
+    /// Always cancel any ongoing timer
+    reset()
+    state = newState
+    lastActivedState = newState
 
-    let formatter = DateComponentsFormatter()
-
-    formatter.unitsStyle = .full
-    formatter.allowedUnits = [.hour, .minute]
-
-    let intent = SleepTimerIntent()
-
-    alert.addAction(UIAlertAction(title: "sleep_off_title".localized, style: .default, handler: { _ in
-      intent.option = .cancel
-      (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
-    }))
-
-    for interval in self.intervals {
-      let formattedDuration = formatter.string(from: interval as TimeInterval)!
-
-      alert.addAction(UIAlertAction(title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration), style: .default, handler: { _ in
-        intent.option = TimeParser.getTimerOption(from: interval)!
-        (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
-      }))
-    }
-
-    alert.addAction(UIAlertAction(title: "sleep_chapter_option_title".localized, style: .default) { _ in
-      intent.option = .endChapter
-      (vc as? IntentSelectionDelegate)?.didSelectIntent(intent)
-    })
-
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-
-    return alert
-  }
-
-  public func sleep(in option: TimerOption) {
-    let seconds = TimeParser.getSeconds(from: option)
-
-    if seconds > 0 {
-      self.sleep(in: seconds)
-    } else if seconds == -1 {
-      self.reset()
-      self.donateTimerIntent(with: .cancel)
-    } else if seconds == -2 {
-      self.startEndOfChapterOption()
-    }
-  }
-
-  public func sleep(in seconds: Double) {
-    if let option = TimeParser.getTimerOption(from: seconds) {
-      self.donateTimerIntent(with: option)
-    }
-
-    self.reset()
-
-    self.timeLeft = seconds
-    self.subscription = Timer.publish(every: 1, on: .main, in: .common)
-      .autoconnect()
-      .sink { [weak self] _ in
-        self?.update()
+    switch newState {
+    case .off:
+      donateTimerIntent(with: .cancel)
+    case .countdown(let interval):
+      if let option = TimeParser.getTimerOption(from: interval) {
+        donateTimerIntent(with: option)
       }
+      subscription = Timer.publish(every: 1, on: .main, in: .common)
+        .autoconnect()
+        .sink { [weak self] _ in
+          self?.update()
+        }
+    case .endOfChapter:
+      donateTimerIntent(with: .endChapter)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
+    }
   }
 }
