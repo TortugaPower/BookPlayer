@@ -1082,18 +1082,18 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
     //MARK: - playNextItem
 
-    var playNextItemAutoPlayedCallsCount = 0
-    var playNextItemAutoPlayedCalled: Bool {
-        return playNextItemAutoPlayedCallsCount > 0
+    var playNextItemAutoPlayedShouldAutoplayCallsCount = 0
+    var playNextItemAutoPlayedShouldAutoplayCalled: Bool {
+        return playNextItemAutoPlayedShouldAutoplayCallsCount > 0
     }
-    var playNextItemAutoPlayedReceivedAutoPlayed: Bool?
-    var playNextItemAutoPlayedReceivedInvocations: [Bool] = []
-    var playNextItemAutoPlayedClosure: ((Bool) -> Void)?
-    func playNextItem(autoPlayed: Bool) {
-        playNextItemAutoPlayedCallsCount += 1
-        playNextItemAutoPlayedReceivedAutoPlayed = autoPlayed
-        playNextItemAutoPlayedReceivedInvocations.append(autoPlayed)
-        playNextItemAutoPlayedClosure?(autoPlayed)
+    var playNextItemAutoPlayedShouldAutoplayReceivedArguments: (autoPlayed: Bool, shouldAutoplay: Bool)?
+    var playNextItemAutoPlayedShouldAutoplayReceivedInvocations: [(autoPlayed: Bool, shouldAutoplay: Bool)] = []
+    var playNextItemAutoPlayedShouldAutoplayClosure: ((Bool, Bool) -> Void)?
+    func playNextItem(autoPlayed: Bool, shouldAutoplay: Bool) {
+        playNextItemAutoPlayedShouldAutoplayCallsCount += 1
+        playNextItemAutoPlayedShouldAutoplayReceivedArguments = (autoPlayed: autoPlayed, shouldAutoplay: shouldAutoplay)
+        playNextItemAutoPlayedShouldAutoplayReceivedInvocations.append((autoPlayed: autoPlayed, shouldAutoplay: shouldAutoplay))
+        playNextItemAutoPlayedShouldAutoplayClosure?(autoPlayed, shouldAutoplay)
     }
     //MARK: - play
 
@@ -1119,18 +1119,14 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
     //MARK: - pause
 
-    var pauseFadeCallsCount = 0
-    var pauseFadeCalled: Bool {
-        return pauseFadeCallsCount > 0
+    var pauseCallsCount = 0
+    var pauseCalled: Bool {
+        return pauseCallsCount > 0
     }
-    var pauseFadeReceivedFade: Bool?
-    var pauseFadeReceivedInvocations: [Bool] = []
-    var pauseFadeClosure: ((Bool) -> Void)?
-    func pause(fade: Bool) {
-        pauseFadeCallsCount += 1
-        pauseFadeReceivedFade = fade
-        pauseFadeReceivedInvocations.append(fade)
-        pauseFadeClosure?(fade)
+    var pauseClosure: (() -> Void)?
+    func pause() {
+        pauseCallsCount += 1
+        pauseClosure?()
     }
     //MARK: - stop
 
@@ -1287,6 +1283,34 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         } else {
             return currentItemPublisherReturnValue
         }
+    }
+}
+class ShakeMotionServiceProtocolMock: ShakeMotionServiceProtocol {
+    //MARK: - observeFirstShake
+
+    var observeFirstShakeCompletionCallsCount = 0
+    var observeFirstShakeCompletionCalled: Bool {
+        return observeFirstShakeCompletionCallsCount > 0
+    }
+    var observeFirstShakeCompletionReceivedCompletion: (() -> Void)?
+    var observeFirstShakeCompletionReceivedInvocations: [(() -> Void)] = []
+    var observeFirstShakeCompletionClosure: ((@escaping () -> Void) -> Void)?
+    func observeFirstShake(completion: @escaping () -> Void) {
+        observeFirstShakeCompletionCallsCount += 1
+        observeFirstShakeCompletionReceivedCompletion = completion
+        observeFirstShakeCompletionReceivedInvocations.append(completion)
+        observeFirstShakeCompletionClosure?(completion)
+    }
+    //MARK: - stopMotionUpdates
+
+    var stopMotionUpdatesCallsCount = 0
+    var stopMotionUpdatesCalled: Bool {
+        return stopMotionUpdatesCallsCount > 0
+    }
+    var stopMotionUpdatesClosure: (() -> Void)?
+    func stopMotionUpdates() {
+        stopMotionUpdatesCallsCount += 1
+        stopMotionUpdatesClosure?()
     }
 }
 class SpeedServiceProtocolMock: SpeedServiceProtocol {
