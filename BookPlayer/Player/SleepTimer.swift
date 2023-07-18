@@ -24,10 +24,13 @@ final class SleepTimer {
 
   /// Cancellable subscription of the active timer
   private var subscription: AnyCancellable?
+  /// Threshold for volume fade event
+  private let countDownThreshold: Int = 5
+
   /// Current time left on the timer
   @Published public var state: SleepTimerState = .off
-  // TODO: This is meant to be used later with 'sticky' timers that are activated on each playback
-  public var lastActivedState: SleepTimerState = .off
+  /// Last manually set sleep timer
+  private var lastActivedState: SleepTimerState = .off
   /// Default available options
   public let intervals: [TimeInterval] = [
     300.0,
@@ -36,6 +39,11 @@ final class SleepTimer {
     1800.0,
     3600.0
   ]
+
+  /// Publisher when the countdown timer reaches the defined threshold
+  public var countDownThresholdPublisher = PassthroughSubject<Bool, Never>()
+  /// Publisher when the timer ends
+  public var timerEndedPublisher = PassthroughSubject<SleepTimerState, Never>()
 
   // MARK: Internals
 
@@ -64,6 +72,10 @@ final class SleepTimer {
 
     let timeLeft = interval - 1
 
+    if Int(timeLeft) == countDownThreshold {
+      countDownThresholdPublisher.send(true)
+    }
+
     if timeLeft <= 0 {
       self.end()
     } else {
@@ -73,13 +85,8 @@ final class SleepTimer {
 
   /// Called by either the end of `.countdown` when the timer runs out or by `.endOfChapter` when a chapter or book has finished
   @objc private func end() {
-    let wasEndChapterActive = state == .endOfChapter
+    timerEndedPublisher.send(state)
     self.reset()
-    self.subscription?.cancel()
-
-    guard let playerManager = AppDelegate.shared?.playerManager else { return }
-
-    playerManager.pause(fade: !wasEndChapterActive)
   }
 
   // MARK: Public methods
@@ -107,5 +114,9 @@ final class SleepTimer {
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
     }
+  }
+
+  public func restartTimer() {
+    setTimer(lastActivedState)
   }
 }

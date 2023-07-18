@@ -147,13 +147,7 @@ class ActionParserService {
   }
 
   private class func handlePauseAction(_ action: Action) {
-    guard
-      let playerManager = AppDelegate.shared?.playerManager
-    else {
-      return
-    }
-
-    playerManager.pause(fade: false)
+    AppDelegate.shared?.playerManager?.pause()
   }
 
   private class func handlePlayAction(_ action: Action) {

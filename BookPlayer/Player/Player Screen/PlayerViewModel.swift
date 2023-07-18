@@ -126,7 +126,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
        let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
       self.playerManager.jumpToChapter(nextChapter)
     } else {
-      self.playerManager.playNextItem(autoPlayed: false)
+      self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
     }
   }
 
@@ -175,12 +175,12 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func handleJumpToStart() {
-    self.playerManager.pause(fade: false)
+    self.playerManager.pause()
     self.playerManager.jumpTo(0.0, recordBookmark: false)
   }
 
   func handleMarkCompletion() {
-    self.playerManager.pause(fade: false)
+    self.playerManager.pause()
     self.playerManager.markAsCompleted(!self.isBookFinished())
   }
 
