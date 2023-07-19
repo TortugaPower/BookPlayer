@@ -42,8 +42,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet weak var containerPlayerControlsStackView: UIStackView!
   @IBOutlet weak var containerChapterControlsStackView: UIStackView!
   @IBOutlet weak var containerProgressControlsStackView: UIStackView!
-  @IBOutlet weak var aspectRatioConstraint: NSLayoutConstraint!
-  @IBOutlet weak var artworkHeightConstraint: NSLayoutConstraint!
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -64,14 +62,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   // MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
-
-    if UIDevice.current.userInterfaceIdiom != .phone {
-      artworkHeightConstraint.priority = .defaultHigh
-      aspectRatioConstraint.priority = .defaultLow
-    } else {
-      artworkHeightConstraint.priority = .defaultLow
-      aspectRatioConstraint.priority = .defaultHigh
-    }
 
     setup()
 
