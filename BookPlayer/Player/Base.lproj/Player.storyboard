@@ -3,7 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -81,9 +81,6 @@
                                         <accessibility key="accessibilityConfiguration" label="Play Pause">
                                             <bool key="isElement" value="NO"/>
                                         </accessibility>
-                                        <constraints>
-                                            <constraint firstAttribute="width" secondItem="6xf-bw-kIJ" secondAttribute="height" multiplier="1:1" priority="750" id="oil-WP-yFQ"/>
-                                        </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="zUP-Ef-BLo">
                                         <rect key="frame" x="0.0" y="376" width="366" height="28"/>
@@ -242,11 +239,12 @@
                                         <constraints>
                                             <constraint firstItem="Uq7-wJ-Inm" firstAttribute="centerY" secondItem="fne-gp-hu8" secondAttribute="centerY" id="IGz-9s-6bU"/>
                                             <constraint firstItem="Uq7-wJ-Inm" firstAttribute="centerX" secondItem="fne-gp-hu8" secondAttribute="centerX" id="JKX-Yb-wJs"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="70" id="fzq-UC-KBM"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="6xf-bw-kIJ" firstAttribute="height" secondItem="EQg-nv-ob9" secondAttribute="height" multiplier="0.504132" priority="250" id="qDQ-SZ-NuW"/>
+                                    <constraint firstItem="6xf-bw-kIJ" firstAttribute="height" secondItem="EQg-nv-ob9" secondAttribute="height" multiplier="0.504132" priority="750" id="qDQ-SZ-NuW"/>
                                 </constraints>
                             </stackView>
                         </subviews>
@@ -275,8 +273,6 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="artworkControl" destination="6xf-bw-kIJ" id="p7p-I1-Sox"/>
-                        <outlet property="artworkHeightConstraint" destination="qDQ-SZ-NuW" id="SNG-GF-SCv"/>
-                        <outlet property="aspectRatioConstraint" destination="oil-WP-yFQ" id="1rv-wt-QwN"/>
                         <outlet property="bookmarkButton" destination="3Xp-Av-nNw" id="XPz-9I-fwd"/>
                         <outlet property="bottomToolbar" destination="AZq-mj-Dz4" id="0Zx-pC-qLR"/>
                         <outlet property="chapterTitleButton" destination="45v-QH-868" id="QEe-ft-sbX"/>
@@ -381,17 +377,17 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="BookmarkTableViewCell" id="Te8-vH-xXS" customClass="BookmarkTableViewCell" customModule="BookPlayer" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="50" width="414" height="131.5"/>
+                                <rect key="frame" x="0.0" y="50" width="414" height="132.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Te8-vH-xXS" id="A4Z-5c-eS3">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="131.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="132.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Nwf-Dq-SSB">
-                                            <rect key="frame" x="16" y="5" width="382" height="121.5"/>
+                                            <rect key="frame" x="16" y="5" width="382" height="122.5"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="254" horizontalCompressionResistancePriority="745" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jie-XM-DdZ">
-                                                    <rect key="frame" x="0.0" y="0.0" width="61" height="121.5"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="61" height="122.5"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="61" id="jXf-E9-2g1"/>
                                                     </constraints>
@@ -400,7 +396,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="246" horizontalCompressionResistancePriority="753" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1vu-0y-Gsj">
-                                                    <rect key="frame" x="69" y="0.0" width="285" height="121.5"/>
+                                                    <rect key="frame" x="69" y="0.0" width="285" height="122.5"/>
                                                     <string key="text">This is a test of a description
 with two lines</string>
                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -408,10 +404,10 @@ with two lines</string>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="At3-bV-uru">
-                                                    <rect key="frame" x="362" y="0.0" width="20" height="121.5"/>
+                                                    <rect key="frame" x="362" y="0.0" width="20" height="122.5"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" translatesAutoresizingMaskIntoConstraints="NO" id="hl8-aB-hHI">
-                                                            <rect key="frame" x="0.0" y="51" width="20" height="20"/>
+                                                            <rect key="frame" x="0.0" y="51.5" width="20" height="20"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="20" id="GgN-Bh-f4r"/>
                                                                 <constraint firstAttribute="height" constant="20" id="w74-rW-tSe"/>
