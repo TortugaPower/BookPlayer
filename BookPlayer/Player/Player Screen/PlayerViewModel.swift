@@ -23,6 +23,15 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
   private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
 
+  /// Formatter for the sleep timer duration
+  private lazy var durationFormatter: DateComponentsFormatter = {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .positional
+    formatter.allowedUnits = [.minute, .second]
+    formatter.collapsesLargestUnit = true
+    return formatter
+  }()
+
   var eventsPublisher = InterfaceUpdater<PlayerViewModel.Events>()
 
   init(
@@ -49,6 +58,40 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
     return self.playerManager.isPlayingPublisher()
+  }
+
+  func toolbarSleepDescriptionPublisher() -> AnyPublisher<String?, Never> {
+    return SleepTimer.shared.$state
+      .map { [weak self] state -> String? in
+        switch state {
+        case .off:
+          return nil
+        case .endOfChapter:
+          return "active_title".localized
+        case .countdown(let seconds):
+          return self?.durationFormatter.string(from: seconds)
+        }
+      }
+      .eraseToAnyPublisher()
+  }
+
+  func sleepAlertMessagePublisher() -> AnyPublisher<String, Never> {
+    return SleepTimer.shared.$state
+      .map { [weak self] state -> String in
+        switch state {
+        case .off:
+          return "player_sleep_title".localized
+        case .endOfChapter:
+          return "sleep_alert_description".localized
+        case .countdown(let seconds):
+          let formattedTime = self?.durationFormatter.string(from: seconds) ?? ""
+          return String.localizedStringWithFormat(
+            "sleep_time_description".localized,
+            formattedTime
+          )
+        }
+      }
+      .eraseToAnyPublisher()
   }
 
   func hasLoadedBook() -> Bool {
@@ -83,7 +126,7 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
        let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
       self.playerManager.jumpToChapter(nextChapter)
     } else {
-      self.playerManager.playNextItem(autoPlayed: false)
+      self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
     }
   }
 
@@ -132,12 +175,12 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
   }
 
   func handleJumpToStart() {
-    self.playerManager.pause(fade: false)
+    self.playerManager.pause()
     self.playerManager.jumpTo(0.0, recordBookmark: false)
   }
 
   func handleMarkCompletion() {
-    self.playerManager.pause(fade: false)
+    self.playerManager.pause()
     self.playerManager.markAsCompleted(!self.isBookFinished())
   }
 
@@ -328,8 +371,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     actions.append(
       BPActionItem(
         title: "sleep_off_title".localized,
-        handler: { [weak self] in
-          self?.handleSleepTimerOptions(seconds: -1)
+        handler: {
+          SleepTimer.shared.setTimer(.off)
         }
       )
     )
@@ -345,8 +388,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
       actions.append(
         BPActionItem(
           title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
-          handler: { [weak self] in
-            self?.handleSleepTimerOptions(seconds: interval)
+          handler: {
+            SleepTimer.shared.setTimer(.countdown(interval))
           }
         )
       )
@@ -355,8 +398,8 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     actions.append(
       BPActionItem(
         title: "sleep_chapter_option_title".localized,
-        handler: { [weak self] in
-          self?.handleSleepTimerOptions(seconds: -2)
+        handler: {
+          SleepTimer.shared.setTimer(.endOfChapter)
         }
       )
     )
@@ -375,29 +418,34 @@ class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
     sendEvent(.sleepTimerAlert(
       content: BPAlertContent(
         title: nil,
-        message: SleepTimer.shared.getAlertMessage(),
+        message: getSleepTimerAlertMessage(),
         style: .actionSheet,
         actionItems: actions
       )
     ))
   }
 
+  func getSleepTimerAlertMessage() -> String {
+    switch SleepTimer.shared.state {
+    case .off:
+      return "player_sleep_title".localized
+    case .endOfChapter:
+      return "sleep_alert_description".localized
+    case .countdown(let seconds):
+      return String.localizedStringWithFormat(
+        "sleep_time_description".localized,
+        durationFormatter.string(from: seconds)!
+      )
+    }
+  }
+
   func showCustomSleepTimerOption() {
     sendEvent(.customSleepTimer(title: "sleeptimer_custom_alert_title".localized))
   }
 
-  func handleSleepTimerOptions(seconds: Double) {
-    guard let option = TimeParser.getTimerOption(from: seconds) else {
-      SleepTimer.shared.sleep(in: seconds)
-      return
-    }
-
-    SleepTimer.shared.sleep(in: option)
-  }
-
   func handleCustomSleepTimerOption(seconds: Double) {
     UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
-    handleSleepTimerOptions(seconds: seconds)
+    SleepTimer.shared.setTimer(.countdown(seconds))
   }
 
   func getLastCustomSleepTimerDuration() -> Double? {

@@ -332,7 +332,7 @@ extension CarPlayManager {
          let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter) {
         playerManager.jumpToChapter(nextChapter)
       } else {
-        playerManager.playNextItem(autoPlayed: false)
+        playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
       }
     }
   }
