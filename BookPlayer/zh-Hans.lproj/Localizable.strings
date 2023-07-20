@@ -110,7 +110,7 @@
 "sleep_off_title" = "关闭";
 "sleep_interval_title" = "在%@";
 "chapter_number_title" = "第%d章";
-"progress_complete_description" = "%d% 完成";
+"progress_complete_description" = "%d%% 完成";
 "chapter_duration_title" = "章节持续时间：";
 "chapter_time_remaining_title" = "剩余章节时间：";
 "book_time_remaining_title" = "有声书剩余时间：";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "新的书卷";
 "bound_books_create_alert_description" = "确保有声书文件的顺序正确。如果以后要重新安排章节的顺序，你需要把书卷转换回文件夹，重新安排文件顺序，然后重新创建书卷。";
 "bound_books_create_alert_title" = "创建一个卷";
-"voiceover_bound_books_progress" = "%@, 体积, %d% 已完成, 持续时间 %@";
+"voiceover_bound_books_progress" = "%@, 体积, %d%% 已完成, 持续时间 %@";
 "voiceover_no_bound_books_title" = "没有书卷名";
 "default_title" = "默认";
 "voiceover_default_speed_title" = "设置默认速度";

@@ -130,7 +130,7 @@
 "voiceover_no_file_title" = "Немає імені файлу";
 "voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
 "voiceover_no_playlist_title" = "Назва теки відсутня";
-"voiceover_playlist_progress" = "%@, тека, відтворена на %d%";
+"voiceover_playlist_progress" = "%@, тека, відтворена на %d%%";
 "voiceover_unknown_title" = "Невідома назва";
 "voiceover_unknown_author" = "Невідомий автор";
 "voiceover_book_info" = "%@ з %@";
