@@ -110,7 +110,7 @@
 "sleep_off_title" = "Отменить";
 "sleep_interval_title" = "Через %@";
 "chapter_number_title" = "Глава %d";
-"progress_complete_description" = "%d% прослушано";
+"progress_complete_description" = "%d%% прослушано";
 "chapter_duration_title" = "Продолжительность главы:";
 "chapter_time_remaining_title" = "Оставшееся время главы:";
 "book_time_remaining_title" = "Оставшееся время:";
@@ -130,7 +130,7 @@
 "voiceover_no_file_title" = "Нет названия файла";
 "voiceover_no_file_subtitle" = "Подзаголовок файла отсутствует";
 "voiceover_no_playlist_title" = "Нет названия папки";
-"voiceover_playlist_progress" = "Плейлист %@ завершен на %d%";
+"voiceover_playlist_progress" = "Плейлист %@ завершен на %d%%";
 "voiceover_unknown_title" = "Без названия";
 "voiceover_unknown_author" = "Неизвестный автор";
 "voiceover_book_info" = "%@, %@";

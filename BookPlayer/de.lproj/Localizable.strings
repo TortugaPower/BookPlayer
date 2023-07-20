@@ -126,11 +126,11 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Kein Titel angegeben";
 "voiceover_no_author" = "Kein Autor angegeben";
-"voiceover_book_progress" = "%@ von %@, %d% abgeschlossen, Dauer: %@";
+"voiceover_book_progress" = "%@ von %@, %d%% abgeschlossen, Dauer: %@";
 "voiceover_no_file_title" = "Datei ohne Titel";
 "voiceover_no_file_subtitle" = "Datei ohne Untertitel";
 "voiceover_no_playlist_title" = "Kein Ordnertitel";
-"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d% abgeschlossen";
+"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d%% abgeschlossen";
 "voiceover_unknown_title" = "Unbekannter Titel";
 "voiceover_unknown_author" = "Unbekannter Autor";
 "voiceover_book_info" = "%@ von %@";

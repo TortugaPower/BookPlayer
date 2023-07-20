@@ -130,7 +130,7 @@
 "voiceover_no_file_title" = "A fájlnak nincs címe";
 "voiceover_no_file_subtitle" = "A fájlnak nincsen felirata";
 "voiceover_no_playlist_title" = "Nincs mappa címe";
-"voiceover_playlist_progress" = "%@, lejátszólista, %d% meghallgatva";
+"voiceover_playlist_progress" = "%@, lejátszólista, %d%% meghallgatva";
 "voiceover_unknown_title" = "Ismeretlen cím";
 "voiceover_unknown_author" = "Ismeretlen szerző";
 "voiceover_book_info" = "%@ - %@";
