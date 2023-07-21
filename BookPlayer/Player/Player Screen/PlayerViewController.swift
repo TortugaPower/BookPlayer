@@ -42,8 +42,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   @IBOutlet weak var containerPlayerControlsStackView: UIStackView!
   @IBOutlet weak var containerChapterControlsStackView: UIStackView!
   @IBOutlet weak var containerProgressControlsStackView: UIStackView!
-  @IBOutlet weak var aspectRatioConstraint: NSLayoutConstraint!
-  @IBOutlet weak var artworkHeightConstraint: NSLayoutConstraint!
   private var themedStatusBarStyle: UIStatusBarStyle?
   private var panGestureRecognizer: UIPanGestureRecognizer!
   private let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -51,6 +49,9 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
+
+  /// Reference to displayed alert, to update the message label with the ongoing timer
+  weak var sleepTimerAlert: UIAlertController?
 
   // computed properties
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -61,14 +62,6 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   // MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
-
-    if UIDevice.current.userInterfaceIdiom != .phone {
-      artworkHeightConstraint.priority = .defaultHigh
-      aspectRatioConstraint.priority = .defaultLow
-    } else {
-      artworkHeightConstraint.priority = .defaultLow
-      aspectRatioConstraint.priority = .defaultHigh
-    }
 
     setup()
 
@@ -318,12 +311,12 @@ extension PlayerViewController {
   }
 
   func bindTimerObserver() {
-    SleepTimer.shared.timeLeftFormatted.sink { [weak self] timeFormatted in
-      guard let self = self else { return }
+    viewModel.toolbarSleepDescriptionPublisher().sink { [weak self] toolbarDescription in
+      guard let self else { return }
 
-      self.sleepLabel.title = timeFormatted
+      self.sleepLabel.title = toolbarDescription
 
-      if let timeFormatted = timeFormatted {
+      if let timeFormatted = toolbarDescription {
         self.sleepLabel.isAccessibilityElement = true
         let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted))
         self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
@@ -340,6 +333,10 @@ extension PlayerViewController {
           self.updateToolbar(false, animated: true)
         }
       }
+    }.store(in: &disposeBag)
+
+    viewModel.sleepAlertMessagePublisher().sink { [weak self] alertMessage in
+      self?.sleepTimerAlert?.message = alertMessage
     }.store(in: &disposeBag)
   }
 
@@ -462,7 +459,7 @@ extension PlayerViewController {
 
   func presentSleepTimerAlert(_ content: BPAlertContent) {
     let alert = buildAlert(content)
-    SleepTimer.shared.alert = alert
+    sleepTimerAlert = alert
 
     alert.popoverPresentationController?.permittedArrowDirections = .any
     alert.popoverPresentationController?.barButtonItem = sleepButton
@@ -479,13 +476,16 @@ extension PlayerViewController {
 
     let datePicker = UIDatePicker()
     datePicker.datePickerMode = .countDownTimer
+    if let customTimerDuration = viewModel.getLastCustomSleepTimerDuration() {
+      datePicker.countDownDuration = customTimerDuration
+    }
     customTimerAlert.view.addSubview(datePicker)
     customTimerAlert.addAction(
       UIAlertAction(
         title: "ok_button".localized,
         style: .default,
         handler: { [weak self] _ in
-          self?.viewModel.handleSleepTimerOptions(seconds: datePicker.countDownDuration)
+          self?.viewModel.handleCustomSleepTimerOption(seconds: datePicker.countDownDuration)
         }
       )
     )

@@ -126,7 +126,7 @@
 "pause_title" = "Pauze";
 "voiceover_no_title" = "Geen titel";
 "voiceover_no_author" = "Geen auteur";
-"voiceover_book_progress" = "%@ door %@ , %d procent voltooid";
+"voiceover_book_progress" = "%@ door %@ , %d procent voltooid, duur: %@";
 "voiceover_no_file_title" = "Geen bestandstitel";
 "voiceover_no_file_subtitle" = "Geen ondertitel bestand";
 "voiceover_no_playlist_title" = "Geen maptitel";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nieuw boekvolume";
 "bound_books_create_alert_description" = "Zorg ervoor dat de artikelen in de juiste volgorde staan. Om hoofdstukken later opnieuw te ordenen, moet u het volume weer in een map omzetten, items opnieuw ordenen en vervolgens het volume opnieuw maken.";
 "bound_books_create_alert_title" = "Een volume maken";
-"voiceover_bound_books_progress" = "%@, Volume, %d procent Voltooid";
+"voiceover_bound_books_progress" = "%@, volume, %d procent voltooid, duur %@";
 "voiceover_no_bound_books_title" = "Geen volumetitel";
 "default_title" = "Standaard";
 "voiceover_default_speed_title" = "Standaardsnelheid instellen";

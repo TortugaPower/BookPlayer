@@ -138,22 +138,16 @@ class ActionParserService {
 
     switch seconds {
     case -1:
-      SleepTimer.shared.reset()
+      SleepTimer.shared.setTimer(.off)
     case -2:
-      SleepTimer.shared.sleep(in: .endChapter)
+      SleepTimer.shared.setTimer(.endOfChapter)
     default:
-      SleepTimer.shared.sleep(in: seconds)
+      SleepTimer.shared.setTimer(.countdown(seconds))
     }
   }
 
   private class func handlePauseAction(_ action: Action) {
-    guard
-      let playerManager = AppDelegate.shared?.playerManager
-    else {
-      return
-    }
-
-    playerManager.pause(fade: false)
+    AppDelegate.shared?.playerManager?.pause()
   }
 
   private class func handlePlayAction(_ action: Action) {

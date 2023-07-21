@@ -24,10 +24,10 @@ public protocol PlayerManagerProtocol {
   func hasLoadedBook() -> Bool
 
   func playPreviousItem()
-  func playNextItem(autoPlayed: Bool)
+  func playNextItem(autoPlayed: Bool, shouldAutoplay: Bool)
   func play()
   func playPause()
-  func pause(fade: Bool)
+  func pause()
   func stop()
   func rewind()
   func forward()
@@ -48,6 +48,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
+  private let shakeMotionService: ShakeMotionServiceProtocol
 
   private var audioPlayer = AVPlayer()
 
@@ -58,6 +59,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
+  private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
@@ -90,17 +92,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
-    speedService: SpeedServiceProtocol
+    speedService: SpeedServiceProtocol,
+    shakeMotionService: ShakeMotionServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
+    self.shakeMotionService = shakeMotionService
     super.init()
 
     setupPlayerInstance()
+    bindObservers()
+  }
 
+  func bindObservers() {
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(playerDidFinishPlaying(_:)),
@@ -114,6 +121,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       name: AVAudioSession.mediaServicesWereResetNotification,
       object: nil
     )
+
+    SleepTimer.shared.countDownThresholdPublisher.sink { [weak self] _ in
+      self?.handleSleepTimerThresholdEvent()
+    }.store(in: &disposeBag)
+
+    SleepTimer.shared.timerEndedPublisher.sink { [weak self] state in
+      self?.handleSleepTimerEndEvent(state)
+    }.store(in: &disposeBag)
   }
 
   func setupPlayerInstance() {
@@ -641,6 +656,7 @@ extension PlayerManager {
     self.handleSmartRewind(currentItem)
 
     self.fadeTimer?.invalidate()
+    self.shakeMotionService.stopMotionUpdates()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
@@ -722,7 +738,7 @@ extension PlayerManager {
   }
   // swiftlint:enable block_based_kvo
 
-  func pause(fade: Bool) {
+  func pause() {
     guard let currentItem = self.currentItem else { return }
 
     self.observeStatus = false
@@ -731,32 +747,23 @@ extension PlayerManager {
 
     self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
-    let pauseActionBlock: () -> Void = { [weak self] in
-      self?.bindPauseObserver()
-      // Set pause state on player and control center
-      self?.audioPlayer.pause()
-      self?.playbackQueued = nil
-      self?.loadChapterTask?.cancel()
-      self?.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-      self?.setNowPlayingBookTime()
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = self?.nowPlayingInfo
-    }
-
     NotificationCenter.default.post(name: .bookPaused, object: nil)
 
-    guard fade else {
-      pauseActionBlock()
-      return
-    }
-
-    self.fadeTimer = self.audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: pauseActionBlock)
+    bindPauseObserver()
+    // Set pause state on player and control center
+    audioPlayer.pause()
+    playbackQueued = nil
+    loadChapterTask?.cancel()
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+    setNowPlayingBookTime()
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }
 
   // Toggle play/pause of book
   func playPause() {
     // Pause player if it's playing
     if self.audioPlayer.timeControlStatus == .playing || playbackQueued == true {
-      self.pause(fade: false)
+      self.pause()
     } else {
       self.play()
     }
@@ -811,7 +818,7 @@ extension PlayerManager {
     load(previousBook, autoplay: true)
   }
 
-  func playNextItem(autoPlayed: Bool = false) {
+  func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
     /// If it's autoplayed, check if setting is enabled
     if autoPlayed,
        !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled) {
@@ -837,32 +844,29 @@ extension PlayerManager {
       updatePlaybackTime(item: nextBook, time: 0)
     }
 
-    load(nextBook, autoplay: true)
+    load(nextBook, autoplay: shouldAutoplay)
   }
 
   @objc
   func playerDidFinishPlaying(_ notification: Notification) {
     guard let currentItem = self.currentItem else { return }
 
-    // Stop book/chapter change if the EOC sleep timer is active
-    if SleepTimer.shared.isEndChapterActive() {
-      NotificationCenter.default.post(name: .bookEnd, object: nil)
-      return
-    }
+    let endOfChapterActive = SleepTimer.shared.state == .endOfChapter
 
     if currentItem.chapters.last == currentItem.currentChapter {
       self.libraryService.setLibraryLastBook(with: nil)
 
       self.markAsCompleted(true)
 
-      self.playNextItem(autoPlayed: true)
-      return
+      self.playNextItem(autoPlayed: true, shouldAutoplay: !endOfChapterActive)
+
+      NotificationCenter.default.post(name: .bookEnd, object: nil)
     } else if currentItem.isBoundBook {
       updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
       /// Load next chapter
       guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
       currentItem.currentChapter = nextChapter
-      loadChapterMetadata(nextChapter, autoplay: true)
+      loadChapterMetadata(nextChapter, autoplay: !endOfChapterActive)
     }
   }
 
@@ -921,6 +925,29 @@ extension PlayerManager {
       AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
         .getTopController()?
         .showAlert("error_title".localized, message: message)
+    }
+  }
+}
+
+// MARK: - Sleep timer
+extension PlayerManager {
+  private func handleSleepTimerThresholdEvent() {
+    fadeTimer = audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: {})
+    bindShakeObserver()
+  }
+
+  private func handleSleepTimerEndEvent(_ state: SleepTimerState) {
+    pause()
+
+    if state == .endOfChapter {
+      bindShakeObserver()
+    }
+  }
+
+  private func bindShakeObserver() {
+    shakeMotionService.observeFirstShake { [weak self] in
+      SleepTimer.shared.restartTimer()
+      self?.play()
     }
   }
 }

@@ -126,11 +126,11 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Kein Titel angegeben";
 "voiceover_no_author" = "Kein Autor angegeben";
-"voiceover_book_progress" = "%@ von %@, %d% abgeschlossen";
+"voiceover_book_progress" = "%@ von %@, %d%% abgeschlossen, Dauer: %@";
 "voiceover_no_file_title" = "Datei ohne Titel";
 "voiceover_no_file_subtitle" = "Datei ohne Untertitel";
 "voiceover_no_playlist_title" = "Kein Ordnertitel";
-"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d% abgeschlossen";
+"voiceover_playlist_progress" = "%@, Wiedergabeliste, %d%% abgeschlossen";
 "voiceover_unknown_title" = "Unbekannter Titel";
 "voiceover_unknown_author" = "Unbekannter Autor";
 "voiceover_book_info" = "%@ von %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Neuer Band";
 "bound_books_create_alert_description" = "Achte darauf, dass alle Kapitel in der richtigen Reihenfolge vorliegen. Um Kapitel neu zu sortieren, kannst du den Band wieder in einen Ordner konvertieren, dort die Kapitel neu anordnen und dann wieder einen Band erstellen.";
 "bound_books_create_alert_title" = "Band erstellen";
-"voiceover_bound_books_progress" = "%@, Band, %d Prozent gehört";
+"voiceover_bound_books_progress" = "%@, Band, %d Prozent gehört, Dauer %@";
 "voiceover_no_bound_books_title" = "Band ohne Titel";
 "default_title" = "Standard";
 "voiceover_default_speed_title" = "Standardgeschwindigkeit einstellen";

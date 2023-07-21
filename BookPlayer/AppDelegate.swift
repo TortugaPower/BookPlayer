@@ -162,7 +162,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         libraryService: libraryService,
         playbackService: playbackService,
         syncService: syncService,
-        speedService: SpeedService(libraryService: libraryService)
+        speedService: SpeedService(libraryService: libraryService),
+        shakeMotionService: ShakeMotionService()
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -269,7 +270,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     switch type {
     case .began:
       if playerManager.isPlaying {
-        playerManager.pause(fade: false)
+        playerManager.pause()
       }
     case .ended:
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -325,7 +326,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     MPRemoteCommandCenter.shared().pauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = self?.playerManager else { return .commandFailed }
 
-      playerManager.pause(fade: false)
+      playerManager.pause()
       return .success
     }
 

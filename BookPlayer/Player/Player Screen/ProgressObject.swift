@@ -25,6 +25,12 @@ struct ProgressObject {
   var formattedMaxTime: String? {
     guard let maxTime = self.maxTime else { return nil }
 
-    return TimeParser.formatTime(maxTime)
+    let formattedTime = TimeParser.formatTime(abs(maxTime))
+
+    if maxTime < 0 {
+      return "-".appending(formattedTime)
+    } else {
+      return formattedTime
+    }
   }
 }

@@ -110,7 +110,7 @@
 "sleep_off_title" = "Spegni";
 "sleep_interval_title" = "In %@";
 "chapter_number_title" = "Capitolo %d";
-"progress_complete_description" = "%d% Completato";
+"progress_complete_description" = "%d%% Completato";
 "chapter_duration_title" = "Durata capitolo:";
 "chapter_time_remaining_title" = "Tempo rimanente del capitolo:";
 "book_time_remaining_title" = "Tempo rimanente del libro:";
@@ -126,11 +126,11 @@
 "pause_title" = "Pausa";
 "voiceover_no_title" = "Nessun titolo";
 "voiceover_no_author" = "Nessun autore";
-"voiceover_book_progress" = "%@ di %@, %d% completato";
+"voiceover_book_progress" = "%@ di %@ , %d percento completato, durata: %@";
 "voiceover_no_file_title" = "Nessun titolo del file";
 "voiceover_no_file_subtitle" = "Nessun sottotitolo del file";
 "voiceover_no_playlist_title" = "Nessun titolo della cartella";
-"voiceover_playlist_progress" = "%@, Cartella, %d% completato";
+"voiceover_playlist_progress" = "%@, Cartella, %d%% completato";
 "voiceover_unknown_title" = "Titolo sconosciuto";
 "voiceover_unknown_author" = "Autore sconosciuto";
 "voiceover_book_info" = "%@ di %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nuovo volume del libro";
 "bound_books_create_alert_description" = "Assicurati che gli articoli siano nell'ordine corretto. Per riordinare i capitoli in un secondo momento è necessario riconvertire il volume in una cartella, riordinare gli elementi e quindi ricreare il volume.";
 "bound_books_create_alert_title" = "Crea un volume";
-"voiceover_bound_books_progress" = "%@, Volume, %d percento completato";
+"voiceover_bound_books_progress" = "%@, Volume, %d percento completato, durata %@";
 "voiceover_no_bound_books_title" = "Nessun titolo del volume";
 "default_title" = "Default";
 "voiceover_default_speed_title" = "Imposta la velocità predefinita";

@@ -82,8 +82,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
     self.addSubview(self.contentView)
 
-    self.contentView.frame = self.bounds
-    self.contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    self.contentView.translatesAutoresizingMaskIntoConstraints = false
 
     // View & Subviews
     self.layer.shadowColor = UIColor.black.cgColor
@@ -117,7 +116,19 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     : UIScreen.main.bounds.size
 
     self.setupGradients(with: size)
+    self.setupConstraints()
     self.setUpTheming()
+  }
+
+  func setupConstraints() {
+    let safeLayoutGuide = safeAreaLayoutGuide
+
+    NSLayoutConstraint.activate([
+      contentView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
+      contentView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
+      contentView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
+      contentView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
+    ])
   }
 
   private func setupAirplayView() {
@@ -170,7 +181,7 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
       }
     )
     self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService().playerMetaText(
+    self.artworkOverlay.accessibilityLabel = VoiceOverService.playerMetaText(
       title: title,
       author: author
     )
