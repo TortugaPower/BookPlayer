@@ -94,7 +94,11 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.currentTime = currentTime
     self.duration = duration
     self.durationFormatted = TimeParser.formatTotalDuration(duration)
-    self.percentCompleted = percentCompleted
+    if percentCompleted.isNaN || percentCompleted.isInfinite {
+      self.percentCompleted = 0
+    } else {
+      self.percentCompleted = percentCompleted
+    }
     self.isFinished = isFinished
     self.relativePath = relativePath
     self.remoteURL = remoteURL
@@ -115,7 +119,11 @@ extension SimpleLibraryItem {
     self.currentTime = item.currentTime
     self.duration = item.duration
     self.durationFormatted = TimeParser.formatTotalDuration(item.duration)
-    self.percentCompleted = item.percentCompleted
+    if item.percentCompleted.isNaN || item.percentCompleted.isInfinite {
+      self.percentCompleted = 0
+    } else {
+      self.percentCompleted = item.percentCompleted
+    }
     self.isFinished = item.isFinished
     self.relativePath = item.relativePath
     self.remoteURL = item.remoteURL
