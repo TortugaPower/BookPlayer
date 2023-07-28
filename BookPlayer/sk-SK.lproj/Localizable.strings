@@ -7,13 +7,13 @@
 "settings_smartrewind_description" = "Po prerušení počúvania na 10 minút dôjde k pretočeniu späť o 30 sekúnd.";
 "settings_boostvolume_title" = "Zvýšenie hlasitosti";
 "settings_boostvolume_description" = "Zdvojnásobí hlasitosť prehrávania.\nPoužívajte opatrne a chráňte si svoj sluch.";
-"settings_globalspeed_title" = "Globálne ovládanie rýchlosti prehrávania";
+"settings_globalspeed_title" = "Globálne ovládanie rýchlosti";
 "settings_globalspeed_description" = "Nastaví rýchlosť prehrávania pre všetky audioknihy.";
 "settings_autolock_title" = "Zakázať automatické uzamknutie";
 "settings_autolock_description" = "Zabráni uzamknutiu zariadenia pri zobrazení Prehrávača.";
 "settings_siri_lastplayed_title" = "Naposledy prehrávaná audiokniha";
 "settings_siri_lastplayed_description" = "Pre pokračovanie počúvania poslednej audioknihy použite Siri.";
-"settings_skip_title" = "INTERVALY PRETÁČANIA";
+"settings_skip_title" = "INTERVALY PRESKOČENIA";
 "settings_skip_rewind_title" = "Dozadu";
 "settings_skip_forward_title" = "Dopredu";
 "settings_skip_description" = "Úprava časového intervalu preskočenia pri použití tlačidiel v Prehrávači alebo Ovládacom centre.";
@@ -47,8 +47,8 @@
 "move_library_button" = "Presunúť do Knižnice";
 "options_button" = "Možnosti";
 "select_playlist_title" = "Vyberte položku Priečinok";
-"title_button" = "Názvu";
-"sort_filename_button" = "Pôvodného názvu súboru";
+"title_button" = "názvu";
+"sort_filename_button" = "pôvodného názvu súboru";
 "sort_title" = "Zoradiť položky podľa";
 "cancel_button" = "Zrušiť";
 "seconds_title" = "sek.";
@@ -159,7 +159,7 @@
 "voiceover_miniplayer_hint" = "Miniprehrávač. Ťuknite pre zobrazenie Prehrávača";
 "voiceover_chapter_time_title" = "Dĺžka aktuálnej kapitoly: %@";
 "voiceover_dismiss_player_title" = "Zavrieť prehrávač";
-"sort_most_recent_button" = "Najnovšie";
+"sort_most_recent_button" = "najnovších";
 "sort_reversed_button" = "Opačné poradie";
 "voiceover_continue_playback_title" = "Pokračovať v prehrávaní";
 "coredata_error_diskfull_description" = "Knižnicu sa nepodarilo načítať. V zariadení nie je dostatok miesta na disku.";
@@ -228,9 +228,9 @@
 "cancel_download_title" = "Zrušiť sťahovanie";
 "remove_downloaded_file_title" = "Odstrániť zo zariadenia";
 "download_from_url_title" = "Stiahnuť z adresy URL";
-"done_title" = "hotový";
-"select_title" = "Vyberte";
-"sort_button_title" = "Triediť";
+"done_title" = "Hotovo";
+"select_title" = "Výber";
+"sort_button_title" = "Zoradiť podľa";
 "search_title" = "Vyhľadávanie";
 "books_title" = "knihy";
 "folders_title" = "Priečinky";
@@ -283,6 +283,6 @@
 Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
 
 Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";
-"sort_by_size_title" = "Veľkosť";
+"sort_by_size_title" = "veľkosti";
 "settings_storage_sync_deleted_description" = "Súbory boli odstránené (operácie synchronizácie)";
 "storage_sync_deleted_recover_description" = "Miestne knihy a priečinky môžete importovať späť, ak boli odstránené operáciou synchronizácie. Tým sa všetky presunú späť do priečinka dokumentov, čím sa spustí proces importu. Ak ide o priečinky, môže to znamenať, že originály sú stále v knižnici a bude potrebné vykonať určité premenovanie, ospravedlňujeme sa za túto nepríjemnosť";
