@@ -639,7 +639,13 @@ extension PlayerManager {
     self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
     do {
-      try AVAudioSession.sharedInstance().setActive(true)
+      let audioSession = AVAudioSession.sharedInstance()
+      try audioSession.setCategory(
+        AVAudioSession.Category.playback,
+        mode: .spokenAudio,
+        options: []
+      )
+      try audioSession.setActive(true)
     } catch {
       fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
     }
