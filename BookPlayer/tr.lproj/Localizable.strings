@@ -126,11 +126,11 @@
 "pause_title" = "Duraklat";
 "voiceover_no_title" = "Başlık Yok";
 "voiceover_no_author" = "Yazar Yok";
-"voiceover_book_progress" = "%@ tarafından %@, yüzde %d tamamlandı, süre: %@";
+"voiceover_book_progress" = "%@ tarafından %@, yüzde %.0f tamamlandı, süre: %@";
 "voiceover_no_file_title" = "Dosya Başlığı Yok";
 "voiceover_no_file_subtitle" = "Dosya Altyazısı Yok";
 "voiceover_no_playlist_title" = "Klasör Başlığı Yok";
-"voiceover_playlist_progress" = "%@, Oynatma Listesi, yüzde %d tamamlandı";
+"voiceover_playlist_progress" = "%@, Oynatma Listesi, yüzde %.0f tamamlandı";
 "voiceover_unknown_title" = "Bilinmeyen başlık";
 "voiceover_unknown_author" = "Bilinmeyen yazar";
 "voiceover_book_info" = "%@ ( Yazar: %@ )";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Yeni Kitap Hacmi";
 "bound_books_create_alert_description" = "Öğelerin doğru sırada olduğundan emin olun. Bölümleri daha sonra yeniden sıralamak için birimi tekrar bir klasöre dönüştürmeniz, öğeleri yeniden sıralamanız ve ardından birimi yeniden oluşturmanız gerekir.";
 "bound_books_create_alert_title" = "Birim oluştur";
-"voiceover_bound_books_progress" = "%@, Cilt, %d yüzde Tamamlandı, süre %@";
+"voiceover_bound_books_progress" = "%@, Cilt, %.0f yüzde Tamamlandı, süre %@";
 "voiceover_no_bound_books_title" = "Cilt Başlığı Yok";
 "default_title" = "Varsayılan";
 "voiceover_default_speed_title" = "Varsayılan hızı ayarla";

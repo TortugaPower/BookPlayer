@@ -126,11 +126,11 @@
 "pause_title" = "暂停";
 "voiceover_no_title" = "未知标题";
 "voiceover_no_author" = "未知作者";
-"voiceover_book_progress" = "%@之%@ %d已完成，持续时间： %@";
+"voiceover_book_progress" = "%@之%@ %.0f已完成，持续时间： %@";
 "voiceover_no_file_title" = "没有文件标题";
 "voiceover_no_file_subtitle" = "没有文件副标题";
 "voiceover_no_playlist_title" = "没有文件夹标题";
-"voiceover_playlist_progress" = "%@播放列表%d已完成";
+"voiceover_playlist_progress" = "%@播放列表%.0f已完成";
 "voiceover_unknown_title" = "未知标题";
 "voiceover_unknown_author" = "未知作者";
 "voiceover_book_info" = "%@之%@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "新的书卷";
 "bound_books_create_alert_description" = "确保有声书文件的顺序正确。如果以后要重新安排章节的顺序，你需要把书卷转换回文件夹，重新安排文件顺序，然后重新创建书卷。";
 "bound_books_create_alert_title" = "创建一个卷";
-"voiceover_bound_books_progress" = "%@, 体积, %d%% 已完成, 持续时间 %@";
+"voiceover_bound_books_progress" = "%@, 体积, %.0f%% 已完成, 持续时间 %@";
 "voiceover_no_bound_books_title" = "没有书卷名";
 "default_title" = "默认";
 "voiceover_default_speed_title" = "设置默认速度";
