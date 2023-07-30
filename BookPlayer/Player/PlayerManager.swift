@@ -799,11 +799,13 @@ extension PlayerManager {
   func markAsCompleted(_ flag: Bool) {
     guard let currentItem = self.currentItem else { return }
 
-    self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
+    self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
       libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
     }
+
+    currentItem.isFinished = flag
 
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
