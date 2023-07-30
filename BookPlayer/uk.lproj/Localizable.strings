@@ -126,11 +126,11 @@
 "pause_title" = "Пауза";
 "voiceover_no_title" = "Без назви";
 "voiceover_no_author" = "Немає автора";
-"voiceover_book_progress" = "%@ від %@ , виконано %d відсотків, тривалість: %@";
+"voiceover_book_progress" = "%@ від %@ , виконано %.0f відсотків, тривалість: %@";
 "voiceover_no_file_title" = "Немає імені файлу";
 "voiceover_no_file_subtitle" = "Відсутній підзаголовок файлу";
 "voiceover_no_playlist_title" = "Назва теки відсутня";
-"voiceover_playlist_progress" = "%@, тека, відтворена на %d%%";
+"voiceover_playlist_progress" = "%@, тека, відтворена на %.0f%%";
 "voiceover_unknown_title" = "Невідома назва";
 "voiceover_unknown_author" = "Невідомий автор";
 "voiceover_book_info" = "%@ з %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Новий том книги";
 "bound_books_create_alert_description" = "Переконайтеся, що елементи розташовані в правильному порядку. Щоб змінити порядок розділів, вам потрібно перетворити том назад у теку та переставити елементи, а потім знову створити том.";
 "bound_books_create_alert_title" = "Створіть том";
-"voiceover_bound_books_progress" = "%@, обсяг, %d відсоток завершено, тривалість %@";
+"voiceover_bound_books_progress" = "%@, обсяг, %.0f відсоток завершено, тривалість %@";
 "voiceover_no_bound_books_title" = "Том без заголовка";
 "default_title" = "За замовчуванням";
 "voiceover_default_speed_title" = "Встановити швидкість за замовчуванням";

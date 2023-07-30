@@ -126,11 +126,11 @@
 "pause_title" = "Keskeytä";
 "voiceover_no_title" = "Ei otsikkoa";
 "voiceover_no_author" = "Ei kirjailijaa";
-"voiceover_book_progress" = "%@ kirjoittaja %@ , %d prosenttia valmis, kesto: %@";
+"voiceover_book_progress" = "%@ kirjoittaja %@ , %.0f prosenttia valmis, kesto: %@";
 "voiceover_no_file_title" = "Ei tiedoston otsikkoa";
 "voiceover_no_file_subtitle" = "Ei tiedoston alaotsikkoa";
 "voiceover_no_playlist_title" = "Ei kansion otsikkoa";
-"voiceover_playlist_progress" = "%@ , soittolista, %d prosenttia valmis";
+"voiceover_playlist_progress" = "%@ , soittolista, %.0f prosenttia valmis";
 "voiceover_unknown_title" = "Tuntematon nimike";
 "voiceover_unknown_author" = "Tuntematon kirjailija";
 "voiceover_book_info" = "%@ kirjoittaja %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Uusi kirja";
 "bound_books_create_alert_description" = "Varmista, että kohteet ovat oikeassa järjestyksessä. Jos haluat uudelleenjärjestää kappaleet myöhemmin, sinun on muutettava kirja takaisin kansioksi, uudelleenjärjestettävä kohteet ja luotava kirja uudelleen.";
 "bound_books_create_alert_title" = "Luo kirja";
-"voiceover_bound_books_progress" = "%@, määrä, %d prosenttia valmis, kesto %@";
+"voiceover_bound_books_progress" = "%@, määrä, %.0f prosenttia valmis, kesto %@";
 "voiceover_no_bound_books_title" = "Ei kirjan otsikkoa";
 "default_title" = "Oletus";
 "voiceover_default_speed_title" = "Aseta oletusnopeus";

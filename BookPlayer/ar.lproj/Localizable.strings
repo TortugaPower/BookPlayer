@@ -126,11 +126,11 @@
 "pause_title" = "ايقاف";
 "voiceover_no_title" = "لا يوجد عنوان";
 "voiceover_no_author" = "لا يوجد كاتب";
-"voiceover_book_progress" = "%@ من %@ ، اكتمل %d في المائة ، المدة: %@";
+"voiceover_book_progress" = "%@ من %@ ، اكتمل %.0f في المائة ، المدة: %@";
 "voiceover_no_file_title" = "لا يوجد عنوان ملف";
 "voiceover_no_file_subtitle" = "لا يوجد ملف الترجمة";
 "voiceover_no_playlist_title" = "لا يوجد عنوان مجلد";
-"voiceover_playlist_progress" = "%@ ، قائمة التشغيل ، اكتمل %d بالمائة";
+"voiceover_playlist_progress" = "%@ ، قائمة التشغيل ، اكتمل %.0f بالمائة";
 "voiceover_unknown_title" = "عنوان غير معروف";
 "voiceover_unknown_author" = "كاتب غير معروف";
 "voiceover_book_info" = "%@ بواسطة %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "حجم الكتاب الجديد";
 "bound_books_create_alert_description" = "تأكد من أن العناصر في الترتيب الصحيح. لإعادة ترتيب الفصول لاحقًا ، تحتاج إلى تحويل وحدة التخزين مرة أخرى إلى مجلد ، وإعادة ترتيب العناصر ثم إعادة إنشاء المجلد.";
 "bound_books_create_alert_title" = "إنشاء وحدة تخزين";
-"voiceover_bound_books_progress" = "%@ ، وحدة التخزين ، %d مكتمل ، المدة %@";
+"voiceover_bound_books_progress" = "%@ ، وحدة التخزين ، %.0f مكتمل ، المدة %@";
 "voiceover_no_bound_books_title" = "لا يوجد عنوان وحدة التخزين";
 "default_title" = "محددة مسبقا";
 "voiceover_default_speed_title" = "ضبط السرعة الافتراضية";
