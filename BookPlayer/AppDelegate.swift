@@ -63,12 +63,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
     }
 
-    try? AVAudioSession.sharedInstance().setCategory(
-      AVAudioSession.Category.playback,
-      mode: .spokenAudio,
-      options: []
-    )
-
     // register to audio-interruption notifications
     NotificationCenter.default.addObserver(
       self,

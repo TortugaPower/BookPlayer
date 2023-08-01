@@ -639,7 +639,13 @@ extension PlayerManager {
     self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
     do {
-      try AVAudioSession.sharedInstance().setActive(true)
+      let audioSession = AVAudioSession.sharedInstance()
+      try audioSession.setCategory(
+        AVAudioSession.Category.playback,
+        mode: .spokenAudio,
+        options: []
+      )
+      try audioSession.setActive(true)
     } catch {
       fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
     }
@@ -793,11 +799,13 @@ extension PlayerManager {
   func markAsCompleted(_ flag: Bool) {
     guard let currentItem = self.currentItem else { return }
 
-    self.libraryService.markAsFinished(flag: true, relativePath: currentItem.relativePath)
+    self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
       libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
     }
+
+    currentItem.isFinished = flag
 
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }

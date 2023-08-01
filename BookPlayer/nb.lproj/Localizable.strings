@@ -126,11 +126,11 @@
 "pause_title" = "Pause";
 "voiceover_no_title" = "Uten tittel";
 "voiceover_no_author" = "Ingen forfatter";
-"voiceover_book_progress" = "%@ av %@, %d prosent fullført, varighet: %@";
+"voiceover_book_progress" = "%@ av %@, %.0f prosent fullført, varighet: %@";
 "voiceover_no_file_title" = "Ingen filtittel";
 "voiceover_no_file_subtitle" = "Ingen filundertittel";
 "voiceover_no_playlist_title" = "Ingen mappetittel";
-"voiceover_playlist_progress" = "%@, mappe, %d prosent fullført";
+"voiceover_playlist_progress" = "%@, mappe, %.0f prosent fullført";
 "voiceover_unknown_title" = "Ukjent tittel";
 "voiceover_unknown_author" = "Ukjent forfatter";
 "voiceover_book_info" = "%@ av %@";
@@ -195,7 +195,7 @@
 "bound_books_new_title_placeholder" = "Nytt volum";
 "bound_books_create_alert_description" = "Kontroller at elementene er i riktig rekkefølge. For å omorganisere kapitler senere må du konvertere volumet tilbake til en mappe, omorganisere elementer og deretter opprette volumet på nytt.";
 "bound_books_create_alert_title" = "Opprette et volum";
-"voiceover_bound_books_progress" = "%@ , Volum, %d prosent fullført, varighet %@";
+"voiceover_bound_books_progress" = "%@ , Volum, %.0f prosent fullført, varighet %@";
 "voiceover_no_bound_books_title" = "Ingen volumtittel";
 "default_title" = "Standard";
 "voiceover_default_speed_title" = "Angi standardhastighet";

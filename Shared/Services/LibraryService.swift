@@ -291,6 +291,9 @@ public final class LibraryService: LibraryServiceProtocol {
       /// Patch for optional CoreData properties until we migrate to Realm
       if dictionary["details"] == nil {
         self?.rebuildFolderDetails(relativePath)
+      } else if type == .folder &&
+                  (percentCompleted.isNaN || percentCompleted.isInfinite) {
+        self?.rebuildFolderDetails(relativePath)
       }
 
       return SimpleLibraryItem(

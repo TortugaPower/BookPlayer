@@ -11,20 +11,20 @@ class VoiceOverService {
         "voiceover_book_progress".localized,
         item.title,
         item.details,
-        Int(item.percentCompleted),
+        item.percentCompleted,
         item.durationFormatted
       )
     case .folder:
       return String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
         item.title,
-        Int(item.percentCompleted)
+        item.percentCompleted
       )
     case .bound:
       return String.localizedStringWithFormat(
         "voiceover_bound_books_progress".localized,
         item.title,
-        Int(item.percentCompleted),
+        item.percentCompleted,
         item.durationFormatted
       )
     }
