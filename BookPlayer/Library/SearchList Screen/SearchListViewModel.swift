@@ -42,7 +42,7 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
   /// Cached path for containing folder of playing item in relation to this list path
   private var playingItemParentPath: String?
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
   private var disposeBag = Set<AnyCancellable>()
 
   /// Initializer

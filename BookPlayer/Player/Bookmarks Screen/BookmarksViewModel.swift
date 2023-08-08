@@ -23,7 +23,7 @@ class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
   var userBookmarks = [SimpleBookmark]()
 
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
   let reloadDataPublisher = PassthroughSubject<Bool, Never>()
   private var disposeBag = Set<AnyCancellable>()
 

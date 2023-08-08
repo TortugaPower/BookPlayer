@@ -108,7 +108,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   /// Callback to handle actions on this screen
-  var onTransition: Transition<Routes>?
+  var onTransition: BPTransition<Routes>?
   var storageAlert: BPStorageAlert = .none
 
   lazy var library: Library = {

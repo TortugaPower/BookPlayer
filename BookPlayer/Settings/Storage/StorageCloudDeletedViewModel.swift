@@ -41,7 +41,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
   @Published var showAlert: Bool = false
   @Published var showProgressIndicator: Bool = false
 
-  var onTransition: Transition<Routes>?
+  var onTransition: BPTransition<Routes>?
 
   var alert: Alert {
     switch storageAlert {

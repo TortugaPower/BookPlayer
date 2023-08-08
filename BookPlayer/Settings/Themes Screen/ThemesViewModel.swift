@@ -31,7 +31,7 @@ final class ThemesViewModel {
   }
 
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
   /// Events publisher
   private var eventsPublisher = InterfaceUpdater<ThemesViewModel.Events>()
 
