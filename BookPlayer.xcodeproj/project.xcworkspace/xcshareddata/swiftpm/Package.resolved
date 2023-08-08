@@ -1,0 +1,95 @@
+{
+  "pins" : [
+    {
+      "identity" : "devicekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/devicekit/DeviceKit.git",
+      "state" : {
+        "revision" : "d37e70cb2646666dcf276d7d3d4a9760a41ff8a6",
+        "version" : "4.9.0"
+      }
+    },
+    {
+      "identity" : "directorywatcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GianniCarlo/DirectoryWatcher.git",
+      "state" : {
+        "revision" : "76af69f1d19146b0c5d3e38747bb5eabe547143b",
+        "version" : "2.7.3"
+      }
+    },
+    {
+      "identity" : "idzswiftcommoncrypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iosdevzone/IDZSwiftCommonCrypto.git",
+      "state" : {
+        "revision" : "d824371e670bd57eb456bbc41139b4997f7207b8",
+        "version" : "0.13.1"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "1a0c2df04b31ed7aa318354f3583faea24f006fc",
+        "version" : "5.15.8"
+      }
+    },
+    {
+      "identity" : "marqueelabel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cbpowell/MarqueeLabel.git",
+      "state" : {
+        "revision" : "bc00d4cbff7f6c416035e3d16c21885452cd159e",
+        "version" : "4.3.1"
+      }
+    },
+    {
+      "identity" : "purchases-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RevenueCat/purchases-ios.git",
+      "state" : {
+        "revision" : "ec48897eff464c040bf774741b5f1d5a97053436",
+        "version" : "4.25.1"
+      }
+    },
+    {
+      "identity" : "sentry-cocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/getsentry/sentry-cocoa.git",
+      "state" : {
+        "revision" : "9cf7d2e514af1600cc2b3c5592e2848c6c5a76d6",
+        "version" : "8.7.3"
+      }
+    },
+    {
+      "identity" : "swiftqueue",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lucas34/SwiftQueue.git",
+      "state" : {
+        "revision" : "2757fe47eec085a1cda750fd398ebb4f2a69f3a4",
+        "version" : "6.0.2"
+      }
+    },
+    {
+      "identity" : "themeable",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GianniCarlo/Themeable.git",
+      "state" : {
+        "revision" : "28156cf724c6621be2b8916b0f04d43a763e830a",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "ziparchive",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GianniCarlo/ZipArchive.git",
+      "state" : {
+        "revision" : "57b6c4814fa8608c10bfb059df651e1cba320524",
+        "version" : "2.3.0"
+      }
+    }
+  ],
+  "version" : 2
+}
