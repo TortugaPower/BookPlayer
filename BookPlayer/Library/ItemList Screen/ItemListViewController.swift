@@ -458,7 +458,7 @@ extension ItemListViewController: UITableViewDataSource {
 
     if let artworkURL = item.artworkURL {
       cell.artworkView.kf.setImage(
-        with: ImageResource(downloadURL: artworkURL, cacheKey: item.relativePath),
+        with: KF.ImageResource(downloadURL: artworkURL, cacheKey: item.relativePath),
         placeholder: defaultArtwork,
         options: [.targetCache(ArtworkService.cache)]
       )

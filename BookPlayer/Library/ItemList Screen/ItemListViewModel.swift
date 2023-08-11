@@ -103,7 +103,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     return libraryService.getItemProperty(
-      #keyPath(LibraryItem.title),
+      #keyPath(BookPlayerKit.LibraryItem.title),
       relativePath: folderRelativePath
     ) as? String
     ?? ""
@@ -1013,7 +1013,9 @@ extension ItemListViewModel {
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
     } else if let relativePath = itemIdentifiers.first {
-      firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
+      firstTitle = libraryService.getItemProperty(
+        #keyPath(BookPlayerKit.LibraryItem.title), relativePath: relativePath
+      ) as? String
     }
 
     var actions = [BPActionItem]()
