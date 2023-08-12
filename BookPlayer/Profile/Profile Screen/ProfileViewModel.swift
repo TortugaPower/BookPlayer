@@ -35,7 +35,7 @@ class ProfileViewModel: ProfileViewModelProtocol {
   }
 
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
 
   let accountService: AccountServiceProtocol
   let libraryService: LibraryServiceProtocol

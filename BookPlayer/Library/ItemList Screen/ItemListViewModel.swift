@@ -62,7 +62,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   /// Reference to the starting item path for the download tasks (relevant for bound books)
   private lazy var ongoingTasksParentReference = [String: String]()
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
 
   private var disposeBag = Set<AnyCancellable>()
   /// Cached path for containing folder of playing item in relation to this list path
@@ -103,7 +103,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     }
 
     return libraryService.getItemProperty(
-      #keyPath(LibraryItem.title),
+      #keyPath(BookPlayerKit.LibraryItem.title),
       relativePath: folderRelativePath
     ) as? String
     ?? ""
@@ -1013,7 +1013,9 @@ extension ItemListViewModel {
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
     } else if let relativePath = itemIdentifiers.first {
-      firstTitle = libraryService.getItemProperty(#keyPath(LibraryItem.title), relativePath: relativePath) as? String
+      firstTitle = libraryService.getItemProperty(
+        #keyPath(BookPlayerKit.LibraryItem.title), relativePath: relativePath
+      ) as? String
     }
 
     var actions = [BPActionItem]()

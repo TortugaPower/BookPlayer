@@ -24,7 +24,7 @@ class MiniPlayerViewModel {
     case loadItem(relativePath: String, autoplay: Bool, showPlayer: Bool)
   }
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
 
   private let playerManager: PlayerManagerProtocol
   public var currentItemInfo = CurrentValueSubject<Data?, Never>(nil)

@@ -40,7 +40,7 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
   let imageWidth: CGFloat = 35
 
   /// Callback to handle actions on this screen
-  var onTransition: Transition<Routes>?
+  var onTransition: BPTransition<Routes>?
 
   init(
     accountService: AccountServiceProtocol,
