@@ -19,7 +19,7 @@ class BookSortServiceTest: XCTestCase {
     "09 Book 10.txt"
   ]
 
-    var booksByFile: [LibraryItem]?
+    var booksByFile: [BookPlayerKit.LibraryItem]?
 
     override func setUp() {
       let documentsFolder = DataManager.getDocumentsFolderURL()
