@@ -35,4 +35,30 @@ extension PlayableItem {
       isBoundBook: false
     )
   }
+
+  static func mockWithExtension(_ fileExtension: String) -> PlayableItem {
+    return PlayableItem(
+      title: "test-title",
+      author: "test-author",
+      chapters: [
+        PlayableChapter(
+          title: "test-chapter",
+          author: "test-author",
+          start: 0,
+          duration: 100,
+          relativePath: "test-path",
+          remoteURL: nil,
+          index: 0
+        )
+      ],
+      currentTime: 0,
+      duration: 100,
+      relativePath: "test-path.\(fileExtension)",
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: nil,
+      isFinished: false,
+      isBoundBook: false
+    )
+  }
 }
