@@ -36,7 +36,8 @@ class PlayerControlsCoordinator: Coordinator {
     self.navigationController.viewControllers = [vc]
     self.navigationController.presentationController?.delegate = self
 
-    if #available(iOS 15.0, *),
+    if !UIAccessibility.isVoiceOverRunning,
+       #available(iOS 15.0, *),
        let sheet = self.navigationController.sheetPresentationController {
       sheet.detents = [.medium()]
     }
