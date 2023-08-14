@@ -330,7 +330,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         self.setNowPlayingBookTitle(chapter: chapter)
         self.setNowPlayingBookTime()
 
-        ArtworkService.retrieveImageFromCache(for: chapter.relativePath) { result in
+        var pathForArtwork = chapter.relativePath
+
+        if !ArtworkService.isCached(relativePath: chapter.relativePath),
+           let currentItem {
+          pathForArtwork = currentItem.relativePath
+        }
+
+        ArtworkService.retrieveImageFromCache(for: pathForArtwork) { result in
           let image: UIImage
 
           switch result {
