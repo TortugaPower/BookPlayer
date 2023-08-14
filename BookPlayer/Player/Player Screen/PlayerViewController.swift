@@ -49,6 +49,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
 
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
+  private var currentChapterSubscriber: AnyCancellable?
 
   /// Reference to displayed alert, to update the message label with the ongoing timer
   weak var sleepTimerAlert: UIAlertController?
@@ -149,8 +150,7 @@ class PlayerViewController: BaseViewController<PlayerCoordinator, PlayerViewMode
   func setupPlayerView(with currentItem: PlayableItem) {
     self.artworkControl.setupInfo(
       with: currentItem.title,
-      author: currentItem.author,
-      relativePath: currentItem.relativePath
+      author: currentItem.author
     )
 
     self.updateView(with: self.viewModel.getCurrentProgressState(currentItem))
@@ -365,10 +365,12 @@ extension PlayerViewController {
     self.viewModel.currentItemObserver()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
-      guard let self = self,
-            let item = item else { return }
+        self?.currentChapterSubscriber?.cancel()
+        guard let self = self,
+              let item = item else { return }
 
-      self.setupPlayerView(with: item)
+        self.setupPlayerView(with: item)
+        self.bindCurrentChapterObserver(for: item)
     }.store(in: &disposeBag)
 
     self.viewModel.currentSpeedObserver()
@@ -386,6 +388,21 @@ extension PlayerViewController {
 
       self.updateView(with: progressObject)
     }.store(in: &disposeBag)
+  }
+
+  func bindCurrentChapterObserver(for item: PlayableItem) {
+    currentChapterSubscriber = item.$currentChapter.sink { [weak self, item] chapter in
+      let relativePath: String
+
+      if let chapter,
+         ArtworkService.isCached(relativePath: chapter.relativePath) {
+        relativePath = chapter.relativePath
+      } else {
+        relativePath = item.relativePath
+      }
+
+      self?.artworkControl.setupArtworkImage(relativePath: relativePath)
+    }
   }
 
   func bindPresenterEvents() {

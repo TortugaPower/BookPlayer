@@ -161,11 +161,18 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
 
   public func setupInfo(
     with title: String,
-    author: String,
-    relativePath: String
+    author: String
   ) {
     self.titleLabel.text = title
     self.authorLabel.text = author
+    self.artworkOverlay.isAccessibilityElement = true
+    self.artworkOverlay.accessibilityLabel = VoiceOverService.playerMetaText(
+      title: title,
+      author: author
+    )
+  }
+
+  public func setupArtworkImage(relativePath: String) {
     self.artworkImage.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: relativePath),
       options: [.targetCache(ArtworkService.cache)],
@@ -179,11 +186,6 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
           self.artworkImage.isHidden = true
         }
       }
-    )
-    self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService.playerMetaText(
-      title: title,
-      author: author
     )
   }
 }

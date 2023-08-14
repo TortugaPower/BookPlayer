@@ -329,24 +329,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         self.setNowPlayingBookTitle(chapter: chapter)
         self.setNowPlayingBookTime()
-
-        ArtworkService.retrieveImageFromCache(for: chapter.relativePath) { result in
-          let image: UIImage
-
-          switch result {
-          case .success(let value):
-            image = value.image
-          case .failure:
-            image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
-          }
-
-          self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size,
-                                                                               requestHandler: { (_) -> UIImage in
-            image
-          })
-
-          MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-        }
+        self.setNowPlayingArtwork(chapter: chapter)
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
@@ -361,6 +344,36 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
       }
+    }
+  }
+
+  func setNowPlayingArtwork(chapter: PlayableChapter) {
+    var pathForArtwork = chapter.relativePath
+
+    if !ArtworkService.isCached(relativePath: chapter.relativePath),
+       let currentItem = currentItem {
+      pathForArtwork = currentItem.relativePath
+    }
+
+    ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
+      guard let self else { return }
+
+      let image: UIImage
+
+      switch result {
+      case .success(let value):
+        image = value.image
+      case .failure:
+        image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
+      }
+
+      self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+        boundsSize: image.size,
+        requestHandler: { (_) -> UIImage in
+          image
+        })
+
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
     }
   }
 
