@@ -63,7 +63,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .uploadCompleted)
-      .sink { [weak self] notification in
+      .sink { notification in
         guard
           let task = notification.object as? URLSessionTask,
           let relativePath = task.taskDescription
@@ -73,11 +73,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(relativePath)
           try FileManager.default.removeItem(at: hardLinkURL)
         } catch {
-          Self.logger.trace("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
-        }
-
-        if self?.libraryQueueManager != nil {
-          self?.libraryQueueManager.cancelOperations(uuid: "\(JobType.upload.identifier)/\(relativePath)")
+          Self.logger.warning("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
         }
       }
       .store(in: &disposeBag)

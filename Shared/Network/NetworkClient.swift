@@ -27,11 +27,11 @@ public protocol NetworkClientProtocol {
     remoteURL: URL
   ) async throws
 
-  func upload(
+  func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
     taskDescription: String?,
-    delegate: URLSessionTaskDelegate
+    session: URLSession
   ) async -> URLSessionTask
 
   func download(
@@ -42,10 +42,15 @@ public protocol NetworkClientProtocol {
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
+  /// Http or Https
   let scheme: String = Bundle.main.configurationValue(for: .apiScheme)
+  /// Domain
   let host: String = Bundle.main.configurationValue(for: .apiDomain)
+  /// Port
   let port: String = Bundle.main.configurationValue(for: .apiPort)
+  /// Keychain service for the access token
   let keychain: KeychainServiceProtocol
+  /// response decoder
   private let decoder: JSONDecoder = JSONDecoder()
 
   public init(keychain: KeychainServiceProtocol = KeychainService()) {
@@ -113,25 +118,15 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     _ = try await URLSession.shared.upload(for: request, from: data)
   }
 
-  public func upload(
+  public func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
     taskDescription: String?,
-    delegate: URLSessionTaskDelegate
+    session: URLSession
   ) async -> URLSessionTask {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
-    let session = URLSession(
-      configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background"
-      ),
-      delegate: delegate,
-      delegateQueue: OperationQueue()
-    )
 
     let allTasks = await session.allTasks
 
@@ -146,7 +141,6 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
       let task = session.uploadTask(with: request, fromFile: fileURL)
       task.taskDescription = taskDescription
-      task.resume()
 
       return task
     }
