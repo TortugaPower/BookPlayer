@@ -286,3 +286,4 @@
 "sort_by_size_title" = "Größe";
 "settings_storage_sync_deleted_description" = "Entfernte Dateien (Synchronisierungsvorgänge)";
 "storage_sync_deleted_recover_description" = "Sie können Ihre lokalen Bücher und Ordner wieder importieren, wenn sie durch einen Synchronisierungsvorgang gelöscht wurden. Dadurch werden alle Dateien zurück in den Dokumentenordner verschoben und der Importvorgang ausgelöst. Wenn es sich um Ordner handelt, kann dies bedeuten, dass sich die Originale noch in der Bibliothek befinden und einige Umbenennungen vorgenommen werden müssen. Bitte entschuldigen Sie die Unannehmlichkeiten";
+"upload_wifi_required_title" = "Zum Hochladen von Dateien ist WLAN erforderlich";

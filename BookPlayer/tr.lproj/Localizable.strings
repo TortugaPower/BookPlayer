@@ -286,3 +286,4 @@
 "sort_by_size_title" = "Boyut";
 "settings_storage_sync_deleted_description" = "Kaldırılan dosyalar (senkronizasyon işlemleri)";
 "storage_sync_deleted_recover_description" = "Yerel kitaplarınızı ve klasörlerinizi bir eşitleme işlemiyle silinmişlerse geri alabilirsiniz. Bu, hepsini içe aktarma işlemini tetikleyerek belgeler klasörüne geri taşıyacaktır. Klasörler söz konusuysa bu, orijinallerin hâlâ kitaplıkta olduğu ve bazı yeniden adlandırma işlemlerinin yapılması gerekeceği anlamına gelebilir, bu rahatsızlıktan dolayı özür dileriz";
+"upload_wifi_required_title" = "Dosyaları yüklemek için Wi-Fi gereklidir";

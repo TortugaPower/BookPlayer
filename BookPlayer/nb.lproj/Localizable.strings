@@ -286,3 +286,4 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "sort_by_size_title" = "Størrelse";
 "settings_storage_sync_deleted_description" = "Filer fjernet (synkronisering)";
 "storage_sync_deleted_recover_description" = "Du kan reimportere dine lokale bøker og mapper hvis de har blitt slettet av en synkroniseringsoperasjon. Dette vil flytte de tilbake til dokumenter mappen og dermed starte import prosessen. Hvis du bruker mapper kan du oppleve at originalene fremdeles er i biblioteket og at du må navngi disse på nytt, beklager ulempen.";
+"upload_wifi_required_title" = "Wi-Fi er nødvendig for å laste opp filer";

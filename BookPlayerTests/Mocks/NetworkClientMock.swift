@@ -12,13 +12,13 @@ import BookPlayerKit
 class NetworkClientMock: NetworkClientProtocol {
   func upload(_ data: Data, remoteURL: URL) async throws { }
 
-  func upload(
+  func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
     taskDescription: String?,
-    delegate: URLSessionTaskDelegate
+    session: URLSession
   ) async -> URLSessionTask {
-    return URLSession.shared.uploadTask(with: URLRequest(url: URL(string: "https://google.com")!), from: Data())
+    return session.uploadTask(with: URLRequest(url: URL(string: "https://google.com")!), from: Data())
   }
 
   typealias RawResponse = Decodable

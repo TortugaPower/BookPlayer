@@ -286,3 +286,4 @@
 "sort_by_size_title" = "Misurare";
 "settings_storage_sync_deleted_description" = "File rimossi (operazioni di sincronizzazione)";
 "storage_sync_deleted_recover_description" = "Puoi reimportare i libri e le cartelle locali se sono stati eliminati da un'operazione di sincronizzazione. Questo li riporterà tutti nella cartella dei documenti, attivando il processo di importazione. Se sono coinvolte le cartelle, ciò potrebbe significare che gli originali sono ancora nella libreria e sarà necessario rinominarli, ci scusiamo per l'inconveniente";
+"upload_wifi_required_title" = "Wi-Fi è necessario per caricare i file";

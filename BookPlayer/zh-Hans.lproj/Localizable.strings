@@ -286,3 +286,4 @@
 "sort_by_size_title" = "尺寸";
 "settings_storage_sync_deleted_description" = "文件已删除（同步操作）";
 "storage_sync_deleted_recover_description" = "如果同步操作删除了本地书籍和文件夹，您可以将其导回。这会将它们全部移回文档文件夹，从而触发导入过程。如果涉及文件夹，这可能意味着原始文件仍在库中，并且必须进行一些重命名，对于由此带来的不便，我们深表歉意";
+"upload_wifi_required_title" = "需要 Wi-Fi 才能上传文件";
