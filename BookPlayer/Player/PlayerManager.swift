@@ -332,6 +332,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         self.setNowPlayingArtwork(chapter: chapter)
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        MPNowPlayingInfoCenter.default().playbackState = .playing
 
         if let currentItem = self.currentItem {
           // if book is truly finished, start book again to avoid autoplaying next one
@@ -774,6 +775,7 @@ extension PlayerManager {
     playbackQueued = nil
     loadChapterTask?.cancel()
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+    MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }
@@ -797,6 +799,7 @@ extension PlayerManager {
     playerItem = nil
     /// Clear out flag when `playerItem` is nulled out
     hasObserverRegistered = false
+    MPNowPlayingInfoCenter.default().playbackState = .stopped
   }
 
   private func stopPlayback() {
