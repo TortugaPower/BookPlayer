@@ -175,7 +175,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
   // MARK: - Actions
 
   @objc func handleAuthorizationAppleIDButtonPress() {
-#if targetEnvironment(simulator)
+#if DEBUG
     self.viewModel.setupTestAccount()
 #else
     let appleIDProvider = ASAuthorizationAppleIDProvider()

@@ -329,14 +329,14 @@ class LibraryServiceTests: XCTestCase {
 
     XCTAssert(folder.items?.count == 2)
 
-    XCTAssert((folder.items?.allObjects as? [LibraryItem])?
+    XCTAssert((folder.items?.allObjects as? [BookPlayerKit.LibraryItem])?
       .contains(where: { $0.relativePath == folder3.relativePath}) ?? false)
 
     _ = try! self.sut.createFolder(with: "test-folder4", inside: "test-folder")
     let folder4 = self.sut.getItem(with: "test-folder/test-folder4") as! Folder
 
     XCTAssert(folder.items?.count == 3)
-    XCTAssert((folder.items?.allObjects as? [LibraryItem])?
+    XCTAssert((folder.items?.allObjects as? [BookPlayerKit.LibraryItem])?
       .contains(where: { $0.relativePath == folder4.relativePath}) ?? false)
   }
 
@@ -923,11 +923,11 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .shallow)
 
-    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == folder)
+    XCTAssert((library.items?.allObjects as? [BookPlayerKit.LibraryItem])?.first == folder)
 
     try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .shallow)
 
-    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == book1)
+    XCTAssert((library.items?.allObjects as? [BookPlayerKit.LibraryItem])?.first == book1)
   }
 
   func testFolderShallowDeleteWithMultipleBooks() throws {
@@ -1008,7 +1008,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .deep)
 
     XCTAssert(library.items?.count == 1)
-    XCTAssert((library.items?.allObjects as? [LibraryItem])?.first == book1)
+    XCTAssert((library.items?.allObjects as? [BookPlayerKit.LibraryItem])?.first == book1)
   }
 
   func testGetMaxItemsCount() throws {

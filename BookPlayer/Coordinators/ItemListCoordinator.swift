@@ -19,7 +19,7 @@ enum ItemListActionRoutes {
 }
 
 class ItemListCoordinator: Coordinator {
-  public var onAction: Transition<ItemListActionRoutes>?
+  public var onAction: BPTransition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol

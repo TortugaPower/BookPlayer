@@ -13,6 +13,32 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
   @StateObject var themeViewModel = ThemeViewModel()
 
+  var listView: some View {
+    return List {
+      Section {
+        ForEach(viewModel.queuedJobs) { job in
+          QueuedSyncTaskRowView(
+            imageName: .constant(parseImageName(job)),
+            title: .constant(job.relativePath)
+          )
+          .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+        }
+      } header: {
+        HStack {
+          Image(systemName: "wifi")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 20, height: 20)
+            .foregroundColor(themeViewModel.linkColor)
+            .padding([.trailing], 5)
+          Text("upload_wifi_required_title".localized)
+            .font(Font(Fonts.body))
+            .foregroundColor(themeViewModel.secondaryColor)
+        }
+      }
+    }
+  }
+
   func parseImageName(_ job: QueuedJobInfo) -> String {
     switch job.jobType {
     case .upload:
@@ -38,34 +64,22 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
 
   var body: some View {
     if #available(iOS 16.0, *) {
-      List {
-        ForEach(viewModel.queuedJobs) { job in
-          QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job)),
-            title: .constant(job.relativePath)
-          )
-          .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-        }
-      }
-      .scrollContentBackground(.hidden)
-      .environmentObject(themeViewModel)
+      listView
+        .scrollContentBackground(.hidden)
+        .environmentObject(themeViewModel)
     } else {
-      List {
-        ForEach(viewModel.queuedJobs) { job in
-          QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job)),
-            title: .constant(job.relativePath)
-          )
-        }
-      }
-      .environmentObject(themeViewModel)
+      listView
+        .environmentObject(themeViewModel)
     }
   }
 }
 
 struct QueuedSyncTasksView_Previews: PreviewProvider {
   class MockQueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol, ObservableObject {
-    var queuedJobs: [BookPlayerKit.QueuedJobInfo] = []
+    var queuedJobs: [BookPlayerKit.QueuedJobInfo] = [
+      QueuedJobInfo(id: "1", relativePath: "test/path.mp3", jobType: .upload),
+      QueuedJobInfo(id: "2", relativePath: "test/path2.mp3", jobType: .upload)
+    ]
   }
 
   static var previews: some View {

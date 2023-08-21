@@ -15,15 +15,18 @@ import Combine
 import XCTest
 
 class PlayerManagerTests: XCTestCase {
+  var playbackServiceMock: PlaybackServiceProtocolMock!
   var sut: PlayerManager!
 
   override func setUp() {
     // Clean up stored configs
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled)
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
+
+    self.playbackServiceMock = PlaybackServiceProtocolMock()
     self.sut = PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
-      playbackService: PlaybackServiceProtocolMock(),
+      playbackService: playbackServiceMock,
       syncService: SyncServiceProtocolMock(),
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock()
@@ -162,5 +165,51 @@ class PlayerManagerTests: XCTestCase {
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyTitle] as? String) == chapter.title)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyArtist] as? String) == playableItem.title)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] as? String) == playableItem.author)
+  }
+
+  func testGetNextPlayableBookSuccess() {
+    playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = PlayableItem.mockWithExtension("mp3")
+
+    let nextItem = sut.getNextPlayableBook(
+      after: PlayableItem.mock,
+      autoPlayed: true,
+      restartFinished: true
+    )
+
+    XCTAssertNotNil(nextItem)
+    XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 1)
+  }
+
+  func testGetNextPlayableBookOpusFail() {
+    playbackServiceMock
+      .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
+      return [PlayableItem.mockWithExtension("opus")].filter({ $0.relativePath != relativePath }).first
+    }
+
+    let nextItem = sut.getNextPlayableBook(
+      after: PlayableItem.mock,
+      autoPlayed: true,
+      restartFinished: true
+    )
+
+    XCTAssertNil(nextItem)
+    XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
+  }
+
+  func testGetNextPlayableBookJpgFail() {
+    /// Test unrecognized file
+    playbackServiceMock
+      .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
+      return [PlayableItem.mockWithExtension("jpg")].filter({ $0.relativePath != relativePath }).first
+    }
+
+    let nextItem = sut.getNextPlayableBook(
+      after: PlayableItem.mock,
+      autoPlayed: true,
+      restartFinished: true
+    )
+
+    XCTAssertNil(nextItem)
+    XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
   }
 }

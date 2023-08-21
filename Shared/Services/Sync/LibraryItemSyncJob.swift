@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftQueue
 
@@ -33,6 +34,9 @@ class LibraryItemSyncJob: Job, BPLogger {
   let relativePath: String
   let jobType: JobType
   let parameters: [String: Any]
+
+  private var progressSubscriber: AnyCancellable?
+  private var completionSubscriber: AnyCancellable?
 
   /// Initializer
   /// - Parameters:
@@ -220,34 +224,35 @@ class LibraryItemSyncJob: Job, BPLogger {
     relativePath: String,
     callback: SwiftQueue.JobResult
   ) async {
-    let uploadDelegate = BPTaskUploadDelegate()
-    uploadDelegate.uploadProgressUpdated = { task, uploadProgress in
-      guard let relativePath = task.taskDescription else { return }
+    let uploadTask = await self.client.uploadTask(
+      fileURL,
+      remoteURL: remoteURL,
+      taskDescription: relativePath,
+      session: BPURLSession.shared.backgroundSession
+    )
 
+    progressSubscriber?.cancel()
+    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
       NotificationCenter.default.post(
         name: .uploadProgressUpdated,
         object: nil,
         userInfo: [
-          "progress": uploadProgress,
-          "relativePath": relativePath
+          "progress": progress,
+          "relativePath": path
         ]
       )
-    }
+    })
 
-    uploadDelegate.didFinishTask = { [weak self, callback] task, error in
+    completionSubscriber?.cancel()
+    completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self, callback] (task, error) in
       if let error {
         callback.done(.fail(error))
       } else {
         self?.handleUploadFinished(task, callback: callback)
       }
-    }
+    })
 
-    _ = await self.client.upload(
-      fileURL,
-      remoteURL: remoteURL,
-      taskDescription: relativePath,
-      delegate: uploadDelegate
-    )
+    uploadTask.resume()
   }
 
   func handleUploadFinished(_ task: URLSessionTask, callback: SwiftQueue.JobResult) {

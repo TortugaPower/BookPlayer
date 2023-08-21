@@ -101,12 +101,6 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     ]
   }
 
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    UIAccessibility.post(notification: .screenChanged, argument: self.mainContainterStackView)
-  }
-
   func bindBoostVolumeObservers() {
     self.boostSwitchControl.publisher(for: .valueChanged)
       .sink { [weak self] control in

@@ -31,7 +31,7 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
   /// View model for the SwiftUI form
   let formViewModel: ItemDetailsFormViewModel
   /// Callback to handle actions on this screen
-  public var onTransition: Transition<Routes>?
+  public var onTransition: BPTransition<Routes>?
 
   private var eventsPublisher = InterfaceUpdater<ItemDetailsViewModel.Events>()
 

@@ -304,9 +304,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         let playerItem = self.playerItem,
         chapter.duration > 0
       else {
-        DispatchQueue.main.async {
-          self.currentItem = nil
-          self.isFetchingRemoteURL = nil
+        DispatchQueue.main.async { [weak self] in
+          self?.playbackQueued = nil
+          self?.isFetchingRemoteURL = nil
           NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
         }
         return
@@ -329,24 +329,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         self.setNowPlayingBookTitle(chapter: chapter)
         self.setNowPlayingBookTime()
-
-        ArtworkService.retrieveImageFromCache(for: chapter.relativePath) { result in
-          let image: UIImage
-
-          switch result {
-          case .success(let value):
-            image = value.image
-          case .failure:
-            image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
-          }
-
-          self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size,
-                                                                               requestHandler: { (_) -> UIImage in
-            image
-          })
-
-          MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-        }
+        self.setNowPlayingArtwork(chapter: chapter)
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
@@ -361,6 +344,36 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
       }
+    }
+  }
+
+  func setNowPlayingArtwork(chapter: PlayableChapter) {
+    var pathForArtwork = chapter.relativePath
+
+    if !ArtworkService.isCached(relativePath: chapter.relativePath),
+       let currentItem = currentItem {
+      pathForArtwork = currentItem.relativePath
+    }
+
+    ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
+      guard let self else { return }
+
+      let image: UIImage
+
+      switch result {
+      case .success(let value):
+        image = value.image
+      case .failure:
+        image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
+      }
+
+      self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+        boundsSize: image.size,
+        requestHandler: { (_) -> UIImage in
+          image
+        })
+
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
     }
   }
 
@@ -837,10 +850,9 @@ extension PlayerManager {
 
     guard
       let currentItem = self.currentItem,
-      let nextBook = self.playbackService.getPlayableItem(
-        after: currentItem.relativePath,
-        parentFolder: currentItem.parentFolder,
-        autoplayed: autoPlayed,
+      let nextBook = getNextPlayableBook(
+        after: currentItem,
+        autoPlayed: autoPlayed,
         restartFinished: restartFinished
       )
     else { return }
@@ -853,6 +865,34 @@ extension PlayerManager {
     }
 
     load(nextBook, autoplay: shouldAutoplay)
+  }
+
+  /// Check `UTType` of the book before returning it
+  /// Note: if the type does not conform to `.audiovisualContent` it will skip the item
+  func getNextPlayableBook(
+    after item: PlayableItem,
+    autoPlayed: Bool,
+    restartFinished: Bool
+  ) -> PlayableItem? {
+    guard
+      let nextBook = self.playbackService.getPlayableItem(
+        after: item.relativePath,
+        parentFolder: item.parentFolder,
+        autoplayed: autoPlayed,
+        restartFinished: restartFinished
+      ),
+      let fileType = UTType(filenameExtension: nextBook.fileURL.pathExtension)
+    else { return nil }
+
+    if !fileType.isSubtype(of: .audiovisualContent) {
+      return getNextPlayableBook(
+        after: nextBook,
+        autoPlayed: autoPlayed,
+        restartFinished: restartFinished
+      )
+    }
+
+    return nextBook
   }
 
   @objc
