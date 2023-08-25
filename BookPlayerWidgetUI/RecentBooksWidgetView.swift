@@ -111,6 +111,7 @@ struct BookView: View {
           .foregroundColor(titleColor)
           .font(.caption)
           .lineLimit(2)
+          .multilineTextAlignment(.center)
           .frame(width: nil, height: 34, alignment: .leading)
       }
     }
@@ -147,6 +148,7 @@ struct RecentBooksWidgetView: View {
             HStack {
                 ForEach(items, id: \.relativePath) { item in
                     BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
+                    .frame(minWidth: 0, maxWidth: .infinity)
                 }
             }
             .padding([.leading, .trailing])
@@ -161,7 +163,14 @@ struct RecentBooksWidgetView: View {
 struct RecentBooksWidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-          RecentBooksWidgetView(entry: LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true))
+          RecentBooksWidgetView(
+            entry: LibraryEntry(date: Date(),
+                                items: [.previewItem(title: "a very very very long title"),
+                                        .previewItem(title: "a short title"),
+                                        .previewItem(title: "a short title")],
+                                theme: nil,
+                                timerSeconds: 300,
+                                autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
         }
     }
