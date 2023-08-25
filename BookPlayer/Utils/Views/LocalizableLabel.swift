@@ -9,11 +9,11 @@
 import UIKit
 
 class LocalizableLabel: UILabel {
-    @IBInspectable var localizedKey: String? {
-        didSet {
-            guard let key = localizedKey else { return }
-
-            text = key.localized
-        }
+  @IBInspectable var localizedKey: String? {
+    didSet {
+      guard let key = localizedKey else { return }
+      
+      text = key.localized
     }
+  }
 }

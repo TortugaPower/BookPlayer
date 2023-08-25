@@ -9,17 +9,17 @@
 import Foundation
 
 struct Icon: Codable {
-    var id: String
-    var title: String
-    private var artist: String?
-    var imageName: String
-    private var locked: Bool?
-
-    var isLocked: Bool {
-        return self.locked ?? false
-    }
-
-    var author: String {
-        return self.artist ?? "icons_bookplayer_credit_description".localized
-    }
+  var id: String
+  var title: String
+  private var artist: String?
+  var imageName: String
+  private var locked: Bool?
+  
+  var isLocked: Bool {
+    return self.locked ?? false
+  }
+  
+  var author: String {
+    return self.artist ?? "icons_bookplayer_credit_description".localized
+  }
 }

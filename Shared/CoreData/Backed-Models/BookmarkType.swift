@@ -10,7 +10,7 @@ import Foundation
 
 @objc public enum BookmarkType: Int16, Decodable {
   case user, play, skip
-
+  
   public func getNote() -> String? {
     switch self {
     case .user:

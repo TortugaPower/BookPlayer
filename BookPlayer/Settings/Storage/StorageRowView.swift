@@ -13,9 +13,9 @@ struct StorageRowView: View {
   let item: StorageItem
   let onDeleteTap: (() -> Void)?
   let onWarningTap: (() -> Void)?
-
+  
   @EnvironmentObject var themeViewModel: ThemeViewModel
-
+  
   var body: some View {
     HStack {
       Button {
@@ -29,18 +29,18 @@ struct StorageRowView: View {
       }
       .padding(15)
       .accessibilitySortPriority(1)
-
+      
       VStack(alignment: .leading, spacing: 2) {
         Text(item.title)
           .font(Font(Fonts.title))
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.primaryColor)
-
+        
         Text(item.path)
           .font(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.secondaryColor)
-
+        
         Text(item.formattedSize)
           .font(.footnote)
           .multilineTextAlignment(.leading)
@@ -50,9 +50,9 @@ struct StorageRowView: View {
       .accessibilityElement()
       .accessibilityLabel("\(item.title), \(item.formattedSize)")
       .accessibilitySortPriority(3)
-
+      
       Spacer()
-
+      
       if item.showWarning {
         Button {
           onWarningTap?()
@@ -70,7 +70,7 @@ struct StorageRowView: View {
     .background(themeViewModel.systemBackgroundColor)
     .accessibilityElement(children: .contain)
   }
-
+  
   init(item: StorageItem, onDeleteTap: ( () -> Void)?, onWarningTap: ( () -> Void)?) {
     self.item = item
     self.onDeleteTap = onDeleteTap

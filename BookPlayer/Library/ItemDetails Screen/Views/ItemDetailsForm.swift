@@ -21,7 +21,7 @@ struct ItemDetailsForm: View {
   @State private var showingImagePicker = false
   /// Flag to show the empty pasteboard alert
   @State private var showingEmptyPasteboardAlert = false
-
+  
   var body: some View {
     Form {
       Section(header: Text("section_item_title".localized)
@@ -30,7 +30,7 @@ struct ItemDetailsForm: View {
         ClearableTextField(viewModel.titlePlaceholder, text: $viewModel.title)
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-
+      
       if viewModel.showAuthor {
         Section(header: Text("section_item_author".localized)
           .foregroundColor(themeViewModel.secondaryColor)
@@ -39,7 +39,7 @@ struct ItemDetailsForm: View {
         }
         .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
       }
-
+      
       ItemDetailsArtworkSectionView(image: $viewModel.selectedImage) {
         showingArtworkOptions = true
       }

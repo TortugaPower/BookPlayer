@@ -17,7 +17,7 @@ class AccountSectionContainerView: UIView {
   let insets: UIEdgeInsets
   let bottomSeparator = UIView()
   let separatorHeight: CGFloat = 0.67
-
+  
   init(contents: UIView, insets: UIEdgeInsets, hideBottomSeparator: Bool = false) {
     self.contentView = contents
     self.insets = insets
@@ -27,22 +27,22 @@ class AccountSectionContainerView: UIView {
     contentView.translatesAutoresizingMaskIntoConstraints = false
     bottomSeparator.translatesAutoresizingMaskIntoConstraints = false
     bottomSeparator.isHidden = hideBottomSeparator
-
+    
     addSubviews()
     addConstraints()
     setUpTheming()
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   func addSubviews() {
     addSubview(topSeparator)
     addSubview(contentView)
     addSubview(bottomSeparator)
   }
-
+  
   func addConstraints() {
     NSLayoutConstraint.activate([
       topSeparator.topAnchor.constraint(equalTo: topAnchor),

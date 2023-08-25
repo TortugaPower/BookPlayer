@@ -14,16 +14,16 @@ import UIKit
 
 class MainCoordinator: Coordinator {
   var tabBarController: AppTabBarController?
-
+  
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
   var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
-
+  
   private var disposeBag = Set<AnyCancellable>()
-
+  
   init(
     navigationController: UINavigationController,
     coreServices: CoreServices
@@ -34,17 +34,17 @@ class MainCoordinator: Coordinator {
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
     self.watchConnectivityService = coreServices.watchService
-
+    
     ThemeManager.shared.libraryService = libraryService
-
+    
     super.init(navigationController: navigationController, flowType: .modal)
-
+    
     setUpTheming()
   }
-
+  
   override func start() {
     let viewModel = MiniPlayerViewModel(playerManager: playerManager)
-
+    
     viewModel.onTransition = { route in
       switch route {
       case .showPlayer:
@@ -53,31 +53,31 @@ class MainCoordinator: Coordinator {
         self.loadPlayer(relativePath, autoplay: autoplay, showPlayer: showPlayer)
       }
     }
-
+    
     let tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
     self.tabBarController = tabBarController
     tabBarController.modalPresentationStyle = .fullScreen
     tabBarController.modalTransitionStyle = .crossDissolve
     presentingViewController = tabBarController
-
+    
     if var currentTheme = libraryService.getLibraryCurrentTheme() {
       currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
       ThemeManager.shared.currentTheme = currentTheme
     }
-
+    
     bindObservers()
-
+    
     accountService.loginIfUserExists(delegate: self)
-
+    
     startLibraryCoordinator(with: tabBarController)
-
+    
     startProfileCoordinator(with: tabBarController)
-
+    
     startSettingsCoordinator(with: tabBarController)
-
+    
     navigationController.present(tabBarController, animated: false)
   }
-
+  
   func startLibraryCoordinator(with tabBarController: UITabBarController) {
     let libraryCoordinator = LibraryListCoordinator(
       navigationController: AppNavigationController.instantiate(from: .Main),
@@ -92,7 +92,7 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
   }
-
+  
   func startProfileCoordinator(with tabBarController: UITabBarController) {
     let profileCoordinator = ProfileCoordinator(
       libraryService: libraryService,
@@ -106,7 +106,7 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(profileCoordinator)
     profileCoordinator.start()
   }
-
+  
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       libraryService: self.libraryService,
@@ -118,7 +118,7 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
   }
-
+  
   func bindObservers() {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
@@ -126,7 +126,7 @@ class MainCoordinator: Coordinator {
           let self = self,
           let account = self.accountService.getAccount()
         else { return }
-
+        
         if account.hasSubscription, !account.id.isEmpty {
           if !self.syncService.isActive {
             self.syncService.isActive = true
@@ -136,11 +136,11 @@ class MainCoordinator: Coordinator {
           self.syncService.isActive = false
           self.syncService.cancelAllJobs()
         }
-
+        
       })
       .store(in: &disposeBag)
   }
-
+  
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
     AppDelegate.shared?.loadPlayer(
       relativePath,
@@ -153,7 +153,7 @@ class MainCoordinator: Coordinator {
       alertPresenter: (getLibraryCoordinator() ?? self)
     )
   }
-
+  
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
@@ -165,42 +165,42 @@ class MainCoordinator: Coordinator {
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
-
+  
   func showMiniPlayer(_ flag: Bool) {
     // Only animate if it toggles the state
     guard
       let tabBarController,
       flag != tabBarController.isMiniPlayerVisible
     else { return }
-
+    
     guard flag else {
       tabBarController.animateView(tabBarController.miniPlayer, show: flag)
       return
     }
-
+    
     if self.playerManager.hasLoadedBook() {
       tabBarController.animateView(tabBarController.miniPlayer, show: flag)
     }
   }
-
+  
   func hasPlayerShown() -> Bool {
     return self.childCoordinators.contains(where: { $0 is PlayerCoordinator })
   }
-
+  
   func getLibraryCoordinator() -> LibraryListCoordinator? {
     return self.childCoordinators.first as? LibraryListCoordinator
   }
-
+  
   func getTopController() -> UIViewController? {
     return getPresentingController(coordinator: self)
   }
-
+  
   func getPresentingController(coordinator: Coordinator) -> UIViewController? {
     guard let lastCoordinator = coordinator.childCoordinators.last else {
       return coordinator.presentingViewController?.getTopViewController()
       ?? coordinator.navigationController
     }
-
+    
     return getPresentingController(coordinator: lastCoordinator)
   }
 }

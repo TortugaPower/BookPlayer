@@ -16,7 +16,7 @@ enum QueuedSyncTaskType {
   case shallowDelete
   case setBookmark
   case deleteBookmark
-
+  
   var imageName: String {
     switch self {
     case .upload:

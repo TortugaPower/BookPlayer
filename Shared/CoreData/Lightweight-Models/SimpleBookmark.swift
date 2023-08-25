@@ -13,14 +13,14 @@ public struct SimpleBookmark: Decodable {
   public let note: String?
   let type: BookmarkType
   public let relativePath: String
-
+  
   static var fetchRequestProperties = [
     "time",
     "note",
     "type",
     "item.relativePath",
   ]
-
+  
   public func getImageNameForType() -> String? {
     switch type {
     case .play:

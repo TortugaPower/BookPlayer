@@ -13,7 +13,7 @@ import UIKit
 class AddCellView: UITableViewCell {
   @IBOutlet weak var addImageView: UIImageView!
   @IBOutlet weak var titleLabel: UILabel!
-
+  
   override func awakeFromNib() {
     super.awakeFromNib()
     self.titleLabel.accessibilityLabel = "playlist_add_title".localized

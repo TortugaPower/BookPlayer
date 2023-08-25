@@ -24,9 +24,9 @@ class ItemListCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
-
+  
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
-
+  
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
@@ -38,15 +38,15 @@ class ItemListCoordinator: Coordinator {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
-
+    
     super.init(navigationController: navigationController,
                flowType: .push)
   }
-
+  
   override func start() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
-
+  
   override func getMainCoordinator() -> MainCoordinator? {
     switch self.parentCoordinator {
     case let mainCoordinator as MainCoordinator:
@@ -57,7 +57,7 @@ class ItemListCoordinator: Coordinator {
       return nil
     }
   }
-
+  
   func showFolder(_ relativePath: String) {
     let child = FolderListCoordinator(
       navigationController: navigationController,
@@ -71,7 +71,7 @@ class ItemListCoordinator: Coordinator {
     child.parentCoordinator = self
     child.start()
   }
-
+  
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       playerManager: self.playerManager,
@@ -83,7 +83,7 @@ class ItemListCoordinator: Coordinator {
     self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
-
+  
   func showSearchList(at relativePath: String?, placeholderTitle: String) {
     let viewModel = SearchListViewModel(
       folderRelativePath: relativePath,
@@ -102,10 +102,10 @@ class ItemListCoordinator: Coordinator {
       }
     }
     let vc = SearchListViewController(viewModel: viewModel)
-
+    
     self.navigationController.pushViewController(vc, animated: true)
   }
-
+  
   func loadPlayer(_ relativePath: String) {
     AppDelegate.shared?.loadPlayer(
       relativePath,
@@ -116,11 +116,11 @@ class ItemListCoordinator: Coordinator {
       alertPresenter: self
     )
   }
-
+  
   func showMiniPlayer(flag: Bool) {
     getMainCoordinator()?.showMiniPlayer(flag)
   }
-
+  
   func syncList() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
@@ -137,40 +137,40 @@ extension ItemListCoordinator {
       ],
       asCopy: true
     )
-
+    
     providerList.delegate = self.documentPickerDelegate
     providerList.allowsMultipleSelection = true
-
+    
     UIApplication.shared.isIdleTimerDisabled = true
-
+    
     self.presentingViewController?.present(providerList, animated: true, completion: nil)
   }
-
+  
   func showExportController(for items: [SimpleLibraryItem]) {
     let providers = items.map { BookActivityItemProvider($0) }
-
+    
     let shareController = UIActivityViewController(activityItems: providers, applicationActivities: nil)
     shareController.excludedActivityTypes = [.copyToPasteboard]
-
+    
     if let popoverPresentationController = shareController.popoverPresentationController,
        let view = navigationController.topViewController?.view {
       popoverPresentationController.permittedArrowDirections = []
       popoverPresentationController.sourceView = view
       popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
     }
-
+    
     self.navigationController.present(shareController, animated: true, completion: nil)
   }
-
+  
   func reloadItemsWithPadding(padding: Int = 0) {
     // Reload all preceding screens too
     if let coordinator = self.parentCoordinator as? ItemListCoordinator {
       coordinator.reloadItemsWithPadding(padding: padding)
     }
-
+    
     self.onAction?(.reloadItems(padding))
   }
-
+  
   func showItemDetails(_ item: SimpleLibraryItem) {
     let viewModel = ItemDetailsViewModel(
       item: item,
@@ -187,17 +187,17 @@ extension ItemListCoordinator {
       }
       self?.navigationController.dismiss(animated: true)
     }
-
+    
     let vc = ItemDetailsViewController(viewModel: viewModel)
     if UIAccessibility.isVoiceOverRunning {
       vc.navigationItem.largeTitleDisplayMode = .never
     }
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
-
+    
     navigationController.present(nav, animated: true, completion: nil)
   }
-
+  
   func showItemSelectionScreen(
     availableItems: [SimpleLibraryItem],
     selectionHandler: @escaping (SimpleLibraryItem) -> Void
@@ -205,7 +205,7 @@ extension ItemListCoordinator {
     let vc = ItemSelectionViewController()
     vc.items = availableItems
     vc.onItemSelected = selectionHandler
-
+    
     let nav = AppNavigationController(rootViewController: vc)
     self.navigationController.present(nav, animated: true, completion: nil)
   }

@@ -41,24 +41,24 @@ public protocol AccountServiceProtocol {
   func getAccount() -> Account?
   func hasAccount() -> Bool
   func hasActiveSubscription() -> Bool
-
+  
   func createAccount(donationMade: Bool)
-
+  
   func updateAccount(from customerInfo: CustomerInfo)
-
+  
   func updateAccount(
     id: String?,
     email: String?,
     donationMade: Bool?,
     hasSubscription: Bool?
   )
-
+  
   func getHardcodedSubscriptionOptions() -> [PricingModel]
   func getSubscriptionOptions() async throws -> [PricingModel]
-
+  
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
-
+  
   func loginTestAccount(token: String) throws
   func login(
     with token: String,
@@ -67,7 +67,7 @@ public protocol AccountServiceProtocol {
   /// Load up stored user into RevenueCat's SDK to start listening to events
   /// - Parameter delegate: Delegate that will handle any changes to the customer info
   func loginIfUserExists(delegate: PurchasesDelegate)
-
+  
   func logout() throws
   func deleteAccount() async throws -> String
 }
@@ -79,7 +79,7 @@ public final class AccountService: AccountServiceProtocol {
   let client: NetworkClientProtocol
   let keychain: KeychainServiceProtocol
   private let provider: NetworkProvider<AccountAPI>
-
+  
   public init(
     dataManager: DataManager,
     client: NetworkClientProtocol = NetworkClient(),
@@ -90,11 +90,11 @@ public final class AccountService: AccountServiceProtocol {
     self.keychain = keychain
     self.provider = NetworkProvider(client: client)
   }
-
+  
   public func setDelegate(_ delegate: PurchasesDelegate) {
     Purchases.shared.delegate = delegate
   }
-
+  
   public func getAccountId() -> String? {
     if let account = self.getAccount(),
        !account.id.isEmpty {
@@ -103,30 +103,30 @@ public final class AccountService: AccountServiceProtocol {
       return nil
     }
   }
-
+  
   public func getAccount() -> Account? {
     let context = self.dataManager.getContext()
     let fetch: NSFetchRequest<Account> = Account.fetchRequest()
     fetch.returnsObjectsAsFaults = false
-
+    
     return (try? context.fetch(fetch).first)
   }
-
+  
   public func hasAccount() -> Bool {
     let context = self.dataManager.getContext()
-
+    
     if let count = try? context.count(for: Account.fetchRequest()),
-        count > 0 {
+       count > 0 {
       return true
     }
-
+    
     return false
   }
-
+  
   public func hasActiveSubscription() -> Bool {
     return getAccount()?.hasSubscription == true
   }
-
+  
   public func createAccount(donationMade: Bool) {
     let context = self.dataManager.getContext()
     let account = Account.create(in: context)
@@ -136,13 +136,13 @@ public final class AccountService: AccountServiceProtocol {
     account.donationMade = donationMade
     self.dataManager.saveContext()
   }
-
+  
   public func updateAccount(from customerInfo: CustomerInfo) {
     self.updateAccount(
       hasSubscription: !customerInfo.activeSubscriptions.isEmpty
     )
   }
-
+  
   public func updateAccount(
     id: String? = nil,
     email: String? = nil,
@@ -150,83 +150,83 @@ public final class AccountService: AccountServiceProtocol {
     hasSubscription: Bool? = nil
   ) {
     guard let account = self.getAccount() else { return }
-
+    
     if let id = id {
       account.id = id
     }
-
+    
     if let email = email {
       account.email = email
     }
-
+    
     if let donationMade = donationMade {
       account.donationMade = donationMade
     }
-
+    
     if let hasSubscription = hasSubscription {
       account.hasSubscription = hasSubscription
     }
-
+    
     self.dataManager.saveContext()
-
+    
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .accountUpdate, object: self)
     }
   }
-
+  
   public func getHardcodedSubscriptionOptions() -> [PricingModel] {
     return [
       PricingModel(id: yearlySubscriptionId, title: "49.99 USD \("yearly_title".localized)"),
       PricingModel(id: monthlySubscriptionId, title: "4.99 USD \("monthly_title".localized)")
     ]
   }
-
+  
   public func getSubscriptionOptions() async throws -> [PricingModel] {
     let products = await Purchases.shared.products([yearlySubscriptionId, monthlySubscriptionId])
-
+    
     var options = [PricingModel]()
-
+    
     if let product = products.first(where: { $0.productIdentifier == yearlySubscriptionId }) {
       options.append(PricingModel(
         id: product.productIdentifier,
         title: "\(product.localizedPriceString) \("yearly_title".localized)"
       ))
     }
-
+    
     if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
       options.append(PricingModel(
         id: product.productIdentifier,
         title: "\(product.localizedPriceString) \("monthly_title".localized)"
       ))
     }
-
+    
     if options.isEmpty {
       throw AccountError.emptyProducts
     }
-
+    
     return options
   }
-
+  
   public func subscribe(option: PricingModel) async throws -> Bool {
     let products = await Purchases.shared.products([option.id])
-
+    
     guard let product = products.first else {
       throw AccountError.emptyProducts
     }
-
+    
     let result = try await Purchases.shared.purchase(product: product)
-
+    
     if !result.userCancelled {
       self.updateAccount(donationMade: true, hasSubscription: true)
     }
-
+    
     return result.userCancelled
   }
-
+  
   public func restorePurchases() async throws -> CustomerInfo {
     return try await Purchases.shared.restorePurchases()
   }
-
+  
   public func loginTestAccount(token: String) throws {
     self.updateAccount(
       id: "001918.a2d23624056d45618b7c2699d98c535e.2333",
@@ -234,24 +234,24 @@ public final class AccountService: AccountServiceProtocol {
       donationMade: true,
       hasSubscription: true
     )
-
+    
     try self.keychain.setAccessToken(token)
   }
-
+  
   public func login(
     with token: String,
     userId: String
   ) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
-
+    
     try self.keychain.setAccessToken(response.token)
-
+    
     let (customerInfo, _) = try await Purchases.shared.logIn(userId)
-
+    
     if let existingAccount = self.getAccount() {
       // Preserve donation made flag from stored account
       let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptions.isEmpty
-
+      
       self.updateAccount(
         id: userId,
         email: response.email,
@@ -259,46 +259,46 @@ public final class AccountService: AccountServiceProtocol {
         hasSubscription: !customerInfo.activeSubscriptions.isEmpty
       )
     }
-
+    
     return self.getAccount()
   }
-
+  
   public func loginIfUserExists(delegate: PurchasesDelegate) {
     guard let account = self.getAccount(), !account.id.isEmpty else {
       Purchases.shared.delegate = delegate
       return
     }
-
+    
     Purchases.shared.logIn(account.id) { [weak self] customerInfo, _, _ in
       defer {
         Purchases.shared.delegate = delegate
       }
-
+      
       guard let customerInfo = customerInfo else { return }
-
+      
       self?.updateAccount(from: customerInfo)
     }
   }
-
+  
   public func logout() throws {
     try self.keychain.removeAccessToken()
-
+    
     self.updateAccount(
       id: "",
       email: "",
       hasSubscription: false
     )
-
+    
     Purchases.shared.logOut { _, _ in }
-
+    
     NotificationCenter.default.post(name: .logout, object: self)
   }
-
+  
   public func deleteAccount() async throws -> String {
     let response: DeleteResponse = try await provider.request(.delete)
-
+    
     try logout()
-
+    
     return response.message
   }
 }

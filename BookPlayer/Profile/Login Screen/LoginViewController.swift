@@ -13,19 +13,19 @@ import Themeable
 
 class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> {
   // MARK: - UI components
-
+  
   private lazy var scrollView: UIScrollView = {
     let scrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
     return scrollView
   }()
-
+  
   private lazy var contentView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
     return view
   }()
-
+  
   private lazy var cloudBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
       title: "benefits_cloudsync_title".localized,
@@ -36,7 +36,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView
   }()
-
+  
   private lazy var cosmeticBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
       title: "benefits_themesicons_title".localized,
@@ -48,7 +48,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView
   }()
-
+  
   private lazy var supportBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
       title: "benefits_supportus_title".localized,
@@ -58,7 +58,7 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView
   }()
-
+  
   private lazy var disclaimerStackView: UIStackView = {
     let stackView = LoginDisclaimerView(
       title: "benefits_disclaimer_title".localized,
@@ -71,43 +71,43 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView
   }()
-
+  
   private lazy var loginProviderStackView: UIStackView = {
     let stackView = UIStackView()
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView
   }()
-
+  
   // MARK: - Initializer
-
+  
   init() {
     super.init(nibName: nil, bundle: nil)
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   // MARK: - Lifecycle
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-
+    
     self.title = "BookPlayer Pro"
-
+    
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: ImageIcons.navigationBackImage,
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)
     )
-
+    
     addSubviews()
     addConstraints()
-
+    
     setUpTheming()
   }
-
+  
   func addSubviews() {
     view.addSubview(loginProviderStackView)
     view.addSubview(scrollView)
@@ -117,12 +117,12 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     contentView.addSubview(supportBenefitStackView)
     contentView.addSubview(disclaimerStackView)
   }
-
+  
   func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
     // constrain subviews to the scroll view's Content Layout Guide
     let contentLayoutGuide = scrollView.contentLayoutGuide
-
+    
     NSLayoutConstraint.activate([
       // setup scrollview
       scrollView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
@@ -159,21 +159,21 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
       disclaimerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.L),
     ])
   }
-
+  
   func setupProviderLoginView(_ useDarkVariant: Bool) {
     self.loginProviderStackView.arrangedSubviews.forEach({
       self.loginProviderStackView.removeArrangedSubview($0)
     })
-
+    
     let style: ASAuthorizationAppleIDButton.Style = useDarkVariant ? .white : .black
-
+    
     let authorizationButton = ASAuthorizationAppleIDButton(type: .signIn, style: style)
     authorizationButton.addTarget(self, action: #selector(handleAuthorizationAppleIDButtonPress), for: .touchUpInside)
     self.loginProviderStackView.addArrangedSubview(authorizationButton)
   }
-
+  
   // MARK: - Actions
-
+  
   @objc func handleAuthorizationAppleIDButtonPress() {
 #if DEBUG
     self.viewModel.setupTestAccount()
@@ -181,14 +181,14 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
     let appleIDProvider = ASAuthorizationAppleIDProvider()
     let request = appleIDProvider.createRequest()
     request.requestedScopes = [.email]
-
+    
     let authorizationController = ASAuthorizationController(authorizationRequests: [request])
     authorizationController.delegate = self
     authorizationController.presentationContextProvider = self
     authorizationController.performRequests()
 #endif
   }
-
+  
   @objc private func didPressClose() {
     self.viewModel.dismiss()
   }
@@ -201,7 +201,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
   func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
     self.viewModel.handleSignIn(authorization: authorization)
   }
-
+  
   func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
     self.viewModel.handleError(error)
   }
@@ -218,11 +218,11 @@ extension LoginViewController: ASAuthorizationControllerPresentationContextProvi
 extension LoginViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
-
+    
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark
     : UIUserInterfaceStyle.light
-
+    
     self.setupProviderLoginView(theme.useDarkVariant)
   }
 }

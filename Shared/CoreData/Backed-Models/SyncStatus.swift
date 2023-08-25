@@ -10,7 +10,7 @@ import Foundation
 
 /// Pending sync status
 @objc public enum SyncStatus: Int16 {
-       /// Only the metadata is stored locally
+  /// Only the metadata is stored locally
   case metadata,
        /// We have both the metadata and file stored locally
        synced

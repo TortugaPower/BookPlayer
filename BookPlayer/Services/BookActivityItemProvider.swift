@@ -15,13 +15,13 @@ final class BookActivityItemProvider: UIActivityItemProvider {
     self.book = book
     super.init(placeholderItem: book)
   }
-
+  
   public override func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(self.book.relativePath)
-
+    
     return fileURL
   }
-
+  
   public override func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
     return URL(fileURLWithPath: "placeholder")
   }

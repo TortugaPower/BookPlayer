@@ -12,18 +12,18 @@ import Combine
 final class PlusViewModel {
   weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
-
+  
   @Published var account: Account?
-
+  
   private var disposeBag = Set<AnyCancellable>()
-
+  
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
-
+    
     self.reloadAccount()
     self.bindObservers()
   }
-
+  
   func bindObservers() {
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
@@ -31,16 +31,16 @@ final class PlusViewModel {
       })
       .store(in: &disposeBag)
   }
-
+  
   func reloadAccount() {
     self.account = self.accountService.getAccount()
   }
-
+  
   func hasMadeDonation() -> Bool {
     // Force true to only show the tip jar screen
     return true
   }
-
+  
   func handleNewDonation() {
     self.accountService.updateAccount(
       id: nil,

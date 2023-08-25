@@ -14,13 +14,13 @@ public enum SortType {
   case fileName
   case mostRecent
   case reverseOrder
-
+  
   func fetchProperties() -> [String] {
     var properties = [
       #keyPath(LibraryItem.relativePath),
       #keyPath(LibraryItem.orderRank)
     ]
-
+    
     switch self {
     case .metadataTitle:
       properties.append(#keyPath(LibraryItem.title))
@@ -33,7 +33,7 @@ public enum SortType {
     }
     return properties
   }
-
+  
   func sortItems(_ items: [LibraryItem]) -> [LibraryItem] {
     switch self {
     case .fileName:

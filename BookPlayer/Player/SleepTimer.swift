@@ -21,12 +21,12 @@ enum SleepTimerState: Equatable {
 
 final class SleepTimer {
   static let shared = SleepTimer()
-
+  
   /// Cancellable subscription of the active timer
   private var subscription: AnyCancellable?
   /// Threshold for volume fade event
   private let countDownThreshold: Int = 5
-
+  
   /// Current time left on the timer
   @Published public var state: SleepTimerState = .off
   /// Last manually set sleep timer
@@ -39,16 +39,16 @@ final class SleepTimer {
     1800.0,
     3600.0
   ]
-
+  
   /// Publisher when the countdown timer reaches the defined threshold
   public var countDownThresholdPublisher = PassthroughSubject<Bool, Never>()
   /// Publisher when the timer ends
   public var timerEndedPublisher = PassthroughSubject<SleepTimerState, Never>()
-
+  
   // MARK: Internals
-
+  
   private init() {}
-
+  
   /// Cancels any ongoing timer, and set the state to `.off`
   private func reset() {
     state = .off
@@ -56,47 +56,47 @@ final class SleepTimer {
     NotificationCenter.default.removeObserver(self, name: .bookEnd, object: nil)
     NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
   }
-
+  
   /// Siri intents integration
   private func donateTimerIntent(with option: TimerOption) {
     let intent = SleepTimerIntent()
     intent.option = option
-
+    
     let interaction = INInteraction(intent: intent, response: nil)
     interaction.donate(completion: nil)
   }
-
+  
   /// Periodic function used for the `countdown` case of ``SleepTimerState``
   @objc private func update() {
     guard case .countdown(let interval) = state else { return }
-
+    
     let timeLeft = interval - 1
-
+    
     if Int(timeLeft) == countDownThreshold {
       countDownThresholdPublisher.send(true)
     }
-
+    
     if timeLeft <= 0 {
       self.end()
     } else {
       state = .countdown(timeLeft)
     }
   }
-
+  
   /// Called by either the end of `.countdown` when the timer runs out or by `.endOfChapter` when a chapter or book has finished
   @objc private func end() {
     timerEndedPublisher.send(state)
     self.reset()
   }
-
+  
   // MARK: Public methods
-
+  
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer
     reset()
     state = newState
     lastActivedState = newState
-
+    
     switch newState {
     case .off:
       donateTimerIntent(with: .cancel)
@@ -115,7 +115,7 @@ final class SleepTimer {
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
     }
   }
-
+  
   public func restartTimer() {
     setTimer(lastActivedState)
   }

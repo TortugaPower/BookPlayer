@@ -17,14 +17,14 @@ class GestureItemRow: UIStackView {
     imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     return imageView
   }()
-
+  
   private lazy var titleLabel: UILabel = {
     let label = BaseLabel()
     label.setContentCompressionResistancePriority(.required, for: .horizontal)
     label.numberOfLines = 0
     return label
   }()
-
+  
   init(
     title: String,
     systemImageName: String
@@ -40,16 +40,16 @@ class GestureItemRow: UIStackView {
     addConstraints()
     setUpTheming()
   }
-
+  
   required init(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   func addSubviews() {
     addArrangedSubview(imageView)
     addArrangedSubview(titleLabel)
   }
-
+  
   func addConstraints() {
     NSLayoutConstraint.activate([
       imageView.widthAnchor.constraint(equalToConstant: 25),

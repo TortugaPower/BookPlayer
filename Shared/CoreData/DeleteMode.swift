@@ -9,6 +9,6 @@
 import Foundation
 
 public enum DeleteMode {
-    case deep
-    case shallow
+  case deep
+  case shallow
 }

@@ -17,16 +17,16 @@ struct ProgressObject {
   let prevChapterImageName: String
   let nextChapterImageName: String
   let chapterTitle: String
-
+  
   var formattedCurrentTime: String {
     return TimeParser.formatTime(self.currentTime)
   }
-
+  
   var formattedMaxTime: String? {
     guard let maxTime = self.maxTime else { return nil }
-
+    
     let formattedTime = TimeParser.formatTime(abs(maxTime))
-
+    
     if maxTime < 0 {
       return "-".appending(formattedTime)
     } else {

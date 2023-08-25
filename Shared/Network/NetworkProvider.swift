@@ -10,11 +10,11 @@ import Foundation
 
 class NetworkProvider<RawEndpoint: Endpoint> {
   public let client: NetworkClientProtocol
-
+  
   public init(client: NetworkClientProtocol = NetworkClient()) {
     self.client = client
   }
-
+  
   public func request<T: Decodable>(
     _ endpoint: RawEndpoint
   ) async throws -> T {

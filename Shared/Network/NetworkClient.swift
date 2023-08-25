@@ -15,25 +15,25 @@ public protocol NetworkClientProtocol {
     parameters: [String: Any]?,
     useKeychain: Bool
   ) async throws -> T
-
+  
   func request<T: Decodable>(
     path: String,
     method: HTTPMethod,
     parameters: [String: Any]?
   ) async throws -> T
-
+  
   func upload(
     _ data: Data,
     remoteURL: URL
   ) async throws
-
+  
   func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
     taskDescription: String?,
     session: URLSession
   ) async -> URLSessionTask
-
+  
   func download(
     url: URL,
     taskDescription: String?,
@@ -52,11 +52,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
   let keychain: KeychainServiceProtocol
   /// response decoder
   private let decoder: JSONDecoder = JSONDecoder()
-
+  
   public init(keychain: KeychainServiceProtocol = KeychainService()) {
     self.keychain = keychain
   }
-
+  
   public func request<T: Decodable>(
     url: URL,
     method: HTTPMethod,
@@ -69,27 +69,27 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       parameters: parameters,
       useKeychain: useKeychain
     )
-
+    
     return try await executeRequest(request, method: method, parameters: parameters)
   }
-
+  
   public func request<T: Decodable>(
     path: String,
     method: HTTPMethod,
     parameters: [String: Any]?
   ) async throws -> T {
     let request = try buildURLRequest(path: path, method: method, parameters: parameters)
-
+    
     return try await executeRequest(request, method: method, parameters: parameters)
   }
-
+  
   public func download(
     url: URL,
     taskDescription: String?,
     delegate: URLSessionTaskDelegate
   ) -> URLSessionDownloadTask {
     let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
+    
     let session = URLSession(
       configuration: URLSessionConfiguration.background(
         withIdentifier: "\(bundleIdentifier).background.download"
@@ -97,14 +97,14 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       delegate: delegate,
       delegateQueue: OperationQueue()
     )
-
+    
     let task = session.downloadTask(with: url)
     task.taskDescription = taskDescription
     task.resume()
-
+    
     return task
   }
-
+  
   public func upload(
     _ data: Data,
     remoteURL: URL
@@ -112,12 +112,12 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
+    
     Self.logger.trace("[Request] PUT \(remoteURL.path)")
-
+    
     _ = try await URLSession.shared.upload(for: request, from: data)
   }
-
+  
   public func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
@@ -127,9 +127,9 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
+    
     let allTasks = await session.allTasks
-
+    
     /// Avoid creating a new task if one exists already to avoid double uploads
     if let existingTask = allTasks.first(where: { task in
       task.taskDescription == taskDescription
@@ -138,30 +138,30 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       return existingTask
     } else {
       Self.logger.trace("[Request] PUT \(remoteURL.path)")
-
+      
       let task = session.uploadTask(with: request, fromFile: fileURL)
       task.taskDescription = taskDescription
-
+      
       return task
     }
   }
-
+  
   func executeRequest<T: Decodable>(
     _ request: URLRequest,
     method: HTTPMethod,
     parameters: [String: Any]?
   ) async throws -> T {
-
+    
     Self.logger.trace("[Request] \(method.rawValue) \(request.url?.path)\nParameters: \(parameters?.description)")
-
+    
     let (data, response) = try await URLSession.shared.data(for: request)
-
+    
     guard let httpURLResponse = response as? HTTPURLResponse else {
       throw URLError(.badServerResponse)
     }
-
+    
     Self.logger.trace("[Response] Status \(httpURLResponse.statusCode)\n\(String(data: data, encoding: .utf8))")
-
+    
     switch httpURLResponse.statusCode {
     case 400...499:
       let error = try self.decoder.decode(ErrorResponse.self, from: data)
@@ -174,14 +174,14 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
         else {
           throw URLError(.cannotParseResponse)
         }
-
+        
         return emptyValue
       }
-
+      
       return try self.decoder.decode(T.self, from: data)
     }
   }
-
+  
   func buildURLRequest(
     url: URL,
     method: HTTPMethod,
@@ -191,12 +191,12 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: url)
     request.httpMethod = method.rawValue
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
+    
     if useKeychain,
-      let accessToken = try? keychain.getAccessToken() {
+       let accessToken = try? keychain.getAccessToken() {
       request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     }
-
+    
     if let parameters = parameters {
       switch method {
       case .post, .put, .delete:
@@ -205,10 +205,10 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
         break
       }
     }
-
+    
     return request
   }
-
+  
   func buildURLRequest(
     path: String,
     method: HTTPMethod,
@@ -221,7 +221,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       components.port = parsedPort
     }
     components.path = path
-
+    
     if case .get = method,
        let parameters = parameters {
       let queryItems = parameters.map({
@@ -232,11 +232,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       })
       components.queryItems = queryItems
     }
-
+    
     guard let url = components.url else {
       throw URLError(.badURL)
     }
-
+    
     return try buildURLRequest(url: url, method: method, parameters: parameters)
   }
 }

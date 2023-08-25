@@ -10,21 +10,21 @@ import BookPlayerKit
 import Foundation
 
 class SleepTimerHandler: NSObject, SleepTimerIntentHandling {
-    func handle(intent: SleepTimerIntent, completion: @escaping (SleepTimerIntentResponse) -> Void) {
-        completion(SleepTimerIntentResponse(code: .continueInApp, userActivity: nil))
+  func handle(intent: SleepTimerIntent, completion: @escaping (SleepTimerIntentResponse) -> Void) {
+    completion(SleepTimerIntentResponse(code: .continueInApp, userActivity: nil))
+  }
+  
+  @available(iOSApplicationExtension 13.0, *)
+  func resolveOption(for intent: SleepTimerIntent, with completion: @escaping (TimerOptionResolutionResult) -> Void) {
+    if intent.option == .unknown {
+      completion(TimerOptionResolutionResult.needsValue())
+    } else {
+      completion(TimerOptionResolutionResult.success(with: intent.option))
     }
-
-    @available(iOSApplicationExtension 13.0, *)
-    func resolveOption(for intent: SleepTimerIntent, with completion: @escaping (TimerOptionResolutionResult) -> Void) {
-        if intent.option == .unknown {
-            completion(TimerOptionResolutionResult.needsValue())
-        } else {
-            completion(TimerOptionResolutionResult.success(with: intent.option))
-        }
-    }
-
-    @available(iOSApplicationExtension 13.0, *)
-    func resolveSeconds(for intent: SleepTimerIntent, with completion: @escaping (SleepTimerSecondsResolutionResult) -> Void) {
-        completion(SleepTimerSecondsResolutionResult.notRequired())
-    }
+  }
+  
+  @available(iOSApplicationExtension 13.0, *)
+  func resolveSeconds(for intent: SleepTimerIntent, with completion: @escaping (SleepTimerSecondsResolutionResult) -> Void) {
+    completion(SleepTimerSecondsResolutionResult.notRequired())
+  }
 }

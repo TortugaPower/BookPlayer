@@ -10,7 +10,7 @@ import Foundation
 
 enum SkipDirection {
   case back, forward
-
+  
   var systemImage: String {
     switch self {
     case .back:

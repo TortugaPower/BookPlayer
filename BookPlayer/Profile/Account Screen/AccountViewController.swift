@@ -13,19 +13,19 @@ import UIKit
 
 class AccountViewController: BaseViewController<AccountCoordinator, AccountViewModel> {
   // MARK: - UI components
-
+  
   private lazy var scrollView: UIScrollView = {
     let scrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
     return scrollView
   }()
-
+  
   private lazy var contentView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
     return view
   }()
-
+  
   private lazy var containerStackview: UIStackView = {
     let stackview = UIStackView()
     stackview.translatesAutoresizingMaskIntoConstraints = false
@@ -33,7 +33,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     stackview.spacing = Spacing.S
     return stackview
   }()
-
+  
   private lazy var accountSectionView: UIView = {
     return AccountSectionContainerView(
       contents: AccountCardView(title: viewModel.account?.email),
@@ -45,7 +45,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private lazy var manageProSectionView: UIView = {
     let row = AccountRowContainerView(
       title: "BookPlayer Pro",
@@ -54,11 +54,11 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       showChevron: true,
       titleFont: Fonts.title
     )
-
+    
     row.tapAction = { [weak self] in
       self?.didPressManageSubscription()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -69,17 +69,17 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private lazy var privacyPolicySectionView: UIView = {
     let row = AccountRowContainerView(
       title: "privacy_policy_title".localized,
       systemImageName: "doc.text"
     )
-
+    
     row.tapAction = { [weak self] in
       self?.viewModel.showPrivacyPolicy()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -91,17 +91,17 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       hideBottomSeparator: true
     )
   }()
-
+  
   private lazy var termsSectionView: UIView = {
     let row = AccountRowContainerView(
       title: "terms_conditions_title".localized,
       systemImageName: "doc.text"
     )
-
+    
     row.tapAction = { [weak self] in
       self?.viewModel.showTermsAndConditions()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -112,7 +112,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   // TODO: add section about uploaded files
   private lazy var manageFilesSectionView: UIView = {
     // TODO: Add localization
@@ -122,11 +122,11 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       showChevron: true,
       titleFont: Fonts.title
     )
-
+    
     row.tapAction = { [weak self] in
       self?.didPressManageFiles()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -137,14 +137,14 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private lazy var benefitsSectionView: UIView = {
     let row = AccountProBenefitsView()
-
+    
     row.tapAction = { [weak self] in
       self?.didPressCompleteAccount()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -155,29 +155,29 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private lazy var logoutSectionView: UIView = {
     let imageName: String
     var flipImage = false
-
+    
     if #available(iOS 15, *) {
       imageName = "rectangle.portrait.and.arrow.right"
     } else {
       imageName = "square.and.arrow.up"
       flipImage = true
     }
-
+    
     let row = AccountRowContainerView(
       title: "logout_title".localized,
       systemImageName: imageName,
       flipImage: flipImage,
       imageTintColor: .red
     )
-
+    
     row.tapAction = { [weak self] in
       self?.didPressLogout()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -188,18 +188,18 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private lazy var deleteSectionView: UIView = {
     let row = AccountRowContainerView(
       title: "delete_account_title".localized,
       systemImageName: "trash",
       imageTintColor: .red
     )
-
+    
     row.tapAction = { [weak self] in
       self?.didPressDelete()
     }
-
+    
     return AccountSectionContainerView(
       contents: row,
       insets: UIEdgeInsets(
@@ -210,31 +210,31 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       )
     )
   }()
-
+  
   private var disposeBag = Set<AnyCancellable>()
-
+  
   // MARK: - Initializer
-
+  
   init() {
     super.init(nibName: nil, bundle: nil)
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   // MARK: - Lifecycle
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-
+    
     setupNavigationItem()
     addSubviews()
     addConstraints()
     bindObservers()
     setUpTheming()
   }
-
+  
   func setupNavigationItem() {
     self.navigationItem.title = "account_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -244,7 +244,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       action: #selector(self.didPressClose)
     )
   }
-
+  
   func addSubviews() {
     view.addSubview(scrollView)
     scrollView.addSubview(contentView)
@@ -259,12 +259,12 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
     containerStackview.addArrangedSubview(logoutSectionView)
     containerStackview.addArrangedSubview(deleteSectionView)
   }
-
+  
   func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
     // constrain subviews to the scroll view's Content Layout Guide
     let contentLayoutGuide = scrollView.contentLayoutGuide
-
+    
     NSLayoutConstraint.activate([
       // setup scrollview
       scrollView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
@@ -283,7 +283,7 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
       containerStackview.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.M),
     ])
   }
-
+  
   func bindObservers() {
     self.viewModel.$account
       .receive(on: RunLoop.main)
@@ -297,30 +297,30 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
           self?.manageProSectionView.isHidden = true
           self?.manageFilesSectionView.isHidden = true
         }
-    }
-    .store(in: &disposeBag)
+      }
+      .store(in: &disposeBag)
   }
-
+  
   func didPressManageSubscription() {
     self.viewModel.showManageSubscription()
   }
-
+  
   func didPressManageFiles() {
     self.viewModel.showManageFiles()
   }
-
+  
   @objc func didPressCompleteAccount() {
     self.viewModel.showCompleteAccount()
   }
-
+  
   func didPressLogout() {
     self.viewModel.handleLogout()
   }
-
+  
   func didPressDelete() {
     self.viewModel.showDeleteAlert()
   }
-
+  
   @objc func didPressClose() {
     self.viewModel.dismiss()
   }
@@ -331,9 +331,9 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
 extension AccountViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     view.backgroundColor = theme.secondarySystemBackgroundColor
-
+    
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

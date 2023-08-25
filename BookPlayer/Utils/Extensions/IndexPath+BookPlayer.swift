@@ -9,13 +9,13 @@
 import UIKit
 
 extension IndexPath {
-    init(row: Int, section: BPSection) {
-        self.init(row: row, section: section.rawValue)
-    }
-
-    var sectionValue: BPSection {
-        return BPSection(rawValue: self.section) ?? .data
-    }
+  init(row: Int, section: BPSection) {
+    self.init(row: row, section: section.rawValue)
+  }
+  
+  var sectionValue: BPSection {
+    return BPSection(rawValue: self.section) ?? .data
+  }
 }
 
 enum BPSection: Int, CaseIterable {

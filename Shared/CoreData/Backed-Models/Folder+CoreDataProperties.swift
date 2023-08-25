@@ -14,7 +14,7 @@ extension Folder {
   @nonobjc public class func fetchRequest() -> NSFetchRequest<Folder> {
     return NSFetchRequest<Folder>(entityName: "Folder")
   }
-
+  
   @NSManaged public var items: NSSet?
 }
 
@@ -23,13 +23,13 @@ extension Folder {
 extension Folder {
   @objc(addItemsObject:)
   @NSManaged public func addToItems(_ value: LibraryItem)
-
+  
   @objc(removeItemsObject:)
   @NSManaged public func removeFromItems(_ value: LibraryItem)
-
+  
   @objc(addItems:)
   @NSManaged public func addToItems(_ values: NSSet)
-
+  
   @objc(removeItems:)
   @NSManaged public func removeFromItems(_ values: NSSet)
 }

@@ -22,7 +22,7 @@ protocol StorageViewModelProtocol: ObservableObject {
   var showProgressIndicator: Bool { get set }
   var alert: Alert { get }
   var fixButtonTitle: String { get }
-
+  
   func getFolderSize() -> String
   func dismiss()
 }
@@ -30,7 +30,7 @@ protocol StorageViewModelProtocol: ObservableObject {
 extension StorageViewModelProtocol {
   func getFolderSize() -> String {
     var folderSize: Int64 = 0
-
+    
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
       includingPropertiesForKeys: [],
@@ -38,12 +38,12 @@ extension StorageViewModelProtocol {
         print("directoryEnumerator error at \(url): ", error)
         return true
       })!
-
+    
     for case let fileURL as URL in enumerator {
       guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
       folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
     }
-
+    
     return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
   }
 }
@@ -66,11 +66,11 @@ final class StorageViewModel: StorageViewModelProtocol {
     case showAlert(title: String, message: String)
     case dismiss
   }
-
+  
   // MARK: - Properties
   let libraryService: LibraryServiceProtocol
   let folderURL: URL
-
+  
   @Published var publishedFiles = [StorageItem]() {
     didSet {
       self.showFixAllButton = self.publishedFiles.contains { $0.showWarning }
@@ -86,10 +86,10 @@ final class StorageViewModel: StorageViewModelProtocol {
       UserDefaults.standard.set(sortBy.rawValue, forKey: Constants.UserDefaults.storageFilesSortOrder)
     }
   }
-
+  
   let navigationTitle = "settings_storage_title".localized
   let fixButtonTitle = "storage_fix_all_title".localized
-
+  
   var alert: Alert {
     switch storageAlert {
     case .error(let errorMessage):
@@ -106,24 +106,24 @@ final class StorageViewModel: StorageViewModelProtocol {
       return Alert(title: Text(""))
     }
   }
-
+  
   /// Callback to handle actions on this screen
   var onTransition: BPTransition<Routes>?
   var storageAlert: BPStorageAlert = .none
-
+  
   lazy var library: Library = {
     libraryService.getLibrary()
   }()
-
+  
   init(libraryService: LibraryServiceProtocol, folderURL: URL) {
     self.libraryService = libraryService
     self.folderURL = folderURL
     
     self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
-
+    
     self.loadItems()
   }
-
+  
   // MARK: - Public interface
   
   func shouldShowWarning(for relativePath: String) -> Bool {
@@ -213,13 +213,13 @@ final class StorageViewModel: StorageViewModelProtocol {
       }
     }
   }
-
+  
   func dismiss() {
     onTransition?(.dismiss)
   }
-    
+  
   // MARK: - Private functions
-
+  
   private func loadItems() {
     showProgressIndicator = true
     Task { @MainActor in
@@ -266,23 +266,23 @@ final class StorageViewModel: StorageViewModelProtocol {
   private func getRelativePath(of fileURL: URL, baseURL: URL) -> String {
     fileURL.relativePath(to: baseURL)
   }
-
+  
   private func bookExists(_ relativePath: String, library: Library) -> Bool {
     guard let items = library.items?.allObjects as? [BookPlayerKit.LibraryItem] else {
       return false
     }
-
+    
     return items.contains { item in
       if let book = item as? Book {
         return book.relativePath == relativePath
       } else if let folder = item as? Folder {
         return getItem(with: relativePath, from: folder) != nil
       }
-
+      
       return false
     }
   }
-
+  
   private func getItem(with relativePath: String, from item: BookPlayerKit.LibraryItem) -> BookPlayerKit.LibraryItem? {
     switch item {
     case let folder as Folder:
@@ -293,56 +293,56 @@ final class StorageViewModel: StorageViewModelProtocol {
       return nil
     }
   }
-
+  
   private func getItem(with relativePath: String, from folder: Folder) -> BookPlayerKit.LibraryItem? {
     guard let items = folder.items?.allObjects as? [BookPlayerKit.LibraryItem] else {
       return nil
     }
-
+    
     var itemFound: BookPlayerKit.LibraryItem?
-
+    
     for item in items {
       if let libraryItem = getItem(with: relativePath, from: item) {
         itemFound = libraryItem
         break
       }
     }
-
+    
     return itemFound
   }
-
+  
   private func reloadLibraryItems() {
     AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
       .getLibraryCoordinator()?.reloadItemsWithPadding()
   }
-
+  
   private func createBook(from item: StorageItem) throws {
     let book = self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
     try libraryService.moveItems([book.relativePath], inside: nil)
     reloadLibraryItems()
   }
-
+  
   private func moveBookFile(from item: StorageItem, with book: Book) throws {
     let isOrphaned = book.getLibrary() == nil
     let defaultDestinationURL = self.folderURL.appendingPathComponent(item.fileURL.lastPathComponent)
     let destinationURL = !isOrphaned
-      ? book.fileURL ?? defaultDestinationURL
-      : defaultDestinationURL
-
+    ? book.fileURL ?? defaultDestinationURL
+    : defaultDestinationURL
+    
     guard item.fileURL != destinationURL,
           !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
-
+    
     // create parent folder if it doesn't exist
     let parentFolder = destinationURL.deletingLastPathComponent()
-
+    
     if !FileManager.default.fileExists(atPath: parentFolder.path) {
       try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
     }
-
+    
     try FileManager.default.moveItem(at: item.fileURL, to: destinationURL)
   }
-
+  
   private func sortedItems(items: [StorageItem]) -> [StorageItem] {
     return items
       .sorted { sortBy == .size ? $0.size > $1.size : $0.title < $1.title }

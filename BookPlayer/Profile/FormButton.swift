@@ -14,7 +14,7 @@ class FormButton: UIButton {
   override var intrinsicContentSize: CGSize {
     return CGSize(width: frame.width, height: 45)
   }
-
+  
   init(
     title: String,
     cornerRadius: CGFloat = 6
@@ -28,7 +28,7 @@ class FormButton: UIButton {
     setTitle(title, for: .normal)
     backgroundColor = UIColor(hex: "687AB7")
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }

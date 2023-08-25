@@ -14,7 +14,7 @@ import UIKit
 
 class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsViewModel> {
   // MARK: - UI components
-
+  
   private lazy var detailsView: UIView = {
     let view = ItemDetailsView(viewModel: viewModel.formViewModel)
     let hostingController = UIHostingController(rootView: view)
@@ -23,35 +23,35 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
     addChild(hostingController)
     hostingController.didMove(toParent: self)
     hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-
+    
     return hostingController.view
   }()
-
+  
   private var disposeBag = Set<AnyCancellable>()
-
+  
   // MARK: - Initializer
-
+  
   init(viewModel: ItemDetailsViewModel) {
     super.init(nibName: nil, bundle: nil)
     self.viewModel = viewModel
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   // MARK: - Lifecycle
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-
+    
     setupNavigationItem()
     addSubviews()
     addConstraints()
     setUpTheming()
     bindEventsObserver()
   }
-
+  
   func bindEventsObserver() {
     self.viewModel.observeEvents()
       .receive(on: DispatchQueue.main)
@@ -65,7 +65,7 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
       }
       .store(in: &disposeBag)
   }
-
+  
   func showLoader(_ flag: Bool) {
     if flag {
       LoadingUtils.loadAndBlock(in: self)
@@ -73,7 +73,7 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
       LoadingUtils.stopLoading(in: self)
     }
   }
-
+  
   func setupNavigationItem() {
     self.navigationItem.title = "edit_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -87,14 +87,14 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
       action: #selector(self.didTapSave)
     )
   }
-
+  
   func addSubviews() {
     view.addSubview(detailsView)
   }
-
+  
   func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
-
+    
     NSLayoutConstraint.activate([
       detailsView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
       detailsView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
@@ -102,11 +102,11 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
       detailsView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
     ])
   }
-
+  
   @objc func didTapCancel() {
     viewModel.handleCancelAction()
   }
-
+  
   @objc func didTapSave() {
     viewModel.handleSaveAction()
   }
@@ -117,9 +117,9 @@ class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsView
 extension ItemDetailsViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     view.backgroundColor = theme.systemGroupedBackgroundColor
-
+    
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

@@ -154,7 +154,7 @@ struct StorageView_Previews: PreviewProvider {
     var showProgressIndicator: Bool = false
     var alert: Alert { Alert(title: Text("")) }
     let fixButtonTitle = "Fix all"
-
+    
     func getFolderSize() -> String { return "0 Kb" }
     func dismiss() {}
   }

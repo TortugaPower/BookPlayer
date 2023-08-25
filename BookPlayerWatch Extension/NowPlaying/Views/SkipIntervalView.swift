@@ -11,7 +11,7 @@ import SwiftUI
 struct SkipIntervalView: View {
   let interval: Int?
   let skipDirection: SkipDirection
-
+  
   var body: some View {
     ZStack {
       if let interval = interval {
@@ -21,7 +21,7 @@ struct SkipIntervalView: View {
           .padding(5)
           .offset(y: 1)
       }
-
+      
       ResizeableImageView(name: skipDirection.systemImage)
     }
   }

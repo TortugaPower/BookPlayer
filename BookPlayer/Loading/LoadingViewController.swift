@@ -16,18 +16,18 @@ class LoadingViewController: BaseViewController<LoadingCoordinator, LoadingViewM
   override func viewDidLoad() {
     self.navigationController?.isNavigationBarHidden = true
   }
-
+  
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     self.navigationController?.isNavigationBarHidden = true
   }
-
+  
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-
+    
     self.viewModel.initializeDataIfNeeded()
   }
-
+  
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
   }

@@ -12,7 +12,7 @@ import BookPlayerWatchKit
 struct ContainerItemListView: View {
   @ObservedObject var contextManager = ExtensionDelegate.contextManager
   @State var showPlayer = false
-
+  
   var body: some View {
     VStack {
       if contextManager.items.isEmpty,

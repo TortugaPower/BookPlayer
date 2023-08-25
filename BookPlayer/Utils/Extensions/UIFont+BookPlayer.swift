@@ -16,12 +16,12 @@ extension UIFont {
     if italic == true {
       font = font.with([.traitItalic])
     }
-
+    
     // Setup the font to be auto-scalable
     let metrics = UIFontMetrics(forTextStyle: style)
     return metrics.scaledFont(for: font)
   }
-
+  
   private func with(_ traits: UIFontDescriptor.SymbolicTraits...) -> UIFont {
     guard let descriptor = fontDescriptor.withSymbolicTraits(UIFontDescriptor.SymbolicTraits(traits).union(fontDescriptor.symbolicTraits)) else {
       return self

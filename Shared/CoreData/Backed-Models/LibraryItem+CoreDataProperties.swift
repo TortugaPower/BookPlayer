@@ -14,7 +14,7 @@ extension LibraryItem {
   @nonobjc public class func fetchRequest() -> NSFetchRequest<LibraryItem> {
     return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
   }
-
+  
   @NSManaged public var currentTime: Double
   @NSManaged public var duration: Double
   @NSManaged public var title: String!
@@ -40,13 +40,13 @@ extension LibraryItem {
 extension LibraryItem {
   @objc(addBookmarksObject:)
   @NSManaged public func addToBookmarks(_ value: Bookmark)
-
+  
   @objc(removeBookmarksObject:)
   @NSManaged public func removeFromBookmarks(_ value: Bookmark)
-
+  
   @objc(addBookmarks:)
   @NSManaged public func addToBookmarks(_ values: NSSet)
-
+  
   @objc(removeBookmarks:)
   @NSManaged public func removeFromBookmarks(_ values: NSSet)
 }

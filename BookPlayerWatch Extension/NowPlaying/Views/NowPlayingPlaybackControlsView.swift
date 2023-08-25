@@ -11,11 +11,11 @@ import SwiftUI
 
 struct NowPlayingPlaybackControlsView: View {
   @EnvironmentObject var contextManager: ContextManager
-
+  
   var body: some View {
     HStack {
       Spacer()
-
+      
       NavigationLink(
         destination: PlaybackControlsView()
           .environmentObject(contextManager)
@@ -24,13 +24,13 @@ struct NowPlayingPlaybackControlsView: View {
           .padding(11)
       }
       .buttonStyle(PlainButtonStyle())
-
+      
       Spacer()
-
+      
       VolumeView()
-
+      
       Spacer()
-
+      
       NavigationLink(
         destination: ChapterListView()
           .environmentObject(contextManager)
@@ -39,7 +39,7 @@ struct NowPlayingPlaybackControlsView: View {
           .padding(14)
       }
       .buttonStyle(PlainButtonStyle())
-
+      
       Spacer()
     }
     .fixedSize(horizontal: false, vertical: true)

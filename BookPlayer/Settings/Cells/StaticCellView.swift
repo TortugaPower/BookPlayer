@@ -12,10 +12,10 @@ import UIKit
 
 class StaticCellView: UITableViewCell {
   @IBOutlet weak var customLabel: UILabel?
-
+  
   override func awakeFromNib() {
     super.awakeFromNib()
-
+    
     let font = UIFont.preferredFont(forTextStyle: .body)
     self.customLabel?.font = font
     self.customLabel?.adjustsFontForContentSizeCategory = true
@@ -23,7 +23,7 @@ class StaticCellView: UITableViewCell {
     self.textLabel?.adjustsFontForContentSizeCategory = true
     self.detailTextLabel?.font = font
     self.detailTextLabel?.adjustsFontForContentSizeCategory = true
-
+    
     setUpTheming()
   }
 }

@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 func rubberBandDistance(_ offset: CGFloat, dimension: CGFloat, constant: CGFloat = 0.55) -> CGFloat {
-    let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
-
-    return offset < 0.0 ? -result : result
+  let result = (constant * abs(offset) * dimension) / (dimension + constant * abs(offset))
+  
+  return offset < 0.0 ? -result : result
 }

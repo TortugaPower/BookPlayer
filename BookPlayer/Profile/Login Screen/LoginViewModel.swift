@@ -12,11 +12,11 @@ import Foundation
 
 class LoginViewModel: BaseViewModel<LoginCoordinator> {
   let accountService: AccountServiceProtocol
-
+  
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
   }
-
+  
   /// This should only be used when running the app in the simulator
   func setupTestAccount() {
     do {
@@ -25,10 +25,10 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
     } catch {
       self.coordinator.showError(error)
     }
-
+    
     self.coordinator.showCompleteAccount()
   }
-
+  
   func handleSignIn(authorization: ASAuthorization) {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
@@ -39,21 +39,21 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
         self.coordinator.showError(AccountError.missingToken)
         return
       }
-
+      
       Task { [weak self, accountService, token, appleIDCredential] in
         await MainActor.run { [weak self] in
           self?.coordinator.showLoader()
         }
-
+        
         do {
           let account = try await accountService.login(
             with: token,
             userId: appleIDCredential.user
           )
-
+          
           await MainActor.run { [weak self, account] in
             self?.coordinator.stopLoader()
-
+            
             if let account = account,
                !account.hasSubscription {
               self?.coordinator.showCompleteAccount()
@@ -68,12 +68,12 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
           }
         }
       }
-
+      
     default:
       break
     }
   }
-
+  
   func handleError(_ error: Error) {
     self.coordinator.showError(error)
   }

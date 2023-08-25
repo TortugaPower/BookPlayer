@@ -13,24 +13,24 @@ import WidgetKit
 struct TimeListenedSmallView: View {
   @Environment(\.colorScheme) var colorScheme
   var entry: TimeListenedProvider.Entry
-
+  
   var body: some View {
     let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
-
+    
     var dateLabel = "Today"
     var time = "--:--"
-
+    
     let titleLabel = entry.title ?? "---"
-
+    
     if let playbackRecord = entry.playbackRecords.first {
       time = WidgetUtils.formatTime(playbackRecord.time)
       dateLabel = WidgetUtils.formatDate(playbackRecord.date)
     }
-
+    
     let appIconName = WidgetUtils.getAppIconName()
-
+    
     let url = WidgetUtils.getWidgetActionURL(with: nil, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-
+    
     return VStack(spacing: 0) {
       HStack {
         Text("Listened")
@@ -53,7 +53,7 @@ struct TimeListenedSmallView: View {
         .padding([.leading, .trailing])
         .padding([.bottom], 8)
         .accessibility(hidden: true)
-
+      
       VStack {
         HStack {
           Text("Last Book")
@@ -63,7 +63,7 @@ struct TimeListenedSmallView: View {
           Spacer()
         }
         .padding([.leading, .trailing])
-
+        
         VStack(alignment: .leading) {
           Text(titleLabel)
             .font(.caption)

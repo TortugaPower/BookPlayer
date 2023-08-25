@@ -12,9 +12,9 @@ import SwiftUI
 struct QueuedSyncTaskRowView: View {
   @Binding var imageName: String
   @Binding var title: String
-
+  
   @EnvironmentObject var themeViewModel: ThemeViewModel
-
+  
   var body: some View {
     HStack {
       Image(systemName: imageName)

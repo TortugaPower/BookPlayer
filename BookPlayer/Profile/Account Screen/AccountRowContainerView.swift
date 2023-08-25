@@ -20,7 +20,7 @@ class AccountRowContainerView: UIView {
     view.alpha = 0.2
     return view
   }()
-
+  
   private lazy var imageContainerView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
@@ -29,7 +29,7 @@ class AccountRowContainerView: UIView {
     view.addSubview(imageOverlay)
     return view
   }()
-
+  
   private lazy var imageView: UIImageView = {
     let imageView = UIImageView(image: image)
     imageView.contentMode = .scaleAspectFit
@@ -41,21 +41,21 @@ class AccountRowContainerView: UIView {
     imageView.alpha = imageAlpha
     return imageView
   }()
-
+  
   private lazy var titleLabel: UILabel = {
     let label = BaseLabel()
     label.setContentCompressionResistancePriority(.required, for: .horizontal)
     label.isAccessibilityElement = false
     return label
   }()
-
+  
   private lazy var detailLabel: UILabel = {
     let label = BaseLabel()
     label.setContentHuggingPriority(.required, for: .horizontal)
     label.isAccessibilityElement = false
     return label
   }()
-
+  
   private lazy var containerChevronView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +63,7 @@ class AccountRowContainerView: UIView {
     view.addSubview(chevronImageView)
     return view
   }()
-
+  
   private lazy var chevronImageView: UIImageView = {
     let imageView = UIImageView(image: UIImage(systemName: "chevron.forward"))
     imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,7 +71,7 @@ class AccountRowContainerView: UIView {
     imageView.contentMode = .scaleAspectFit
     return imageView
   }()
-
+  
   private lazy var stackview: UIStackView = {
     let stackview = UIStackView(arrangedSubviews: [
       imageContainerView, titleLabel, detailLabel, containerChevronView
@@ -83,21 +83,21 @@ class AccountRowContainerView: UIView {
     stackview.setCustomSpacing(Spacing.S2, after: detailLabel)
     return stackview
   }()
-
+  
   /// Set default height to 44
   override var intrinsicContentSize: CGSize {
     return CGSize(width: frame.width, height: 44)
   }
-
+  
   let showChevron: Bool
   let imageTintColor: UIColor?
   let shouldAddOverlay: Bool
   let imageAlpha: CGFloat
   let flipImage: Bool
   var image: UIImage?
-
+  
   var tapAction: (() -> Void)?
-
+  
   init(
     title: String,
     systemImageName: String? = nil,
@@ -127,14 +127,14 @@ class AccountRowContainerView: UIView {
     titleLabel.font = titleFont
     detailLabel.text = detail
     detailLabel.font = detailFont
-
+    
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
     addGestureRecognizer(tapGesture)
-
+    
     addSubviews()
     addConstraints()
     setUpTheming()
-
+    
     isAccessibilityElement = true
     accessibilityTraits = [.button]
     var combinedAccessibilityLabel = title
@@ -143,14 +143,14 @@ class AccountRowContainerView: UIView {
     }
     accessibilityLabel = combinedAccessibilityLabel
   }
-
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   func addSubviews() {
     addSubview(stackview)
-
+    
     if !shouldAddOverlay {
       imageOverlay.isHidden = true
     }
@@ -158,7 +158,7 @@ class AccountRowContainerView: UIView {
       chevronImageView.isHidden = true
     }
   }
-
+  
   func addConstraints() {
     NSLayoutConstraint.activate([
       stackview.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -180,7 +180,7 @@ class AccountRowContainerView: UIView {
       imageOverlay.bottomAnchor.constraint(equalTo: imageView.bottomAnchor),
     ])
   }
-
+  
   @objc func handleTap() {
     tapAction?()
   }
@@ -193,7 +193,7 @@ extension AccountRowContainerView: Themeable {
     } else {
       imageView.tintColor = theme.linkColor
     }
-
+    
     titleLabel.textColor = theme.primaryColor
     detailLabel.textColor = theme.secondaryColor
     chevronImageView.tintColor = theme.secondaryColor

@@ -11,12 +11,12 @@ import CarPlay
 
 class CarPlaySceneDelegate: NSObject, CPTemplateApplicationSceneDelegate {
   let manager = CarPlayManager()
-
+  
   func templateApplicationScene(_ templateApplicationScene: CPTemplateApplicationScene,
                                 didConnect interfaceController: CPInterfaceController) {
     manager.connect(interfaceController)
   }
-
+  
   func templateApplicationScene(_ templateApplicationScene: CPTemplateApplicationScene, didDisconnectInterfaceController interfaceController: CPInterfaceController) {
     manager.disconnect()
   }

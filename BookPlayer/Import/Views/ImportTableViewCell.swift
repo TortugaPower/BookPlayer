@@ -15,16 +15,16 @@ final class ImportTableViewCell: UITableViewCell {
   @IBOutlet weak var filenameLabel: UILabel!
   @IBOutlet weak var iconImageView: UIImageView!
   @IBOutlet weak var countLabel: UILabel!
-
+  
   var onDeleteTap: (() -> Void)?
-
+  
   override func awakeFromNib() {
     super.awakeFromNib()
     setUpTheming()
   }
-
+  
   @IBAction func deleteTapped(_ sender: Any) {
-      self.onDeleteTap?()
+    self.onDeleteTap?()
   }
 }
 

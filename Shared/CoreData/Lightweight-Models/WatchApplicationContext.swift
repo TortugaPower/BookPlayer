@@ -15,7 +15,7 @@ public struct WatchApplicationContext: Codable {
   public var rewindInterval: Int?
   public var forwardInterval: Int?
   public var boostVolume: Bool
-
+  
   public init(
     recentItems: [PlayableItem],
     currentItem: PlayableItem?,

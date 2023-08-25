@@ -15,7 +15,7 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   var eventPublisher = PassthroughSubject<String, Never>()
-
+  
   init(
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
@@ -25,46 +25,46 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
     self.libraryService = libraryService
     self.syncService = syncService
   }
-
+  
   func disableTimer(_ flag: Bool) {
     // Disregard if it's already handled by setting
     guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled) else {
       return
     }
-
+    
     UIApplication.shared.isIdleTimerDisabled = flag
   }
-
+  
   func playPause() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     guard let currentItem = playerManager.currentItem else { return }
-
+    
     let isPlaying = playerManager.isPlaying
     playerManager.playPause()
     let formattedTime = TimeParser.formatTime(currentItem.currentTime)
-
+    
     let message = isPlaying
     ? "\("paused_title".localized) (\(formattedTime))"
     : "\("playing_title".localized.capitalized) (\(formattedTime))"
     eventPublisher.send(message)
   }
-
+  
   func rewind() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.rewind()
     eventPublisher.send("skipped_back_title".localized)
   }
-
+  
   func forward() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.forward()
     eventPublisher.send("skipped_forward_title".localized)
   }
-
+  
   func createBookmark() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     guard let currentItem = playerManager.currentItem else { return }
-
+    
     if let bookmark = self.libraryService.getBookmark(
       at: currentItem.currentTime,
       relativePath: currentItem.relativePath,
@@ -78,9 +78,9 @@ class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
       eventPublisher.send(message)
       return
     }
-
+    
     let currentTime = floor(currentItem.currentTime)
-
+    
     if let bookmark = self.libraryService.createBookmark(
       at: currentTime,
       relativePath: currentItem.relativePath,

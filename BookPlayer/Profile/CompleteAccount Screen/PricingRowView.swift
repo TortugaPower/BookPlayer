@@ -15,9 +15,9 @@ struct PricingRowView: View {
   @Binding var isLoading: Bool
   /// Theme view model to update colors
   @EnvironmentObject var themeViewModel: ThemeViewModel
-
+  
   var imageLength: CGFloat = 24
-
+  
   var body: some View {
     if isLoading {
       ProgressView()

@@ -22,7 +22,7 @@ extension AccountAPI: Endpoint {
       return "/v1/user/delete"
     }
   }
-
+  
   public var method: HTTPMethod {
     switch self {
     case .login:
@@ -31,7 +31,7 @@ extension AccountAPI: Endpoint {
       return .delete
     }
   }
-
+  
   public var parameters: [String: Any]? {
     switch self {
     case .login(let token):

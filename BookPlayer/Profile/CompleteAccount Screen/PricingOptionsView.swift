@@ -14,9 +14,9 @@ struct PricingOptionsView: View {
   @Binding var selected: PricingModel?
   @Binding var isLoading: Bool
   var onSelected: ((PricingModel) -> Void)?
-
+  
   @EnvironmentObject var themeViewModel: ThemeViewModel
-
+  
   var body: some View {
     VStack(spacing: Spacing.S1) {
       ForEach(options) { option in

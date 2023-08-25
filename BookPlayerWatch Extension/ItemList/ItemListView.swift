@@ -11,7 +11,7 @@ import SwiftUI
 struct ItemListView: View {
   @EnvironmentObject var contextManager: ContextManager
   @State var showPlayer = false
-
+  
   var body: some View {
     if contextManager.items.isEmpty {
       VStack {

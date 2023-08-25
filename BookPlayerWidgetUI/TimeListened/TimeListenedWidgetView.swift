@@ -12,11 +12,11 @@ import WidgetKit
 
 struct TimeListenedProvider: IntentTimelineProvider {
   typealias Entry = TimeListenedEntry
-
+  
   func placeholder(in context: Context) -> TimeListenedEntry {
     TimeListenedEntry(date: Date(), title: nil, theme: nil, timerSeconds: 300, autoplay: true, playbackRecords: [])
   }
-
+  
   func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (TimeListenedEntry) -> Void) {
     let stack = DataMigrationManager().getCoreDataStack()
     stack.loadStore { _, error in
@@ -24,21 +24,21 @@ struct TimeListenedProvider: IntentTimelineProvider {
         completion(self.placeholder(in: context))
         return
       }
-
+      
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
-
+      
       var records: [PlaybackRecordViewer]
-
+      
       if context.family == .systemMedium {
         records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
         records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
-
+      
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
+      
       let entry = TimeListenedEntry(
         date: Date(),
         title: libraryService.getLibraryLastItem()?.title,
@@ -47,11 +47,11 @@ struct TimeListenedProvider: IntentTimelineProvider {
         autoplay: autoplay,
         playbackRecords: records
       )
-
+      
       completion(entry)
     }
   }
-
+  
   func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<TimeListenedEntry>) -> Void) {
     let stack = DataMigrationManager().getCoreDataStack()
     stack.loadStore { _, error in
@@ -59,21 +59,21 @@ struct TimeListenedProvider: IntentTimelineProvider {
         completion(Timeline(entries: [], policy: .after(WidgetUtils.getNextDayDate())))
         return
       }
-
+      
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
-
+      
       var records: [PlaybackRecordViewer]
-
+      
       if context.family == .systemMedium {
         records = WidgetUtils.getPlaybackRecords(with: libraryService)
       } else {
         records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
       }
-
+      
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
+      
       let entry = TimeListenedEntry(
         date: Date(),
         title: libraryService.getLibraryLastItem()?.title,
@@ -82,7 +82,7 @@ struct TimeListenedProvider: IntentTimelineProvider {
         autoplay: autoplay,
         playbackRecords: records
       )
-
+      
       completion(Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate())))
     }
   }
@@ -92,7 +92,7 @@ struct TimeListenedWidgetView: View {
   @Environment(\.colorScheme) var colorScheme
   @Environment(\.widgetFamily) var widgetFamily
   var entry: TimeListenedProvider.Entry
-
+  
   var body: some View {
     switch widgetFamily {
     case .systemMedium:
@@ -116,7 +116,7 @@ struct TimeListenedWidgetView_Previews: PreviewProvider {
 
 struct TimeListenedWidget: Widget {
   let kind: String = "com.bookplayer.widget.small.timeListened"
-
+  
   var body: some WidgetConfiguration {
     IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: TimeListenedProvider()) { entry in
       TimeListenedWidgetView(entry: entry)

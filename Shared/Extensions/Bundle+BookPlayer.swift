@@ -13,17 +13,17 @@ public extension Bundle {
   func configurationValue<T>(for key: String) throws -> T where T: LosslessStringConvertible {
     return try Configuration.value(for: key, bundle: self)
   }
-
+  
   /// Retrieve a pre-defined configuration value from the receivers Info.plist dictionary. If the value does not exist the app will crash.
   func configurationValue<T>(for key: ConfigurationKeys) -> T where T: LosslessStringConvertible {
     // swiftlint:disable force_try
     return try! configurationValue(for: key.rawValue)
     // swiftlint:enable force_try
   }
-
+  
   func configurationString(for key: ConfigurationKeys) -> String {
     let value: String = self.configurationValue(for: key)
-
+    
     return value
   }
 }

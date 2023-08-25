@@ -28,7 +28,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showMiniPlayer(flag: Bool)
     case listDidAppear
   }
-
+  
   enum Events {
     case newData
     case reloadIndex(_ indexPath: IndexPath)
@@ -37,7 +37,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showLoader(flag: Bool)
     case showProcessingView(Bool, title: String?, subtitle: String?)
   }
-
+  
   let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol
   /// Used to handle single URL downloads
@@ -46,12 +46,12 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
   var offset = 0
-
+  
   public private(set) var defaultArtwork: Data?
   public private(set) var items = [SimpleLibraryItem]()
-
+  
   var eventsPublisher = InterfaceUpdater<ItemListViewModel.Events>()
-
+  
   private var bookProgressSubscription: AnyCancellable?
   /// Delegate for progress updates of single downloads by URL
   private var singleDownloadProgressDelegateInterface = BPTaskDownloadDelegate()
@@ -63,15 +63,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   private lazy var ongoingTasksParentReference = [String: String]()
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
-
+  
   private var disposeBag = Set<AnyCancellable>()
   /// Cached path for containing folder of playing item in relation to this list path
   private var playingItemParentPath: String?
-
+  
   public var maxItems: Int {
     return self.libraryService.getMaxItemsCount(at: self.folderRelativePath)
   }
-
+  
   /// Initializer
   init(
     folderRelativePath: String?,
@@ -90,61 +90,61 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.syncService = syncService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
-
+  
   func getEmptyStateImageName() -> String {
     return self.coordinator is LibraryListCoordinator
     ? "emptyLibrary"
     : "emptyPlaylist"
   }
-
+  
   func getNavigationTitle() -> String {
     guard let folderRelativePath = folderRelativePath else {
       return "library_title".localized
     }
-
+    
     return libraryService.getItemProperty(
       #keyPath(BookPlayerKit.LibraryItem.title),
       relativePath: folderRelativePath
     ) as? String
     ?? ""
   }
-
+  
   func observeEvents() -> AnyPublisher<ItemListViewModel.Events, Never> {
     eventsPublisher.eraseToAnyPublisher()
   }
-
+  
   func bindObservers() {
     bindBookObservers()
     bindDownloadObservers()
   }
-
+  
   /// Notify that the UI is presented and ready
   func viewDidAppear() {
     onTransition?(.listDidAppear)
   }
-
+  
   func bindBookObservers() {
     self.playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] currentItem in
-      guard let self = self else { return }
-
-      self.bookProgressSubscription?.cancel()
-
-      defer {
-        self.clearPlaybackState()
-      }
-
-      guard let currentItem = currentItem else {
-        self.playingItemParentPath = nil
-        return
-      }
-
-      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
-
-      self.bindItemProgressObserver(currentItem)
-    }.store(in: &disposeBag)
-
+        guard let self = self else { return }
+        
+        self.bookProgressSubscription?.cancel()
+        
+        defer {
+          self.clearPlaybackState()
+        }
+        
+        guard let currentItem = currentItem else {
+          self.playingItemParentPath = nil
+          return
+        }
+        
+        self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
+        
+        self.bindItemProgressObserver(currentItem)
+      }.store(in: &disposeBag)
+    
     NotificationCenter.default.publisher(for: .folderProgressUpdated)
       .sink { [weak self] notification in
         guard
@@ -156,23 +156,23 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         else {
           return
         }
-
+        
         self?.items[index].percentCompleted = progress
-
+        
         let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self?.sendEvent(.reloadIndex(indexModified))
       }.store(in: &disposeBag)
   }
-
+  
   func bindDownloadObservers() {
     downloadDelegateInterface.didFinishDownloadingTask = { [weak self] (task, location) in
       self?.handleFinishedDownload(task: task, location: location)
     }
-
+    
     downloadDelegateInterface.downloadProgressUpdated = { [weak self] (task, progress) in
       self?.handleDownloadProgressUpdated(task: task, individualProgress: progress)
     }
-
+    
     singleDownloadProgressDelegateInterface.downloadProgressUpdated = { [weak self] (_, progress) in
       let percentage = String(format: "%.2f", progress * 100)
       self?.sendEvent(.showProcessingView(
@@ -181,38 +181,38 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         subtitle: "\("progress_title".localized) \(percentage)%"
       ))
     }
-
+    
     singleDownloadProgressDelegateInterface.didFinishDownloadingTask = { [weak self] (task, fileURL) in
       self?.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
     }
-
+    
     singleDownloadProgressDelegateInterface.didFinishTaskWithError = { [weak self] (task, error) in
       self?.handleSingleDownloadTaskFinishedWithError(task, error: error)
     }
   }
-
+  
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
     let parentFolders: [String] = currentItem.relativePath.allRanges(of: "/")
       .map { String(currentItem.relativePath.prefix(upTo: $0.lowerBound)) }
       .reversed()
-
+    
     guard let folderRelativePath = self.folderRelativePath else {
       return parentFolders.last
     }
-
+    
     guard let index = parentFolders.firstIndex(of: folderRelativePath) else {
       return nil
     }
-
+    
     let elementIndex = index - 1
-
+    
     guard elementIndex >= 0 else {
       return nil
     }
-
+    
     return parentFolders[elementIndex]
   }
-
+  
   func bindItemProgressObserver(_ item: PlayableItem) {
     self.bookProgressSubscription?.cancel()
     self.bookProgressSubscription = item.publisher(for: \.percentCompleted)
@@ -225,18 +225,18 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
           item.parentFolder == self.folderRelativePath,
           let index = self.items.firstIndex(where: { relativePath == $0.relativePath })
         else { return }
-
+        
         self.items[index].percentCompleted = percentCompleted
-
+        
         let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
         self.sendEvent(.reloadIndex(indexModified))
       })
   }
-
+  
   func clearPlaybackState() {
     sendEvent(.newData)
   }
-
+  
   func loadInitialItems(pageSize: Int = 13) {
     guard
       let fetchedItems = self.libraryService.fetchContents(
@@ -245,14 +245,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         offset: 0
       )
     else { return }
-
+    
     self.offset = fetchedItems.count
     self.items = fetchedItems
   }
-
+  
   func loadNextItems(pageSize: Int = 13) {
     guard self.offset < self.maxItems else { return }
-
+    
     guard
       let fetchedItems = self.libraryService.fetchContents(
         at: self.folderRelativePath,
@@ -263,16 +263,16 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     else {
       return
     }
-
+    
     self.offset += fetchedItems.count
-
+    
     self.items += fetchedItems
     sendEvent(.newData)
   }
-
+  
   func loadAllItemsIfNeeded() {
     guard self.offset < self.maxItems else { return }
-
+    
     guard
       let fetchedItems = self.libraryService.fetchContents(
         at: self.folderRelativePath,
@@ -283,48 +283,48 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     else {
       return
     }
-
+    
     self.offset = fetchedItems.count
     self.items = fetchedItems
     sendEvent(.newData)
   }
-
+  
   func getItem(of type: SimpleItemType, after currentIndex: Int) -> Int? {
     guard let (index, _) = (self.items.enumerated().first { (index, item) in
       guard index > currentIndex else { return false }
-
+      
       return item.type == type
     }) else { return nil }
-
+    
     return index
   }
-
+  
   func getItem(of type: SimpleItemType, before currentIndex: Int) -> Int? {
     guard let (index, _) = (self.items.enumerated().reversed().first { (index, item) in
       guard index < currentIndex else { return false }
-
+      
       return item.type == type
     }) else { return nil }
-
+    
     return index
   }
-
+  
   private func playNextBook(in item: SimpleLibraryItem) {
     guard item.type == .folder else { return }
-
+    
     /// If the player already is playing a subset of this folder, let the player handle playback
     if let currentItem = self.playerManager.currentItem,
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
     } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
-        in: item,
-        isUnfinished: true
-      ),
-      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
+      in: item,
+      isUnfinished: true
+    ),
+              let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }
-
+  
   func handleArtworkTap(for item: SimpleLibraryItem) {
     switch item.type {
     case .folder:
@@ -340,25 +340,25 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     }
   }
-
+  
   func reloadItems(pageSizePadding: Int = 0) {
     let pageSize = self.items.count + pageSizePadding
     self.loadInitialItems(pageSize: pageSize)
     sendEvent(.newData)
   }
-
+  
   func getPlaybackState(for item: SimpleLibraryItem) -> PlaybackState {
     guard let currentItem = self.playerManager.currentItem else {
       return .stopped
     }
-
+    
     if item.relativePath == currentItem.relativePath {
       return .playing
     }
-
+    
     return item.relativePath == playingItemParentPath ? .playing : .stopped
   }
-
+  
   func showItemContents(_ item: SimpleLibraryItem) {
     switch item.type {
     case .folder:
@@ -372,7 +372,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
     }
   }
-
+  
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     do {
       let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
@@ -383,28 +383,28 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       }
       try self.libraryService.updateFolder(at: folder.relativePath, type: type)
       libraryService.rebuildFolderDetails(folder.relativePath)
-
+      
       // stop playback if folder items contain that current item
       if let items = items,
          let currentRelativePath = self.playerManager.currentItem?.relativePath,
          items.contains(currentRelativePath) {
         self.playerManager.stop()
       }
-
+      
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding(padding: 1)
   }
-
+  
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
     do {
       try folders.forEach { folder in
         try self.libraryService.updateFolder(at: folder.relativePath, type: type)
-
+        
         if let currentItem = self.playerManager.currentItem,
            currentItem.relativePath.contains(folder.relativePath) {
           self.playerManager.stop()
@@ -415,14 +415,14 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   func handleMoveIntoLibrary(items: [SimpleLibraryItem]) {
     let selectedItems = items.compactMap({ $0.relativePath })
     let parentFolder = items.first?.parentFolder
-
+    
     do {
       try libraryService.moveItems(selectedItems, inside: nil)
       syncService.scheduleMove(items: selectedItems, to: nil)
@@ -434,15 +434,15 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding(padding: selectedItems.count)
   }
-
+  
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
     ArtworkService.removeCache(for: folder.relativePath)
-
+    
     let fetchedItems = items.compactMap({ $0.relativePath })
-
+    
     do {
       try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
       syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
@@ -451,53 +451,53 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
     let parentFolder = items.first?.parentFolder
-
+    
     do {
       try libraryService.delete(items, mode: mode)
-
+      
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
       }
-
+      
       syncService.scheduleDelete(items, mode: mode)
     } catch {
       sendEvent(.showAlert(
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
     if let folderRelativePath = folderRelativePath {
       ArtworkService.removeCache(for: folderRelativePath)
     }
-
+    
     self.libraryService.reorderItem(
       with: item.relativePath,
       inside: self.folderRelativePath,
       sourceIndexPath: sourceIndexPath,
       destinationIndexPath: destinationIndexPath
     )
-
+    
     self.loadInitialItems(pageSize: self.items.count)
   }
-
+  
   func updateDefaultArtwork(for theme: SimpleTheme) {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
   }
-
+  
   func showMiniPlayer(_ flag: Bool) {
     onTransition?(.showMiniPlayer(flag: flag))
   }
-
+  
   func showAddActions() {
     sendEvent(.showAlert(
       content: BPAlertContent(
@@ -532,10 +532,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   private func getAvailableFolders(notIn items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
     var availableFolders = [SimpleLibraryItem]()
-
+    
     guard
       let existingItems = libraryService.fetchContents(
         at: self.folderRelativePath,
@@ -543,33 +543,33 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         offset: nil
       )
     else { return [] }
-
+    
     let existingFolders = existingItems.filter({ $0.type == .folder })
-
+    
     for folder in existingFolders {
       if items.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-
+      
       availableFolders.append(folder)
     }
-
+    
     return availableFolders
   }
-
+  
   func showItemDetails(_ item: SimpleLibraryItem) {
     onTransition?(.showItemDetails(item: item))
   }
-
+  
   func showMoveOptions(selectedItems: [SimpleLibraryItem]) {
     let availableFolders = getAvailableFolders(notIn: selectedItems)
-
+    
     showMoveOptions(selectedItems: selectedItems, availableFolders: availableFolders)
   }
-
+  
   func showDeleteAlert(selectedItems: [SimpleLibraryItem]) {
     var actions = [BPActionItem]()
     var alertTitle: String
     var alertMessage: String?
-
+    
     if selectedItems.count == 1,
        let item = selectedItems.first {
       alertTitle = String(format: "delete_single_item_title".localized, item.title)
@@ -578,17 +578,17 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       alertTitle = String.localizedStringWithFormat("delete_multiple_items_title".localized, selectedItems.count)
       alertMessage = "delete_multiple_items_description".localized
     }
-
+    
     var deleteActionTitle = "delete_button".localized
-
+    
     if selectedItems.count == 1,
        let item = selectedItems.first,
        item.type == .folder {
       deleteActionTitle = "delete_deep_button".localized
-
+      
       alertTitle = String(format: "delete_single_item_title".localized, item.title)
       alertMessage = "delete_single_playlist_description".localized
-
+      
       actions.append(
         BPActionItem(
           title: "delete_shallow_button".localized,
@@ -598,7 +598,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         )
       )
     }
-
+    
     actions.append(
       BPActionItem(
         title: deleteActionTitle,
@@ -612,7 +612,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     )
     actions.append(BPActionItem.cancelAction)
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: alertTitle,
@@ -622,13 +622,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   // swiftlint:disable:next function_body_length
   func showMoreOptions(selectedItems: [SimpleLibraryItem]) {
     guard let item = selectedItems.first else { return }
-
+    
     let isSingle = selectedItems.count == 1
-
+    
     var actions = [
       BPActionItem(
         title: "details_title".localized,
@@ -641,7 +641,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         title: "move_title".localized,
         handler: { [weak self] in
           guard let self = self else { return }
-
+          
           self.showMoveOptions(
             selectedItems: selectedItems,
             availableFolders: self.getAvailableFolders(notIn: selectedItems)
@@ -661,10 +661,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       )
     ]
-
+    
     let areFinished = selectedItems.filter({ !$0.isFinished }).isEmpty
     let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
-
+    
     actions.append(
       BPActionItem(
         title: markTitle,
@@ -673,9 +673,9 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       )
     )
-
+    
     let boundBookAction: BPActionItem
-
+    
     if selectedItems.allSatisfy({ $0.type == .bound }) {
       boundBookAction = BPActionItem(
         title: "bound_books_undo_alert_title".localized,
@@ -686,7 +686,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     } else {
       let isActionEnabled = (selectedItems.count > 1 && selectedItems.allSatisfy({ $0.type == .book }))
       || (isSingle && item.type == .folder)
-
+      
       boundBookAction = BPActionItem(
         title: "bound_books_create_button".localized,
         isEnabled: isActionEnabled,
@@ -703,13 +703,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       )
     }
-
+    
     actions.append(boundBookAction)
-
+    
     if syncService.isActive {
       let title: String
       let handler: () -> Void
-
+      
       switch getDownloadState(for: item) {
       case .notDownloaded:
         title = "download_title".localized
@@ -751,7 +751,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         )
       )
     }
-
+    
     actions.append(
       BPActionItem(
         title: "delete_button".localized,
@@ -762,7 +762,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     )
     actions.append(BPActionItem.cancelAction)
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: isSingle ? item.title : "options_button".localized,
@@ -771,10 +771,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {
     var actions = [BPActionItem]()
-
+    
     if folderRelativePath != nil {
       actions.append(
         BPActionItem(
@@ -785,7 +785,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         )
       )
     }
-
+    
     actions.append(
       BPActionItem(
         title: "new_playlist_button".localized,
@@ -798,7 +798,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
         }
       )
     )
-
+    
     actions.append(
       BPActionItem(
         title: "existing_playlist_button".localized,
@@ -808,13 +808,13 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             availableItems: availableFolders,
             selectionHandler: { folder in
               self?.handleMoveIntoFolder(folder, items: selectedItems)
-          }))
+            }))
         }
       )
     )
-
+    
     actions.append(BPActionItem.cancelAction)
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: "choose_destination_title".localized,
@@ -823,7 +823,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   func showCreateFolderAlert(
     placeholder: String? = nil,
     with items: [String]? = nil,
@@ -832,7 +832,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     let alertTitle: String
     let alertMessage: String
     let alertPlaceholderDefault: String
-
+    
     switch type {
     case .folder:
       alertTitle = "create_playlist_title".localized
@@ -845,7 +845,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case .book:
       return
     }
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: alertTitle,
@@ -864,7 +864,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   func showDownloadFromUrlAlert() {
     sendEvent(.showAlert(
       content: BPAlertContent(
@@ -889,38 +889,38 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
       )
     ))
   }
-
+  
   func showSearchList() {
     onTransition?(
       .showSearchList(relativePath: folderRelativePath, placeholderTitle: getNavigationTitle())
     )
   }
-
+  
   func handleSort(by option: SortType) {
     self.libraryService.sortContents(at: folderRelativePath, by: option)
     self.reloadItems()
   }
-
+  
   func handleResetPlaybackPosition(for items: [SimpleLibraryItem]) {
     items.forEach({ self.libraryService.jumpToStart(relativePath: $0.relativePath) })
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   func handleMarkAsFinished(for items: [SimpleLibraryItem], flag: Bool) {
     let parentFolder = items.first?.parentFolder
-
+    
     items.forEach { [unowned self] in
       self.libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
     }
-
+    
     if let parentFolder {
       self.libraryService.rebuildFolderDetails(parentFolder)
     }
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   private func sendEvent(_ event: ItemListViewModel.Events) {
     eventsPublisher.send(event)
   }
@@ -940,33 +940,33 @@ extension ItemListViewModel {
         && $0.lastPathComponent != DataManager.inboxFolderName
         && $0.lastPathComponent != DataManager.backupFolderName
       }
-
+    
     let sharedURLs = (try? FileManager.default.contentsOfDirectory(
       at: DataManager.getSharedFilesFolderURL(),
       includingPropertiesForKeys: nil,
       options: .skipsSubdirectoryDescendants
     )) ?? []
-
+    
     let inboxURLs = (try? FileManager.default.contentsOfDirectory(
       at: DataManager.getInboxFolderURL(),
       includingPropertiesForKeys: nil,
       options: .skipsSubdirectoryDescendants
     )) ?? []
-
+    
     let urls = documentsURLs + sharedURLs + inboxURLs
-
+    
     guard !urls.isEmpty else { return }
-
+    
     self.handleNewFiles(urls)
   }
-
+  
   func handleNewFiles(_ urls: [URL]) {
     self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
   }
-
+  
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
     guard !files.isEmpty else { return }
-
+    
     let processedItems = libraryService.insertItems(from: files)
     var itemIdentifiers = processedItems.map({ $0.relativePath })
     do {
@@ -984,14 +984,14 @@ extension ItemListViewModel {
       ))
       return
     }
-
+    
     self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
-
+    
     let availableFolders = self.libraryService.getItems(
       notIn: itemIdentifiers,
       parentFolder: folderRelativePath
     )?.filter({ $0.type == .folder }) ?? []
-
+    
     showOperationCompletedAlert(
       itemIdentifiers: itemIdentifiers,
       hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
@@ -999,7 +999,7 @@ extension ItemListViewModel {
       suggestedFolderName: suggestedFolderName
     )
   }
-
+  
   // swiftlint:disable:next function_body_length
   func showOperationCompletedAlert(
     itemIdentifiers: [String],
@@ -1008,7 +1008,7 @@ extension ItemListViewModel {
     suggestedFolderName: String?
   ) {
     let hasParentFolder = folderRelativePath != nil
-
+    
     var firstTitle: String?
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
@@ -1017,27 +1017,27 @@ extension ItemListViewModel {
         #keyPath(BookPlayerKit.LibraryItem.title), relativePath: relativePath
       ) as? String
     }
-
+    
     var actions = [BPActionItem]()
-
+    
     if hasParentFolder {
       actions.append(BPActionItem(title: "current_playlist_title".localized))
     }
-
+    
     actions.append(BPActionItem(
       title: "library_title".localized,
       handler: { [hasParentFolder, itemIdentifiers, weak self] in
         guard hasParentFolder else { return }
-
+        
         self?.importIntoLibrary(itemIdentifiers)
       }
     ))
-
+    
     actions.append(BPActionItem(
       title: "new_playlist_button".localized,
       handler: { [firstTitle, weak self] in
         let placeholder = firstTitle ?? "new_playlist_button".localized
-
+        
         self?.showCreateFolderAlert(
           placeholder: placeholder,
           with: itemIdentifiers,
@@ -1045,7 +1045,7 @@ extension ItemListViewModel {
         )
       }
     ))
-
+    
     actions.append(BPActionItem(
       title: "existing_playlist_button".localized,
       isEnabled: !availableFolders.isEmpty,
@@ -1058,17 +1058,17 @@ extension ItemListViewModel {
         ))
       }
     ))
-
+    
     actions.append(BPActionItem(
       title: "bound_books_create_button".localized,
       isEnabled: hasOnlyBooks,
       handler: { [firstTitle, weak self] in
         let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
-
+        
         self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
       }
     ))
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
@@ -1077,7 +1077,7 @@ extension ItemListViewModel {
       )
     ))
   }
-
+  
   func importIntoFolder(_ folder: SimpleLibraryItem, items: [String], type: SimpleItemType) {
     do {
       try libraryService.moveItems(items, inside: folder.relativePath)
@@ -1088,10 +1088,10 @@ extension ItemListViewModel {
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding()
   }
-
+  
   func importIntoLibrary(_ items: [String]) {
     do {
       try libraryService.moveItems(items, inside: nil)
@@ -1101,16 +1101,16 @@ extension ItemListViewModel {
         content: BPAlertContent.errorAlert(message: error.localizedDescription)
       ))
     }
-
+    
     self.coordinator.reloadItemsWithPadding(padding: items.count)
   }
-
+  
   func importData(from item: ImportableItem) {
     let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
-
+    
     let destinationURL = DataManager.getDocumentsFolderURL()
       .appendingPathComponent(filename)
-
+    
     do {
       try item.data.write(to: destinationURL)
     } catch {
@@ -1125,35 +1125,35 @@ extension ItemListViewModel {
   func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
     /// Only process if subscription is active
     guard syncService.isActive else { return .downloaded }
-
+    
     if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
       return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
     }
-
+    
     let fileURL = item.fileURL
-
+    
     if item.type == .bound,
        let enumerator = FileManager.default.enumerator(
-         at: fileURL,
-         includingPropertiesForKeys: nil,
-         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        at: fileURL,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
        ),
        enumerator.nextObject() == nil {
       return .notDownloaded
     }
-
+    
     if FileManager.default.fileExists(atPath: fileURL.path) {
       return .downloaded
     }
-
+    
     return .notDownloaded
   }
-
+  
   /// Download files linked to an item
   /// Note: if the item is a bound book, this will start multiple downloads
   func startDownload(of item: SimpleLibraryItem) {
     sendEvent(.showLoader(flag: true))
-
+    
     Task { [weak self] in
       guard let self = self else { return }
       do {
@@ -1174,7 +1174,7 @@ extension ItemListViewModel {
       }
     }
   }
-
+  
   /// Handler called when the download has finished for a task
   func handleDownloadProgressUpdated(task: URLSessionDownloadTask, individualProgress: Double) {
     guard
@@ -1182,7 +1182,7 @@ extension ItemListViewModel {
       let localItemRelativePath = ongoingTasksParentReference[relativePath],
       let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath })
     else { return }
-
+    
     let progress: Double
     /// For individual items, the `fractionCompleted` of the current task can be 0
     let calculatedProgress = calculateDownloadProgress(with: localItemRelativePath)
@@ -1191,28 +1191,28 @@ extension ItemListViewModel {
     } else {
       progress = individualProgress
     }
-
+    
     let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
     sendEvent(.downloadState(.downloading(progress: progress), indexPath: indexModified))
   }
-
+  
   /// Calculate the overall download progress for an item (useful for bound books)
   func calculateDownloadProgress(with relativePath: String) -> Double {
     guard let tasks = downloadTasksDictionary[relativePath] else { return 1.0 }
-
+    
     let completedTasksCount = tasks.filter({ $0.state == .completed }).count
     let runningTasksProgress = tasks.filter({ $0.state == .running })
       .reduce(0.0, { $0 + $1.progress.fractionCompleted })
-
+    
     return (runningTasksProgress + Double(completedTasksCount)) / Double(tasks.count)
   }
-
+  
   func handleFinishedDownload(task: URLSessionDownloadTask, location: URL) {
     guard
       let relativePath = task.taskDescription,
       let localItemRelativePath = ongoingTasksParentReference[relativePath]
     else { return }
-
+    
     /// Remove from dictionary if all the other tasks are already completed
     if let localItemRelativePath = ongoingTasksParentReference[relativePath],
        downloadTasksDictionary[localItemRelativePath]?
@@ -1220,12 +1220,12 @@ extension ItemListViewModel {
       .allSatisfy({ $0.state == .completed }) == true {
       downloadTasksDictionary[localItemRelativePath] = nil
     }
-
+    
     /// cleanup individual reference
     ongoingTasksParentReference[relativePath] = nil
-
+    
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
+    
     do {
       /// If there's already something there, replace with new finished download
       if FileManager.default.fileExists(atPath: fileURL.path) {
@@ -1233,9 +1233,9 @@ extension ItemListViewModel {
       }
       try FileManager.default.moveItem(at: location, to: fileURL)
       libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
-
+      
       guard let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath }) else { return }
-
+      
       self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
     } catch {
       self.sendEvent(.showAlert(
@@ -1243,12 +1243,12 @@ extension ItemListViewModel {
       ))
     }
   }
-
+  
   /// Cancel ongoing download tasks for a given item.
   /// This will also delete all files for any partial completed download of bound books
   func cancelDownload(of item: SimpleLibraryItem) {
     guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent(
         message: "cancel_download_title".localized,
@@ -1258,16 +1258,16 @@ extension ItemListViewModel {
             title: "ok_button".localized,
             handler: { [tasks, item, weak self] in
               var hasCompletedTasks = false
-
+              
               for task in tasks {
                 guard task.state != .completed else {
                   hasCompletedTasks = true
                   continue
                 }
-
+                
                 task.cancel()
               }
-
+              
               /// Clean up bound downloads if at least one was finished
               if item.type == .bound,
                  hasCompletedTasks {
@@ -1282,7 +1282,7 @@ extension ItemListViewModel {
                   return
                 }
               }
-
+              
               self?.downloadTasksDictionary[item.relativePath] = nil
               if let index = self?.items.firstIndex(of: item) {
                 self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
@@ -1294,21 +1294,21 @@ extension ItemListViewModel {
       )
     ))
   }
-
+  
   /// Used to handle downloads via URL scheme
   func handleDownload(_ url: URL) {
     sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
-
+    
     _ = networkClient.download(url: url, taskDescription: nil, delegate: singleDownloadProgressDelegateInterface)
   }
-
+  
   // TODO: Move functionality related to single-donwload into a separate service, and listen to publisher for events
   func handleSingleDownloadTaskFinished(_ task: URLSessionTask, fileURL: URL) {
     sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
     let filename = task.response?.suggestedFilename
     ?? task.originalRequest?.url?.lastPathComponent
     ?? fileURL.lastPathComponent
-
+    
     do {
       try FileManager.default.moveItem(
         at: fileURL,
@@ -1323,7 +1323,7 @@ extension ItemListViewModel {
       ))
     }
   }
-
+  
   func handleSingleDownloadTaskFinishedWithError(_ task: URLSessionTask, error: Error?) {
     sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
     if let error {
@@ -1335,12 +1335,12 @@ extension ItemListViewModel {
       ))
       return
     }
-
+    
     guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode,
           statusCode >= 400 else {
       return
     }
-
+    
     sendEvent(.showAlert(
       content: BPAlertContent.errorAlert(
         title: "network_error_title".localized,

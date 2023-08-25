@@ -19,15 +19,15 @@ public struct PlayableChapter: Codable, Identifiable {
   public let relativePath: String
   public let remoteURL: URL?
   public let index: Int16
-
+  
   public var end: TimeInterval {
     return start + duration
   }
-
+  
   public var fileURL: URL {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
-
+  
   public init(
     title: String,
     author: String,

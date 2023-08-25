@@ -16,12 +16,12 @@ struct ClearableTextField: View {
   @Binding var text: String
   /// Current theme
   @EnvironmentObject var themeViewModel: ThemeViewModel
-
+  
   init(_ placeholder: String, text: Binding<String>) {
     self.placeholder = placeholder
     _text = text
   }
-
+  
   var body: some View {
     HStack {
       TextField(placeholder, text: $text)

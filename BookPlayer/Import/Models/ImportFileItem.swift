@@ -11,15 +11,15 @@ import Foundation
 public class ImportFileItem: NSCopying {
   public var fileUrl: URL
   public var subItems = 0
-
+  
   public init(fileUrl: URL) {
     self.fileUrl = fileUrl
   }
-
+  
   public func copy(with zone: NSZone? = nil) -> Any {
     return ImportFileItem(fileUrl: self.fileUrl)
   }
-
+  
   public func getFileName() -> String {
     return self.fileUrl.lastPathComponent
   }

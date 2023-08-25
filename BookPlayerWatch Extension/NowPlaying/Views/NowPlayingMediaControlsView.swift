@@ -11,7 +11,7 @@ import SwiftUI
 
 struct NowPlayingMediaControlsView: View {
   @EnvironmentObject var contextManager: ContextManager
-
+  
   var body: some View {
     GeometryReader { geometry in
       HStack {
@@ -23,7 +23,7 @@ struct NowPlayingMediaControlsView: View {
             interval: contextManager.applicationContext.rewindInterval,
             skipDirection: .back
           )
-            .padding(10)
+          .padding(10)
         }
         .buttonStyle(PlainButtonStyle())
         .frame(width: geometry.size.width * 0.28)
@@ -36,7 +36,7 @@ struct NowPlayingMediaControlsView: View {
             ? "pause.fill"
             : "play.fill"
           )
-            .padding(8)
+          .padding(8)
         }
         .buttonStyle(PlainButtonStyle())
         .frame(width: geometry.size.width * 0.28)
@@ -48,7 +48,7 @@ struct NowPlayingMediaControlsView: View {
             interval: contextManager.applicationContext.forwardInterval,
             skipDirection: .forward
           )
-            .padding(10)
+          .padding(10)
         }
         .buttonStyle(PlainButtonStyle())
         .frame(width: geometry.size.width * 0.28)

@@ -10,7 +10,7 @@ import Foundation
 
 public enum SimpleItemType: Int16, Decodable {
   case folder, bound, book
-
+  
   var itemType: ItemType {
     switch self {
     case .book:

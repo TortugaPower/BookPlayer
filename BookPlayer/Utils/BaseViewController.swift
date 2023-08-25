@@ -10,7 +10,7 @@ import UIKit
 
 class BaseViewController<T: Coordinator, U: BaseViewModel<T>>: UIViewController {
   var viewModel: U!
-
+  
   override func accessibilityPerformEscape() -> Bool {
     self.viewModel.dismiss()
     return true
@@ -23,7 +23,7 @@ class BaseTableViewController<T: Coordinator, U: BaseViewModel<T>>: UITableViewC
 
 class BaseViewModel<T: Coordinator> {
   weak var coordinator: T!
-
+  
   func dismiss() {
     self.coordinator.didFinish()
   }

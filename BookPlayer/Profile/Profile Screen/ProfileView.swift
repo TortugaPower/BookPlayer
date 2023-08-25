@@ -12,7 +12,7 @@ import SwiftUI
 struct ProfileView<Model: ProfileViewModelProtocol>: View {
   @StateObject var themeViewModel = ThemeViewModel()
   @ObservedObject var viewModel: Model
-
+  
   var body: some View {
     GeometryReader { geometryProxy in
       ScrollView {
@@ -22,13 +22,13 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
               viewModel.showAccount()
             }
             .padding([.top, .trailing, .leading], Spacing.S)
-
+          
           ProfileListenedTimeView(
             formattedListeningTime: $viewModel.totalListeningTimeFormatted
           )
-
+          
           Spacer()
-
+          
           if viewModel.account?.hasSubscription == true,
              viewModel.account?.id.isEmpty == false {
             ProfileSyncTasksStatusView(
@@ -57,7 +57,7 @@ struct ProfileView_Previews: PreviewProvider {
     var refreshStatusMessage: String = "Last refresh: 1 second ago"
     var totalListeningTimeFormatted: String = "0m"
     var account: Account?
-
+    
     func showAccount() {}
     func showTasks() {}
   }

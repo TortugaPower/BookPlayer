@@ -10,16 +10,16 @@ import UIKit
 
 class NibLoadableView: UIView {
   var contentView: UIView?
-
+  
   required init?(coder aDecoder: NSCoder) {
-      super.init(coder: aDecoder)
-
-      let view = loadViewFromNib()
-      view.frame = self.bounds
-      self.addSubview(view)
-      self.contentView = view
+    super.init(coder: aDecoder)
+    
+    let view = loadViewFromNib()
+    view.frame = self.bounds
+    self.addSubview(view)
+    self.contentView = view
   }
-
+  
   func loadViewFromNib() -> UIView {
     let baseName = NSStringFromClass(type(of: self))
     let className = baseName.components(separatedBy: ".").last ?? baseName

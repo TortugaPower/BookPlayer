@@ -18,11 +18,11 @@ extension BPLogger {
       category: String(describing: Self.self)
     )
   }
-
+  
   /// This is only used for debug purposes in Betas, do not use in Prod build
   public static func logFile(message: String) {
     let debugLogFileURL = DataManager.getProcessedFolderURL().appendingPathComponent("debug_log_file.txt")
-
+    
     do {
       try message.appendLineToURL(fileURL: debugLogFileURL)
     } catch {
@@ -50,7 +50,7 @@ private extension String {
   func appendLineToURL(fileURL: URL) throws {
     try (">>> " + self + "\n").appendToURL(fileURL: fileURL)
   }
-
+  
   func appendToURL(fileURL: URL) throws {
     let data = self.data(using: String.Encoding.utf8)!
     try data.append(fileURL: fileURL)

@@ -60,8 +60,8 @@ final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, 
     let chapter = self.chapters[indexPath.row]
 
     cell.textLabel?.text = chapter.title == ""
-      ? String.localizedStringWithFormat("chapter_number_title".localized, indexPath.row + 1)
-      : chapter.title
+    ? String.localizedStringWithFormat("chapter_number_title".localized, indexPath.row + 1)
+    : chapter.title
 
     cell.detailTextLabel?.text = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
     cell.accessoryType = .none

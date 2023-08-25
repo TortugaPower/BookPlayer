@@ -14,7 +14,7 @@ extension Chapter {
   @nonobjc public class func fetchRequest() -> NSFetchRequest<Chapter> {
     return NSFetchRequest<Chapter>(entityName: "Chapter")
   }
-
+  
   @NSManaged public var title: String!
   @NSManaged public var start: Double
   @NSManaged public var duration: Double

@@ -12,8 +12,8 @@ import Foundation
 
 @objc(PlaybackRecord)
 public class PlaybackRecord: NSManagedObject {
-    public override func awakeFromInsert() {
-        super.awakeFromInsert()
-        setPrimitiveValue(Date(), forKey: "date")
-    }
+  public override func awakeFromInsert() {
+    super.awakeFromInsert()
+    setPrimitiveValue(Date(), forKey: "date")
+  }
 }

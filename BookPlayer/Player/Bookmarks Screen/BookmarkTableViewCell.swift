@@ -14,14 +14,14 @@ class BookmarkTableViewCell: UITableViewCell {
   @IBOutlet weak var timeLabel: UILabel!
   @IBOutlet weak var noteLabel: UILabel!
   @IBOutlet weak var iconImageView: UIImageView!
-
+  
   override func awakeFromNib() {
     super.awakeFromNib()
-
+    
     self.iconImageView.contentMode = .scaleAspectFill
     setUpTheming()
   }
-
+  
   func setup(with bookmark: SimpleBookmark) {
     timeLabel.text = TimeParser.formatTime(bookmark.time)
     noteLabel.text = bookmark.note

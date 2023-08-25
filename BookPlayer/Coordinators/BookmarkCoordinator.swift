@@ -13,7 +13,7 @@ class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
-
+  
   init(
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
@@ -27,10 +27,10 @@ class BookmarkCoordinator: Coordinator {
       navigationController: AppNavigationController.instantiate(from: .Player),
       flowType: .modal
     )
-
+    
     self.presentingViewController = presentingViewController
   }
-
+  
   override func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
     let viewModel = BookmarksViewModel(
@@ -40,28 +40,28 @@ class BookmarkCoordinator: Coordinator {
     )
     viewModel.coordinator = self
     vc.viewModel = viewModel
-
+    
     viewModel.onTransition = { [weak self] route in
       switch route {
       case .export(let bookmarks, let item):
         self?.showExportController(currentItem: item, bookmarks: bookmarks)
       }
     }
-
+    
     navigationController.viewControllers = [vc]
     navigationController.presentationController?.delegate = self
     presentingViewController?.present(self.navigationController, animated: true, completion: nil)
   }
-
+  
   func showExportController(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
     let provider = BookmarksActivityItemProvider(currentItem: currentItem, bookmarks: bookmarks)
-
+    
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
-
+    
     if let popoverPresentationController = shareController.popoverPresentationController {
       popoverPresentationController.barButtonItem = navigationController.topViewController?.navigationItem.rightBarButtonItem!
     }
-
+    
     navigationController.present(shareController, animated: true, completion: nil)
   }
 }

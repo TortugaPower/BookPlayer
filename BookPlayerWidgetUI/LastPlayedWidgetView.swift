@@ -12,98 +12,98 @@ import WidgetKit
 
 struct PlayAndSleepProvider: IntentTimelineProvider {
     typealias Entry = SimpleEntry
-
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true)
     }
-
+    
     func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Entry) -> Void) {
-      let stack = DataMigrationManager().getCoreDataStack()
-      stack.loadStore { _, error in
-        guard error == nil else {
-          completion(self.placeholder(in: context))
-          return
+        let stack = DataMigrationManager().getCoreDataStack()
+        stack.loadStore { _, error in
+            guard error == nil else {
+                completion(self.placeholder(in: context))
+                return
+            }
+            
+            let dataManager = DataManager(coreDataStack: stack)
+            let libraryService = LibraryService(dataManager: dataManager)
+            
+            guard
+                let lastPlayedItem = libraryService.getLibraryLastItem(),
+                let theme = libraryService.getLibraryCurrentTheme()
+            else {
+                completion(self.placeholder(in: context))
+                return
+            }
+            
+            let title = lastPlayedItem.title
+            let autoplay = configuration.autoplay?.boolValue ?? true
+            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+            
+            let entry = SimpleEntry(date: Date(),
+                                    title: title,
+                                    relativePath: lastPlayedItem.relativePath,
+                                    theme: theme,
+                                    timerSeconds: seconds,
+                                    autoplay: autoplay)
+            
+            completion(entry)
         }
-
-        let dataManager = DataManager(coreDataStack: stack)
-        let libraryService = LibraryService(dataManager: dataManager)
-
-        guard
-          let lastPlayedItem = libraryService.getLibraryLastItem(),
-          let theme = libraryService.getLibraryCurrentTheme()
-        else {
-          completion(self.placeholder(in: context))
-          return
-        }
-
-        let title = lastPlayedItem.title
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-        let entry = SimpleEntry(date: Date(),
-                                title: title,
-                                relativePath: lastPlayedItem.relativePath,
-                                theme: theme,
-                                timerSeconds: seconds,
-                                autoplay: autoplay)
-
-        completion(entry)
-      }
     }
-
+    
     func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-      let stack = DataMigrationManager().getCoreDataStack()
-      stack.loadStore { _, error in
-        guard error == nil else {
-          completion(Timeline(entries: [], policy: .atEnd))
-          return
+        let stack = DataMigrationManager().getCoreDataStack()
+        stack.loadStore { _, error in
+            guard error == nil else {
+                completion(Timeline(entries: [], policy: .atEnd))
+                return
+            }
+            
+            let dataManager = DataManager(coreDataStack: stack)
+            let libraryService = LibraryService(dataManager: dataManager)
+            
+            guard
+                let lastPlayedItem = libraryService.getLibraryLastItem(),
+                let theme = libraryService.getLibraryCurrentTheme()
+            else {
+                completion(Timeline(entries: [], policy: .atEnd))
+                return
+            }
+            
+            let title = lastPlayedItem.title
+            let autoplay = configuration.autoplay?.boolValue ?? true
+            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+            
+            let entry = SimpleEntry(date: Date(),
+                                    title: title,
+                                    relativePath: lastPlayedItem.relativePath,
+                                    theme: theme,
+                                    timerSeconds: seconds,
+                                    autoplay: autoplay)
+            
+            completion(Timeline(entries: [entry], policy: .atEnd))
         }
-
-        let dataManager = DataManager(coreDataStack: stack)
-        let libraryService = LibraryService(dataManager: dataManager)
-
-        guard
-          let lastPlayedItem = libraryService.getLibraryLastItem(),
-          let theme = libraryService.getLibraryCurrentTheme()
-        else {
-          completion(Timeline(entries: [], policy: .atEnd))
-          return
-        }
-
-        let title = lastPlayedItem.title
-        let autoplay = configuration.autoplay?.boolValue ?? true
-        let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-        let entry = SimpleEntry(date: Date(),
-                                title: title,
-                                relativePath: lastPlayedItem.relativePath,
-                                theme: theme,
-                                timerSeconds: seconds,
-                                autoplay: autoplay)
-
-        completion(Timeline(entries: [entry], policy: .atEnd))
-      }
     }
 }
 
 struct LastPlayedWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
     var entry: PlayAndSleepProvider.Entry
-
+    
     var body: some View {
         let titleLabel = entry.title ?? "---"
-
+        
         let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
-
+        
         let url = WidgetUtils.getWidgetActionURL(with: entry.relativePath, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-
+        
         let appIconName = WidgetUtils.getAppIconName()
-
+        
         return VStack {
             HStack {
                 if let relativePath = entry.relativePath {
-                  Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
-                        ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
+                    Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
+                          ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
                     .resizable()
                     .frame(width: 90, height: 90)
                     .aspectRatio(1.0, contentMode: .fit)
@@ -115,7 +115,7 @@ struct LastPlayedWidgetView: View {
                         .aspectRatio(1.0, contentMode: .fit)
                         .cornerRadius(8.0)
                 }
-
+                
                 VStack {
                     Image(appIconName)
                         .accessibility(hidden: true)
@@ -150,14 +150,14 @@ struct LastPlayedWidgetView: View {
 struct LastPlayedWidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
+            LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
+            LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
+            LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
                 .environment(\.colorScheme, .dark)
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
+            LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
                 .environment(\.colorScheme, .dark)
         }
@@ -166,7 +166,7 @@ struct LastPlayedWidgetView_Previews: PreviewProvider {
 
 struct LastPlayedWidget: Widget {
     let kind: String = "com.bookplayer.widget.small.lastPlayed"
-
+    
     var body: some WidgetConfiguration {
         IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: PlayAndSleepProvider()) { entry in
             LastPlayedWidgetView(entry: entry)
