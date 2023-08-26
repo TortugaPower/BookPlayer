@@ -86,11 +86,11 @@ class IconsViewController: UIViewController, Storyboarded {
       self.viewModel.$account
         .receive(on: RunLoop.main)
         .sink { [weak self] account in
-        if account?.hasSubscription ?? false {
-          self?.donationMade()
+          if account?.hasSubscription ?? false {
+            self?.donationMade()
+          }
         }
-      }
-      .store(in: &disposeBag)
+        .store(in: &disposeBag)
     }
   }
 
@@ -110,89 +110,89 @@ class IconsViewController: UIViewController, Storyboarded {
     self.tableView.reloadData()
   }
 
-    func getIcons() -> [Icon] {
-        guard
-            let iconsFile = Bundle.main.url(forResource: "Icons", withExtension: "json"),
-            let data = try? Data(contentsOf: iconsFile, options: .mappedIfSafe),
-            let icons = try? JSONDecoder().decode([Icon].self, from: data)
-        else { return [] }
+  func getIcons() -> [Icon] {
+    guard
+      let iconsFile = Bundle.main.url(forResource: "Icons", withExtension: "json"),
+      let data = try? Data(contentsOf: iconsFile, options: .mappedIfSafe),
+      let icons = try? JSONDecoder().decode([Icon].self, from: data)
+    else { return [] }
 
-        return icons
+    return icons
+  }
+
+  func changeIcon(to iconName: String) {
+    guard UIApplication.shared.supportsAlternateIcons else {
+      return
     }
 
-    func changeIcon(to iconName: String) {
-        guard UIApplication.shared.supportsAlternateIcons else {
-            return
-        }
+    self.userDefaults?.set(iconName, forKey: Constants.UserDefaults.appIcon)
 
-        self.userDefaults?.set(iconName, forKey: Constants.UserDefaults.appIcon)
+    let icon = iconName == "Default" ? nil : iconName
 
-        let icon = iconName == "Default" ? nil : iconName
+    UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
+      WidgetCenter.shared.reloadAllTimelines()
 
-        UIApplication.shared.setAlternateIconName(icon, completionHandler: { error in
-          WidgetCenter.shared.reloadAllTimelines()
+      guard error != nil else { return }
 
-          guard error != nil else { return }
-
-          self.showAlert("error_title".localized, message: "icon_error_description".localized)
-        })
-    }
+      self.showAlert("error_title".localized, message: "icon_error_description".localized)
+    })
+  }
 }
 
 extension IconsViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.icons.count
-    }
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return self.icons.count
+  }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // swiftlint:disable force_cast
-        let cell = tableView.dequeueReusableCell(withIdentifier: "IconCellView", for: indexPath) as! IconCellView
-        // swiftlint:enable force_cast
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    // swiftlint:disable force_cast
+    let cell = tableView.dequeueReusableCell(withIdentifier: "IconCellView", for: indexPath) as! IconCellView
+    // swiftlint:enable force_cast
 
-        let item = self.icons[indexPath.row]
+    let item = self.icons[indexPath.row]
 
-        cell.titleLabel.text = item.title
-        cell.authorLabel.text = item.author
-        cell.iconImage = UIImage(named: item.imageName)
-        cell.isLocked = item.isLocked && !self.viewModel.hasMadeDonation()
+    cell.titleLabel.text = item.title
+    cell.authorLabel.text = item.author
+    cell.iconImage = UIImage(named: item.imageName)
+    cell.isLocked = item.isLocked && !self.viewModel.hasMadeDonation()
 
-        let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
+    let currentAppIcon = self.userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
 
-        cell.accessoryType = item.id == currentAppIcon
-            ? .checkmark
-            : .none
+    cell.accessoryType = item.id == currentAppIcon
+    ? .checkmark
+    : .none
 
-        return cell
-    }
+    return cell
+  }
 }
 
 extension IconsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? IconCellView else { return }
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    guard let cell = tableView.cellForRow(at: indexPath) as? IconCellView else { return }
 
-        defer {
-            tableView.reloadData()
-        }
-
-        guard !cell.isLocked else {
-            return
-        }
-
-        let item = self.icons[indexPath.row]
-
-        self.changeIcon(to: item.id)
+    defer {
+      tableView.reloadData()
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 86
+    guard !cell.isLocked else {
+      return
     }
+
+    let item = self.icons[indexPath.row]
+
+    self.changeIcon(to: item.id)
+  }
+
+  func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    return 86
+  }
 }
 
 extension IconsViewController: Themeable {
-    func applyTheme(_ theme: SimpleTheme) {
-        self.view.backgroundColor = theme.systemGroupedBackgroundColor
+  func applyTheme(_ theme: SimpleTheme) {
+    self.view.backgroundColor = theme.systemGroupedBackgroundColor
 
-        self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
-        self.tableView.separatorColor = theme.separatorColor
-    }
+    self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
+    self.tableView.separatorColor = theme.separatorColor
+  }
 }

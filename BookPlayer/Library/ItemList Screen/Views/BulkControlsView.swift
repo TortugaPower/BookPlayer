@@ -9,15 +9,15 @@
 import UIKit
 
 class BulkControlsView: NibLoadableView {
-    @IBOutlet weak var editButton: UIButton!
-    @IBOutlet weak var moveButton: UIButton!
-    @IBOutlet weak var trashButton: UIButton!
-    @IBOutlet weak var moreButton: UIButton!
+  @IBOutlet weak var editButton: UIButton!
+  @IBOutlet weak var moveButton: UIButton!
+  @IBOutlet weak var trashButton: UIButton!
+  @IBOutlet weak var moreButton: UIButton!
 
-    var onEditTap: (() -> Void)?
-    var onMoveTap: (() -> Void)?
-    var onDeleteTap: (() -> Void)?
-    var onMoreTap: (() -> Void)?
+  var onEditTap: (() -> Void)?
+  var onMoveTap: (() -> Void)?
+  var onDeleteTap: (() -> Void)?
+  var onMoreTap: (() -> Void)?
 
   override func awakeFromNib() {
     super.awakeFromNib()
@@ -28,19 +28,19 @@ class BulkControlsView: NibLoadableView {
     self.moreButton.accessibilityLabel = "options_button".localized
   }
 
-    @IBAction func didPressEdit(_ sender: UIButton) {
-        self.onEditTap?()
-    }
+  @IBAction func didPressEdit(_ sender: UIButton) {
+    self.onEditTap?()
+  }
 
-    @IBAction func didPressMove(_ sender: UIButton) {
-        self.onMoveTap?()
-    }
+  @IBAction func didPressMove(_ sender: UIButton) {
+    self.onMoveTap?()
+  }
 
-    @IBAction func didPressDelete(_ sender: UIButton) {
-        self.onDeleteTap?()
-    }
+  @IBAction func didPressDelete(_ sender: UIButton) {
+    self.onDeleteTap?()
+  }
 
-    @IBAction func didPressMore(_ sender: UIButton) {
-        self.onMoreTap?()
-    }
+  @IBAction func didPressMore(_ sender: UIButton) {
+    self.onMoreTap?()
+  }
 }

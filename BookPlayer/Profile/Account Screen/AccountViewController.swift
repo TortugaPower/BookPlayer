@@ -297,8 +297,8 @@ class AccountViewController: BaseViewController<AccountCoordinator, AccountViewM
           self?.manageProSectionView.isHidden = true
           self?.manageFilesSectionView.isHidden = true
         }
-    }
-    .store(in: &disposeBag)
+      }
+      .store(in: &disposeBag)
   }
 
   func didPressManageSubscription() {
@@ -333,7 +333,7 @@ extension AccountViewController: Themeable {
     view.backgroundColor = theme.secondarySystemBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

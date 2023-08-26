@@ -11,71 +11,71 @@ import Themeable
 import UIKit
 
 class SkipDurationViewController: UITableViewController {
-    private let intervals: [TimeInterval] = [
-        5.0,
-        10.0,
-        15.0,
-        20.0,
-        30.0,
-        45.0,
-        60.0,
-        90.0,
-        120.0,
-        180.0,
-        240.0,
-        300.0
-    ]
+  private let intervals: [TimeInterval] = [
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    30.0,
+    45.0,
+    60.0,
+    90.0,
+    120.0,
+    180.0,
+    240.0,
+    300.0
+  ]
 
-    var selectedInterval: TimeInterval!
-    var didSelectInterval: ((_ selectedInterval: TimeInterval) -> Void)?
+  var selectedInterval: TimeInterval!
+  var didSelectInterval: ((_ selectedInterval: TimeInterval) -> Void)?
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-        self.tableView.tableFooterView = UIView()
-        setUpTheming()
+    self.tableView.tableFooterView = UIView()
+    setUpTheming()
+  }
+
+  override func didReceiveMemoryWarning() {
+    super.didReceiveMemoryWarning()
+    // Dispose of any resources that can be recreated.
+  }
+
+  // MARK: - Table view data source
+
+  override func numberOfSections(in tableView: UITableView) -> Int {
+    return 1
+  }
+
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return self.intervals.count
+  }
+
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
+    let interval = self.intervals[indexPath.row]
+
+    cell.textLabel?.text = TimeParser.formatDuration(interval)
+
+    if interval == self.selectedInterval {
+      cell.accessoryType = .checkmark
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+    return cell
+  }
 
-    // MARK: - Table view data source
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let interval = self.intervals[indexPath.row]
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.intervals.count
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
-        let interval = self.intervals[indexPath.row]
-
-        cell.textLabel?.text = TimeParser.formatDuration(interval)
-
-        if interval == self.selectedInterval {
-            cell.accessoryType = .checkmark
-        }
-
-        return cell
-    }
-
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let interval = self.intervals[indexPath.row]
-
-        self.didSelectInterval?(interval)
-        self.navigationController?.popViewController(animated: true)
-    }
+    self.didSelectInterval?(interval)
+    self.navigationController?.popViewController(animated: true)
+  }
 }
 
 extension SkipDurationViewController: Themeable {
-    func applyTheme(_ theme: SimpleTheme) {
-        self.tableView.backgroundColor = theme.systemBackgroundColor
-        self.tableView.separatorColor = theme.separatorColor
-        self.tableView.reloadData()
-    }
+  func applyTheme(_ theme: SimpleTheme) {
+    self.tableView.backgroundColor = theme.systemBackgroundColor
+    self.tableView.separatorColor = theme.separatorColor
+    self.tableView.reloadData()
+  }
 }

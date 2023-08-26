@@ -133,8 +133,8 @@ class ActionParserService {
   private class func handleSleepAction(_ action: Action) {
     guard let value = action.getQueryValue(for: "seconds"),
           let seconds = Double(value) else {
-            return
-          }
+      return
+    }
 
     switch seconds {
     case -1:

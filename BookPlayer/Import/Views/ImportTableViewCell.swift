@@ -24,7 +24,7 @@ final class ImportTableViewCell: UITableViewCell {
   }
 
   @IBAction func deleteTapped(_ sender: Any) {
-      self.onDeleteTap?()
+    self.onDeleteTap?()
   }
 }
 

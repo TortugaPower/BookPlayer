@@ -116,7 +116,7 @@ public final class AccountService: AccountServiceProtocol {
     let context = self.dataManager.getContext()
 
     if let count = try? context.count(for: Account.fetchRequest()),
-        count > 0 {
+       count > 0 {
       return true
     }
 

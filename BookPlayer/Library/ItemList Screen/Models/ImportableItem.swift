@@ -12,33 +12,33 @@ import Foundation
  Defines the type of items the app supports for drop operations
  */
 final public class ImportableItem: NSObject, NSItemProviderReading {
-    let data: Data
-    let typeIdentifier: String
-    var suggestedName: String?
+  let data: Data
+  let typeIdentifier: String
+  var suggestedName: String?
 
-    var fileExtension: String {
-        switch self.typeIdentifier {
-        case "public.audio":
-            return "mp3"
-        case "public.movie":
-            return "mp4"
-        case "com.pkware.zip-archive":
-            return "zip"
-        default:
-            return "mp3"
-        }
+  var fileExtension: String {
+    switch self.typeIdentifier {
+    case "public.audio":
+      return "mp3"
+    case "public.movie":
+      return "mp4"
+    case "com.pkware.zip-archive":
+      return "zip"
+    default:
+      return "mp3"
     }
+  }
 
-    required init(dataObject: Data, type: String) {
-        data = dataObject
-        typeIdentifier = type
-    }
+  required init(dataObject: Data, type: String) {
+    data = dataObject
+    typeIdentifier = type
+  }
 
-    public static var readableTypeIdentifiersForItemProvider: [String] {
-        return ["public.audio", "com.pkware.zip-archive", "public.movie"]
-    }
+  public static var readableTypeIdentifiersForItemProvider: [String] {
+    return ["public.audio", "com.pkware.zip-archive", "public.movie"]
+  }
 
-    public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {
-        return self.init(dataObject: data, type: typeIdentifier)
-    }
+  public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {
+    return self.init(dataObject: data, type: typeIdentifier)
+  }
 }

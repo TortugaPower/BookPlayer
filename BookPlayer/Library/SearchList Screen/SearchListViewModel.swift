@@ -70,19 +70,19 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     self.playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] currentItem in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      defer {
-        self.clearPlaybackState()
-      }
+        defer {
+          self.clearPlaybackState()
+        }
 
-      guard let currentItem = currentItem else {
-        self.playingItemParentPath = nil
-        return
-      }
+        guard let currentItem = currentItem else {
+          self.playingItemParentPath = nil
+          return
+        }
 
-      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
-    }.store(in: &disposeBag)
+        self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
+      }.store(in: &disposeBag)
   }
 
   /// Trigger a data reload
@@ -202,9 +202,9 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
 
     if item.type == .bound,
        let enumerator = FileManager.default.enumerator(
-         at: fileURL,
-         includingPropertiesForKeys: nil,
-         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        at: fileURL,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
        ),
        enumerator.nextObject() == nil {
       return .notDownloaded

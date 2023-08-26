@@ -11,20 +11,20 @@ import SwiftUI
 import WidgetKit
 
 struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let title: String?
-    let relativePath: String?
-    let theme: SimpleTheme?
-    let timerSeconds: Double
-    let autoplay: Bool
+  let date: Date
+  let title: String?
+  let relativePath: String?
+  let theme: SimpleTheme?
+  let timerSeconds: Double
+  let autoplay: Bool
 }
 
 struct LibraryEntry: TimelineEntry {
-    let date: Date
-    let items: [SimpleLibraryItem]
-    let theme: SimpleTheme?
-    let timerSeconds: Double
-    let autoplay: Bool
+  let date: Date
+  let items: [SimpleLibraryItem]
+  let theme: SimpleTheme?
+  let timerSeconds: Double
+  let autoplay: Bool
 }
 
 struct TimeListenedEntry: TimelineEntry {
@@ -37,20 +37,20 @@ struct TimeListenedEntry: TimelineEntry {
 }
 
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-          LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-        }
+  static var previews: some View {
+    Group {
+      LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
+        .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
+  }
 }
 
 @main
 struct BookPlayerBundle: WidgetBundle {
-    @WidgetBundleBuilder
-    var body: some Widget {
-        LastPlayedWidget()
-        RecentBooksWidget()
-        TimeListenedWidget()
-    }
+  @WidgetBundleBuilder
+  var body: some Widget {
+    LastPlayedWidget()
+    RecentBooksWidget()
+    TimeListenedWidget()
+  }
 }

@@ -371,23 +371,23 @@ extension PlayerViewController {
 
         self.setupPlayerView(with: item)
         self.bindCurrentChapterObserver(for: item)
-    }.store(in: &disposeBag)
+      }.store(in: &disposeBag)
 
     self.viewModel.currentSpeedObserver()
       .removeDuplicates()
       .sink { [weak self] speed in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      self.speedButton.title = self.formatSpeed(speed)
-      self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+        self.speedButton.title = self.formatSpeed(speed)
+        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
 
-      // Only update progress if the player is in pause state
-      guard !self.playIconView.isPlaying else { return }
+        // Only update progress if the player is in pause state
+        guard !self.playIconView.isPlaying else { return }
 
-      let progressObject = self.viewModel.getCurrentProgressState()
+        let progressObject = self.viewModel.getCurrentProgressState()
 
-      self.updateView(with: progressObject)
-    }.store(in: &disposeBag)
+        self.updateView(with: progressObject)
+      }.store(in: &disposeBag)
   }
 
   func bindCurrentChapterObserver(for item: PlayableItem) {
@@ -536,7 +536,7 @@ extension PlayerViewController {
       style: .default,
       handler: { [weak self] _ in
         self?.viewModel.showListFromMoreAction()
-    }))
+      }))
 
     actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
       self?.viewModel.handleJumpToStart()
@@ -553,7 +553,7 @@ extension PlayerViewController {
       style: .default,
       handler: { [weak self] _ in
         self?.viewModel.showButtonFree()
-    }))
+      }))
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 

@@ -158,11 +158,11 @@ class DataInitializerCoordinator: BPLogger {
 
     // Migrate user defaults app icon
     if userDefaults?
-        .string(forKey: Constants.UserDefaults.appIcon) == nil {
+      .string(forKey: Constants.UserDefaults.appIcon) == nil {
       let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
       userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
     } else if let sharedAppIcon = userDefaults?
-                .string(forKey: Constants.UserDefaults.appIcon),
+      .string(forKey: Constants.UserDefaults.appIcon),
               let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
               sharedAppIcon != localAppIcon {
       userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
@@ -171,7 +171,7 @@ class DataInitializerCoordinator: BPLogger {
 
     // Migrate protection for Processed folder
     if !(userDefaults?
-          .bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
+      .bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
       DataManager.getProcessedFolderURL().disableFileProtection()
       userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
     }

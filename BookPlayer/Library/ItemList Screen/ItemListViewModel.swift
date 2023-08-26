@@ -127,23 +127,23 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] currentItem in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      self.bookProgressSubscription?.cancel()
+        self.bookProgressSubscription?.cancel()
 
-      defer {
-        self.clearPlaybackState()
-      }
+        defer {
+          self.clearPlaybackState()
+        }
 
-      guard let currentItem = currentItem else {
-        self.playingItemParentPath = nil
-        return
-      }
+        guard let currentItem = currentItem else {
+          self.playingItemParentPath = nil
+          return
+        }
 
-      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
+        self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
 
-      self.bindItemProgressObserver(currentItem)
-    }.store(in: &disposeBag)
+        self.bindItemProgressObserver(currentItem)
+      }.store(in: &disposeBag)
 
     NotificationCenter.default.publisher(for: .folderProgressUpdated)
       .sink { [weak self] notification in
@@ -317,10 +317,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
     } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
-        in: item,
-        isUnfinished: true
-      ),
-      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
+      in: item,
+      isUnfinished: true
+    ),
+              let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }
@@ -808,7 +808,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             availableItems: availableFolders,
             selectionHandler: { folder in
               self?.handleMoveIntoFolder(folder, items: selectedItems)
-          }))
+            }))
         }
       )
     )
@@ -1134,9 +1134,9 @@ extension ItemListViewModel {
 
     if item.type == .bound,
        let enumerator = FileManager.default.enumerator(
-         at: fileURL,
-         includingPropertiesForKeys: nil,
-         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        at: fileURL,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
        ),
        enumerator.nextObject() == nil {
       return .notDownloaded

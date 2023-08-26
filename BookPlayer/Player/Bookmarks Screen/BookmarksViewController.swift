@@ -74,14 +74,14 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     guard !viewModel.automaticBookmarks.isEmpty else { return nil }
 
     return section == 0
-      ? "bookmark_type_automatic_title".localized
-      : "bookmark_type_user_title".localized
+    ? "bookmark_type_automatic_title".localized
+    : "bookmark_type_user_title".localized
   }
 
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return section == 0
-      ? viewModel.automaticBookmarks.count
-      : viewModel.userBookmarks.count
+    ? viewModel.automaticBookmarks.count
+    : viewModel.userBookmarks.count
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -89,8 +89,8 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
     let cell = tableView.dequeueReusableCell(withIdentifier: "BookmarkTableViewCell", for: indexPath) as! BookmarkTableViewCell
 
     let bookmark = indexPath.section == 0
-      ? viewModel.automaticBookmarks[indexPath.row]
-      : viewModel.userBookmarks[indexPath.row]
+    ? viewModel.automaticBookmarks[indexPath.row]
+    : viewModel.userBookmarks[indexPath.row]
 
     cell.setup(with: bookmark)
 
@@ -100,8 +100,8 @@ class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, Book
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let bookmark = indexPath.section == 0
-      ? viewModel.automaticBookmarks[indexPath.row]
-      : viewModel.userBookmarks[indexPath.row]
+    ? viewModel.automaticBookmarks[indexPath.row]
+    : viewModel.userBookmarks[indexPath.row]
 
     viewModel.handleBookmarkSelected(bookmark)
 
@@ -154,7 +154,7 @@ extension BookmarksViewController: Themeable {
     self.tableView.backgroundColor = theme.systemBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

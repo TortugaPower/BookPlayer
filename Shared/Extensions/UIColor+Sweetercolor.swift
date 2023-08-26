@@ -13,7 +13,7 @@ import UIKit
 extension UIColor {
   /**
    Create a UIColor with a string hex value.
-   
+
    - parameter hex:     The hex color, i.e. "FF0072" or "#FF0072".
    - parameter alpha:   The opacity of the color, value between [0,1]. Optional. Default: 1
    */
@@ -45,7 +45,7 @@ extension UIColor {
   /**
    Create a UIColor with a RGB(A) values. The RGB values must *ALL*
    either be between [0, 1] OR [0, 255], do not interchange between either one.
-   
+
    - parameter r:   Red value between [0, 1] OR [0, 255].
    - parameter g:   Green value between [0, 1] OR [0, 255].
    - parameter b:   Blue value between [0, 1] OR [0, 255].
@@ -61,7 +61,7 @@ extension UIColor {
 
   /**
    Create a UIColor with a HSB(A) values.
-   
+
    - parameter h:   Hue value between [0, 1] OR [0, 360].
    - parameter s:   Saturation value between [0, 1] OR [0, 100].
    - parameter b:   Brightness value between [0, 1] OR [0, 100].
@@ -120,12 +120,12 @@ extension UIColor {
 
   /**
    Comapre if two colors are equal.
-   
+
    - parameter color:      A UIColor to compare.
    - parameter strict:     Should the colors have a 1% difference in the values
-   
+
    - returns: A boolean, true if same (or very similar for strict) and false otherwize
-   
+
    */
   func isEqual(to color: UIColor, strict: Bool = true) -> Bool {
     if strict {
@@ -145,7 +145,7 @@ extension UIColor {
 
   /**
    Get the red, green, blue and alpha values.
-   
+
    - returns: An array of four CGFloat numbers from [0, 1] representing RGBA respectively.
    */
   var RGBA: [CGFloat] {
@@ -159,7 +159,7 @@ extension UIColor {
 
   /**
    Get the 8 bit red, green, blue and alpha values.
-   
+
    - returns: An array of four CGFloat numbers from [0, 255] representing RGBA respectively.
    */
   var RGBA_8Bit: [CGFloat] {
@@ -169,7 +169,7 @@ extension UIColor {
 
   /**
    Get the hue, saturation, brightness and alpha values.
-   
+
    - returns: An array of four CGFloat numbers from [0, 255] representing HSBA respectively.
    */
   var HSBA: [CGFloat] {
@@ -183,7 +183,7 @@ extension UIColor {
 
   /**
    Get the 8 bit hue, saturation, brightness and alpha values.
-   
+
    - returns: An array of four CGFloat numbers representing HSBA respectively. Ranges: H[0,360], S[0,100], B[0,100], A[0,1]
    */
   var HSBA_8Bit: [CGFloat] {
@@ -193,7 +193,7 @@ extension UIColor {
 
   /**
    Get the CIE XYZ values.
-   
+
    - returns: An array of three CGFloat numbers representing XYZ respectively.
    */
   var XYZ: [CGFloat] {
@@ -218,7 +218,7 @@ extension UIColor {
 
   /**
    Get the CIE L*ab values.
-   
+
    - returns: An array of three CGFloat numbers representing LAB respectively.
    */
   var LAB: [CGFloat] {
@@ -244,7 +244,7 @@ extension UIColor {
   /**
    Get the relative luminosity value of the color. This follows the W3 specs of luminosity
    to give weight to colors which humans perceive more of.
-   
+
    - returns: A CGFloat representing the relative luminosity.
    */
   public var luminance: CGFloat {
@@ -261,7 +261,7 @@ extension UIColor {
 
   /**
    Determine if the color is dark based on the relative luminosity of the color.
-   
+
    - returns: A boolean: true if it is dark and false if it is not dark.
    */
   var isDark: Bool {
@@ -270,7 +270,7 @@ extension UIColor {
 
   /**
    Determine if the color is light based on the relative luminosity of the color.
-   
+
    - returns: A boolean: true if it is light and false if it is not light.
    */
   var isLight: Bool {
@@ -279,9 +279,9 @@ extension UIColor {
 
   /**
    Determine if this colors is darker than the compared color based on the relative luminosity of both colors.
-   
+
    - parameter than color: A UIColor to compare.
-   
+
    - returns: A boolean: true if this colors is darker than the compared color and false if otherwise.
    */
   func isDarker(than color: UIColor) -> Bool {
@@ -290,9 +290,9 @@ extension UIColor {
 
   /**
    Determine if this colors is lighter than the compared color based on the relative luminosity of both colors.
-   
+
    - parameter than color: A UIColor to compare.
-   
+
    - returns: A boolean: true if this colors is lighter than the compared color and false if otherwise.
    */
   func isLighter(than color: UIColor) -> Bool {
@@ -301,7 +301,7 @@ extension UIColor {
 
   /**
    Determine if this color is either black or white.
-   
+
    - returns: A boolean: true if this color is black or white and false otherwise.
    */
   var isBlackOrWhite: Bool {
@@ -314,9 +314,9 @@ extension UIColor {
 
   /**
    Detemine the distance between two colors based on the way humans perceive them.
-   
+
    - parameter compare color: A UIColor to compare.
-   
+
    - returns: A CGFloat representing the deltaE
    */
   func CIE94(compare color: UIColor) -> CGFloat {
@@ -360,9 +360,9 @@ extension UIColor {
   /**
    Detemine the distance between two colors based on the way humans perceive them.
    Uses the Sharma 2004 alteration of the CIEDE2000 algorithm.
-   
+
    - parameter compare color: A UIColor to compare.
-   
+
    - returns: A CGFloat representing the deltaE
    */
   // swiftlint:disable:next function_body_length
@@ -457,9 +457,9 @@ extension UIColor {
    Determine the contrast ratio between two colors.
    A low ratio implies there is a smaller contrast between the two colors.
    A higher ratio implies there is a larger contrast between the two colors.
-   
+
    - parameter with color: A UIColor to compare.
-   
+
    - returns: A CGFloat representing the contrast ratio of the two colors.
    */
   func contrastRatio(with color: UIColor) -> CGFloat {
@@ -477,10 +477,10 @@ extension UIColor {
 
   /**
    Determine if two colors are contrasting or not based on the W3 standard.
-   
+
    - parameter with color:      A UIColor to compare.
    - parameter strict:          A boolean, if true a stricter judgment of contrast ration will be used. Optional. Default: false
-   
+
    - returns: a boolean, true of the two colors are contrasting, false otherwise.
    */
   func isContrasting(with color: UIColor, strict: Bool = false) -> Bool {
@@ -492,7 +492,7 @@ extension UIColor {
 
   /**
    Get either black or white to contrast against a color.
-   
+
    - returns: A UIColor, either black or white to contrast against this color.
    */
   var fullContrastColor: UIColor {
@@ -504,9 +504,9 @@ extension UIColor {
 
   /**
    Get a clone of this color with a different alpha value.
-   
+
    - parameter newAlpha: The opacity of the new color, value from [0, 1]
-   
+
    - returns: A UIColor clone with the new alpha.
    */
   public func withAlpha(newAlpha: CGFloat) -> UIColor {
@@ -516,9 +516,9 @@ extension UIColor {
   /**
    Get a new color with a mask overlay blend mode on top of this color.
    This is similar to Photoshop's overlay blend mode.
-   
+
    - parameter with color: A UIColor to apply as an overlay mask on top.
-   
+
    - returns: A UIColor with the applied overlay.
    */
 
@@ -542,7 +542,7 @@ extension UIColor {
 
   /**
    Get a new color if a black overlay was applied.
-   
+
    - returns: A UIColor with a black overlay.
    */
   var overlayBlack: UIColor {
@@ -551,7 +551,7 @@ extension UIColor {
 
   /**
    Get a new color if a white overlay was applied.
-   
+
    - returns: A UIColor with a white overlay.
    */
   var overlayWhite: UIColor {
@@ -561,9 +561,9 @@ extension UIColor {
   /**
    Get a new color with a mask multiply blend mode on top of this color.
    This is similar to Photoshop's multiply blend mode.
-   
+
    - parameter with color: A UIColor to apply as a multiply mask on top.
-   
+
    - returns: A UIColor with the applied multiply blend mode.
    */
   func multiply(with color: UIColor) -> UIColor {
@@ -579,9 +579,9 @@ extension UIColor {
   /**
    Get a new color with a mask screen blend mode on top of this color.
    This is similar to Photoshop's screen blend mode.
-   
+
    - parameter with color: A UIColor to apply as a screen mask on top.
-   
+
    - returns: A UIColor with the applied screen blend mode.
    */
   func screen(with color: UIColor) -> UIColor {
@@ -611,7 +611,7 @@ extension UIColor {
 
   /**
    Get the complement of this color on the hue wheel.
-   
+
    - returns: A complement UIColor.
    */
   var complement: UIColor {

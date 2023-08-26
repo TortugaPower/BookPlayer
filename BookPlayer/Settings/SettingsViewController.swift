@@ -16,7 +16,7 @@ import Themeable
 import UIKit
 
 protocol IntentSelectionDelegate: AnyObject {
-    func didSelectIntent(_ intent: INIntent)
+  func didSelectIntent(_ intent: INIntent)
 }
 
 class SettingsViewController: BaseTableViewController<SettingsCoordinator, SettingsViewModel>,
@@ -93,7 +93,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
 
     self.iconObserver = userDefaults?.observe(\.userSettingsAppIcon) { [weak self] _, _ in
-        self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
+      self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
     }
 
     if self.viewModel.hasMadeDonation() {
@@ -102,9 +102,9 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
       self.viewModel.$account
         .receive(on: RunLoop.main)
         .sink { [weak self] _ in
-        self?.donationMade()
-      }
-      .store(in: &disposeBag)
+          self?.donationMade()
+        }
+        .store(in: &disposeBag)
     }
 
     self.plusBannerView.showPlus = { [weak self] in
@@ -133,28 +133,28 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
   }
 
-    @objc func donationMade() {
-        self.tableView.reloadData()
-    }
+  @objc func donationMade() {
+    self.tableView.reloadData()
+  }
 
-    @objc func autoplayToggleDidChange() {
-        UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled)
-      self.autoplayRestartSwitch.isEnabled = autoplayLibrarySwitch.isOn
-    }
+  @objc func autoplayToggleDidChange() {
+    UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled)
+    self.autoplayRestartSwitch.isEnabled = autoplayLibrarySwitch.isOn
+  }
 
-    @objc func autoplayRestartToggleDidChange() {
-      UserDefaults.standard.set(self.autoplayRestartSwitch.isOn, forKey: Constants.UserDefaults.autoplayRestartEnabled)
-    }
+  @objc func autoplayRestartToggleDidChange() {
+    UserDefaults.standard.set(self.autoplayRestartSwitch.isOn, forKey: Constants.UserDefaults.autoplayRestartEnabled)
+  }
 
-    @objc func disableAutolockDidChange() {
-        UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled)
-        self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
-        self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
-    }
+  @objc func disableAutolockDidChange() {
+    UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled)
+    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
+    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
+  }
 
-    @objc func autolockOnlyWhenPoweredDidChange() {
-        UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered)
-    }
+  @objc func autolockOnlyWhenPoweredDidChange() {
+    UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered)
+  }
 
   @objc func iCloudBackupsDidChange() {
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
@@ -248,125 +248,125 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     }
   }
 
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        guard let settingsSection = SettingsSection(rawValue: section) else {
-            return super.tableView(tableView, titleForFooterInSection: section)
-        }
-
-        switch settingsSection {
-        case .autoplay:
-            return "settings_autoplay_description".localized
-        case .autolock:
-            return "settings_autolock_description".localized
-        case .support:
-            return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
-        default:
-            return super.tableView(tableView, titleForFooterInSection: section)
-        }
+  override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+    guard let settingsSection = SettingsSection(rawValue: section) else {
+      return super.tableView(tableView, titleForFooterInSection: section)
     }
 
-    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        let header = view as? UITableViewHeaderFooterView
-        header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+    switch settingsSection {
+    case .autoplay:
+      return "settings_autoplay_description".localized
+    case .autolock:
+      return "settings_autolock_description".localized
+    case .support:
+      return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
+    default:
+      return super.tableView(tableView, titleForFooterInSection: section)
     }
+  }
 
-    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
-        let footer = view as? UITableViewHeaderFooterView
-        footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+  override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    let header = view as? UITableViewHeaderFooterView
+    header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+  }
+
+  override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+    let footer = view as? UITableViewHeaderFooterView
+    footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+  }
+
+  func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+    controller.dismiss(animated: true)
+  }
+
+  func showLastPlayedShortcut() {
+    let intent = INPlayMediaIntent()
+
+    guard let shortcut = INShortcut(intent: intent) else { return }
+
+    let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+    vc.delegate = self
+
+    self.present(vc, animated: true, completion: nil)
+  }
+
+  func showSleepTimerShortcut() {
+    let intent = SleepTimerIntent()
+    intent.option = .unknown
+    let shortcut = INShortcut(intent: intent)!
+
+    let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+    vc.delegate = self
+
+    self.present(vc, animated: true, completion: nil)
+  }
+
+  @IBAction func sendSupportEmail() {
+    let device = Device.current
+
+    if MFMailComposeViewController.canSendMail() {
+      let mail = MFMailComposeViewController()
+
+      mail.mailComposeDelegate = self
+      mail.setToRecipients([self.supportEmail])
+      mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
+      mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
+
+      self.present(mail, animated: true)
+    } else {
+      let debugInfo = "BookPlayer \(self.appVersion)\n\(device) - \(self.systemVersion)"
+      let message = "settings_support_compose_description".localized
+
+      let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
+
+      alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { [weak self] _ in
+        guard let self = self else { return }
+        UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
+      }))
+
+      alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
+
+      self.present(alert, animated: true, completion: nil)
     }
+  }
 
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true)
-    }
+  func showProjectOnGitHub() {
+    let url = URL(string: "https://github.com/TortugaPower/BookPlayer")
+    let safari = SFSafariViewController(url: url!)
+    safari.dismissButtonStyle = .close
 
-    func showLastPlayedShortcut() {
-        let intent = INPlayMediaIntent()
-
-        guard let shortcut = INShortcut(intent: intent) else { return }
-
-        let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-        vc.delegate = self
-
-        self.present(vc, animated: true, completion: nil)
-    }
-
-    func showSleepTimerShortcut() {
-      let intent = SleepTimerIntent()
-      intent.option = .unknown
-      let shortcut = INShortcut(intent: intent)!
-
-      let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-      vc.delegate = self
-
-      self.present(vc, animated: true, completion: nil)
-    }
-
-    @IBAction func sendSupportEmail() {
-        let device = Device.current
-
-        if MFMailComposeViewController.canSendMail() {
-            let mail = MFMailComposeViewController()
-
-            mail.mailComposeDelegate = self
-            mail.setToRecipients([self.supportEmail])
-            mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
-            mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
-
-            self.present(mail, animated: true)
-        } else {
-            let debugInfo = "BookPlayer \(self.appVersion)\n\(device) - \(self.systemVersion)"
-            let message = "settings_support_compose_description".localized
-
-            let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
-
-            alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { [weak self] _ in
-              guard let self = self else { return }
-              UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
-            }))
-
-            alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
-
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
-
-    func showProjectOnGitHub() {
-        let url = URL(string: "https://github.com/TortugaPower/BookPlayer")
-        let safari = SFSafariViewController(url: url!)
-        safari.dismissButtonStyle = .close
-
-        self.present(safari, animated: true)
-    }
+    self.present(safari, animated: true)
+  }
 }
 
 extension SettingsViewController: INUIAddVoiceShortcutViewControllerDelegate {
-    func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
-        self.dismiss(animated: true, completion: nil)
-    }
+  func addVoiceShortcutViewControllerDidCancel(_ controller: INUIAddVoiceShortcutViewController) {
+    self.dismiss(animated: true, completion: nil)
+  }
 
-    func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
-        self.dismiss(animated: true, completion: nil)
-    }
+  func addVoiceShortcutViewController(_ controller: INUIAddVoiceShortcutViewController, didFinishWith voiceShortcut: INVoiceShortcut?, error: Error?) {
+    self.dismiss(animated: true, completion: nil)
+  }
 }
 
 extension SettingsViewController: IntentSelectionDelegate {
-    func didSelectIntent(_ intent: INIntent) {
-        let shortcut = INShortcut(intent: intent)!
-        let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
-        vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
-    }
+  func didSelectIntent(_ intent: INIntent) {
+    let shortcut = INShortcut(intent: intent)!
+    let vc = INUIAddVoiceShortcutViewController(shortcut: shortcut)
+    vc.delegate = self
+    self.present(vc, animated: true, completion: nil)
+  }
 }
 
 extension SettingsViewController: Themeable {
-    func applyTheme(_ theme: SimpleTheme) {
-      self.themeLabel.text = theme.title
-      self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
-      self.tableView.separatorColor = theme.systemGroupedBackgroundColor
-      self.tableView.reloadData()
+  func applyTheme(_ theme: SimpleTheme) {
+    self.themeLabel.text = theme.title
+    self.tableView.backgroundColor = theme.systemGroupedBackgroundColor
+    self.tableView.separatorColor = theme.systemGroupedBackgroundColor
+    self.tableView.reloadData()
 
-      self.overrideUserInterfaceStyle = theme.useDarkVariant
-        ? UIUserInterfaceStyle.dark
-        : UIUserInterfaceStyle.light
-    }
+    self.overrideUserInterfaceStyle = theme.useDarkVariant
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
+  }
 }

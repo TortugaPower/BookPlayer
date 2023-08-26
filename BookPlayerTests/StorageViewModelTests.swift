@@ -24,9 +24,9 @@ final class StorageViewModelMissingFileTests: XCTestCase {
 
     self.directoryURL = try! FileManager.default.url(
       for: .itemReplacementDirectory,
-         in: .userDomainMask,
-         appropriateFor: documentsURL,
-         create: true
+      in: .userDomainMask,
+      appropriateFor: documentsURL,
+      create: true
     )
 
     let folderURL = try! DataTestUtils.generateTestFolder(name: folder, destinationFolder: self.directoryURL)
@@ -49,9 +49,9 @@ final class StorageViewModelMissingFileTests: XCTestCase {
 
     self.directoryURL = try! FileManager.default.url(
       for: .itemReplacementDirectory,
-         in: .userDomainMask,
-         appropriateFor: documentsURL,
-         create: true
+      in: .userDomainMask,
+      appropriateFor: documentsURL,
+      create: true
     )
 
     // Add test file to the Processed folder
@@ -111,7 +111,7 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Items load expectation")
     expectation.isInverted = true
     wait(for: [expectation], timeout: 5.0)
-    
+
     guard let item = viewModel.publishedFiles.first else {
       return
     }

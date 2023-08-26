@@ -225,7 +225,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let asset: AVURLAsset
 
     if syncService.isActive,
-      !FileManager.default.fileExists(atPath: fileURL.path) {
+       !FileManager.default.fileExists(atPath: fileURL.path) {
       asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -727,12 +727,12 @@ extension PlayerManager {
     guard let path = keyPath,
           path == "status",
           let item = object as? AVPlayerItem else {
-            super.observeValue(forKeyPath: keyPath,
-                               of: object,
-                               change: change,
-                               context: context)
-            return
-          }
+      super.observeValue(forKeyPath: keyPath,
+                         of: object,
+                         change: change,
+                         context: context)
+      return
+    }
 
     guard item.status == .readyToPlay else {
       if item.status == .failed {

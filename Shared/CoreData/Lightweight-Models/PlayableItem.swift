@@ -79,7 +79,7 @@ public final class PlayableItem: NSObject, Identifiable {
 
   public func getChapter(at globalTime: Double) -> PlayableChapter? {
     if let lastChapter = chapters.last,
-        lastChapter.end == globalTime {
+       lastChapter.end == globalTime {
       return lastChapter
     }
 
@@ -168,8 +168,8 @@ public final class PlayableItem: NSObject, Identifiable {
 
   public func nextChapter(after chapter: PlayableChapter) -> PlayableChapter? {
     guard !self.chapters.isEmpty else {
-            return nil
-          }
+      return nil
+    }
 
     if chapter == self.chapters.last { return nil }
 
@@ -178,8 +178,8 @@ public final class PlayableItem: NSObject, Identifiable {
 
   public func previousChapter(before chapter: PlayableChapter) -> PlayableChapter? {
     guard !self.chapters.isEmpty else {
-            return nil
-          }
+      return nil
+    }
 
     if chapter == self.chapters.first { return nil }
 

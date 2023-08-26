@@ -9,14 +9,14 @@
 import XCTest
 
 class DataTestUtils: XCTest {
-    class func generateTestFile(name: String, contents: Data, destinationFolder: URL) -> URL {
-        let destination = destinationFolder.appendingPathComponent(name)
+  class func generateTestFile(name: String, contents: Data, destinationFolder: URL) -> URL {
+    let destination = destinationFolder.appendingPathComponent(name)
 
-        XCTAssertNoThrow(try contents.write(to: destination))
-        XCTAssert(FileManager.default.fileExists(atPath: destination.path))
+    XCTAssertNoThrow(try contents.write(to: destination))
+    XCTAssert(FileManager.default.fileExists(atPath: destination.path))
 
-        return destination
-    }
+    return destination
+  }
 
   class func generateTestFolder(name: String, destinationFolder: URL) throws -> URL {
     let destination = destinationFolder.appendingPathComponent(name)
@@ -26,14 +26,14 @@ class DataTestUtils: XCTest {
     return destination
   }
 
-    class func clearFolderContents(url: URL) {
-        do {
-            let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
-            for url in urls {
-                try FileManager.default.removeItem(at: url)
-            }
-        } catch {
-            print("Exception while clearing folder contents")
-        }
+  class func clearFolderContents(url: URL) {
+    do {
+      let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+      for url in urls {
+        try FileManager.default.removeItem(at: url)
+      }
+    } catch {
+      print("Exception while clearing folder contents")
     }
+  }
 }

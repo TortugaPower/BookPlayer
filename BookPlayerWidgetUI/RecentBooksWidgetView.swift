@@ -11,13 +11,13 @@ import SwiftUI
 import WidgetKit
 
 struct RecentBooksProvider: IntentTimelineProvider {
-    let numberOfBooks = 4
+  let numberOfBooks = 4
 
-    typealias Entry = LibraryEntry
+  typealias Entry = LibraryEntry
 
-    func placeholder(in context: Context) -> LibraryEntry {
-      return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
-    }
+  func placeholder(in context: Context) -> LibraryEntry {
+    return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
+  }
 
   func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
     let stack = DataMigrationManager().getCoreDataStack()
@@ -101,10 +101,10 @@ struct BookView: View {
       VStack(spacing: 5) {
         Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
               ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
-          .resizable()
-          .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-          .aspectRatio(1.0, contentMode: .fit)
-          .cornerRadius(8.0)
+        .resizable()
+        .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
+        .aspectRatio(1.0, contentMode: .fit)
+        .cornerRadius(8.0)
 
         Text(title)
           .fontWeight(.semibold)
@@ -119,72 +119,72 @@ struct BookView: View {
 }
 
 struct RecentBooksWidgetView: View {
-    @Environment(\.colorScheme) var colorScheme
-    var entry: RecentBooksProvider.Entry
+  @Environment(\.colorScheme) var colorScheme
+  var entry: RecentBooksProvider.Entry
 
-    var body: some View {
-        let items = Array(entry.items.prefix(4))
+  var body: some View {
+    let items = Array(entry.items.prefix(4))
 
-        let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
+    let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
 
-        let appIconName = WidgetUtils.getAppIconName()
+    let appIconName = WidgetUtils.getAppIconName()
 
-        return VStack(spacing: 3) {
-            HStack {
-                Text("Recent Books")
-                    .foregroundColor(widgetColors.primaryColor)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                Spacer()
-                Image(appIconName)
-                    .accessibility(hidden: true)
-                    .frame(width: 28, height: 28)
-                    .padding([.trailing], 10)
-                    .cornerRadius(8.0)
-            }
-            .padding([.leading])
-            .padding([.trailing, .bottom], 5)
-            .padding([.top], 8)
-            HStack {
-                ForEach(items, id: \.relativePath) { item in
-                    BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                }
-            }
-            .padding([.leading, .trailing])
-
-            Spacer()
+    return VStack(spacing: 3) {
+      HStack {
+        Text("Recent Books")
+          .foregroundColor(widgetColors.primaryColor)
+          .font(.subheadline)
+          .fontWeight(.semibold)
+        Spacer()
+        Image(appIconName)
+          .accessibility(hidden: true)
+          .frame(width: 28, height: 28)
+          .padding([.trailing], 10)
+          .cornerRadius(8.0)
+      }
+      .padding([.leading])
+      .padding([.trailing, .bottom], 5)
+      .padding([.top], 8)
+      HStack {
+        ForEach(items, id: \.relativePath) { item in
+          BookView(item: item, titleColor: widgetColors.primaryColor, theme: entry.theme, entry: entry)
+            .frame(minWidth: 0, maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(widgetColors.backgroundColor)
+      }
+      .padding([.leading, .trailing])
+
+      Spacer()
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(widgetColors.backgroundColor)
+  }
 }
 
 struct RecentBooksWidgetView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-          RecentBooksWidgetView(
-            entry: LibraryEntry(date: Date(),
-                                items: [.previewItem(title: "a very very very long title"),
-                                        .previewItem(title: "a short title"),
-                                        .previewItem(title: "a short title")],
-                                theme: nil,
-                                timerSeconds: 300,
-                                autoplay: true))
-                .previewContext(WidgetPreviewContext(family: .systemMedium))
-        }
+  static var previews: some View {
+    Group {
+      RecentBooksWidgetView(
+        entry: LibraryEntry(date: Date(),
+                            items: [.previewItem(title: "a very very very long title"),
+                                    .previewItem(title: "a short title"),
+                                    .previewItem(title: "a short title")],
+                            theme: nil,
+                            timerSeconds: 300,
+                            autoplay: true))
+      .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
+  }
 }
 
 struct RecentBooksWidget: Widget {
-    let kind: String = "com.bookplayer.widget.medium.recentBooks"
+  let kind: String = "com.bookplayer.widget.medium.recentBooks"
 
-    var body: some WidgetConfiguration {
-        IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: RecentBooksProvider()) { entry in
-            RecentBooksWidgetView(entry: entry)
-        }
-        .configurationDisplayName("Recent Books")
-        .description("See the recent played books")
-        .supportedFamilies([.systemMedium])
+  var body: some WidgetConfiguration {
+    IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: RecentBooksProvider()) { entry in
+      RecentBooksWidgetView(entry: entry)
     }
+    .configurationDisplayName("Recent Books")
+    .description("See the recent played books")
+    .supportedFamilies([.systemMedium])
+  }
 }

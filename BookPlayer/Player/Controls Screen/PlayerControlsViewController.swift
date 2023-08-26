@@ -126,13 +126,13 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     self.viewModel.currentSpeedPublisher()
       .removeDuplicates()
       .sink { [weak self] speed in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      let formattedSpeed = self.formatSpeed(speed)
-      self.currentSpeedLabel.text = formattedSpeed
-      UIImpactFeedbackGenerator(style: .light).impactOccurred()
-    }
-    .store(in: &disposeBag)
+        let formattedSpeed = self.formatSpeed(speed)
+        self.currentSpeedLabel.text = formattedSpeed
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+      }
+      .store(in: &disposeBag)
 
     self.speedFirstQuickActionButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
@@ -160,7 +160,7 @@ class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator
     self.incrementSpeedButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         guard let self = self,
-        self.currentSpeedSlider.value < self.viewModel.getMaximumSpeedValue() else { return }
+              self.currentSpeedSlider.value < self.viewModel.getMaximumSpeedValue() else { return }
 
         self.setSliderSpeed(self.currentSpeedSlider.value + 0.05)
       }.store(in: &disposeBag)
@@ -203,7 +203,7 @@ extension PlayerControlsViewController: Themeable {
     }
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

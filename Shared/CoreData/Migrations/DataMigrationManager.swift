@@ -120,9 +120,9 @@ public final class DataMigrationManager: BPLogger {
     guard let storeModel = self.storeModel,
           let currentVersion = DBVersion(model: storeModel),
           let nextVersion = currentVersion.next() else {
-            completionHandler()
-            return
-          }
+      completionHandler()
+      return
+    }
 
     let destinationModel = nextVersion.model()
     var mappingModel: NSMappingModel?

@@ -41,103 +41,103 @@ public struct SimpleTheme: Codable {
   public let title: String
 
   public var lightPrimaryColor: UIColor {
-      return UIColor(hex: lightPrimaryHex)
+    return UIColor(hex: lightPrimaryHex)
   }
 
   public var lightSecondaryColor: UIColor {
-      return UIColor(hex: lightSecondaryHex)
+    return UIColor(hex: lightSecondaryHex)
   }
 
   public var lightLinkColor: UIColor {
-      return UIColor(hex: lightAccentHex)
+    return UIColor(hex: lightAccentHex)
   }
 
   public var lightSystemBackgroundColor: UIColor {
-      return UIColor(hex: lightSystemBackgroundHex)
+    return UIColor(hex: lightSystemBackgroundHex)
   }
 
   public var primaryColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkPrimaryHex
-          : lightPrimaryHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkPrimaryHex
+    : lightPrimaryHex
+    return UIColor(hex: hex)
   }
 
   public var secondaryColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSecondaryHex
-          : lightSecondaryHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSecondaryHex
+    : lightSecondaryHex
+    return UIColor(hex: hex)
   }
 
   public var linkColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkAccentHex
-          : lightAccentHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkAccentHex
+    : lightAccentHex
+    return UIColor(hex: hex)
   }
 
   public var separatorColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSeparatorHex
-          : lightSeparatorHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSeparatorHex
+    : lightSeparatorHex
+    return UIColor(hex: hex)
   }
 
   public var systemBackgroundColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSystemBackgroundHex
-          : lightSystemBackgroundHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSystemBackgroundHex
+    : lightSystemBackgroundHex
+    return UIColor(hex: hex)
   }
 
   public var secondarySystemBackgroundColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSecondarySystemBackgroundHex
-          : lightSecondarySystemBackgroundHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSecondarySystemBackgroundHex
+    : lightSecondarySystemBackgroundHex
+    return UIColor(hex: hex)
   }
 
   public var tertiarySystemBackgroundColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkTertiarySystemBackgroundHex
-          : lightTertiarySystemBackgroundHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkTertiarySystemBackgroundHex
+    : lightTertiarySystemBackgroundHex
+    return UIColor(hex: hex)
   }
 
   public var systemGroupedBackgroundColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSystemGroupedBackgroundHex
-          : lightSystemGroupedBackgroundHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSystemGroupedBackgroundHex
+    : lightSystemGroupedBackgroundHex
+    return UIColor(hex: hex)
   }
 
   public var systemFillColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSystemFillHex
-          : lightSystemFillHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSystemFillHex
+    : lightSystemFillHex
+    return UIColor(hex: hex)
   }
 
   public var secondarySystemFillColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkSecondarySystemFillHex
-          : lightSecondarySystemFillHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkSecondarySystemFillHex
+    : lightSecondarySystemFillHex
+    return UIColor(hex: hex)
   }
 
   public var tertiarySystemFillColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkTertiarySystemFillHex
-          : lightTertiarySystemFillHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkTertiarySystemFillHex
+    : lightTertiarySystemFillHex
+    return UIColor(hex: hex)
   }
 
   public var quaternarySystemFillColor: UIColor {
-      let hex: String = self.useDarkVariant
-          ? darkQuaternarySystemFillHex
-          : lightQuaternarySystemFillHex
-      return UIColor(hex: hex)
+    let hex: String = self.useDarkVariant
+    ? darkQuaternarySystemFillHex
+    : lightQuaternarySystemFillHex
+    return UIColor(hex: hex)
   }
 
   enum CodingKeys: String, CodingKey {
