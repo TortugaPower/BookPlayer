@@ -15,12 +15,12 @@ import XCTest
 
 class KeychainServiceTests: XCTestCase {
   var sut: KeychainService!
-  
+
   override func setUp() {
     self.sut = KeychainService()
     try? self.sut.removeAccessToken()
   }
-  
+
   func testSettingAndGettingKey() throws {
     let emptyToken = try! self.sut.getAccessToken()
     XCTAssert(emptyToken == nil)

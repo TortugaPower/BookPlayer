@@ -15,7 +15,7 @@ struct BPAlertContent {
   let style: UIAlertController.Style
   let textInputPlaceholder: String?
   let actionItems: [BPActionItem]
-  
+
   init(
     title: String? = nil,
     message: String? = nil,
@@ -48,7 +48,7 @@ struct BPActionItem {
   let isEnabled: Bool
   let handler: () -> Void
   var inputHandler: ((String) -> Void)?
-  
+
   init(
     title: String,
     style: UIAlertAction.Style = .default,
@@ -72,7 +72,7 @@ extension BPActionItem {
     handler: {},
     inputHandler: nil
   )
-  
+
   static var cancelAction = BPActionItem(
     title: "cancel_button".localized,
     style: .cancel,

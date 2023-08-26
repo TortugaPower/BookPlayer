@@ -12,9 +12,9 @@ struct ProfileSyncTasksStatusView: View {
   @Binding var buttonText: String
   @Binding var statusMessage: String
   @ObservedObject var themeViewModel: ThemeViewModel
-  
+
   var showTasksAction: () -> Void
-  
+
   var body: some View {
     VStack {
       Button(buttonText, action: showTasksAction)

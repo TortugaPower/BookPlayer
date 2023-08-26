@@ -11,12 +11,12 @@ import UIKit
 
 class ProfileCoordinator: Coordinator {
   weak var tabBarController: UITabBarController?
-  
+
   let libraryService: LibraryServiceProtocol
   let playerManager: PlayerManagerProtocol
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
-  
+
   init(
     libraryService: LibraryServiceProtocol,
     playerManager: PlayerManagerProtocol,
@@ -28,11 +28,11 @@ class ProfileCoordinator: Coordinator {
     self.playerManager = playerManager
     self.accountService = accountService
     self.syncService = syncService
-    
+
     super.init(navigationController: navigationController,
                flowType: .push)
   }
-  
+
   override func start() {
     let viewModel = ProfileViewModel(
       accountService: accountService,
@@ -40,7 +40,7 @@ class ProfileCoordinator: Coordinator {
       playerManager: playerManager,
       syncService: syncService
     )
-    
+
     viewModel.onTransition = { [weak self] route in
       switch route {
       case .showAccount:
@@ -49,7 +49,7 @@ class ProfileCoordinator: Coordinator {
         self?.showQueuedTasks()
       }
     }
-    
+
     let vc = ProfileViewController(viewModel: viewModel)
     vc.navigationItem.largeTitleDisplayMode = .never
     self.navigationController.tabBarItem = UITabBarItem(
@@ -57,17 +57,17 @@ class ProfileCoordinator: Coordinator {
       image: UIImage(systemName: "person.crop.circle"),
       selectedImage: UIImage(systemName: "person.crop.circle.fill")
     )
-    
+
     self.presentingViewController = self.navigationController
-    
+
     if let tabBarController = tabBarController {
       let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
-    
+
     self.navigationController.pushViewController(vc, animated: true)
   }
-  
+
   func showAccount() {
     if self.accountService.getAccountId() != nil {
       let child = AccountCoordinator(
@@ -82,18 +82,18 @@ class ProfileCoordinator: Coordinator {
         accountService: self.accountService,
         presentingViewController: self.presentingViewController
       )
-      
+
       self.childCoordinators.append(loginCoordinator)
       loginCoordinator.parentCoordinator = self
       loginCoordinator.start()
     }
   }
-  
+
   func showQueuedTasks() {
     let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
-    
+
     let vc = QueuedSyncTasksViewController(viewModel: viewModel)
-    
+
     let nav = AppNavigationController(rootViewController: vc)
     self.navigationController.present(nav, animated: true)
   }

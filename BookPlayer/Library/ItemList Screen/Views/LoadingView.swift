@@ -15,10 +15,10 @@ class LoadingView: NibLoadableView {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var subtitleLabel: UILabel!
   @IBOutlet weak var separatorView: UIView!
-  
+
   required init?(coder: NSCoder) {
     super.init(coder: coder)
-    
+
     setUpTheming()
   }
 }

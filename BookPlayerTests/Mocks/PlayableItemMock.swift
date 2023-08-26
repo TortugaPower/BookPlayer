@@ -35,7 +35,7 @@ extension PlayableItem {
       isBoundBook: false
     )
   }
-  
+
   static func mockWithExtension(_ fileExtension: String) -> PlayableItem {
     return PlayableItem(
       title: "test-title",

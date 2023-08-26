@@ -15,13 +15,13 @@ class PlayerCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   weak var alert: UIAlertController?
-  
+
   private var disposeBag = Set<AnyCancellable>()
-  
+
   deinit {
     self.handleAutolockStatus(forceDisable: true)
   }
-  
+
   init(
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
@@ -31,15 +31,15 @@ class PlayerCoordinator: Coordinator {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
-    
+
     super.init(
       navigationController: AppNavigationController.instantiate(from: .Player),
       flowType: .modal
     )
-    
+
     self.presentingViewController = presentingViewController
   }
-  
+
   override func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
     let viewModel = PlayerViewModel(
@@ -54,7 +54,7 @@ class PlayerCoordinator: Coordinator {
     self.bindGeneralObservers()
     self.handleAutolockStatus()
   }
-  
+
   func showBookmarks() {
     let bookmarksCoordinator = BookmarkCoordinator(
       playerManager: self.playerManager,
@@ -66,7 +66,7 @@ class PlayerCoordinator: Coordinator {
     self.childCoordinators.append(bookmarksCoordinator)
     bookmarksCoordinator.start()
   }
-  
+
   func showButtonFree() {
     let coordinator = ButtonFreeCoordinator(
       navigationController: self.navigationController,
@@ -79,7 +79,7 @@ class PlayerCoordinator: Coordinator {
     self.childCoordinators.append(coordinator)
     coordinator.start()
   }
-  
+
   func showChapters() {
     let chaptersCoordinator = ChapterCoordinator(
       playerManager: self.playerManager,
@@ -89,7 +89,7 @@ class PlayerCoordinator: Coordinator {
     self.childCoordinators.append(chaptersCoordinator)
     chaptersCoordinator.start()
   }
-  
+
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
       playerManager: self.playerManager,
@@ -99,7 +99,7 @@ class PlayerCoordinator: Coordinator {
     self.childCoordinators.append(playerControlsCoordinator)
     playerControlsCoordinator.start()
   }
-  
+
   func bindGeneralObservers() {
     NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)
       .debounce(for: 1.0, scheduler: DispatchQueue.main)
@@ -108,30 +108,30 @@ class PlayerCoordinator: Coordinator {
       }
       .store(in: &disposeBag)
   }
-  
+
   func handleAutolockStatus(forceDisable: Bool = false) {
     guard !forceDisable else {
       UIApplication.shared.isIdleTimerDisabled = false
       UIDevice.current.isBatteryMonitoringEnabled = false
       return
     }
-    
+
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled) else {
       UIApplication.shared.isIdleTimerDisabled = false
       UIDevice.current.isBatteryMonitoringEnabled = false
       return
     }
-    
+
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered) else {
       UIApplication.shared.isIdleTimerDisabled = true
       UIDevice.current.isBatteryMonitoringEnabled = false
       return
     }
-    
+
     if !UIDevice.current.isBatteryMonitoringEnabled {
       UIDevice.current.isBatteryMonitoringEnabled = true
     }
-    
+
     UIApplication.shared.isIdleTimerDisabled = UIDevice.current.batteryState != .unplugged
   }
 }

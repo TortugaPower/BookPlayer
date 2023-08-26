@@ -55,7 +55,7 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/thumbnail_set"
     }
   }
-  
+
   public var method: HTTPMethod {
     switch self {
     case .syncedIdentifiers:
@@ -86,7 +86,7 @@ extension LibraryAPI: Endpoint {
       return .post
     }
   }
-  
+
   public var parameters: [String: Any]? {
     switch self {
     case .syncedIdentifiers:
@@ -132,22 +132,22 @@ extension LibraryAPI: Endpoint {
         "time": time,
         "active": isActive
       ]
-      
+
       if let note {
         params["note"] = note
       }
-      
+
       return params
     case .uploadArtwork(let path, let filename, let uploaded):
       var params: [String: Any] = [
         "relativePath": path,
         "thumbnail_name": filename
       ]
-      
+
       if let uploaded {
         params["uploaded"] = uploaded
       }
-      
+
       return params
     }
   }

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct PlaybackControlsView: View {
   @EnvironmentObject var contextManager: ContextManager
-  
+
   var body: some View {
     GeometryReader { metrics in
       VStack {
@@ -36,7 +36,7 @@ struct PlaybackControlsView: View {
           }
           .buttonStyle(PlainButtonStyle())
           .frame(width: metrics.size.width * 0.4)
-          
+
           Spacer()
             .padding([.leading], 5)
           Button {

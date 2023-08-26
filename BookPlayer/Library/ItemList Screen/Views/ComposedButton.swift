@@ -17,7 +17,7 @@ class ComposedButton: UIButton {
   let systemImage: String?
   let imageHeight: CGFloat?
   var theme: SimpleTheme?
-  
+
   init(
     title: String,
     secondaryTitle: String? = nil,
@@ -30,25 +30,25 @@ class ComposedButton: UIButton {
     self.systemImage = systemImage
     self.imageHeight = imageHeight
     self.font = font
-    
+
     super.init(frame: .zero)
     titleLabel?.lineBreakMode = .byClipping
     titleLabel?.adjustsFontForContentSizeCategory = true
     self.setUpTheming()
   }
-  
+
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   override func setTitle(_ title: String?, for state: UIControl.State) {
     self.title = title ?? ""
     applyTitle()
   }
-  
+
   func applyTitle() {
     guard let theme else { return }
-    
+
     let fullString = NSMutableAttributedString(
       string: title,
       attributes: [.font: font, .foregroundColor: theme.linkColor]
@@ -57,7 +57,7 @@ class ComposedButton: UIButton {
       string: title,
       attributes: [.font: font, .foregroundColor: theme.linkColor.withAlphaComponent(0.5)]
     )
-    
+
     if let secondaryTitle {
       fullString.insert(
         NSAttributedString(
@@ -74,7 +74,7 @@ class ComposedButton: UIButton {
         at: 0
       )
     }
-    
+
     if let systemImage,
        let imageHeight,
        let image = UIImage(systemName: systemImage) {
@@ -93,7 +93,7 @@ class ComposedButton: UIButton {
       highlightedString.append(NSAttributedString(string: " "))
       highlightedString.append(NSAttributedString(attachment: imageAttachment))
     }
-    
+
     setAttributedTitle(fullString, for: .normal)
     setAttributedTitle(highlightedString, for: .highlighted)
   }

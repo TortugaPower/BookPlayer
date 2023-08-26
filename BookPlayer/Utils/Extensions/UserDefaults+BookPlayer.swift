@@ -13,7 +13,7 @@ extension UserDefaults {
   @objc dynamic var userSettingsAppIcon: String? {
     return string(forKey: Constants.UserDefaults.appIcon)
   }
-  
+
   @objc dynamic var userSettingsHasQueuedJobs: Bool {
     return bool(forKey: Constants.UserDefaults.hasQueuedJobs)
   }

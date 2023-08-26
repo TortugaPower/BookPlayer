@@ -18,9 +18,9 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   var didStartSession = false
   /// Flag used to register observers only once
   var didRegisterObservers = false
-  
+
   private var disposeBag = Set<AnyCancellable>()
-  
+
   public init(
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
@@ -29,10 +29,10 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
-    
+
     super.init()
   }
-  
+
   func bindObservers() {
     NotificationCenter.default.publisher(for: .bookReady, object: nil)
       .sink(receiveValue: { [weak self] notification in
@@ -43,17 +43,17 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
         else {
           return
         }
-        
+
         self.sendApplicationContext()
       })
       .store(in: &disposeBag)
-    
+
     NotificationCenter.default.publisher(for: .chapterChange, object: nil)
       .sink(receiveValue: { [weak self] _ in
         self?.sendApplicationContext()
       })
       .store(in: &disposeBag)
-    
+
     NotificationCenter.default.publisher(for: .bookPlayed, object: nil)
       .sink(receiveValue: { [weak self] notification in
         guard
@@ -63,14 +63,14 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
         else {
           return
         }
-        
+
         self.sendMessage(message: [
           "command": "play" as AnyObject,
           "identifier": currentItem.relativePath as AnyObject
         ])
       })
       .store(in: &disposeBag)
-    
+
     NotificationCenter.default.publisher(for: .bookPaused, object: nil)
       .sink(receiveValue: { [weak self] _ in
         guard
@@ -78,16 +78,16 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
         else {
           return
         }
-        
+
         self?.sendMessage(message: [
           "command": "pause" as AnyObject,
         ])
       })
       .store(in: &disposeBag)
   }
-  
+
   private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
-  
+
   public var validSession: WCSession? {
     if let session = self.session, session.isPaired, session.isWatchAppInstalled {
       return session
@@ -95,48 +95,48 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
       return nil
     }
   }
-  
+
   public func startSession(_ delegate: WCSessionDelegate? = nil) {
     guard !self.didStartSession else { return }
-    
+
     self.didStartSession = true
     self.session?.delegate = delegate ?? self
     self.session?.activate()
   }
-  
+
   public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     self.sendApplicationContext()
-    
+
     // Register observers only once
     if !didRegisterObservers {
       didRegisterObservers = true
       bindObservers()
     }
   }
-  
+
   public func sessionDidBecomeInactive(_ session: WCSession) {}
-  
+
   public func sessionDidDeactivate(_ session: WCSession) {
     session.activate()
   }
-  
+
   public func sendApplicationContext() {
     guard self.validSession != nil else { return }
-    
+
     let applicationContext = self.generateApplicationContext()
-    
+
     try? self.updateApplicationContext(
       applicationContext: self.getDictionaryFromContext(applicationContext)
     )
-    
+
     guard
       self.session?.activationState == .activated,
       let applicationContextData = try? JSONEncoder().encode(applicationContext)
     else { return }
-    
+
     self.sendMessageData(data: applicationContextData)
   }
-  
+
   public func generateApplicationContext() -> WatchApplicationContext {
     var recentItems = [PlayableItem]()
     if let recentBooks = self.libraryService.getLastPlayedItems(limit: 20) {
@@ -144,7 +144,7 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
         try? self?.playbackService.getPlayableItem(from: $0)
       })
     }
-    
+
     return WatchApplicationContext(
       recentItems: recentItems,
       currentItem: self.playerManager.currentItem,
@@ -154,10 +154,10 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
       boostVolume: UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
     )
   }
-  
+
   public func getDictionaryFromContext(_ applicationContext: WatchApplicationContext) -> [String: AnyObject] {
     let encoder = JSONEncoder()
-    
+
     return [
       "recentItems": (try? encoder.encode(applicationContext.recentItems)) as AnyObject,
       "currentItem": (try? encoder.encode(applicationContext.currentItem)) as AnyObject,
@@ -194,32 +194,32 @@ extension PhoneWatchConnectivityService {
     if let session = validSession, session.isReachable {
       return session
     }
-    
+
     return nil
   }
-  
+
   // Sender
   public func sendMessage(message: [String: AnyObject],
                           replyHandler: (([String: Any]) -> Void)? = nil,
                           errorHandler: ((Error) -> Void)? = nil) {
     self.validReachableSession?.sendMessage(message, replyHandler: replyHandler, errorHandler: errorHandler)
   }
-  
+
   public func sendMessageData(data: Data,
                               replyHandler: ((Data) -> Void)? = nil,
                               errorHandler: ((Error) -> Void)? = nil) {
     self.validReachableSession?.sendMessageData(data, replyHandler: replyHandler, errorHandler: errorHandler)
   }
-  
+
   public func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
     NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
     replyHandler(["success": true])
   }
-  
+
   public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
     NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
   }
-  
+
   /// Only used for refresh command on the phone side
   public func session(_ session: WCSession, didReceiveMessageData messageData: Data, replyHandler: @escaping (Data) -> Void) {
     guard
@@ -230,11 +230,11 @@ extension PhoneWatchConnectivityService {
       replyHandler(Data())
       return
     }
-    
+
     let applicationContext = generateApplicationContext()
-    
+
     guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
-    
+
     replyHandler(applicationContextData)
   }
 }

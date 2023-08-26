@@ -12,7 +12,7 @@ import SwiftUI
 struct ChapterListView: View {
   @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var contextManager: ContextManager
-  
+
   var body: some View {
     ScrollViewReader { proxy in
       List {

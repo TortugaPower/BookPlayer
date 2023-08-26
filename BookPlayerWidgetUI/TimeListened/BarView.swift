@@ -15,16 +15,16 @@ struct BarView: View {
   var maxTime: Double
   var cornerRadius: CGFloat
   var widgetColors: WidgetColors
-  
+
   var body: some View {
     let time = WidgetUtils.formatTimeShort(currentTime)
-    
+
     let day = Calendar.current.component(.day, from: date)
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
-    
+
     let derp = CGFloat((currentTime * 70) / maxTime)
-    
+
     return VStack(spacing: 4) {
       Text(time)
         .foregroundColor(widgetColors.primaryColor)

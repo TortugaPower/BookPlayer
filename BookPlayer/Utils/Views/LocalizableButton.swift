@@ -12,7 +12,7 @@ class LocalizableButton: UIButton {
   @IBInspectable var localizedKey: String? {
     didSet {
       guard let key = localizedKey else { return }
-      
+
       UIView.performWithoutAnimation {
         setTitle(key.localized, for: .normal)
         layoutIfNeeded()

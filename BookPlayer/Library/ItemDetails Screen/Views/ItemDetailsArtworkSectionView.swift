@@ -16,7 +16,7 @@ struct ItemDetailsArtworkSectionView: View {
   var actionHandler: () -> Void
   /// Theme view model to update colors
   @EnvironmentObject var themeViewModel: ThemeViewModel
-  
+
   var body: some View {
     Section(
       header: HStack {

@@ -12,7 +12,7 @@ import SwiftUI
 struct ProfileListenedTimeView: View {
   @Binding var formattedListeningTime: String
   @EnvironmentObject var themeViewModel: ThemeViewModel
-  
+
   var body: some View {
     VStack {
       Text(formattedListeningTime)

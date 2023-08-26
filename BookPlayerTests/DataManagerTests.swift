@@ -13,7 +13,7 @@ import XCTest
 
 class DataManagerTests: XCTestCase {
   var dataManager: DataManager!
-  
+
   override func setUp() {
     super.setUp()
     self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
@@ -30,32 +30,32 @@ class DataManagerTests: XCTestCase {
 class ProcessFilesTests: DataManagerTests {
   var importManager: ImportManager!
   var subscription: AnyCancellable?
-  
+
   override func setUp() {
     self.subscription?.cancel()
     super.setUp()
   }
-  
+
   func testProcessOneFile() {
     let filename = "file.txt"
     let bookContents = "bookcontents".data(using: .utf8)!
     let documentsFolder = DataManager.getDocumentsFolderURL()
-    
+
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: documentsFolder)
-    
+
     let expectation = XCTestExpectation(description: "File import notification")
-    
+
     self.importManager = ImportManager(libraryService: LibraryService(dataManager: self.dataManager))
-    
+
     self.subscription = self.importManager.observeFiles().sink { files in
       guard !files.isEmpty else { return }
-      
+
       expectation.fulfill()
     }
-    
+
     self.importManager.process(fileUrl)
-    
+
     wait(for: [expectation], timeout: 15)
   }
 }

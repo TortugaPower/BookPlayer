@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 class SearchListViewController: BaseViewController<Coordinator, SearchListViewModel> {
-  
+
   private var disposeBag = Set<AnyCancellable>()
   /// Width for each scope item
   let scopeItemWidth: CGFloat = 143
@@ -48,25 +48,25 @@ class SearchListViewController: BaseViewController<Coordinator, SearchListViewMo
     if let data = viewModel.defaultArtwork {
       return UIImage(data: data)
     }
-    
+
     return nil
   }
-  
+
   // MARK: - Lifecycle
-  
+
   /// Initializer
   init(viewModel: SearchListViewModel) {
     super.init(nibName: nil, bundle: nil)
     self.viewModel = viewModel
   }
-  
+
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     setupSearchBar()
     addSubviews()
     addConstraints()
@@ -75,14 +75,14 @@ class SearchListViewController: BaseViewController<Coordinator, SearchListViewMo
     updateSelectedScope()
     observeKeyboardEvents()
   }
-  
+
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    
+
     fadeInScopeControls()
     searchBar.searchTextField.becomeFirstResponder()
   }
-  
+
   func setupSearchBar() {
     searchBar.placeholder = "search_title".localized + " \(viewModel.placeholderTitle)"
     searchBar.showsCancelButton = false
@@ -91,20 +91,20 @@ class SearchListViewController: BaseViewController<Coordinator, SearchListViewMo
     searchBar.delegate = self
     navigationItem.titleView = searchBar
     navigationItem.largeTitleDisplayMode = .never
-    
+
     definesPresentationContext = true
     searchScopeControls.alpha = 0
   }
-  
+
   func addSubviews() {
     scopeContainerView.addSubview(searchScopeControls)
     view.addSubview(scopeContainerView)
     view.addSubview(tableView)
   }
-  
+
   func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
-    
+
     NSLayoutConstraint.activate([
       scopeContainerView.topAnchor.constraint(equalTo: safeLayoutGuide.topAnchor),
       scopeContainerView.leadingAnchor.constraint(equalTo: safeLayoutGuide.leadingAnchor),
@@ -119,19 +119,19 @@ class SearchListViewController: BaseViewController<Coordinator, SearchListViewMo
       tableView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
     ])
   }
-  
+
   func bindDataObserver() {
     viewModel.items.sink { [weak self] _ in
       self?.tableView.reloadData()
     }.store(in: &disposeBag)
   }
-  
+
   func fadeInScopeControls() {
     UIView.animate(withDuration: 0.5, delay: 0) { [weak self] in
       self?.searchScopeControls.alpha = 1
     }
   }
-  
+
   @objc func updateSelectedScope() {
     viewModel.filterItems(query: searchBar.text, scopeIndex: searchScopeControls.selectedSegmentIndex)
   }
@@ -143,17 +143,17 @@ extension SearchListViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     return UITableView.automaticDimension
   }
-  
+
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     viewModel.handleItemSelection(at: indexPath.row)
   }
-  
+
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     guard indexPath.row == (self.viewModel.items.value.count - 1) else { return }
-    
+
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
-      
+
       self.viewModel.loadNextItems(
         query: self.searchBar.text,
         scopeIndex: self.searchScopeControls.selectedSegmentIndex
@@ -166,14 +166,14 @@ extension SearchListViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return viewModel.items.value.count
   }
-  
+
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     // swiftlint:disable force_cast
     let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as! BookCellView
     // swiftlint:enable force_cast
-    
+
     let item = viewModel.items.value[indexPath.row]
-    
+
     cell.title = item.title
     cell.subtitle = item.details
     cell.progress = item.progress
@@ -181,7 +181,7 @@ extension SearchListViewController: UITableViewDataSource {
     cell.type = item.type
     cell.playbackState = viewModel.getPlaybackState(for: item)
     cell.downloadState = viewModel.getDownloadState(for: item)
-    
+
     cell.artworkView.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: item.relativePath),
       placeholder: self.defaultArtwork,
@@ -199,7 +199,7 @@ extension SearchListViewController: UISearchBarDelegate {
   func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
     viewModel.scheduleSearchJob(query: searchText, scopeIndex: searchScopeControls.selectedSegmentIndex)
   }
-  
+
   func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
     searchBar.searchTextField.resignFirstResponder()
   }
@@ -213,7 +213,7 @@ extension SearchListViewController: Themeable {
     tableView.backgroundColor = theme.systemBackgroundColor
     tableView.separatorColor = theme.separatorColor
     scopeContainerView.backgroundColor = theme.systemBackgroundColor
-    
+
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark
     : UIUserInterfaceStyle.light
@@ -239,14 +239,14 @@ extension SearchListViewController {
       object: nil
     )
   }
-  
+
   @objc func keyboardWillShow(_ notification: Notification) {
     let infoKey = UIResponder.keyboardFrameEndUserInfoKey
     if let keyboardFrame = (notification.userInfo?[infoKey] as? NSValue)?.cgRectValue {
       tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.size.height, right: 0)
     }
   }
-  
+
   @objc func keyboardWillHide(_ notification: Notification) {
     /// Adjust for mini player too
     tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 88, right: 0)

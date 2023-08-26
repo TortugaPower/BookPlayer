@@ -25,24 +25,24 @@ public final class PlayableItem: NSObject, Identifiable {
   public var isFinished: Bool
   // This property is explicitly set for bound books, for seeking purposes
   public let isBoundBook: Bool
-  
+
   @Published public var currentChapter: PlayableChapter!
-  
+
   public var progressPercentage: Double {
     guard self.duration > 0 else { return 0 }
-    
+
     return self.currentTime / self.duration
   }
-  
+
   public var fileURL: URL {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
-  
+
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration,
          relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
   }
-  
+
   public init(
     title: String,
     author: String,
@@ -67,31 +67,31 @@ public final class PlayableItem: NSObject, Identifiable {
     self.lastPlayDate = lastPlayDate
     self.isFinished = isFinished
     self.isBoundBook = isBoundBook
-    
+
     super.init()
-    
+
     self.currentChapter = self.getChapter(at: self.currentTime) ?? chapters[0]
   }
-  
+
   public func getChapterTime(in chapter: PlayableChapter, for globalTime: TimeInterval) -> TimeInterval {
     return globalTime - chapter.start
   }
-  
+
   public func getChapter(at globalTime: Double) -> PlayableChapter? {
     if let lastChapter = chapters.last,
        lastChapter.end == globalTime {
       return lastChapter
     }
-    
+
     return self.chapters.first { globalTime < $0.end && $0.start <= globalTime }
   }
-  
+
   public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
     return prefersChapterContext
     ? self.currentTime - self.currentChapter.start
     : self.currentTime
   }
-  
+
   public func maxTimeInContext(
     prefersChapterContext: Bool,
     prefersRemainingTime: Bool,
@@ -105,7 +105,7 @@ public final class PlayableItem: NSObject, Identifiable {
         return self.duration
       }
     }
-    
+
     if prefersRemainingTime {
       let time = self.currentTimeInContext(prefersChapterContext) - self.currentChapter.duration
       return time / Double(speedRate)
@@ -113,76 +113,76 @@ public final class PlayableItem: NSObject, Identifiable {
       return self.currentChapter.duration
     }
   }
-  
+
   public func durationTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
     return prefersChapterContext
     ? self.currentChapter.duration
     : self.duration
   }
-  
+
   public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
     let interval = proposedInterval > 0
     ? self.getForwardInterval(from: proposedInterval)
     : self.getRewindInterval(from: proposedInterval)
-    
+
     return interval
   }
-  
+
   private func getRewindInterval(from proposedInterval: TimeInterval) -> TimeInterval {
     guard let chapter = self.currentChapter else { return proposedInterval }
-    
+
     if self.currentTime + proposedInterval > chapter.start {
       return proposedInterval
     }
-    
+
     let chapterThreshold: TimeInterval = 3
-    
+
     if chapter.start + chapterThreshold > currentTime {
       return proposedInterval
     }
-    
+
     return -(self.currentTime - chapter.start)
   }
-  
+
   private func getForwardInterval(from proposedInterval: TimeInterval) -> TimeInterval {
     guard let chapter = self.currentChapter else { return proposedInterval }
-    
+
     if self.currentTime + proposedInterval < chapter.end {
       return proposedInterval
     }
-    
+
     if chapter.end < currentTime {
       return proposedInterval
     }
-    
+
     return chapter.end - self.currentTime + 0.01
   }
-  
+
   public func hasChapter(after chapter: PlayableChapter) -> Bool {
     return self.nextChapter(after: chapter) != nil
   }
-  
+
   public func hasChapter(before chapter: PlayableChapter) -> Bool {
     return self.previousChapter(before: chapter) != nil
   }
-  
+
   public func nextChapter(after chapter: PlayableChapter) -> PlayableChapter? {
     guard !self.chapters.isEmpty else {
       return nil
     }
-    
+
     if chapter == self.chapters.last { return nil }
-    
+
     return self.chapters[Int(chapter.index)]
   }
-  
+
   public func previousChapter(before chapter: PlayableChapter) -> PlayableChapter? {
     guard !self.chapters.isEmpty else {
       return nil
     }
-    
+
     if chapter == self.chapters.first { return nil }
-    
+
     return self.chapters[Int(chapter.index) - 2]
   }
 }
@@ -202,7 +202,7 @@ extension PlayableItem: Codable {
     try container.encode(self.isFinished, forKey: .isFinished)
     try container.encode(self.isBoundBook, forKey: .isBoundBook)
   }
-  
+
   public convenience init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     self.init(

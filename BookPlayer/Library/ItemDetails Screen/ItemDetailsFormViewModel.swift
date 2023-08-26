@@ -28,7 +28,7 @@ class ItemDetailsFormViewModel: ObservableObject {
   let showAuthor: Bool
   /// Image data provider to load original artwork from file
   let originalImageDataProvider: AVAudioAssetImageDataProvider
-  
+
   /// Initializer
   init(item: SimpleLibraryItem) {
     self.title = item.title

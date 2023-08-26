@@ -11,7 +11,7 @@ import SwiftUI
 
 struct NowPlayingMediaControlsView: View {
   @EnvironmentObject var contextManager: ContextManager
-  
+
   var body: some View {
     GeometryReader { geometry in
       HStack {

@@ -23,7 +23,7 @@ extension String {
   public func allRanges(of string: String) -> [Range<String.Index>] {
     var ranges = [Range<String.Index>]()
     var searchStartIndex = self.startIndex
-    
+
     while
       searchStartIndex < self.endIndex,
       let range = self.range(of: string, range: searchStartIndex..<self.endIndex),
@@ -32,7 +32,7 @@ extension String {
       ranges.append(range)
       searchStartIndex = range.upperBound
     }
-    
+
     return ranges
   }
 }

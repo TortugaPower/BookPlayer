@@ -13,23 +13,23 @@ import WidgetKit
 struct TimeListenedMediumView: View {
   @Environment(\.colorScheme) var colorScheme
   var entry: TimeListenedProvider.Entry
-  
+
   var body: some View {
     let titleLabel = entry.title ?? "---"
-    
+
     let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
-    
+
     let appIconName = WidgetUtils.getAppIconName()
-    
+
     let url = WidgetUtils.getWidgetActionURL(with: nil, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
-    
+
     let maxTime = entry.playbackRecords.max { (record1, record2) -> Bool in
       record1.time < record2.time
     }?.time ?? 0
-    
+
     let totalTime = entry.playbackRecords.reduce(0) { $0 + $1.time }
     let formattedTotalTime = WidgetUtils.formatTime(totalTime)
-    
+
     return VStack(alignment: .leading, spacing: 0) {
       HStack {
         Text("Listened Time (Hours / Day)")
@@ -47,9 +47,9 @@ struct TimeListenedMediumView: View {
       .padding([.leading])
       .padding([.trailing], 5)
       .padding([.top], 7)
-      
+
       Spacer()
-      
+
       HStack(alignment: .center, spacing: 11) {
         Group {
           ForEach(entry.playbackRecords, id: \.self) { record in
@@ -66,7 +66,7 @@ struct TimeListenedMediumView: View {
             .foregroundColor(widgetColors.primaryColor)
             .font(.footnote)
             .padding([.bottom], 1)
-          
+
           VStack {
             Text("Last Book")
               .fontWeight(.semibold)

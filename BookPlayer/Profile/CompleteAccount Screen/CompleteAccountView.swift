@@ -12,7 +12,7 @@ import SwiftUI
 struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
   @StateObject var themeViewModel = ThemeViewModel()
   @ObservedObject var viewModel: Model
-  
+
   var disclaimerView: some View {
     if #available(iOS 15, *) {
       return Text("\("agreement_prefix_title".localized) [\("privacy_policy_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md) \("and_title".localized) [\("terms_conditions_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md)")
@@ -32,14 +32,14 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
       }
     }
   }
-  
+
   var body: some View {
     VStack(spacing: Spacing.S1) {
       Text("choose_plan_title".localized)
         .font(Font(Fonts.body))
         .foregroundColor(themeViewModel.secondaryColor)
         .padding(.top, Spacing.M)
-      
+
       PricingOptionsView(
         options: $viewModel.pricingOptions,
         selected: $viewModel.selectedPricingOption,
@@ -48,7 +48,7 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
           viewModel.selectedPricingOption = option
         }
       )
-      
+
       Button(action: viewModel.handleSubscription) {
         Text("subscribe_title".localized)
           .contentShape(Rectangle())
@@ -60,10 +60,10 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
           .cornerRadius(6)
           .padding(.top, Spacing.S1)
       }
-      
+
       disclaimerView
         .font(Font(Fonts.body))
-      
+
       Spacer()
     }
     .padding([.leading, .trailing], Spacing.M)
@@ -109,11 +109,11 @@ struct CompleteAccountView_Previews: PreviewProvider {
     var selectedPricingOption: PricingModel? = PricingModel(id: "1", title: "49.99 USD per month")
     var isLoadingPricingOptions: Bool = false
     var networkError: Error?
-    
+
     func handleSubscription() {}
-    
+
     func handleRestorePurchases() {}
-    
+
     func dismiss() {}
   }
   static var previews: some View {

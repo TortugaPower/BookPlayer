@@ -10,7 +10,7 @@ import Foundation
 
 struct ArtworkResponse: Decodable {
   let thumbnailURL: URL
-  
+
   enum CodingKeys: String, CodingKey {
     case thumbnailURL = "thumbnail_url"
   }

@@ -13,11 +13,11 @@ import Foundation
 class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
   func initializeDataIfNeeded() {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
-    
+
     dataInitializerCoordinator.onFinish = { stack in
       self.coordinator.didFinishLoadingSequence(coreDataStack: stack)
     }
-    
+
     dataInitializerCoordinator.start()
   }
 }

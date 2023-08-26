@@ -12,7 +12,7 @@ import SwiftUI
 struct BookPlayerApp: App {
   // swiftlint:disable:next weak_delegate
   @WKExtensionDelegateAdaptor var extensionDelegate: ExtensionDelegate
-  
+
   @SceneBuilder var body: some Scene {
     WindowGroup {
       NavigationView {

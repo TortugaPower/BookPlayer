@@ -14,10 +14,10 @@ struct ProfileCardView: View {
   let imageLength: CGFloat = 20
   var height: CGFloat = 70
   var cornerRadius: CGFloat = 10
-  
+
   @Binding var account: Account?
   @EnvironmentObject var themeViewModel: ThemeViewModel
-  
+
   var titleAccessibilityLabel: String {
     if let account,
        !account.email.isEmpty {
@@ -26,7 +26,7 @@ struct ProfileCardView: View {
       return "setup_account_title".localized
     }
   }
-  
+
   var title: String {
     if let account,
        !account.email.isEmpty {
@@ -35,7 +35,7 @@ struct ProfileCardView: View {
       return "setup_account_title".localized
     }
   }
-  
+
   var status: String? {
     if account == nil
         || account?.email.isEmpty == true {
@@ -44,7 +44,7 @@ struct ProfileCardView: View {
       return nil
     }
   }
-  
+
   var body: some View {
     HStack(spacing: Spacing.S1) {
       ZStack {
@@ -56,7 +56,7 @@ struct ProfileCardView: View {
       }
       .frame(width: containerImageWidth, height: containerImageWidth)
       .clipShape(Circle())
-      
+
       VStack(alignment: .leading) {
         Text(verbatim: title)
           .font(Font(Fonts.titleRegular))
@@ -67,7 +67,7 @@ struct ProfileCardView: View {
             .foregroundColor(themeViewModel.secondaryColor)
         }
       }
-      
+
       Spacer()
       Image(systemName: "chevron.forward")
         .foregroundColor(themeViewModel.secondaryColor)

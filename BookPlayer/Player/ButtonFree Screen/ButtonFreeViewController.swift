@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, ButtonFreeViewModel> {
-  
+
   private lazy var contentStackview: UIStackView = {
     let stackview = UIStackView()
     stackview.spacing = Spacing.S1
@@ -21,7 +21,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     stackview.isUserInteractionEnabled = false
     return stackview
   }()
-  
+
   private lazy var titleItem: UILabel = {
     let label = BaseLabel()
     label.font = Fonts.title
@@ -30,42 +30,42 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     label.translatesAutoresizingMaskIntoConstraints = false
     return label
   }()
-  
+
   private lazy var tapItem: UIStackView = {
     return GestureItemRow(
       title: "gesture_tap_title".localized,
       systemImageName: "hand.tap"
     )
   }()
-  
+
   private lazy var swipeLeftItem: UIStackView = {
     return GestureItemRow(
       title: "gesture_swipe_left_title".localized,
       systemImageName: "arrow.left"
     )
   }()
-  
+
   private lazy var swipeRightItem: UIStackView = {
     return GestureItemRow(
       title: "gesture_swipe_right_title".localized,
       systemImageName: "arrow.right"
     )
   }()
-  
+
   private lazy var swipeVerticalItem: UIStackView = {
     return GestureItemRow(
       title: "gesture_swipe_vertically_title".localized,
       systemImageName: "arrow.up.arrow.down"
     )
   }()
-  
+
   private lazy var containerMessageView: UIView = {
     let view = UIView()
     view.translatesAutoresizingMaskIntoConstraints = false
     view.alpha = 0
     return view
   }()
-  
+
   private lazy var messageLabel: UILabel = {
     let label = BaseLabel()
     label.translatesAutoresizingMaskIntoConstraints = false
@@ -75,54 +75,54 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     label.alpha = 0
     return label
   }()
-  
+
   private var hideLabelJob: DispatchWorkItem?
-  
+
   private var disposeBag = Set<AnyCancellable>()
-  
+
   // MARK: - Init
   init(viewModel: ButtonFreeViewModel) {
     super.init(nibName: nil, bundle: nil)
     self.viewModel = viewModel
   }
-  
+
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     self.navigationItem.title = "button_free_title".localized.capitalized
-    
+
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: ImageIcons.navigationBackImage,
       style: .plain,
       target: self,
       action: #selector(self.didPressClose)
     )
-    
+
     addSubviews()
     addConstraints()
-    
+
     addGestures()
     setUpTheming()
     bindObservers()
   }
-  
+
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    
+
     viewModel.disableTimer(true)
   }
-  
+
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
-    
+
     viewModel.disableTimer(false)
   }
-  
+
   func addSubviews() {
     view.addSubview(contentStackview)
     view.addSubview(containerMessageView)
@@ -133,10 +133,10 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
     contentStackview.addArrangedSubview(swipeRightItem)
     contentStackview.addArrangedSubview(swipeVerticalItem)
   }
-  
+
   func addConstraints() {
     let safeAreaLayoutGuide = view.safeAreaLayoutGuide
-    
+
     NSLayoutConstraint.activate([
       contentStackview.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 24),
       contentStackview.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 24),
@@ -150,13 +150,13 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
       messageLabel.bottomAnchor.constraint(equalTo: containerMessageView.bottomAnchor, constant: -8),
     ])
   }
-  
+
   func bindObservers() {
     viewModel.eventPublisher.sink { [weak self] message in
       self?.handleMessage(message)
     }.store(in: &disposeBag)
   }
-  
+
   func handleMessage(_ message: String) {
     scheduleHidejob()
     messageLabel.alpha = 0
@@ -167,7 +167,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
       self?.containerMessageView.alpha = 1
     }
   }
-  
+
   func scheduleHidejob() {
     hideLabelJob?.cancel()
     let workItem = DispatchWorkItem { [weak self] in
@@ -177,17 +177,17 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
       }
     }
     hideLabelJob = workItem
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: workItem)
   }
-  
+
   func addGestures() {
     let tap = UITapGestureRecognizer(
       target: self,
       action: #selector(handleTapGesture)
     )
     view.addGestureRecognizer(tap)
-    
+
     [
       UISwipeGestureRecognizer.Direction.left,
       UISwipeGestureRecognizer.Direction.up,
@@ -202,15 +202,15 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
       view.addGestureRecognizer(swipe)
     }
   }
-  
+
   @objc func didPressClose() {
     viewModel.dismiss()
   }
-  
+
   @objc func handleTapGesture() {
     viewModel.playPause()
   }
-  
+
   @objc func handleSwipeGesture(_ gesture: UISwipeGestureRecognizer) {
     switch gesture.direction {
     case .up, .down:
@@ -223,7 +223,7 @@ class ButtonFreeViewController: BaseViewController<ButtonFreeCoordinator, Button
       break
     }
   }
-  
+
   func gestureRecognizer(
     _ gestureRecognizer: UIGestureRecognizer,
     shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
@@ -238,7 +238,7 @@ extension ButtonFreeViewController: Themeable {
     titleItem.textColor = theme.primaryColor
     messageLabel.textColor = theme.primaryColor
     containerMessageView.backgroundColor = theme.systemGroupedBackgroundColor
-    
+
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark
     : UIUserInterfaceStyle.light

@@ -17,12 +17,12 @@ import XCTest
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
   var sut: PlayerManager!
-  
+
   override func setUp() {
     // Clean up stored configs
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled)
     UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
-    
+
     self.playbackServiceMock = PlaybackServiceProtocolMock()
     self.sut = PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
@@ -32,7 +32,7 @@ class PlayerManagerTests: XCTestCase {
       shakeMotionService: ShakeMotionServiceProtocolMock()
     )
   }
-  
+
   private func generatePlayableItem() -> PlayableItem {
     let testChapter = PlayableChapter(
       title: "test chapter 1",
@@ -66,32 +66,32 @@ class PlayerManagerTests: XCTestCase {
       isBoundBook: false
     )
   }
-  
+
   func testUpdatingEmptyNowPlayingBookTime() {
     self.sut.setNowPlayingBookTime()
-    
+
     XCTAssertNil(self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate])
     XCTAssertNil(self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime])
     XCTAssertNil(self.sut.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration])
     XCTAssertNil(self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress])
   }
-  
+
   func testUpdatingGlobalNowPlayingBookTime() {
     // playback speed shouldn't affect duration time set
     self.sut.setSpeed(2)
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 20
-    
+
     self.sut.currentItem = playableItem
     self.sut.setNowPlayingBookTime()
-    
+
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double) == 1)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double) == 20)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] as? Double) == 100)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] as? Double) == 0.2)
   }
-  
+
   func testUpdatingGlobalRemainingNowPlayingBookTime() {
     // playback speed should affect duration time set
     self.sut.setSpeed(2)
@@ -99,16 +99,16 @@ class PlayerManagerTests: XCTestCase {
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 20
-    
+
     self.sut.currentItem = playableItem
     self.sut.setNowPlayingBookTime()
-    
+
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double) == 1)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double) == 20)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] as? Double) == 60)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] as? Double) == 0.2)
   }
-  
+
   func testUpdatingChapterNowPlayingBookTime() {
     // playback speed shouldn't affect duration time set
     self.sut.setSpeed(2)
@@ -116,16 +116,16 @@ class PlayerManagerTests: XCTestCase {
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 10
-    
+
     self.sut.currentItem = playableItem
     self.sut.setNowPlayingBookTime()
-    
+
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double) == 1)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double) == 10)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] as? Double) == 50)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] as? Double) == 0.20)
   }
-  
+
   func testUpdatingChapterRemainingNowPlayingBookTime() {
     // playback speed should affect duration time set
     self.sut.setSpeed(2)
@@ -134,81 +134,81 @@ class PlayerManagerTests: XCTestCase {
     // mocked playable item
     let playableItem = generatePlayableItem()
     playableItem.currentTime = 10
-    
+
     self.sut.currentItem = playableItem
     self.sut.setNowPlayingBookTime()
-    
+
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double) == 1)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double) == 10)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] as? Double) == 30)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackProgress] as? Double) == 0.20)
   }
-  
+
   func testUpdatingEmptyNowPlayingBookTitle() {
     let playableItem = generatePlayableItem()
     let chapter = playableItem.chapters.first!
-    
+
     self.sut.setNowPlayingBookTitle(chapter: chapter)
-    
+
     XCTAssertNil(self.sut.nowPlayingInfo[MPMediaItemPropertyTitle])
     XCTAssertNil(self.sut.nowPlayingInfo[MPMediaItemPropertyArtist])
     XCTAssertNil(self.sut.nowPlayingInfo[MPMediaItemPropertyAlbumTitle])
   }
-  
+
   func testUpdatingNowPlayingBookTitle() {
     let playableItem = generatePlayableItem()
     let chapter = playableItem.chapters.first!
-    
+
     self.sut.currentItem = playableItem
     self.sut.setNowPlayingBookTitle(chapter: chapter)
-    
+
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyTitle] as? String) == chapter.title)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyArtist] as? String) == playableItem.title)
     XCTAssertTrue((self.sut.nowPlayingInfo[MPMediaItemPropertyAlbumTitle] as? String) == playableItem.author)
   }
-  
+
   func testGetNextPlayableBookSuccess() {
     playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = PlayableItem.mockWithExtension("mp3")
-    
+
     let nextItem = sut.getNextPlayableBook(
       after: PlayableItem.mock,
       autoPlayed: true,
       restartFinished: true
     )
-    
+
     XCTAssertNotNil(nextItem)
     XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 1)
   }
-  
+
   func testGetNextPlayableBookOpusFail() {
     playbackServiceMock
       .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
         return [PlayableItem.mockWithExtension("opus")].filter({ $0.relativePath != relativePath }).first
       }
-    
+
     let nextItem = sut.getNextPlayableBook(
       after: PlayableItem.mock,
       autoPlayed: true,
       restartFinished: true
     )
-    
+
     XCTAssertNil(nextItem)
     XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
   }
-  
+
   func testGetNextPlayableBookJpgFail() {
     /// Test unrecognized file
     playbackServiceMock
       .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
         return [PlayableItem.mockWithExtension("jpg")].filter({ $0.relativePath != relativePath }).first
       }
-    
+
     let nextItem = sut.getNextPlayableBook(
       after: PlayableItem.mock,
       autoPlayed: true,
       restartFinished: true
     )
-    
+
     XCTAssertNil(nextItem)
     XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
   }

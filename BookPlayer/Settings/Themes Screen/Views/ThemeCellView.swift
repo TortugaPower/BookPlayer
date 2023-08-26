@@ -15,7 +15,7 @@ class ThemeCellView: UITableViewCell {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var plusImageView: UIImageView!
   @IBOutlet weak var lockImageView: UIImageView!
-  
+
   var isLocked: Bool = false {
     didSet {
       self.titleLabel.alpha = self.isLocked ? 0.5 : 1.0
@@ -23,18 +23,18 @@ class ThemeCellView: UITableViewCell {
       self.lockImageView.isHidden = !self.isLocked
     }
   }
-  
+
   override func awakeFromNib() {
     super.awakeFromNib()
-    
+
     self.showCaseView.layer.shadowColor = UIColor.black.cgColor
     self.showCaseView.layer.shadowOffset = CGSize(width: 0, height: 0)
     self.showCaseView.layer.shadowOpacity = 0.4
     self.showCaseView.layer.shadowRadius = 1.0
-    
+
     setUpTheming()
   }
-  
+
   func setupShowCaseView(for theme: SimpleTheme) {
     self.showCaseView.layer.sublayers = nil
     self.showCaseView.addLayerMask("themeColorBackgroundMask", backgroundColor: theme.lightSystemBackgroundColor)

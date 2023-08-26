@@ -17,7 +17,7 @@ public protocol LibraryServiceProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   /// Progress publisher that debounces changes during 10 seconds before emitting the last payload
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
-  
+
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
   /// Get the stored library object with no properties loaded
@@ -36,7 +36,7 @@ public protocol LibraryServiceProtocol {
   func moveItems(_ items: [String], inside relativePath: String?) throws
   /// Delete items
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
-  
+
   /// Fetch folder or library contents at the specified path
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
   /// Get max items count inside the specified path
@@ -68,7 +68,7 @@ public protocol LibraryServiceProtocol {
   func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> SimpleLibraryItem?
   /// Get metadata chapters from item
   func getChapters(from relativePath: String) -> [SimpleChapter]?
-  
+
   /// Update metadata
   /// Create book core data object
   func createBook(from url: URL) -> Book
@@ -108,7 +108,7 @@ public protocol LibraryServiceProtocol {
   func markAsFinished(flag: Bool, relativePath: String)
   /// Jump to the start of an item
   func jumpToStart(relativePath: String)
-  
+
   /// Time listened
   /// Get playback record for the day
   func getCurrentPlaybackRecord() -> PlaybackRecord
@@ -118,7 +118,7 @@ public protocol LibraryServiceProtocol {
   func recordTime(_ playbackRecord: PlaybackRecord)
   /// Get total listened time across all items
   func getTotalListenedTime() -> TimeInterval
-  
+
   /// Bookmarks
   /// Fetch bookmarks for an item
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
@@ -135,7 +135,7 @@ public protocol LibraryServiceProtocol {
 // swiftlint:disable force_cast
 public final class LibraryService: LibraryServiceProtocol {
   let dataManager: DataManager
-  
+
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
   /// Internal passthrough publisher for emitting item's progress update events
@@ -147,14 +147,14 @@ public final class LibraryService: LibraryServiceProtocol {
       var results = [String: [String: Any]]()
       for change in changes {
         guard let relativePath = change["relativePath"] as? String else { continue }
-        
+
         if let itemDict = results[relativePath] {
           results[relativePath] = itemDict.merging(change) { (_, new) in new }
         } else {
           results[relativePath] = change
         }
       }
-      
+
       let resultsArray = Array(results.values) as [[String: Any]]
       return resultsArray.publisher
     })
@@ -163,11 +163,11 @@ public final class LibraryService: LibraryServiceProtocol {
   public lazy var progressUpdatePublisher = progressPassthroughPublisher
     .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
     .eraseToAnyPublisher()
-  
+
   public init(dataManager: DataManager) {
     self.dataManager = dataManager
   }
-  
+
   private func rebuildRelativePaths(for item: LibraryItem, parentFolder: String?) {
     switch item {
     case let book as Book:
@@ -186,14 +186,14 @@ public final class LibraryService: LibraryServiceProtocol {
           #keyPath(LibraryItem.originalFileName)
         ]
       ) ?? []
-      
+
       if let parentPath = parentFolder {
         let itemRelativePath = folder.relativePath.split(separator: "/").map({ String($0) }).last ?? folder.relativePath
         folder.relativePath = "\(parentPath)/\(itemRelativePath!)"
       } else {
         folder.relativePath = folder.originalFileName
       }
-      
+
       for nestedItem in contents {
         rebuildRelativePaths(for: nestedItem, parentFolder: folder.relativePath)
       }
@@ -201,7 +201,7 @@ public final class LibraryService: LibraryServiceProtocol {
       break
     }
   }
-  
+
   func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
@@ -210,14 +210,14 @@ public final class LibraryService: LibraryServiceProtocol {
       #keyPath(LibraryItem.relativePath),
       #keyPath(LibraryItem.originalFileName)
     ]
-    
+
     return try? context.fetch(fetchRequest).first
   }
-  
+
   func getItemReference(with relativePath: String) -> LibraryItem? {
     return getItemReference(with: relativePath, context: dataManager.getContext())
   }
-  
+
   public func hasItemProperty(_ property: String, relativePath: String) -> Bool {
     let booleanExpression = NSExpressionDescription()
     booleanExpression.name = "hasProperty"
@@ -239,12 +239,12 @@ public final class LibraryService: LibraryServiceProtocol {
     fetchRequest.propertiesToFetch = [booleanExpression]
     fetchRequest.resultType = .dictionaryResultType
     fetchRequest.fetchLimit = 1
-    
+
     let result = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Bool]
-    
+
     return result?["hasProperty"] ?? false
   }
-  
+
   func buildListContentsFetchRequest(
     properties: [String],
     relativePath: String?,
@@ -261,18 +261,18 @@ public final class LibraryService: LibraryServiceProtocol {
     }
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
     fetchRequest.sortDescriptors = [sort]
-    
+
     if let limit = limit {
       fetchRequest.fetchLimit = limit
     }
-    
+
     if let offset = offset {
       fetchRequest.fetchOffset = offset
     }
-    
+
     return fetchRequest
   }
-  
+
   func parseFetchedItems(from results: [[String: Any]]?) -> [SimpleLibraryItem]? {
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
@@ -287,7 +287,7 @@ public final class LibraryService: LibraryServiceProtocol {
         let rawType = dictionary["type"] as? Int16,
         let type = SimpleItemType(rawValue: rawType)
       else { return nil }
-      
+
       /// Patch for optional CoreData properties until we migrate to Realm
       if dictionary["details"] == nil {
         self?.rebuildFolderDetails(relativePath)
@@ -295,7 +295,7 @@ public final class LibraryService: LibraryServiceProtocol {
                   (percentCompleted.isNaN || percentCompleted.isInfinite) {
         self?.rebuildFolderDetails(relativePath)
       }
-      
+
       return SimpleLibraryItem(
         title: title,
         details: dictionary["details"] as? String ?? "",
@@ -315,7 +315,7 @@ public final class LibraryService: LibraryServiceProtocol {
       )
     })
   }
-  
+
   func getNextOrderRank(in folderPath: String?) -> Int16 {
     let maxExpression = NSExpressionDescription()
     maxExpression.expression = NSExpression(
@@ -324,7 +324,7 @@ public final class LibraryService: LibraryServiceProtocol {
     )
     maxExpression.name = "maxOrderRank"
     maxExpression.expressionResultType = NSAttributeType.integer16AttributeType
-    
+
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     if let folderPath {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), folderPath)
@@ -333,24 +333,24 @@ public final class LibraryService: LibraryServiceProtocol {
     }
     fetchRequest.propertiesToFetch = [maxExpression]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let results = try? dataManager.getContext().fetch(fetchRequest) as? [[String: Int16]],
       let maxOrderRank = results.first?["maxOrderRank"]
     else {
       return 0
     }
-    
+
     return maxOrderRank + 1
   }
-  
+
   private func buildFilterPredicate(
     relativePath: String?,
     query: String?,
     scope: SimpleItemType
   ) -> NSPredicate {
     var predicates = [NSPredicate]()
-    
+
     switch scope {
     case .folder:
       predicates.append(
@@ -361,7 +361,7 @@ public final class LibraryService: LibraryServiceProtocol {
         NSPredicate(format: "%K != \(SimpleItemType.folder.rawValue)", #keyPath(LibraryItem.type))
       )
     }
-    
+
     if let query = query,
        !query.isEmpty {
       predicates.append(
@@ -372,13 +372,13 @@ public final class LibraryService: LibraryServiceProtocol {
         )
       )
     }
-    
+
     if let relativePath = relativePath {
       predicates.append(
         NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
       )
     }
-    
+
     return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
   }
 }
@@ -390,51 +390,51 @@ extension LibraryService {
     let context = self.dataManager.getContext()
     let fetch: NSFetchRequest<Library> = Library.fetchRequest()
     fetch.returnsObjectsAsFaults = false
-    
+
     return (try? context.fetch(fetch).first) ?? self.createLibrary()
   }
-  
+
   func getLibraryReference(context: NSManagedObjectContext) -> Library {
     let fetch: NSFetchRequest<Library> = Library.fetchRequest()
     fetch.includesPropertyValues = false
     fetch.fetchLimit = 1
-    
+
     return (try? context.fetch(fetch).first)!
   }
-  
+
   public func getLibraryReference() -> Library {
     return getLibraryReference(context: dataManager.getContext())
   }
-  
+
   private func createLibrary() -> Library {
     let context = self.dataManager.getContext()
     let library = Library.create(in: context)
     self.dataManager.saveContext()
     return library
   }
-  
+
   public func getLibraryLastItem() -> SimpleLibraryItem? {
     let context = self.dataManager.getContext()
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
     fetchRequest.propertiesToFetch = ["lastPlayedItem.relativePath"]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let dict = (try? context.fetch(fetchRequest))?.first as? [String: String],
       let relativePath = dict["lastPlayedItem.relativePath"]
     else {
       return nil
     }
-    
+
     return getSimpleItem(with: relativePath)
   }
-  
+
   public func getLibraryCurrentTheme() -> SimpleTheme? {
     let context = self.dataManager.getContext()
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
     fetchRequest.propertiesToFetch = ["currentTheme"]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let dict = (try? context.fetch(fetchRequest))?.first as? [String: NSManagedObjectID],
       let themeId = dict["currentTheme"],
@@ -442,59 +442,59 @@ extension LibraryService {
     else {
       return nil
     }
-    
+
     return SimpleTheme(with: theme)
   }
-  
+
   public func setLibraryTheme(with simpleTheme: SimpleTheme) {
     let library = self.getLibraryReference()
-    
+
     library.currentTheme = getTheme(with: simpleTheme.title)
     ?? Theme(
       simpleTheme: simpleTheme,
       context: dataManager.getContext()
     )
-    
+
     self.dataManager.saveContext()
   }
-  
+
   private func getTheme(with title: String) -> Theme? {
     let fetchRequest: NSFetchRequest<Theme> = Theme.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "title == %@", title)
     fetchRequest.fetchLimit = 1
     fetchRequest.returnsObjectsAsFaults = false
-    
+
     return try? self.dataManager.getContext().fetch(fetchRequest).first
   }
-  
+
   public func setLibraryLastBook(with relativePath: String?) {
     let library = self.getLibraryReference()
-    
+
     if let relativePath = relativePath {
       library.lastPlayedItem = getItemReference(with: relativePath)
     } else {
       library.lastPlayedItem = nil
     }
-    
+
     self.dataManager.saveContext()
   }
-  
+
   @discardableResult
   public func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
     return insertItems(from: files, parentPath: nil)
   }
-  
+
   /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
   /// as we don't want this method to throw, and the files are already in the processed folder
   @discardableResult
   func insertItems(from files: [URL], parentPath: String? = nil) -> [SimpleLibraryItem] {
     let context = dataManager.getContext()
     let library = getLibraryReference()
-    
+
     var processedFiles = [SimpleLibraryItem]()
     for file in files {
       let libraryItem: LibraryItem
-      
+
       if let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
          let type = attributes[.type] as? FileAttributeType,
          type == .typeDirectory {
@@ -504,9 +504,9 @@ extension LibraryService {
       } else {
         libraryItem = Book(from: file, context: context)
       }
-      
+
       libraryItem.orderRank = getNextOrderRank(in: parentPath)
-      
+
       if let parentPath,
          let parentFolder = getItemReference(with: parentPath) as? Folder {
         parentFolder.addToItems(libraryItem)
@@ -514,14 +514,14 @@ extension LibraryService {
       } else {
         library.addToItems(libraryItem)
       }
-      
+
       processedFiles.append(SimpleLibraryItem(from: libraryItem))
       dataManager.saveContext()
     }
-    
+
     return processedFiles
   }
-  
+
   private func handleDirectory(_ folderURL: URL) {
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
@@ -531,31 +531,31 @@ extension LibraryService {
         return true
       }
     )!
-    
+
     var files = [URL]()
     for case let fileURL as URL in enumerator {
       files.append(fileURL)
     }
-    
+
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
     let orderedSet = NSOrderedSet(array: files)
-    
+
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
-    
+
     let parentPath = folderURL.relativePath(to: DataManager.getProcessedFolderURL())
     insertItems(from: sortedFiles, parentPath: parentPath)
     rebuildFolderDetails(parentPath)
   }
-  
+
   private func moveFileIfNeeded(
     from sourceUrl: URL,
     processedFolderURL: URL,
     parentPath: String?
   ) throws {
     guard FileManager.default.fileExists(atPath: sourceUrl.path) else { return }
-    
+
     let destinationUrl: URL
-    
+
     if let parentPath {
       destinationUrl = processedFolderURL
         .appendingPathComponent(parentPath)
@@ -564,22 +564,22 @@ extension LibraryService {
       destinationUrl = processedFolderURL
         .appendingPathComponent(sourceUrl.lastPathComponent)
     }
-    
+
     try FileManager.default.moveItem(
       at: sourceUrl,
       to: destinationUrl
     )
   }
-  
+
   public func moveItems(_ items: [String], inside relativePath: String?) throws {
     var folder: Folder?
     let library = self.getLibraryReference()
-    
+
     if let relativePath = relativePath,
        let folderReference = getItemReference(with: relativePath) as? Folder {
       folder = folderReference
     }
-    
+
     /// Preserve original parent path to rebuild order rank later
     var originalParentPath: String?
     if let firstPath = items.first {
@@ -588,25 +588,25 @@ extension LibraryService {
         relativePath: firstPath
       ) as? String
     }
-    
+
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let startingIndex = getNextOrderRank(in: relativePath)
-    
+
     for (index, itemPath) in items.enumerated() {
       guard let libraryItem = getItemReference(with: itemPath) else { continue }
-      
+
       let sourceUrl = processedFolderURL
         .appendingPathComponent(itemPath)
-      
+
       try moveFileIfNeeded(
         from: sourceUrl,
         processedFolderURL: processedFolderURL,
         parentPath: folder?.relativePath
       )
-      
+
       libraryItem.orderRank = startingIndex + Int16(index)
       rebuildRelativePaths(for: libraryItem, parentFolder: relativePath)
-      
+
       if let folder = folder {
         /// Remove reference to Library if it exists
         if hasItemProperty(#keyPath(LibraryItem.library), relativePath: itemPath) {
@@ -624,9 +624,9 @@ extension LibraryService {
         library.addToItems(libraryItem)
       }
     }
-    
+
     self.dataManager.saveContext()
-    
+
     if let folder {
       rebuildFolderDetails(folder.relativePath)
     }
@@ -634,7 +634,7 @@ extension LibraryService {
       rebuildOrderRank(in: originalParentPath)
     }
   }
-  
+
   func rebuildOrderRank(in folderRelativePath: String?) {
     guard
       let contents = fetchRawContents(
@@ -645,7 +645,7 @@ extension LibraryService {
         ]
       )
     else { return }
-    
+
     for (index, item) in contents.enumerated() {
       item.orderRank = Int16(index)
       metadataPassthroughPublisher.send([
@@ -653,10 +653,10 @@ extension LibraryService {
         #keyPath(LibraryItem.orderRank): item.orderRank
       ])
     }
-    
+
     self.dataManager.saveContext()
   }
-  
+
   public func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws {
     for item in items {
       switch item.type {
@@ -673,31 +673,31 @@ extension LibraryService {
             try moveItems(items, inside: item.parentFolder)
           }
         }
-        
+
         try deleteItem(item)
       }
-      
+
       /// Clean up artwork cache
       ArtworkService.removeCache(for: item.relativePath)
     }
   }
-  
+
   func deleteItem(_ item: SimpleLibraryItem) throws {
     // Delete file item if it exists
     let fileURL = item.fileURL
     if FileManager.default.fileExists(atPath: fileURL.path) {
       try FileManager.default.removeItem(at: fileURL)
     }
-    
+
     if let bookReference = getItemReference(with: item.relativePath) {
       dataManager.delete(bookReference)
     }
   }
-  
+
   func deleteFolderContents(_ folder: SimpleLibraryItem) throws {
     // Delete folder contents
     guard let items = fetchContents(at: folder.relativePath, limit: nil, offset: nil) else { return }
-    
+
     try self.delete(items, mode: .deep)
   }
 }
@@ -711,16 +711,16 @@ extension LibraryService {
       limit: limit,
       offset: offset
     )
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)
   }
-  
+
   func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.propertiesToFetch = propertiesToFetch
-    
+
     if let relativePath = relativePath {
       fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     } else {
@@ -728,10 +728,10 @@ extension LibraryService {
     }
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
     fetchRequest.sortDescriptors = [sort]
-    
+
     return try? self.dataManager.getContext().fetch(fetchRequest)
   }
-  
+
   public func getMaxItemsCount(at relativePath: String?) -> Int {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     if let relativePath = relativePath {
@@ -739,60 +739,60 @@ extension LibraryService {
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-    
+
     return (try? self.dataManager.getContext().count(for: fetchRequest)) ?? 0
   }
-  
+
   public func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "type != 0 && lastPlayDate != nil")
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-    
+
     if let limit = limit {
       fetchRequest.fetchLimit = limit
     }
-    
+
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
     fetchRequest.sortDescriptors = [sort]
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)
   }
-  
+
   public func findBooks(containing fileURL: URL) -> [Book]? {
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
     fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
     let context = self.dataManager.getContext()
-    
+
     return try? context.fetch(fetch)
   }
-  
+
   public func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)?.first
   }
-  
+
   func getItem(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
-    
+
     return try? context.fetch(fetchRequest).first
   }
-  
+
   public func getItem(with relativePath: String) -> LibraryItem? {
     return getItem(with: relativePath, context: dataManager.getContext())
   }
-  
+
   public func getItems(
     notIn relativePaths: [String],
     parentFolder: String?,
@@ -801,7 +801,7 @@ extension LibraryService {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-    
+
     if let parentFolder = parentFolder {
       fetchRequest.predicate = NSPredicate(
         format: "%K == %@ AND NOT (%K IN %@)",
@@ -818,16 +818,16 @@ extension LibraryService {
         relativePaths
       )
     }
-    
+
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)
   }
-  
+
   public func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]? {
     return getItems(notIn: relativePaths, parentFolder: parentFolder, context: dataManager.getContext())
   }
-  
+
   public func getItems(
     in relativePaths: [String],
     parentFolder: String?,
@@ -850,10 +850,10 @@ extension LibraryService {
         relativePaths
       )
     }
-    
+
     return try? context.fetch(fetchRequest)
   }
-  
+
   public func getItemProperty(_ property: String, relativePath: String) -> Any? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = [property]
@@ -864,16 +864,16 @@ extension LibraryService {
     )
     fetchRequest.resultType = .dictionaryResultType
     fetchRequest.fetchLimit = 1
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any]
-    
+
     return results?[property]
   }
-  
+
   func getItemIdentifiers(in parentFolder: String?) -> [String]? {
     return getItemIdentifiers(in: parentFolder, context: dataManager.getContext())
   }
-  
+
   func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
     let fetchRequest = buildListContentsFetchRequest(
       properties: ["relativePath"],
@@ -881,11 +881,11 @@ extension LibraryService {
       limit: nil,
       offset: nil
     )
-    
+
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
     return results?.compactMap({ $0["relativePath"] as? String })
   }
-  
+
   public func filterContents(
     at relativePath: String?,
     query: String?,
@@ -901,23 +901,23 @@ extension LibraryService {
       query: query,
       scope: scope
     )
-    
+
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
     fetchRequest.sortDescriptors = [sort]
-    
+
     if let limit = limit {
       fetchRequest.fetchLimit = limit
     }
-    
+
     if let offset = offset {
       fetchRequest.fetchOffset = offset
     }
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)
   }
-  
+
   func findFirstItem(
     in parentFolder: String?,
     rankPredicate: NSPredicate?,
@@ -925,9 +925,9 @@ extension LibraryService {
     isUnfinished: Bool?
   ) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-    
+
     let pathPredicate: NSPredicate
-    
+
     if let parentFolder = parentFolder {
       pathPredicate = NSPredicate(
         format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), parentFolder
@@ -935,15 +935,15 @@ extension LibraryService {
     } else {
       pathPredicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-    
+
     var predicates = [
       pathPredicate
     ]
-    
+
     if let rankPredicate = rankPredicate {
       predicates.append(rankPredicate)
     }
-    
+
     if isUnfinished != nil {
       // TODO: Add default value for `isFinished`
       predicates.append(NSPredicate(
@@ -952,19 +952,19 @@ extension LibraryService {
         #keyPath(LibraryItem.isFinished)
       ))
     }
-    
+
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: sortAscending)
     fetchRequest.sortDescriptors = [sort]
     fetchRequest.fetchLimit = 1
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedItems(from: results)?.first
   }
-  
+
   public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem? {
     return findFirstItem(
       in: parentFolder,
@@ -973,7 +973,7 @@ extension LibraryService {
       isUnfinished: isUnfinished
     )
   }
-  
+
   public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem? {
     var rankPredicate: NSPredicate?
     if let beforeRank = beforeRank {
@@ -986,7 +986,7 @@ extension LibraryService {
       isUnfinished: nil
     )
   }
-  
+
   public func findFirstItem(
     in parentFolder: String?,
     afterRank: Int16?,
@@ -1003,7 +1003,7 @@ extension LibraryService {
       isUnfinished: isUnfinished
     )
   }
-  
+
   public func getChapters(from relativePath: String) -> [SimpleChapter]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Chapter")
     fetchRequest.propertiesToFetch = ["title", "start", "duration", "index"]
@@ -1013,9 +1013,9 @@ extension LibraryService {
                                          relativePath)
     let sort = NSSortDescriptor(key: #keyPath(Chapter.index), ascending: true)
     fetchRequest.sortDescriptors = [sort]
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return results?.compactMap({ dictionary -> SimpleChapter? in
       guard
         let title = dictionary["title"] as? String,
@@ -1023,7 +1023,7 @@ extension LibraryService {
         let duration = dictionary["duration"] as? Double,
         let index = dictionary["index"] as? Int16
       else { return nil }
-      
+
       return SimpleChapter(
         title: title,
         start: start,
@@ -1041,57 +1041,57 @@ extension LibraryService {
     self.dataManager.saveContext()
     return newBook
   }
-  
+
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
     guard let book = self.getItem(with: relativePath) as? Book else { return }
-    
+
     book.loadChaptersIfNeeded(from: asset, context: dataManager.getContext())
-    
+
     dataManager.saveContext()
   }
-  
+
   func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
     let processedFolder = DataManager.getProcessedFolderURL()
     let destinationURL: URL
-    
+
     if let relativePath = relativePath {
       destinationURL = processedFolder.appendingPathComponent(relativePath).appendingPathComponent(title)
     } else {
       destinationURL = processedFolder.appendingPathComponent(title)
     }
-    
+
     try? removeFolderIfNeeded(destinationURL, context: context)
     try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
   }
-  
+
   func createFolderOnDisk(title: String, inside relativePath: String?) throws {
     try createFolderOnDisk(title: title, inside: relativePath, context: dataManager.getContext())
   }
-  
+
   func hasLibraryLinked(item: LibraryItem, context: NSManagedObjectContext) -> Bool {
     var keyPath = item.relativePath.split(separator: "/")
       .dropLast()
       .map({ _ in return "folder" })
       .joined(separator: ".")
-    
+
     keyPath += keyPath.isEmpty ? "library" : ".library"
-    
+
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    
+
     fetchRequest.predicate = NSPredicate(format: "relativePath == %@ && \(keyPath) != nil", item.relativePath)
-    
+
     return (try? context.fetch(fetchRequest).first) != nil
   }
-  
+
   func hasLibraryLinked(item: LibraryItem) -> Bool {
     hasLibraryLinked(item: item, context: dataManager.getContext())
   }
-  
+
   func removeFolderIfNeeded(_ fileURL: URL, context: NSManagedObjectContext) throws {
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-    
+
     let folderPath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
-    
+
     // Delete folder if it belongs to an orphaned folder
     if let existingFolder = getItemReference(with: folderPath, context: context) as? Folder {
       if !self.hasLibraryLinked(item: existingFolder, context: context) {
@@ -1104,21 +1104,21 @@ extension LibraryService {
       try FileManager.default.removeItem(at: fileURL)
     }
   }
-  
+
   func removeFolderIfNeeded(_ fileURL: URL) throws {
     try removeFolderIfNeeded(fileURL, context: dataManager.getContext())
   }
-  
+
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
     try createFolderOnDisk(title: title, inside: relativePath)
-    
+
     let newFolder = Folder(title: title, context: dataManager.getContext())
     newFolder.orderRank = getNextOrderRank(in: relativePath)
     /// Override relative path
     if let relativePath {
       newFolder.relativePath = "\(relativePath)/\(title)"
     }
-    
+
     // insert into existing folder or library at index
     if let parentPath = relativePath {
       guard
@@ -1126,29 +1126,29 @@ extension LibraryService {
       else {
         throw BookPlayerError.runtimeError("Parent folder does not exist at: \(parentPath)")
       }
-      
+
       let existingParentContentsCount = getMaxItemsCount(at: parentPath)
       parentFolder.addToItems(newFolder)
       parentFolder.details = String.localizedStringWithFormat("files_title".localized, existingParentContentsCount + 1)
     } else {
       getLibraryReference().addToItems(newFolder)
     }
-    
+
     dataManager.saveContext()
-    
+
     return SimpleLibraryItem(from: newFolder)
   }
-  
+
   public func updateFolder(at relativePath: String, type: SimpleItemType) throws {
     guard let folder = self.getItem(with: relativePath) as? Folder else {
       throw BookPlayerError.runtimeError("Can't find the folder")
     }
-    
+
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.type): type.rawValue,
     ]
-    
+
     switch type {
     case .folder:
       folder.type = .folder
@@ -1158,11 +1158,11 @@ extension LibraryService {
       guard let items = folder.items?.allObjects as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
       }
-      
+
       guard !items.isEmpty else {
         throw BookPlayerError.runtimeError("The folder can't be empty")
       }
-      
+
       for item in items {
         item.lastPlayDate = nil
         metadataPassthroughPublisher.send([
@@ -1170,17 +1170,17 @@ extension LibraryService {
           #keyPath(LibraryItem.lastPlayDate): "",
         ])
       }
-      
+
       folder.type = .bound
     case .book:
       return
     }
-    
+
     metadataPassthroughPublisher.send(metadataUpdates)
-    
+
     self.dataManager.saveContext()
   }
-  
+
   /// Internal function to calculate the entire folder's progress
   func calculateFolderProgress(at relativePath: String) -> (Double, Int) {
     let progressExpression = NSExpressionDescription()
@@ -1191,44 +1191,44 @@ extension LibraryService {
     )
     progressExpression.name = "parsedPercentCompleted"
     progressExpression.expressionResultType = NSAttributeType.doubleAttributeType
-    
+
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     fetchRequest.propertiesToFetch = [progressExpression]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Double]],
       !results.isEmpty
     else {
       return (0, 0)
     }
-    
+
     let count = results.count
     let totalProgress = results.reduce(into: Double(0)) { partialResult, dict in
       partialResult += dict.values.first ?? 0
     }
-    
+
     return (totalProgress / Double(count), count)
   }
-  
+
   public func rebuildFolderDetails(_ relativePath: String) {
     guard let folder = getItemReference(with: relativePath) as? Folder else { return }
-    
+
     let (progress, contentsCount) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress
     folder.duration = calculateFolderDuration(at: relativePath)
     folder.details = String.localizedStringWithFormat("files_title".localized, contentsCount)
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.percentCompleted): progress,
       #keyPath(LibraryItem.duration): folder.duration,
       #keyPath(LibraryItem.details): folder.details!,
     ])
-    
+
     dataManager.saveContext()
-    
+
     if let parentFolderPath = getItemProperty(
       #keyPath(LibraryItem.folder.relativePath),
       relativePath: relativePath
@@ -1236,19 +1236,19 @@ extension LibraryService {
       rebuildFolderDetails(parentFolderPath)
     }
   }
-  
+
   public func recursiveFolderProgressUpdate(from relativePath: String) {
     guard let folder = getItemReference(with: relativePath) as? Folder else { return }
-    
+
     let (progress, _) = calculateFolderProgress(at: relativePath)
     folder.percentCompleted = progress
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.percentCompleted): progress,
     ])
     /// TODO: verify if necessary to mark the folder as finished
-    
+
     NotificationCenter.default.post(
       name: .folderProgressUpdated,
       object: nil,
@@ -1257,9 +1257,9 @@ extension LibraryService {
         "progress": progress
       ]
     )
-    
+
     dataManager.saveContext()
-    
+
     if let parentFolderPath = getItemProperty(
       #keyPath(LibraryItem.folder.relativePath),
       relativePath: relativePath
@@ -1267,31 +1267,31 @@ extension LibraryService {
       recursiveFolderProgressUpdate(from: parentFolderPath)
     }
   }
-  
+
   public func renameBook(at relativePath: String, with newTitle: String) {
     guard let item = self.getItemReference(with: relativePath) else { return }
-    
+
     item.title = newTitle
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.title): newTitle,
     ])
-    
+
     self.dataManager.saveContext()
   }
-  
+
   public func renameFolder(at relativePath: String, with newTitle: String) throws -> String {
     guard let folder = self.getItemReference(with: relativePath) as? Folder else { return relativePath }
-    
+
     let processedFolderURL = DataManager.getProcessedFolderURL()
-    
+
     let sourceUrl = processedFolderURL
       .appendingPathComponent(folder.relativePath)
-    
+
     let destinationUrl: URL
     let newRelativePath: String
-    
+
     if let parentFolderPath = getItemProperty(
       #keyPath(LibraryItem.folder.relativePath),
       relativePath: folder.relativePath
@@ -1305,16 +1305,16 @@ extension LibraryService {
         .appendingPathComponent(newTitle)
       newRelativePath = newTitle
     }
-    
+
     try FileManager.default.moveItem(
       at: sourceUrl,
       to: destinationUrl
     )
-    
+
     folder.originalFileName = newTitle
     folder.relativePath = newRelativePath
     folder.title = newTitle
-    
+
     if let items = fetchRawContents(
       at: relativePath,
       propertiesToFetch: [
@@ -1324,24 +1324,24 @@ extension LibraryService {
     ) {
       items.forEach({ rebuildRelativePaths(for: $0, parentFolder: folder.relativePath) })
     }
-    
+
     self.dataManager.saveContext()
-    
+
     return newRelativePath
   }
-  
+
   public func updateDetails(at relativePath: String, details: String) {
     guard let item = self.getItemReference(with: relativePath) else { return }
-    
+
     item.details = details
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.details): details,
     ])
     self.dataManager.saveContext()
   }
-  
+
   /// Internal function to calculate the entire folder's duration
   func calculateFolderDuration(at relativePath: String) -> Double {
     let durationExpression = NSExpressionDescription()
@@ -1351,21 +1351,21 @@ extension LibraryService {
     )
     durationExpression.name = "totalDuration"
     durationExpression.expressionResultType = NSAttributeType.doubleAttributeType
-    
+
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
     fetchRequest.propertiesToFetch = [durationExpression]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Double]
     else {
       return 0
     }
-    
+
     return results["totalDuration"] ?? 0
   }
-  
+
   public func reorderItem(
     with relativePath: String,
     inside folderRelativePath: String?,
@@ -1381,10 +1381,10 @@ extension LibraryService {
         ]
       )
     else { return }
-    
+
     let movedItem = contents.remove(at: sourceIndexPath.row)
     contents.insert(movedItem, at: destinationIndexPath.row)
-    
+
     /// Rebuild order rank
     for (index, item) in contents.enumerated() {
       item.orderRank = Int16(index)
@@ -1393,18 +1393,18 @@ extension LibraryService {
         #keyPath(LibraryItem.orderRank): item.orderRank,
       ])
     }
-    
+
     self.dataManager.saveContext()
   }
-  
+
   public func sortContents(at relativePath: String?, by type: SortType) {
     guard
       let results = fetchRawContents(at: relativePath, propertiesToFetch: type.fetchProperties()),
       !results.isEmpty
     else { return }
-    
+
     let sortedResults = type.sortItems(results)
-    
+
     /// Rebuild order rank
     for (index, item) in sortedResults.enumerated() {
       item.orderRank = Int16(index)
@@ -1413,28 +1413,28 @@ extension LibraryService {
         #keyPath(LibraryItem.orderRank): item.orderRank,
       ])
     }
-    
+
     self.dataManager.saveContext()
   }
-  
+
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {
     guard let item = self.getItem(with: relativePath) else { return }
-    
+
     item.currentTime = time
     item.lastPlayDate = date
     let percentCompleted = round((item.currentTime / item.duration) * 100)
     item.percentCompleted = percentCompleted
-    
+
     if let parentFolderPath = item.folder?.relativePath {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
     }
-    
+
     if scheduleSave {
       dataManager.scheduleSaveContext()
     } else {
       dataManager.saveContext()
     }
-    
+
     progressPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.currentTime): time,
@@ -1442,17 +1442,17 @@ extension LibraryService {
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
     ])
   }
-  
+
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
     guard let folder = getItemReference(with: relativePath) as? Folder else { return }
-    
+
     folder.lastPlayDate = date
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
     ])
-    
+
     if let parentFolderPath = getItemProperty(
       #keyPath(LibraryItem.folder.relativePath),
       relativePath: relativePath
@@ -1460,18 +1460,18 @@ extension LibraryService {
       recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: date)
     }
   }
-  
+
   public func updateBookSpeed(at relativePath: String, speed: Float) {
     guard let item = self.getItem(with: relativePath) else { return }
-    
+
     item.speed = speed
     item.folder?.speed = speed
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.speed): speed,
     ])
-    
+
     if let folder = item.folder,
        let folderPath = folder.relativePath {
       metadataPassthroughPublisher.send([
@@ -1479,19 +1479,19 @@ extension LibraryService {
         #keyPath(LibraryItem.speed): speed,
       ])
     }
-    
+
     self.dataManager.saveContext()
   }
-  
+
   public func getItemSpeed(at relativePath: String) -> Float {
     guard let item = self.getItem(with: relativePath) else { return 1.0 }
-    
+
     return item.folder?.speed ?? item.speed
   }
-  
+
   public func markAsFinished(flag: Bool, relativePath: String) {
     guard let item = self.getItem(with: relativePath) else { return }
-    
+
     switch item {
     case let folder as Folder:
       self.markAsFinished(flag: flag, folder: folder)
@@ -1501,13 +1501,13 @@ extension LibraryService {
       break
     }
   }
-  
+
   func markAsFinished(flag: Bool, book: Book) {
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
     ]
-    
+
     book.isFinished = flag
     // To avoid progress display side-effects
     if !flag,
@@ -1515,28 +1515,28 @@ extension LibraryService {
       book.currentTime = 0.0
       metadataUpdates[#keyPath(LibraryItem.currentTime)] = 0
     }
-    
+
     metadataPassthroughPublisher.send(metadataUpdates)
-    
+
     self.dataManager.saveContext()
   }
-  
+
   func markAsFinished(flag: Bool, folder: Folder) {
     folder.isFinished = flag
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
     ])
-    
+
     guard let itemIdentifiers = getItemIdentifiers(in: folder.relativePath) else { return }
-    
+
     itemIdentifiers.forEach({ self.markAsFinished(flag: flag, relativePath: $0) })
   }
-  
+
   public func jumpToStart(relativePath: String) {
     guard let item = getItemReference(with: relativePath) else { return }
-    
+
     switch item {
     case let folder as Folder:
       self.jumpToStart(folder: folder)
@@ -1546,36 +1546,36 @@ extension LibraryService {
       break
     }
   }
-  
+
   func jumpToStart(book: Book) {
     book.currentTime = 0
     book.percentCompleted = 0
     book.isFinished = false
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.currentTime): 0,
       #keyPath(LibraryItem.percentCompleted): 0,
       #keyPath(LibraryItem.isFinished): false,
     ])
-    
+
     self.dataManager.saveContext()
   }
-  
+
   func jumpToStart(folder: Folder) {
     folder.currentTime = 0
     folder.percentCompleted = 0
     folder.isFinished = false
-    
+
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.currentTime): 0,
       #keyPath(LibraryItem.percentCompleted): 0,
       #keyPath(LibraryItem.isFinished): false,
     ])
-    
+
     guard let itemIdentifiers = getItemIdentifiers(in: folder.relativePath) else { return }
-    
+
     itemIdentifiers.forEach({ self.jumpToStart(relativePath: $0) })
   }
 }
@@ -1584,33 +1584,33 @@ extension LibraryService {
 extension LibraryService {
   public func getCurrentPlaybackRecord() -> PlaybackRecord {
     let calendar = Calendar.current
-    
+
     let today = Date()
     let dateFrom = calendar.startOfDay(for: today)
     let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)!
-    
+
     let record = self.getPlaybackRecords(from: dateFrom, to: dateTo)?.first
-    
+
     return record ?? PlaybackRecord.create(in: self.dataManager.getContext())
   }
-  
+
   public func getPlaybackRecords(from startDate: Date, to endDate: Date) -> [PlaybackRecord]? {
     let fromPredicate = NSPredicate(format: "date >= %@", startDate as NSDate)
     let toPredicate = NSPredicate(format: "date < %@", endDate as NSDate)
     let datePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [fromPredicate, toPredicate])
-    
+
     let fetch: NSFetchRequest<PlaybackRecord> = PlaybackRecord.fetchRequest()
     fetch.predicate = datePredicate
     let context = self.dataManager.getContext()
-    
+
     return try? context.fetch(fetch)
   }
-  
+
   public func recordTime(_ playbackRecord: PlaybackRecord) {
     playbackRecord.time += 1
     self.dataManager.scheduleSaveContext()
   }
-  
+
   public func getTotalListenedTime() -> TimeInterval {
     let totalTimeExpression = NSExpressionDescription()
     totalTimeExpression.expression = NSExpression(
@@ -1619,19 +1619,19 @@ extension LibraryService {
     )
     totalTimeExpression.name = "totalTime"
     totalTimeExpression.expressionResultType = NSAttributeType.doubleAttributeType
-    
+
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "PlaybackRecord")
     fetchRequest.propertiesToFetch = [totalTimeExpression]
     fetchRequest.resultType = .dictionaryResultType
-    
+
     guard
       let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Double]
     else {
       return 0
     }
-    
+
     return results["totalTime"] ?? 0
-    
+
   }
 }
 
@@ -1664,10 +1664,10 @@ extension LibraryService {
     }
     let sort = NSSortDescriptor(key: #keyPath(Bookmark.time), ascending: true)
     fetchRequest.sortDescriptors = [sort]
-    
+
     return fetchRequest
   }
-  
+
   func parseFetchedBookmarks(from results: [[String: Any]]?) -> [SimpleBookmark]? {
     return results?.compactMap({ dictionary -> SimpleBookmark? in
       guard
@@ -1676,7 +1676,7 @@ extension LibraryService {
         let rawType = dictionary["type"] as? Int16,
         let type = BookmarkType(rawValue: rawType)
       else { return nil }
-      
+
       return SimpleBookmark(
         time: time,
         note: dictionary["note"] as? String,
@@ -1685,7 +1685,7 @@ extension LibraryService {
       )
     })
   }
-  
+
   func getBookmarkReference(from bookmark: SimpleBookmark, context: NSManagedObjectContext) -> Bookmark? {
     let fetchRequest: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
     fetchRequest.predicate = NSPredicate(
@@ -1701,14 +1701,14 @@ extension LibraryService {
       #keyPath(Bookmark.note),
       #keyPath(Bookmark.type),
     ]
-    
+
     return try? context.fetch(fetchRequest).first
   }
-  
+
   func getBookmarkReference(from bookmark: SimpleBookmark) -> Bookmark? {
     return getBookmarkReference(from: bookmark, context: dataManager.getContext())
   }
-  
+
   public func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]? {
     let fetchRequest = buildBookmarksFetchRequest(
       properties: SimpleBookmark.fetchRequestProperties,
@@ -1716,12 +1716,12 @@ extension LibraryService {
       relativePath: relativePath,
       type: type
     )
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedBookmarks(from: results)
   }
-  
+
   public func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
     let fetchRequest = buildBookmarksFetchRequest(
       properties: SimpleBookmark.fetchRequestProperties,
@@ -1730,26 +1730,26 @@ extension LibraryService {
       type: type
     )
     fetchRequest.fetchLimit = 1
-    
+
     let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
-    
+
     return parseFetchedBookmarks(from: results)?.first
   }
-  
+
   public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
     let finalTime = floor(time)
-    
+
     if let bookmark = self.getBookmark(at: finalTime, relativePath: relativePath, type: type) {
       return bookmark
     }
-    
+
     guard let item = self.getItemReference(with: relativePath) else { return nil }
-    
+
     let bookmark = Bookmark(with: finalTime, type: type, context: self.dataManager.getContext())
     item.addToBookmarks(bookmark)
-    
+
     self.dataManager.saveContext()
-    
+
     return SimpleBookmark(
       time: finalTime,
       note: nil,
@@ -1757,7 +1757,7 @@ extension LibraryService {
       relativePath: relativePath
     )
   }
-  
+
   public func addNote(_ note: String, bookmark: SimpleBookmark) {
     guard
       let bookmarkReference = getBookmarkReference(from: bookmark)
@@ -1765,12 +1765,12 @@ extension LibraryService {
     bookmarkReference.note = note
     self.dataManager.saveContext()
   }
-  
+
   public func deleteBookmark(_ bookmark: SimpleBookmark) {
     guard
       let bookmarkReference = getBookmarkReference(from: bookmark)
     else { return }
-    
+
     let item = getItemReference(with: bookmark.relativePath)
     item?.removeFromBookmarks(bookmarkReference)
     self.dataManager.delete(bookmarkReference)

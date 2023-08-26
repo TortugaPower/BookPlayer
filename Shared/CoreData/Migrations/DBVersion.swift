@@ -11,11 +11,11 @@ import Foundation
 
 enum DBVersion: CaseIterable {
   case v1, v2, v3, v4, v5, v6, v7, v8, v9
-  
+
   func model() -> NSManagedObjectModel {
     let modelURLs = Bundle.main
       .urls(forResourcesWithExtension: "mom", subdirectory: "BookPlayer.momd") ?? []
-    
+
     let modelName: String
     switch self {
     case .v1:
@@ -37,14 +37,14 @@ enum DBVersion: CaseIterable {
     case .v9:
       modelName = "Audiobook Player 9"
     }
-    
+
     let model = modelURLs
       .filter { $0.lastPathComponent == "\(modelName).mom" }
       .first
       .flatMap(NSManagedObjectModel.init)
     return model ?? NSManagedObjectModel()
   }
-  
+
   func mappingModelName() -> String? {
     switch self {
     case .v2:
@@ -70,7 +70,7 @@ extension DBVersion {
       matchedVersion = version
       break
     }
-    
+
     if let matchedVersion = matchedVersion {
       self = matchedVersion
     } else {
@@ -82,11 +82,11 @@ extension DBVersion {
 extension CaseIterable where Self: Equatable {
   func next() -> Self? {
     let all = Self.allCases
-    
+
     guard let idx = all.firstIndex(of: self) else { return nil }
-    
+
     let next = all.index(after: idx)
-    
+
     if next != all.endIndex {
       return all[next]
     } else {

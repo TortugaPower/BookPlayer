@@ -11,7 +11,7 @@ import BookPlayerWatchKit
 
 struct ItemCellView: View {
   let item: PlayableItem
-  
+
   var body: some View {
     VStack(alignment: .leading) {
       Text(item.title)

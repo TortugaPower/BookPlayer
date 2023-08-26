@@ -13,11 +13,11 @@ import UIKit
 class LibraryListCoordinator: ItemListCoordinator {
   weak var tabBarController: UITabBarController?
   let importManager: ImportManager
-  
+
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
   private var disposeBag = Set<AnyCancellable>()
-  
+
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
@@ -27,7 +27,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     syncService: SyncServiceProtocol
   ) {
     self.importManager = importManager
-    
+
     super.init(
       navigationController: navigationController,
       playerManager: playerManager,
@@ -36,7 +36,7 @@ class LibraryListCoordinator: ItemListCoordinator {
       syncService: syncService
     )
   }
-  
+
   // swiftlint:disable:next function_body_length
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
@@ -79,71 +79,71 @@ class LibraryListCoordinator: ItemListCoordinator {
       image: UIImage(systemName: "books.vertical"),
       selectedImage: UIImage(systemName: "books.vertical.fill")
     )
-    
+
     self.presentingViewController = self.navigationController
     self.navigationController.pushViewController(vc, animated: true)
     self.navigationController.delegate = self
-    
+
     if let tabBarController = tabBarController {
       let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
-    
+
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
         ActionParserService.handleAction(action)
       }
     }
-    
+
     self.documentPickerDelegate = vc
-    
+
     AppDelegate.shared?.watchConnectivityService?.startSession()
   }
-  
+
   func handleLibraryLoaded() {
     loadLastBookIfNeeded()
     syncList()
     bindImportObserverIfNeeded()
   }
-  
+
   func bindImportObserverIfNeeded() {
     guard
       fileSubscription == nil,
       AppDelegate.shared?.activeSceneDelegate != nil
     else { return }
-    
+
     self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
       guard let self = self,
             !files.isEmpty,
             self.shouldShowImportScreen() else { return }
-      
+
       self.showImport()
     }
-    
+
     self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
       guard let self = self else {
         return
       }
-      
+
       let coordinator = self.getLastItemListCoordinator(from: self)
-      
+
       coordinator.onAction?(.newImportOperation(operation))
-      
+
       operation.completionBlock = {
         DispatchQueue.main.async {
           coordinator.onAction?(.importOperationFinished(operation.processedFiles, operation.suggestedFolderName))
         }
       }
-      
+
       self.importManager.start(operation)
     })
   }
-  
+
   func loadLastBookIfNeeded() {
     guard
       let libraryItem = libraryService.getLibraryLastItem()
     else { return }
-    
+
     AppDelegate.shared?.loadPlayer(
       libraryItem.relativePath,
       autoplay: false,
@@ -152,7 +152,7 @@ class LibraryListCoordinator: ItemListCoordinator {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
           self?.playerManager.play()
         }
-        
+
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
           UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
           self?.showPlayer()
@@ -161,13 +161,13 @@ class LibraryListCoordinator: ItemListCoordinator {
       alertPresenter: self
     )
   }
-  
+
   func processFiles(urls: [URL]) {
     for url in urls {
       self.importManager.process(url)
     }
   }
-  
+
   func showImport() {
     let child = ImportCoordinator(
       importManager: self.importManager,
@@ -177,11 +177,11 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.childCoordinators.append(child)
     child.start()
   }
-  
+
   func shouldShowImportScreen() -> Bool {
     return !self.childCoordinators.contains(where: { $0 is ImportCoordinator })
   }
-  
+
   func getLastItemListCoordinator(from coordinator: ItemListCoordinator) -> ItemListCoordinator {
     if let child = coordinator.childCoordinators.last(where: { $0 is ItemListCoordinator}) as? ItemListCoordinator {
       return getLastItemListCoordinator(from: child)
@@ -189,37 +189,37 @@ class LibraryListCoordinator: ItemListCoordinator {
       return coordinator
     }
   }
-  
+
   override func interactiveDidFinish(vc: UIViewController) {
     // Coordinator may be already released if popped by VoiceOver gesture
     guard let vc = vc as? ItemListViewController,
           vc.viewModel.coordinator != nil else { return }
-    
+
     vc.viewModel.coordinator.detach()
   }
-  
+
   override func syncList() {
     Task { @MainActor in
       let lastPlayed: SyncableItem?
-      
+
       if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
         lastPlayed = try await syncService.syncListContents(at: nil)
       } else {
         lastPlayed = try await syncService.syncLibraryContents()
-        
+
         UserDefaults.standard.set(
           true,
           forKey: Constants.UserDefaults.hasScheduledLibraryContents
         )
       }
-      
+
       reloadItemsWithPadding()
       if let lastPlayed {
         handleSyncedLastPlayed(item: lastPlayed)
       }
     }
   }
-  
+
   func handleSyncedLastPlayed(item: SyncableItem) {
     guard
       let localLastItem = libraryService.getLibraryLastItem(),
@@ -228,7 +228,7 @@ class LibraryListCoordinator: ItemListCoordinator {
       setSyncedLastPlayedItem(relativePath: item.relativePath)
       return
     }
-    
+
     /// Check to update current time or not
     if item.relativePath == localLastItem.relativePath {
       /// Add a padding of 1 min to local time
@@ -252,7 +252,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     } else {
       /// Only continue overriding local book if it's not currently playing
       guard playerManager.isPlaying == false else { return }
-      
+
       if let lastPlayDateTimestamp = item.lastPlayDateTimestamp,
          let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970,
          lastPlayDateTimestamp > localLastPlayDateTimestamp {
@@ -260,10 +260,10 @@ class LibraryListCoordinator: ItemListCoordinator {
       }
     }
   }
-  
+
   func setSyncedLastPlayedItem(relativePath: String?) {
     libraryService.setLibraryLastBook(with: relativePath)
-    
+
     if let relativePath {
       AppDelegate.shared?.loadPlayer(
         relativePath,

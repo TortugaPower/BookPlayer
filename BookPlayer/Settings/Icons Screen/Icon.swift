@@ -14,11 +14,11 @@ struct Icon: Codable {
   private var artist: String?
   var imageName: String
   private var locked: Bool?
-  
+
   var isLocked: Bool {
     return self.locked ?? false
   }
-  
+
   var author: String {
     return self.artist ?? "icons_bookplayer_credit_description".localized
   }

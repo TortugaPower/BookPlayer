@@ -10,40 +10,40 @@ import SwiftUI
 import BookPlayerKit
 
 struct StorageView<Model: StorageViewModelProtocol>: View {
-  
+
   @StateObject var themeViewModel = ThemeViewModel()
   @ObservedObject var viewModel: Model
-  
+
   var body: some View {
     if viewModel.showProgressIndicator {
       ProgressView()
     } else {
       VStack(spacing: 0) {
-        
+
         // Total space
         VStack {
           Divider()
             .background(themeViewModel.separatorColor)
-          
+
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
               .foregroundColor(themeViewModel.primaryColor)
-            
+
             Spacer()
-            
+
             Text(viewModel.getFolderSize())
               .foregroundColor(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
           .accessibilityElement(children: .combine)
-          
+
           Divider()
             .background(themeViewModel.separatorColor)
         }
         .background(themeViewModel.systemBackgroundColor)
         .padding(.top, 14)
-        
+
         HStack {
           Text(
             String.localizedStringWithFormat("files_title".localized, viewModel.publishedFiles.count)
@@ -52,9 +52,9 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
           .font(Font(Fonts.subheadline))
           .foregroundColor(themeViewModel.primaryColor)
           .accessibilityAddTraits(.isHeader)
-          
+
           Spacer()
-          
+
           if viewModel.showFixAllButton {
             Button(viewModel.fixButtonTitle) {
               viewModel.storageAlert = .fixAll
@@ -66,10 +66,10 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
         .padding(.horizontal, 16)
         .padding(.top, 30)
         .padding(.bottom, 8)
-        
+
         Divider()
           .background(themeViewModel.separatorColor)
-        
+
         ScrollView {
           LazyVStack(spacing: 0) {
             ForEach(viewModel.publishedFiles) { file in
@@ -86,12 +86,12 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
                   }
                 )
                 .padding(.vertical, 10)
-                
+
                 Divider()
                   .padding(.leading, 75)
                   .background(themeViewModel.separatorColor)
               }
-              
+
             }
           }
         }
@@ -114,7 +114,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
             }
           )
         }
-        
+
         ToolbarItem(placement: .navigationBarTrailing) {
           Menu {
             Picker(
@@ -154,7 +154,7 @@ struct StorageView_Previews: PreviewProvider {
     var showProgressIndicator: Bool = false
     var alert: Alert { Alert(title: Text("")) }
     let fixButtonTitle = "Fix all"
-    
+
     func getFolderSize() -> String { return "0 Kb" }
     func dismiss() {}
   }

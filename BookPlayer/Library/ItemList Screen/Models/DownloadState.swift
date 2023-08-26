@@ -15,7 +15,7 @@ enum DownloadState: Hashable {
   case downloading(progress: Double)
   /// The asset is downloaded and saved on disk.
   case downloaded
-  
+
   func hash(into hasher: inout Hasher) {
     // Custom implementation of hashable protocol to ignore the
     // associated values when computing a hash value
@@ -28,7 +28,7 @@ enum DownloadState: Hashable {
       hasher.combine(2)
     }
   }
-  
+
   static func == (lhs: DownloadState, rhs: DownloadState) -> Bool {
     // Custom implementation of Equatable protocol to ignore the
     // associated values when comparing values

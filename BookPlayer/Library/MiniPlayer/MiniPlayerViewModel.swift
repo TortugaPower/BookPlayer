@@ -17,7 +17,7 @@ class MiniPlayerViewModel {
     let author: String
     let relativePath: String
   }
-  
+
   /// Available routes
   enum Routes {
     case showPlayer
@@ -25,17 +25,17 @@ class MiniPlayerViewModel {
   }
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
-  
+
   private let playerManager: PlayerManagerProtocol
   public var currentItemInfo = CurrentValueSubject<Data?, Never>(nil)
   private var disposeBag = Set<AnyCancellable>()
-  
+
   init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
-    
+
     bindObservers()
   }
-  
+
   func bindObservers() {
     /// Drop initial value, as this viewModel already handles that
     self.playerManager.currentItemPublisher()
@@ -44,7 +44,7 @@ class MiniPlayerViewModel {
           self?.currentItemInfo.value = nil
           return
         }
-        
+
         self?.currentItemInfo.value = Data(
           title: currentItem.title,
           author: currentItem.author,
@@ -53,21 +53,21 @@ class MiniPlayerViewModel {
       }
       .store(in: &disposeBag)
   }
-  
+
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
     return self.playerManager.isPlayingPublisher()
   }
-  
+
   func handlePlayPauseAction() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    
+
     if playerManager.hasLoadedBook() {
       playerManager.playPause()
     } else if let relativePath = currentItemInfo.value?.relativePath {
       onTransition?(.loadItem(relativePath: relativePath, autoplay: true, showPlayer: false))
     }
   }
-  
+
   func showPlayer() {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     if playerManager.hasLoadedBook() {

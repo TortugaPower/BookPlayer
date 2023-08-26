@@ -13,13 +13,13 @@ import Foundation
 @objc(Theme)
 public class Theme: NSManagedObject, Codable {
   public var useDarkVariant = false
-  
+
   public var locked = false
-  
+
   public convenience init(simpleTheme: SimpleTheme, context: NSManagedObjectContext) {
     let entity = NSEntityDescription.entity(forEntityName: "Theme", in: context)!
     self.init(entity: entity, insertInto: context)
-    
+
     self.title = simpleTheme.title
     self.lightPrimaryHex = simpleTheme.lightPrimaryHex
     self.lightSecondaryHex = simpleTheme.lightSecondaryHex
@@ -47,11 +47,11 @@ public class Theme: NSManagedObject, Codable {
     self.darkQuaternarySystemFillHex = simpleTheme.darkQuaternarySystemFillHex
     self.locked = simpleTheme.locked
   }
-  
+
   enum CodingKeys: String, CodingKey {
     case title, lightPrimaryHex, lightSecondaryHex, lightAccentHex, lightSeparatorHex, lightSystemBackgroundHex, lightSecondarySystemBackgroundHex, lightTertiarySystemBackgroundHex, lightSystemGroupedBackgroundHex, lightSystemFillHex, lightSecondarySystemFillHex, lightTertiarySystemFillHex, lightQuaternarySystemFillHex, darkPrimaryHex, darkSecondaryHex, darkAccentHex, darkSeparatorHex, darkSystemBackgroundHex, darkSecondarySystemBackgroundHex, darkTertiarySystemBackgroundHex, darkSystemGroupedBackgroundHex, darkSystemFillHex, darkSecondarySystemFillHex, darkTertiarySystemFillHex, darkQuaternarySystemFillHex
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(title, forKey: .title)
@@ -80,7 +80,7 @@ public class Theme: NSManagedObject, Codable {
     try container.encode(darkTertiarySystemFillHex, forKey: .darkTertiarySystemFillHex)
     try container.encode(darkQuaternarySystemFillHex, forKey: .darkQuaternarySystemFillHex)
   }
-  
+
   public required convenience init(from decoder: Decoder) throws {
     // Create NSEntityDescription with NSManagedObjectContext
     guard let contextUserInfoKey = CodingUserInfoKey.context,
@@ -90,10 +90,10 @@ public class Theme: NSManagedObject, Codable {
       fatalError("Failed to decode Theme!")
     }
     self.init(entity: entity, insertInto: nil)
-    
+
     let values = try decoder.container(keyedBy: CodingKeys.self)
     title = try values.decode(String.self, forKey: .title)
-    
+
     lightPrimaryHex = try values.decode(String.self, forKey: .lightPrimaryHex)
     lightSecondaryHex = try values.decode(String.self, forKey: .lightSecondaryHex)
     lightAccentHex = try values.decode(String.self, forKey: .lightAccentHex)

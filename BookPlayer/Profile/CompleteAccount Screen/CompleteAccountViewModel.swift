@@ -14,7 +14,7 @@ protocol CompleteAccountViewModelProtocol: ObservableObject {
   var selectedPricingOption: PricingModel? { get set }
   var isLoadingPricingOptions: Bool { get set }
   var networkError: Error? { get set }
-  
+
   func handleSubscription()
   func handleRestorePurchases()
   func dismiss()
@@ -27,21 +27,21 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
     case success
     case dismiss
   }
-  
+
   @Published var pricingOptions: [PricingModel]
   @Published var selectedPricingOption: PricingModel?
   @Published var isLoadingPricingOptions: Bool = true
-  
+
   @Published var networkError: Error?
-  
+
   let accountService: AccountServiceProtocol
   let account: Account
   let containerImageWidth: CGFloat = 60
   let imageWidth: CGFloat = 35
-  
+
   /// Callback to handle actions on this screen
   var onTransition: BPTransition<Routes>?
-  
+
   init(
     accountService: AccountServiceProtocol,
     account: Account
@@ -53,29 +53,29 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
     self.selectedPricingOption = options.first
     self.loadPricingOptions()
   }
-  
+
   func loadPricingOptions() {
     Task { @MainActor [weak self] in
       if let options = try? await self?.accountService.getSubscriptionOptions() {
         self?.pricingOptions = options
         self?.selectedPricingOption = options.first
       }
-      
+
       self?.isLoadingPricingOptions = false
     }
   }
-  
+
   func handleSubscription() {
     guard
       isLoadingPricingOptions == false,
       let selectedOption = selectedPricingOption
     else { return }
-    
+
     Task { @MainActor [weak self] in
       guard let self = self else { return }
-      
+
       self.onTransition?(.showLoader(true))
-      
+
       do {
         let userCancelled = try await self.accountService.subscribe(option: selectedOption)
         self.onTransition?(.showLoader(false))
@@ -88,19 +88,19 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
       }
     }
   }
-  
+
   func handleRestorePurchases() {
     Task { @MainActor [weak self] in
       guard let self = self else { return }
       self.onTransition?(.showLoader(true))
-      
+
       do {
         let customerInfo = try await self.accountService.restorePurchases()
-        
+
         if customerInfo.activeSubscriptions.isEmpty {
           throw AccountError.inactiveSubscription
         }
-        
+
         self.onTransition?(.showLoader(false))
         self.onTransition?(.success)
       } catch {
@@ -109,11 +109,11 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
       }
     }
   }
-  
+
   func openLink(_ url: URL) {
     onTransition?(.link(url))
   }
-  
+
   func dismiss() {
     onTransition?(.dismiss)
   }

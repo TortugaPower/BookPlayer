@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ResizeableImageView: View {
   let name: String
-  
+
   var body: some View {
     Image(systemName: name)
       .resizable()

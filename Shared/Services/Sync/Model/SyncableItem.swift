@@ -23,7 +23,7 @@ public struct SyncableItem {
   let orderRank: Int
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
-  
+
   static var fetchRequestProperties = [
     "relativePath",
     "remoteURL",
@@ -59,7 +59,7 @@ extension SyncableItem: Decodable {
     case lastPlayDateTimestamp
     case type
   }
-  
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.relativePath = try container.decode(String.self, forKey: .relativePath)

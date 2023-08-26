@@ -12,7 +12,7 @@ import SwiftUI
 struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
   @StateObject var themeViewModel = ThemeViewModel()
-  
+
   var listView: some View {
     return List {
       Section {
@@ -38,7 +38,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
       }
     }
   }
-  
+
   func parseImageName(_ job: QueuedJobInfo) -> String {
     switch job.jobType {
     case .upload:
@@ -61,7 +61,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
       return "photo"
     }
   }
-  
+
   var body: some View {
     if #available(iOS 16.0, *) {
       listView
@@ -81,7 +81,7 @@ struct QueuedSyncTasksView_Previews: PreviewProvider {
       QueuedJobInfo(id: "2", relativePath: "test/path2.mp3", jobType: .upload)
     ]
   }
-  
+
   static var previews: some View {
     QueuedSyncTasksView(viewModel: MockQueuedSyncTasksViewModel())
   }

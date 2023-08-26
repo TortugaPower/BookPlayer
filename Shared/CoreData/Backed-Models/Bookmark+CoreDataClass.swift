@@ -15,7 +15,7 @@ public class Bookmark: NSManagedObject {
   public convenience init(with time: Double, type: BookmarkType, context: NSManagedObjectContext) {
     let entity = NSEntityDescription.entity(forEntityName: "Bookmark", in: context)!
     self.init(entity: entity, insertInto: context)
-    
+
     self.time = time
     self.type = type
   }

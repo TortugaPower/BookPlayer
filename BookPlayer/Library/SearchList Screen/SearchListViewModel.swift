@@ -16,7 +16,7 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
   }
-  
+
   /// Search only the folder if entered search via a subfolder
   let folderRelativePath: String?
   /// Title for the placeholder of space we're searching (e.g. Library, or folder name)
@@ -25,7 +25,7 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
   let libraryService: LibraryServiceProtocol
   /// Sync service
   let syncService: SyncServiceProtocol
-  
+
   let playerManager: PlayerManagerProtocol
   /// Default artwork to use for items without artwork
   public private(set) var defaultArtwork: Data?
@@ -44,7 +44,7 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
   private var disposeBag = Set<AnyCancellable>()
-  
+
   /// Initializer
   init(
     folderRelativePath: String?,
@@ -61,58 +61,58 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     self.playerManager = playerManager
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
     super.init()
-    
+
     self.bindPlayingItemObserver()
   }
-  
+
   /// Observe when a new item is loaded into the player
   func bindPlayingItemObserver() {
     self.playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] currentItem in
         guard let self = self else { return }
-        
+
         defer {
           self.clearPlaybackState()
         }
-        
+
         guard let currentItem = currentItem else {
           self.playingItemParentPath = nil
           return
         }
-        
+
         self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
       }.store(in: &disposeBag)
   }
-  
+
   /// Trigger a data reload
   func clearPlaybackState() {
     items.value = items.value
   }
-  
+
   /// Used to properly tint folders that contain the currently playing item
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
     let parentFolders: [String] = currentItem.relativePath.allRanges(of: "/")
       .map { String(currentItem.relativePath.prefix(upTo: $0.lowerBound)) }
       .reversed()
-    
+
     guard let folderRelativePath = self.folderRelativePath else {
       return parentFolders.last
     }
-    
+
     guard let index = parentFolders.firstIndex(of: folderRelativePath) else {
       return nil
     }
-    
+
     let elementIndex = index - 1
-    
+
     guard elementIndex >= 0 else {
       return nil
     }
-    
+
     return parentFolders[elementIndex]
   }
-  
+
   /// Get search scopes as String
   func getSearchScopes() -> [String] {
     return searchScopes.map { item in
@@ -124,28 +124,28 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
       }
     }
   }
-  
+
   /// Reset offset and loaded items and queue next page
   func filterItems(query: String?, scopeIndex: Int) {
     resultsOffset = 0
     items.value = []
-    
+
     loadNextItems(query: query, scopeIndex: scopeIndex)
   }
-  
+
   /// Execute search job after a delay
   func scheduleSearchJob(query: String?, scopeIndex: Int) {
     searchJob?.cancel()
     let workItem = DispatchWorkItem { [weak self] in
       guard let self = self else { return }
-      
+
       self.filterItems(query: query, scopeIndex: scopeIndex)
     }
     searchJob = workItem
-    
+
     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: workItem)
   }
-  
+
   /// Load next page items with same query and selected scope
   func loadNextItems(query: String?, scopeIndex: Int) {
     guard
@@ -160,15 +160,15 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     else {
       return
     }
-    
+
     resultsOffset += fetchedItems.count
     items.value += fetchedItems
   }
-  
+
   /// Pass callback with item selected
   func handleItemSelection(at index: Int) {
     let item = self.items.value[index]
-    
+
     switch item.type {
     case .folder:
       onTransition?(.showFolder(relativePath: item.relativePath))
@@ -176,7 +176,7 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
       onTransition?(.loadPlayer(relativePath: item.relativePath))
     }
   }
-  
+
   /// Update default artwork after a new theme is presented
   func updateDefaultArtwork(for theme: SimpleTheme) {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor)?.pngData()
@@ -186,20 +186,20 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     guard let currentItem = self.playerManager.currentItem else {
       return .stopped
     }
-    
+
     if item.relativePath == currentItem.relativePath {
       return .playing
     }
-    
+
     return item.relativePath == playingItemParentPath ? .playing : .stopped
   }
   /// Get download state of an item
   func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
     /// Only process if subscription is active
     guard syncService.isActive else { return .downloaded }
-    
+
     let fileURL = item.fileURL
-    
+
     if item.type == .bound,
        let enumerator = FileManager.default.enumerator(
         at: fileURL,
@@ -209,11 +209,11 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
        enumerator.nextObject() == nil {
       return .notDownloaded
     }
-    
+
     if FileManager.default.fileExists(atPath: fileURL.path) {
       return .downloaded
     }
-    
+
     return .notDownloaded
   }
 }

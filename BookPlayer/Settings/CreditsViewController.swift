@@ -12,31 +12,31 @@ import WebKit
 
 class CreditsViewController: UIViewController, Storyboarded {
   @IBOutlet private weak var textView: UITextView!
-  
+
   var content: String!
-  
+
   override func loadView() {
     super.loadView()
-    
+
     guard let filepath = Bundle.main.path(forResource: "Credits", ofType: "html") else {
       return
     }
-    
+
     var contents: String
-    
+
     do {
       contents = try String(contentsOfFile: filepath)
     } catch {
       contents = "Unable to display credits"
     }
-    
+
     do {
       let data = NSString(string: contents).data(using: String.Encoding.unicode.rawValue)!
       let options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
       let attributedString = try NSAttributedString(data: data, options: options, documentAttributes: nil)
-      
+
       self.textView.attributedText = attributedString
-      
+
       self.textView.linkTextAttributes = convertToOptionalNSAttributedStringKeyDictionary([
         NSAttributedString.Key.foregroundColor.rawValue: UIColor.appTintColor,
         NSAttributedString.Key.underlineColor.rawValue: UIColor.appTintColor,
@@ -46,10 +46,10 @@ class CreditsViewController: UIViewController, Storyboarded {
       self.textView.text = contents
     }
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     self.navigationItem.title = "settings_credits_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       image: ImageIcons.navigationBackImage,
@@ -59,7 +59,7 @@ class CreditsViewController: UIViewController, Storyboarded {
     )
     self.textView.textContainerInset = UIEdgeInsets(top: 10.0, left: 13.0, bottom: 0, right: 13.0)
   }
-  
+
   @objc func didPressClose() {
     self.dismiss(animated: true, completion: nil)
   }

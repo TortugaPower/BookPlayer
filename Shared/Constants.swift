@@ -14,7 +14,7 @@ public enum Constants {
     public static let hasQueuedJobs = "userSettingsHasQueuedJobs"
     public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"
-    
+
     // User preferences
     public static let themeBrightnessEnabled = "userSettingsBrightnessEnabled"
     public static let themeBrightnessThreshold = "userSettingsBrightnessThreshold"
@@ -33,24 +33,24 @@ public enum Constants {
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
     public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
-    
+
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"
-    
+
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
   }
-  
+
   public enum SmartRewind {
     public static let threshold: TimeInterval = 599.0 // 599 = 10 mins
     public static let maxTime: TimeInterval = 30.0
   }
-  
+
   public enum Volume {
     public static let normal: Float = 1.0
     public static let boosted: Float = 2.0
   }
-  
+
   public static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
   public static let ApplicationGroupIdentifier = "group.\(Bundle.main.configurationString(for: .bundleIdentifier)).files"
 }

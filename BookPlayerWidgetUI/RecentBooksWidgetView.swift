@@ -12,13 +12,13 @@ import WidgetKit
 
 struct RecentBooksProvider: IntentTimelineProvider {
   let numberOfBooks = 4
-  
+
   typealias Entry = LibraryEntry
-  
+
   func placeholder(in context: Context) -> LibraryEntry {
     return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
   }
-  
+
   func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
     let stack = DataMigrationManager().getCoreDataStack()
     stack.loadStore { _, error in
@@ -26,10 +26,10 @@ struct RecentBooksProvider: IntentTimelineProvider {
         completion(self.placeholder(in: context))
         return
       }
-      
+
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
-      
+
       guard
         let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
         let theme = libraryService.getLibraryCurrentTheme()
@@ -37,20 +37,20 @@ struct RecentBooksProvider: IntentTimelineProvider {
         completion(self.placeholder(in: context))
         return
       }
-      
+
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-      
+
       let entry = LibraryEntry(date: Date(),
                                items: items,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
-      
+
       completion(entry)
     }
   }
-  
+
   func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
     let stack = DataMigrationManager().getCoreDataStack()
     stack.loadStore { _, error in
@@ -58,10 +58,10 @@ struct RecentBooksProvider: IntentTimelineProvider {
         completion(Timeline(entries: [], policy: .atEnd))
         return
       }
-      
+
       let dataManager = DataManager(coreDataStack: stack)
       let libraryService = LibraryService(dataManager: dataManager)
-      
+
       guard
         let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
         let theme = libraryService.getLibraryCurrentTheme()
@@ -69,16 +69,16 @@ struct RecentBooksProvider: IntentTimelineProvider {
         completion(Timeline(entries: [], policy: .atEnd))
         return
       }
-      
+
       let autoplay = configuration.autoplay?.boolValue ?? true
       let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-      
+
       let entry = LibraryEntry(date: Date(),
                                items: items,
                                theme: theme,
                                timerSeconds: seconds,
                                autoplay: autoplay)
-      
+
       completion(Timeline(entries: [entry], policy: .atEnd))
     }
   }
@@ -89,14 +89,14 @@ struct BookView: View {
   var titleColor: Color
   var theme: SimpleTheme?
   var entry: RecentBooksProvider.Entry
-  
+
   var body: some View {
     let title = item.title
     let identifier = item.relativePath
-    
+
     let url = WidgetUtils.getWidgetActionURL(with: identifier, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
     let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
-    
+
     return Link(destination: url) {
       VStack(spacing: 5) {
         Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
@@ -105,7 +105,7 @@ struct BookView: View {
         .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
         .aspectRatio(1.0, contentMode: .fit)
         .cornerRadius(8.0)
-        
+
         Text(title)
           .fontWeight(.semibold)
           .foregroundColor(titleColor)
@@ -121,14 +121,14 @@ struct BookView: View {
 struct RecentBooksWidgetView: View {
   @Environment(\.colorScheme) var colorScheme
   var entry: RecentBooksProvider.Entry
-  
+
   var body: some View {
     let items = Array(entry.items.prefix(4))
-    
+
     let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
-    
+
     let appIconName = WidgetUtils.getAppIconName()
-    
+
     return VStack(spacing: 3) {
       HStack {
         Text("Recent Books")
@@ -152,7 +152,7 @@ struct RecentBooksWidgetView: View {
         }
       }
       .padding([.leading, .trailing])
-      
+
       Spacer()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -178,7 +178,7 @@ struct RecentBooksWidgetView_Previews: PreviewProvider {
 
 struct RecentBooksWidget: Widget {
   let kind: String = "com.bookplayer.widget.medium.recentBooks"
-  
+
   var body: some WidgetConfiguration {
     IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: RecentBooksProvider()) { entry in
       RecentBooksWidgetView(entry: entry)

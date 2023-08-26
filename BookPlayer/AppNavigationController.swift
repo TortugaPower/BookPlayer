@@ -18,18 +18,18 @@ class AppNavigationController: UINavigationController, Storyboarded {
     return view
   }()
   private var themedStatusBarStyle: UIStatusBarStyle?
-  
+
   private var rootViewController: UIViewController? {
     return self.children.first
   }
-  
+
   override var preferredStatusBarStyle: UIStatusBarStyle {
     return themedStatusBarStyle ?? super.preferredStatusBarStyle
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     // hide native separator
     let standardAppearance = UINavigationBarAppearance()
     standardAppearance.configureWithTransparentBackground()
@@ -37,26 +37,26 @@ class AppNavigationController: UINavigationController, Storyboarded {
     navigationBar.scrollEdgeAppearance = standardAppearance
     navigationBar.compactAppearance = standardAppearance
     navigationBar.standardAppearance = standardAppearance
-    
+
     // add custom separator
     self.navigationBar.addSubview(self.separatorView)
-    
+
     NSLayoutConstraint.activate([
       separatorView.heightAnchor.constraint(equalToConstant: 0.5),
       separatorView.leadingAnchor.constraint(equalTo: navigationBar.leadingAnchor),
       separatorView.trailingAnchor.constraint(equalTo: navigationBar.trailingAnchor),
       separatorView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor),
     ])
-    
+
     setUpTheming()
   }
-  
+
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    
+
     self.handleSeparator()
   }
-  
+
   func handleSeparator() {
     guard
       let rootVC = self.rootViewController,
@@ -77,15 +77,15 @@ extension AppNavigationController: Themeable {
     ? .lightContent
     : .default
     setNeedsStatusBarAppearanceUpdate()
-    
+
     navigationBar.barTintColor = theme.systemBackgroundColor
     navigationBar.tintColor = theme.linkColor
-    
+
     self.separatorView.backgroundColor = theme.separatorColor
     navigationBar.scrollEdgeAppearance?.backgroundColor = theme.systemBackgroundColor
     navigationBar.compactAppearance?.backgroundColor = theme.systemBackgroundColor
     navigationBar.standardAppearance.backgroundColor = theme.systemBackgroundColor
-    
+
     let titleTextAttributes: [NSAttributedString.Key: Any] = [
       NSAttributedString.Key.foregroundColor: theme.primaryColor
     ]
@@ -97,7 +97,7 @@ extension AppNavigationController: Themeable {
     navigationBar.compactAppearance?.largeTitleTextAttributes = titleTextAttributes
     navigationBar.standardAppearance.titleTextAttributes = titleTextAttributes
     navigationBar.standardAppearance.largeTitleTextAttributes = titleTextAttributes
-    
+
     self.view.backgroundColor = theme.systemBackgroundColor
   }
 }

@@ -14,7 +14,7 @@ import BookPlayerKit
 @testable import BookPlayer
 class KeychainServiceProtocolMock: KeychainServiceProtocol {
   //MARK: - setAccessToken
-  
+
   var setAccessTokenThrowableError: Error?
   var setAccessTokenCallsCount = 0
   var setAccessTokenCalled: Bool {
@@ -33,7 +33,7 @@ class KeychainServiceProtocolMock: KeychainServiceProtocol {
     try setAccessTokenClosure?(token)
   }
   //MARK: - getAccessToken
-  
+
   var getAccessTokenThrowableError: Error?
   var getAccessTokenCallsCount = 0
   var getAccessTokenCalled: Bool {
@@ -53,7 +53,7 @@ class KeychainServiceProtocolMock: KeychainServiceProtocol {
     }
   }
   //MARK: - removeAccessToken
-  
+
   var removeAccessTokenThrowableError: Error?
   var removeAccessTokenCallsCount = 0
   var removeAccessTokenCalled: Bool {
@@ -80,7 +80,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
   }
   var underlyingProgressUpdatePublisher: AnyPublisher<[String: Any], Never>!
   //MARK: - getLibrary
-  
+
   var getLibraryCallsCount = 0
   var getLibraryCalled: Bool {
     return getLibraryCallsCount > 0
@@ -96,7 +96,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getLibraryReference
-  
+
   var getLibraryReferenceCallsCount = 0
   var getLibraryReferenceCalled: Bool {
     return getLibraryReferenceCallsCount > 0
@@ -112,7 +112,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getLibraryLastItem
-  
+
   var getLibraryLastItemCallsCount = 0
   var getLibraryLastItemCalled: Bool {
     return getLibraryLastItemCallsCount > 0
@@ -128,7 +128,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getLibraryCurrentTheme
-  
+
   var getLibraryCurrentThemeCallsCount = 0
   var getLibraryCurrentThemeCalled: Bool {
     return getLibraryCurrentThemeCallsCount > 0
@@ -144,7 +144,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - setLibraryTheme
-  
+
   var setLibraryThemeWithCallsCount = 0
   var setLibraryThemeWithCalled: Bool {
     return setLibraryThemeWithCallsCount > 0
@@ -159,7 +159,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     setLibraryThemeWithClosure?(simpleTheme)
   }
   //MARK: - setLibraryLastBook
-  
+
   var setLibraryLastBookWithCallsCount = 0
   var setLibraryLastBookWithCalled: Bool {
     return setLibraryLastBookWithCallsCount > 0
@@ -174,7 +174,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     setLibraryLastBookWithClosure?(relativePath)
   }
   //MARK: - insertItems
-  
+
   var insertItemsFromCallsCount = 0
   var insertItemsFromCalled: Bool {
     return insertItemsFromCallsCount > 0
@@ -194,7 +194,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - moveItems
-  
+
   var moveItemsInsideThrowableError: Error?
   var moveItemsInsideCallsCount = 0
   var moveItemsInsideCalled: Bool {
@@ -213,7 +213,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     try moveItemsInsideClosure?(items, relativePath)
   }
   //MARK: - delete
-  
+
   var deleteModeThrowableError: Error?
   var deleteModeCallsCount = 0
   var deleteModeCalled: Bool {
@@ -232,7 +232,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     try deleteModeClosure?(items, mode)
   }
   //MARK: - fetchContents
-  
+
   var fetchContentsAtLimitOffsetCallsCount = 0
   var fetchContentsAtLimitOffsetCalled: Bool {
     return fetchContentsAtLimitOffsetCallsCount > 0
@@ -252,7 +252,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getMaxItemsCount
-  
+
   var getMaxItemsCountAtCallsCount = 0
   var getMaxItemsCountAtCalled: Bool {
     return getMaxItemsCountAtCallsCount > 0
@@ -272,7 +272,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getLastPlayedItems
-  
+
   var getLastPlayedItemsLimitCallsCount = 0
   var getLastPlayedItemsLimitCalled: Bool {
     return getLastPlayedItemsLimitCallsCount > 0
@@ -292,7 +292,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - findBooks
-  
+
   var findBooksContainingCallsCount = 0
   var findBooksContainingCalled: Bool {
     return findBooksContainingCallsCount > 0
@@ -312,7 +312,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getSimpleItem
-  
+
   var getSimpleItemWithCallsCount = 0
   var getSimpleItemWithCalled: Bool {
     return getSimpleItemWithCallsCount > 0
@@ -332,7 +332,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getItems
-  
+
   var getItemsNotInParentFolderCallsCount = 0
   var getItemsNotInParentFolderCalled: Bool {
     return getItemsNotInParentFolderCallsCount > 0
@@ -352,7 +352,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getItemProperty
-  
+
   var getItemPropertyRelativePathCallsCount = 0
   var getItemPropertyRelativePathCalled: Bool {
     return getItemPropertyRelativePathCallsCount > 0
@@ -372,7 +372,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - filterContents
-  
+
   var filterContentsAtQueryScopeLimitOffsetCallsCount = 0
   var filterContentsAtQueryScopeLimitOffsetCalled: Bool {
     return filterContentsAtQueryScopeLimitOffsetCallsCount > 0
@@ -392,7 +392,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - findFirstItem
-  
+
   var findFirstItemInIsUnfinishedCallsCount = 0
   var findFirstItemInIsUnfinishedCalled: Bool {
     return findFirstItemInIsUnfinishedCallsCount > 0
@@ -412,7 +412,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - findFirstItem
-  
+
   var findFirstItemInBeforeRankCallsCount = 0
   var findFirstItemInBeforeRankCalled: Bool {
     return findFirstItemInBeforeRankCallsCount > 0
@@ -432,7 +432,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - findFirstItem
-  
+
   var findFirstItemInAfterRankIsUnfinishedCallsCount = 0
   var findFirstItemInAfterRankIsUnfinishedCalled: Bool {
     return findFirstItemInAfterRankIsUnfinishedCallsCount > 0
@@ -452,7 +452,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getChapters
-  
+
   var getChaptersFromCallsCount = 0
   var getChaptersFromCalled: Bool {
     return getChaptersFromCallsCount > 0
@@ -472,7 +472,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - createBook
-  
+
   var createBookFromCallsCount = 0
   var createBookFromCalled: Bool {
     return createBookFromCallsCount > 0
@@ -492,7 +492,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - loadChaptersIfNeeded
-  
+
   var loadChaptersIfNeededRelativePathAssetCallsCount = 0
   var loadChaptersIfNeededRelativePathAssetCalled: Bool {
     return loadChaptersIfNeededRelativePathAssetCallsCount > 0
@@ -507,7 +507,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
   }
   //MARK: - createFolder
-  
+
   var createFolderWithInsideThrowableError: Error?
   var createFolderWithInsideCallsCount = 0
   var createFolderWithInsideCalled: Bool {
@@ -531,7 +531,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - updateFolder
-  
+
   var updateFolderAtTypeThrowableError: Error?
   var updateFolderAtTypeCallsCount = 0
   var updateFolderAtTypeCalled: Bool {
@@ -550,7 +550,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     try updateFolderAtTypeClosure?(relativePath, type)
   }
   //MARK: - rebuildFolderDetails
-  
+
   var rebuildFolderDetailsCallsCount = 0
   var rebuildFolderDetailsCalled: Bool {
     return rebuildFolderDetailsCallsCount > 0
@@ -565,7 +565,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     rebuildFolderDetailsClosure?(relativePath)
   }
   //MARK: - recursiveFolderProgressUpdate
-  
+
   var recursiveFolderProgressUpdateFromCallsCount = 0
   var recursiveFolderProgressUpdateFromCalled: Bool {
     return recursiveFolderProgressUpdateFromCallsCount > 0
@@ -580,7 +580,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     recursiveFolderProgressUpdateFromClosure?(relativePath)
   }
   //MARK: - renameBook
-  
+
   var renameBookAtWithCallsCount = 0
   var renameBookAtWithCalled: Bool {
     return renameBookAtWithCallsCount > 0
@@ -595,7 +595,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     renameBookAtWithClosure?(relativePath, newTitle)
   }
   //MARK: - renameFolder
-  
+
   var renameFolderAtWithThrowableError: Error?
   var renameFolderAtWithCallsCount = 0
   var renameFolderAtWithCalled: Bool {
@@ -619,7 +619,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - updateDetails
-  
+
   var updateDetailsAtDetailsCallsCount = 0
   var updateDetailsAtDetailsCalled: Bool {
     return updateDetailsAtDetailsCallsCount > 0
@@ -634,7 +634,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     updateDetailsAtDetailsClosure?(relativePath, details)
   }
   //MARK: - reorderItem
-  
+
   var reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount = 0
   var reorderItemWithInsideSourceIndexPathDestinationIndexPathCalled: Bool {
     return reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount > 0
@@ -649,7 +649,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure?(relativePath, folderRelativePath, sourceIndexPath, destinationIndexPath)
   }
   //MARK: - sortContents
-  
+
   var sortContentsAtByCallsCount = 0
   var sortContentsAtByCalled: Bool {
     return sortContentsAtByCallsCount > 0
@@ -664,7 +664,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     sortContentsAtByClosure?(relativePath, type)
   }
   //MARK: - updatePlaybackTime
-  
+
   var updatePlaybackTimeRelativePathTimeDateScheduleSaveCallsCount = 0
   var updatePlaybackTimeRelativePathTimeDateScheduleSaveCalled: Bool {
     return updatePlaybackTimeRelativePathTimeDateScheduleSaveCallsCount > 0
@@ -679,7 +679,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     updatePlaybackTimeRelativePathTimeDateScheduleSaveClosure?(relativePath, time, date, scheduleSave)
   }
   //MARK: - updateBookSpeed
-  
+
   var updateBookSpeedAtSpeedCallsCount = 0
   var updateBookSpeedAtSpeedCalled: Bool {
     return updateBookSpeedAtSpeedCallsCount > 0
@@ -694,7 +694,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     updateBookSpeedAtSpeedClosure?(relativePath, speed)
   }
   //MARK: - getItemSpeed
-  
+
   var getItemSpeedAtCallsCount = 0
   var getItemSpeedAtCalled: Bool {
     return getItemSpeedAtCallsCount > 0
@@ -714,7 +714,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - markAsFinished
-  
+
   var markAsFinishedFlagRelativePathCallsCount = 0
   var markAsFinishedFlagRelativePathCalled: Bool {
     return markAsFinishedFlagRelativePathCallsCount > 0
@@ -729,7 +729,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     markAsFinishedFlagRelativePathClosure?(flag, relativePath)
   }
   //MARK: - jumpToStart
-  
+
   var jumpToStartRelativePathCallsCount = 0
   var jumpToStartRelativePathCalled: Bool {
     return jumpToStartRelativePathCallsCount > 0
@@ -744,7 +744,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     jumpToStartRelativePathClosure?(relativePath)
   }
   //MARK: - getCurrentPlaybackRecord
-  
+
   var getCurrentPlaybackRecordCallsCount = 0
   var getCurrentPlaybackRecordCalled: Bool {
     return getCurrentPlaybackRecordCallsCount > 0
@@ -760,7 +760,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getPlaybackRecords
-  
+
   var getPlaybackRecordsFromToCallsCount = 0
   var getPlaybackRecordsFromToCalled: Bool {
     return getPlaybackRecordsFromToCallsCount > 0
@@ -780,7 +780,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - recordTime
-  
+
   var recordTimeCallsCount = 0
   var recordTimeCalled: Bool {
     return recordTimeCallsCount > 0
@@ -795,7 +795,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     recordTimeClosure?(playbackRecord)
   }
   //MARK: - getTotalListenedTime
-  
+
   var getTotalListenedTimeCallsCount = 0
   var getTotalListenedTimeCalled: Bool {
     return getTotalListenedTimeCallsCount > 0
@@ -811,7 +811,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getBookmarks
-  
+
   var getBookmarksOfRelativePathCallsCount = 0
   var getBookmarksOfRelativePathCalled: Bool {
     return getBookmarksOfRelativePathCallsCount > 0
@@ -831,7 +831,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - getBookmark
-  
+
   var getBookmarkAtRelativePathTypeCallsCount = 0
   var getBookmarkAtRelativePathTypeCalled: Bool {
     return getBookmarkAtRelativePathTypeCallsCount > 0
@@ -851,7 +851,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - createBookmark
-  
+
   var createBookmarkAtRelativePathTypeCallsCount = 0
   var createBookmarkAtRelativePathTypeCalled: Bool {
     return createBookmarkAtRelativePathTypeCallsCount > 0
@@ -871,7 +871,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
   }
   //MARK: - addNote
-  
+
   var addNoteBookmarkCallsCount = 0
   var addNoteBookmarkCalled: Bool {
     return addNoteBookmarkCallsCount > 0
@@ -886,7 +886,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     addNoteBookmarkClosure?(note, bookmark)
   }
   //MARK: - deleteBookmark
-  
+
   var deleteBookmarkCallsCount = 0
   var deleteBookmarkCalled: Bool {
     return deleteBookmarkCallsCount > 0
@@ -903,7 +903,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
   //MARK: - updatePlaybackTime
-  
+
   var updatePlaybackTimeItemTimeCallsCount = 0
   var updatePlaybackTimeItemTimeCalled: Bool {
     return updatePlaybackTimeItemTimeCallsCount > 0
@@ -918,7 +918,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     updatePlaybackTimeItemTimeClosure?(item, time)
   }
   //MARK: - getPlayableItem
-  
+
   var getPlayableItemBeforeParentFolderCallsCount = 0
   var getPlayableItemBeforeParentFolderCalled: Bool {
     return getPlayableItemBeforeParentFolderCallsCount > 0
@@ -938,7 +938,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
   }
   //MARK: - getPlayableItem
-  
+
   var getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount = 0
   var getPlayableItemAfterParentFolderAutoplayedRestartFinishedCalled: Bool {
     return getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount > 0
@@ -958,7 +958,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
   }
   //MARK: - getFirstPlayableItem
-  
+
   var getFirstPlayableItemInIsUnfinishedThrowableError: Error?
   var getFirstPlayableItemInIsUnfinishedCallsCount = 0
   var getFirstPlayableItemInIsUnfinishedCalled: Bool {
@@ -982,7 +982,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
   }
   //MARK: - getPlayableItem
-  
+
   var getPlayableItemFromThrowableError: Error?
   var getPlayableItemFromCallsCount = 0
   var getPlayableItemFromCalled: Bool {
@@ -1006,7 +1006,7 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
   }
   //MARK: - getNextChapter
-  
+
   var getNextChapterFromCallsCount = 0
   var getNextChapterFromCalled: Bool {
     return getNextChapterFromCallsCount > 0
@@ -1039,7 +1039,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
   }
   var underlyingIsPlaying: Bool!
   //MARK: - load
-  
+
   var loadAutoplayCallsCount = 0
   var loadAutoplayCalled: Bool {
     return loadAutoplayCallsCount > 0
@@ -1054,7 +1054,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     loadAutoplayClosure?(item, autoplay)
   }
   //MARK: - hasLoadedBook
-  
+
   var hasLoadedBookCallsCount = 0
   var hasLoadedBookCalled: Bool {
     return hasLoadedBookCallsCount > 0
@@ -1070,7 +1070,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
   }
   //MARK: - playPreviousItem
-  
+
   var playPreviousItemCallsCount = 0
   var playPreviousItemCalled: Bool {
     return playPreviousItemCallsCount > 0
@@ -1081,7 +1081,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     playPreviousItemClosure?()
   }
   //MARK: - playNextItem
-  
+
   var playNextItemAutoPlayedShouldAutoplayCallsCount = 0
   var playNextItemAutoPlayedShouldAutoplayCalled: Bool {
     return playNextItemAutoPlayedShouldAutoplayCallsCount > 0
@@ -1096,7 +1096,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     playNextItemAutoPlayedShouldAutoplayClosure?(autoPlayed, shouldAutoplay)
   }
   //MARK: - play
-  
+
   var playCallsCount = 0
   var playCalled: Bool {
     return playCallsCount > 0
@@ -1107,7 +1107,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     playClosure?()
   }
   //MARK: - playPause
-  
+
   var playPauseCallsCount = 0
   var playPauseCalled: Bool {
     return playPauseCallsCount > 0
@@ -1118,7 +1118,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     playPauseClosure?()
   }
   //MARK: - pause
-  
+
   var pauseCallsCount = 0
   var pauseCalled: Bool {
     return pauseCallsCount > 0
@@ -1129,7 +1129,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     pauseClosure?()
   }
   //MARK: - stop
-  
+
   var stopCallsCount = 0
   var stopCalled: Bool {
     return stopCallsCount > 0
@@ -1140,7 +1140,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     stopClosure?()
   }
   //MARK: - rewind
-  
+
   var rewindCallsCount = 0
   var rewindCalled: Bool {
     return rewindCallsCount > 0
@@ -1151,7 +1151,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     rewindClosure?()
   }
   //MARK: - forward
-  
+
   var forwardCallsCount = 0
   var forwardCalled: Bool {
     return forwardCallsCount > 0
@@ -1162,7 +1162,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     forwardClosure?()
   }
   //MARK: - jumpTo
-  
+
   var jumpToRecordBookmarkCallsCount = 0
   var jumpToRecordBookmarkCalled: Bool {
     return jumpToRecordBookmarkCallsCount > 0
@@ -1177,7 +1177,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     jumpToRecordBookmarkClosure?(time, recordBookmark)
   }
   //MARK: - jumpToChapter
-  
+
   var jumpToChapterCallsCount = 0
   var jumpToChapterCalled: Bool {
     return jumpToChapterCallsCount > 0
@@ -1192,7 +1192,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     jumpToChapterClosure?(chapter)
   }
   //MARK: - markAsCompleted
-  
+
   var markAsCompletedCallsCount = 0
   var markAsCompletedCalled: Bool {
     return markAsCompletedCallsCount > 0
@@ -1207,7 +1207,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     markAsCompletedClosure?(flag)
   }
   //MARK: - setSpeed
-  
+
   var setSpeedCallsCount = 0
   var setSpeedCalled: Bool {
     return setSpeedCallsCount > 0
@@ -1222,7 +1222,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     setSpeedClosure?(newValue)
   }
   //MARK: - setBoostVolume
-  
+
   var setBoostVolumeCallsCount = 0
   var setBoostVolumeCalled: Bool {
     return setBoostVolumeCallsCount > 0
@@ -1237,7 +1237,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     setBoostVolumeClosure?(newValue)
   }
   //MARK: - currentSpeedPublisher
-  
+
   var currentSpeedPublisherCallsCount = 0
   var currentSpeedPublisherCalled: Bool {
     return currentSpeedPublisherCallsCount > 0
@@ -1253,7 +1253,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
   }
   //MARK: - isPlayingPublisher
-  
+
   var isPlayingPublisherCallsCount = 0
   var isPlayingPublisherCalled: Bool {
     return isPlayingPublisherCallsCount > 0
@@ -1269,7 +1269,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
   }
   //MARK: - currentItemPublisher
-  
+
   var currentItemPublisherCallsCount = 0
   var currentItemPublisherCalled: Bool {
     return currentItemPublisherCallsCount > 0
@@ -1287,7 +1287,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
 }
 class ShakeMotionServiceProtocolMock: ShakeMotionServiceProtocol {
   //MARK: - observeFirstShake
-  
+
   var observeFirstShakeCompletionCallsCount = 0
   var observeFirstShakeCompletionCalled: Bool {
     return observeFirstShakeCompletionCallsCount > 0
@@ -1302,7 +1302,7 @@ class ShakeMotionServiceProtocolMock: ShakeMotionServiceProtocol {
     observeFirstShakeCompletionClosure?(completion)
   }
   //MARK: - stopMotionUpdates
-  
+
   var stopMotionUpdatesCallsCount = 0
   var stopMotionUpdatesCalled: Bool {
     return stopMotionUpdatesCallsCount > 0
@@ -1315,7 +1315,7 @@ class ShakeMotionServiceProtocolMock: ShakeMotionServiceProtocol {
 }
 class SpeedServiceProtocolMock: SpeedServiceProtocol {
   //MARK: - setSpeed
-  
+
   var setSpeedRelativePathCallsCount = 0
   var setSpeedRelativePathCalled: Bool {
     return setSpeedRelativePathCallsCount > 0
@@ -1330,7 +1330,7 @@ class SpeedServiceProtocolMock: SpeedServiceProtocol {
     setSpeedRelativePathClosure?(newValue, relativePath)
   }
   //MARK: - getSpeed
-  
+
   var getSpeedRelativePathCallsCount = 0
   var getSpeedRelativePathCalled: Bool {
     return getSpeedRelativePathCallsCount > 0
@@ -1362,7 +1362,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
   }
   var underlyingQueuedJobsCount: Int!
   //MARK: - syncListContents
-  
+
   var syncListContentsAtThrowableError: Error?
   var syncListContentsAtCallsCount = 0
   var syncListContentsAtCalled: Bool {
@@ -1386,7 +1386,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - syncLibraryContents
-  
+
   var syncLibraryContentsThrowableError: Error?
   var syncLibraryContentsCallsCount = 0
   var syncLibraryContentsCalled: Bool {
@@ -1406,7 +1406,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - syncBookmarksList
-  
+
   var syncBookmarksListRelativePathThrowableError: Error?
   var syncBookmarksListRelativePathCallsCount = 0
   var syncBookmarksListRelativePathCalled: Bool {
@@ -1430,7 +1430,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - getRemoteFileURLs
-  
+
   var getRemoteFileURLsOfTypeThrowableError: Error?
   var getRemoteFileURLsOfTypeCallsCount = 0
   var getRemoteFileURLsOfTypeCalled: Bool {
@@ -1454,7 +1454,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - downloadRemoteFiles
-  
+
   var downloadRemoteFilesForTypeDelegateThrowableError: Error?
   var downloadRemoteFilesForTypeDelegateCallsCount = 0
   var downloadRemoteFilesForTypeDelegateCalled: Bool {
@@ -1478,7 +1478,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - scheduleUpload
-  
+
   var scheduleUploadItemsCallsCount = 0
   var scheduleUploadItemsCalled: Bool {
     return scheduleUploadItemsCallsCount > 0
@@ -1493,7 +1493,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleUploadItemsClosure?(items)
   }
   //MARK: - scheduleDelete
-  
+
   var scheduleDeleteModeCallsCount = 0
   var scheduleDeleteModeCalled: Bool {
     return scheduleDeleteModeCallsCount > 0
@@ -1508,7 +1508,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleDeleteModeClosure?(items, mode)
   }
   //MARK: - scheduleMove
-  
+
   var scheduleMoveItemsToCallsCount = 0
   var scheduleMoveItemsToCalled: Bool {
     return scheduleMoveItemsToCallsCount > 0
@@ -1523,7 +1523,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleMoveItemsToClosure?(items, parentFolder)
   }
   //MARK: - scheduleRenameFolder
-  
+
   var scheduleRenameFolderAtNameCallsCount = 0
   var scheduleRenameFolderAtNameCalled: Bool {
     return scheduleRenameFolderAtNameCallsCount > 0
@@ -1538,7 +1538,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleRenameFolderAtNameClosure?(relativePath, name)
   }
   //MARK: - scheduleSetBookmark
-  
+
   var scheduleSetBookmarkRelativePathTimeNoteCallsCount = 0
   var scheduleSetBookmarkRelativePathTimeNoteCalled: Bool {
     return scheduleSetBookmarkRelativePathTimeNoteCallsCount > 0
@@ -1553,7 +1553,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleSetBookmarkRelativePathTimeNoteClosure?(relativePath, time, note)
   }
   //MARK: - scheduleDeleteBookmark
-  
+
   var scheduleDeleteBookmarkCallsCount = 0
   var scheduleDeleteBookmarkCalled: Bool {
     return scheduleDeleteBookmarkCallsCount > 0
@@ -1568,7 +1568,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleDeleteBookmarkClosure?(bookmark)
   }
   //MARK: - scheduleUploadArtwork
-  
+
   var scheduleUploadArtworkRelativePathCallsCount = 0
   var scheduleUploadArtworkRelativePathCalled: Bool {
     return scheduleUploadArtworkRelativePathCallsCount > 0
@@ -1583,7 +1583,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     scheduleUploadArtworkRelativePathClosure?(relativePath)
   }
   //MARK: - getAllQueuedJobs
-  
+
   var getAllQueuedJobsCallsCount = 0
   var getAllQueuedJobsCalled: Bool {
     return getAllQueuedJobsCallsCount > 0
@@ -1599,7 +1599,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
   }
   //MARK: - cancelAllJobs
-  
+
   var cancelAllJobsCallsCount = 0
   var cancelAllJobsCalled: Bool {
     return cancelAllJobsCallsCount > 0

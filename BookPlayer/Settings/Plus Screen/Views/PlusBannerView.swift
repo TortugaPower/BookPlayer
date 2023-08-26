@@ -15,18 +15,18 @@ class PlusBannerView: NibLoadableView {
   @IBOutlet weak var detailLabel: UILabel!
   @IBOutlet weak var moreButton: UIButton!
   @IBOutlet weak var imageView: UIImageView!
-  
+
   var showPlus: (() -> Void)?
-  
+
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
-    
+
     titleLabel.font = Fonts.title
     detailLabel.font = Fonts.body
     detailLabel.numberOfLines = 0
     setUpTheming()
   }
-  
+
   @IBAction func showPlus(_ sender: UIButton) {
     self.showPlus?()
   }

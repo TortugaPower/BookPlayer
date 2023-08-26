@@ -15,13 +15,13 @@ class IconCellView: UITableViewCell {
   @IBOutlet weak var authorLabel: UILabel!
   @IBOutlet private weak var iconImageView: UIImageView!
   @IBOutlet weak var lockImageView: UIImageView!
-  
+
   var iconImage: UIImage? {
     didSet {
       self.iconImageView.image = self.iconImage?.addLayerMask("appIconMask")
     }
   }
-  
+
   var isLocked: Bool = false {
     didSet {
       self.titleLabel.alpha = self.isLocked ? 0.5 : 1.0
@@ -29,7 +29,7 @@ class IconCellView: UITableViewCell {
       self.lockImageView.isHidden = !self.isLocked
     }
   }
-  
+
   override func awakeFromNib() {
     super.awakeFromNib()
     setUpTheming()

@@ -11,21 +11,21 @@ import XCTest
 class DataTestUtils: XCTest {
   class func generateTestFile(name: String, contents: Data, destinationFolder: URL) -> URL {
     let destination = destinationFolder.appendingPathComponent(name)
-    
+
     XCTAssertNoThrow(try contents.write(to: destination))
     XCTAssert(FileManager.default.fileExists(atPath: destination.path))
-    
+
     return destination
   }
-  
+
   class func generateTestFolder(name: String, destinationFolder: URL) throws -> URL {
     let destination = destinationFolder.appendingPathComponent(name)
-    
+
     try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true, attributes: nil)
-    
+
     return destination
   }
-  
+
   class func clearFolderContents(url: URL) {
     do {
       let urls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)

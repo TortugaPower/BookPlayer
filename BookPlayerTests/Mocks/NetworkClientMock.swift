@@ -11,7 +11,7 @@ import BookPlayerKit
 
 class NetworkClientMock: NetworkClientProtocol {
   func upload(_ data: Data, remoteURL: URL) async throws { }
-  
+
   func uploadTask(
     _ fileURL: URL,
     remoteURL: URL,
@@ -20,14 +20,14 @@ class NetworkClientMock: NetworkClientProtocol {
   ) async -> URLSessionTask {
     return session.uploadTask(with: URLRequest(url: URL(string: "https://google.com")!), from: Data())
   }
-  
+
   typealias RawResponse = Decodable
   let mockedResponse: RawResponse
-  
+
   init(mockedResponse: RawResponse) {
     self.mockedResponse = mockedResponse
   }
-  
+
   func request<T: RawResponse>(
     url: URL,
     method: HTTPMethod,
@@ -37,7 +37,7 @@ class NetworkClientMock: NetworkClientProtocol {
     // swiftlint:disable:next force_cast
     return self.mockedResponse as! T
   }
-  
+
   func request<T: RawResponse>(
     path: String,
     method: HTTPMethod,
@@ -46,7 +46,7 @@ class NetworkClientMock: NetworkClientProtocol {
     // swiftlint:disable:next force_cast
     return self.mockedResponse as! T
   }
-  
+
   func upload(
     _ fileURL: URL,
     remoteURL: URL,
@@ -55,7 +55,7 @@ class NetworkClientMock: NetworkClientProtocol {
   ) async throws -> (Data, URLResponse) {
     return (Data(), URLResponse())
   }
-  
+
   func download(
     url: URL,
     taskDescription: String?,

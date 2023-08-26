@@ -25,11 +25,11 @@ public protocol PlaybackServiceProtocol {
 
 public final class PlaybackService: PlaybackServiceProtocol {
   let libraryService: LibraryServiceProtocol
-  
+
   public init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
   }
-  
+
   public func updatePlaybackTime(item: PlayableItem, time: Double) {
     let now = Date()
     item.lastPlayDate = now
@@ -37,7 +37,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     item.percentCompleted = round((item.currentTime / item.duration) * 100)
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now, scheduleSave: true)
   }
-  
+
   public func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
     if item.chapters.last == item.currentChapter {
       return nil
@@ -45,7 +45,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       return item.nextChapter(after: item.currentChapter)
     }
   }
-  
+
   public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
     guard
       let orderRank = self.libraryService.getItemProperty(
@@ -53,7 +53,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         relativePath: relativePath
       ) as? Int16
     else { return nil }
-    
+
     guard
       let previousItem = self.libraryService.findFirstItem(
         in: parentFolder,
@@ -70,20 +70,20 @@ public final class PlaybackService: PlaybackServiceProtocol {
           parentFolder: containerPathForParentFolder
         )
       }
-      
+
       return nil
     }
-    
+
     if previousItem.type == .folder {
       return try? getFirstPlayableItem(
         in: previousItem,
         isUnfinished: nil
       )
     }
-    
+
     return try? getPlayableItem(from: previousItem)
   }
-  
+
   public func getPlayableItem(
     after relativePath: String,
     parentFolder: String?,
@@ -96,14 +96,14 @@ public final class PlaybackService: PlaybackServiceProtocol {
         relativePath: relativePath
       ) as? Int16
     else { return nil }
-    
+
     var isUnfinished: Bool?
-    
+
     if autoplayed == true,
        !restartFinished {
       isUnfinished = true
     }
-    
+
     guard
       let nextItem = self.libraryService.findFirstItem(
         in: parentFolder,
@@ -123,26 +123,26 @@ public final class PlaybackService: PlaybackServiceProtocol {
           restartFinished: restartFinished
         )
       }
-      
+
       return nil
     }
-    
+
     if nextItem.type == .folder {
       return try? getFirstPlayableItem(
         in: nextItem,
         isUnfinished: isUnfinished
       )
     }
-    
+
     return try? getPlayableItem(from: nextItem)
   }
-  
+
   public func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem? {
     guard let child = self.libraryService.findFirstItem(
       in: folder.relativePath,
       isUnfinished: isUnfinished
     ) else { return nil }
-    
+
     switch child.type {
     case .folder:
       return try getFirstPlayableItem(in: child, isUnfinished: isUnfinished)
@@ -151,9 +151,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     case .book:
       return try self.getPlayableItemFrom(book: child)
     }
-    
+
   }
-  
+
   public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
     switch item.type {
     case .folder, .bound:
@@ -162,10 +162,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
       return try self.getPlayableItemFrom(book: item)
     }
   }
-  
+
   func getPlayableItemFrom(book: SimpleLibraryItem) throws -> PlayableItem {
     let chapters = try self.getPlayableChapters(book: book)
-    
+
     return PlayableItem(
       title: book.title,
       author: book.details,
@@ -180,7 +180,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       isBoundBook: false
     )
   }
-  
+
   func getPlayableChapters(book: SimpleLibraryItem) throws -> [PlayableChapter] {
     guard
       let chapters = self.libraryService.getChapters(from: book.relativePath)
@@ -192,7 +192,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       )
     }
-    
+
     guard !chapters.isEmpty else {
       return [
         PlayableChapter(
@@ -206,7 +206,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       ]
     }
-    
+
     return chapters.enumerated()
       .map({ (index, chapter) in
         return PlayableChapter(
@@ -220,22 +220,22 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       })
   }
-  
+
   func getPlayableItemFrom(folder: SimpleLibraryItem) throws -> PlayableItem {
     let chapters = try self.getPlayableChapters(folder: folder)
-    
+
     var duration: TimeInterval?
-    
+
     if let lastChapter = chapters.last {
       duration = lastChapter.start + lastChapter.duration
     }
-    
+
     var percentCompleted = folder.percentCompleted
-    
+
     if percentCompleted.isNaN || percentCompleted.isInfinite {
       percentCompleted = 0
     }
-    
+
     return PlayableItem(
       title: folder.title,
       author: chapters.first?.author ?? "voiceover_unknown_author".localized,
@@ -250,7 +250,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       isBoundBook: true
     )
   }
-  
+
   func getPlayableChapters(folder: SimpleLibraryItem) throws -> [PlayableChapter] {
     guard
       let items = self.libraryService.fetchContents(
@@ -266,7 +266,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       )
     }
-    
+
     guard !items.isEmpty else {
       throw BookPlayerError.runtimeError(
         String.localizedStringWithFormat(
@@ -275,13 +275,13 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       )
     }
-    
+
     var currentDuration = 0.0
-    
+
     return items.enumerated()
       .map({ (index, book) in
         let truncatedDuration = TimeParser.truncateTime(book.duration)
-        
+
         let chapter = PlayableChapter(
           title: book.title,
           author: book.details,
@@ -291,9 +291,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
           remoteURL: book.remoteURL,
           index: Int16(index + 1)
         )
-        
+
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
-        
+
         return chapter
       })
   }

@@ -11,7 +11,7 @@ import UIKit
 
 class FolderListCoordinator: ItemListCoordinator {
   let folderRelativePath: String
-  
+
   init(
     navigationController: UINavigationController,
     folderRelativePath: String,
@@ -21,7 +21,7 @@ class FolderListCoordinator: ItemListCoordinator {
     syncService: SyncServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
-    
+
     super.init(
       navigationController: navigationController,
       playerManager: playerManager,
@@ -30,7 +30,7 @@ class FolderListCoordinator: ItemListCoordinator {
       syncService: syncService
     )
   }
-  
+
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
     let viewModel = ItemListViewModel(
@@ -68,10 +68,10 @@ class FolderListCoordinator: ItemListCoordinator {
     vc.viewModel = viewModel
     presentingViewController = navigationController
     navigationController.pushViewController(vc, animated: true)
-    
+
     documentPickerDelegate = vc
   }
-  
+
   override func syncList() {
     Task { @MainActor in
       _ = try await syncService.syncListContents(at: folderRelativePath)

@@ -19,21 +19,21 @@ public protocol KeychainServiceProtocol {
 public class KeychainService: KeychainServiceProtocol {
   let service = Bundle.main.configurationString(for: .bundleIdentifier)
   let tokenKey = "access_token"
-  
+
   public init() {}
-  
+
   public func setAccessToken(_ token: String) throws {
     try self.set(token, key: tokenKey)
   }
-  
+
   public func getAccessToken() throws -> String? {
     return try self.get(tokenKey)
   }
-  
+
   public func removeAccessToken() throws {
     try self.remove(tokenKey)
   }
-  
+
   private func get(_ key: String) throws -> String? {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
@@ -42,10 +42,10 @@ public class KeychainService: KeychainServiceProtocol {
       kSecReturnData as String: true,
       kSecAttrAccount as String: key
     ]
-    
+
     var result: AnyObject?
     let status = SecItemCopyMatching(query as CFDictionary, &result)
-    
+
     switch status {
     case errSecSuccess:
       guard
@@ -62,20 +62,20 @@ public class KeychainService: KeychainServiceProtocol {
       throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
     }
   }
-  
+
   private func set(_ value: String, key: String) throws {
     guard let data = value.data(using: .utf8, allowLossyConversion: false) else {
       // conversionError
       throw NSError(domain: NSOSStatusErrorDomain, code: -67594)
     }
-    
+
     let searchQuery: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
       kSecAttrAccount as String: key,
       kSecReturnData as String: true
     ]
-    
+
     var status = SecItemCopyMatching(searchQuery as CFDictionary, nil)
     switch status {
     case errSecSuccess, errSecInteractionNotAllowed:
@@ -84,12 +84,12 @@ public class KeychainService: KeychainServiceProtocol {
         kSecAttrService as String: service,
         kSecAttrAccount as String: key
       ]
-      
+
       let attributes: [String: Any] = [
         kSecValueData as String: data,
         kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
       ]
-      
+
 #if os(iOS)
       if status == errSecInteractionNotAllowed && floor(NSFoundationVersionNumber) <= floor(NSFoundationVersionNumber_iOS_8_0) {
         try remove(key)
@@ -112,7 +112,7 @@ public class KeychainService: KeychainServiceProtocol {
       throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
     }
   }
-  
+
   private func add(_ data: Data, key: String) throws {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
@@ -121,20 +121,20 @@ public class KeychainService: KeychainServiceProtocol {
       kSecValueData as String: data,
       kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
     ]
-    
+
     let status = SecItemAdd(query as CFDictionary, nil)
     if status != errSecSuccess {
       throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
     }
   }
-  
+
   private func remove(_ key: String) throws {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
       kSecAttrAccount as String: key
     ]
-    
+
     let status = SecItemDelete(query as CFDictionary)
     if status != errSecSuccess && status != errSecItemNotFound {
       throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))

@@ -18,40 +18,40 @@ class MiniPlayerView: UIView {
   @IBOutlet private weak var titleLabel: BPMarqueeLabel!
   @IBOutlet private weak var authorLabel: BPMarqueeLabel!
   @IBOutlet weak var playIconView: PlayPauseIconView!
-  
+
   private var disposeBag = Set<AnyCancellable>()
-  
+
   var onPlayerTap: (() -> Void)?
   var onPlayPauseTap: (() -> Void)?
-  
+
   override func awakeFromNib() {
     self.backgroundColor = .clear
-    
+
     setUpTheming()
-    
+
     self.containerView.layer.cornerRadius = 13.0
     self.containerView.layer.masksToBounds = true
     self.playIconView.imageView.contentMode = .scaleAspectFit
-    
+
     let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapAction))
     tap.cancelsTouchesInView = true
-    
+
     self.addGestureRecognizer(tap)
-    
+
     self.playIconView.observeActionEvents()
       .sink { [weak self] _ in
         self?.onPlayPauseTap?()
       }
       .store(in: &disposeBag)
   }
-  
+
   func setupPlayerView(
     with title: String,
     author: String,
     relativePath: String
   ) {
     self.setNeedsLayout()
-    
+
     self.artwork.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: relativePath),
       placeholder: ArtworkService.generateDefaultArtwork(
@@ -61,19 +61,19 @@ class MiniPlayerView: UIView {
     )
     self.authorLabel.text = author
     self.titleLabel.text = title
-    
+
     setVoiceOverLabels()
     applyTheme(self.themeProvider.currentTheme)
   }
-  
+
   // MARK: Gesture recognizers
-  
+
   @objc func tapAction() {
     self.onPlayerTap?()
   }
-  
+
   // MARK: - Voiceover
-  
+
   private func setVoiceOverLabels() {
     let voiceOverTitle = self.titleLabel.text ?? "voiceover_no_title".localized
     let voiceOverSubtitle = self.authorLabel.text ?? "voiceover_no_author".localized
@@ -91,7 +91,7 @@ extension MiniPlayerView: Themeable {
     self.titleLabel.textColor = theme.primaryColor
     self.authorLabel.textColor = theme.secondaryColor
     self.playIconView.tintColor = theme.linkColor
-    
+
     self.containerView.backgroundColor = theme.secondarySystemBackgroundColor
   }
 }

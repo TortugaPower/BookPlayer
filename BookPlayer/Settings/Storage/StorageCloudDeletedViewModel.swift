@@ -16,12 +16,12 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
     case showAlert(title: String, message: String)
     case dismiss
   }
-  
+
   /// Screen navigation title
   let navigationTitle = "Files"
   /// Fix-all button title
   let fixButtonTitle = "import_button".localized
-  
+
   /// List of files to be listed
   @Published var publishedFiles = [StorageItem]() {
     didSet {
@@ -34,15 +34,15 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       publishedFiles = sortedItems(items: publishedFiles)
     }
   }
-  
+
   /// In-memory alert to show
   var storageAlert: BPStorageAlert = .none
   @Published var showFixAllButton: Bool = false
   @Published var showAlert: Bool = false
   @Published var showProgressIndicator: Bool = false
-  
+
   var onTransition: BPTransition<Routes>?
-  
+
   var alert: Alert {
     switch storageAlert {
     case .error(let errorMessage):
@@ -55,26 +55,26 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       return Alert(title: Text(""))
     }
   }
-  
+
   let folderURL: URL
-  
+
   init(folderURL: URL) {
     self.folderURL = folderURL
-    
+
     self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
-    
+
     self.loadItems()
   }
-  
+
   func dismiss() {
     onTransition?(.dismiss)
   }
-  
+
   private func loadItems() {
     showProgressIndicator = true
     Task { @MainActor in
       let processedFolder = self.folderURL
-      
+
       let enumerator = FileManager.default.enumerator(
         at: self.folderURL,
         includingPropertiesForKeys: [.isDirectoryKey],
@@ -82,17 +82,17 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
           print("directoryEnumerator error at \(url): ", error)
           return true
         })!
-      
+
       var items = [StorageItem]()
-      
+
       for case let fileURL as URL in enumerator {
         guard
           !fileURL.isDirectoryFolder,
           let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path)
         else { continue }
-        
+
         let bookTitle = Book.getBookTitle(from: fileURL)
-        
+
         let storageItem = StorageItem(
           title: bookTitle,
           fileURL: fileURL,
@@ -100,15 +100,15 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
           size: fileAttributes[FileAttributeKey.size] as? Int64 ?? 0,
           showWarning: false
         )
-        
+
         items.append(storageItem)
       }
-      
+
       showProgressIndicator = false
       self.publishedFiles = self.sortedItems(items: items)
     }
   }
-  
+
   private func sortedItems(items: [StorageItem]) -> [StorageItem] {
     return items.sorted {
       sortBy == .size
@@ -116,7 +116,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       : $0.title < $1.title
     }
   }
-  
+
   private var fixAllAlert: Alert {
     Alert(
       title: Text(""),
@@ -130,7 +130,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       )
     )
   }
-  
+
   private func deleteAlert(for item: StorageItem) -> Alert {
     Alert(
       title: Text(""),
@@ -146,7 +146,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       )
     )
   }
-  
+
   private func errorAlert(_ message: String) -> Alert {
     Alert(
       title: Text("error_title".localized),
@@ -154,7 +154,7 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       dismissButton: .default(Text("ok_button".localized))
     )
   }
-  
+
   func deleteSelectedItem(_ item: StorageItem) {
     do {
       try FileManager.default.removeItem(at: item.fileURL)
@@ -165,21 +165,21 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
       showAlert = true
     }
   }
-  
+
   func moveAllFiles() {
     do {
       /// Perform shallow search to only move the root items to the documents folder for the import process
       let items = try FileManager.default.contentsOfDirectory(atPath: folderURL.path)
-      
+
       let documentsFolderURL = DataManager.getDocumentsFolderURL()
-      
+
       for item in items {
         let originURL = folderURL.appendingPathComponent(item)
         let destinationURL = documentsFolderURL.appendingPathComponent(item)
-        
+
         try FileManager.default.moveItem(at: originURL, to: destinationURL)
       }
-      
+
       publishedFiles = []
     } catch {
       storageAlert = .error(errorMessage: error.localizedDescription)

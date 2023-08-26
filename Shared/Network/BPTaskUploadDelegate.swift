@@ -13,7 +13,7 @@ class BPTaskUploadDelegate: NSObject, URLSessionTaskDelegate {
   var uploadProgressUpdated: ((URLSessionTask, Double) -> Void)?
   /// Callback triggered when the download task is finished
   var didFinishTask: ((URLSessionTask, Error?) -> Void)?
-  
+
   func urlSession(
     _ session: URLSession,
     task: URLSessionTask,
@@ -24,7 +24,7 @@ class BPTaskUploadDelegate: NSObject, URLSessionTaskDelegate {
     let uploadProgress = Float(totalBytesSent) / Float(totalBytesExpectedToSend)
     uploadProgressUpdated?(task, Double(uploadProgress))
   }
-  
+
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     didFinishTask?(task, error)
   }

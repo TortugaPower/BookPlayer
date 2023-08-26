@@ -16,16 +16,16 @@ class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
   var didFinishTaskWithError: ((URLSessionTask, Error?) -> Void)?
   /// Callback triggered when there's an update on the download progress
   var downloadProgressUpdated: ((URLSessionDownloadTask, Double) -> Void)?
-  
+
   func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
     didFinishDownloadingTask?(downloadTask, location)
   }
-  
+
   /// Note: this gets called even if there's no error
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     didFinishTaskWithError?(task, error)
   }
-  
+
   func urlSession(
     _ session: URLSession,
     downloadTask: URLSessionDownloadTask,
@@ -34,7 +34,7 @@ class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
     totalBytesExpectedToWrite: Int64
   ) {
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-    
+
     downloadProgressUpdated?(downloadTask, Double(calculatedProgress))
   }
 }

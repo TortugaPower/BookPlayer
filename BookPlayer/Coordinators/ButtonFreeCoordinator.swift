@@ -13,7 +13,7 @@ class ButtonFreeCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
-  
+
   init(
     navigationController: UINavigationController,
     playerManager: PlayerManagerProtocol,
@@ -23,13 +23,13 @@ class ButtonFreeCoordinator: Coordinator {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
-    
+
     super.init(
       navigationController: navigationController,
       flowType: .modal
     )
   }
-  
+
   override func start() {
     let viewModel = ButtonFreeViewModel(
       playerManager: self.playerManager,

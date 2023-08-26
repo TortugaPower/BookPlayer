@@ -15,41 +15,41 @@ class PlayerJumpIcon: UIView {
   fileprivate var backgroundImageView: UIImageView!
   fileprivate var label: UILabel!
   fileprivate var actionButton: UIButton!
-  
+
   var backgroundImage: UIImage = UIImage()
-  
+
   var title: String = "" {
     didSet {
       self.label.text = self.title
     }
   }
-  
+
   override var tintColor: UIColor! {
     didSet {
       self.backgroundImageView.tintColor = self.tintColor
       self.label.textColor = self.tintColor
     }
   }
-  
+
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
-    
+
     self.setup()
   }
-  
+
   override init(frame: CGRect) {
     super.init(frame: frame)
-    
+
     self.setup()
   }
-  
+
   fileprivate func setup() {
     self.backgroundColor = .clear
-    
+
     self.backgroundImageView = UIImageView(image: self.backgroundImage)
     self.backgroundImageView.tintColor = self.tintColor
     self.backgroundImageView.contentMode = .scaleAspectFill
-    
+
     self.label = UILabel()
     self.label.allowsDefaultTighteningForTruncation = true
     self.label.adjustsFontSizeToFitWidth = true
@@ -57,19 +57,19 @@ class PlayerJumpIcon: UIView {
     self.label.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
     self.label.textAlignment = .center
     self.label.textColor = self.tintColor
-    
+
     self.actionButton = UIButton()
-    
+
     self.addSubview(self.backgroundImageView)
     self.addSubview(self.label)
     self.addSubview(self.actionButton)
-    
+
     self.label.isAccessibilityElement = false
     self.backgroundImageView.isAccessibilityElement = false
-    
+
     setUpTheming()
   }
-  
+
   override func layoutSubviews() {
     self.label.frame = self.bounds.insetBy(dx: 6.0, dy: 0.0)
     self.label.frame = CGRect(
@@ -81,7 +81,7 @@ class PlayerJumpIcon: UIView {
     self.backgroundImageView.frame = self.bounds.insetBy(dx: 0.0, dy: 0.0)
     self.actionButton.frame = self.bounds
   }
-  
+
   public func observeActionEvents() -> AnyPublisher<UIControl, Never> {
     return self.actionButton.publisher(for: .touchUpInside).eraseToAnyPublisher()
   }
@@ -104,10 +104,10 @@ class PlayerJumpIconForward: PlayerJumpIcon {
       super.backgroundImage = newValue
     }
   }
-  
+
   override func setup() {
     super.setup()
-    
+
     self.title = "+\(Int(PlayerManager.forwardInterval.rounded())) "
     self.actionButton.accessibilityLabel = VoiceOverService.fastForwardText()
   }
@@ -122,10 +122,10 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
       super.backgroundImage = newValue
     }
   }
-  
+
   override func setup() {
     super.setup()
-    
+
     self.title = "−\(Int(PlayerManager.rewindInterval.rounded())) "
     self.actionButton.accessibilityLabel = VoiceOverService.rewindText()
   }

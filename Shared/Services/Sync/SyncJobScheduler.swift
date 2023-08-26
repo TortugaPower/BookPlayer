@@ -43,7 +43,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let libraryJobsPersister: UserDefaultsPersister
   var libraryQueueManager: SwiftQueueManager!
   private var disposeBag = Set<AnyCancellable>()
-  
+
   private var pendingOperations: [JobInfo] {
     if libraryQueueManager != nil {
       return libraryQueueManager.getAll()["GLOBAL"] ?? []
@@ -51,16 +51,16 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       return []
     }
   }
-  
+
   public var queuedJobsCount: Int { pendingOperations.count }
-  
+
   public init() {
     self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemSyncJob.type)
-    
+
     recreateQueue()
     bindObservers()
   }
-  
+
   func bindObservers() {
     NotificationCenter.default.publisher(for: .uploadCompleted)
       .sink { notification in
@@ -68,7 +68,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           let task = notification.object as? URLSessionTask,
           let relativePath = task.taskDescription
         else { return }
-        
+
         do {
           let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(relativePath)
           try FileManager.default.removeItem(at: hardLinkURL)
@@ -77,32 +77,32 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         }
       }
       .store(in: &disposeBag)
-    
+
     NotificationCenter.default.publisher(for: .recreateQueue, object: nil)
       .sink { [weak self] _ in
         self?.recreateQueue()
       }
       .store(in: &disposeBag)
   }
-  
+
   private func createHardLink(for item: SyncableItem) {
     let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(item.relativePath)
-    
+
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
-    
+
     /// Clean up in case hard link path is already used
     if FileManager.default.fileExists(atPath: hardLinkURL.path) {
       try? FileManager.default.removeItem(at: hardLinkURL)
     }
-    
+
     /// Don't throw and let the rest of the items queue up
     try? FileManager.default.linkItem(at: fileURL, to: hardLinkURL)
   }
-  
+
   public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
     /// Create hard link to file location in case the user moves the item around in the library
     createHardLink(for: item)
-    
+
     var parameters: [String: Any] = [
       "relativePath": item.relativePath,
       "originalFileName": item.originalFileName,
@@ -116,17 +116,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "type": item.type.rawValue,
       "jobType": JobType.upload.rawValue
     ]
-    
+
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
       parameters["lastPlayDateTimestamp"] = Int(lastPlayTimestamp)
     } else {
       parameters["lastPlayDateTimestamp"] = nil
     }
-    
+
     if let speed = item.speed {
       parameters["speed"] = speed
     }
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.upload.identifier)/\(item.relativePath)")
       .persist()
@@ -135,7 +135,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .with(params: parameters)
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) {
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.move.identifier)/\(relativePath)")
@@ -150,12 +150,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       ])
       .schedule(manager: libraryQueueManager)
   }
-  
+
   /// Note: folder renames originalFilename property
   public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) {
     var parameters = parameters
     parameters["jobType"] = JobType.update.rawValue
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.update.identifier)/\(relativePath)", override: true)
       .persist()
@@ -164,17 +164,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .with(params: parameters)
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) {
     let jobType: JobType
-    
+
     switch mode {
     case .deep:
       jobType = JobType.delete
     case .shallow:
       jobType = JobType.shallowDelete
     }
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(jobType.identifier)/\(relativePath)")
       .persist()
@@ -186,7 +186,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       ])
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) {
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.deleteBookmark.identifier)/\(relativePath)")
@@ -200,7 +200,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       ])
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleSetBookmarkJob(
     with relativePath: String,
     time: Double,
@@ -211,11 +211,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "time": time,
       "jobType": JobType.setBookmark.rawValue
     ]
-    
+
     if let note {
       params["note"] = note
     }
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.setBookmark.identifier)/\(relativePath)")
       .persist()
@@ -224,14 +224,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .with(params: params)
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleRenameFolderJob(with relativePath: String, name: String) {
     let params: [String: Any] = [
       "relativePath": relativePath,
       "name": name,
       "jobType": JobType.renameFolder.rawValue
     ]
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.renameFolder.identifier)/\(relativePath)")
       .persist()
@@ -240,13 +240,13 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .with(params: params)
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func scheduleArtworkUpload(with relativePath: String) {
     let params: [String: Any] = [
       "relativePath": relativePath,
       "jobType": JobType.uploadArtwork.rawValue
     ]
-    
+
     JobBuilder(type: LibraryItemSyncJob.type)
       .singleInstance(forId: "\(JobType.uploadArtwork.identifier)/\(relativePath)")
       .persist()
@@ -255,7 +255,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .with(params: params)
       .schedule(manager: libraryQueueManager)
   }
-  
+
   public func getAllQueuedJobs() -> [QueuedJobInfo] {
     return pendingOperations.compactMap({ job -> QueuedJobInfo? in
       guard
@@ -265,7 +265,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       else {
         return nil
       }
-      
+
       return QueuedJobInfo(
         id: "\(jobTypeRaw)/\(relativePath)",
         relativePath: relativePath,
@@ -273,20 +273,20 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       )
     })
   }
-  
+
   public func cancelAllJobs() {
     if libraryQueueManager != nil {
       libraryQueueManager.cancelAllOperations()
     }
     libraryJobsPersister.clearAll()
   }
-  
+
   public func recreateQueue() {
     /// Suspend queue if it's already created
     if libraryQueueManager != nil {
       libraryQueueManager.isSuspended = true
     }
-    
+
     libraryQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator())
       .set(persister: libraryJobsPersister)
       .set(listener: self)
@@ -297,26 +297,26 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 extension SyncJobScheduler: JobListener {
   public func onJobScheduled(job: SwiftQueue.JobInfo) {
     Self.logger.trace("Schedule job for \(job.params["relativePath"] as? String)")
-    
+
     UserDefaults.standard.set(
       true,
       forKey: Constants.UserDefaults.hasQueuedJobs
     )
-    
+
     NotificationCenter.default.post(name: .jobScheduled, object: nil)
   }
-  
+
   public func onBeforeRun(job: SwiftQueue.JobInfo) {}
-  
+
   public func onAfterRun(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {}
-  
+
   public func onTerminated(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {
     Self.logger.trace("Terminated job for \(job.params["relativePath"] as? String)")
-    
+
     NotificationCenter.default.post(name: .jobTerminated, object: nil)
-    
+
     guard pendingOperations.isEmpty else { return }
-    
+
     UserDefaults.standard.set(
       false,
       forKey: Constants.UserDefaults.hasQueuedJobs

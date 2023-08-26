@@ -16,14 +16,14 @@
         $extensionItem.attachments,
         $attachment,
         (
-        ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.audio"
-        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.folder"
-        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.movie"
-        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.pkware.zip-archive"
+        ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.audio&quot;
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.folder&quot;
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.movie&quot;
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;com.pkware.zip-archive&quot;
         )
         ).@count &gt; 0
         ).@count &gt; 0
-      </string>
+</string>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>
 		<string>MainInterface</string>

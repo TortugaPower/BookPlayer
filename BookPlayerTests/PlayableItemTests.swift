@@ -15,7 +15,7 @@ import XCTest
 
 class PlayableItemTests: XCTestCase {
   var sut: PlayableItem!
-  
+
   override func setUp() {
     let testChapter = PlayableChapter(
       title: "test chapter",
@@ -49,38 +49,38 @@ class PlayableItemTests: XCTestCase {
       isBoundBook: false
     )
   }
-  
+
   func testMaxTimeInContext() {
     let totalDurationInChapter = sut.maxTimeInContext(
       prefersChapterContext: true,
       prefersRemainingTime: false,
       at: 2
     )
-    
+
     XCTAssert(totalDurationInChapter == 50)
-    
+
     let totalDurationInBook = sut.maxTimeInContext(
       prefersChapterContext: false,
       prefersRemainingTime: false,
       at: 2
     )
-    
+
     XCTAssert(totalDurationInBook == 100)
-    
+
     let remainingTimeInChapter = sut.maxTimeInContext(
       prefersChapterContext: true,
       prefersRemainingTime: true,
       at: 2
     )
-    
+
     XCTAssert(remainingTimeInChapter == -25)
-    
+
     let remainingTimeInBook = sut.maxTimeInContext(
       prefersChapterContext: false,
       prefersRemainingTime: true,
       at: 2
     )
-    
+
     XCTAssert(remainingTimeInBook == -50)
   }
 }

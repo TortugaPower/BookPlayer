@@ -11,9 +11,9 @@ import SwiftUI
 import BookPlayerWatchKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
-  
+
   // MARK: - Complication Configuration
-  
+
   func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
     let descriptors = [
       CLKComplicationDescriptor(
@@ -32,25 +32,25 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         ]
       )
     ]
-    
+
     handler(descriptors)
   }
-  
+
   // MARK: - Timeline Configuration
-  
+
   func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
     // Call the handler with your desired behavior when the device is locked
     handler(.showOnLockScreen)
   }
-  
+
   // MARK: - Timeline Population
-  
+
   func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
     guard let item = ExtensionDelegate.contextManager.applicationContext.currentItem else {
       handler(nil)
       return
     }
-    
+
     if let template = makeTemplate(for: item, complication: complication) {
       let entry = CLKComplicationTimelineEntry(
         date: Date(),
@@ -60,9 +60,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       handler(nil)
     }
   }
-  
+
   // MARK: - Sample Templates
-  
+
   func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
     if let template = makeTemplate(for: nil, complication: complication) {
       handler(template)
@@ -81,12 +81,12 @@ extension ComplicationController {
     case .graphicCorner:
       var text = "CHP #"
       var fillFraction: Float = 0.5
-      
+
       if let item = item {
         text = "CHP \(item.currentChapter.index)"
         fillFraction = Float(item.percentCompleted / 100)
       }
-      
+
       return CLKComplicationTemplateGraphicCornerGaugeText(
         gaugeProvider: CLKSimpleGaugeProvider(
           style: .fill,
@@ -98,7 +98,7 @@ extension ComplicationController {
     case .graphicRectangular:
       let headerTextProvider: CLKTextProvider
       let body1TextProvider: CLKTextProvider
-      
+
       if let item = item {
         headerTextProvider = CLKTextProvider(format: "\(item.currentChapter.title)")
         body1TextProvider = CLKTextProvider(format: "\(item.title)")
@@ -106,7 +106,7 @@ extension ComplicationController {
         headerTextProvider = CLKTextProvider(format: "Chapter")
         body1TextProvider = CLKTextProvider(format: "Book title")
       }
-      
+
       return CLKComplicationTemplateGraphicRectangularStandardBody(
         headerTextProvider: headerTextProvider,
         body1TextProvider: body1TextProvider
@@ -114,7 +114,7 @@ extension ComplicationController {
     case .modularLarge:
       let headerTextProvider: CLKTextProvider
       let body1TextProvider: CLKTextProvider
-      
+
       if let item = item {
         headerTextProvider = CLKTextProvider(format: "\(item.currentChapter.title)")
         body1TextProvider = CLKTextProvider(format: "\(item.title)")
@@ -122,7 +122,7 @@ extension ComplicationController {
         headerTextProvider = CLKTextProvider(format: "Chapter")
         body1TextProvider = CLKTextProvider(format: "Book title")
       }
-      
+
       return CLKComplicationTemplateModularLargeStandardBody(
         headerTextProvider: headerTextProvider,
         body1TextProvider: body1TextProvider
