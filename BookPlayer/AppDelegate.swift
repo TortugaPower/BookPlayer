@@ -49,6 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return lastSceneToResignActive
     }
   }
+  /// Reference for observer
+  private var crashReportsAccessObserver: NSKeyValueObservation?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -410,7 +412,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     Purchases.configure(withAPIKey: revenueCatApiKey)
   }
 
+  /// Setup observer for user preference, and setup Sentry based on initial value
   func setupSentry() {
+    let userDefaults = UserDefaults.standard
+    crashReportsAccessObserver = userDefaults.observe(\.userSettingsCrashReportsEnabled) { [weak self] object, _ in
+      self?.handleSentryPreference(isEnabled: object.userSettingsCrashReportsEnabled)
+    }
+
+    handleSentryPreference(
+      isEnabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsEnabled)
+    )
+  }
+
+  /// Setup or stop Sentry based on flag
+  /// - Parameter isEnabled: Determines user preference for crash reports
+  private func handleSentryPreference(isEnabled: Bool) {
+    guard isEnabled else {
+      SentrySDK.close()
+      return
+    }
+
     let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
     // Create a Sentry client
     SentrySDK.start { options in

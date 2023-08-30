@@ -205,6 +205,10 @@ class DataInitializerCoordinator: BPLogger {
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.remainingTimeEnabled) == nil {
       UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
     }
+    // Set crash reports sharing On as default
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.crashReportsEnabled) == nil {
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.crashReportsEnabled)
+    }
 
     setupDefaultTheme(libraryService: libraryService)
 

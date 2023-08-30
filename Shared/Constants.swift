@@ -28,6 +28,7 @@ public enum Constants {
     public static let autoplayEnabled = "userSettingsAutoplay"
     public static let autoplayRestartEnabled = "userSettingsAutoplayRestart"
     public static let iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
+    public static let crashReportsEnabled = "userSettingsCrashReportsEnabled"
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
