@@ -287,3 +287,5 @@
 "settings_storage_sync_deleted_description" = "Filer borttagna (synkroniseringsåtgärder)";
 "storage_sync_deleted_recover_description" = "Du kan importera tillbaka dina lokala böcker och mappar om de raderades av en synkroniseringsåtgärd. Detta flyttar alla tillbaka till dokumentmappen, vilket utlöser importprocessen. Om mappar är inblandade kan detta betyda att originalen fortfarande finns i biblioteket, och visst namnbyte måste ske, ber om ursäkt för detta besvär";
 "upload_wifi_required_title" = "Wi-Fi krävs för att ladda upp filer";
+"settings_privacy_title" = "Integritet";
+"settings_crash_reports_title" = "Dela kraschrapporter";

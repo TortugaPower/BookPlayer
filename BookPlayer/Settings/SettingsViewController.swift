@@ -19,6 +19,7 @@ protocol IntentSelectionDelegate: AnyObject {
   func didSelectIntent(_ intent: INIntent)
 }
 
+// TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: BaseTableViewController<SettingsCoordinator, SettingsViewModel>,
                               MFMailComposeViewControllerDelegate,
                               Storyboarded {
@@ -27,6 +28,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   @IBOutlet weak var disableAutolockSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
+  @IBOutlet weak var crashReportsSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -36,7 +38,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   var iconObserver: NSKeyValueObservation!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, support, credits
+    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
@@ -117,10 +119,18 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.autoplayRestartSwitch.addTarget(self, action: #selector(self.autoplayRestartToggleDidChange), for: .valueChanged)
     self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
     self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
-    self.iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
+    iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
+    crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
 
     // Set initial switch positions
-    self.iCloudBackupsSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled), animated: false)
+    iCloudBackupsSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled),
+      animated: false
+    )
+    crashReportsSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.crashReportsEnabled),
+      animated: false
+    )
     let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
     self.autoplayLibrarySwitch.setOn(isAutoplayEnabled, animated: false)
     autoplayRestartSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled), animated: false)
@@ -158,6 +168,10 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
   @objc func iCloudBackupsDidChange() {
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
+  }
+
+  @objc func crashReportsAccessDidChange() {
+    viewModel.toggleCrashReportsAccess(crashReportsSwitch.isOn)
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -241,6 +255,8 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
       return "settings_siri_title".localized
     case .backups:
       return "settings_backup_title".localized
+    case .privacy:
+      return "settings_privacy_title".localized
     case .support:
       return "settings_support_title".localized
     default:

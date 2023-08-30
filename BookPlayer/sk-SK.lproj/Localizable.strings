@@ -287,3 +287,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_storage_sync_deleted_description" = "Súbory boli odstránené (operácie synchronizácie)";
 "storage_sync_deleted_recover_description" = "Miestne knihy a priečinky môžete importovať späť, ak boli odstránené operáciou synchronizácie. Tým sa všetky presunú späť do priečinka dokumentov, čím sa spustí proces importu. Ak ide o priečinky, môže to znamenať, že originály sú stále v knižnici a bude potrebné vykonať určité premenovanie, ospravedlňujeme sa za túto nepríjemnosť";
 "upload_wifi_required_title" = "Na nahrávanie súborov je potrebné Wi-Fi";
+"settings_privacy_title" = "Ochrana osobných údajov";
+"settings_crash_reports_title" = "Zdieľajte správy o zlyhaní";

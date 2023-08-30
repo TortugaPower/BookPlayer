@@ -287,3 +287,5 @@
 "settings_storage_sync_deleted_description" = "Fájlok eltávolítva (szinkronizálási műveletek)";
 "storage_sync_deleted_recover_description" = "Visszaimportálhatja a helyi könyveket és mappákat, ha szinkronizálási művelettel törölték őket. Ezzel mindegyik visszakerül a dokumentumok mappába, elindítva az importálási folyamatot. Ha mappákról van szó, ez azt jelentheti, hogy az eredetiek még mindig a könyvtárban vannak, és át kell nevezni, elnézést a kellemetlenségért";
 "upload_wifi_required_title" = "A fájlok feltöltéséhez Wi-Fi szükséges";
+"settings_privacy_title" = "Magánélet";
+"settings_crash_reports_title" = "Ossza meg a hibajelentéseket";
