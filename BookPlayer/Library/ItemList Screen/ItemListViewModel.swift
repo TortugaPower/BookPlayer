@@ -1109,7 +1109,20 @@ extension ItemListViewModel {
   }
 
   func importData(from item: ImportableItem) {
-    let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+    let filename: String
+
+    if let suggestedName = item.suggestedName {
+      let pathExtension = (suggestedName as NSString).pathExtension
+      /// Use  `suggestedFileExtension` only if the curret name does not include an extension
+      if pathExtension.isEmpty {
+        filename = "\(suggestedName).\(item.suggestedFileExtension)"
+      } else {
+        filename = suggestedName
+      }
+    } else {
+      /// Fallback if the provider didn't have a suggested name
+      filename = "\(Date().timeIntervalSince1970).\(item.suggestedFileExtension)"
+    }
 
     let destinationURL = DataManager.getDocumentsFolderURL()
       .appendingPathComponent(filename)

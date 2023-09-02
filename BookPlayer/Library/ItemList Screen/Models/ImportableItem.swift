@@ -16,7 +16,7 @@ final public class ImportableItem: NSObject, NSItemProviderReading {
   let typeIdentifier: String
   var suggestedName: String?
 
-  var fileExtension: String {
+  var suggestedFileExtension: String {
     switch self.typeIdentifier {
     case "public.audio":
       return "mp3"
