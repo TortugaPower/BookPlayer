@@ -54,18 +54,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
-    // Override point for customization after application launch.
-    let defaults: UserDefaults = UserDefaults.standard
-
-    // Perfrom first launch setup
-    if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch) {
-      // Set default settings
-      defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
-      defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
-      defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
-      // Process install attribution if there's any
-      BPSKANManager.updateConversionValue(.install)
-    }
 
     // register to audio-interruption notifications
     NotificationCenter.default.addObserver(

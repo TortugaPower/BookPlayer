@@ -153,61 +153,65 @@ class DataInitializerCoordinator: BPLogger {
     libraryService: LibraryService,
     dataManager: DataManager
   ) {
-    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+    let sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
 
-    // Migrate user defaults app icon
-    if userDefaults?
-      .string(forKey: Constants.UserDefaults.appIcon) == nil {
+    // Migrate user defaults app icon (legacy)
+    if sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon) == nil {
       let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
-      userDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
-    } else if let sharedAppIcon = userDefaults?
-      .string(forKey: Constants.UserDefaults.appIcon),
+      sharedDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
+    } else if let sharedAppIcon = sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon),
               let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
               sharedAppIcon != localAppIcon {
-      userDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
+      sharedDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon)
     }
 
     // Migrate protection for Processed folder
-    if !(userDefaults?
-      .bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
+    if !(sharedDefaults?.bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
       DataManager.getProcessedFolderURL().disableFileProtection()
-      userDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
+      sharedDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
     }
 
-    // Default to include Processed folder in phone backups,
-    // when migrating between phones, having the folder excluded have generated issues for users,
-    // this can be set to false from within the app settings
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.iCloudBackupsEnabled) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
-
-      var resourceValues = URLResourceValues()
-      resourceValues.isExcludedFromBackup = false
-      var processedFolderURL = DataManager.getProcessedFolderURL()
-
-      try? processedFolderURL.setResourceValues(resourceValues)
-    }
-
-    // Set system theme as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.systemThemeVariantEnabled) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled)
-    }
-    // Set autoplay enabled as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayEnabled) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
-    }
-    // Set autoplay finished enabled as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayRestartEnabled) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled)
-    }
-    // Set remaining time as default
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.remainingTimeEnabled) == nil {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
-    }
+    setupUserDefaultsPreferences()
 
     setupDefaultTheme(libraryService: libraryService)
 
     setupBlankAccount(dataManager: dataManager)
+  }
+
+  private func setupUserDefaultsPreferences() {
+    // TODO: Look into NSUbiquitousKeyValueStore to persist preferences across devices with iCloud
+    let defaults = UserDefaults.standard
+
+    guard !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch) else { return }
+
+    // Perform first launch setup
+
+    // Default to include Processed folder in phone backups,
+    // when migrating between phones, having the folder excluded have generated issues for users,
+    // this can be set to false from within the app settings
+    defaults.set(true, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
+    var resourceValues = URLResourceValues()
+    resourceValues.isExcludedFromBackup = false
+    var processedFolderURL = DataManager.getProcessedFolderURL()
+    try? processedFolderURL.setResourceValues(resourceValues)
+
+    // Set chapter context as default
+    defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
+    // Set smart-rewind as default
+    defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    // Set system theme as default
+    defaults.set(true, forKey: Constants.UserDefaults.systemThemeVariantEnabled)
+    // Set autoplay enabled as default
+    defaults.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
+    // Set autoplay finished enabled as default
+    defaults.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled)
+    // Set remaining time as default
+    defaults.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    // Mark as completed the first launch
+    defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
+    // Process install attribution if there's any for the first launch
+    BPSKANManager.updateConversionValue(.install)
   }
 
   func setupDefaultTheme(libraryService: LibraryService) {
