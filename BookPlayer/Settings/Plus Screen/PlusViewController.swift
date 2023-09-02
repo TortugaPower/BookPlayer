@@ -222,7 +222,7 @@ class PlusViewController: UIViewController, Storyboarded {
         })
 
         self.view.startConfetti()
-        self.viewModel.handleNewDonation()
+        self.viewModel.handleRestoreDonation()
       }
     }
   }

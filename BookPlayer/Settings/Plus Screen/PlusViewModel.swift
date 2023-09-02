@@ -41,7 +41,18 @@ final class PlusViewModel {
     return true
   }
 
+  func handleRestoreDonation() {
+    self.accountService.updateAccount(
+      id: nil,
+      email: nil,
+      donationMade: true,
+      hasSubscription: nil
+    )
+  }
+
   func handleNewDonation() {
+    /// Register that there was a donation
+    BPSKANManager.updateConversionValue(.donation)
     self.accountService.updateAccount(
       id: nil,
       email: nil,

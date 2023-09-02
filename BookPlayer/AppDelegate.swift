@@ -63,6 +63,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
       defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
       defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
+      // Process install attribution if there's any
+      BPSKANManager.updateConversionValue(.install)
     }
 
     // register to audio-interruption notifications
