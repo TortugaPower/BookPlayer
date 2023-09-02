@@ -29,6 +29,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
   @IBOutlet weak var crashReportsSwitch: UISwitch!
+  @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -121,6 +122,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
     self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
     crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
+    skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
 
     // Set initial switch positions
     iCloudBackupsSwitch.setOn(
@@ -128,7 +130,11 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
       animated: false
     )
     crashReportsSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.crashReportsEnabled),
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.crashReportsDisabled),
+      animated: false
+    )
+    skanSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
       animated: false
     )
     let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
@@ -172,6 +178,10 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
   @objc func crashReportsAccessDidChange() {
     viewModel.toggleCrashReportsAccess(crashReportsSwitch.isOn)
+  }
+
+  @objc func skanPreferenceDidChange() {
+    viewModel.toggleSKANPreference(skanSwitch.isOn)
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -276,6 +286,8 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
       return "settings_autolock_description".localized
     case .support:
       return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
+    case .privacy:
+      return "settings_skan_attribution_description".localized
     default:
       return super.tableView(tableView, titleForFooterInSection: section)
     }

@@ -288,4 +288,6 @@
 "storage_sync_deleted_recover_description" = "Du kan importere dine lokale bøger og mapper tilbage, hvis de blev slettet ved en synkroniseringshandling. Dette vil flytte dem alle tilbage til dokumentmappen, hvilket udløser importprocessen. Hvis mapper er involveret, kan det betyde, at originalerne stadig er i biblioteket, og der skal foretages noget omdøbning, beklager ulejligheden";
 "upload_wifi_required_title" = "Wi-Fi er påkrævet for at uploade filer";
 "settings_privacy_title" = "Privatliv";
-"settings_crash_reports_title" = "Del nedbrudsrapporter";
+"settings_crash_reports_title" = "Deaktiver nedbrudsrapporter";
+"settings_skan_attribution_title" = "Deaktiver SKAN-tilskrivning";
+"settings_skan_attribution_description" = "SKAN er Apples privatlivsførste tilskrivningsløsning, der gør det muligt at måle, hvor effektiv en kampagne var uden at kompromittere brugernes privatliv";

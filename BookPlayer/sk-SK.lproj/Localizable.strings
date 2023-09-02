@@ -288,4 +288,6 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "storage_sync_deleted_recover_description" = "Miestne knihy a priečinky môžete importovať späť, ak boli odstránené operáciou synchronizácie. Tým sa všetky presunú späť do priečinka dokumentov, čím sa spustí proces importu. Ak ide o priečinky, môže to znamenať, že originály sú stále v knižnici a bude potrebné vykonať určité premenovanie, ospravedlňujeme sa za túto nepríjemnosť";
 "upload_wifi_required_title" = "Na nahrávanie súborov je potrebné Wi-Fi";
 "settings_privacy_title" = "Ochrana osobných údajov";
-"settings_crash_reports_title" = "Zdieľajte správy o zlyhaní";
+"settings_crash_reports_title" = "Zakázať správy o zlyhaní";
+"settings_skan_attribution_title" = "Zakázať priraďovanie SKAN";
+"settings_skan_attribution_description" = "SKAN je prvoradé riešenie atribúcie od spoločnosti Apple na ochranu súkromia, ktoré umožňuje merať efektívnosť kampane bez ohrozenia súkromia používateľov.";

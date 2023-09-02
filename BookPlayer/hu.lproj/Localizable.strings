@@ -288,4 +288,6 @@
 "storage_sync_deleted_recover_description" = "Visszaimportálhatja a helyi könyveket és mappákat, ha szinkronizálási művelettel törölték őket. Ezzel mindegyik visszakerül a dokumentumok mappába, elindítva az importálási folyamatot. Ha mappákról van szó, ez azt jelentheti, hogy az eredetiek még mindig a könyvtárban vannak, és át kell nevezni, elnézést a kellemetlenségért";
 "upload_wifi_required_title" = "A fájlok feltöltéséhez Wi-Fi szükséges";
 "settings_privacy_title" = "Magánélet";
-"settings_crash_reports_title" = "Ossza meg a hibajelentéseket";
+"settings_crash_reports_title" = "A hibajelentések letiltása";
+"settings_skan_attribution_title" = "A SKAN-hozzárendelés letiltása";
+"settings_skan_attribution_description" = "A SKAN az Apple adatvédelmi szempontú hozzárendelési megoldása, amely lehetővé teszi egy kampány hatékonyságának mérését anélkül, hogy veszélyeztetné a felhasználók adatait.";

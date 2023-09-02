@@ -288,4 +288,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "storage_sync_deleted_recover_description" = "You can import back your local books and folders if they were deleted by a sync operation. This will move all of them back to the documents folder, triggering the import process. If folders are involved, this could mean that the originals are still in the library, and some renaming will have to take place, sorry about this inconvenience";
 "upload_wifi_required_title" = "Wi-Fi is required to upload files";
 "settings_privacy_title" = "Privacy";
-"settings_crash_reports_title" = "Share crash reports";
+"settings_crash_reports_title" = "Disable crash reports";
+"settings_skan_attribution_title" = "Disable SKAN attribution";
+"settings_skan_attribution_description" = "SKAN is Apple's privacy-first attribution solution that enables measuring how effective a campaign was without compromising the user privacy";

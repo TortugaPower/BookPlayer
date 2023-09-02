@@ -417,19 +417,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   /// Setup observer for user preference, and setup Sentry based on initial value
   func setupSentry() {
     let userDefaults = UserDefaults.standard
-    crashReportsAccessObserver = userDefaults.observe(\.userSettingsCrashReportsEnabled) { [weak self] object, _ in
-      self?.handleSentryPreference(isEnabled: object.userSettingsCrashReportsEnabled)
+    crashReportsAccessObserver = userDefaults.observe(\.userSettingsCrashReportsDisabled) { [weak self] object, _ in
+      self?.handleSentryPreference(isDisabled: object.userSettingsCrashReportsDisabled)
     }
 
     handleSentryPreference(
-      isEnabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsEnabled)
+      isDisabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsDisabled)
     )
   }
 
   /// Setup or stop Sentry based on flag
-  /// - Parameter isEnabled: Determines user preference for crash reports
-  private func handleSentryPreference(isEnabled: Bool) {
-    guard isEnabled else {
+  /// - Parameter isDisabled: Determines user preference for crash reports
+  private func handleSentryPreference(isDisabled: Bool) {
+    guard !isDisabled else {
       SentrySDK.close()
       return
     }

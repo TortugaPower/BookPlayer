@@ -288,4 +288,6 @@
 "storage_sync_deleted_recover_description" = "如果同步操作删除了本地书籍和文件夹，您可以将其导回。这会将它们全部移回文档文件夹，从而触发导入过程。如果涉及文件夹，这可能意味着原始文件仍在库中，并且必须进行一些重命名，对于由此带来的不便，我们深表歉意";
 "upload_wifi_required_title" = "需要 Wi-Fi 才能上传文件";
 "settings_privacy_title" = "隐私";
-"settings_crash_reports_title" = "分享崩溃报告";
+"settings_crash_reports_title" = "禁用崩溃报告";
+"settings_skan_attribution_title" = "禁用 SKAN 归因";
+"settings_skan_attribution_description" = "SKAN 是 Apple 隐私优先的归因解决方案，可以在不损害用户隐私的情况下衡量活动的有效性";

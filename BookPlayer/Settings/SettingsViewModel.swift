@@ -69,7 +69,12 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
 
   /// Handle registering the value in `UserDefaults`
   func toggleCrashReportsAccess(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.crashReportsEnabled)
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.crashReportsDisabled)
+  }
+
+  /// Handle registering the value in `UserDefaults`
+  func toggleSKANPreference(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.skanAttributionDisabled)
   }
 
   func showPro() {
