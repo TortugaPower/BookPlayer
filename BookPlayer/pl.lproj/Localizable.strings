@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Usunięte pliki (operacje synchronizacji)";
 "storage_sync_deleted_recover_description" = "Możesz zaimportować z powrotem swoje lokalne książki i foldery, jeśli zostały usunięte podczas operacji synchronizacji. Spowoduje to przeniesienie ich wszystkich z powrotem do folderu dokumentów, uruchamiając proces importowania. Jeśli w grę wchodzą foldery, może to oznaczać, że oryginały nadal znajdują się w bibliotece i konieczna będzie zmiana nazwy. Przepraszamy za tę niedogodność";
 "upload_wifi_required_title" = "Do przesyłania plików wymagane jest Wi-Fi";
+"settings_privacy_title" = "Prywatność";
+"settings_crash_reports_title" = "Wyłącz raporty o awariach";
+"settings_skan_attribution_title" = "Wyłącz atrybucję SKAN";
+"settings_skan_attribution_description" = "SKAN to rozwiązanie Apple do atrybucji, które stawia przede wszystkim na prywatność, i które umożliwia mierzenie skuteczności kampanii bez narażania prywatności użytkowników";

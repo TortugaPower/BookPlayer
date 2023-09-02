@@ -1069,6 +1069,9 @@ extension ItemListViewModel {
       }
     ))
 
+    /// Register that at least one import operation has completed
+    BPSKANManager.updateConversionValue(.import)
+
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),

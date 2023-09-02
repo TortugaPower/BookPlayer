@@ -17,4 +17,8 @@ extension UserDefaults {
   @objc dynamic var userSettingsHasQueuedJobs: Bool {
     return bool(forKey: Constants.UserDefaults.hasQueuedJobs)
   }
+
+  @objc dynamic var userSettingsCrashReportsDisabled: Bool {
+    return bool(forKey: Constants.UserDefaults.crashReportsDisabled)
+  }
 }

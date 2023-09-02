@@ -28,8 +28,31 @@ class SettingsCoordinator: Coordinator {
   }
 
   override func start() {
+    let viewModel = SettingsViewModel(accountService: accountService)
+
+    viewModel.onTransition = { route in
+      switch route {
+      case .pro:
+        self.showPro()
+      case .themes:
+        self.showThemes()
+      case .icons:
+        self.showIcons()
+      case .playerControls:
+        self.showPlayerControls()
+      case .storageManagement:
+        self.showStorageManagement()
+      case .deletedFilesManagement:
+        self.showCloudDeletedFiles()
+      case .tipJar:
+        self.showTipJar()
+      case .credits:
+        self.showCredits()
+      }
+    }
+
     let vc = SettingsViewController.instantiate(from: .Settings)
-    vc.viewModel = SettingsViewModel(accountService: self.accountService)
+    vc.viewModel = viewModel
     vc.viewModel.coordinator = self
     self.navigationController.presentationController?.delegate = self
 

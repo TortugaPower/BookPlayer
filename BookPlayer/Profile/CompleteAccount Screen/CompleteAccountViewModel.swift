@@ -80,6 +80,8 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
         let userCancelled = try await self.accountService.subscribe(option: selectedOption)
         self.onTransition?(.showLoader(false))
         if !userCancelled {
+          /// Register that there was a subscription
+          BPSKANManager.updateConversionValue(.subscription)
           self.onTransition?(.success)
         }
       } catch {
