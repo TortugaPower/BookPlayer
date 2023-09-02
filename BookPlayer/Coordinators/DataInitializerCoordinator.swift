@@ -48,13 +48,12 @@ class DataInitializerCoordinator: BPLogger {
         self.handleMigrations()
       }
     } catch {
-      Self.logger.info("Failed to perform migration")
+      Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
       loadLibrary()
     }
   }
 
   func loadLibrary() {
-    Self.logger.info("Loading store")
     let stack = self.dataMigrationManager.getCoreDataStack()
 
     stack.loadStore { [weak self] _, error in

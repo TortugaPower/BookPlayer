@@ -296,7 +296,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
 extension SyncJobScheduler: JobListener {
   public func onJobScheduled(job: SwiftQueue.JobInfo) {
-    Self.logger.trace("Schedule job for \(job.params["relativePath"] as? String)")
+    Self.logger.trace("Scheduled job for \(job.params["relativePath"] as? String)")
 
     UserDefaults.standard.set(
       true,

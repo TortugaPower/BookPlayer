@@ -62,11 +62,11 @@ class BPSKANManager: BPLogger {
     guard
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled) == false
     else {
-      Self.logger.debug("Attribution is disabled")
+      Self.logger.trace("Attribution is disabled")
       return
     }
 
-    Self.logger.debug("Updating conversion value: \(conversionValue.rawValue)")
+    Self.logger.trace("Updating conversion value: \(conversionValue.rawValue)")
 
     if #available(iOS 16.1, *) {
       SKAdNetwork.updatePostbackConversionValue(
