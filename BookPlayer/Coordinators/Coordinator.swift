@@ -15,9 +15,9 @@ public enum FlowType {
 }
 
 class Coordinator: NSObject {
-  var childCoordinators = [Coordinator]()
+
+  // MARK: - Base Coordinator
   var navigationController: UINavigationController
-  weak var parentCoordinator: Coordinator?
   weak var presentingViewController: UIViewController?
   let flowType: FlowType
 
@@ -31,6 +31,21 @@ class Coordinator: NSObject {
     fatalError("Coordinator is an abstract class, override this function in the subclass")
   }
 
+  // MARK: - Parent Coordinator
+  var childCoordinators = [Coordinator]()
+
+  private func childDidFinish(_ child: Coordinator?) {
+    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
+    self.childCoordinators.remove(at: index)
+  }
+
+  // MARK: - Child Coordinator
+  weak var parentCoordinator: Coordinator?
+
+  public func detach() {
+    self.parentCoordinator?.childDidFinish(self)
+  }
+
   public func didFinish() {
     switch self.flowType {
     case .modal:
@@ -41,18 +56,6 @@ class Coordinator: NSObject {
       self.navigationController.popViewController(animated: true)
       self.detach()
     }
-  }
-
-  // Clean up for interactive pop gestures, this should be handled in the subclass
-  public func interactiveDidFinish(vc: UIViewController) { }
-
-  private func childDidFinish(_ child: Coordinator?) {
-    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
-    self.childCoordinators.remove(at: index)
-  }
-
-  public func detach() {
-    self.parentCoordinator?.childDidFinish(self)
   }
 
   public func getMainCoordinator() -> MainCoordinator? { return nil }
@@ -84,9 +87,6 @@ extension Coordinator: UINavigationControllerDelegate {
     if navigationController.viewControllers.contains(fromViewController) {
       return
     }
-
-    // In the coordinator subclass, this should be handled to call detach() on the proper coordinator
-    self.interactiveDidFinish(vc: fromViewController)
   }
 }
 
