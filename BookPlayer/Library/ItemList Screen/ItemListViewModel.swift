@@ -439,8 +439,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
-    ArtworkService.removeCache(for: folder.relativePath)
-
     let fetchedItems = items.compactMap({ $0.relativePath })
 
     do {
@@ -476,10 +474,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    if let folderRelativePath = folderRelativePath {
-      ArtworkService.removeCache(for: folderRelativePath)
-    }
-
     self.libraryService.reorderItem(
       with: item.relativePath,
       inside: self.folderRelativePath,

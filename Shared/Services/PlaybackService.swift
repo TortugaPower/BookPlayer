@@ -20,7 +20,7 @@ public protocol PlaybackServiceProtocol {
   ) -> PlayableItem?
   func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem?
   func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem?
-  func getNextChapter(from item: PlayableItem) -> PlayableChapter?
+  func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter?
 }
 
 public final class PlaybackService: PlaybackServiceProtocol {
@@ -38,12 +38,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now, scheduleSave: true)
   }
 
-  public func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
-    if item.chapters.last == item.currentChapter {
-      return nil
-    } else {
-      return item.nextChapter(after: item.currentChapter)
-    }
+  public func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter? {
+    guard !item.chapters.isEmpty else { return nil }
+
+    if chapter == item.chapters.last { return nil }
+
+    return item.chapters[Int(chapter.index)]
   }
 
   public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {

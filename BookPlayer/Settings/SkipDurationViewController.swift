@@ -12,6 +12,7 @@ import UIKit
 
 class SkipDurationViewController: UITableViewController {
   private let intervals: [TimeInterval] = [
+    2.0,
     5.0,
     10.0,
     15.0,
