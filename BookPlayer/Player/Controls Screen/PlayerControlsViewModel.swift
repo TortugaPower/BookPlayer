@@ -10,7 +10,9 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class PlayerControlsViewModel: BaseViewModel<PlayerControlsCoordinator> {
+class PlayerControlsViewModel: ViewModelProtocol {
+  weak var coordinator: Coordinator!
+
   let playerManager: PlayerManagerProtocol
   let speedStep: Float = 0.1
   let minimumSpeed: Double = 0.5

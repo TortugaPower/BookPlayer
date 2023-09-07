@@ -10,7 +10,8 @@ import AuthenticationServices
 import BookPlayerKit
 import Foundation
 
-class LoginViewModel: BaseViewModel<LoginCoordinator> {
+class LoginViewModel: ViewModelProtocol {
+  weak var coordinator: LoginCoordinator!
   let accountService: AccountServiceProtocol
 
   init(accountService: AccountServiceProtocol) {

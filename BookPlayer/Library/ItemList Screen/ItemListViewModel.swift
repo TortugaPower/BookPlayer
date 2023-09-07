@@ -12,7 +12,7 @@ import Foundation
 import MediaPlayer
 import Themeable
 
-class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
+class ItemListViewModel: ViewModelProtocol {
   /// Available routes for this screen
   enum Routes {
     case showFolder(relativePath: String)
@@ -37,6 +37,8 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     case showLoader(flag: Bool)
     case showProcessingView(Bool, title: String?, subtitle: String?)
   }
+
+  weak var coordinator: ItemListCoordinator!
 
   let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol

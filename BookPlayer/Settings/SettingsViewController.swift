@@ -19,9 +19,7 @@ protocol IntentSelectionDelegate: AnyObject {
   func didSelectIntent(_ intent: INIntent)
 }
 
-class SettingsViewController: BaseTableViewController<SettingsCoordinator, SettingsViewModel>,
-                              MFMailComposeViewControllerDelegate,
-                              Storyboarded {
+class SettingsViewController: UITableViewController, TableViewControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
   @IBOutlet weak var autoplayRestartSwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!
@@ -34,6 +32,7 @@ class SettingsViewController: BaseTableViewController<SettingsCoordinator, Setti
 
   private var disposeBag = Set<AnyCancellable>()
   var iconObserver: NSKeyValueObservation!
+  var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
     case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, support, credits
