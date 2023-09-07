@@ -14,7 +14,7 @@ public enum FlowType {
   case push, modal
 }
 
-class Coordinator: NSObject, UIAdaptivePresentationControllerDelegate {
+class Coordinator: NSObject {
 
   // MARK: - Base Coordinator
   var navigationController: UINavigationController
@@ -90,9 +90,10 @@ extension UINavigationControllerDelegate where Self: Coordinator {
   }
 }
 
-extension UIAdaptivePresentationControllerDelegate where Self: Coordinator {
+extension Coordinator: UIAdaptivePresentationControllerDelegate {
   // Handle modals being dismissed interactively
   func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     self.detach()
   }
 }
+
