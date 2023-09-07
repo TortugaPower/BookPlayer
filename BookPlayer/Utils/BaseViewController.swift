@@ -8,10 +8,24 @@
 
 import UIKit
 
+@available(*, deprecated, message: "Use `ViewControllerProtocol` instead.")
 class BaseViewController<T: Coordinator, U: ViewModelProtocol>: UIViewController {
   var viewModel: U!
 
   override func accessibilityPerformEscape() -> Bool {
+    self.viewModel.dismiss()
+    return true
+  }
+}
+
+protocol ViewControllerProtocol: UIViewController {
+  associatedtype VM: ViewModelProtocol
+
+  var viewModel: VM! { get set }
+}
+
+extension ViewControllerProtocol {
+  func accessibilityPerformEscape() -> Bool {
     self.viewModel.dismiss()
     return true
   }

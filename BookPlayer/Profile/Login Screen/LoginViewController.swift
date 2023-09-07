@@ -11,7 +11,8 @@ import BookPlayerKit
 import Foundation
 import Themeable
 
-class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> {
+class LoginViewController: UIViewController, ViewControllerProtocol {
+  var viewModel: LoginViewModel!
   // MARK: - UI components
 
   private lazy var scrollView: UIScrollView = {
