@@ -191,8 +191,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         guard let self = self,
               let userInfo = notification.userInfo,
               let progress = userInfo["progress"] as? String else {
-                return
-              }
+          return
+        }
 
         self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
       }
@@ -207,7 +207,7 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
   }
 
   func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
-      return (navigationController?.viewControllers.count ?? 0) > 1
+    return (navigationController?.viewControllers.count ?? 0) > 1
   }
 
   func adjustBottomOffsetForMiniPlayer() {
@@ -372,8 +372,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     guard self.tableView.isEditing else { return }
 
     let title = self.tableView.numberOfRows(inSection: BPSection.data.rawValue) > (self.tableView.indexPathsForSelectedRows?.count ?? 0)
-      ? "select_all_title".localized
-      : "deselect_all_title".localized
+    ? "select_all_title".localized
+    : "deselect_all_title".localized
     self.selectAllButton.setTitle(title, for: .normal)
     self.bulkControls.editButton.isEnabled = tableView.indexPathsForSelectedRows?.count == 1
 
@@ -428,8 +428,8 @@ extension ItemListViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard indexPath.sectionValue != .add,
           let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {
-            return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
-          }
+      return tableView.dequeueReusableCell(withIdentifier: "AddCellView", for: indexPath)
+    }
 
     let item = self.viewModel.items[indexPath.row]
 
@@ -489,7 +489,7 @@ extension ItemListViewController: UITableViewDelegate {
     guard sourceIndexPath.sectionValue == .data,
           destinationIndexPath.sectionValue == .data,
           sourceIndexPath.row != destinationIndexPath.row else {
-        return
+      return
     }
 
     let item = self.viewModel.items[sourceIndexPath.row]
@@ -616,9 +616,8 @@ extension ItemListViewController: UIDropInteractionDelegate {
 
     item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
       guard let item = object as? ImportableItem else { return }
-      if let suggestedName = providerReference.suggestedName {
-        item.suggestedName = "\(suggestedName).\(item.fileExtension)"
-      }
+      /// Set `suggesteName` from the provider
+      item.suggestedName = providerReference.suggestedName
 
       self?.viewModel.importData(from: item)
     }
@@ -671,8 +670,8 @@ extension ItemListViewController {
     }
 
     self.loadingHeightConstraintView.constant = show
-      ? 65
-      : 0
+    ? 65
+    : 0
     UIView.animate(withDuration: 0.5) {
       self.loadingView.isHidden = !show
       self.view.layoutIfNeeded()
@@ -729,8 +728,8 @@ extension ItemListViewController: Themeable {
     self.bulkControls.backgroundColor = theme.systemBackgroundColor
     self.bulkControls.tintColor = theme.linkColor
     self.bulkControls.layer.shadowColor = theme.useDarkVariant
-      ? UIColor.white.cgColor
-      : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
+    ? UIColor.white.cgColor
+    : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
 
     self.viewModel.updateDefaultArtwork(for: theme)
   }

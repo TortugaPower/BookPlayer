@@ -182,8 +182,8 @@ public final class LibraryService: LibraryServiceProtocol {
       let contents = fetchRawContents(
         at: folder.relativePath,
         propertiesToFetch: [
-        #keyPath(LibraryItem.relativePath),
-        #keyPath(LibraryItem.originalFileName)
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.originalFileName)
         ]
       ) ?? []
 
@@ -586,7 +586,7 @@ extension LibraryService {
       originalParentPath = getItemProperty(
         #keyPath(LibraryItem.folder.relativePath),
         relativePath: firstPath
-       ) as? String
+      ) as? String
     }
 
     let processedFolderURL = DataManager.getProcessedFolderURL()

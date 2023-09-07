@@ -183,8 +183,8 @@ class PlayerManagerTests: XCTestCase {
   func testGetNextPlayableBookOpusFail() {
     playbackServiceMock
       .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
-      return [PlayableItem.mockWithExtension("opus")].filter({ $0.relativePath != relativePath }).first
-    }
+        return [PlayableItem.mockWithExtension("opus")].filter({ $0.relativePath != relativePath }).first
+      }
 
     let nextItem = sut.getNextPlayableBook(
       after: PlayableItem.mock,
@@ -200,8 +200,8 @@ class PlayerManagerTests: XCTestCase {
     /// Test unrecognized file
     playbackServiceMock
       .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
-      return [PlayableItem.mockWithExtension("jpg")].filter({ $0.relativePath != relativePath }).first
-    }
+        return [PlayableItem.mockWithExtension("jpg")].filter({ $0.relativePath != relativePath }).first
+      }
 
     let nextItem = sut.getNextPlayableBook(
       after: PlayableItem.mock,

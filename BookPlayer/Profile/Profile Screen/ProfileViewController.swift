@@ -84,7 +84,7 @@ extension ProfileViewController: Themeable {
     view.backgroundColor = theme.systemGroupedBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

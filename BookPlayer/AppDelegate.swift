@@ -49,19 +49,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return lastSceneToResignActive
     }
   }
+  /// Reference for observer
+  private var crashReportsAccessObserver: NSKeyValueObservation?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
-    // Override point for customization after application launch.
-    let defaults: UserDefaults = UserDefaults.standard
-
-    // Perfrom first launch setup
-    if !defaults.bool(forKey: Constants.UserDefaults.completedFirstLaunch) {
-      // Set default settings
-      defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
-      defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
-      defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
-    }
 
     // register to audio-interruption notifications
     NotificationCenter.default.addObserver(
@@ -410,7 +402,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     Purchases.configure(withAPIKey: revenueCatApiKey)
   }
 
+  /// Setup observer for user preference, and setup Sentry based on initial value
   func setupSentry() {
+    let userDefaults = UserDefaults.standard
+    crashReportsAccessObserver = userDefaults.observe(\.userSettingsCrashReportsDisabled) { [weak self] object, _ in
+      self?.handleSentryPreference(isDisabled: object.userSettingsCrashReportsDisabled)
+    }
+
+    handleSentryPreference(
+      isDisabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsDisabled)
+    )
+  }
+
+  /// Setup or stop Sentry based on flag
+  /// - Parameter isDisabled: Determines user preference for crash reports
+  private func handleSentryPreference(isDisabled: Bool) {
+    guard !isDisabled else {
+      SentrySDK.close()
+      return
+    }
+
     let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
     // Create a Sentry client
     SentrySDK.start { options in

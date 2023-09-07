@@ -1007,22 +1007,22 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
     //MARK: - getNextChapter
 
-    var getNextChapterFromCallsCount = 0
-    var getNextChapterFromCalled: Bool {
-        return getNextChapterFromCallsCount > 0
+    var getNextChapterFromAfterCallsCount = 0
+    var getNextChapterFromAfterCalled: Bool {
+        return getNextChapterFromAfterCallsCount > 0
     }
-    var getNextChapterFromReceivedItem: PlayableItem?
-    var getNextChapterFromReceivedInvocations: [PlayableItem] = []
-    var getNextChapterFromReturnValue: PlayableChapter?
-    var getNextChapterFromClosure: ((PlayableItem) -> PlayableChapter?)?
-    func getNextChapter(from item: PlayableItem) -> PlayableChapter? {
-        getNextChapterFromCallsCount += 1
-        getNextChapterFromReceivedItem = item
-        getNextChapterFromReceivedInvocations.append(item)
-        if let getNextChapterFromClosure = getNextChapterFromClosure {
-            return getNextChapterFromClosure(item)
+    var getNextChapterFromAfterReceivedArguments: (item: PlayableItem, chapter: PlayableChapter)?
+    var getNextChapterFromAfterReceivedInvocations: [(item: PlayableItem, chapter: PlayableChapter)] = []
+    var getNextChapterFromAfterReturnValue: PlayableChapter?
+    var getNextChapterFromAfterClosure: ((PlayableItem, PlayableChapter) -> PlayableChapter?)?
+    func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter? {
+        getNextChapterFromAfterCallsCount += 1
+        getNextChapterFromAfterReceivedArguments = (item: item, chapter: chapter)
+        getNextChapterFromAfterReceivedInvocations.append((item: item, chapter: chapter))
+        if let getNextChapterFromAfterClosure = getNextChapterFromAfterClosure {
+            return getNextChapterFromAfterClosure(item, chapter)
         } else {
-            return getNextChapterFromReturnValue
+            return getNextChapterFromAfterReturnValue
         }
     }
 }

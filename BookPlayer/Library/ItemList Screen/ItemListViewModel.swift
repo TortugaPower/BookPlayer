@@ -127,23 +127,23 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
     self.playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] currentItem in
-      guard let self = self else { return }
+        guard let self = self else { return }
 
-      self.bookProgressSubscription?.cancel()
+        self.bookProgressSubscription?.cancel()
 
-      defer {
-        self.clearPlaybackState()
-      }
+        defer {
+          self.clearPlaybackState()
+        }
 
-      guard let currentItem = currentItem else {
-        self.playingItemParentPath = nil
-        return
-      }
+        guard let currentItem = currentItem else {
+          self.playingItemParentPath = nil
+          return
+        }
 
-      self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
+        self.playingItemParentPath = self.getPathForParentOfItem(currentItem: currentItem)
 
-      self.bindItemProgressObserver(currentItem)
-    }.store(in: &disposeBag)
+        self.bindItemProgressObserver(currentItem)
+      }.store(in: &disposeBag)
 
     NotificationCenter.default.publisher(for: .folderProgressUpdated)
       .sink { [weak self] notification in
@@ -317,10 +317,10 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
        currentItem.relativePath.contains(item.relativePath) {
       self.playerManager.play()
     } else if let nextPlayableItem = try? self.playbackService.getFirstPlayableItem(
-        in: item,
-        isUnfinished: true
-      ),
-      let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
+      in: item,
+      isUnfinished: true
+    ),
+              let nextItem = libraryService.getSimpleItem(with: nextPlayableItem.relativePath) {
       showItemContents(nextItem)
     }
   }
@@ -439,8 +439,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
-    ArtworkService.removeCache(for: folder.relativePath)
-
     let fetchedItems = items.compactMap({ $0.relativePath })
 
     do {
@@ -476,10 +474,6 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    if let folderRelativePath = folderRelativePath {
-      ArtworkService.removeCache(for: folderRelativePath)
-    }
-
     self.libraryService.reorderItem(
       with: item.relativePath,
       inside: self.folderRelativePath,
@@ -808,7 +802,7 @@ class ItemListViewModel: BaseViewModel<ItemListCoordinator> {
             availableItems: availableFolders,
             selectionHandler: { folder in
               self?.handleMoveIntoFolder(folder, items: selectedItems)
-          }))
+            }))
         }
       )
     )
@@ -1069,6 +1063,9 @@ extension ItemListViewModel {
       }
     ))
 
+    /// Register that at least one import operation has completed
+    BPSKANManager.updateConversionValue(.import)
+
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
@@ -1106,7 +1103,20 @@ extension ItemListViewModel {
   }
 
   func importData(from item: ImportableItem) {
-    let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+    let filename: String
+
+    if let suggestedName = item.suggestedName {
+      let pathExtension = (suggestedName as NSString).pathExtension
+      /// Use  `suggestedFileExtension` only if the curret name does not include an extension
+      if pathExtension.isEmpty {
+        filename = "\(suggestedName).\(item.suggestedFileExtension)"
+      } else {
+        filename = suggestedName
+      }
+    } else {
+      /// Fallback if the provider didn't have a suggested name
+      filename = "\(Date().timeIntervalSince1970).\(item.suggestedFileExtension)"
+    }
 
     let destinationURL = DataManager.getDocumentsFolderURL()
       .appendingPathComponent(filename)
@@ -1134,9 +1144,9 @@ extension ItemListViewModel {
 
     if item.type == .bound,
        let enumerator = FileManager.default.enumerator(
-         at: fileURL,
-         includingPropertiesForKeys: nil,
-         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        at: fileURL,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
        ),
        enumerator.nextObject() == nil {
       return .notDownloaded

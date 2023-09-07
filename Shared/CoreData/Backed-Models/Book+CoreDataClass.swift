@@ -35,8 +35,8 @@ public class Book: LibraryItem {
     guard let contextUserInfoKey = CodingUserInfoKey.context,
           let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
           let entity = NSEntityDescription.entity(forEntityName: "Book", in: managedObjectContext) else {
-            fatalError("Failed to decode Book!")
-          }
+      fatalError("Failed to decode Book!")
+    }
     self.init(entity: entity, insertInto: nil)
 
     let values = try decoder.container(keyedBy: CodingKeys.self)

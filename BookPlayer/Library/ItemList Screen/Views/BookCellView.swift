@@ -31,57 +31,57 @@ class BookCellView: UITableViewCell {
   @IBOutlet weak var cloudBackgroundView: UIView!
 
   var theme: SimpleTheme!
-    var onArtworkTap: (() -> Void)?
+  var onArtworkTap: (() -> Void)?
 
-    var title: String? {
-        get {
-            return self.titleLabel.text
-        }
-        set {
-            self.titleLabel.text = newValue
-        }
+  var title: String? {
+    get {
+      return self.titleLabel.text
     }
-
-    var subtitle: String? {
-        get {
-            return self.subtitleLabel.text
-        }
-        set {
-            self.subtitleLabel.text = newValue
-        }
+    set {
+      self.titleLabel.text = newValue
     }
+  }
 
-    var progress: Double {
-        get {
-            return self.progressView.value
-        }
-        set {
-            self.progressView.value = (newValue.isNaN || newValue.isInfinite)
-                ? 0.0
-                : newValue
-        }
+  var subtitle: String? {
+    get {
+      return self.subtitleLabel.text
     }
-
-    var duration: String? {
-        get {
-            return self.durationLabel.text
-        }
-        set {
-            guard let value = newValue else { return }
-            self.durationLabel.text = value
-        }
+    set {
+      self.subtitleLabel.text = newValue
     }
+  }
 
-    var type: SimpleItemType = .book {
-      didSet {
-        switch self.type {
-        case .folder:
-          containerChevronView.isHidden = false
-        default:
-          containerChevronView.isHidden = true
-        }
+  var progress: Double {
+    get {
+      return self.progressView.value
+    }
+    set {
+      self.progressView.value = (newValue.isNaN || newValue.isInfinite)
+      ? 0.0
+      : newValue
+    }
+  }
+
+  var duration: String? {
+    get {
+      return self.durationLabel.text
+    }
+    set {
+      guard let value = newValue else { return }
+      self.durationLabel.text = value
+    }
+  }
+
+  var type: SimpleItemType = .book {
+    didSet {
+      switch self.type {
+      case .folder:
+        containerChevronView.isHidden = false
+      default:
+        containerChevronView.isHidden = true
       }
     }
+  }
 
   var playbackState: PlaybackState = PlaybackState.stopped {
     didSet {
@@ -118,31 +118,31 @@ class BookCellView: UITableViewCell {
     }
   }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        self.setup()
-        setUpTheming()
+  override func awakeFromNib() {
+    super.awakeFromNib()
+    self.setup()
+    setUpTheming()
+  }
+
+  private func setup() {
+    self.accessoryType = .none
+    self.selectionStyle = .none
+    let resumeAction = UIAccessibilityCustomAction(name: "voiceover_continue_playback_title".localized, target: self, selector: #selector(self.artworkButtonTapped(_:)))
+    accessibilityCustomActions = [resumeAction]
+
+    if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {
+      self.titleLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
+      self.titleLabel.adjustsFontForContentSizeCategory = true
     }
 
-    private func setup() {
-        self.accessoryType = .none
-        self.selectionStyle = .none
-        let resumeAction = UIAccessibilityCustomAction(name: "voiceover_continue_playback_title".localized, target: self, selector: #selector(self.artworkButtonTapped(_:)))
-        accessibilityCustomActions = [resumeAction]
+    let subtitleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
+    self.subtitleLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
+    self.subtitleLabel.adjustsFontForContentSizeCategory = true
+    self.durationLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
+    self.durationLabel.adjustsFontForContentSizeCategory = true
 
-      if let titleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline).withSymbolicTraits(.traitBold) {
-        self.titleLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
-        self.titleLabel.adjustsFontForContentSizeCategory = true
-      }
-
-      let subtitleDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption1)
-      self.subtitleLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
-      self.subtitleLabel.adjustsFontForContentSizeCategory = true
-      self.durationLabel.font = UIFont(descriptor: subtitleDescriptor, size: 0.0)
-      self.durationLabel.adjustsFontForContentSizeCategory = true
-
-      self.setupDownloadStatusViews()
-    }
+    self.setupDownloadStatusViews()
+  }
 
   func setupDownloadStatusViews() {
     self.downloadBackgroundView.alpha = 0.3
@@ -159,14 +159,14 @@ class BookCellView: UITableViewCell {
     cloudBackgroundView.layer.mask = maskShape
   }
 
-    override func addSubview(_ view: UIView) {
-        super.addSubview(view)
+  override func addSubview(_ view: UIView) {
+    super.addSubview(view)
 
-        if let controlClass = NSClassFromString("UITableViewCellEditControl"),
-            view.isKind(of: controlClass) {
-            view.isHidden = true
-        }
+    if let controlClass = NSClassFromString("UITableViewCellEditControl"),
+       view.isKind(of: controlClass) {
+      view.isHidden = true
     }
+  }
 
   override func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
@@ -177,14 +177,14 @@ class BookCellView: UITableViewCell {
     self.cloudBackgroundView.layer.masksToBounds = true
   }
 
-    @IBAction func artworkButtonTapped(_ sender: Any) {
-        self.onArtworkTap?()
-    }
+  @IBAction func artworkButtonTapped(_ sender: Any) {
+    self.onArtworkTap?()
+  }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        self.selectionView.isSelected = selected
-    }
+  override func setSelected(_ selected: Bool, animated: Bool) {
+    super.setSelected(selected, animated: animated)
+    self.selectionView.isSelected = selected
+  }
 
   override func setEditing(_ editing: Bool, animated: Bool) {
     super.setEditing(editing, animated: animated)
@@ -195,18 +195,18 @@ class BookCellView: UITableViewCell {
     }
   }
 
-    func setPlaybackColors(_ theme: SimpleTheme) {
-        switch self.playbackState {
-        case .playing, .paused:
-            self.artworkButton.backgroundColor = theme.linkColor.withAlpha(newAlpha: 0.3)
-            self.titleLabel.textColor = theme.linkColor
-            self.progressView.state = .highlighted
-        case .stopped:
-            self.artworkButton.backgroundColor = UIColor.clear
-            self.titleLabel.textColor = theme.primaryColor
-            self.progressView.state = .normal
-        }
+  func setPlaybackColors(_ theme: SimpleTheme) {
+    switch self.playbackState {
+    case .playing, .paused:
+      self.artworkButton.backgroundColor = theme.linkColor.withAlpha(newAlpha: 0.3)
+      self.titleLabel.textColor = theme.linkColor
+      self.progressView.state = .highlighted
+    case .stopped:
+      self.artworkButton.backgroundColor = UIColor.clear
+      self.titleLabel.textColor = theme.primaryColor
+      self.progressView.state = .normal
     }
+  }
 }
 
 // MARK: - Voiceover
@@ -234,7 +234,7 @@ extension BookCellView: Themeable {
     self.cloudBackgroundView.backgroundColor = theme.systemGroupedBackgroundColor
     self.cloudImageView.tintColor = theme.linkColor
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
   }
 }

@@ -948,9 +948,9 @@ class ModifyLibraryTests: LibraryServiceTests {
     try self.sut.delete([SimpleLibraryItem(from: folder2)], mode: .shallow)
 
     XCTAssert(library.itemsArray
-          .contains(where: { $0.relativePath == book1.relativePath}))
+      .contains(where: { $0.relativePath == book1.relativePath}))
     XCTAssert(library.itemsArray
-          .contains(where: { $0.relativePath == book4.relativePath}))
+      .contains(where: { $0.relativePath == book4.relativePath}))
 
     try self.sut.delete([SimpleLibraryItem(from: folder)], mode: .shallow)
 

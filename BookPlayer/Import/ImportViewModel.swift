@@ -49,9 +49,9 @@ final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject 
       let enumerator = FileManager.default.enumerator(at: item.fileUrl,
                                                       includingPropertiesForKeys: [.isDirectoryKey],
                                                       options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-                                                        print("directoryEnumerator error at \(url): ", error)
-                                                        return true
-                                                      })!
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
 
       for case let fileURL as URL in enumerator {
         if !fileURL.isDirectoryFolder {
@@ -79,8 +79,8 @@ final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject 
   public func getTotalItems() -> Int {
     return self.files.reduce(0) { result, item in
       return item.fileUrl.isDirectoryFolder
-        ? result + item.subItems
-        : result + 1
+      ? result + item.subItems
+      : result + 1
     }
   }
 

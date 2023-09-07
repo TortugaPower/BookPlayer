@@ -11,16 +11,16 @@ import Themeable
 import UIKit
 
 class ThemedTableViewCell: UITableViewCell {
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setUpTheming()
-    }
+  override func awakeFromNib() {
+    super.awakeFromNib()
+    setUpTheming()
+  }
 }
 
 extension ThemedTableViewCell: Themeable {
-    func applyTheme(_ theme: SimpleTheme) {
-        self.textLabel?.textColor = theme.primaryColor
-        self.detailTextLabel?.textColor = theme.secondaryColor
-        self.backgroundColor = theme.systemBackgroundColor
-    }
+  func applyTheme(_ theme: SimpleTheme) {
+    self.textLabel?.textColor = theme.primaryColor
+    self.detailTextLabel?.textColor = theme.secondaryColor
+    self.backgroundColor = theme.systemBackgroundColor
+  }
 }

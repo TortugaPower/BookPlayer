@@ -108,41 +108,41 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     self.present(sheet, animated: true)
   }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let viewController = segue.destination as? SkipDurationViewController else {
-            return
-        }
-
-        if segue.identifier == "AdjustRewindIntervalSegue" {
-            viewController.title = "settings_skip_rewind_title".localized
-            viewController.selectedInterval = PlayerManager.rewindInterval
-            viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.rewindInterval = selectedInterval
-
-                self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
-            }
-        }
-
-        if segue.identifier == "AdjustForwardIntervalSegue" {
-            viewController.title = "settings_skip_forward_title".localized
-            viewController.selectedInterval = PlayerManager.forwardInterval
-            viewController.didSelectInterval = { selectedInterval in
-                PlayerManager.forwardInterval = selectedInterval
-
-                self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
-            }
-        }
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    guard let viewController = segue.destination as? SkipDurationViewController else {
+      return
     }
 
-    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        let header = view as? UITableViewHeaderFooterView
-        header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+    if segue.identifier == "AdjustRewindIntervalSegue" {
+      viewController.title = "settings_skip_rewind_title".localized
+      viewController.selectedInterval = PlayerManager.rewindInterval
+      viewController.didSelectInterval = { selectedInterval in
+        PlayerManager.rewindInterval = selectedInterval
+
+        self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
+      }
     }
 
-    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
-        let footer = view as? UITableViewHeaderFooterView
-        footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+    if segue.identifier == "AdjustForwardIntervalSegue" {
+      viewController.title = "settings_skip_forward_title".localized
+      viewController.selectedInterval = PlayerManager.forwardInterval
+      viewController.didSelectInterval = { selectedInterval in
+        PlayerManager.forwardInterval = selectedInterval
+
+        self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
+      }
     }
+  }
+
+  override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    let header = view as? UITableViewHeaderFooterView
+    header?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+  }
+
+  override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+    let footer = view as? UITableViewHeaderFooterView
+    footer?.textLabel?.textColor = self.themeProvider.currentTheme.secondaryColor
+  }
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
@@ -183,21 +183,21 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     }
   }
 
-    @objc func rewindToggleDidChange() {
-        UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled)
-    }
+  @objc func rewindToggleDidChange() {
+    UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled)
+  }
 
-    @objc func boostVolumeToggleDidChange() {
-      UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled)
+  @objc func boostVolumeToggleDidChange() {
+    UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
-      guard let playerManager = AppDelegate.shared?.playerManager else { return }
+    guard let playerManager = AppDelegate.shared?.playerManager else { return }
 
-      playerManager.setBoostVolume(self.boostVolumeSwitch.isOn)
-    }
+    playerManager.setBoostVolume(self.boostVolumeSwitch.isOn)
+  }
 
-    @objc func globalSpeedToggleDidChange() {
-        UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled)
-    }
+  @objc func globalSpeedToggleDidChange() {
+    UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled)
+  }
 }
 
 extension PlayerSettingsViewController: Themeable {

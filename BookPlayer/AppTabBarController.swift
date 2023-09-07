@@ -108,8 +108,8 @@ class AppTabBarController: UITabBarController {
 extension AppTabBarController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
     self.themedStatusBarStyle = theme.useDarkVariant
-      ? .lightContent
-      : .default
+    ? .lightContent
+    : .default
     setNeedsStatusBarAppearanceUpdate()
     self.tabBar.backgroundColor = theme.systemBackgroundColor
     self.tabBar.barTintColor = theme.systemBackgroundColor

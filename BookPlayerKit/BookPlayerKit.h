@@ -15,5 +15,3 @@ FOUNDATION_EXPORT double BookPlayerKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char BookPlayerKitVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <BookPlayerKit/PublicHeader.h>
-
-

@@ -79,7 +79,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   @Published var showFixAllButton = false
   @Published var showAlert = false
   @Published var showProgressIndicator = false
-  
+
   @Published var sortBy: BPStorageSortBy {
     didSet {
       publishedFiles = sortedItems(items: publishedFiles)
@@ -118,23 +118,23 @@ final class StorageViewModel: StorageViewModelProtocol {
   init(libraryService: LibraryServiceProtocol, folderURL: URL) {
     self.libraryService = libraryService
     self.folderURL = folderURL
-    
+
     self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
 
     self.loadItems()
   }
 
   // MARK: - Public interface
-  
+
   func shouldShowWarning(for relativePath: String) -> Bool {
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked
     !bookExists(relativePath, library: self.library)
   }
-  
+
   func getBrokenItems() -> [StorageItem] {
     publishedFiles.filter({ $0.showWarning })
   }
-  
+
   func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
     guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
       // create a new book
@@ -144,15 +144,15 @@ final class StorageViewModel: StorageViewModelProtocol {
       }
       return
     }
-    
+
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
       try libraryService.moveItems([fetchedBook.relativePath], inside: nil)
       reloadLibraryItems()
     }
-    
+
     let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)
-    
+
     // Check if existing book already has its file, and this one is a duplicate
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
@@ -165,14 +165,14 @@ final class StorageViewModel: StorageViewModelProtocol {
       }
       return
     }
-    
+
     try self.moveBookFile(from: item, with: fetchedBook)
-    
+
     if shouldReloadItems {
       self.loadItems()
     }
   }
-  
+
   func deleteSelectedItem(_ item: StorageItem) {
     do {
       try handleDelete(for: item)
@@ -181,7 +181,7 @@ final class StorageViewModel: StorageViewModelProtocol {
       showAlert = true
     }
   }
-  
+
   func fixSelectedItem(_ item: StorageItem) {
     do {
       try handleFix(for: item)
@@ -190,12 +190,12 @@ final class StorageViewModel: StorageViewModelProtocol {
       showAlert = true
     }
   }
-  
+
   func fixAllBrokenItems() {
     let brokenItems = getBrokenItems()
-    
+
     guard !brokenItems.isEmpty else { return }
-    
+
     showProgressIndicator = true
     DispatchQueue.global().async {
       do {
@@ -217,14 +217,14 @@ final class StorageViewModel: StorageViewModelProtocol {
   func dismiss() {
     onTransition?(.dismiss)
   }
-    
+
   // MARK: - Private functions
 
   private func loadItems() {
     showProgressIndicator = true
     Task { @MainActor in
       let processedFolder = self.folderURL
-      
+
       let enumerator = FileManager.default.enumerator(
         at: self.folderURL,
         includingPropertiesForKeys: [.isDirectoryKey],
@@ -232,21 +232,21 @@ final class StorageViewModel: StorageViewModelProtocol {
           print("directoryEnumerator error at \(url): ", error)
           return true
         })!
-      
+
       var items = [StorageItem]()
-      
+
       for case let fileURL as URL in enumerator {
         guard !fileURL.isDirectoryFolder,
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
-        
+
         let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
         let fetchedTitle = self.libraryService.getItemProperty(
           #keyPath(BookPlayerKit.LibraryItem.title),
           relativePath: currentRelativePath
         ) as? String
-        
+
         let bookTitle = fetchedTitle ?? Book.getBookTitle(from: fileURL)
-        
+
         let storageItem = StorageItem(
           title: bookTitle,
           fileURL: fileURL,
@@ -254,15 +254,15 @@ final class StorageViewModel: StorageViewModelProtocol {
           size: fileAttributes[FileAttributeKey.size] as? Int64 ?? 0,
           showWarning: fetchedTitle == nil && self.shouldShowWarning(for: currentRelativePath)
         )
-        
+
         items.append(storageItem)
       }
-      
+
       showProgressIndicator = false
       self.publishedFiles = self.sortedItems(items: items)
     }
   }
-  
+
   private func getRelativePath(of fileURL: URL, baseURL: URL) -> String {
     fileURL.relativePath(to: baseURL)
   }
@@ -327,8 +327,8 @@ final class StorageViewModel: StorageViewModelProtocol {
     let isOrphaned = book.getLibrary() == nil
     let defaultDestinationURL = self.folderURL.appendingPathComponent(item.fileURL.lastPathComponent)
     let destinationURL = !isOrphaned
-      ? book.fileURL ?? defaultDestinationURL
-      : defaultDestinationURL
+    ? book.fileURL ?? defaultDestinationURL
+    : defaultDestinationURL
 
     guard item.fileURL != destinationURL,
           !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
@@ -348,29 +348,29 @@ final class StorageViewModel: StorageViewModelProtocol {
       .sorted { sortBy == .size ? $0.size > $1.size : $0.title < $1.title }
       .sorted { $0.showWarning && !$1.showWarning }
   }
-  
+
   private func handleDelete(for item: StorageItem) throws {
     try FileManager.default.removeItem(at: item.fileURL)
     let filteredFiles = publishedFiles.filter { $0.fileURL != item.fileURL }
     publishedFiles = self.sortedItems(items: filteredFiles)
   }
-  
+
   private func handleFix(for items: [StorageItem], completion: @escaping () -> Void) throws {
     guard !items.isEmpty else {
       loadItems()
       completion()
       return
     }
-    
+
     var mutableItems = items
-    
+
     let currentItem = mutableItems.removeFirst()
-    
+
     try handleFix(for: currentItem, shouldReloadItems: false)
-    
+
     try handleFix(for: mutableItems, completion: completion)
   }
-  
+
   private var fixAllAlert: Alert {
     Alert(
       title: Text(""),
@@ -384,7 +384,7 @@ final class StorageViewModel: StorageViewModelProtocol {
       )
     )
   }
-  
+
   private func deleteAlert(for item: StorageItem) -> Alert {
     Alert(
       title: Text(""),
@@ -400,7 +400,7 @@ final class StorageViewModel: StorageViewModelProtocol {
       )
     )
   }
-  
+
   private func fixAlert(for item: StorageItem) -> Alert {
     Alert(
       title: Text(""),
@@ -416,7 +416,7 @@ final class StorageViewModel: StorageViewModelProtocol {
       )
     )
   }
-  
+
   private func errorAlert(_ message: String) -> Alert {
     Alert(
       title: Text("error_title".localized),

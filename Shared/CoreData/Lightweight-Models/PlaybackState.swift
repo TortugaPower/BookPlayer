@@ -9,7 +9,7 @@
 import Foundation
 
 public enum PlaybackState {
-    case playing
-    case paused
-    case stopped
+  case playing
+  case paused
+  case stopped
 }

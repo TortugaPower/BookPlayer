@@ -9,32 +9,32 @@
 import UIKit
 
 class BPArtworkView: UIImageView {
-    var imageRatio: CGFloat {
-        guard let image = self.image else {
-            return 1.0
-        }
-
-        return image.size.width / image.size.height
+  var imageRatio: CGFloat {
+    guard let image = self.image else {
+      return 1.0
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    return image.size.width / image.size.height
+  }
 
-        self.setup()
-    }
+  override init(frame: CGRect) {
+    super.init(frame: frame)
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+    self.setup()
+  }
 
-        self.setup()
-    }
+  required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
 
-    private func setup() {
-        self.layer.cornerRadius = 4.0
-        self.layer.masksToBounds = true
-        self.clipsToBounds = true
+    self.setup()
+  }
 
-        self.layer.borderWidth = 0.5
-        self.layer.borderColor = UIColor.textColor.withAlphaComponent(0.2).cgColor
-    }
+  private func setup() {
+    self.layer.cornerRadius = 4.0
+    self.layer.masksToBounds = true
+    self.clipsToBounds = true
+
+    self.layer.borderWidth = 0.5
+    self.layer.borderColor = UIColor.textColor.withAlphaComponent(0.2).cgColor
+  }
 }

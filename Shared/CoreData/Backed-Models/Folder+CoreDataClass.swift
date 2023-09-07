@@ -38,38 +38,38 @@ public class Folder: LibraryItem {
     self.details = String.localizedStringWithFormat("files_title".localized, 0)
   }
 
-    enum CodingKeys: String, CodingKey {
-        case title, details, books, folders, library, orderRank, items
+  enum CodingKeys: String, CodingKey {
+    case title, details, books, folders, library, orderRank, items
+  }
+
+  public override func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(title, forKey: .title)
+    try container.encode(details, forKey: .details)
+    try container.encode(orderRank, forKey: .orderRank)
+
+    guard let itemsArray = self.items?.allObjects as? [LibraryItem] else { return }
+
+    try container.encode(itemsArray, forKey: .items)
+  }
+
+  public required convenience init(from decoder: Decoder) throws {
+    // Create NSEntityDescription with NSManagedObjectContext
+    guard let contextUserInfoKey = CodingUserInfoKey.context,
+          let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
+          let entity = NSEntityDescription.entity(forEntityName: "Folder", in: managedObjectContext) else {
+      fatalError("Failed to decode Folder!")
     }
+    self.init(entity: entity, insertInto: nil)
 
-    public override func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(title, forKey: .title)
-      try container.encode(details, forKey: .details)
-      try container.encode(orderRank, forKey: .orderRank)
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    title = try values.decode(String.self, forKey: .title)
+    details = try values.decode(String.self, forKey: .details)
 
-      guard let itemsArray = self.items?.allObjects as? [LibraryItem] else { return }
-
-      try container.encode(itemsArray, forKey: .items)
+    if let encodedItems = try? values.decode([LibraryItem].self, forKey: .items) {
+      items = NSSet(array: encodedItems)
     }
-
-    public required convenience init(from decoder: Decoder) throws {
-      // Create NSEntityDescription with NSManagedObjectContext
-      guard let contextUserInfoKey = CodingUserInfoKey.context,
-            let managedObjectContext = decoder.userInfo[contextUserInfoKey] as? NSManagedObjectContext,
-            let entity = NSEntityDescription.entity(forEntityName: "Folder", in: managedObjectContext) else {
-              fatalError("Failed to decode Folder!")
-            }
-      self.init(entity: entity, insertInto: nil)
-
-      let values = try decoder.container(keyedBy: CodingKeys.self)
-      title = try values.decode(String.self, forKey: .title)
-      details = try values.decode(String.self, forKey: .details)
-
-      if let encodedItems = try? values.decode([LibraryItem].self, forKey: .items) {
-        items = NSSet(array: encodedItems)
-      }
-    }
+  }
 }
 
 extension Folder {

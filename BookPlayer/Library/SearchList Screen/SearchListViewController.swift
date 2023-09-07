@@ -215,8 +215,8 @@ extension SearchListViewController: Themeable {
     scopeContainerView.backgroundColor = theme.systemBackgroundColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
-      ? UIUserInterfaceStyle.dark
-      : UIUserInterfaceStyle.light
+    ? UIUserInterfaceStyle.dark
+    : UIUserInterfaceStyle.light
     self.viewModel.updateDefaultArtwork(for: theme)
   }
 }

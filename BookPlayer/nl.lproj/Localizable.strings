@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Bestanden verwijderd (synchronisatiebewerkingen)";
 "storage_sync_deleted_recover_description" = "U kunt uw lokale boeken en mappen terug importeren als ze zijn verwijderd door een synchronisatiebewerking. Hierdoor worden ze allemaal terugverplaatst naar de documentenmap, waardoor het importproces wordt geactiveerd. Als er mappen bij betrokken zijn, kan dit betekenen dat de originelen zich nog in de bibliotheek bevinden en dat er een aantal hernoemingen moeten plaatsvinden. Excuses voor dit ongemak";
 "upload_wifi_required_title" = "Wi-Fi is vereist om bestanden te uploaden";
+"settings_privacy_title" = "Privacy";
+"settings_crash_reports_title" = "Crashrapporten uitschakelen";
+"settings_skan_attribution_title" = "Schakel SKAN-toeschrijving uit";
+"settings_skan_attribution_description" = "SKAN is Apple's privacy-first attributieoplossing waarmee kan worden gemeten hoe effectief een campagne was, zonder de privacy van de gebruiker in gevaar te brengen";

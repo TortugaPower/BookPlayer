@@ -10,8 +10,8 @@ import BookPlayerKit
 import Intents
 
 class PlayMediaIntentHandler: INExtension, INPlayMediaIntentHandling {
-    func handle(intent: INPlayMediaIntent, completion: @escaping (INPlayMediaIntentResponse) -> Void) {
-        let response = INPlayMediaIntentResponse(code: .handleInApp, userActivity: nil)
-        completion(response)
-    }
+  func handle(intent: INPlayMediaIntent, completion: @escaping (INPlayMediaIntentResponse) -> Void) {
+    let response = INPlayMediaIntentResponse(code: .handleInApp, userActivity: nil)
+    completion(response)
+  }
 }

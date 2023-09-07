@@ -110,9 +110,9 @@ public class ImportOperation: Operation {
 
     let tempDirectoryURL = try! FileManager.default.url(
       for: .itemReplacementDirectory,
-         in: .userDomainMask,
-         appropriateFor: documentsURL,
-         create: true
+      in: .userDomainMask,
+      appropriateFor: documentsURL,
+      create: true
     )
 
     SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, error in
@@ -170,8 +170,8 @@ public class ImportOperation: Operation {
 
   private func hasExistingBook(_ fileURL: URL) -> Bool {
     guard let existingBook = self.libraryService.findBooks(containing: fileURL)?.first,
-       let existingFileURL = existingBook.fileURL,
-       !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
+          let existingFileURL = existingBook.fileURL,
+          !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
 
     do {
       // create parent folder if it doesn't exist
