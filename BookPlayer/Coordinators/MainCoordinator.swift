@@ -12,7 +12,7 @@ import RevenueCat
 import Themeable
 import UIKit
 
-class MainCoordinator: Coordinator {
+class MainCoordinator: Coordinator, AlertPresenter {
   var tabBarController: AppTabBarController?
 
   let playerManager: PlayerManagerProtocol

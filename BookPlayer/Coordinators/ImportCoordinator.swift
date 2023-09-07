@@ -40,7 +40,7 @@ class ImportCoordinator: Coordinator {
       .getTopController()?.present(nav, animated: true, completion: nil)
   }
 
-  override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+  func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     try? self.importViewController?.viewModel.discardImportOperation()
     super.presentationControllerDidDismiss(presentationController)
   }

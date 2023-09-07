@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class LibraryListCoordinator: ItemListCoordinator {
+class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate {
   weak var tabBarController: UITabBarController?
   let importManager: ImportManager
 
@@ -190,7 +190,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     }
   }
 
-  override func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
     // Read the view controller we’re moving from.
     guard let fromViewController = navigationController.transitionCoordinator?.viewController(forKey: .from) else {
       return

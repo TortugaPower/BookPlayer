@@ -10,7 +10,7 @@ import UIKit
 import BookPlayerKit
 import SwiftUI
 
-class SettingsCoordinator: Coordinator {
+class SettingsCoordinator: Coordinator, AlertPresenter {
   weak var tabBarController: UITabBarController?
 
   let libraryService: LibraryServiceProtocol

@@ -9,7 +9,7 @@
 import BookPlayerKit
 import UIKit
 
-class AccountCoordinator: Coordinator {
+class AccountCoordinator: Coordinator, AlertPresenter {
   let accountService: AccountServiceProtocol
 
   init(

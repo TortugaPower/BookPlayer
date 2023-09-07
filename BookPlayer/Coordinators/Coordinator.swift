@@ -14,7 +14,7 @@ public enum FlowType {
   case push, modal
 }
 
-class Coordinator: NSObject {
+class Coordinator: NSObject, UIAdaptivePresentationControllerDelegate {
 
   // MARK: - Base Coordinator
   var navigationController: UINavigationController
@@ -61,8 +61,8 @@ class Coordinator: NSObject {
   public func getMainCoordinator() -> MainCoordinator? { return nil }
 }
 
-extension Coordinator: AlertPresenter {
-  public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
+extension AlertPresenter where Self: Coordinator {
+  func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     self.navigationController.showAlert(title, message: message, completion: completion)
   }
 
@@ -75,7 +75,7 @@ extension Coordinator: AlertPresenter {
   }
 }
 
-extension Coordinator: UINavigationControllerDelegate {
+extension UINavigationControllerDelegate where Self: Coordinator {
   // Handle vcs being popped interactively
   func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
     // Read the view controller we’re moving from.
@@ -90,9 +90,9 @@ extension Coordinator: UINavigationControllerDelegate {
   }
 }
 
-extension Coordinator: UIAdaptivePresentationControllerDelegate {
+extension UIAdaptivePresentationControllerDelegate where Self: Coordinator {
   // Handle modals being dismissed interactively
-  public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+  func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     self.detach()
   }
 }
