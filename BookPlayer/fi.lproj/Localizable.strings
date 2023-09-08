@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Tiedostot poistettu (synkronointi)";
 "storage_sync_deleted_recover_description" = "Voit tuoda takaisin paikalliset kirjasi ja kansiosi, jos ne on poistettu synkronointitoiminnolla. Tämä siirtää ne kaikki takaisin asiakirjakansioon ja käynnistää tuontiprosessin. Jos kyseessä on kansioita, tämä voi tarkoittaa, että alkuperäiset ovat edelleen kirjastossa ja joudutaan nimeämään uudelleen, pahoittelut tästä vaivasta";
 "upload_wifi_required_title" = "Tiedostojen lataamiseen tarvitaan Wi-Fi";
+"settings_privacy_title" = "Yksityisyys";
+"settings_crash_reports_title" = "Poista virheraportit käytöstä";
+"settings_skan_attribution_title" = "Poista SKAN-attribuutio käytöstä";
+"settings_skan_attribution_description" = "SKAN on Applen tietosuoja-asiakasratkaisu, jonka avulla voidaan mitata kampanjan tehokkuutta käyttäjän yksityisyydestä tinkimättä.";

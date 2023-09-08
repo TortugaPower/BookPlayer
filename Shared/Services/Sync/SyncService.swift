@@ -127,7 +127,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
-      Self.logger.log("Throttled sync operation")
+      Self.logger.trace("Throttled sync operation")
       throw BookPlayerError.networkError("Throttled sync operation")
     }
 
@@ -136,7 +136,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       forKey: userDefaultsKey
     )
 
-    Self.logger.log("Fetch list contents")
+    Self.logger.trace("Fetching list of contents")
 
     let response = try await fetchContents(at: relativePath)
 
@@ -153,13 +153,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
-    Self.logger.log("Fetch synced library identifiers")
+    Self.logger.trace("Fetching synced library identifiers")
 
     let fetchedIdentifiers = try await fetchSyncedIdentifiers()
 
     if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
-      Self.logger.log("Scheduling upload tasks")
+      Self.logger.trace("Scheduling upload tasks")
       handleItemsToUpload(itemsToUpload)
     }
 

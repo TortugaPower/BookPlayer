@@ -615,9 +615,8 @@ extension ItemListViewController: UIDropInteractionDelegate {
 
     item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
       guard let item = object as? ImportableItem else { return }
-      if let suggestedName = providerReference.suggestedName {
-        item.suggestedName = "\(suggestedName).\(item.fileExtension)"
-      }
+      /// Set `suggesteName` from the provider
+      item.suggestedName = providerReference.suggestedName
 
       self?.viewModel.importData(from: item)
     }

@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Soubory byly odstraněny (operace synchronizace)";
 "storage_sync_deleted_recover_description" = "Místní knihy a složky můžete importovat zpět, pokud byly odstraněny operací synchronizace. Tím se všechny přesunou zpět do složky dokumentů a spustí se proces importu. Pokud se jedná o složky, mohlo by to znamenat, že originály jsou stále v knihovně a bude nutné provést nějaké přejmenování, omlouváme se za tuto nepříjemnost";
 "upload_wifi_required_title" = "K nahrávání souborů je vyžadována Wi-Fi";
+"settings_privacy_title" = "Soukromí";
+"settings_crash_reports_title" = "Zakázat zprávy o selhání";
+"settings_skan_attribution_title" = "Zakázat atribuci SKAN";
+"settings_skan_attribution_description" = "SKAN je řešení pro atribuci na prvním místě společnosti Apple, které umožňuje měřit, jak efektivní byla kampaň, aniž by došlo k ohrožení soukromí uživatelů.";

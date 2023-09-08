@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Fichiers supprimés (opérations de synchronisation)";
 "storage_sync_deleted_recover_description" = "Vous pouvez réimporter vos livres et dossiers locaux s'ils ont été supprimés par une opération de synchronisation. Cela les ramènera tous dans le dossier des documents, déclenchant le processus d'importation. Si des dossiers sont impliqués, cela pourrait signifier que les originaux sont toujours dans la bibliothèque, et un changement de nom devra avoir lieu, désolé pour ce désagrément";
 "upload_wifi_required_title" = "Une connexion Wi-Fi est nécessaire pour télécharger des fichiers";
+"settings_privacy_title" = "Confidentialité";
+"settings_crash_reports_title" = "Désactiver les rapports d'erreur";
+"settings_skan_attribution_title" = "Désactiver l'attribution SKAN";
+"settings_skan_attribution_description" = "SKAN est la solution d'attribution d'Apple axée sur la confidentialité qui permet de mesurer l'efficacité d'une campagne sans compromettre la confidentialité des utilisateurs.";

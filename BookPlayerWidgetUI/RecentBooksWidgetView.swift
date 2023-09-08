@@ -188,3 +188,25 @@ struct RecentBooksWidget: Widget {
     .supportedFamilies([.systemMedium])
   }
 }
+
+extension SimpleLibraryItem {
+  /// Convenience init for SwftUI previews
+  static public func previewItem(title: String) -> Self {
+    SimpleLibraryItem(
+      title: title,
+      details: "some details",
+      speed: 1,
+      currentTime: 1,
+      duration: 1,
+      percentCompleted: 10,
+      isFinished: false,
+      relativePath: UUID().uuidString,
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 1,
+      parentFolder: nil,
+      originalFileName: "",
+      lastPlayDate: nil,
+      type: SimpleItemType.book)
+  }
+}

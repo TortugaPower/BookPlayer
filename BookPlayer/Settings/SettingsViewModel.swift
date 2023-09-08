@@ -11,8 +11,21 @@ import Combine
 import Foundation
 
 class SettingsViewModel: ViewModelProtocol {
+  /// Available routes
+  enum Routes {
+    case pro
+    case themes
+    case icons
+    case playerControls
+    case storageManagement
+    case deletedFilesManagement
+    case tipJar
+    case credits
+  }
   weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
+
+  var onTransition: BPTransition<Routes>?
 
   @Published var account: Account?
 
@@ -51,35 +64,45 @@ class SettingsViewModel: ViewModelProtocol {
     try? processedFolderURL.setResourceValues(resourceValues)
   }
 
+  /// Handle registering the value in `UserDefaults`
+  func toggleCrashReportsAccess(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.crashReportsDisabled)
+  }
+
+  /// Handle registering the value in `UserDefaults`
+  func toggleSKANPreference(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.skanAttributionDisabled)
+  }
+
   func showPro() {
-    self.coordinator.showPro()
+    onTransition?(.pro)
   }
 
   func showTipJar() {
-    self.coordinator.showTipJar()
+    onTransition?(.tipJar)
   }
 
   func showStorageManagement() {
-    self.coordinator.showStorageManagement()
+    onTransition?(.storageManagement)
   }
 
   func showCloudDeletedFiles() {
-    self.coordinator.showCloudDeletedFiles()
+    onTransition?(.deletedFilesManagement)
   }
 
   func showThemes() {
-    self.coordinator.showThemes()
+    onTransition?(.themes)
   }
 
   func showIcons() {
-    self.coordinator.showIcons()
+    onTransition?(.icons)
   }
 
   func showPlayerControls() {
-    self.coordinator.showPlayerControls()
+    onTransition?(.playerControls)
   }
 
   func showCredits() {
-    self.coordinator.showCredits()
+    onTransition?(.credits)
   }
 }

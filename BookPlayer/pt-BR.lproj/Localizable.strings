@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Arquivos removidos (operações de sincronização)";
 "storage_sync_deleted_recover_description" = "Você pode importar de volta seus livros e pastas locais se eles foram excluídos por uma operação de sincronização. Isso moverá todos eles de volta para a pasta de documentos, acionando o processo de importação. Se pastas estiverem envolvidas, isso pode significar que os originais ainda estão na biblioteca e algumas renomeações terão que ocorrer, desculpe pelo inconveniente";
 "upload_wifi_required_title" = "Wi-Fi é necessário para fazer upload de arquivos";
+"settings_privacy_title" = "Privacidade";
+"settings_crash_reports_title" = "Desativar relatórios de falhas";
+"settings_skan_attribution_title" = "Desativar atribuição SKAN";
+"settings_skan_attribution_description" = "SKAN é a solução de atribuição que prioriza a privacidade da Apple e permite medir a eficácia de uma campanha sem comprometer a privacidade do usuário";

@@ -287,3 +287,7 @@
 "settings_storage_sync_deleted_description" = "Entfernte Dateien (Synchronisierungsvorgänge)";
 "storage_sync_deleted_recover_description" = "Sie können Ihre lokalen Bücher und Ordner wieder importieren, wenn sie durch einen Synchronisierungsvorgang gelöscht wurden. Dadurch werden alle Dateien zurück in den Dokumentenordner verschoben und der Importvorgang ausgelöst. Wenn es sich um Ordner handelt, kann dies bedeuten, dass sich die Originale noch in der Bibliothek befinden und einige Umbenennungen vorgenommen werden müssen. Bitte entschuldigen Sie die Unannehmlichkeiten";
 "upload_wifi_required_title" = "Zum Hochladen von Dateien ist WLAN erforderlich";
+"settings_privacy_title" = "Privatsphäre";
+"settings_crash_reports_title" = "Absturzberichte deaktivieren";
+"settings_skan_attribution_title" = "Deaktivieren Sie die SKAN-Attribution";
+"settings_skan_attribution_description" = "SKAN ist Apples datenschutzorientierte Attributionslösung, die es ermöglicht, zu messen, wie effektiv eine Kampagne war, ohne die Privatsphäre des Benutzers zu gefährden";

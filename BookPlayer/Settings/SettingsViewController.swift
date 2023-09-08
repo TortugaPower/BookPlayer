@@ -19,12 +19,15 @@ protocol IntentSelectionDelegate: AnyObject {
   func didSelectIntent(_ intent: INIntent)
 }
 
+// TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, TableViewControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
   @IBOutlet weak var autoplayRestartSwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
+  @IBOutlet weak var crashReportsSwitch: UISwitch!
+  @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -35,7 +38,7 @@ class SettingsViewController: UITableViewController, TableViewControllerProtocol
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, support, credits
+    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
@@ -116,10 +119,23 @@ class SettingsViewController: UITableViewController, TableViewControllerProtocol
     self.autoplayRestartSwitch.addTarget(self, action: #selector(self.autoplayRestartToggleDidChange), for: .valueChanged)
     self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
     self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
-    self.iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
+    iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
+    crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
+    skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
 
     // Set initial switch positions
-    self.iCloudBackupsSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled), animated: false)
+    iCloudBackupsSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled),
+      animated: false
+    )
+    crashReportsSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.crashReportsDisabled),
+      animated: false
+    )
+    skanSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
+      animated: false
+    )
     let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
     self.autoplayLibrarySwitch.setOn(isAutoplayEnabled, animated: false)
     autoplayRestartSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled), animated: false)
@@ -157,6 +173,14 @@ class SettingsViewController: UITableViewController, TableViewControllerProtocol
 
   @objc func iCloudBackupsDidChange() {
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
+  }
+
+  @objc func crashReportsAccessDidChange() {
+    viewModel.toggleCrashReportsAccess(crashReportsSwitch.isOn)
+  }
+
+  @objc func skanPreferenceDidChange() {
+    viewModel.toggleSKANPreference(skanSwitch.isOn)
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -240,6 +264,8 @@ class SettingsViewController: UITableViewController, TableViewControllerProtocol
       return "settings_siri_title".localized
     case .backups:
       return "settings_backup_title".localized
+    case .privacy:
+      return "settings_privacy_title".localized
     case .support:
       return "settings_support_title".localized
     default:
@@ -259,6 +285,8 @@ class SettingsViewController: UITableViewController, TableViewControllerProtocol
       return "settings_autolock_description".localized
     case .support:
       return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
+    case .privacy:
+      return "settings_skan_attribution_description".localized
     default:
       return super.tableView(tableView, titleForFooterInSection: section)
     }

@@ -883,11 +883,15 @@ extension PlayerManager {
         parentFolder: item.parentFolder,
         autoplayed: autoPlayed,
         restartFinished: restartFinished
-      ),
-      let fileType = UTType(filenameExtension: nextBook.fileURL.pathExtension)
+      )
     else { return nil }
 
-    if !fileType.isSubtype(of: .audiovisualContent) {
+    let fileExtension = nextBook.fileURL.pathExtension
+
+    /// Only check for audiovisual content if a file extension is present
+    if !fileExtension.isEmpty,
+       let fileType = UTType(filenameExtension: fileExtension),
+       !fileType.isSubtype(of: .audiovisualContent) {
       return getNextPlayableBook(
         after: nextBook,
         autoPlayed: autoPlayed,
@@ -896,6 +900,32 @@ extension PlayerManager {
     }
 
     return nextBook
+  }
+
+  /// Check `UTType` of the chapter before returning it
+  /// Note: if the type does not conform to `.audiovisualContent` it will skip the item
+  func getNextPlayableChapter(
+    currentItem: PlayableItem,
+    after chapter: PlayableChapter
+  ) -> PlayableChapter? {
+    guard let nextChapter = self.playbackService.getNextChapter(
+      from: currentItem,
+      after: chapter
+    ) else { return nil }
+
+    let fileExtension = nextChapter.fileURL.pathExtension
+
+    /// Only check for audiovisual content if a file extension is present
+    if !fileExtension.isEmpty,
+       let fileType = UTType(filenameExtension: fileExtension),
+       !fileType.isSubtype(of: .audiovisualContent) {
+      return getNextPlayableChapter(
+        currentItem: currentItem,
+        after: nextChapter
+      )
+    }
+
+    return nextChapter
   }
 
   @objc
@@ -915,7 +945,12 @@ extension PlayerManager {
     } else if currentItem.isBoundBook {
       updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
       /// Load next chapter
-      guard let nextChapter = self.playbackService.getNextChapter(from: currentItem) else { return }
+      guard
+        let nextChapter = getNextPlayableChapter(
+          currentItem: currentItem,
+          after: currentItem.currentChapter
+        )
+      else { return }
       currentItem.currentChapter = nextChapter
       loadChapterMetadata(nextChapter, autoplay: !endOfChapterActive)
     }

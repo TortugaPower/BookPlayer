@@ -441,8 +441,6 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem, items: [SimpleLibraryItem]) {
-    ArtworkService.removeCache(for: folder.relativePath)
-
     let fetchedItems = items.compactMap({ $0.relativePath })
 
     do {
@@ -478,10 +476,6 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   func reorder(item: SimpleLibraryItem, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-    if let folderRelativePath = folderRelativePath {
-      ArtworkService.removeCache(for: folderRelativePath)
-    }
-
     self.libraryService.reorderItem(
       with: item.relativePath,
       inside: self.folderRelativePath,
@@ -1071,6 +1065,9 @@ extension ItemListViewModel {
       }
     ))
 
+    /// Register that at least one import operation has completed
+    BPSKANManager.updateConversionValue(.import)
+
     sendEvent(.showAlert(
       content: BPAlertContent(
         title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
@@ -1108,7 +1105,20 @@ extension ItemListViewModel {
   }
 
   func importData(from item: ImportableItem) {
-    let filename = item.suggestedName ?? "\(Date().timeIntervalSince1970).\(item.fileExtension)"
+    let filename: String
+
+    if let suggestedName = item.suggestedName {
+      let pathExtension = (suggestedName as NSString).pathExtension
+      /// Use  `suggestedFileExtension` only if the curret name does not include an extension
+      if pathExtension.isEmpty {
+        filename = "\(suggestedName).\(item.suggestedFileExtension)"
+      } else {
+        filename = suggestedName
+      }
+    } else {
+      /// Fallback if the provider didn't have a suggested name
+      filename = "\(Date().timeIntervalSince1970).\(item.suggestedFileExtension)"
+    }
 
     let destinationURL = DataManager.getDocumentsFolderURL()
       .appendingPathComponent(filename)
