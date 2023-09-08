@@ -10,11 +10,14 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class BookmarksViewModel: BaseViewModel<BookmarkCoordinator> {
+class BookmarksViewModel: ViewModelProtocol {
   /// Available routes for this screen
   enum Routes {
     case export(bookmarks: [SimpleBookmark], item: PlayableItem)
   }
+
+  weak var coordinator: BookmarkCoordinator!
+
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol

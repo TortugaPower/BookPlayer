@@ -10,7 +10,8 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
+class SettingsViewModel: ViewModelProtocol {
+  weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
 
   @Published var account: Account?
@@ -19,9 +20,6 @@ class SettingsViewModel: BaseViewModel<SettingsCoordinator> {
 
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
-
-    super.init()
-
     self.reloadAccount()
     self.bindObservers()
   }

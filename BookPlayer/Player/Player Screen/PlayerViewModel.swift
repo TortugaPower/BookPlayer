@@ -10,11 +10,13 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
+class PlayerViewModel: ViewModelProtocol {
   enum Events {
     case sleepTimerAlert(content: BPAlertContent)
     case customSleepTimer(title: String)
   }
+
+  weak var coordinator: PlayerCoordinator!
 
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol

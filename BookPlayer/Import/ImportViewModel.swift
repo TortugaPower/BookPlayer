@@ -11,7 +11,9 @@ import Combine
 import DirectoryWatcher
 import Foundation
 
-final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject {
+final class ImportViewModel: ViewModelProtocol, ObservableObject {
+
+  weak var coordinator: ImportCoordinator!
   @Published private(set) var files = [ImportFileItem]()
   private var disposeBag = Set<AnyCancellable>()
   private let importManager: ImportManager
@@ -20,8 +22,6 @@ final class ImportViewModel: BaseViewModel<ImportCoordinator>, ObservableObject 
 
   init(importManager: ImportManager) {
     self.importManager = importManager
-    super.init()
-
     self.bindInternalFiles()
   }
 

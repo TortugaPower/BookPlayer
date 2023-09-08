@@ -9,7 +9,7 @@
 import BookPlayerKit
 import UIKit
 
-class LoadingCoordinator: Coordinator {
+class LoadingCoordinator: Coordinator, AlertPresenter {
   let loadingViewController: LoadingViewController
 
   init(

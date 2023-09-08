@@ -10,7 +10,8 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
+class ChaptersViewModel: ViewModelProtocol {
+  weak var coordinator: ChapterCoordinator!
   let playerManager: PlayerManagerProtocol
 
   init(playerManager: PlayerManagerProtocol) {

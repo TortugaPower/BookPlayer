@@ -10,9 +10,8 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
-class LoadingViewController: BaseViewController<LoadingCoordinator, LoadingViewModel>,
-                             Storyboarded,
-                             Themeable {
+class LoadingViewController: UIViewController, ViewControllerProtocol, Storyboarded, Themeable {
+  var viewModel: LoadingViewModel!
   override func viewDidLoad() {
     self.navigationController?.isNavigationBarHidden = true
   }

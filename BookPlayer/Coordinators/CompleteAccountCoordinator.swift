@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 import UIKit
 
-class CompleteAccountCoordinator: Coordinator {
+class CompleteAccountCoordinator: Coordinator, AlertPresenter {
   let accountService: AccountServiceProtocol
 
   init(
