@@ -17,47 +17,34 @@ public enum FlowType {
 class Coordinator: NSObject {
 
   // MARK: - Base Coordinator
+  // impacted files 14/17
   var navigationController: UINavigationController
+  // impacted files 14/17
   weak var presentingViewController: UIViewController?
+  // impacted files 15/17
   let flowType: FlowType
 
+  // impacted files 14/17
   init(navigationController: UINavigationController,
        flowType: FlowType) {
     self.navigationController = navigationController
     self.flowType = flowType
   }
 
+  // impacted files 14/17
   public func start() {
     fatalError("Coordinator is an abstract class, override this function in the subclass")
   }
 
   // MARK: - Parent Coordinator
+  // impacted files 10/17
   var childCoordinators = [Coordinator]()
 
-  private func childDidFinish(_ child: Coordinator?) {
-    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
-    self.childCoordinators.remove(at: index)
-  }
-
   // MARK: - Child Coordinator
+  // impacted files 10/17
   weak var parentCoordinator: Coordinator?
 
-  public func detach() {
-    self.parentCoordinator?.childDidFinish(self)
-  }
-
-  public func didFinish() {
-    switch self.flowType {
-    case .modal:
-      self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
-        self?.detach()
-      })
-    case .push:
-      self.navigationController.popViewController(animated: true)
-      self.detach()
-    }
-  }
-
+  // impacted files 8/17
   public func getMainCoordinator() -> MainCoordinator? { return nil }
 }
 
@@ -94,6 +81,27 @@ extension Coordinator: UIAdaptivePresentationControllerDelegate {
   // Handle modals being dismissed interactively
   func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     self.detach()
+  }
+
+  func detach() {
+    self.parentCoordinator?.childDidFinish(self)
+  }
+
+  func didFinish() {
+    switch self.flowType {
+    case .modal:
+      self.presentingViewController?.dismiss(animated: true, completion: { [weak self] in
+        self?.detach()
+      })
+    case .push:
+      self.navigationController.popViewController(animated: true)
+      self.detach()
+    }
+  }
+
+  private func childDidFinish(_ child: Coordinator?) {
+    guard let index = self.childCoordinators.firstIndex(where: { $0 === child }) else { return }
+    self.childCoordinators.remove(at: index)
   }
 }
 
