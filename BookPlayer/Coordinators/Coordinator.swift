@@ -15,37 +15,23 @@ public enum FlowType {
 }
 
 class Coordinator: NSObject {
-
-  // MARK: - Base Coordinator
-  // impacted files 14/17
   var navigationController: UINavigationController
-  // impacted files 14/17
   weak var presentingViewController: UIViewController?
-  // impacted files 15/17
   let flowType: FlowType
+  var childCoordinators = [Coordinator]()
+  weak var parentCoordinator: Coordinator?
 
-  // impacted files 14/17
   init(navigationController: UINavigationController,
        flowType: FlowType) {
     self.navigationController = navigationController
     self.flowType = flowType
   }
 
-  // impacted files 14/17
-  public func start() {
+  func start() {
     fatalError("Coordinator is an abstract class, override this function in the subclass")
   }
 
-  // MARK: - Parent Coordinator
-  // impacted files 10/17
-  var childCoordinators = [Coordinator]()
-
-  // MARK: - Child Coordinator
-  // impacted files 10/17
-  weak var parentCoordinator: Coordinator?
-
-  // impacted files 8/17
-  public func getMainCoordinator() -> MainCoordinator? { return nil }
+  func getMainCoordinator() -> MainCoordinator? { return nil }
 }
 
 extension AlertPresenter where Self: Coordinator {
