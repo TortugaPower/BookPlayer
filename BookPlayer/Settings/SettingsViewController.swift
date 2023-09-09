@@ -19,7 +19,7 @@ protocol IntentSelectionDelegate: AnyObject {
   func didSelectIntent(_ intent: INIntent)
 }
 
-class SettingsViewController: UITableViewController, TableViewControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
+class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
   @IBOutlet weak var autoplayRestartSwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!

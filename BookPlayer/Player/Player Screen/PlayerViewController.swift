@@ -15,7 +15,7 @@ import StoreKit
 import Themeable
 import UIKit
 
-class PlayerViewController: UIViewController, ViewControllerProtocol, Storyboarded {
+class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboarded {
   var viewModel: PlayerViewModel!
   @IBOutlet private weak var closeButton: UIButton!
   @IBOutlet private weak var closeButtonTop: NSLayoutConstraint!

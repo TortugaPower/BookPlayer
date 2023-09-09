@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class SearchListViewController: UIViewController, ViewControllerProtocol {
+class SearchListViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: SearchListViewModel!
   private var disposeBag = Set<AnyCancellable>()
   /// Width for each scope item

@@ -11,7 +11,7 @@ import BookPlayerKit
 import Foundation
 import Themeable
 
-class LoginViewController: UIViewController, ViewControllerProtocol {
+class LoginViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: LoginViewModel!
   // MARK: - UI components
 

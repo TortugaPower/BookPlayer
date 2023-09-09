@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class AccountViewController: UIViewController, ViewControllerProtocol {
+class AccountViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: AccountViewModel!
 
   // MARK: - UI components
