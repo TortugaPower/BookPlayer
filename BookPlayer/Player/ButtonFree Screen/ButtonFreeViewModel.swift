@@ -10,7 +10,9 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class ButtonFreeViewModel: BaseViewModel<ButtonFreeCoordinator> {
+class ButtonFreeViewModel: ViewModelProtocol {
+  weak var coordinator: ButtonFreeCoordinator!
+
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol

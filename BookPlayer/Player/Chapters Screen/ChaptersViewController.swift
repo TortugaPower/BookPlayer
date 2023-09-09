@@ -11,7 +11,8 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, ChaptersViewModel>, Storyboarded {
+final class ChaptersViewController: UITableViewController, MVVMControllerProtocol, Storyboarded {
+  var viewModel: ChaptersViewModel!
   var chapters = [PlayableChapter]()
   var scrolledToCurrentChapter = false
 

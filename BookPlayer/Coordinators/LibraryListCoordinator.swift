@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class LibraryListCoordinator: ItemListCoordinator {
+class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate {
   weak var tabBarController: UITabBarController?
   let importManager: ImportManager
 
@@ -190,12 +190,23 @@ class LibraryListCoordinator: ItemListCoordinator {
     }
   }
 
-  override func interactiveDidFinish(vc: UIViewController) {
-    // Coordinator may be already released if popped by VoiceOver gesture
-    guard let vc = vc as? ItemListViewController,
-          vc.viewModel.coordinator != nil else { return }
+  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+    // Read the view controller we’re moving from.
+    guard let fromViewController = navigationController.transitionCoordinator?.viewController(forKey: .from) else {
+      return
+    }
 
-    vc.viewModel.coordinator.detach()
+    // Check whether our view controller array already contains that view controller. If it does it means we’re pushing a different view controller on top rather than popping it, so exit.
+    if navigationController.viewControllers.contains(fromViewController) {
+      return
+    }
+
+    // Coordinator may be already released if popped by VoiceOver gesture
+    guard let fromViewController  = fromViewController as? ItemListViewController,
+          fromViewController.viewModel.coordinator != nil
+    else { return }
+
+    fromViewController.viewModel.coordinator.detach()
   }
 
   override func syncList() {

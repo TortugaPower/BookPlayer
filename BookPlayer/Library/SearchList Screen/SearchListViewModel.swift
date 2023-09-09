@@ -10,13 +10,14 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class SearchListViewModel: BaseViewModel<Coordinator> {
+class SearchListViewModel: ViewModelProtocol {
   /// Available routes for this screen
   enum Routes {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
   }
 
+  weak var coordinator: Coordinator!
   /// Search only the folder if entered search via a subfolder
   let folderRelativePath: String?
   /// Title for the placeholder of space we're searching (e.g. Library, or folder name)
@@ -60,8 +61,6 @@ class SearchListViewModel: BaseViewModel<Coordinator> {
     self.syncService = syncService
     self.playerManager = playerManager
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
-    super.init()
-
     self.bindPlayingItemObserver()
   }
 
