@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "B16A6052-5C30-42F6-9BC2-DE02B53CE677",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "VoiceOverServiceTest\/testForwardText()",
+        "VoiceOverServiceTest\/testRewindText()"
+      ],
+      "target" : {
+        "containerPath" : "container:BookPlayer.xcodeproj",
+        "identifier" : "418B6D0D1D2707F800F974FB",
+        "name" : "BookPlayerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
