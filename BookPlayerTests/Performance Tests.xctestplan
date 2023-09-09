@@ -9,13 +9,18 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:BookPlayer.xcodeproj",
+      "identifier" : "418B6CF71D2707F800F974FB",
+      "name" : "BookPlayer"
+    }
   },
   "testTargets" : [
     {
       "selectedTests" : [
-        "VoiceOverServiceTest\/testForwardText()",
-        "VoiceOverServiceTest\/testRewindText()"
+        "PlaybackPerformanceTests\/testExample()",
+        "PlaybackPerformanceTests\/testPerformanceExample()"
       ],
       "target" : {
         "containerPath" : "container:BookPlayer.xcodeproj",

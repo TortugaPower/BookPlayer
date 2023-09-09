@@ -32,6 +32,9 @@
   "testTargets" : [
     {
       "parallelizable" : true,
+      "skippedTests" : [
+        "PlaybackPerformanceTests"
+      ],
       "target" : {
         "containerPath" : "container:BookPlayer.xcodeproj",
         "identifier" : "418B6D0D1D2707F800F974FB",
