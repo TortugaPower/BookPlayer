@@ -12,7 +12,7 @@ import Combine
 import Themeable
 import UIKit
 
-final class ImportViewController: UIViewController, ViewControllerProtocol, Storyboarded {
+final class ImportViewController: UIViewController, MVVMControllerProtocol, Storyboarded {
   var viewModel: ImportViewModel!
   @IBOutlet weak var descriptionLabel: UILabel!
   @IBOutlet weak var tableView: UITableView!

@@ -43,7 +43,7 @@
 		41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
-		4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */; };
+		4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */; };
 		4137BBCE272DBB16009ED9FE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */; };
 		4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */; };
 		4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBD1272DED79009ED9FE /* ItemListCoordinatorTests.swift */; };
@@ -710,7 +710,7 @@
 		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4136175D24019EF000D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
-		4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMControllerProtocol.swift; sourceTree = "<group>"; };
 		4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinatorTests.swift; sourceTree = "<group>"; };
 		4137BBD1272DED79009ED9FE /* ItemListCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -2226,7 +2226,7 @@
 				C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */,
 				4151A6A726E48C3400E49DBE /* Storyboarded.swift */,
 				9F3C4357284132640066D99A /* AlertPresenter.swift */,
-				4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */,
+				4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */,
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
 				9F134604293D0A410089B1DE /* ThemeViewModel.swift */,
 				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
@@ -3082,7 +3082,7 @@
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
-				4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */,
+				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,

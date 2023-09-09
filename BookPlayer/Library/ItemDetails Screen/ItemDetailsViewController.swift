@@ -12,7 +12,7 @@ import SwiftUI
 import Themeable
 import UIKit
 
-class ItemDetailsViewController: UIViewController, ViewControllerProtocol {
+class ItemDetailsViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: ItemDetailsViewModel!
   // MARK: - UI components
 

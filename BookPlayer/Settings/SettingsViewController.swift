@@ -20,7 +20,7 @@ protocol IntentSelectionDelegate: AnyObject {
 }
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
-class SettingsViewController: UITableViewController, TableViewControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
+class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
   @IBOutlet weak var autoplayRestartSwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!

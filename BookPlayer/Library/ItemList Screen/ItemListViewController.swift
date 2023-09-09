@@ -13,7 +13,7 @@ import Kingfisher
 import Themeable
 import UIKit
 
-class ItemListViewController: UIViewController, ViewControllerProtocol, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
+class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
   var viewModel: ItemListViewModel!
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
