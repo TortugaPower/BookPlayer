@@ -1,0 +1,46 @@
+{
+  "configurations" : [
+    {
+      "id" : "CB210662-C4F6-4F8C-8B04-93C66DF8C8C4",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:BookPlayer.xcodeproj",
+          "identifier" : "418B6CF71D2707F800F974FB",
+          "name" : "BookPlayer"
+        },
+        {
+          "containerPath" : "container:BookPlayer.xcodeproj",
+          "identifier" : "41A1B0D1226E9BC400EA0400",
+          "name" : "BookPlayerKit"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:BookPlayer.xcodeproj",
+      "identifier" : "418B6CF71D2707F800F974FB",
+      "name" : "BookPlayer"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "PlaybackPerformanceTests"
+      ],
+      "target" : {
+        "containerPath" : "container:BookPlayer.xcodeproj",
+        "identifier" : "418B6D0D1D2707F800F974FB",
+        "name" : "BookPlayerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

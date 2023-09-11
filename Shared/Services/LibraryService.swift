@@ -1183,33 +1183,48 @@ extension LibraryService {
 
   /// Internal function to calculate the entire folder's progress
   func calculateFolderProgress(at relativePath: String) -> (Double, Int) {
-    let progressExpression = NSExpressionDescription()
-    progressExpression.expression = NSExpression(
-      forConditional: NSPredicate(format: "%K == 1", #keyPath(LibraryItem.isFinished)),
-      trueExpression: NSExpression(forConstantValue: 100.0),
-      falseExpression: NSExpression(forKeyPath: #keyPath(LibraryItem.percentCompleted))
-    )
-    progressExpression.name = "parsedPercentCompleted"
-    progressExpression.expressionResultType = NSAttributeType.doubleAttributeType
+    let countExpression = NSExpressionDescription()
+    countExpression.expression = NSExpression(forFunction: "count:", arguments: [
+      NSExpression(forKeyPath: #keyPath(LibraryItem.relativePath))
+    ])
+    countExpression.name = "totalCount"
+    /// Largest 16-bit integer 65535
+    countExpression.expressionResultType = .integer16AttributeType
+
+    let sumExpression = NSExpressionDescription()
+    sumExpression.expression = NSExpression(forFunction: "sum:", arguments: [
+      NSExpression(forKeyPath: #keyPath(LibraryItem.percentCompleted))
+    ])
+    sumExpression.name = "totalSum"
+    sumExpression.expressionResultType = .doubleAttributeType
 
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
-    fetchRequest.propertiesToFetch = [progressExpression]
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@ && %K != 1",
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath,
+      #keyPath(LibraryItem.isFinished)
+    )
+    fetchRequest.propertiesToFetch = [sumExpression, countExpression]
     fetchRequest.resultType = .dictionaryResultType
 
     guard
-      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Double]],
-      !results.isEmpty
+      let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any],
+      let fetchedCount = results["totalCount"] as? Int,
+      var fetchedSum = results["totalSum"] as? Double
     else {
       return (0, 0)
     }
 
-    let count = results.count
-    let totalProgress = results.reduce(into: Double(0)) { partialResult, dict in
-      partialResult += dict.values.first ?? 0
+    /// Catch edge case and default to 0
+    if fetchedSum == .infinity {
+      fetchedSum = 0
     }
 
-    return (totalProgress / Double(count), count)
+    let totalCount = getMaxItemsCount(at: relativePath)
+    let totalProgress = fetchedSum + Double((totalCount - fetchedCount) * 100)
+
+    return (totalProgress / Double(totalCount), totalCount)
   }
 
   public func rebuildFolderDetails(_ relativePath: String) {
