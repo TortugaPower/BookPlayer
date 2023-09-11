@@ -1211,9 +1211,14 @@ extension LibraryService {
     guard
       let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any],
       let fetchedCount = results["totalCount"] as? Int,
-      let fetchedSum = results["totalSum"] as? Double
+      var fetchedSum = results["totalSum"] as? Double
     else {
       return (0, 0)
+    }
+
+    /// Catch edge case and default to 0
+    if fetchedSum == .infinity {
+      fetchedSum = 0
     }
 
     let totalCount = getMaxItemsCount(at: relativePath)

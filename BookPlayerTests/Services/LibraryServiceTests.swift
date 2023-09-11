@@ -1170,7 +1170,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(book.currentTime == 50)
   }
 
-  func testUpdatePlaybackTime() throws {
+  func testUpdateFolderProgress() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
       title: "test-book1",
@@ -1229,6 +1229,12 @@ class ModifyLibraryTests: LibraryServiceTests {
 
     self.sut.markAsFinished(flag: false, relativePath: book2.relativePath)
     book2.percentCompleted = .nan
+    self.sut.dataManager.saveContext()
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 0)
+
+    book2.percentCompleted = .infinity
     self.sut.dataManager.saveContext()
     self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
 
