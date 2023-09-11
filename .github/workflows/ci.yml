@@ -20,5 +20,5 @@ jobs:
     - name: Resolve dependencies
       run: xcodebuild -resolvePackageDependencies
     - name: Build and Run tests
-      run: xcodebuild test -project BookPlayer.xcodeproj -scheme BookPlayer -destination 'platform=iOS Simulator,name=iPhone 13,OS=16.2'
+      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 13,OS=16.2'
 

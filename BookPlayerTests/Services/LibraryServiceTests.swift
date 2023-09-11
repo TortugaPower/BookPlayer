@@ -1170,6 +1170,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(book.currentTime == 50)
   }
 
+  // swiftlint:disable:next function_body_length
   func testUpdateFolderProgress() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
