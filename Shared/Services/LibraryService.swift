@@ -468,15 +468,19 @@ extension LibraryService {
   }
 
   public func setLibraryLastBook(with relativePath: String?) {
-    let library = self.getLibraryReference()
+    setLibraryLastBook(with: relativePath, context: dataManager.getContext())
+  }
+
+  func setLibraryLastBook(with relativePath: String?, context: NSManagedObjectContext) {
+    let library = getLibraryReference(context: context)
 
     if let relativePath = relativePath {
-      library.lastPlayedItem = getItemReference(with: relativePath)
+      library.lastPlayedItem = getItemReference(with: relativePath, context: context)
     } else {
       library.lastPlayedItem = nil
     }
 
-    self.dataManager.saveContext()
+    dataManager.saveSyncContext(context)
   }
 
   @discardableResult

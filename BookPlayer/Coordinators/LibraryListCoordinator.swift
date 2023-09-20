@@ -211,77 +211,57 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   override func syncList() {
     Task { @MainActor in
-      let lastPlayed: SyncableItem?
+      do {
+        let lastPlayed: SyncableItem?
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
-        lastPlayed = try await syncService.syncListContents(at: nil)
-      } else {
-        lastPlayed = try await syncService.syncLibraryContents()
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+          lastPlayed = try await syncService.syncListContents(at: nil)
+        } else {
+          lastPlayed = try await syncService.syncLibraryContents()
 
-        UserDefaults.standard.set(
-          true,
-          forKey: Constants.UserDefaults.hasScheduledLibraryContents
-        )
-      }
+          UserDefaults.standard.set(
+            true,
+            forKey: Constants.UserDefaults.hasScheduledLibraryContents
+          )
+        }
 
-      reloadItemsWithPadding()
-      if let lastPlayed {
-        handleSyncedLastPlayed(item: lastPlayed)
-      }
-    }
-  }
-
-  func handleSyncedLastPlayed(item: SyncableItem) {
-    guard
-      let localLastItem = libraryService.getLibraryLastItem(),
-      let lastPlayDateTimestamp = item.lastPlayDateTimestamp
-    else {
-      setSyncedLastPlayedItem(relativePath: item.relativePath)
-      return
-    }
-
-    /// Check to update current time or not
-    if item.relativePath == localLastItem.relativePath {
-      /// Add a padding of 1 min to local time
-      if item.currentTime > (localLastItem.currentTime + 60) {
-        /// Continue playback after time sync
-        let wasPlaying = playerManager.isPlaying
-        playerManager.stop()
-        libraryService.updatePlaybackTime(
-          relativePath: item.relativePath,
-          time: item.currentTime,
-          date: Date(timeIntervalSince1970: lastPlayDateTimestamp),
-          scheduleSave: false
-        )
-        AppDelegate.shared?.loadPlayer(
-          item.relativePath,
-          autoplay: wasPlaying,
-          showPlayer: nil,
-          alertPresenter: self
-        )
-      }
-    } else {
-      /// Only continue overriding local book if it's not currently playing
-      guard playerManager.isPlaying == false else { return }
-
-      if let lastPlayDateTimestamp = item.lastPlayDateTimestamp,
-         let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970,
-         lastPlayDateTimestamp > localLastPlayDateTimestamp {
-        setSyncedLastPlayedItem(relativePath: item.relativePath)
+        reloadItemsWithPadding()
+        if let lastPlayed {
+          reloadLastBook(relativePath: lastPlayed.relativePath)
+        }
+      } catch BPSyncError.reloadLastBook(let relativePath) {
+        reloadItemsWithPadding()
+        reloadLastBook(relativePath: relativePath)
+      } catch BPSyncError.differentLastBook(let relativePath) {
+        reloadItemsWithPadding()
+        setSyncedLastPlayedItem(relativePath: relativePath)
+      } catch {
+        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
       }
     }
   }
 
-  func setSyncedLastPlayedItem(relativePath: String?) {
+  func reloadLastBook(relativePath: String) {
+    let wasPlaying = playerManager.isPlaying
+    playerManager.stop()
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: wasPlaying,
+      showPlayer: nil,
+      alertPresenter: self
+    )
+  }
+
+  func setSyncedLastPlayedItem(relativePath: String) {
+    /// Only continue overriding local book if it's not currently playing
+    guard playerManager.isPlaying == false else { return }
+
     libraryService.setLibraryLastBook(with: relativePath)
-
-    if let relativePath {
-      AppDelegate.shared?.loadPlayer(
-        relativePath,
-        autoplay: false,
-        showPlayer: nil,
-        alertPresenter: self
-      )
-    }
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: false,
+      showPlayer: nil,
+      alertPresenter: self
+    )
   }
 }

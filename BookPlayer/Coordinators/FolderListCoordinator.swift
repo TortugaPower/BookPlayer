@@ -74,8 +74,12 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func syncList() {
     Task { @MainActor in
-      _ = try await syncService.syncListContents(at: folderRelativePath)
-      reloadItemsWithPadding()
+      do {
+        _ = try await syncService.syncListContents(at: folderRelativePath)
+        reloadItemsWithPadding()
+      } catch {
+        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
+      }
     }
   }
 }

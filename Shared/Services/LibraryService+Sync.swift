@@ -18,13 +18,19 @@ public protocol LibrarySyncProtocol {
   func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
   func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async
+  /// Update single local item with synced info
+  func updateInfo(for item: SyncableItem) async
   /// Create new items from synced info
   func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Remove local items that were not in the remote identifiers
   func removeItems(notIn identifiers: [String], parentFolder: String?) async
 
-  /// Update last played info
-  func updateLastPlayedInfo(_ item: SyncableItem) async
+  /// Get last played library item
+  func getLibraryLastItem() -> SimpleLibraryItem?
+  /// Set the last played book
+  func setLibraryLastBook(with relativePath: String?) async
+  /// Returns boolean determining if the item exists for the relativePath
+  func itemExists(for relativePath: String) async -> Bool
 
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
@@ -36,6 +42,27 @@ public protocol LibrarySyncProtocol {
 }
 
 extension LibraryService: LibrarySyncProtocol {
+  public func setLibraryLastBook(with relativePath: String?) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getContext()
+      context.perform { [unowned self, context] in
+        setLibraryLastBook(with: relativePath, context: context)
+        continuation.resume()
+      }
+    }
+  }
+
+  public func itemExists(for relativePath: String) async -> Bool {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getContext()
+      context.perform { [unowned self, context] in
+        let storedItem = getItemReference(with: relativePath, context: context)
+
+        continuation.resume(returning: storedItem != nil)
+      }
+    }
+  }
+
   public func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getContext()
@@ -48,22 +75,7 @@ extension LibraryService: LibrarySyncProtocol {
         for storedItem in storedItems {
           guard let item = itemsDict[storedItem.relativePath] else { continue }
 
-          storedItem.title = item.title
-          storedItem.details = item.details
-          storedItem.currentTime = item.currentTime
-          storedItem.duration = item.duration
-          storedItem.isFinished = item.isFinished
-          storedItem.orderRank = Int16(item.orderRank)
-          storedItem.percentCompleted = item.percentCompleted
-          storedItem.remoteURL = item.remoteURL
-          storedItem.artworkURL = item.artworkURL
-          storedItem.type = item.type.itemType
-          storedItem.speed = Float(item.speed ?? 1.0)
-          if let timestamp = item.lastPlayDateTimestamp {
-            storedItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-          } else {
-            storedItem.lastPlayDate = nil
-          }
+          updateInfo(for: item, context: context, shouldSaveContext: false)
         }
 
         dataManager.saveSyncContext(context)
@@ -72,34 +84,38 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
 
-  public func updateLastPlayedInfo(_ item: SyncableItem) async {
+  public func updateInfo(for item: SyncableItem) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getContext()
       context.perform { [unowned self, context] in
-        guard let localItem = getItem(with: item.relativePath, context: context) else {
-          continuation.resume()
-          return
-        }
-
-        if let remoteURL = item.remoteURL {
-          localItem.remoteURL = remoteURL
-        }
-
-        if let artworkURL = item.artworkURL {
-          localItem.artworkURL = artworkURL
-        }
-
-        if let timestamp = item.lastPlayDateTimestamp {
-          localItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-        }
-
-        if let speed = item.speed {
-          localItem.speed = Float(speed)
-        }
-
-        dataManager.saveSyncContext(context)
+        updateInfo(for: item, context: context, shouldSaveContext: true)
         continuation.resume()
       }
+    }
+  }
+
+  private func updateInfo(for item: SyncableItem, context: NSManagedObjectContext, shouldSaveContext: Bool) {
+    guard let storedItem = getItem(with: item.relativePath, context: context) else { return }
+
+    storedItem.title = item.title
+    storedItem.details = item.details
+    storedItem.currentTime = item.currentTime
+    storedItem.duration = item.duration
+    storedItem.isFinished = item.isFinished
+    storedItem.orderRank = Int16(item.orderRank)
+    storedItem.percentCompleted = item.percentCompleted
+    storedItem.remoteURL = item.remoteURL
+    storedItem.artworkURL = item.artworkURL
+    storedItem.type = item.type.itemType
+    storedItem.speed = Float(item.speed ?? 1.0)
+    if let timestamp = item.lastPlayDateTimestamp {
+      storedItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+    } else {
+      storedItem.lastPlayDate = nil
+    }
+
+    if shouldSaveContext {
+      dataManager.saveSyncContext(context)
     }
   }
 

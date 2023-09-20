@@ -18,7 +18,7 @@ enum ItemListActionRoutes {
   case reloadItems(_ pageSizePadding: Int)
 }
 
-class ItemListCoordinator: Coordinator, AlertPresenter {
+class ItemListCoordinator: Coordinator, AlertPresenter, BPLogger {
   public var onAction: BPTransition<ItemListActionRoutes>?
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
