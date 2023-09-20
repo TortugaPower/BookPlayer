@@ -137,7 +137,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
-      Self.logger.trace("Throttled sync operation")
       throw BookPlayerError.networkError("Throttled sync operation")
     }
 

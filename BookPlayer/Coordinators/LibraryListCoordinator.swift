@@ -10,7 +10,7 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate, BPLogger {
+class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate {
   weak var tabBarController: UITabBarController?
   let importManager: ImportManager
 
