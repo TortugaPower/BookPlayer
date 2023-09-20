@@ -234,7 +234,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         reloadLastBook(relativePath: relativePath)
       } catch BPSyncError.differentLastBook(let relativePath) {
         reloadItemsWithPadding()
-        refreshLastBook(relativePath: relativePath)
+        setSyncedLastPlayedItem(relativePath: relativePath)
       } catch {
         Self.logger.trace("Sync contents error: \(error.localizedDescription)")
       }
@@ -252,7 +252,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     )
   }
 
-  func refreshLastBook(relativePath: String) {
+  func setSyncedLastPlayedItem(relativePath: String) {
     /// Only continue overriding local book if it's not currently playing
     guard playerManager.isPlaying == false else { return }
 
