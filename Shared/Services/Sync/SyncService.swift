@@ -10,6 +10,16 @@ import Combine
 import Foundation
 import RevenueCat
 
+/// Sync errors that must be handled (not shown as alerts)
+public enum BPSyncError: Error {
+  /// The library did not have a last book, and needs to reload the player
+  /// - Parameter String: relative path of the remote last played book
+  case reloadLastBook(String)
+  /// The stored last book is different than the remote one, the caller should handle the override conditions
+  /// - Parameter String: relative path of the remote last played book
+  case differentLastBook(String)
+}
+
 /// sourcery: AutoMockable
 public protocol SyncServiceProtocol {
   /// Flag to check if it can sync or not
@@ -140,7 +150,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let response = try await fetchContents(at: relativePath)
 
-    await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
+    try await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
 
     return response.lastItemPlayed
   }
@@ -165,7 +175,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let response = try await fetchContents(at: nil)
 
-    await processContentsResponse(response, parentFolder: nil, canDelete: false)
+    try await processContentsResponse(response, parentFolder: nil, canDelete: false)
 
     return response.lastItemPlayed
   }
@@ -174,7 +184,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     _ response: ContentsResponse,
     parentFolder: String?,
     canDelete: Bool
-  ) async {
+  ) async throws {
     guard !response.content.isEmpty else { return }
 
     let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
@@ -187,9 +197,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       await libraryService.removeItems(notIn: Array(itemsDict.keys), parentFolder: parentFolder)
     }
 
-    if let lastItemPlayed = response.lastItemPlayed {
-      await libraryService.updateLastPlayedInfo(lastItemPlayed)
+    /// Only handle if the last item played is stored in the local library
+    /// Note: we cannot just store the item, because we lack the info of the possible parent folders
+    if let lastItemPlayed = response.lastItemPlayed,
+       await libraryService.itemExists(for: lastItemPlayed.relativePath) {
+      try await handleSyncedLastPlayed(item: lastItemPlayed)
     }
+  }
+
+  func handleSyncedLastPlayed(item: SyncableItem) async throws {
+    guard
+      let localLastItem = libraryService.getLibraryLastItem(),
+      let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970
+    else {
+      await libraryService.updateInfo(for: item)
+      await libraryService.setLibraryLastBook(with: item.relativePath)
+      throw BPSyncError.reloadLastBook(item.relativePath)
+    }
+
+    guard item.relativePath == localLastItem.relativePath else {
+      await libraryService.updateInfo(for: item)
+      throw BPSyncError.differentLastBook(item.relativePath)
+    }
+
+    /// Only update the time if the remote last played timestamp is greater than the local timestamp
+    guard
+      let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp,
+      remoteLastPlayDateTimestamp > localLastPlayDateTimestamp
+    else {
+      return
+    }
+
+    await libraryService.updateInfo(for: item)
   }
 
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
