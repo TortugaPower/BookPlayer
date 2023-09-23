@@ -8,8 +8,7 @@
 
 import UIKit
 
-@MainActor
-public protocol BPCoordinatorPresentationFlow {
+protocol BPCoordinatorPresentationFlow {
   /// Navigation used for the flow of the coordinator
   var navigationController: UINavigationController { get }
   /// Start the flow with the specified starting screen

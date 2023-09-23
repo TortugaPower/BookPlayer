@@ -305,6 +305,7 @@
 		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
 		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
+		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
 		631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */; };
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
 		631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */; };
@@ -975,6 +976,7 @@
 		62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryServiceTests.swift; sourceTree = "<group>"; };
 		62CADB8D2724E41800A4A98F /* Audiobook Player 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 7.xcdatamodel"; sourceTree = "<group>"; };
 		62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportableItem.swift; sourceTree = "<group>"; };
+		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1901,6 +1903,7 @@
 				631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */,
 				631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */,
 				631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */,
+				631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */,
 			);
 			path = PresentationFlow;
 			sourceTree = "<group>";
@@ -3120,6 +3123,7 @@
 				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
+				631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */,
 				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
