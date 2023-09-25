@@ -15,13 +15,10 @@ class PlayerCoordinator: Coordinator {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   
-  var flow: BPCoordinatorPresentationFlow {
-    return modalOnlyFlow
-  }
-
-  let modalOnlyFlow: BPModalOnlyPresentationFlow
+  let flow: BPCoordinatorPresentationFlow
 
   weak var alert: UIAlertController?
+  weak var playerViewController: PlayerViewController!
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -35,7 +32,7 @@ class PlayerCoordinator: Coordinator {
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
-    self.modalOnlyFlow = flow
+    self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
@@ -43,6 +40,7 @@ class PlayerCoordinator: Coordinator {
 
   func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
+    playerViewController = vc
     let viewModel = PlayerViewModel(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
@@ -65,7 +63,7 @@ class PlayerCoordinator: Coordinator {
 
   func showBookmarks() {
     let bookmarksCoordinator = BookmarkCoordinator(
-      flow: .modalFlow(presentingController: modalOnlyFlow.presentedController),
+      flow: .modalFlow(presentingController: playerViewController),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
@@ -75,7 +73,7 @@ class PlayerCoordinator: Coordinator {
 
   func showButtonFree() {
     let coordinator = ButtonFreeCoordinator(
-      flow: .modalFlow(presentingController: modalOnlyFlow.presentedController, modalPresentationStyle: .overFullScreen),
+      flow: .modalFlow(presentingController: playerViewController, modalPresentationStyle: .overFullScreen),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
@@ -85,7 +83,7 @@ class PlayerCoordinator: Coordinator {
 
   func showChapters() {
     let chaptersCoordinator = ChapterCoordinator(
-      flow: .modalFlow(presentingController: modalOnlyFlow.presentedController),
+      flow: .modalFlow(presentingController: playerViewController),
       playerManager: self.playerManager
     )
     chaptersCoordinator.start()
@@ -93,7 +91,7 @@ class PlayerCoordinator: Coordinator {
 
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
-      flow: .modalFlow(presentingController: modalOnlyFlow.presentedController, prefersMediumDetent: true),
+      flow: .modalFlow(presentingController: playerViewController, prefersMediumDetent: true),
       playerManager: playerManager
     )
     playerControlsCoordinator.start()

@@ -16,8 +16,10 @@ import XCTest
 class LibraryListCoordinatorTests: XCTestCase {
   var libraryListCoordinator: LibraryListCoordinator!
   var dataManager: DataManager!
+  var presentingController: MockNavigationController!
 
   override func setUp() {
+    self.presentingController = MockNavigationController()
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: CoreDataStack(testPath: "/dev/null"))
     self.dataManager = coreServices.dataManager
     let libraryService = coreServices.libraryService
@@ -28,7 +30,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
 
     self.libraryListCoordinator = LibraryListCoordinator(
-      navigationController: UINavigationController(),
+      flow: .pushFlow(navigationController: self.presentingController),
       playerManager: playerManagerMock,
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
@@ -40,7 +42,6 @@ class LibraryListCoordinatorTests: XCTestCase {
   }
 
   func testInitialState() {
-    XCTAssert(self.libraryListCoordinator.childCoordinators.isEmpty)
     XCTAssert(self.libraryListCoordinator.shouldShowImportScreen())
   }
 
@@ -54,25 +55,23 @@ class LibraryListCoordinatorTests: XCTestCase {
     library.addToItems(folder)
 
     self.libraryListCoordinator.showFolder(folder.relativePath)
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ItemListCoordinator)
-    XCTAssertTrue(self.libraryListCoordinator.shouldShowImportScreen())
+    let folderViewController = presentingController.viewControllers.last as? ItemListViewController
+    XCTAssertTrue(folderViewController?.viewModel.folderRelativePath == folder.relativePath)
+    XCTAssertTrue(presentingController.horizontalStack == ["ItemListViewController", "ItemListViewController"])
   }
 
   func testShowPlayer() {
     self.libraryListCoordinator.showPlayer()
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is PlayerCoordinator)
-  }
-
-  func testShowImport() {
-    self.libraryListCoordinator.showImport()
-    XCTAssert(self.libraryListCoordinator.childCoordinators.first is ImportCoordinator)
+    XCTAssert(presentingController.verticalStack == ["PlayerViewController"])
   }
 }
 
 class FolderListCoordinatorTests: XCTestCase {
   var folderListCoordinator: FolderListCoordinator!
+  var presentingController: UINavigationController!
 
   override func setUp() {
+    self.presentingController = MockNavigationController()
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let libraryService = LibraryService(dataManager: dataManager)
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
@@ -80,7 +79,7 @@ class FolderListCoordinatorTests: XCTestCase {
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
 
     self.folderListCoordinator = FolderListCoordinator(
-      navigationController: UINavigationController(),
+      flow: .pushFlow(navigationController: self.presentingController),
       folderRelativePath: folder.relativePath,
       playerManager: playerManagerMock,
       libraryService: libraryService,

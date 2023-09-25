@@ -14,10 +14,6 @@ class BPModalOnlyPresentationFlow: BPCoordinatorPresentationFlow {
   var navigationController: UINavigationController {
     fatalError("Navigation not available on this type of coordinator flow")
   }
-  /// Single controller presented by this flow
-  var presentedController: UIViewController {
-    return presentingController.presentedViewController!
-  }
 
   /// Controller that will present the ``presentedController`` on ``startPresentation(_:animated:)``
   unowned let presentingController: UIViewController
