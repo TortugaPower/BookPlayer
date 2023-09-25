@@ -436,8 +436,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func setupDocumentListener() {
     let newFilesCallback: (([URL]) -> Void) = { [weak self] newFiles in
       guard
-        let activeSceneDelegate = self?.activeSceneDelegate,
-        let mainCoordinator = activeSceneDelegate.coordinator.getMainCoordinator(),
+        let mainCoordinator = self?.activeSceneDelegate?.mainCoordinator,
         let libraryCoordinator = mainCoordinator.getLibraryCoordinator()
       else {
         return
@@ -485,7 +484,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    if let mainCoordinator = activeSceneDelegate?.coordinator.getMainCoordinator(),
+    if let mainCoordinator = activeSceneDelegate?.mainCoordinator,
        !mainCoordinator.hasPlayerShown() {
       mainCoordinator.showPlayer()
     }

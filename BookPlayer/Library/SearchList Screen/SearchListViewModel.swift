@@ -17,7 +17,7 @@ class SearchListViewModel: ViewModelProtocol {
     case loadPlayer(relativePath: String)
   }
 
-  weak var coordinator: Coordinator!
+  weak var coordinator: ItemListCoordinator!
   /// Search only the folder if entered search via a subfolder
   let folderRelativePath: String?
   /// Title for the placeholder of space we're searching (e.g. Library, or folder name)

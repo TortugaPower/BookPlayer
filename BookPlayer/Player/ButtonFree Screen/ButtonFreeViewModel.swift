@@ -10,8 +10,12 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class ButtonFreeViewModel: ViewModelProtocol {
-  weak var coordinator: ButtonFreeCoordinator!
+class ButtonFreeViewModel {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
 
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
@@ -103,4 +107,8 @@ class ButtonFreeViewModel: ViewModelProtocol {
       eventPublisher.send("file_missing_title".localized)
     }
   }
+
+  func dismiss() {
+      onTransition?(.dismiss)
+    }
 }

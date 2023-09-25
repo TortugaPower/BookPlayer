@@ -8,40 +8,30 @@
 
 import UIKit
 
-class ImportCoordinator: Coordinator {
+class ImportCoordinator: NSObject, Coordinator, UIAdaptivePresentationControllerDelegate {
   let importManager: ImportManager
   weak var importViewController: ImportViewController?
+  let flow: BPCoordinatorPresentationFlow
 
   init(
-    importManager: ImportManager,
-    presentingViewController: UIViewController?
+    flow: BPCoordinatorPresentationFlow,
+    importManager: ImportManager
   ) {
+    self.flow = flow
     self.importManager = importManager
-
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Player),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
     let vc = ImportViewController.instantiate(from: .Main)
+    vc.presentationController?.delegate = self
     self.importViewController = vc
     let viewModel = ImportViewModel(importManager: self.importManager)
     viewModel.coordinator = self
     vc.viewModel = viewModel
-
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-    nav.presentationController?.delegate = self
-    AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
-      .getTopController()?.present(nav, animated: true, completion: nil)
+    flow.startPresentation(vc, animated: true)
   }
 
-  override func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+  func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
     try? self.importViewController?.viewModel.discardImportOperation()
-    super.presentationControllerDidDismiss(presentationController)
   }
 }

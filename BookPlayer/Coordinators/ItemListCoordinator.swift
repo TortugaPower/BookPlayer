@@ -11,76 +11,56 @@ import Combine
 import UIKit
 import UniformTypeIdentifiers
 
-enum ItemListActionRoutes {
-  case downloadBook(_ url: URL)
-  case newImportOperation(_ operation: ImportOperation)
-  case importOperationFinished(_ urls: [URL], _ suggestedFolderName: String?)
-  case reloadItems(_ pageSizePadding: Int)
-}
-
-class ItemListCoordinator: Coordinator, AlertPresenter, BPLogger {
-  public var onAction: BPTransition<ItemListActionRoutes>?
+class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
+  let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
 
   init(
-    navigationController: UINavigationController,
+    flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
+    self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
-
-    super.init(navigationController: navigationController,
-               flowType: .push)
   }
 
-  override func start() {
+  func start() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 
-  override func getMainCoordinator() -> MainCoordinator? {
-    switch self.parentCoordinator {
-    case let mainCoordinator as MainCoordinator:
-      return mainCoordinator
-    case let listCoordinator as ItemListCoordinator:
-      return listCoordinator.getMainCoordinator()
-    default:
-      return nil
-    }
+  func getMainCoordinator() -> MainCoordinator? {
+    return AppDelegate.shared?.activeSceneDelegate?.mainCoordinator
   }
 
   func showFolder(_ relativePath: String) {
     let child = FolderListCoordinator(
-      navigationController: navigationController,
+      flow: .pushFlow(navigationController: flow.navigationController),
       folderRelativePath: relativePath,
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService
     )
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
     child.start()
   }
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      syncService: self.syncService,
-      presentingViewController: self.navigationController
+      flow: .modalOnlyFlow(presentingController: flow.navigationController, modalPresentationStyle: .overFullScreen),
+      playerManager: playerManager,
+      libraryService: libraryService,
+      syncService: syncService
     )
-    playerCoordinator.parentCoordinator = self
-    self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
 
@@ -93,17 +73,17 @@ class ItemListCoordinator: Coordinator, AlertPresenter, BPLogger {
       playerManager: playerManager,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .showFolder(let relativePath):
-        self?.showFolder(relativePath)
+        self.showFolder(relativePath)
       case .loadPlayer(let relativePath):
-        self?.loadPlayer(relativePath)
+        self.loadPlayer(relativePath)
       }
     }
     let vc = SearchListViewController(viewModel: viewModel)
 
-    self.navigationController.pushViewController(vc, animated: true)
+    flow.pushViewController(vc, animated: true)
   }
 
   func loadPlayer(_ relativePath: String) {
@@ -143,7 +123,7 @@ extension ItemListCoordinator {
 
     UIApplication.shared.isIdleTimerDisabled = true
 
-    self.presentingViewController?.present(providerList, animated: true, completion: nil)
+    flow.navigationController.present(providerList, animated: true, completion: nil)
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {
@@ -153,22 +133,21 @@ extension ItemListCoordinator {
     shareController.excludedActivityTypes = [.copyToPasteboard]
 
     if let popoverPresentationController = shareController.popoverPresentationController,
-       let view = navigationController.topViewController?.view {
+       let view = flow.navigationController.topViewController?.view {
       popoverPresentationController.permittedArrowDirections = []
       popoverPresentationController.sourceView = view
       popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
     }
 
-    self.navigationController.present(shareController, animated: true, completion: nil)
+    flow.navigationController.present(shareController, animated: true, completion: nil)
   }
 
   func reloadItemsWithPadding(padding: Int = 0) {
-    // Reload all preceding screens too
-    if let coordinator = self.parentCoordinator as? ItemListCoordinator {
-      coordinator.reloadItemsWithPadding(padding: padding)
+    // Reload all screens too
+    for vc in flow.navigationController.viewControllers {
+      guard let itemVC = vc as? ItemListViewController else { continue }
+      itemVC.viewModel.reloadItems(pageSizePadding: padding)
     }
-
-    self.onAction?(.reloadItems(padding))
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {
@@ -177,25 +156,25 @@ extension ItemListCoordinator {
       libraryService: libraryService,
       syncService: syncService
     )
-    viewModel.onTransition = { [weak self] route in
+    let vc = ItemDetailsViewController(viewModel: viewModel)
+    viewModel.onTransition = { [vc] route in
       switch route {
       case .done:
-        self?.reloadItemsWithPadding()
+        self.reloadItemsWithPadding()
       case .cancel:
         /// do nothing on cancel
         break
       }
-      self?.navigationController.dismiss(animated: true)
+      vc.dismiss(animated: true)
     }
 
-    let vc = ItemDetailsViewController(viewModel: viewModel)
     if UIAccessibility.isVoiceOverRunning {
       vc.navigationItem.largeTitleDisplayMode = .never
     }
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    navigationController.present(nav, animated: true, completion: nil)
+    flow.navigationController.present(nav, animated: true, completion: nil)
   }
 
   func showItemSelectionScreen(
@@ -207,6 +186,6 @@ extension ItemListCoordinator {
     vc.onItemSelected = selectionHandler
 
     let nav = AppNavigationController(rootViewController: vc)
-    self.navigationController.present(nav, animated: true, completion: nil)
+    flow.navigationController.present(nav, animated: true, completion: nil)
   }
 }

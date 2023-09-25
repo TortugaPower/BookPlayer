@@ -312,7 +312,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   private func reloadLibraryItems() {
-    AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
+    AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?
       .getLibraryCoordinator()?.reloadItemsWithPadding()
   }
 

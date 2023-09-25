@@ -10,51 +10,45 @@ import BookPlayerKit
 import UIKit
 
 class AccountCoordinator: Coordinator, AlertPresenter {
+  let flow: BPCoordinatorPresentationFlow
   let accountService: AccountServiceProtocol
 
   init(
-    accountService: AccountServiceProtocol,
-    presentingViewController: UIViewController?
+    flow: BPCoordinatorPresentationFlow,
+    accountService: AccountServiceProtocol
   ) {
+    self.flow = flow
     self.accountService = accountService
-
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Main),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
     let vc = AccountViewController()
     let viewModel = AccountViewModel(accountService: self.accountService)
     viewModel.coordinator = self
+    viewModel.onTransition = { routes in
+      switch routes {
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
 
-    self.navigationController.navigationBar.prefersLargeTitles = false
-    self.navigationController.viewControllers = [vc]
-    self.navigationController.presentationController?.delegate = self
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
-    self.presentingViewController = self.navigationController
+    flow.startPresentation(vc, animated: true)
   }
 
   func showCompleteAccount() {
     let child = CompleteAccountCoordinator(
-      accountService: self.accountService,
-      presentingViewController: self.presentingViewController
+      flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+      accountService: self.accountService
     )
-
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
     child.start()
   }
 
   func showUploadedFiles() { }
 
   func showError(_ error: Error) {
-    self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
+    flow.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
   }
 
   func showDeleteAccountAlert(onAction: @escaping () -> Void) {
@@ -68,6 +62,6 @@ class AccountCoordinator: Coordinator, AlertPresenter {
       onAction()
     }))
 
-    self.navigationController.present(alert, animated: true, completion: nil)
+    flow.navigationController.present(alert, animated: true, completion: nil)
   }
 }

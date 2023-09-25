@@ -1008,8 +1008,9 @@ extension PlayerManager {
 extension PlayerManager {
   private func showErrorAlert(_ message: String?) {
     DispatchQueue.main.async {
-      AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
-        .getTopController()?
+      AppDelegate.shared?.activeSceneDelegate?
+        .startingNavigationController
+        .getTopVisibleViewController()?
         .showAlert("error_title".localized, message: message)
     }
   }

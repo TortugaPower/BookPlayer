@@ -119,7 +119,7 @@ class ActionParserService {
 
   private class func handleFileImportAction(_ action: Action) {
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")
     else {
       return
@@ -183,7 +183,7 @@ class ActionParserService {
     }
 
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator()
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator()
     else { return }
 
     self.removeAction(action)
@@ -192,7 +192,7 @@ class ActionParserService {
 
   private class func handleDownloadAction(_ action: Action) {
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?.getLibraryCoordinator(),
+      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
     else {
       return
@@ -204,7 +204,7 @@ class ActionParserService {
     }
 
     self.removeAction(action)
-    libraryCoordinator.onAction?(.downloadBook(url))
+    libraryCoordinator.handleDownloadAction(url: url)
   }
 
   private class func handleWidgetAction(_ action: Action) {

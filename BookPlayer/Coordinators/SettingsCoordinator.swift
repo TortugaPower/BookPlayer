@@ -13,21 +13,21 @@ import SwiftUI
 class SettingsCoordinator: Coordinator, AlertPresenter {
   weak var tabBarController: UITabBarController?
 
+  let flow: BPCoordinatorPresentationFlow
   let libraryService: LibraryServiceProtocol
   let accountService: AccountServiceProtocol
 
   init(
+    flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
-    accountService: AccountServiceProtocol,
-    navigationController: UINavigationController
+    accountService: AccountServiceProtocol
   ) {
+    self.flow = flow
     self.libraryService = libraryService
     self.accountService = accountService
-
-    super.init(navigationController: navigationController, flowType: .modal)
   }
 
-  override func start() {
+  func start() {
     let viewModel = SettingsViewModel(accountService: accountService)
 
     viewModel.onTransition = { route in
@@ -54,22 +54,20 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let vc = SettingsViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
     vc.viewModel.coordinator = self
-    self.navigationController.presentationController?.delegate = self
 
     vc.navigationItem.largeTitleDisplayMode = .never
-    self.navigationController.tabBarItem = UITabBarItem(
+    flow.navigationController.tabBarItem = UITabBarItem(
       title: "settings_title".localized,
       image: UIImage(systemName: "gearshape"),
       selectedImage: UIImage(systemName: "gearshape.fill")
     )
-    self.presentingViewController = self.navigationController
 
     if let tabBarController = tabBarController {
-      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [flow.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    self.navigationController.pushViewController(vc, animated: true)
+    flow.startPresentation(vc, animated: false)
   }
 
   func showStorageManagement() {
@@ -83,13 +81,13 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       case .showAlert(let title, let message):
         self?.showAlert(title, message: message)
       case .dismiss:
-        self?.presentingViewController?.dismiss(animated: true)
+        self?.flow.navigationController.dismiss(animated: true)
       }
     }
 
     let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
-    presentingViewController?.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showCloudDeletedFiles() {
@@ -100,35 +98,47 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       case .showAlert(let title, let message):
         self?.showAlert(title, message: message)
       case .dismiss:
-        self?.presentingViewController?.dismiss(animated: true)
+        self?.flow.navigationController.dismiss(animated: true)
       }
     }
 
     let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
-    presentingViewController?.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showPro() {
-    let presentingVC = self.navigationController.getTopViewController()
+//    let presentingVC = flow.navigationController.getTopViewController()
     let child: Coordinator
 
     if self.accountService.getAccountId() != nil {
       child = CompleteAccountCoordinator(
-        accountService: self.accountService,
-        presentingViewController: presentingVC
+        flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+        accountService: self.accountService
       )
     } else {
-      child = LoginCoordinator(
-        accountService: self.accountService,
-        presentingViewController: presentingVC
+      let loginCoordinator = LoginCoordinator(
+        flow: .modalFlow(presentingController: flow.navigationController),
+        accountService: self.accountService
       )
+      loginCoordinator.onFinish = { [unowned self] routes in
+        switch routes {
+        case .completeAccount:
+          showCompleteAccount()
+        }
+      }
+      child = loginCoordinator
     }
 
-    self.childCoordinators.append(child)
-    child.parentCoordinator = self
-
     child.start()
+  }
+
+  func showCompleteAccount() {
+    let coordinator = CompleteAccountCoordinator(
+      flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+      accountService: self.accountService
+    )
+    coordinator.start()
   }
 
   func showTipJar() {
@@ -140,7 +150,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
+    flow.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
   }
 
   func showThemes() {
@@ -159,7 +169,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showIcons() {
@@ -178,7 +188,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showPlayerControls() {
@@ -187,7 +197,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showCredits() {
@@ -196,6 +206,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
 
-    self.navigationController.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
   }
 }

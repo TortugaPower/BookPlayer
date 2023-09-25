@@ -19,7 +19,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   private var disposeBag = Set<AnyCancellable>()
 
   init(
-    navigationController: UINavigationController,
+    flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
@@ -29,7 +29,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     self.importManager = importManager
 
     super.init(
-      navigationController: navigationController,
+      flow: flow,
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
@@ -49,26 +49,26 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       syncService: self.syncService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .showFolder(let relativePath):
-        self?.showFolder(relativePath)
+        self.showFolder(relativePath)
       case .loadPlayer(let relativePath):
-        self?.loadPlayer(relativePath)
+        self.loadPlayer(relativePath)
       case .showDocumentPicker:
-        self?.showDocumentPicker()
+        self.showDocumentPicker()
       case .showSearchList(let relativePath, let placeholderTitle):
-        self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
+        self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
-        self?.showItemDetails(item)
+        self.showItemDetails(item)
       case .showExportController(let items):
-        self?.showExportController(for: items)
+        self.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
-        self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+        self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
-        self?.showMiniPlayer(flag: flag)
+        self.showMiniPlayer(flag: flag)
       case .listDidAppear:
-        self?.handleLibraryLoaded()
+        self.handleLibraryLoaded()
       }
     }
     viewModel.coordinator = self
@@ -80,12 +80,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       selectedImage: UIImage(systemName: "books.vertical.fill")
     )
 
-    self.presentingViewController = self.navigationController
-    self.navigationController.pushViewController(vc, animated: true)
-    self.navigationController.delegate = self
+    flow.startPresentation(vc, animated: false)
 
     if let tabBarController = tabBarController {
-      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [flow.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
@@ -121,17 +119,23 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     }
 
     self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
-      guard let self = self else {
+      guard 
+        let self,
+        let lastItemListViewController = self.flow.navigationController.viewControllers.last as? ItemListViewController
+      else {
         return
       }
 
-      let coordinator = self.getLastItemListCoordinator(from: self)
-
-      coordinator.onAction?(.newImportOperation(operation))
+      lastItemListViewController.setEditing(false, animated: false)
+      let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
+      lastItemListViewController.showLoadView(true, title: loadingTitle)
 
       operation.completionBlock = {
         DispatchQueue.main.async {
-          coordinator.onAction?(.importOperationFinished(operation.processedFiles, operation.suggestedFolderName))
+          lastItemListViewController.setEditing(false, animated: false)
+          lastItemListViewController.showLoadView(false)
+          lastItemListViewController.viewModel
+            .handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
         }
       }
 
@@ -169,44 +173,37 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   func showImport() {
+    guard 
+      let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
+    else { return }
     let child = ImportCoordinator(
-      importManager: self.importManager,
-      presentingViewController: self.presentingViewController
+      flow: .modalFlow(presentingController: topVC),
+      importManager: self.importManager
     )
-    child.parentCoordinator = self
-    self.childCoordinators.append(child)
     child.start()
   }
 
   func shouldShowImportScreen() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ImportCoordinator })
+    return flow.navigationController.viewControllers.count == 1
   }
 
-  func getLastItemListCoordinator(from coordinator: ItemListCoordinator) -> ItemListCoordinator {
-    if let child = coordinator.childCoordinators.last(where: { $0 is ItemListCoordinator}) as? ItemListCoordinator {
-      return getLastItemListCoordinator(from: child)
-    } else {
-      return coordinator
-    }
-  }
-
-  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
-    // Read the view controller we’re moving from.
-    guard let fromViewController = navigationController.transitionCoordinator?.viewController(forKey: .from) else {
-      return
-    }
-
-    // Check whether our view controller array already contains that view controller. If it does it means we’re pushing a different view controller on top rather than popping it, so exit.
-    if navigationController.viewControllers.contains(fromViewController) {
-      return
-    }
-
-    // Coordinator may be already released if popped by VoiceOver gesture
-    guard let fromViewController  = fromViewController as? ItemListViewController,
-          fromViewController.viewModel.coordinator != nil
+  func syncLastFolderList() {
+    let viewControllers = flow.navigationController.viewControllers
+    guard
+      viewControllers.count > 1,
+      let lastItemListViewController = viewControllers.last as? ItemListViewController
     else { return }
 
-    fromViewController.viewModel.coordinator.detach()
+    lastItemListViewController.viewModel.viewDidAppear()
+  }
+
+  func handleDownloadAction(url: URL) {
+    guard
+      let libraryListViewController = flow.navigationController.viewControllers.first as? ItemListViewController
+    else { return }
+
+    libraryListViewController.setEditing(false, animated: false)
+    libraryListViewController.viewModel.handleDownload(url)
   }
 
   override func syncList() {
