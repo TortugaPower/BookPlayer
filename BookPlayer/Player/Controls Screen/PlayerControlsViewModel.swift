@@ -10,8 +10,12 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class PlayerControlsViewModel: ViewModelProtocol {
-  weak var coordinator: Coordinator!
+class PlayerControlsViewModel {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
 
   let playerManager: PlayerManagerProtocol
   let speedStep: Float = 0.1
@@ -56,5 +60,9 @@ class PlayerControlsViewModel: ViewModelProtocol {
     let roundedValue = round(newValue * 100) / 100.0
 
     self.playerManager.setSpeed(roundedValue)
+  }
+
+  func dismiss() {
+    onTransition?(.dismiss)
   }
 }

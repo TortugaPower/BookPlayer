@@ -12,28 +12,27 @@ import UIKit
 class ProfileCoordinator: Coordinator {
   weak var tabBarController: UITabBarController?
 
+  let flow: BPCoordinatorPresentationFlow
   let libraryService: LibraryServiceProtocol
   let playerManager: PlayerManagerProtocol
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
 
   init(
+    flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
     playerManager: PlayerManagerProtocol,
     accountService: AccountServiceProtocol,
-    syncService: SyncServiceProtocol,
-    navigationController: UINavigationController
+    syncService: SyncServiceProtocol
   ) {
+    self.flow = flow
     self.libraryService = libraryService
     self.playerManager = playerManager
     self.accountService = accountService
     self.syncService = syncService
-
-    super.init(navigationController: navigationController,
-               flowType: .push)
   }
 
-  override func start() {
+  func start() {
     let viewModel = ProfileViewModel(
       accountService: accountService,
       libraryService: libraryService,
@@ -41,60 +40,65 @@ class ProfileCoordinator: Coordinator {
       syncService: syncService
     )
 
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .showAccount:
-        self?.showAccount()
+        self.showAccount()
       case .showQueuedTasks:
-        self?.showQueuedTasks()
+        self.showQueuedTasks()
       }
     }
 
     let vc = ProfileViewController(viewModel: viewModel)
     vc.navigationItem.largeTitleDisplayMode = .never
-    self.navigationController.tabBarItem = UITabBarItem(
+    flow.navigationController.tabBarItem = UITabBarItem(
       title: "profile_title".localized,
       image: UIImage(systemName: "person.crop.circle"),
       selectedImage: UIImage(systemName: "person.crop.circle.fill")
     )
 
-    self.presentingViewController = self.navigationController
-
     if let tabBarController = tabBarController {
-      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [flow.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    self.navigationController.pushViewController(vc, animated: true)
+    flow.startPresentation(vc, animated: false)
   }
 
   func showAccount() {
     if self.accountService.getAccountId() != nil {
       let child = AccountCoordinator(
-        accountService: self.accountService,
-        presentingViewController: self.presentingViewController
+        flow: .modalFlow(presentingController: flow.navigationController),
+        accountService: self.accountService
       )
-      self.childCoordinators.append(child)
-      child.parentCoordinator = self
       child.start()
     } else {
       let loginCoordinator = LoginCoordinator(
-        accountService: self.accountService,
-        presentingViewController: self.presentingViewController
+        flow: .modalFlow(presentingController: flow.navigationController),
+        accountService: accountService
       )
-
-      self.childCoordinators.append(loginCoordinator)
-      loginCoordinator.parentCoordinator = self
+      loginCoordinator.onFinish = { [unowned self] routes in
+        switch routes {
+        case .completeAccount:
+          showCompleteAccount()
+        }
+      }
       loginCoordinator.start()
     }
   }
 
   func showQueuedTasks() {
     let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
-
     let vc = QueuedSyncTasksViewController(viewModel: viewModel)
-
     let nav = AppNavigationController(rootViewController: vc)
-    self.navigationController.present(nav, animated: true)
+    flow.navigationController.present(nav, animated: true)
+  }
+
+  func showCompleteAccount() {
+    let coordinator = CompleteAccountCoordinator(
+      flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+      accountService: self.accountService
+    )
+    coordinator.start()
   }
 }

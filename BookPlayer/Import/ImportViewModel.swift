@@ -11,9 +11,13 @@ import Combine
 import DirectoryWatcher
 import Foundation
 
-final class ImportViewModel: ViewModelProtocol, ObservableObject {
+final class ImportViewModel: NSObject, ObservableObject {
+  enum Routes {
+    case dismiss
+  }
 
-  weak var coordinator: ImportCoordinator!
+  var onTransition: BPTransition<Routes>?
+
   @Published private(set) var files = [ImportFileItem]()
   private var disposeBag = Set<AnyCancellable>()
   private let importManager: ImportManager
@@ -22,6 +26,9 @@ final class ImportViewModel: ViewModelProtocol, ObservableObject {
 
   init(importManager: ImportManager) {
     self.importManager = importManager
+
+    super.init()
+
     self.bindInternalFiles()
   }
 
@@ -95,5 +102,15 @@ final class ImportViewModel: ViewModelProtocol, ObservableObject {
   public func createOperation() {
     self.importManager.createOperation()
     self.dismiss()
+  }
+
+  func dismiss() {
+    onTransition?(.dismiss)
+  }
+}
+
+extension ImportViewModel: UIAdaptivePresentationControllerDelegate {
+  func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    try? discardImportOperation()
   }
 }

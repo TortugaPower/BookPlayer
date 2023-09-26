@@ -11,7 +11,7 @@ import Combine
 import Themeable
 import UIKit
 
-class ButtonFreeViewController: UIViewController, MVVMControllerProtocol {
+class ButtonFreeViewController: UIViewController {
   var viewModel: ButtonFreeViewModel!
 
   private lazy var contentStackview: UIStackView = {

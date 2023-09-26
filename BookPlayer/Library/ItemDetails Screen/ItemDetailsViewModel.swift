@@ -22,7 +22,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
     case showLoader(flag: Bool)
   }
 
-  weak var coordinator: Coordinator!
+  weak var coordinator: ItemListCoordinator!
 
   /// Item being modified
   let item: SimpleLibraryItem

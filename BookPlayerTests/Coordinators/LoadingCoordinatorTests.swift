@@ -14,21 +14,18 @@ import XCTest
 
 class LoadingCoordinatorTests: XCTestCase {
   var loadingCoordinator: LoadingCoordinator!
+  var presentingController: UINavigationController!
 
   override func setUp() {
-    self.loadingCoordinator = LoadingCoordinator(navigationController: UINavigationController(),
-                                                 loadingViewController: LoadingViewController.instantiate(from: .Main))
+    self.presentingController = MockNavigationController()
+    self.loadingCoordinator = LoadingCoordinator(
+      flow: .modalFlow(presentingController: self.presentingController)
+    )
     self.loadingCoordinator.start()
-  }
-
-  func testInitialState() {
-    XCTAssert(self.loadingCoordinator.childCoordinators.isEmpty)
   }
 
   func testFinishedLoadingSequence() {
     self.loadingCoordinator.didFinishLoadingSequence(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-
-    XCTAssert(self.loadingCoordinator.childCoordinators.count == 1)
     XCTAssertNotNil(self.loadingCoordinator.getMainCoordinator())
   }
 }

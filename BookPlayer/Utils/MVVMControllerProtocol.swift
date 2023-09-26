@@ -27,6 +27,6 @@ protocol ViewModelProtocol {
 
 extension ViewModelProtocol {
   func dismiss() {
-    coordinator.didFinish()
+    coordinator.flow.finishPresentation(animated: true)
   }
 }

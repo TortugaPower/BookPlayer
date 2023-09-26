@@ -81,8 +81,9 @@ class LoginViewController: UIViewController, MVVMControllerProtocol {
 
   // MARK: - Initializer
 
-  init() {
+  init(viewModel: LoginViewModel) {
     super.init(nibName: nil, bundle: nil)
+    self.viewModel = viewModel
   }
 
   required init?(coder: NSCoder) {

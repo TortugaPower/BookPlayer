@@ -14,7 +14,11 @@ class PlayerCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
+  
+  let flow: BPCoordinatorPresentationFlow
+
   weak var alert: UIAlertController?
+  weak var playerViewController: PlayerViewController!
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -23,80 +27,73 @@ class PlayerCoordinator: Coordinator {
   }
 
   init(
+    flow: BPModalOnlyPresentationFlow,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol,
-    presentingViewController: UIViewController?
+    syncService: SyncServiceProtocol
   ) {
+    self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
-
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Player),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
     let vc = PlayerViewController.instantiate(from: .Player)
+    playerViewController = vc
     let viewModel = PlayerViewModel(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
     )
+    viewModel.onTransition = { routes in
+      switch routes {
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    self.presentingViewController?.present(vc, animated: true, completion: nil)
-    self.presentingViewController = vc
+
+    flow.startPresentation(vc, animated: true)
+
     self.bindGeneralObservers()
     self.handleAutolockStatus()
   }
 
   func showBookmarks() {
     let bookmarksCoordinator = BookmarkCoordinator(
+      flow: .modalFlow(presentingController: playerViewController),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
-      syncService: self.syncService,
-      presentingViewController: self.presentingViewController
+      syncService: self.syncService
     )
-    bookmarksCoordinator.parentCoordinator = self
-    self.childCoordinators.append(bookmarksCoordinator)
     bookmarksCoordinator.start()
   }
 
   func showButtonFree() {
     let coordinator = ButtonFreeCoordinator(
-      navigationController: self.navigationController,
+      flow: .modalFlow(presentingController: playerViewController, modalPresentationStyle: .overFullScreen),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
     )
-    coordinator.parentCoordinator = self
-    coordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(coordinator)
     coordinator.start()
   }
 
   func showChapters() {
     let chaptersCoordinator = ChapterCoordinator(
-      playerManager: self.playerManager,
-      presentingViewController: self.presentingViewController
+      flow: .modalFlow(presentingController: playerViewController),
+      playerManager: self.playerManager
     )
-    chaptersCoordinator.parentCoordinator = self
-    self.childCoordinators.append(chaptersCoordinator)
     chaptersCoordinator.start()
   }
 
   func showControls() {
     let playerControlsCoordinator = PlayerControlsCoordinator(
-      playerManager: self.playerManager,
-      presentingViewController: self.presentingViewController
+      flow: .modalFlow(presentingController: playerViewController, prefersMediumDetent: true),
+      playerManager: playerManager
     )
-    playerControlsCoordinator.parentCoordinator = self
-    self.childCoordinators.append(playerControlsCoordinator)
     playerControlsCoordinator.start()
   }
 

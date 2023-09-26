@@ -12,6 +12,12 @@ import Combine
 import RevenueCat
 
 class AccountViewModel: ViewModelProtocol {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
+
   weak var coordinator: AccountCoordinator!
   let accountService: AccountServiceProtocol
 

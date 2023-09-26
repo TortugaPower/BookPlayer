@@ -11,62 +11,48 @@ import SwiftUI
 import UIKit
 
 class CompleteAccountCoordinator: Coordinator, AlertPresenter {
+  let flow: BPCoordinatorPresentationFlow
   let accountService: AccountServiceProtocol
 
   init(
-    accountService: AccountServiceProtocol,
-    presentingViewController: UIViewController?
+    flow: BPCoordinatorPresentationFlow,
+    accountService: AccountServiceProtocol
   ) {
+    self.flow = flow
     self.accountService = accountService
-
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Main),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
     let viewModel = CompleteAccountViewModel(
       accountService: self.accountService,
       account: self.accountService.getAccount()!
     )
 
     let vc = UIHostingController(rootView: CompleteAccountView(viewModel: viewModel))
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .success:
-        self?.showCongrats()
+        self.showCongrats()
       case .link(let url):
-        self?.openLink(url)
+        self.openLink(url)
       case .dismiss:
-        self?.didFinish()
+        self.flow.finishPresentation(animated: true)
       case .showLoader(let flag):
         if flag {
-          self?.showLoader()
+          self.showLoader()
         } else {
-          self?.stopLoader()
+          self.stopLoader()
         }
       }
     }
 
-    self.navigationController.viewControllers = [vc]
-    self.navigationController.presentationController?.delegate = self
-
-    if !UIAccessibility.isVoiceOverRunning,
-       #available(iOS 15.0, *),
-       let sheet = self.navigationController.sheetPresentationController {
-      sheet.detents = [.medium()]
-    }
-
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+    flow.startPresentation(vc, animated: true)
   }
 
   func showCongrats() {
-    self.navigationController.getTopViewController()?.view.startConfetti()
-    self.navigationController.showAlert("pro_welcome_title".localized, message: "pro_welcome_description".localized) { [weak self] in
-      self?.didFinish()
+    flow.navigationController.getTopViewController()?.view.startConfetti()
+    flow.navigationController.showAlert("pro_welcome_title".localized, message: "pro_welcome_description".localized) { [weak self] in
+      self?.flow.finishPresentation(animated: true)
     }
   }
 
@@ -75,6 +61,6 @@ class CompleteAccountCoordinator: Coordinator, AlertPresenter {
   }
 
   func showError(_ error: Error) {
-    self.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
+    flow.navigationController.showAlert("error_title".localized, message: error.localizedDescription)
   }
 }

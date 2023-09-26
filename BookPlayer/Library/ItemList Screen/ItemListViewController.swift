@@ -106,7 +106,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.addConstraints()
     self.configureDataSource()
     self.bindDataItems()
-    self.bindTransitionActions()
     self.configureInitialState()
     self.bindNetworkObserver()
     self.viewModel.bindObservers()
@@ -279,6 +278,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
         switch event {
         case .newData:
           self?.reloadData()
+        case .resetEditMode:
+          self?.setEditing(false, animated: false)
         case .reloadIndex(let indexPath):
           self?.tableView.reloadRows(at: [indexPath], with: .none)
         case .downloadState(let state, let indexPath):
@@ -310,25 +311,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     }
 
     cell.downloadState = state
-  }
-
-  func bindTransitionActions() {
-    self.viewModel.coordinator.onAction = { [weak self] route in
-      self?.setEditing(false, animated: false)
-
-      switch route {
-      case .newImportOperation(let operation):
-        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
-        self?.showLoadView(true, title: loadingTitle)
-      case .importOperationFinished(let files, let suggestedFolderName):
-        self?.showLoadView(false)
-        self?.viewModel.handleOperationCompletion(files, suggestedFolderName: suggestedFolderName)
-      case .downloadBook(let url):
-        self?.viewModel.handleDownload(url)
-      case .reloadItems(let pageSizePadding):
-        self?.viewModel.reloadItems(pageSizePadding: pageSizePadding)
-      }
-    }
   }
 
   override func setEditing(_ editing: Bool, animated: Bool) {
