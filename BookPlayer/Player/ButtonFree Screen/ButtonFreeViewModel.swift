@@ -109,6 +109,6 @@ class ButtonFreeViewModel {
   }
 
   func dismiss() {
-      onTransition?(.dismiss)
-    }
+    onTransition?(.dismiss)
+  }
 }

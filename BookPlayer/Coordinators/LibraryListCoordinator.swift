@@ -16,6 +16,9 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
+  /// Reference to know if the import screen is already being shown (or in the process of showing)
+  weak var importCoordinator: ImportCoordinator?
+
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -176,15 +179,17 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     guard 
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
     else { return }
-    let child = ImportCoordinator(
+
+    let coordinator = ImportCoordinator(
       flow: .modalFlow(presentingController: topVC),
       importManager: self.importManager
     )
-    child.start()
+    importCoordinator = coordinator
+    coordinator.start()
   }
 
   func shouldShowImportScreen() -> Bool {
-    return flow.navigationController.viewControllers.count == 1
+    return importCoordinator == nil
   }
 
   func syncLastFolderList() {

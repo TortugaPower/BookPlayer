@@ -278,6 +278,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
         switch event {
         case .newData:
           self?.reloadData()
+        case .resetEditMode:
+          self?.setEditing(false, animated: false)
         case .reloadIndex(let indexPath):
           self?.tableView.reloadRows(at: [indexPath], with: .none)
         case .downloadState(let state, let indexPath):

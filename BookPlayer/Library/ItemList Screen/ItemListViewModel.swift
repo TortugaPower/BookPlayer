@@ -31,6 +31,7 @@ class ItemListViewModel: ViewModelProtocol {
 
   enum Events {
     case newData
+    case resetEditMode
     case reloadIndex(_ indexPath: IndexPath)
     case downloadState(_ state: DownloadState, indexPath: IndexPath)
     case showAlert(content: BPAlertContent)
@@ -347,6 +348,7 @@ class ItemListViewModel: ViewModelProtocol {
     let pageSize = self.items.count + pageSizePadding
     self.loadInitialItems(pageSize: pageSize)
     sendEvent(.newData)
+    sendEvent(.resetEditMode)
   }
 
   func getPlaybackState(for item: SimpleLibraryItem) -> PlaybackState {

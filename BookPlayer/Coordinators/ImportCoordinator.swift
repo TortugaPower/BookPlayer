@@ -8,9 +8,8 @@
 
 import UIKit
 
-class ImportCoordinator: NSObject, Coordinator, UIAdaptivePresentationControllerDelegate {
+class ImportCoordinator: Coordinator {
   let importManager: ImportManager
-  weak var importViewController: ImportViewController?
   let flow: BPCoordinatorPresentationFlow
 
   init(
@@ -22,16 +21,16 @@ class ImportCoordinator: NSObject, Coordinator, UIAdaptivePresentationController
   }
 
   func start() {
-    let vc = ImportViewController.instantiate(from: .Main)
-    vc.presentationController?.delegate = self
-    self.importViewController = vc
     let viewModel = ImportViewModel(importManager: self.importManager)
-    viewModel.coordinator = self
+    viewModel.onTransition = { routes in
+      switch routes {
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
+    let vc = ImportViewController.instantiate(from: .Main)
     vc.viewModel = viewModel
     flow.startPresentation(vc, animated: true)
-  }
-
-  func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-    try? self.importViewController?.viewModel.discardImportOperation()
+    flow.navigationController.presentationController?.delegate = viewModel
   }
 }
