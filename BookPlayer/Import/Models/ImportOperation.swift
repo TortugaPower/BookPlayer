@@ -228,7 +228,7 @@ public class ImportOperation: Operation {
 
       destinationURL.disableFileProtection()
     } catch {
-      fatalError("Fail to move file from \(currentFile) to \(destinationURL)")
+      fatalError("Fail to move file from \(currentFile) to \(destinationURL). Error: \(error.localizedDescription)")
     }
 
     self.processedFiles.append(destinationURL)
