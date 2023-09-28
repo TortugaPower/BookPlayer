@@ -10,28 +10,40 @@ class VoiceOverServiceTest: XCTestCase {
   func testRewindText() {
     PlayerManager.rewindInterval = 60
 
-    let localizedString = String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
+    let localizedString = String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_rewind_time".localized,
+        PlayerManager.rewindInterval.toFormattedHMS()))
 
-    XCTAssert(VoiceOverService.rewindText() == localizedString)
+    XCTAssert(PlayerManager.rewindText == localizedString)
   }
 
   func testForwardText() {
     PlayerManager.forwardInterval = 60
 
-    var localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
+    var localizedString = String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_forward_time".localized,
+        PlayerManager.forwardInterval.toFormattedHMS()))
 
-    XCTAssert(VoiceOverService.fastForwardText() == localizedString)
+    XCTAssert(PlayerManager.fastForwardText == localizedString)
 
     PlayerManager.forwardInterval = 90
 
-    localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
+    localizedString = String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_forward_time".localized,
+        PlayerManager.forwardInterval.toFormattedHMS()))
 
-    XCTAssert(VoiceOverService.fastForwardText() == localizedString)
+    XCTAssert(PlayerManager.fastForwardText == localizedString)
 
     PlayerManager.forwardInterval = 120
 
-    localizedString = String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, VoiceOverService.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
+    localizedString = String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_forward_time".localized,
+        PlayerManager.forwardInterval.toFormattedHMS()))
 
-    XCTAssert(VoiceOverService.fastForwardText() == localizedString)
+    XCTAssert(PlayerManager.fastForwardText == localizedString)
   }
 }
