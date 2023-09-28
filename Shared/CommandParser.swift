@@ -27,7 +27,7 @@ public enum CommandParser {
       if let seconds = sleepIntent.seconds {
         queryItem = URLQueryItem(name: "seconds", value: seconds.stringValue)
       } else {
-        let seconds = TimeParser.getSeconds(from: sleepIntent.option)
+        let seconds = TimeInterval(sleepIntent.option)
         queryItem = URLQueryItem(name: "seconds", value: String(seconds))
       }
 
@@ -139,59 +139,37 @@ public struct Action: Equatable {
   }
 }
 
-public enum TimeParser {
-  public static func getSeconds(from option: TimerOption) -> TimeInterval {
+public extension TimeInterval {
+  init(_ option: TimerOption) {
     switch option {
-    case .cancel:
-      return -1
-    case .fiveMinutes:
-      return 300
-    case .tenMinutes:
-      return 600
-    case .fifteenMinutes:
-      return 900
-    case .thirtyMinutes:
-      return 1800
-    case .fortyFiveMinutes:
-      return 2700
-    case .oneHour:
-      return 3600
-    case .endChapter:
-      return -2
-    default:
-      return 0
+    case .cancel:           self = -1
+    case .fiveMinutes:      self = 300
+    case .tenMinutes:       self = 600
+    case .fifteenMinutes:   self = 900
+    case .thirtyMinutes:    self = 1800
+    case .fortyFiveMinutes: self = 2700
+    case .oneHour:          self = 3600
+    case .endChapter:       self = -2
+    default:                self = 0
     }
   }
 
-  public static func getTimerOption(from seconds: TimeInterval) -> TimerOption? {
-    var option: TimerOption?
-
-    switch seconds {
-    case -1:
-      option = .cancel
-    case -2:
-      option = .endChapter
-    case 300:
-      option = .fiveMinutes
-    case 600:
-      option = .tenMinutes
-    case 900:
-      option = .fifteenMinutes
-    case 1800:
-      option = .thirtyMinutes
-    case 2700:
-      option = .fortyFiveMinutes
-    case 3600:
-      option = .oneHour
-    default:
-      option = nil
+  func toTimerOption() -> TimerOption? {
+    switch self {
+    case -1:   return .cancel
+    case -2:   return .endChapter
+    case 300:  return .fiveMinutes
+    case 600:  return .tenMinutes
+    case 900:  return .fifteenMinutes
+    case 1800: return .thirtyMinutes
+    case 2700: return .fortyFiveMinutes
+    case 3600: return .oneHour
+    default:   return nil
     }
-
-    return option
   }
 
   // utility function to transform seconds to format MM:SS or HH:MM:SS
-  public static func formatTime(_ time: TimeInterval) -> String {
+  func toFormattedTime() -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .positional
@@ -199,24 +177,24 @@ public enum TimeParser {
     durationFormatter.zeroFormattingBehavior = .pad
     durationFormatter.collapsesLargestUnit = false
 
-    if abs(time) > 3599.0 {
+    if abs(self) > 3599.0 {
       durationFormatter.allowedUnits = [.hour, .minute, .second]
     }
 
-    return durationFormatter.string(from: time)!
+    return durationFormatter.string(from: self)!
   }
 
-  public static func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
+  func toFormattedDuration(unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = unitsStyle
     durationFormatter.allowedUnits = [.minute, .second]
     durationFormatter.collapsesLargestUnit = true
 
-    return durationFormatter.string(from: duration)!
+    return durationFormatter.string(from: self)!
   }
 
-  public static func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
+  func toFormattedTotalDuration(allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .abbreviated
@@ -224,13 +202,13 @@ public enum TimeParser {
     durationFormatter.collapsesLargestUnit = false
     durationFormatter.allowsFractionalUnits = true
 
-    return durationFormatter.string(from: duration)!
+    return durationFormatter.string(from: self)!
   }
 
   /// Truncates the time to the specified number of decimal places
-  public static func truncateTime(_ time: TimeInterval, places: Int = 5) -> TimeInterval {
-    let multiplier = (pow(10, places) as NSNumber).doubleValue
+  func truncated(at place: Int = 5) -> TimeInterval {
+    let multiplier = (pow(10, place) as NSNumber).doubleValue
 
-    return (Double(Int(time * multiplier)) / multiplier)
+    return Double(Int(self * multiplier)) / multiplier
   }
 }

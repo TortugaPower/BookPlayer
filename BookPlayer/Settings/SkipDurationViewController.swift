@@ -56,7 +56,7 @@ class SkipDurationViewController: UITableViewController {
     let cell = tableView.dequeueReusableCell(withIdentifier: "IntervalCell", for: indexPath)
     let interval = self.intervals[indexPath.row]
 
-    cell.textLabel?.text = TimeParser.formatDuration(interval)
+    cell.textLabel?.text = interval.toFormattedDuration()
 
     if interval == self.selectedInterval {
       cell.accessoryType = .checkmark

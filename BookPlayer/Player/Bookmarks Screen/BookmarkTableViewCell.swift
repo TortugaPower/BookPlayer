@@ -23,7 +23,7 @@ class BookmarkTableViewCell: UITableViewCell {
   }
 
   func setup(with bookmark: SimpleBookmark) {
-    timeLabel.text = TimeParser.formatTime(bookmark.time)
+    timeLabel.text = bookmark.time.toFormattedTime()
     noteLabel.text = bookmark.note
     if let imageName = bookmark.getImageNameForType() {
       iconImageView.image = UIImage(systemName: imageName)

@@ -47,7 +47,7 @@ class ButtonFreeViewModel {
 
     let isPlaying = playerManager.isPlaying
     playerManager.playPause()
-    let formattedTime = TimeParser.formatTime(currentItem.currentTime)
+    let formattedTime = currentItem.currentTime.toFormattedTime()
 
     let message = isPlaying
     ? "\("paused_title".localized) (\(formattedTime))"
@@ -76,7 +76,7 @@ class ButtonFreeViewModel {
       relativePath: currentItem.relativePath,
       type: .user
     ) {
-      let formattedTime = TimeParser.formatTime(bookmark.time)
+      let formattedTime = bookmark.time.toFormattedTime()
       let message = String.localizedStringWithFormat(
         "bookmark_exists_title".localized,
         formattedTime
@@ -97,7 +97,7 @@ class ButtonFreeViewModel {
         time: currentTime,
         note: nil
       )
-      let formattedTime = TimeParser.formatTime(bookmark.time)
+      let formattedTime = bookmark.time.toFormattedTime()
       let message = String.localizedStringWithFormat(
         "bookmark_created_title".localized,
         formattedTime

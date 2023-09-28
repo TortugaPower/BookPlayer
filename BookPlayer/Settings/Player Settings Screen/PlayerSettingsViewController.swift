@@ -55,8 +55,8 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     self.remainingTimeSwitch.setOn(self.viewModel.prefersRemainingTime, animated: false)
 
     // Retrieve initial skip values from PlayerManager
-    self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
-    self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
+    self.rewindIntervalLabel.text = PlayerManager.rewindInterval.toFormattedDuration()
+    self.forwardIntervalLabel.text = PlayerManager.forwardInterval.toFormattedDuration()
 
     bindObservers()
   }
@@ -119,7 +119,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       viewController.didSelectInterval = { selectedInterval in
         PlayerManager.rewindInterval = selectedInterval
 
-        self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
+        self.rewindIntervalLabel.text = PlayerManager.rewindInterval.toFormattedDuration()
       }
     }
 
@@ -129,7 +129,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       viewController.didSelectInterval = { selectedInterval in
         PlayerManager.forwardInterval = selectedInterval
 
-        self.forwardIntervalLabel.text = TimeParser.formatDuration(PlayerManager.forwardInterval)
+        self.forwardIntervalLabel.text = PlayerManager.forwardInterval.toFormattedDuration()
       }
     }
   }

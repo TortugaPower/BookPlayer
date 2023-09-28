@@ -19,13 +19,13 @@ struct ProgressObject {
   let chapterTitle: String
 
   var formattedCurrentTime: String {
-    return TimeParser.formatTime(self.currentTime)
+    self.currentTime.toFormattedTime()
   }
 
   var formattedMaxTime: String? {
     guard let maxTime = self.maxTime else { return nil }
 
-    let formattedTime = TimeParser.formatTime(abs(maxTime))
+    let formattedTime = abs(maxTime).toFormattedTime()
 
     if maxTime < 0 {
       return "-".appending(formattedTime)

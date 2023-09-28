@@ -64,7 +64,11 @@ final class ChaptersViewController: UITableViewController, Storyboarded {
     ? String.localizedStringWithFormat("chapter_number_title".localized, indexPath.row + 1)
     : chapter.title
 
-    cell.detailTextLabel?.text = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
+    cell.detailTextLabel?.text = String
+      .localizedStringWithFormat(
+        "chapters_item_description".localized, 
+        chapter.start.toFormattedTime(),
+        chapter.duration.toFormattedTime())
     cell.accessoryType = .none
 
     if let currentChapter = self.viewModel.getCurrentChapter(),

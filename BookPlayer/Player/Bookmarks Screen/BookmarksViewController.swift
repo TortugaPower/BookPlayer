@@ -131,7 +131,7 @@ class BookmarksViewController: UITableViewController, MVVMControllerProtocol, St
       title: "delete_button".localized
     ) { [weak self] _, _, completion in
       let alert = UIAlertController(title: nil,
-                                    message: String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)),
+                                    message: String(format: "delete_single_item_title".localized, bookmark.time.toFormattedTime()),
                                     preferredStyle: .alert)
 
       alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))

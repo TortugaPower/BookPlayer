@@ -39,7 +39,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
       }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      let seconds = TimeInterval(configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
                                items: items,
@@ -71,7 +71,7 @@ struct RecentBooksProvider: IntentTimelineProvider {
       }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      let seconds = TimeInterval(configuration.sleepTimer)
 
       let entry = LibraryEntry(date: Date(),
                                items: items,

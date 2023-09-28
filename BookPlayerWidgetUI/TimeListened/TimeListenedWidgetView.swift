@@ -37,7 +37,7 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      let seconds = TimeInterval(configuration.sleepTimer)
 
       let entry = TimeListenedEntry(
         date: Date(),
@@ -72,7 +72,7 @@ struct TimeListenedProvider: IntentTimelineProvider {
       }
 
       let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+      let seconds = TimeInterval(configuration.sleepTimer)
 
       let entry = TimeListenedEntry(
         date: Date(),

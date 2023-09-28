@@ -280,7 +280,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     return items.enumerated()
       .map({ (index, book) in
-        let truncatedDuration = TimeParser.truncateTime(book.duration)
+        let truncatedDuration = book.duration.truncated()
 
         let chapter = PlayableChapter(
           title: book.title,
@@ -292,7 +292,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           index: Int16(index + 1)
         )
 
-        currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
+        currentDuration = (currentDuration + truncatedDuration).truncated()
 
         return chapter
       })

@@ -38,7 +38,7 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
 
             let title = lastPlayedItem.title
             let autoplay = configuration.autoplay?.boolValue ?? true
-            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+            let seconds = TimeInterval( configuration.sleepTimer)
 
             let entry = SimpleEntry(date: Date(),
                                     title: title,
@@ -72,7 +72,7 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
 
             let title = lastPlayedItem.title
             let autoplay = configuration.autoplay?.boolValue ?? true
-            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+            let seconds = TimeInterval(configuration.sleepTimer)
 
             let entry = SimpleEntry(date: Date(),
                                     title: title,

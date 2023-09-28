@@ -46,7 +46,7 @@ final class BookmarksActivityItemProvider: UIActivityItemProvider {
     for bookmark in bookmarks {
       guard let chapter = currentItem.getChapter(at: bookmark.time) else { continue }
       let chapterTime = currentItem.getChapterTime(in: chapter, for: bookmark.time)
-      let formattedTime = TimeParser.formatTime(chapterTime)
+      let formattedTime = chapterTime.toFormattedTime()
 
       fileContents += String.localizedStringWithFormat("chapter_number_title".localized, chapter.index)
       + " / \(formattedTime)\n"

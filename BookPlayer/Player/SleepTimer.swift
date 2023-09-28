@@ -101,7 +101,7 @@ final class SleepTimer {
     case .off:
       donateTimerIntent(with: .cancel)
     case .countdown(let interval):
-      if let option = TimeParser.getTimerOption(from: interval) {
+      if let option = interval.toTimerOption() {
         donateTimerIntent(with: option)
       }
       subscription = Timer.publish(every: 1, on: .main, in: .common)

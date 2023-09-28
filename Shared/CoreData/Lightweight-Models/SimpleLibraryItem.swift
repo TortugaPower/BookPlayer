@@ -93,7 +93,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     self.speed = speed
     self.currentTime = currentTime
     self.duration = duration
-    self.durationFormatted = TimeParser.formatTotalDuration(duration)
+    self.durationFormatted = duration.toFormattedTotalDuration()
     self.percentCompleted = percentCompleted
     self.isFinished = isFinished
     self.relativePath = relativePath
@@ -114,7 +114,7 @@ extension SimpleLibraryItem {
     self.speed = Double(item.speed)
     self.currentTime = item.currentTime
     self.duration = item.duration
-    self.durationFormatted = TimeParser.formatTotalDuration(item.duration)
+    self.durationFormatted = item.duration.toFormattedTotalDuration()
     self.percentCompleted = item.percentCompleted
     self.isFinished = item.isFinished
     self.relativePath = item.relativePath

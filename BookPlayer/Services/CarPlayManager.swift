@@ -161,7 +161,7 @@ class CarPlayManager: NSObject {
           time: currentTime,
           note: nil
         )
-        let formattedTime = TimeParser.formatTime(bookmark.time)
+        let formattedTime = bookmark.time.toFormattedTime()
         alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)
       } else {
         alertTitle = "file_missing_title".localized
@@ -352,7 +352,11 @@ extension CarPlayManager {
       ? String.localizedStringWithFormat("chapter_number_title".localized, index + 1)
       : chapter.title
 
-      let chapterDetail = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
+      let chapterDetail = String
+        .localizedStringWithFormat(
+          "chapters_item_description".localized,
+          chapter.start.toFormattedTime(),
+          chapter.duration.toFormattedTime())
 
       let item = CPListItem(text: chapterTitle, detailText: chapterDetail)
 
@@ -390,7 +394,7 @@ extension CarPlayManager {
   func createBookmarkCPItem(from bookmark: SimpleBookmark, includeImage: Bool) -> CPListItem {
     let item = CPListItem(
       text: bookmark.note,
-      detailText: TimeParser.formatTime(bookmark.time)
+      detailText: bookmark.time.toFormattedTime()
     )
 
     if includeImage {

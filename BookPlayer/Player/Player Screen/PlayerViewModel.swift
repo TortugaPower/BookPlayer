@@ -501,7 +501,7 @@ extension PlayerViewModel {
   }
 
   func showBookmarkSuccessAlert(vc: UIViewController, bookmark: SimpleBookmark, existed: Bool) {
-    let formattedTime = TimeParser.formatTime(bookmark.time)
+    let formattedTime = bookmark.time.toFormattedTime()
 
     let titleKey = existed
     ? "bookmark_exists_title"
