@@ -33,13 +33,13 @@ extension PlaybackRecordViewer {
   }
 }
 
-class WidgetUtils {
-  class func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
+enum WidgetUtils {
+  static func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
     let record = libraryService.getCurrentPlaybackRecord()
     return PlaybackRecordViewer(record: record, date: Date())
   }
 
-  class func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
+  static func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
     let calendar = Calendar.current
     let now = Date()
     let startToday = calendar.startOfDay(for: now)
@@ -71,27 +71,27 @@ class WidgetUtils {
     return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]
   }
 
-  class func getNextDayDate() -> Date {
+  static func getNextDayDate() -> Date {
     let calendar = Calendar.current
     let now = Date()
     let startToday = calendar.startOfDay(for: now)
     return calendar.date(byAdding: .day, value: 1, to: startToday)!
   }
 
-  class func formatTime(_ time: Double) -> String {
+  static func formatTime(_ time: Double) -> String {
     let hours = Int(time / 3600)
     let minutes = Int(time.truncatingRemainder(dividingBy: 3600) / 60)
 
     return "\(hours)H \(minutes)M"
   }
 
-  class func formatTimeShort(_ time: Double) -> String {
+  static func formatTimeShort(_ time: Double) -> String {
     let hours = time / 3600
 
     return String(format: "%.2f", hours)
   }
 
-  class func formatDate(_ date: Date) -> String {
+  static func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.timeStyle = .none
     formatter.dateStyle = .medium
@@ -99,16 +99,16 @@ class WidgetUtils {
     return formatter.string(from: date)
   }
 
-  class func getAppIconName() -> String {
+  static func getAppIconName() -> String {
     return UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
   }
 
-  class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> URL {
+  static func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> URL {
     let urlString = CommandParser.createWidgetActionString(with: bookIdentifier, autoplay: autoplay, timerSeconds: timerSeconds)
     return URL(string: urlString)!
   }
 
-  class func getColors(from theme: SimpleTheme?, with colorScheme: ColorScheme) -> WidgetColors {
+  static func getColors(from theme: SimpleTheme?, with colorScheme: ColorScheme) -> WidgetColors {
     var primaryColor = UIColor.label
     var accentColor = UIColor.appTintColor
     var backgroundColor = UIColor.systemBackground
@@ -132,7 +132,7 @@ class WidgetUtils {
     return WidgetColors(primaryColor: Color(primaryColor), accentColor: Color(accentColor), backgroundColor: Color(backgroundColor))
   }
 
-  class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
+  static func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
     guard family == .systemMedium else {
       return [PlaybackRecordViewer(time: 20, date: Date())]
     }

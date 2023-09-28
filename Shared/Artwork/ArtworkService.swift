@@ -10,7 +10,7 @@ import Foundation
 import Kingfisher
 import UIKit
 
-public class ArtworkService {
+public enum ArtworkService {
   static public var cache: ImageCache {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
@@ -33,7 +33,7 @@ public class ArtworkService {
   static let rightChromaGradientOffset: CGFloat = 19.337
   static let rightHueGradientOffset: CGFloat = 38.85
 
-  public class func retrieveImageFromCache(for relativePath: String, completionHandler: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
+  public static func retrieveImageFromCache(for relativePath: String, completionHandler: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
     _ = self.manager.retrieveImage(
       with: .provider(self.getArtworkProvider(for: relativePath)),
       options: [.targetCache(Self.cache)],
@@ -41,17 +41,17 @@ public class ArtworkService {
     )
   }
 
-  public class func getCachedImageURL(for relativePath: String) -> URL {
+  public static func getCachedImageURL(for relativePath: String) -> URL {
     let path = self.cache.cachePath(forKey: relativePath)
 
     return URL(fileURLWithPath: path)
   }
 
-  public class func isCached(relativePath: String) -> Bool {
+  public static func isCached(relativePath: String) -> Bool {
     return self.cache.isCached(forKey: relativePath)
   }
 
-  public class func removeCache(for relativePath: String) async {
+  public static func removeCache(for relativePath: String) async {
     await withCheckedContinuation { continuation in
       cache.removeImage(forKey: relativePath) {
         continuation.resume()
@@ -59,17 +59,17 @@ public class ArtworkService {
     }
   }
 
-  public class func removeCache(for relativePath: String) {
+  public static func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
   }
 
-  public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
+  public static func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
     self.cache.storeToDisk(data, forKey: relativePath) { _ in
       completionHandler?()
     }
   }
 
-  public class func storeInCache(_ data: Data, for relativePath: String) async {
+  public static func storeInCache(_ data: Data, for relativePath: String) async {
     await withCheckedContinuation { continuation in
       cache.storeToDisk(data, forKey: relativePath) { _ in
         continuation.resume()
@@ -77,7 +77,7 @@ public class ArtworkService {
     }
   }
 
-  public class func getArtworkProvider(
+  public static func getArtworkProvider(
     for relativePath: String,
     remoteURL: URL? = nil
   ) -> AVAudioAssetImageDataProvider {
@@ -87,7 +87,7 @@ public class ArtworkService {
   }
 
 #if os(iOS)
-  public class func generateDefaultArtwork(from color: UIColor?, with size: CGSize = CGSize(width: 50, height: 50)) -> UIImage? {
+  public static func generateDefaultArtwork(from color: UIColor?, with size: CGSize = CGSize(width: 50, height: 50)) -> UIImage? {
     guard Thread.isMainThread else { return nil }
 
     let baseColorLCH = self.getLCHColor(from: color)
@@ -121,7 +121,7 @@ public class ArtworkService {
   }
 #endif
 
-  public class func getLCHColor(from color: UIColor?) -> LCHColor {
+  public static func getLCHColor(from color: UIColor?) -> LCHColor {
     let baseColorLCH: LCHColor
     if let color = color,
        let rgbColor = color.rgbColor() {
@@ -133,22 +133,22 @@ public class ArtworkService {
     return baseColorLCH
   }
 
-  public class func getLeftGradiants(for color: UIColor) -> [CGColor] {
+  public static func getLeftGradiants(for color: UIColor) -> [CGColor] {
     return self.getLeftGradiants(for: self.getLCHColor(from: color))
   }
 
-  public class func getLeftGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
+  public static func getLeftGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
     let leftColor = LCHColor(l: baseColorLCH.l + self.leftLuminanceGradientOffset, c: baseColorLCH.c + self.leftChromaGradientOffset, h: baseColorLCH.h + self.leftHueGradientOffset, alpha: baseColorLCH.alpha)
     let leftBlankColor = LCHColor(l: baseColorLCH.l + self.leftLuminanceGradientOffset, c: baseColorLCH.c + self.leftChromaGradientOffset, h: baseColorLCH.h + self.leftHueGradientOffset, alpha: 0)
 
     return [leftColor.toRGB().color().cgColor, leftBlankColor.toRGB().color().cgColor]
   }
 
-  public class func getRightGradiants(for color: UIColor) -> [CGColor] {
+  public static func getRightGradiants(for color: UIColor) -> [CGColor] {
     return self.getRightGradiants(for: self.getLCHColor(from: color))
   }
 
-  public class func getRightGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
+  public static func getRightGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
     let rightColor = LCHColor(l: baseColorLCH.l + self.rightLuminanceGradientOffset, c: baseColorLCH.c + self.rightChromaGradientOffset, h: baseColorLCH.h + self.rightHueGradientOffset, alpha: baseColorLCH.alpha)
     let rightBlankColor = LCHColor(l: baseColorLCH.l + self.rightLuminanceGradientOffset, c: baseColorLCH.c + self.rightChromaGradientOffset, h: baseColorLCH.h + self.rightHueGradientOffset, alpha: 0)
 
@@ -156,7 +156,7 @@ public class ArtworkService {
   }
 
 #if os(iOS)
-  public class func image(with view: UIView) -> UIImage? {
+  public static func image(with view: UIView) -> UIImage? {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.isOpaque, 0.0)
     defer { UIGraphicsEndImageContext() }
     if let context = UIGraphicsGetCurrentContext() {

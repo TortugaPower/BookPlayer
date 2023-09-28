@@ -10,26 +10,26 @@ import BookPlayerKit
 import Foundation
 import Intents
 
-class ActionParserService {
-  public class func process(_ url: URL) {
+enum ActionParserService {
+  static func process(_ url: URL) {
     guard let action = CommandParser.parse(url) else { return }
 
     self.handleAction(action)
   }
 
-  public class func process(_ activity: NSUserActivity) {
+  static func process(_ activity: NSUserActivity) {
     guard let action = CommandParser.parse(activity) else { return }
 
     self.handleAction(action)
   }
 
-  public class func process(_ intent: INIntent) {
+  static func process(_ intent: INIntent) {
     guard let action = CommandParser.parse(intent) else { return }
 
     self.handleAction(action)
   }
 
-  public class func handleAction(_ action: Action) {
+  static func handleAction(_ action: Action) {
     guard let appDelegate = AppDelegate.shared else { return }
 
     appDelegate.pendingURLActions.append(action)
@@ -68,7 +68,18 @@ class ActionParserService {
     }
   }
 
-  private class func handleChapterAction(_ action: Action) {
+  private static func removeAction(_ action: Action) {
+    guard
+      let appDelegate = AppDelegate.shared,
+      let index = appDelegate.pendingURLActions.firstIndex(of: action)
+    else {
+      return
+    }
+
+    appDelegate.pendingURLActions.remove(at: index)
+  }
+
+  private static func handleChapterAction(_ action: Action) {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
@@ -80,7 +91,7 @@ class ActionParserService {
     playerManager.jumpTo(chapterStart + 0.05, recordBookmark: false)
   }
 
-  private class func handleSpeedRateAction(_ action: Action) {
+  private static func handleSpeedRateAction(_ action: Action) {
     guard
       let valueString = action.getQueryValue(for: "rate"),
       let speedRate = Float(valueString)
@@ -99,7 +110,7 @@ class ActionParserService {
     playerManager.setSpeed(roundedValue)
   }
 
-  private class func handleBoostVolumeAction(_ action: Action) {
+  private static func handleBoostVolumeAction(_ action: Action) {
     guard let valueString = action.getQueryValue(for: "isOn") else { return }
 
     let isOn = valueString == "true"
@@ -117,7 +128,7 @@ class ActionParserService {
     playerManager.setBoostVolume(isOn)
   }
 
-  private class func handleFileImportAction(_ action: Action) {
+  private static func handleFileImportAction(_ action: Action) {
     guard
       let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")
@@ -130,7 +141,7 @@ class ActionParserService {
     libraryCoordinator.processFiles(urls: [url])
   }
 
-  private class func handleSleepAction(_ action: Action) {
+  private static func handleSleepAction(_ action: Action) {
     guard let value = action.getQueryValue(for: "seconds"),
           let seconds = Double(value) else {
       return
@@ -146,11 +157,11 @@ class ActionParserService {
     }
   }
 
-  private class func handlePauseAction(_ action: Action) {
+  private static func handlePauseAction(_ action: Action) {
     AppDelegate.shared?.playerManager?.pause()
   }
 
-  private class func handlePlayAction(_ action: Action) {
+  private static func handlePlayAction(_ action: Action) {
     guard
       let playerManager = AppDelegate.shared?.playerManager
     else {
@@ -190,7 +201,7 @@ class ActionParserService {
     libraryCoordinator.loadPlayer(bookIdentifier)
   }
 
-  private class func handleDownloadAction(_ action: Action) {
+  private static func handleDownloadAction(_ action: Action) {
     guard
       let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
@@ -207,7 +218,7 @@ class ActionParserService {
     libraryCoordinator.handleDownloadAction(url: url)
   }
 
-  private class func handleWidgetAction(_ action: Action) {
+  private static func handleWidgetAction(_ action: Action) {
     if action.getQueryValue(for: "autoplay") != nil {
       let playAction = Action(command: .play, parameters: action.parameters)
       self.handleAction(playAction)
@@ -219,16 +230,5 @@ class ActionParserService {
     }
 
     self.removeAction(action)
-  }
-
-  public class func removeAction(_ action: Action) {
-    guard
-      let appDelegate = AppDelegate.shared,
-      let index = appDelegate.pendingURLActions.firstIndex(of: action)
-    else {
-      return
-    }
-
-    appDelegate.pendingURLActions.remove(at: index)
   }
 }

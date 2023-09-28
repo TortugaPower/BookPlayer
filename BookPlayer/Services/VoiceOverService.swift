@@ -1,10 +1,10 @@
 import BookPlayerKit
 import Foundation
 
-class VoiceOverService {
+enum VoiceOverService {
   // MARK: - BookCellView
 
-  public static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+  static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
     switch item.type {
     case .book:
       return String.localizedStringWithFormat(
@@ -32,7 +32,7 @@ class VoiceOverService {
 
   // MARK: - PlayerMetaView
 
-  public static func playerMetaText(
+  static func playerMetaText(
     title: String,
     author: String
   ) -> String {
@@ -41,15 +41,15 @@ class VoiceOverService {
 
   // MARK: - ArtworkControl
 
-  public static func rewindText() -> String {
+  static func rewindText() -> String {
     return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
   }
 
-  public static func fastForwardText() -> String {
+  static func fastForwardText() -> String {
     return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
   }
 
-  public static func secondsToMinutes(_ interval: TimeInterval) -> String {
+  static func secondsToMinutes(_ interval: TimeInterval) -> String {
     let absInterval = abs(interval)
     let hours = (absInterval / 3600.0).rounded(.towardZero)
     let minutes = (absInterval.truncatingRemainder(dividingBy: 3600) / 60).rounded(.towardZero)

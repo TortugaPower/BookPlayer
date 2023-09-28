@@ -2,8 +2,8 @@
 import CoreData
 import Foundation
 
-class StubFactory {
-  public class func book(dataManager: DataManager, title: String, duration: Double) -> Book {
+enum StubFactory {
+  static func book(dataManager: DataManager, title: String, duration: Double) -> Book {
     let filename = "\(title).txt"
     let bookContents = "bookcontents".data(using: .utf8)!
     let processedFolder = DataManager.getProcessedFolderURL()
@@ -25,7 +25,7 @@ class StubFactory {
     return book
   }
 
-  public class func folder(dataManager: DataManager, title: String) throws -> Folder {
+  static func folder(dataManager: DataManager, title: String) throws -> Folder {
     let folder = Folder(title: title, context: dataManager.getContext())
 
     let processedFolder = DataManager.getProcessedFolderURL()
@@ -35,7 +35,7 @@ class StubFactory {
     return folder
   }
 
-  public class func folder(dataManager: DataManager,
+  static func folder(dataManager: DataManager,
                            title: String,
                            destinationFolder: URL) throws -> Folder {
     let folder = Folder(title: title, context: dataManager.getContext())
@@ -47,7 +47,7 @@ class StubFactory {
     return folder
   }
 
-  public class func chapter(dataManager: DataManager,
+  static func chapter(dataManager: DataManager,
                             index: Int16) -> Chapter {
     // swiftlint:disable:next force_cast
     let chapter = NSEntityDescription.insertNewObject(forEntityName: "Chapter", into: dataManager.getContext()) as! Chapter
@@ -58,7 +58,7 @@ class StubFactory {
     return chapter
   }
 
-  public class func library(dataManager: DataManager) -> Library {
+  static func library(dataManager: DataManager) -> Library {
     let libraryService = LibraryService(dataManager: dataManager)
     return libraryService.getLibrary()
   }

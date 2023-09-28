@@ -9,8 +9,8 @@
 import Foundation
 import Intents
 
-public class CommandParser {
-  public class func parse(_ activity: NSUserActivity) -> Action? {
+public enum CommandParser {
+  public static func parse(_ activity: NSUserActivity) -> Action? {
     if let intent = activity.interaction?.intent {
       return self.parse(intent)
     } else if activity.activityType == "\(Bundle.main.bundleIdentifier!).activity.playback" {
@@ -20,7 +20,7 @@ public class CommandParser {
     return nil
   }
 
-  public class func parse(_ intent: INIntent) -> Action? {
+  public static func parse(_ intent: INIntent) -> Action? {
     if let sleepIntent = intent as? SleepTimerIntent {
       var queryItem: URLQueryItem
 
@@ -41,7 +41,7 @@ public class CommandParser {
     return nil
   }
 
-  public class func parse(_ url: URL) -> Action? {
+  public static func parse(_ url: URL) -> Action? {
     if url.isFileURL {
       guard !DataManager.isURLInProcessedFolder(url) else {
         return nil
@@ -76,7 +76,7 @@ public class CommandParser {
     return Action(command: command, parameters: parameters)
   }
 
-  public class func parse(_ message: [String: Any]) -> Action? {
+  public static func parse(_ message: [String: Any]) -> Action? {
     guard let commandString = message["command"] as? String,
           let command = Command(rawValue: commandString) else { return nil }
 
@@ -95,19 +95,7 @@ public class CommandParser {
     return Action(command: command, parameters: parameters)
   }
 
-  public class func createActionString(from command: Command, parameters: [URLQueryItem]) -> String {
-    var actionString = "bookplayer://\(command.rawValue)?"
-
-    actionString = parameters.reduce(actionString) { (text, item) -> String in
-      guard let value = item.value else { return text }
-
-      return "\(text)\(item.name)=\(value)&"
-    }
-
-    return actionString
-  }
-
-  public class func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
+  public static func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
     var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
 
     if let identifier = bookIdentifier {
@@ -141,32 +129,18 @@ public struct Action: Equatable {
   public var command: Command
   public var parameters: [URLQueryItem]
 
-  public static func == (lhs: Action, rhs: Action) -> Bool {
-    return lhs.command == rhs.command
-  }
-
-  public func getParametersDictionary() -> [String: String] {
-    var payload = ["command": self.command.rawValue]
-
-    for item in self.parameters {
-      payload[item.name] = item.value ?? ""
-    }
-
-    return payload
-  }
-
   public init(command: Command, parameters: [URLQueryItem]? = []) {
     self.command = command
     self.parameters = parameters ?? []
   }
 
   public func getQueryValue(for key: String) -> String? {
-    return self.parameters.filter { $0.name == key }.first?.value
+    return self.parameters.first { $0.name == key }?.value
   }
 }
 
-public class TimeParser {
-  public class func getSeconds(from option: TimerOption) -> TimeInterval {
+public enum TimeParser {
+  public static func getSeconds(from option: TimerOption) -> TimeInterval {
     switch option {
     case .cancel:
       return -1
@@ -189,7 +163,7 @@ public class TimeParser {
     }
   }
 
-  public class func getTimerOption(from seconds: TimeInterval) -> TimerOption? {
+  public static func getTimerOption(from seconds: TimeInterval) -> TimerOption? {
     var option: TimerOption?
 
     switch seconds {
@@ -217,7 +191,7 @@ public class TimeParser {
   }
 
   // utility function to transform seconds to format MM:SS or HH:MM:SS
-  public class func formatTime(_ time: TimeInterval) -> String {
+  public static func formatTime(_ time: TimeInterval) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .positional
@@ -232,7 +206,7 @@ public class TimeParser {
     return durationFormatter.string(from: time)!
   }
 
-  public class func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
+  public static func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = unitsStyle
@@ -242,7 +216,7 @@ public class TimeParser {
     return durationFormatter.string(from: duration)!
   }
 
-  public class func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
+  public static func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .abbreviated
@@ -254,7 +228,7 @@ public class TimeParser {
   }
 
   /// Truncates the time to the specified number of decimal places
-  public class func truncateTime(_ time: TimeInterval, places: Int = 5) -> TimeInterval {
+  public static func truncateTime(_ time: TimeInterval, places: Int = 5) -> TimeInterval {
     let multiplier = (pow(10, places) as NSNumber).doubleValue
 
     return (Double(Int(time * multiplier)) / multiplier)
