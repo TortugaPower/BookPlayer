@@ -18,19 +18,38 @@ struct ProgressObject {
   let nextChapterImageName: String
   let chapterTitle: String
 
-  var formattedCurrentTime: String {
-    self.currentTime.toFormattedTime()
-  }
+  let formattedCurrentTime: String
+  let formattedMaxTime: String?
 
-  var formattedMaxTime: String? {
-    guard let maxTime = self.maxTime else { return nil }
+  init(currentTime: TimeInterval,
+       progress: String?,
+       maxTime: TimeInterval?,
+       sliderValue: Float,
+       prevChapterImageName: String,
+       nextChapterImageName: String,
+       chapterTitle: String
+  ) {
+    self.currentTime = currentTime
+    self.progress = progress
+    self.maxTime = maxTime
+    self.sliderValue = sliderValue
+    self.prevChapterImageName = prevChapterImageName
+    self.nextChapterImageName = nextChapterImageName
+    self.chapterTitle = chapterTitle
 
-    let formattedTime = abs(maxTime).toFormattedTime()
+    self.formattedCurrentTime = currentTime.toFormattedTime()
 
-    if maxTime < 0 {
-      return "-".appending(formattedTime)
-    } else {
-      return formattedTime
-    }
+    self.formattedMaxTime = {
+      guard let maxTime = maxTime else { return nil }
+
+      let formattedTime = abs(maxTime).toFormattedTime()
+
+      if maxTime < 0 {
+        return "-".appending(formattedTime)
+      } else {
+        return formattedTime
+      }
+    }()
   }
 }
+
