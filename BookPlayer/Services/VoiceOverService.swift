@@ -1,81 +1,68 @@
 import BookPlayerKit
 import Foundation
 
-enum VoiceOverService {
-  // MARK: - BookCellView
-
-  static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
-    switch item.type {
+// MARK: - BookCellView
+extension SimpleLibraryItem {
+  func getAccessibilityLabel() -> String {
+    switch type {
     case .book:
       return String.localizedStringWithFormat(
         "voiceover_book_progress".localized,
-        item.title,
-        item.details,
-        item.percentCompleted,
-        item.durationFormatted
+        title,
+        details,
+        percentCompleted,
+        durationFormatted
       )
     case .folder:
       return String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
-        item.title,
-        item.percentCompleted
+        title,
+        percentCompleted
       )
     case .bound:
       return String.localizedStringWithFormat(
         "voiceover_bound_books_progress".localized,
-        item.title,
-        item.percentCompleted,
-        item.durationFormatted
+        title,
+        percentCompleted,
+        durationFormatted
       )
     }
   }
 
-  // MARK: - PlayerMetaView
+}
 
-  static func playerMetaText(
-    title: String,
-    author: String
-  ) -> String {
-    return String(describing: String.localizedStringWithFormat("voiceover_book_info".localized, title, author))
-  }
-
-  // MARK: - ArtworkControl
-
-  static func rewindText() -> String {
-    return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
-  }
-
-  static func fastForwardText() -> String {
-    return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
-  }
-
-  static func secondsToMinutes(_ interval: TimeInterval) -> String {
-    let absInterval = abs(interval)
-    let hours = (absInterval / 3600.0).rounded(.towardZero)
-    let minutes = (absInterval.truncatingRemainder(dividingBy: 3600) / 60).rounded(.towardZero)
-    let seconds = absInterval.truncatingRemainder(dividingBy: 60).truncatingRemainder(dividingBy: 60).rounded()
-
-    let hoursText = self.pluralization(amount: Int(hours), interval: .hour)
-    let minutesText = self.pluralization(amount: Int(minutes), interval: .minute)
-    let secondsText = self.pluralization(amount: Int(seconds), interval: .second)
-
-    return String("\(hoursText)\(minutesText)\(secondsText)".dropLast())
-  }
-
-  private static func pluralization(amount: Int, interval: TimeUnit) -> String {
-    switch amount {
-    case 1:
-      return "\(amount) \(interval.rawValue) "
-    case amount where amount > 1:
-      return "\(amount) \(interval.rawValue)s "
-    default:
-      return ""
-    }
+// MARK: - PlayerMetaView
+extension String {
+  static func playerMetaText(title: String, author: String) -> String {
+    .init(describing: localizedStringWithFormat(
+      "voiceover_book_info".localized,
+      title,
+      author))
   }
 }
 
-private enum TimeUnit: String {
-  case minute
-  case second
-  case hour
+// MARK: - ArtworkControl
+extension PlayerManager {
+  static var rewindText: String {
+    String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_rewind_time".localized,
+        rewindInterval.rounded().toFormattedHMS()))
+  }
+
+  static var fastForwardText: String {
+    String(describing: String
+      .localizedStringWithFormat(
+        "voiceover_forward_time".localized,
+        forwardInterval.rounded().toFormattedHMS()))
+  }
+}
+
+extension TimeInterval {
+  func toFormattedHMS() -> String {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .full
+    formatter.allowedUnits =  [.hour, .minute, .second]
+    return formatter.string(from: self)!
+  }
 }

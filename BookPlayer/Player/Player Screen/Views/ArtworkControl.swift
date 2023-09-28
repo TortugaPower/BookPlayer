@@ -159,14 +159,14 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
     self.airplayView.accessibilityLabel = "audio_source_title".localized
   }
 
-  public func setupInfo(
-    with title: String,
+  public func setupInfoWith(
+    title: String,
     author: String
   ) {
     self.titleLabel.text = title
     self.authorLabel.text = author
     self.artworkOverlay.isAccessibilityElement = true
-    self.artworkOverlay.accessibilityLabel = VoiceOverService.playerMetaText(
+    self.artworkOverlay.accessibilityLabel = String.playerMetaText(
       title: title,
       author: author
     )

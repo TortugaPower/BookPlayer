@@ -453,7 +453,7 @@ extension ItemListViewController: UITableViewDataSource {
         options: [.targetCache(ArtworkService.cache)]
       )
     }
-    let label = VoiceOverService.getAccessibilityLabel(for: item)
+    let label = item.getAccessibilityLabel()
     cell.setAccessibilityLabel(label)
     return cell
   }

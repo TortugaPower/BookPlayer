@@ -149,8 +149,8 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
   }
 
   func setupPlayerView(with currentItem: PlayableItem) {
-    self.artworkControl.setupInfo(
-      with: currentItem.title,
+    self.artworkControl.setupInfoWith(
+      title: currentItem.title,
       author: currentItem.author
     )
 
@@ -169,8 +169,10 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
     self.currentTimeLabel.accessibilityLabel = String(
-      describing: String.localizedStringWithFormat(self.viewModel.getCurrentTimeVoiceOverPrefix(),
-                                                   VoiceOverService.secondsToMinutes(progressObject.currentTime))
+      describing: String
+        .localizedStringWithFormat(
+          self.viewModel.getCurrentTimeVoiceOverPrefix(),
+          progressObject.currentTime.toFormattedHMS())
     )
 
     if let progress = progressObject.progress {
@@ -181,7 +183,7 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
        let formattedMaxTime = progressObject.formattedMaxTime {
       self.maxTimeButton.setTitle(formattedMaxTime, for: .normal)
       self.maxTimeButton.accessibilityLabel = String(
-        describing: "\(self.viewModel.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
+        describing: "\(self.viewModel.getMaxTimeVoiceOverPrefix()) \(maxTime.toFormattedHMS())"
       )
     }
 

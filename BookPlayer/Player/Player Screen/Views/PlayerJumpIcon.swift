@@ -109,7 +109,7 @@ class PlayerJumpIconForward: PlayerJumpIcon {
     super.setup()
 
     self.title = "+\(Int(PlayerManager.forwardInterval.rounded())) "
-    self.actionButton.accessibilityLabel = VoiceOverService.fastForwardText()
+    self.actionButton.accessibilityLabel = PlayerManager.fastForwardText
   }
 }
 
@@ -127,6 +127,6 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
     super.setup()
 
     self.title = "−\(Int(PlayerManager.rewindInterval.rounded())) "
-    self.actionButton.accessibilityLabel = VoiceOverService.rewindText()
+    self.actionButton.accessibilityLabel = PlayerManager.rewindText
   }
 }
