@@ -307,15 +307,11 @@
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
 		631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */; };
 		63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63432B582AC1E6F7002619D0 /* MockNavigationController.swift */; };
-		630A49DA2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D72AAA0B340003D971 /* PlayAndSleepAction.swift */; };
-		630A49DD2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D72AAA0B340003D971 /* PlayAndSleepAction.swift */; };
-		630A49DE2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D72AAA0B340003D971 /* PlayAndSleepAction.swift */; };
-		630A49DF2AAA0B340003D971 /* IntentSleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D82AAA0B340003D971 /* IntentSleepTimer.swift */; };
-		630A49E22AAA0B340003D971 /* IntentSleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D82AAA0B340003D971 /* IntentSleepTimer.swift */; };
-		630A49E32AAA0B340003D971 /* IntentSleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D82AAA0B340003D971 /* IntentSleepTimer.swift */; };
-		630A49E42AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D92AAA0B340003D971 /* TimerOptionAppEnum.swift */; };
-		630A49E72AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D92AAA0B340003D971 /* TimerOptionAppEnum.swift */; };
-		630A49E82AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630A49D92AAA0B340003D971 /* TimerOptionAppEnum.swift */; };
+		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
+		6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */; };
+		6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */; };
+		6356F9C12AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */; };
+		6356F9C52AC86D9200B7A027 /* BPAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
@@ -984,9 +980,11 @@
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalPresentationFlow.swift; sourceTree = "<group>"; };
 		63432B582AC1E6F7002619D0 /* MockNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNavigationController.swift; sourceTree = "<group>"; };
-		630A49D72AAA0B340003D971 /* PlayAndSleepAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAndSleepAction.swift; sourceTree = "<group>"; };
-		630A49D82AAA0B340003D971 /* IntentSleepTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentSleepTimer.swift; sourceTree = "<group>"; };
-		630A49D92AAA0B340003D971 /* TimerOptionAppEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerOptionAppEnum.swift; sourceTree = "<group>"; };
+		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
+		6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndChapterSleepTimerIntent.swift; sourceTree = "<group>"; };
+		6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSleepTimerIntent.swift; sourceTree = "<group>"; };
+		6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastBookStartPlaybackIntent.swift; sourceTree = "<group>"; };
+		6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAppShortcuts.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
@@ -1513,6 +1511,7 @@
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				C35E04F2207E8D4C007D3370 /* Settings */,
 				9FBDDB9A27DD1346005FB447 /* Profile */,
+				6356F9C82AC89F1600B7A027 /* AppIntents */,
 				41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */,
 				9FBDDB8827DC454B005FB447 /* AppTabBarController.swift */,
 				418B6CFB1D2707F800F974FB /* AppDelegate.swift */,
@@ -1900,6 +1899,13 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		630A49D62AAA0AFF0003D971 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 		631C75CA2AB92C5C0013E7E5 /* PresentationFlow */ = {
 			isa = PBXGroup;
 			children = (
@@ -1911,22 +1917,24 @@
 			path = PresentationFlow;
 			sourceTree = "<group>";
 		};
+		6356F9C82AC89F1600B7A027 /* AppIntents */ = {
+			isa = PBXGroup;
+			children = (
+				6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */,
+				6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */,
+				6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */,
+				6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */,
+				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
+			);
+			path = AppIntents;
+			sourceTree = "<group>";
+		};
 		63833DF82AAC134600496246 /* PerformanceTests */ = {
 			isa = PBXGroup;
 			children = (
 				63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */,
 			);
 			path = PerformanceTests;
-			sourceTree = "<group>";
-		};
-		630A49D62AAA0AFF0003D971 /* Intents */ = {
-			isa = PBXGroup;
-			children = (
-				630A49D72AAA0B340003D971 /* PlayAndSleepAction.swift */,
-				630A49D82AAA0B340003D971 /* IntentSleepTimer.swift */,
-				630A49D92AAA0B340003D971 /* TimerOptionAppEnum.swift */,
-			);
-			path = Intents;
 			sourceTree = "<group>";
 		};
 		6906A551217211A300A9E0B2 /* Support */ = {
@@ -2905,11 +2913,8 @@
 				41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */,
 				41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */,
 				415F0E6F244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift in Sources */,
-				630A49E72AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */,
 				41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */,
 				41342D0124435D9900F0905B /* IntentHandler.swift in Sources */,
-				630A49DD2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */,
-				630A49E22AAA0B340003D971 /* IntentSleepTimer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3039,11 +3044,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4106414025872614008EB8D0 /* BarView.swift in Sources */,
-				630A49E32AAA0B340003D971 /* IntentSleepTimer.swift in Sources */,
 				4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */,
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
-				630A49DE2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */,
-				630A49E82AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				41A359C7276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */,
@@ -3099,7 +3101,6 @@
 				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
-				630A49DF2AAA0B340003D971 /* IntentSleepTimer.swift in Sources */,
 				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */,
@@ -3117,13 +3118,14 @@
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				4137BBCE272DBB16009ED9FE /* SettingsViewModel.swift in Sources */,
 				631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */,
-				630A49E42AAA0B340003D971 /* TimerOptionAppEnum.swift in Sources */,
 				41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */,
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
 				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
+				6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */,
+				6356F9C12AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift in Sources */,
 				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
@@ -3158,6 +3160,7 @@
 				9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */,
+				6356F9C52AC86D9200B7A027 /* BPAppShortcuts.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
 				C359C30720A9F35B00A626E3 /* SkipDurationViewController.swift in Sources */,
 				9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */,
@@ -3204,6 +3207,7 @@
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
+				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
@@ -3218,7 +3222,6 @@
 				41A359C3276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				9F5F12DB2976E8CD00F061A0 /* ProfileView.swift in Sources */,
 				41C8ABD126836F50003B67D1 /* ImportViewModel.swift in Sources */,
-				630A49DA2AAA0B340003D971 /* PlayAndSleepAction.swift in Sources */,
 				41188D1E26ECDAA30017124E /* MiniPlayerViewModel.swift in Sources */,
 				41B2A5DE21CAF20E00917584 /* ThemesViewController.swift in Sources */,
 				41D20DAF25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
@@ -3240,6 +3243,7 @@
 				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
+				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */,
