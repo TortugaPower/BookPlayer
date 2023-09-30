@@ -2,12 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
 	</array>
+	<key>BP_API_DOMAIN</key>
+	<string>$(BP_API_DOMAIN)</string>
+	<key>BP_API_PORT</key>
+	<string>$(BP_API_PORT)</string>
+	<key>BP_API_SCHEME</key>
+	<string>$(BP_API_SCHEME)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
 	<key>BP_MOCKED_BEARER_TOKEN</key>
@@ -16,12 +20,6 @@
 	<string>$(BP_REVENUECAT_KEY)</string>
 	<key>BP_SENTRY_DSN</key>
 	<string>$(BP_SENTRY_DSN)</string>
-	<key>BP_API_SCHEME</key>
-	<string>$(BP_API_SCHEME)</string>
-	<key>BP_API_DOMAIN</key>
-	<string>$(BP_API_DOMAIN)</string>
-	<key>BP_API_PORT</key>
-	<string>$(BP_API_PORT)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -118,18 +116,18 @@
 					<string>heart-of-glass</string>
 				</array>
 			</dict>
-			<key>Heart of Glass (Forest)</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>heart-of-glass-forest</string>
-				</array>
-			</dict>
 			<key>Heart of Glass (Ayu)</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>heart-of-glass-ayu</string>
+				</array>
+			</dict>
+			<key>Heart of Glass (Forest)</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>heart-of-glass-forest</string>
 				</array>
 			</dict>
 			<key>Neon</key>
@@ -210,18 +208,18 @@
 					<string>heart-of-glass-ipad</string>
 				</array>
 			</dict>
-			<key>Heart of Glass (Forest)</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>heart-of-glass-forest-ipad</string>
-				</array>
-			</dict>
 			<key>Heart of Glass (Ayu)</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>heart-of-glass-ayu-ipad</string>
+				</array>
+			</dict>
+			<key>Heart of Glass (Forest)</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>heart-of-glass-forest-ipad</string>
 				</array>
 			</dict>
 			<key>Neon</key>
@@ -290,6 +288,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -362,7 +362,7 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>LaunchScreen.storyboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
