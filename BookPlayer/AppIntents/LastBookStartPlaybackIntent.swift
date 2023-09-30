@@ -8,6 +8,7 @@
 
 import Foundation
 import AppIntents
+import BookPlayerKit
 
 @available(iOS 16.0, macOS 14.0, watchOS 10.0, *)
 struct LastBookStartPlaybackIntent: AudioStartingIntent {
@@ -35,12 +36,4 @@ struct LastBookStartPlaybackIntent: AudioStartingIntent {
 
     return .result()
   }
-}
-
-struct VoidAlertPresenter: AlertPresenter {
-  func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {}
-  
-  func showLoader() {}
-  
-  func stopLoader() {}
 }
