@@ -156,7 +156,7 @@ struct RecentBooksWidgetView: View {
       Spacer()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(widgetColors.backgroundColor)
+    .widgetBackground(backgroundView: widgetColors.backgroundColor)
   }
 }
 
@@ -186,6 +186,7 @@ struct RecentBooksWidget: Widget {
     .configurationDisplayName("Recent Books")
     .description("See the recent played books")
     .supportedFamilies([.systemMedium])
+    .contentMarginsDisabledIfAvailable()
   }
 }
 

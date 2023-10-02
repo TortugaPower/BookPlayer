@@ -131,7 +131,7 @@ struct LastPlayedWidgetView: View {
             .padding([.leading, .trailing])
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(widgetColors.backgroundColor)
+        .widgetBackground(backgroundView: widgetColors.backgroundColor)
         .widgetURL(url)
     }
 }
@@ -163,5 +163,6 @@ struct LastPlayedWidget: Widget {
         .configurationDisplayName("Last Played Book")
         .description("See and play your last played book")
         .supportedFamilies([.systemSmall])
+        .contentMarginsDisabledIfAvailable()
     }
 }
