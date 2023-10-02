@@ -34,12 +34,19 @@ extension PlaybackRecordViewer {
 }
 
 class WidgetUtils {
-  class func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
-    let record = libraryService.getCurrentPlaybackRecord()
-    return PlaybackRecordViewer(record: record, date: Date())
-  }
+  // swiftlint:disable:next large_tuple
+  typealias ListenedDateRanges = (
+    firstDate: Date,
+    secondDate: Date,
+    thirdDate: Date,
+    fourthDate: Date,
+    fifthDate: Date,
+    sixthDate: Date,
+    seventhDate: Date,
+    endDate: Date
+  )
 
-  class func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
+  class func getDateRangesForListenedTime() -> ListenedDateRanges {
     let calendar = Calendar.current
     let now = Date()
     let startToday = calendar.startOfDay(for: now)
@@ -52,6 +59,35 @@ class WidgetUtils {
     let startFifthDay = calendar.date(byAdding: .day, value: 1, to: startFourthDay)!
     let startSixthDay = calendar.date(byAdding: .day, value: 1, to: startFifthDay)!
     let startSeventhDay = calendar.date(byAdding: .day, value: 1, to: startSixthDay)!
+
+    return (
+      startFirstDay,
+      startSecondDay,
+      startThirdDay,
+      startFourthDay,
+      startFifthDay,
+      startSixthDay,
+      startSeventhDay,
+      endDate
+    )
+  }
+
+  class func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
+    let record = libraryService.getCurrentPlaybackRecord()
+    return PlaybackRecordViewer(record: record, date: Date())
+  }
+
+  class func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
+    let (
+      startFirstDay,
+      startSecondDay,
+      startThirdDay,
+      startFourthDay,
+      startFifthDay,
+      startSixthDay,
+      startSeventhDay,
+      endDate
+    ) = Self.getDateRangesForListenedTime()
 
     let firstRecord = (libraryService.getPlaybackRecords(from: startFirstDay, to: startSecondDay) ?? []).first
     let firstRecordViewer = PlaybackRecordViewer(record: firstRecord, date: startFirstDay)
@@ -68,7 +104,15 @@ class WidgetUtils {
     let seventhRecord = (libraryService.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
     let seventhRecordViewer = PlaybackRecordViewer(record: seventhRecord, date: startSeventhDay)
 
-    return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]
+    return [
+      firstRecordViewer,
+      secondRecordViewer,
+      thirdRecordViewer,
+      fourthRecordViewer,
+      fifthRecordViewer,
+      sixthRecordViewer,
+      seventhRecordViewer
+    ]
   }
 
   class func getNextDayDate() -> Date {
@@ -159,5 +203,27 @@ class WidgetUtils {
     let seventhRecordViewer = PlaybackRecordViewer(time: 80, date: startSeventhDay)
 
     return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]
+  }
+}
+
+extension View {
+  func widgetBackground(backgroundView: some View) -> some View {
+    if #available(watchOS 10.0, iOSApplicationExtension 17.0, iOS 17.0, macOSApplicationExtension 14.0, *) {
+      return containerBackground(for: .widget) {
+        backgroundView
+      }
+    } else {
+      return background(backgroundView)
+    }
+  }
+}
+
+extension WidgetConfiguration {
+  func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
+    if #available(iOSApplicationExtension 17.0, *) {
+      return self.contentMarginsDisabled()
+    } else {
+      return self
+    }
   }
 }
