@@ -11,79 +11,68 @@ import SwiftUI
 import WidgetKit
 
 struct PlayAndSleepProvider: IntentTimelineProvider {
-    typealias Entry = SimpleEntry
+  typealias Entry = SimpleEntry
 
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), title: nil, relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true)
+  func placeholder(in context: Context) -> SimpleEntry {
+    SimpleEntry(
+      date: Date(),
+      title: "Last played book title",
+      relativePath: nil,
+      theme: SimpleTheme.getDefaultTheme(),
+      timerSeconds: 300,
+      autoplay: true
+    )
+  }
+
+  func getSnapshot(
+    for configuration: PlayAndSleepActionIntent,
+    in context: Context,
+    completion: @escaping (Entry) -> Void
+  ) {
+    completion(placeholder(in: context))
+  }
+
+  func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
+    Task {
+      do {
+        let entry = try await getEntryForTimeline(for: configuration, context: context)
+
+        completion(Timeline(entries: [entry], policy: .never))
+      } catch {
+        completion(Timeline(entries: [], policy: .never))
+      }
+    }
+  }
+
+  func getEntryForTimeline(
+    for configuration: PlayAndSleepActionIntent,
+    context: Context
+  ) async throws -> SimpleEntry {
+    let stack = try await DatabaseInitializer().loadCoreDataStack()
+    let dataManager = DataManager(coreDataStack: stack)
+    let libraryService = LibraryService(dataManager: dataManager)
+
+    guard
+      let lastPlayedItem = libraryService.getLastPlayedItems(limit: 1)?.first
+    else {
+      throw BookPlayerError.emptyResponse
     }
 
-    func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Entry) -> Void) {
-        let stack = DataMigrationManager().getCoreDataStack()
-        stack.loadStore { _, error in
-            guard error == nil else {
-                completion(self.placeholder(in: context))
-                return
-            }
+    let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
+    let autoplay = configuration.autoplay?.boolValue ?? true
+    let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
-            let dataManager = DataManager(coreDataStack: stack)
-            let libraryService = LibraryService(dataManager: dataManager)
+    let entry = SimpleEntry(
+      date: Date(),
+      title: lastPlayedItem.title,
+      relativePath: lastPlayedItem.relativePath,
+      theme: theme,
+      timerSeconds: seconds,
+      autoplay: autoplay
+    )
 
-            guard
-                let lastPlayedItem = libraryService.getLibraryLastItem(),
-                let theme = libraryService.getLibraryCurrentTheme()
-            else {
-                completion(self.placeholder(in: context))
-                return
-            }
-
-            let title = lastPlayedItem.title
-            let autoplay = configuration.autoplay?.boolValue ?? true
-            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-            let entry = SimpleEntry(date: Date(),
-                                    title: title,
-                                    relativePath: lastPlayedItem.relativePath,
-                                    theme: theme,
-                                    timerSeconds: seconds,
-                                    autoplay: autoplay)
-
-            completion(entry)
-        }
-    }
-
-    func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        let stack = DataMigrationManager().getCoreDataStack()
-        stack.loadStore { _, error in
-            guard error == nil else {
-                completion(Timeline(entries: [], policy: .atEnd))
-                return
-            }
-
-            let dataManager = DataManager(coreDataStack: stack)
-            let libraryService = LibraryService(dataManager: dataManager)
-
-            guard
-                let lastPlayedItem = libraryService.getLibraryLastItem(),
-                let theme = libraryService.getLibraryCurrentTheme()
-            else {
-                completion(Timeline(entries: [], policy: .atEnd))
-                return
-            }
-
-            let title = lastPlayedItem.title
-            let autoplay = configuration.autoplay?.boolValue ?? true
-            let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-            let entry = SimpleEntry(date: Date(),
-                                    title: title,
-                                    relativePath: lastPlayedItem.relativePath,
-                                    theme: theme,
-                                    timerSeconds: seconds,
-                                    autoplay: autoplay)
-
-            completion(Timeline(entries: [entry], policy: .atEnd))
-        }
-    }
+    return entry
+  }
 }
 
 struct LastPlayedWidgetView: View {
