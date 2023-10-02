@@ -314,6 +314,7 @@
 		6356F9C52AC86D9200B7A027 /* BPAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */; };
 		6356F9CD2AC8A1CE00B7A027 /* DatabaseInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */; };
 		6356F9CE2AC8A1CE00B7A027 /* DatabaseInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */; };
+		6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
@@ -988,6 +989,7 @@
 		6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastBookStartPlaybackIntent.swift; sourceTree = "<group>"; };
 		6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAppShortcuts.swift; sourceTree = "<group>"; };
 		6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseInitializer.swift; sourceTree = "<group>"; };
+		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
@@ -1584,7 +1586,6 @@
 				C3AA3732207BF7670004DCFD /* CoreData */,
 				6279361B272CDA8A0097837D /* Artwork */,
 				41A1B106226E9DCA00EA0400 /* Extensions */,
-				630A49D62AAA0AFF0003D971 /* Intents */,
 				41A8941F2652A5DE0032E972 /* Configuration.swift */,
 				D367F7671FA2A6F000FEDB37 /* Constants.swift */,
 				4140EA1E22723CFC0009F794 /* CommandParser.swift */,
@@ -1902,13 +1903,6 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		630A49D62AAA0AFF0003D971 /* Intents */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Intents;
-			sourceTree = "<group>";
-		};
 		631C75CA2AB92C5C0013E7E5 /* PresentationFlow */ = {
 			isa = PBXGroup;
 			children = (
@@ -1924,6 +1918,7 @@
 			isa = PBXGroup;
 			children = (
 				6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */,
+				6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */,
 				6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */,
 				6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */,
 				6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */,
@@ -3141,6 +3136,7 @@
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
+				6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				9FF710BB2A215558006490E0 /* QueuedSyncTasksViewModel.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,

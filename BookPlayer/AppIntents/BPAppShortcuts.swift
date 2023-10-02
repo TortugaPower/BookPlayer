@@ -23,6 +23,16 @@ struct BPAppShortcuts: AppShortcutsProvider {
         systemImageName: "play.fill"
       ),
       AppShortcut(
+        intent: PausePlaybackIntent(),
+        phrases: [
+          "Pause the current book in \(.applicationName)",
+          "Pause playback in \(.applicationName)",
+          "Stop \(.applicationName)",
+          "Stop playback in \(.applicationName)"
+        ],
+        systemImageName: "pause.fill"
+      ),
+      AppShortcut(
         intent: EndChapterSleepTimerIntent(),
         phrases: [
           "Set the sleep timer to the End of Chapter in \(.applicationName)",
