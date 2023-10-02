@@ -95,13 +95,14 @@ struct TimeListenedProvider: IntentTimelineProvider {
       records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
     }
 
+    let lastPlayedTitle = libraryService.getLastPlayedItems(limit: 1)?.first?.title
     let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
     let autoplay = configuration.autoplay?.boolValue ?? true
     let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
     return TimeListenedEntry(
       date: Date(),
-      title: libraryService.getLibraryLastItem()?.title,
+      title: lastPlayedTitle,
       theme: theme,
       timerSeconds: seconds,
       autoplay: autoplay,

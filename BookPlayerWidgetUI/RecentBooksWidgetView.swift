@@ -108,11 +108,11 @@ struct BookView: View {
 
         Text(title)
           .fontWeight(.semibold)
+          .frame(height: 34, alignment: .leading)
           .foregroundColor(titleColor)
           .font(.caption)
           .lineLimit(2)
           .multilineTextAlignment(.center)
-          .frame(width: nil, height: 34, alignment: .leading)
       }
     }
   }
@@ -166,6 +166,7 @@ struct RecentBooksWidgetView_Previews: PreviewProvider {
       RecentBooksWidgetView(
         entry: LibraryEntry(date: Date(),
                             items: [.previewItem(title: "a very very very long title"),
+                                    .previewItem(title: "a short title"),
                                     .previewItem(title: "a short title"),
                                     .previewItem(title: "a short title")],
                             theme: nil,
