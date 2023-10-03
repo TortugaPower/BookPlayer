@@ -207,7 +207,7 @@ class WidgetUtils {
 }
 
 extension View {
-  func widgetBackground(backgroundView: some View) -> some View {
+  public func widgetBackground(backgroundView: some View) -> some View {
     if #available(watchOS 10.0, iOSApplicationExtension 17.0, iOS 17.0, macOSApplicationExtension 14.0, *) {
       return containerBackground(for: .widget) {
         backgroundView
@@ -219,7 +219,7 @@ extension View {
 }
 
 extension WidgetConfiguration {
-  func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
+  public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
     if #available(iOSApplicationExtension 17.0, *) {
       return self.contentMarginsDisabled()
     } else {

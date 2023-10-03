@@ -3043,6 +3043,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				418445C3258AE11E0072DD13 /* WidgetUtils.swift in Sources */,
 				4106414025872614008EB8D0 /* BarView.swift in Sources */,
 				4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */,
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
@@ -3053,7 +3054,6 @@
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
-				418445C3258AE11E0072DD13 /* WidgetUtils.swift in Sources */,
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
