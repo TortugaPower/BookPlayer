@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     # https://github.com/actions/runner-images/tree/main/images/macos
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v2
@@ -20,5 +20,5 @@ jobs:
     - name: Resolve dependencies
       run: xcodebuild -resolvePackageDependencies
     - name: Build and Run tests
-      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 13,OS=16.2'
+      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 14,OS=17.0'
 
