@@ -21,9 +21,9 @@ struct PricingOptionsView: View {
     VStack(spacing: Spacing.S1) {
       ForEach(options) { option in
         PricingRowView(
-          title: .constant(option.title),
-          isSelected: .constant(selected == option),
-          isLoading: .constant(isLoading)
+          title: option.title,
+          isSelected: selected == option,
+          isLoading: isLoading
         )
         .onTapGesture {
           onSelected?(option)
