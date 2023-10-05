@@ -14,12 +14,12 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
   @StateObject var themeViewModel = ThemeViewModel()
 
   var listView: some View {
-    return List {
+    List {
       Section {
         ForEach(viewModel.queuedJobs) { job in
           QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job)),
-            title: .constant(job.relativePath)
+            imageName: parseImageName(job),
+            title: job.relativePath
           )
           .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
         }

@@ -10,8 +10,8 @@ import BookPlayerKit
 import SwiftUI
 
 struct QueuedSyncTaskRowView: View {
-  @Binding var imageName: String
-  @Binding var title: String
+  let imageName: String
+  let title: String
 
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
@@ -34,8 +34,8 @@ struct QueuedSyncTaskRowView: View {
 struct QueuedSyncTaskRowView_Previews: PreviewProvider {
   static var previews: some View {
     QueuedSyncTaskRowView(
-      imageName: .constant("bookmark"),
-      title: .constant("Task")
+      imageName: "bookmark",
+      title: "Task"
     )
     .environmentObject(ThemeViewModel())
   }
