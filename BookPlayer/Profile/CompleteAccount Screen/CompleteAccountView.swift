@@ -41,13 +41,8 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
         .padding(.top, Spacing.M)
 
       PricingOptionsView(
-        options: $viewModel.pricingOptions,
-        selected: $viewModel.selectedPricingOption,
-        isLoading: $viewModel.isLoadingPricingOptions,
-        onSelected: { option in
-          viewModel.selectedPricingOption = option
-        }
-      )
+        options: viewModel.pricingOptions,
+        isLoading: viewModel.isLoadingPricingOptions, selected: $viewModel.selectedPricingOption)
 
       Button(action: viewModel.handleSubscription) {
         Text("subscribe_title".localized)

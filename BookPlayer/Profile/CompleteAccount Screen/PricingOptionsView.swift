@@ -10,24 +10,20 @@ import BookPlayerKit
 import SwiftUI
 
 struct PricingOptionsView: View {
-  @Binding var options: [PricingModel]
+  let options: [PricingModel]
+  let isLoading: Bool
   @Binding var selected: PricingModel?
-  @Binding var isLoading: Bool
-  var onSelected: ((PricingModel) -> Void)?
-
-  @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     VStack(spacing: Spacing.S1) {
       ForEach(options) { option in
-        PricingRowView(
-          title: option.title,
-          isSelected: selected == option,
-          isLoading: isLoading
-        )
-        .onTapGesture {
-          onSelected?(option)
-        }
+        Button(action: isLoading ? {} : { selected = option },
+               label: {
+          PricingRowView(
+            title: option.title,
+            isSelected: selected == option,
+            isLoading: isLoading)
+        })
       }
     }
   }
@@ -35,15 +31,40 @@ struct PricingOptionsView: View {
 
 struct PricingOptionsView_Previews: PreviewProvider {
   static var previews: some View {
-    PricingOptionsView(
-      options: .constant([
-        PricingModel(id: "yearly", title: "$49.99 per year"),
-        PricingModel(id: "monthly", title: "$4.99 per month")
-      ]),
-      selected: .constant(PricingModel(id: "yearly", title: "$49.99 per year")),
-      isLoading: .constant(false),
-      onSelected: nil
-    )
+    Group {
+      PricingOptionsView(
+        options: options,
+        isLoading: false,
+        selected: .constant(PricingModel(id: "yearly",
+                                         title: "$49.99 per year")))
+        .previewDisplayName("Stateless")
+
+      OptionsViewWarper()
+        .previewDisplayName("Stateful")
+    }
+    .padding()
     .environmentObject(ThemeViewModel())
   }
+
+  static let options = [PricingModel(id: "yearly", title: "$49.99 per year"),
+                        PricingModel(id: "monthly", title: "$4.99 per month")]
+
+  private struct OptionsViewWarper: View {
+    let options = PricingOptionsView_Previews.options
+
+    @State var selectedOption: PricingModel?
+    @State var isLoading = false
+
+    var body: some View {
+      VStack {
+      PricingOptionsView(options: options,
+                         isLoading: isLoading,
+                         selected: $selectedOption)
+        Toggle(isOn: $isLoading, label: {
+          Text("Loading")
+        })
+      }
+    }
+  }
 }
+
