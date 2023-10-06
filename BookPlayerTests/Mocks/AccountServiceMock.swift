@@ -72,7 +72,7 @@ class AccountServiceMock: AccountServiceProtocol {
     return []
   }
 
-  func getSubscriptionOptions() async throws -> [BookPlayerKit.PricingModel] {
+  func getSubscriptionOptions() async -> [BookPlayerKit.PricingModel] {
     return []
   }
 

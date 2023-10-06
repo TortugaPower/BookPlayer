@@ -54,7 +54,7 @@ public protocol AccountServiceProtocol {
   )
 
   func getHardcodedSubscriptionOptions() -> [PricingModel]
-  func getSubscriptionOptions() async throws -> [PricingModel]
+  func getSubscriptionOptions() async -> [PricingModel]
 
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
@@ -176,17 +176,11 @@ public final class AccountService: AccountServiceProtocol {
     PricingModel.hardcodedOptions
   }
 
-  public func getSubscriptionOptions() async throws -> [PricingModel] {
-    let options = await Purchases
+  public func getSubscriptionOptions() async -> [PricingModel] {
+    await Purchases
       .shared
       .products(SubscriptionID.allCases.map { $0.rawValue })
       .compactMap { PricingModel($0)}
-
-    if options.isEmpty {
-      throw AccountError.emptyProducts
-    }
-
-    return options
   }
 
   public func subscribe(option: PricingModel) async throws -> Bool {

@@ -56,7 +56,7 @@ class CompleteAccountViewModel: CompleteAccountViewModelProtocol {
 
   func loadPricingOptions() {
     Task { @MainActor [weak self] in
-      if let options = try? await self?.accountService.getSubscriptionOptions() {
+      if let options = await self?.accountService.getSubscriptionOptions() {
         self?.pricingOptions = options
         self?.selectedPricingOption = options.first
       }
