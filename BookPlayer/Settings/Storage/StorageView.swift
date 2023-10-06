@@ -146,7 +146,22 @@ struct StorageView_Previews: PreviewProvider {
   class MockStorageViewModel: StorageViewModelProtocol, ObservableObject {
     var folderURL: URL { URL(string: "file://")! }
     var navigationTitle: String = "Files"
-    var publishedFiles: [StorageItem] = []
+    var publishedFiles: [StorageItem] = [
+      StorageItem(
+        title: "Book title",
+        fileURL: URL(fileURLWithPath: "book.mp3"),
+        path: "book.mp3",
+        size: 124,
+        showWarning: true
+      ),
+      StorageItem(
+        title: "Book title",
+        fileURL: URL(fileURLWithPath: "book.mp3"),
+        path: "book.mp3",
+        size: 124,
+        showWarning: true
+      )
+    ]
     var storageAlert: BPStorageAlert = .none
     var sortBy: BPStorageSortBy = .size
     var showFixAllButton: Bool = true
@@ -160,5 +175,6 @@ struct StorageView_Previews: PreviewProvider {
   }
   static var previews: some View {
     StorageView(viewModel: MockStorageViewModel())
+      .previewLayout(.sizeThatFits)
   }
 }

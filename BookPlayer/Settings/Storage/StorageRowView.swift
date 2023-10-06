@@ -11,15 +11,15 @@ import BookPlayerKit
 
 struct StorageRowView: View {
   let item: StorageItem
-  let onDeleteTap: (() -> Void)?
-  let onWarningTap: (() -> Void)?
+  let onDeleteTap: () -> Void
+  let onWarningTap: () -> Void
 
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
     HStack {
       Button {
-        onDeleteTap?()
+        onDeleteTap()
       } label: {
         Image(systemName: "minus.circle.fill")
           .resizable()
@@ -33,19 +33,16 @@ struct StorageRowView: View {
       VStack(alignment: .leading, spacing: 2) {
         Text(item.title)
           .font(Font(Fonts.title))
-          .multilineTextAlignment(.leading)
           .foregroundColor(themeViewModel.primaryColor)
 
-        Text(item.path)
-          .font(.footnote)
-          .multilineTextAlignment(.leading)
-          .foregroundColor(themeViewModel.secondaryColor)
-
-        Text(item.formattedSize)
-          .font(.footnote)
-          .multilineTextAlignment(.leading)
-          .foregroundColor(themeViewModel.secondaryColor)
+        VStack {
+          Text(item.path)
+          Text(item.formattedSize)
+        }
+        .font(.footnote)
+        .foregroundColor(themeViewModel.secondaryColor)
       }
+      .multilineTextAlignment(.leading)
       .padding(.trailing, item.showWarning ? 10 : 32)
       .accessibilityElement()
       .accessibilityLabel("\(item.title), \(item.formattedSize)")
@@ -53,25 +50,26 @@ struct StorageRowView: View {
 
       Spacer()
 
-      if item.showWarning {
-        Button {
-          onWarningTap?()
-        } label: {
-          Image(systemName: "exclamationmark.triangle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 22, height: 22)
-            .foregroundColor(.yellow)
-        }
-        .padding(15)
-        .accessibilitySortPriority(2)
+      Button {
+        onWarningTap()
+      } label: {
+        Image(systemName: "exclamationmark.triangle.fill")
+          .resizable()
+          .scaledToFit()
+          .frame(width: 22, height: 22)
+          .foregroundColor(.yellow)
       }
+      .padding(15)
+      .accessibilitySortPriority(2)
+      .opacity(item.showWarning ? 1 : 0)
     }
     .background(themeViewModel.systemBackgroundColor)
     .accessibilityElement(children: .contain)
   }
 
-  init(item: StorageItem, onDeleteTap: ( () -> Void)?, onWarningTap: ( () -> Void)?) {
+  init(item: StorageItem,
+       onDeleteTap: @escaping () -> Void,
+       onWarningTap: @escaping () -> Void) {
     self.item = item
     self.onDeleteTap = onDeleteTap
     self.onWarningTap = onWarningTap
@@ -80,17 +78,33 @@ struct StorageRowView: View {
 
 struct StorageRowView_Previews: PreviewProvider {
   static var previews: some View {
-    StorageRowView(
-      item: StorageItem(
-        title: "Book title",
-        fileURL: URL(fileURLWithPath: "book.mp3"),
-        path: "book.mp3",
-        size: 124,
-        showWarning: true
-      ),
-      onDeleteTap: nil,
-      onWarningTap: nil
-    )
+    VStack {
+      StorageRowView(
+        item: StorageItem(
+          title: "Book title",
+          fileURL: URL(fileURLWithPath: "book.mp3"),
+          path: "book.mp3",
+          size: 124,
+          showWarning: true
+        ),
+        onDeleteTap: { },
+        onWarningTap: { }
+      )
+
+      StorageRowView(
+        item: StorageItem(
+          title: "Book title",
+          fileURL: URL(fileURLWithPath: "book.mp3"),
+          path: "book.mp3",
+          size: 124,
+          showWarning: false
+        ),
+        onDeleteTap: { },
+        onWarningTap: { }
+      )
+    }
+    .padding()
     .environmentObject(ThemeViewModel())
+    .previewLayout(.sizeThatFits)
   }
 }
