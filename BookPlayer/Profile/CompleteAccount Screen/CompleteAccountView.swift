@@ -97,11 +97,8 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
 
 struct CompleteAccountView_Previews: PreviewProvider {
   class MockCompleteAccountViewModel: CompleteAccountViewModelProtocol, ObservableObject {
-    var pricingOptions = [
-      PricingModel(id: "1", title: "49.99 USD per month"),
-      PricingModel(id: "2", title: "4.99 USD per month")
-    ]
-    var selectedPricingOption: PricingModel? = PricingModel(id: "1", title: "49.99 USD per month")
+    var pricingOptions = PricingModel.hardcodedOptions
+    var selectedPricingOption: PricingModel? = PricingModel.hardcodedOptions.first
     var isLoadingPricingOptions: Bool = false
     var networkError: Error?
 

@@ -33,11 +33,10 @@ struct PricingOptionsView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
       PricingOptionsView(
-        options: options,
+        options: PricingModel.hardcodedOptions,
         isLoading: false,
-        selected: .constant(PricingModel(id: "yearly",
-                                         title: "$49.99 per year")))
-        .previewDisplayName("Stateless")
+        selected: .constant(PricingModel.hardcodedOptions.first!))
+      .previewDisplayName("Stateless")
 
       OptionsViewWarper()
         .previewDisplayName("Stateful")
@@ -46,11 +45,8 @@ struct PricingOptionsView_Previews: PreviewProvider {
     .environmentObject(ThemeViewModel())
   }
 
-  static let options = [PricingModel(id: "yearly", title: "$49.99 per year"),
-                        PricingModel(id: "monthly", title: "$4.99 per month")]
-
   private struct OptionsViewWarper: View {
-    let options = PricingOptionsView_Previews.options
+    let options = PricingModel.hardcodedOptions
 
     @State var selectedOption: PricingModel?
     @State var isLoading = false

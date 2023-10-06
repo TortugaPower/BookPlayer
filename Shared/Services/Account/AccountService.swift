@@ -73,8 +73,6 @@ public protocol AccountServiceProtocol {
 }
 
 public final class AccountService: AccountServiceProtocol {
-  let monthlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
-  let yearlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
   let dataManager: DataManager
   let client: NetworkClientProtocol
   let keychain: KeychainServiceProtocol
@@ -175,30 +173,14 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func getHardcodedSubscriptionOptions() -> [PricingModel] {
-    return [
-      PricingModel(id: yearlySubscriptionId, title: "49.99 USD \("yearly_title".localized)"),
-      PricingModel(id: monthlySubscriptionId, title: "4.99 USD \("monthly_title".localized)")
-    ]
+    PricingModel.hardcodedOptions
   }
 
   public func getSubscriptionOptions() async throws -> [PricingModel] {
-    let products = await Purchases.shared.products([yearlySubscriptionId, monthlySubscriptionId])
-
-    var options = [PricingModel]()
-
-    if let product = products.first(where: { $0.productIdentifier == yearlySubscriptionId }) {
-      options.append(PricingModel(
-        id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("yearly_title".localized)"
-      ))
-    }
-
-    if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
-      options.append(PricingModel(
-        id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("monthly_title".localized)"
-      ))
-    }
+    let options = await Purchases
+      .shared
+      .products(SubscriptionID.allCases.map { $0.rawValue })
+      .compactMap { PricingModel($0)}
 
     if options.isEmpty {
       throw AccountError.emptyProducts
@@ -208,7 +190,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func subscribe(option: PricingModel) async throws -> Bool {
-    let products = await Purchases.shared.products([option.id])
+    let products = await Purchases.shared.products([option.id.rawValue])
 
     guard let product = products.first else {
       throw AccountError.emptyProducts
