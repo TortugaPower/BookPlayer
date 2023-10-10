@@ -62,6 +62,14 @@ struct ItemDetailsForm: View {
           ]
         )
       }
+
+      Section {
+        EmptyView()
+      } footer: {
+        Text(viewModel.originalFileName)
+          .font(Font(Fonts.body))
+          .foregroundColor(themeViewModel.secondaryColor)
+      }
     }
     .onChange(of: viewModel.selectedImage, perform: { _ in
       viewModel.artworkIsUpdated = true
@@ -96,7 +104,7 @@ struct ItemDetailsForm_Previews: PreviewProvider {
           artworkURL: nil,
           orderRank: 0,
           parentFolder: nil,
-          originalFileName: "",
+          originalFileName: "this is a test filename.mp3",
           lastPlayDate: nil,
           type: .book
         )
