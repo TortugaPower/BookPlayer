@@ -409,7 +409,7 @@ extension LibraryService {
   private func createLibrary() -> Library {
     let context = self.dataManager.getContext()
     let library = Library.create(in: context)
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext(context)
     return library
   }
 
@@ -447,15 +447,16 @@ extension LibraryService {
   }
 
   public func setLibraryTheme(with simpleTheme: SimpleTheme) {
-    let library = self.getLibraryReference()
+    let context = dataManager.getContext()
+    let library = getLibraryReference(context: context)
 
     library.currentTheme = getTheme(with: simpleTheme.title)
     ?? Theme(
       simpleTheme: simpleTheme,
-      context: dataManager.getContext()
+      context: context
     )
 
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext(context)
   }
 
   private func getTheme(with title: String) -> Theme? {
@@ -1041,17 +1042,22 @@ extension LibraryService {
 // MARK: - Metadata update
 extension LibraryService {
   public func createBook(from url: URL) -> Book {
-    let newBook = Book(from: url, context: self.dataManager.getContext())
-    self.dataManager.saveContext()
+    let context = dataManager.getContext()
+    let newBook = Book(from: url, context: context)
+    self.dataManager.saveSyncContext(context)
     return newBook
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
-    guard let book = self.getItem(with: relativePath) as? Book else { return }
+    let context = dataManager.getContext()
 
-    book.loadChaptersIfNeeded(from: asset, context: dataManager.getContext())
+    guard
+      let book = getItem(with: relativePath, context: context) as? Book
+    else { return }
 
-    dataManager.saveContext()
+    book.loadChaptersIfNeeded(from: asset, context: context)
+
+    dataManager.saveSyncContext(context)
   }
 
   func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
@@ -1114,9 +1120,10 @@ extension LibraryService {
   }
 
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
-    try createFolderOnDisk(title: title, inside: relativePath)
+    let context = dataManager.getContext()
+    try createFolderOnDisk(title: title, inside: relativePath, context: context)
 
-    let newFolder = Folder(title: title, context: dataManager.getContext())
+    let newFolder = Folder(title: title, context: context)
     newFolder.orderRank = getNextOrderRank(in: relativePath)
     /// Override relative path
     if let relativePath {
@@ -1126,7 +1133,7 @@ extension LibraryService {
     // insert into existing folder or library at index
     if let parentPath = relativePath {
       guard
-        let parentFolder = getItemReference(with: parentPath) as? Folder
+        let parentFolder = getItemReference(with: parentPath, context: context) as? Folder
       else {
         throw BookPlayerError.runtimeError("Parent folder does not exist at: \(parentPath)")
       }
@@ -1135,10 +1142,10 @@ extension LibraryService {
       parentFolder.addToItems(newFolder)
       parentFolder.details = String.localizedStringWithFormat("files_title".localized, existingParentContentsCount + 1)
     } else {
-      getLibraryReference().addToItems(newFolder)
+      getLibraryReference(context: context).addToItems(newFolder)
     }
 
-    dataManager.saveContext()
+    dataManager.saveSyncContext(context)
 
     return SimpleLibraryItem(from: newFolder)
   }
