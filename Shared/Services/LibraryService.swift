@@ -562,8 +562,12 @@ extension LibraryService {
     let destinationUrl: URL
 
     if let parentPath {
-      destinationUrl = processedFolderURL
+      let parentURL = processedFolderURL
         .appendingPathComponent(parentPath)
+
+      try DataManager.createBackingFolderIfNeeded(parentURL)
+
+      destinationUrl = parentURL
         .appendingPathComponent(sourceUrl.lastPathComponent)
     } else {
       destinationUrl = processedFolderURL

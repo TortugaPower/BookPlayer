@@ -329,16 +329,16 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   func handleArtworkTap(for item: SimpleLibraryItem) {
-    switch item.type {
-    case .folder:
-      playNextBook(in: item)
-    case .bound, .book:
-      switch getDownloadState(for: item) {
-      case .notDownloaded:
-        startDownload(of: item)
-      case .downloading:
-        cancelDownload(of: item)
-      case .downloaded:
+    switch getDownloadState(for: item) {
+    case .notDownloaded:
+      startDownload(of: item)
+    case .downloading:
+      cancelDownload(of: item)
+    case .downloaded:
+      switch item.type {
+      case .folder:
+        playNextBook(in: item)
+      case .bound, .book:
         onTransition?(.loadPlayer(relativePath: item.relativePath))
       }
     }
@@ -725,7 +725,7 @@ class ItemListViewModel: ViewModelProtocol {
           do {
             let fileURL = item.fileURL
             try FileManager.default.removeItem(at: fileURL)
-            if item.type == .bound {
+            if item.type == .bound || item.type == .folder {
               try FileManager.default.createDirectory(
                 at: fileURL,
                 withIntermediateDirectories: false,
@@ -1146,7 +1146,7 @@ extension ItemListViewModel {
 
     let fileURL = item.fileURL
 
-    if item.type == .bound,
+    if (item.type == .bound || item.type == .folder),
        let enumerator = FileManager.default.enumerator(
         at: fileURL,
         includingPropertiesForKeys: nil,
@@ -1166,11 +1166,16 @@ extension ItemListViewModel {
   /// Download files linked to an item
   /// Note: if the item is a bound book, this will start multiple downloads
   func startDownload(of item: SimpleLibraryItem) {
-    sendEvent(.showLoader(flag: true))
+    Task { @MainActor in
+      sendEvent(.showLoader(flag: true))
 
-    Task { [weak self] in
-      guard let self = self else { return }
       do {
+        let fileURL = item.fileURL
+        /// Create backing folder if it does not exist
+        if item.type == .folder || item.type == .bound {
+          try DataManager.createBackingFolderIfNeeded(fileURL)
+        }
+
         let tasks = try await self.syncService.downloadRemoteFiles(
           for: item.relativePath,
           type: item.type,
@@ -1182,6 +1187,7 @@ extension ItemListViewModel {
         )
         self.sendEvent(.showLoader(flag: false))
       } catch {
+        self.sendEvent(.showLoader(flag: false))
         self.sendEvent(.showAlert(
           content: BPAlertContent.errorAlert(message: error.localizedDescription)
         ))

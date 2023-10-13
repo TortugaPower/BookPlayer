@@ -89,6 +89,12 @@ public class DataManager {
     return absoluteUrl.contains(processedFolderUrl)
   }
 
+  public class func createBackingFolderIfNeeded(_ url: URL) throws {
+    if !FileManager.default.fileExists(atPath: url.path) {
+      try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    }
+  }
+
   public func getContext() -> NSManagedObjectContext {
     return self.coreDataStack.managedContext
   }

@@ -278,9 +278,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws -> [RemoteFileURL] {
     let response: RemoteFileURLResponseContainer
 
-    if type == .bound {
+    switch type {
+    case .folder, .bound:
       response = try await provider.request(.remoteContentsURL(path: relativePath))
-    } else {
+    case .book:
       response = try await self.provider.request(.remoteFileURL(path: relativePath))
     }
 
@@ -298,9 +299,23 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws -> [URLSessionDownloadTask] {
     let remoteURLs = try await getRemoteFileURLs(of: relativePath, type: type)
 
+    let folderURLs = remoteURLs.filter({ $0.type != .book })
+
+    /// Handle throwable items first
+    if !folderURLs.isEmpty {
+      let processedFolderURL = DataManager.getProcessedFolderURL()
+
+      for remoteURL in folderURLs {
+        let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+        try DataManager.createBackingFolderIfNeeded(fileURL)
+      }
+    }
+
+    let bookURLs = remoteURLs.filter({ $0.type == .book })
+
     var tasks = [URLSessionDownloadTask]()
 
-    for remoteURL in remoteURLs {
+    for remoteURL in bookURLs {
       let task = self.provider.client.download(
         url: remoteURL.url,
         taskDescription: remoteURL.relativePath,
