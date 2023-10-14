@@ -12,6 +12,8 @@ import Foundation
 import UIKit
 
 class ItemDetailsFormViewModel: ObservableObject {
+  /// File name
+  @Published var originalFileName: String
   /// Title of the item
   @Published var title: String
   /// Author of the item (only applies for books)
@@ -35,6 +37,7 @@ class ItemDetailsFormViewModel: ObservableObject {
     self.titlePlaceholder = item.title
     self.author = item.details
     self.authorPlaceholder = item.details
+    self.originalFileName = item.originalFileName
     self.showAuthor = item.type == .book
     self.originalImageDataProvider = ArtworkService.getArtworkProvider(for: item.relativePath)
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
