@@ -34,11 +34,18 @@ public protocol NetworkClientProtocol {
     session: URLSession
   ) async -> URLSessionTask
 
+  /// Download a file handled by a delegate and an internal URLSession
+  func download(
+    url: URL,
+    delegate: BPTaskDownloadDelegate
+  )
+
+  /// Managed download by an existing URLSession
   func download(
     url: URL,
     taskDescription: String?,
-    delegate: URLSessionTaskDelegate
-  ) -> URLSessionDownloadTask
+    session: URLSession
+  ) async -> URLSessionTask
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
@@ -85,24 +92,43 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
   public func download(
     url: URL,
-    taskDescription: String?,
-    delegate: URLSessionTaskDelegate
-  ) -> URLSessionDownloadTask {
+    delegate: BPTaskDownloadDelegate
+  ) {
     let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
 
     let session = URLSession(
       configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background.download"
+        withIdentifier: "\(bundleIdentifier).background.import"
       ),
       delegate: delegate,
       delegateQueue: OperationQueue()
     )
-
     let task = session.downloadTask(with: url)
-    task.taskDescription = taskDescription
     task.resume()
+  }
 
-    return task
+  public func download(
+    url: URL,
+    taskDescription: String?,
+    session: URLSession
+  ) async -> URLSessionTask {
+    let allTasks = await session.allTasks
+
+    /// Avoid creating a new task if one exists already to avoid double downloads
+    if let existingTask = allTasks.first(where: { task in
+      task.taskDescription == taskDescription
+    }) {
+      Self.logger.trace("Existing request for: \(url.path)")
+      return existingTask
+    } else {
+      Self.logger.trace("[Request] Download \(url.path)")
+
+      let task = session.downloadTask(with: url)
+      task.taskDescription = taskDescription
+      task.resume()
+
+      return task
+    }
   }
 
   public func upload(

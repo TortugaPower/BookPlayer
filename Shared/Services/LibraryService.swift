@@ -562,8 +562,12 @@ extension LibraryService {
     let destinationUrl: URL
 
     if let parentPath {
-      destinationUrl = processedFolderURL
+      let parentURL = processedFolderURL
         .appendingPathComponent(parentPath)
+
+      try DataManager.createBackingFolderIfNeeded(parentURL)
+
+      destinationUrl = parentURL
         .appendingPathComponent(sourceUrl.lastPathComponent)
     } else {
       destinationUrl = processedFolderURL
@@ -1194,6 +1198,12 @@ extension LibraryService {
 
   /// Internal function to calculate the entire folder's progress
   func calculateFolderProgress(at relativePath: String) -> (Double, Int) {
+    let totalCount = getMaxItemsCount(at: relativePath)
+
+    guard totalCount > 0 else {
+      return (0, 0)
+    }
+
     let countExpression = NSExpressionDescription()
     countExpression.expression = NSExpression(forFunction: "count:", arguments: [
       NSExpression(forKeyPath: #keyPath(LibraryItem.relativePath))
@@ -1232,7 +1242,6 @@ extension LibraryService {
       fetchedSum = 0
     }
 
-    let totalCount = getMaxItemsCount(at: relativePath)
     let totalProgress = fetchedSum + Double((totalCount - fetchedCount) * 100)
 
     return (totalProgress / Double(totalCount), totalCount)
@@ -1448,7 +1457,10 @@ extension LibraryService {
 
     item.currentTime = time
     item.lastPlayDate = date
-    let percentCompleted = round((item.currentTime / item.duration) * 100)
+    let progress = round((item.currentTime / item.duration) * 100)
+    let percentCompleted = (progress.isNaN || progress.isInfinite)
+    ? 0
+    : progress
     item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {
