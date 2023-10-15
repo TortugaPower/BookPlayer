@@ -793,8 +793,6 @@ extension PlayerManager {
   func stop() {
     stopPlayback()
 
-    self.libraryService.setLibraryLastBook(with: nil)
-
     self.currentItem = nil
     playerItem = nil
     /// Clear out flag when `playerItem` is nulled out
