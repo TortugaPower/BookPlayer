@@ -58,12 +58,6 @@ class ItemListViewModel: ViewModelProtocol {
   private var bookProgressSubscription: AnyCancellable?
   /// Delegate for progress updates of single downloads by URL
   private var singleDownloadProgressDelegateInterface = BPTaskDownloadDelegate()
-  /// Download delegate for synced items
-  private var downloadDelegateInterface = BPTaskDownloadDelegate()
-  /// Dictionary holding the starting item relative path as key and the download tasks as value
-  private lazy var downloadTasksDictionary = [String: [URLSessionDownloadTask]]()
-  /// Reference to the starting item path for the download tasks (relevant for bound books)
-  private lazy var ongoingTasksParentReference = [String: String]()
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
 
@@ -168,13 +162,38 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   func bindDownloadObservers() {
-    downloadDelegateInterface.didFinishDownloadingTask = { [weak self] (task, location) in
-      self?.handleFinishedDownload(task: task, location: location)
-    }
+    syncService.downloadCompletedPublisher
+      .filter({ [weak self] in
+        $0.1 == self?.folderRelativePath || $0.2 == self?.folderRelativePath
+      })
+      .sink { [weak self] (relativePath, initiatingItemPath, _) in
+        guard
+          let index = self?.items.firstIndex(where: {
+            relativePath == $0.relativePath || initiatingItemPath == $0.relativePath
+          })
+        else { return }
 
-    downloadDelegateInterface.downloadProgressUpdated = { [weak self] (task, progress) in
-      self?.handleDownloadProgressUpdated(task: task, individualProgress: progress)
-    }
+        self?.sendEvent(
+          .reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue))
+        )
+      }.store(in: &disposeBag)
+
+    syncService.downloadProgressPublisher
+      .filter({ [weak self] in
+        $0.1 == self?.folderRelativePath || $0.2 == self?.folderRelativePath
+      })
+      .sink { [weak self] (relativePath, initiatingItemPath, _, progress) in
+        guard
+          let index = self?.items.firstIndex(where: {
+            relativePath == $0.relativePath || initiatingItemPath == $0.relativePath
+          })
+        else { return }
+
+        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+        self?.sendEvent(
+          .downloadState(.downloading(progress: progress), indexPath: indexModified)
+        )
+      }.store(in: &disposeBag)
 
     singleDownloadProgressDelegateInterface.downloadProgressUpdated = { [weak self] (_, progress) in
       let percentage = String(format: "%.2f", progress * 100)
@@ -1135,34 +1154,9 @@ extension ItemListViewModel {
 
 // MARK: - Network related handlers
 extension ItemListViewModel {
-  /// Get download state of an item
   func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
-    /// Only process if subscription is active
-    guard syncService.isActive else { return .downloaded }
-
-    if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
-      return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
-    }
-
-    let fileURL = item.fileURL
-
-    if (item.type == .bound || item.type == .folder),
-       let enumerator = FileManager.default.enumerator(
-        at: fileURL,
-        includingPropertiesForKeys: nil,
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-       ),
-       enumerator.nextObject() == nil {
-      return .notDownloaded
-    }
-
-    if FileManager.default.fileExists(atPath: fileURL.path) {
-      return .downloaded
-    }
-
-    return .notDownloaded
+    return syncService.getDownloadState(for: item)
   }
-
   /// Download files linked to an item
   /// Note: if the item is a bound book, this will start multiple downloads
   func startDownload(of item: SimpleLibraryItem) {
@@ -1176,15 +1170,7 @@ extension ItemListViewModel {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
 
-        let tasks = try await self.syncService.downloadRemoteFiles(
-          for: item.relativePath,
-          type: item.type,
-          delegate: downloadDelegateInterface
-        )
-        self.downloadTasksDictionary[item.relativePath] = tasks
-        self.ongoingTasksParentReference = tasks.reduce(
-          into: ongoingTasksParentReference, { $0[$1.taskDescription!] = item.relativePath }
-        )
+        try await self.syncService.downloadRemoteFiles(for: item)
         self.sendEvent(.showLoader(flag: false))
       } catch {
         self.sendEvent(.showLoader(flag: false))
@@ -1195,80 +1181,9 @@ extension ItemListViewModel {
     }
   }
 
-  /// Handler called when the download has finished for a task
-  func handleDownloadProgressUpdated(task: URLSessionDownloadTask, individualProgress: Double) {
-    guard
-      let relativePath = task.taskDescription,
-      let localItemRelativePath = ongoingTasksParentReference[relativePath],
-      let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath })
-    else { return }
-
-    let progress: Double
-    /// For individual items, the `fractionCompleted` of the current task can be 0
-    let calculatedProgress = calculateDownloadProgress(with: localItemRelativePath)
-    if calculatedProgress != 0 {
-      progress = calculatedProgress
-    } else {
-      progress = individualProgress
-    }
-
-    let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
-    sendEvent(.downloadState(.downloading(progress: progress), indexPath: indexModified))
-  }
-
-  /// Calculate the overall download progress for an item (useful for bound books)
-  func calculateDownloadProgress(with relativePath: String) -> Double {
-    guard let tasks = downloadTasksDictionary[relativePath] else { return 1.0 }
-
-    let completedTasksCount = tasks.filter({ $0.state == .completed }).count
-    let runningTasksProgress = tasks.filter({ $0.state == .running })
-      .reduce(0.0, { $0 + $1.progress.fractionCompleted })
-
-    return (runningTasksProgress + Double(completedTasksCount)) / Double(tasks.count)
-  }
-
-  func handleFinishedDownload(task: URLSessionDownloadTask, location: URL) {
-    guard
-      let relativePath = task.taskDescription,
-      let localItemRelativePath = ongoingTasksParentReference[relativePath]
-    else { return }
-
-    /// Remove from dictionary if all the other tasks are already completed
-    if let localItemRelativePath = ongoingTasksParentReference[relativePath],
-       downloadTasksDictionary[localItemRelativePath]?
-      .filter({ $0 != task })
-      .allSatisfy({ $0.state == .completed }) == true {
-      downloadTasksDictionary[localItemRelativePath] = nil
-    }
-
-    /// cleanup individual reference
-    ongoingTasksParentReference[relativePath] = nil
-
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
-    do {
-      /// If there's already something there, replace with new finished download
-      if FileManager.default.fileExists(atPath: fileURL.path) {
-        try FileManager.default.removeItem(at: fileURL)
-      }
-      try FileManager.default.moveItem(at: location, to: fileURL)
-      libraryService.loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
-
-      guard let index = items.firstIndex(where: { localItemRelativePath == $0.relativePath }) else { return }
-
-      self.sendEvent(.reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue)))
-    } catch {
-      self.sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-    }
-  }
-
   /// Cancel ongoing download tasks for a given item.
   /// This will also delete all files for any partial completed download of bound books
   func cancelDownload(of item: SimpleLibraryItem) {
-    guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
-
     sendEvent(.showAlert(
       content: BPAlertContent(
         message: "cancel_download_title".localized,
@@ -1276,34 +1191,16 @@ extension ItemListViewModel {
         actionItems: [
           BPActionItem(
             title: "ok_button".localized,
-            handler: { [tasks, item, weak self] in
-              var hasCompletedTasks = false
-
-              for task in tasks {
-                guard task.state != .completed else {
-                  hasCompletedTasks = true
-                  continue
-                }
-
-                task.cancel()
+            handler: { [item, weak self] in
+              do {
+                try self?.syncService.cancelDownload(of: item)
+              } catch {
+                self?.sendEvent(.showAlert(
+                  content: BPAlertContent.errorAlert(message: error.localizedDescription)
+                ))
+                return
               }
 
-              /// Clean up bound downloads if at least one was finished
-              if item.type == .bound,
-                 hasCompletedTasks {
-                do {
-                  let fileURL = item.fileURL
-                  try FileManager.default.removeItem(at: fileURL)
-                  try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false, attributes: nil)
-                } catch {
-                  self?.sendEvent(.showAlert(
-                    content: BPAlertContent.errorAlert(message: error.localizedDescription)
-                  ))
-                  return
-                }
-              }
-
-              self?.downloadTasksDictionary[item.relativePath] = nil
               if let index = self?.items.firstIndex(of: item) {
                 self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
               }
@@ -1319,7 +1216,7 @@ extension ItemListViewModel {
   func handleDownload(_ url: URL) {
     sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
 
-    _ = networkClient.download(url: url, taskDescription: nil, delegate: singleDownloadProgressDelegateInterface)
+    _ = networkClient.download(url: url, delegate: singleDownloadProgressDelegateInterface)
   }
 
   // TODO: Move functionality related to single-donwload into a separate service, and listen to publisher for events

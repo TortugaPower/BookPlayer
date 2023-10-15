@@ -6,6 +6,7 @@
 //  Copyright © 2022 Tortuga Power. All rights reserved.
 //
 
+import AVFoundation
 import CoreData
 import Foundation
 import Combine
@@ -31,6 +32,8 @@ public protocol LibrarySyncProtocol {
   func setLibraryLastBook(with relativePath: String?) async
   /// Returns boolean determining if the item exists for the relativePath
   func itemExists(for relativePath: String) async -> Bool
+  /// Load encoded chapters from file into DB
+  func loadChaptersIfNeeded(relativePath: String)
 
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
@@ -331,5 +334,11 @@ extension LibraryService: LibrarySyncProtocol {
     if !FileManager.default.fileExists(atPath: url.path) {
       try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
+  }
+
+  public func loadChaptersIfNeeded(relativePath: String) {
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+    loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
   }
 }

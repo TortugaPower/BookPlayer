@@ -89,6 +89,21 @@ public class DataManager {
     return absoluteUrl.contains(processedFolderUrl)
   }
 
+  /// Create the parent folder (and intermediates) for a file URL if necessary
+  public class func createContainingFolderIfNeeded(for url: URL) throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    let containingFolder = url.deletingLastPathComponent()
+
+    guard 
+      processedFolder != containingFolder,
+      !FileManager.default.fileExists(atPath: containingFolder.path)
+    else { return }
+
+    try FileManager.default.createDirectory(at: containingFolder, withIntermediateDirectories: true)
+  }
+
+  /// Create the folder on disk if needed for the passed URL
   public class func createBackingFolderIfNeeded(_ url: URL) throws {
     if !FileManager.default.fileExists(atPath: url.path) {
       try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
