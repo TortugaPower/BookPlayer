@@ -13,9 +13,8 @@ import Kingfisher
 import Themeable
 import UIKit
 
-class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListViewModel>,
-                              Storyboarded,
-                              UIGestureRecognizerDelegate, BPLogger {
+class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
+  var viewModel: ItemListViewModel!
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!
@@ -107,7 +106,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     self.addConstraints()
     self.configureDataSource()
     self.bindDataItems()
-    self.bindTransitionActions()
     self.configureInitialState()
     self.bindNetworkObserver()
     self.viewModel.bindObservers()
@@ -280,6 +278,8 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
         switch event {
         case .newData:
           self?.reloadData()
+        case .resetEditMode:
+          self?.setEditing(false, animated: false)
         case .reloadIndex(let indexPath):
           self?.tableView.reloadRows(at: [indexPath], with: .none)
         case .downloadState(let state, let indexPath):
@@ -311,25 +311,6 @@ class ItemListViewController: BaseViewController<ItemListCoordinator, ItemListVi
     }
 
     cell.downloadState = state
-  }
-
-  func bindTransitionActions() {
-    self.viewModel.coordinator.onAction = { [weak self] route in
-      self?.setEditing(false, animated: false)
-
-      switch route {
-      case .newImportOperation(let operation):
-        let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
-        self?.showLoadView(true, title: loadingTitle)
-      case .importOperationFinished(let files, let suggestedFolderName):
-        self?.showLoadView(false)
-        self?.viewModel.handleOperationCompletion(files, suggestedFolderName: suggestedFolderName)
-      case .downloadBook(let url):
-        self?.viewModel.handleDownload(url)
-      case .reloadItems(let pageSizePadding):
-        self?.viewModel.reloadItems(pageSizePadding: pageSizePadding)
-      }
-    }
   }
 
   override func setEditing(_ editing: Bool, animated: Bool) {

@@ -291,7 +291,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(error.localizedDescription)
+        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription)
         return
       }
     }
@@ -742,7 +742,7 @@ extension PlayerManager {
         } else {
           playbackQueued = nil
           observeStatus = false
-          showErrorAlert(item.error?.localizedDescription)
+          showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
         }
       }
       return
@@ -792,8 +792,6 @@ extension PlayerManager {
 
   func stop() {
     stopPlayback()
-
-    self.libraryService.setLibraryLastBook(with: nil)
 
     self.currentItem = nil
     playerItem = nil
@@ -1006,11 +1004,12 @@ extension PlayerManager {
 }
 
 extension PlayerManager {
-  private func showErrorAlert(_ message: String?) {
+  private func showErrorAlert(title: String, _ message: String?) {
     DispatchQueue.main.async {
-      AppDelegate.shared?.activeSceneDelegate?.coordinator.getMainCoordinator()?
-        .getTopController()?
-        .showAlert("error_title".localized, message: message)
+      AppDelegate.shared?.activeSceneDelegate?
+        .startingNavigationController
+        .getTopVisibleViewController()?
+        .showAlert(title, message: message)
     }
   }
 }

@@ -13,6 +13,8 @@ enum StoryboardName: String {
 }
 
 /// Deprecated, storyboards will no longer be used for future screens
+// FIXIT:
+// @available(*, deprecated, "Deprecated, storyboards will no longer be used for future screens")
 protocol Storyboarded {
   static func instantiate(from storyboard: StoryboardName) -> Self
 }

@@ -11,7 +11,9 @@ import Combine
 import Themeable
 import UIKit
 
-class AccountViewController: BaseViewController<AccountCoordinator, AccountViewModel> {
+class AccountViewController: UIViewController, MVVMControllerProtocol {
+  var viewModel: AccountViewModel!
+
   // MARK: - UI components
 
   private lazy var scrollView: UIScrollView = {

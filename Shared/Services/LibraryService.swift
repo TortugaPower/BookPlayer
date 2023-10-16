@@ -409,7 +409,7 @@ extension LibraryService {
   private func createLibrary() -> Library {
     let context = self.dataManager.getContext()
     let library = Library.create(in: context)
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext(context)
     return library
   }
 
@@ -447,15 +447,16 @@ extension LibraryService {
   }
 
   public func setLibraryTheme(with simpleTheme: SimpleTheme) {
-    let library = self.getLibraryReference()
+    let context = dataManager.getContext()
+    let library = getLibraryReference(context: context)
 
     library.currentTheme = getTheme(with: simpleTheme.title)
     ?? Theme(
       simpleTheme: simpleTheme,
-      context: dataManager.getContext()
+      context: context
     )
 
-    self.dataManager.saveContext()
+    self.dataManager.saveSyncContext(context)
   }
 
   private func getTheme(with title: String) -> Theme? {
@@ -468,15 +469,19 @@ extension LibraryService {
   }
 
   public func setLibraryLastBook(with relativePath: String?) {
-    let library = self.getLibraryReference()
+    setLibraryLastBook(with: relativePath, context: dataManager.getContext())
+  }
+
+  func setLibraryLastBook(with relativePath: String?, context: NSManagedObjectContext) {
+    let library = getLibraryReference(context: context)
 
     if let relativePath = relativePath {
-      library.lastPlayedItem = getItemReference(with: relativePath)
+      library.lastPlayedItem = getItemReference(with: relativePath, context: context)
     } else {
       library.lastPlayedItem = nil
     }
 
-    self.dataManager.saveContext()
+    dataManager.saveSyncContext(context)
   }
 
   @discardableResult
@@ -557,8 +562,12 @@ extension LibraryService {
     let destinationUrl: URL
 
     if let parentPath {
-      destinationUrl = processedFolderURL
+      let parentURL = processedFolderURL
         .appendingPathComponent(parentPath)
+
+      try DataManager.createBackingFolderIfNeeded(parentURL)
+
+      destinationUrl = parentURL
         .appendingPathComponent(sourceUrl.lastPathComponent)
     } else {
       destinationUrl = processedFolderURL
@@ -1037,17 +1046,22 @@ extension LibraryService {
 // MARK: - Metadata update
 extension LibraryService {
   public func createBook(from url: URL) -> Book {
-    let newBook = Book(from: url, context: self.dataManager.getContext())
-    self.dataManager.saveContext()
+    let context = dataManager.getContext()
+    let newBook = Book(from: url, context: context)
+    self.dataManager.saveSyncContext(context)
     return newBook
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
-    guard let book = self.getItem(with: relativePath) as? Book else { return }
+    let context = dataManager.getContext()
 
-    book.loadChaptersIfNeeded(from: asset, context: dataManager.getContext())
+    guard
+      let book = getItem(with: relativePath, context: context) as? Book
+    else { return }
 
-    dataManager.saveContext()
+    book.loadChaptersIfNeeded(from: asset, context: context)
+
+    dataManager.saveSyncContext(context)
   }
 
   func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
@@ -1110,9 +1124,10 @@ extension LibraryService {
   }
 
   public func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem {
-    try createFolderOnDisk(title: title, inside: relativePath)
+    let context = dataManager.getContext()
+    try createFolderOnDisk(title: title, inside: relativePath, context: context)
 
-    let newFolder = Folder(title: title, context: dataManager.getContext())
+    let newFolder = Folder(title: title, context: context)
     newFolder.orderRank = getNextOrderRank(in: relativePath)
     /// Override relative path
     if let relativePath {
@@ -1122,7 +1137,7 @@ extension LibraryService {
     // insert into existing folder or library at index
     if let parentPath = relativePath {
       guard
-        let parentFolder = getItemReference(with: parentPath) as? Folder
+        let parentFolder = getItemReference(with: parentPath, context: context) as? Folder
       else {
         throw BookPlayerError.runtimeError("Parent folder does not exist at: \(parentPath)")
       }
@@ -1131,10 +1146,10 @@ extension LibraryService {
       parentFolder.addToItems(newFolder)
       parentFolder.details = String.localizedStringWithFormat("files_title".localized, existingParentContentsCount + 1)
     } else {
-      getLibraryReference().addToItems(newFolder)
+      getLibraryReference(context: context).addToItems(newFolder)
     }
 
-    dataManager.saveContext()
+    dataManager.saveSyncContext(context)
 
     return SimpleLibraryItem(from: newFolder)
   }
@@ -1183,33 +1198,53 @@ extension LibraryService {
 
   /// Internal function to calculate the entire folder's progress
   func calculateFolderProgress(at relativePath: String) -> (Double, Int) {
-    let progressExpression = NSExpressionDescription()
-    progressExpression.expression = NSExpression(
-      forConditional: NSPredicate(format: "%K == 1", #keyPath(LibraryItem.isFinished)),
-      trueExpression: NSExpression(forConstantValue: 100.0),
-      falseExpression: NSExpression(forKeyPath: #keyPath(LibraryItem.percentCompleted))
-    )
-    progressExpression.name = "parsedPercentCompleted"
-    progressExpression.expressionResultType = NSAttributeType.doubleAttributeType
+    let totalCount = getMaxItemsCount(at: relativePath)
+
+    guard totalCount > 0 else {
+      return (0, 0)
+    }
+
+    let countExpression = NSExpressionDescription()
+    countExpression.expression = NSExpression(forFunction: "count:", arguments: [
+      NSExpression(forKeyPath: #keyPath(LibraryItem.relativePath))
+    ])
+    countExpression.name = "totalCount"
+    /// Largest 16-bit integer 65535
+    countExpression.expressionResultType = .integer16AttributeType
+
+    let sumExpression = NSExpressionDescription()
+    sumExpression.expression = NSExpression(forFunction: "sum:", arguments: [
+      NSExpression(forKeyPath: #keyPath(LibraryItem.percentCompleted))
+    ])
+    sumExpression.name = "totalSum"
+    sumExpression.expressionResultType = .doubleAttributeType
 
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
-    fetchRequest.propertiesToFetch = [progressExpression]
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %@ && %K != 1",
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath,
+      #keyPath(LibraryItem.isFinished)
+    )
+    fetchRequest.propertiesToFetch = [sumExpression, countExpression]
     fetchRequest.resultType = .dictionaryResultType
 
     guard
-      let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Double]],
-      !results.isEmpty
+      let results = try? self.dataManager.getContext().fetch(fetchRequest).first as? [String: Any],
+      let fetchedCount = results["totalCount"] as? Int,
+      var fetchedSum = results["totalSum"] as? Double
     else {
       return (0, 0)
     }
 
-    let count = results.count
-    let totalProgress = results.reduce(into: Double(0)) { partialResult, dict in
-      partialResult += dict.values.first ?? 0
+    /// Catch edge case and default to 0
+    if fetchedSum == .infinity {
+      fetchedSum = 0
     }
 
-    return (totalProgress / Double(count), count)
+    let totalProgress = fetchedSum + Double((totalCount - fetchedCount) * 100)
+
+    return (totalProgress / Double(totalCount), totalCount)
   }
 
   public func rebuildFolderDetails(_ relativePath: String) {
@@ -1422,7 +1457,10 @@ extension LibraryService {
 
     item.currentTime = time
     item.lastPlayDate = date
-    let percentCompleted = round((item.currentTime / item.duration) * 100)
+    let progress = round((item.currentTime / item.duration) * 100)
+    let percentCompleted = (progress.isNaN || progress.isInfinite)
+    ? 0
+    : progress
     item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {

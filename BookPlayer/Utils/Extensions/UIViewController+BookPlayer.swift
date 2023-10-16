@@ -135,6 +135,25 @@ extension UIViewController {
 
     return top
   }
+
+  func getTopVisibleViewController() -> UIViewController? {
+    var top: UIViewController = self
+
+    while true {
+      if let presented = top.presentedViewController {
+        if let nav = presented as? UINavigationController,
+           let visible = nav.visibleViewController {
+          top = visible
+        } else {
+          top = presented
+        }
+      } else {
+        break
+      }
+    }
+
+    return top
+  }
 }
 
 extension UIViewController: AlertPresenter {

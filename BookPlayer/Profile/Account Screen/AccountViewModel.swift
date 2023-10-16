@@ -11,7 +11,14 @@ import BookPlayerKit
 import Combine
 import RevenueCat
 
-class AccountViewModel: BaseViewModel<AccountCoordinator> {
+class AccountViewModel: ViewModelProtocol {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
+
+  weak var coordinator: AccountCoordinator!
   let accountService: AccountServiceProtocol
 
   @Published var account: Account?
@@ -20,9 +27,6 @@ class AccountViewModel: BaseViewModel<AccountCoordinator> {
 
   init(accountService: AccountServiceProtocol) {
     self.accountService = accountService
-
-    super.init()
-
     self.reloadAccount()
     self.bindObservers()
   }

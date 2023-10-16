@@ -9,44 +9,35 @@
 import BookPlayerKit
 import UIKit
 
-class LoadingCoordinator: Coordinator {
-  let loadingViewController: LoadingViewController
+class LoadingCoordinator: Coordinator, AlertPresenter {
+  let flow: BPCoordinatorPresentationFlow
+  var mainCoordinator: MainCoordinator?
 
-  init(
-    navigationController: UINavigationController,
-    loadingViewController: LoadingViewController
-  ) {
-    self.loadingViewController = loadingViewController
-
-    super.init(navigationController: navigationController, flowType: .modal)
-
-    self.loadingViewController.modalPresentationStyle = .fullScreen
-
-    let viewModel = LoadingViewModel()
-    viewModel.coordinator = self
-    self.loadingViewController.viewModel = viewModel
-    self.loadingViewController.presentationController?.delegate = self
+  init(flow: BPCoordinatorPresentationFlow) {
+    self.flow = flow
   }
 
-  override func start() {
-    self.navigationController.show(self.loadingViewController, sender: self)
+  func start() {
+    let viewModel = LoadingViewModel()
+    viewModel.coordinator = self
+    let vc = LoadingViewController.instantiate(from: .Main)
+    vc.viewModel = viewModel
+    flow.startPresentation(vc, animated: false)
   }
 
   func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
     let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: coreDataStack)
 
     let coordinator = MainCoordinator(
-      navigationController: self.navigationController,
+      navigationController: flow.navigationController,
       coreServices: coreServices
     )
-    coordinator.parentCoordinator = self
-    coordinator.presentingViewController = self.presentingViewController
-    self.childCoordinators.append(coordinator)
+    mainCoordinator = coordinator
 
     coordinator.start()
   }
 
-  override func getMainCoordinator() -> MainCoordinator? {
-    return self.childCoordinators.first as? MainCoordinator
+  func getMainCoordinator() -> MainCoordinator? {
+    return mainCoordinator
   }
 }

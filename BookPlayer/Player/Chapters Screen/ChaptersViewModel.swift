@@ -10,7 +10,13 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
+class ChaptersViewModel {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
+
   let playerManager: PlayerManagerProtocol
 
   init(playerManager: PlayerManagerProtocol) {
@@ -29,5 +35,9 @@ class ChaptersViewModel: BaseViewModel<ChapterCoordinator> {
   // Add a fraction of a second to make sure we start after the end of the previous chapter
   func handleChapterSelected(_ chapter: PlayableChapter) {
     self.playerManager.jumpToChapter(chapter)
+  }
+
+  func dismiss() {
+    onTransition?(.dismiss)
   }
 }

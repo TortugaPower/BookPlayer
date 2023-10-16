@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 
+/// URL session meant for upload tasks
 class BPURLSession {
   static let shared = BPURLSession()
 

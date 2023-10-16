@@ -11,9 +11,10 @@ import Foundation
 public struct RemoteFileURL: Decodable {
   public let url: URL
   public let relativePath: String
+  public let type: SimpleItemType
 
   enum CodingKeys: CodingKey {
-    case url, relativePath
+    case url, relativePath, type
   }
 }
 

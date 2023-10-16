@@ -10,7 +10,7 @@ import Foundation
 import BookPlayerKit
 import Combine
 
-class ItemDetailsViewModel: BaseViewModel<Coordinator> {
+class ItemDetailsViewModel: ViewModelProtocol {
   /// Possible routes for the screen
   enum Routes {
     case cancel
@@ -21,6 +21,8 @@ class ItemDetailsViewModel: BaseViewModel<Coordinator> {
     case showAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
   }
+
+  weak var coordinator: ItemListCoordinator!
 
   /// Item being modified
   let item: SimpleLibraryItem

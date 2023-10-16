@@ -12,7 +12,8 @@ import SwiftUI
 import Themeable
 import UIKit
 
-class ItemDetailsViewController: BaseViewController<Coordinator, ItemDetailsViewModel> {
+class ItemDetailsViewController: UIViewController, MVVMControllerProtocol {
+  var viewModel: ItemDetailsViewModel!
   // MARK: - UI components
 
   private lazy var detailsView: UIView = {

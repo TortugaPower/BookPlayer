@@ -10,11 +10,19 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class PlayerViewModel: BaseViewModel<PlayerCoordinator> {
+class PlayerViewModel: ViewModelProtocol {
+  enum Routes {
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
+
   enum Events {
     case sleepTimerAlert(content: BPAlertContent)
     case customSleepTimer(title: String)
   }
+
+  weak var coordinator: PlayerCoordinator!
 
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
@@ -504,13 +512,13 @@ extension PlayerViewModel {
                                   preferredStyle: .alert)
 
     if !existed {
-      alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { _ in
-        self.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
+      alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { [weak self] _ in
+        self?.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
       }))
     }
 
-    alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { _ in
-      self.showBookmarks()
+    alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { [weak self] _ in
+      self?.showBookmarks()
     }))
 
     alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))

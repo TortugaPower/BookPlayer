@@ -10,16 +10,19 @@ import BookPlayerKit
 import Combine
 import UIKit
 
-class LibraryListCoordinator: ItemListCoordinator {
+class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate {
   weak var tabBarController: UITabBarController?
   let importManager: ImportManager
 
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
+  /// Reference to know if the import screen is already being shown (or in the process of showing)
+  weak var importCoordinator: ImportCoordinator?
+
   private var disposeBag = Set<AnyCancellable>()
 
   init(
-    navigationController: UINavigationController,
+    flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
@@ -29,7 +32,7 @@ class LibraryListCoordinator: ItemListCoordinator {
     self.importManager = importManager
 
     super.init(
-      navigationController: navigationController,
+      flow: flow,
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
@@ -49,26 +52,26 @@ class LibraryListCoordinator: ItemListCoordinator {
       syncService: self.syncService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .showFolder(let relativePath):
-        self?.showFolder(relativePath)
+        self.showFolder(relativePath)
       case .loadPlayer(let relativePath):
-        self?.loadPlayer(relativePath)
+        self.loadPlayer(relativePath)
       case .showDocumentPicker:
-        self?.showDocumentPicker()
+        self.showDocumentPicker()
       case .showSearchList(let relativePath, let placeholderTitle):
-        self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
+        self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
-        self?.showItemDetails(item)
+        self.showItemDetails(item)
       case .showExportController(let items):
-        self?.showExportController(for: items)
+        self.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
-        self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+        self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
-        self?.showMiniPlayer(flag: flag)
+        self.showMiniPlayer(flag: flag)
       case .listDidAppear:
-        self?.handleLibraryLoaded()
+        self.handleLibraryLoaded()
       }
     }
     viewModel.coordinator = self
@@ -80,12 +83,10 @@ class LibraryListCoordinator: ItemListCoordinator {
       selectedImage: UIImage(systemName: "books.vertical.fill")
     )
 
-    self.presentingViewController = self.navigationController
-    self.navigationController.pushViewController(vc, animated: true)
-    self.navigationController.delegate = self
+    flow.startPresentation(vc, animated: false)
 
     if let tabBarController = tabBarController {
-      let newControllersArray = (tabBarController.viewControllers ?? []) + [self.navigationController]
+      let newControllersArray = (tabBarController.viewControllers ?? []) + [flow.navigationController]
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
@@ -121,17 +122,23 @@ class LibraryListCoordinator: ItemListCoordinator {
     }
 
     self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
-      guard let self = self else {
+      guard 
+        let self,
+        let lastItemListViewController = self.flow.navigationController.viewControllers.last as? ItemListViewController
+      else {
         return
       }
 
-      let coordinator = self.getLastItemListCoordinator(from: self)
-
-      coordinator.onAction?(.newImportOperation(operation))
+      lastItemListViewController.setEditing(false, animated: false)
+      let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
+      lastItemListViewController.showLoadView(true, title: loadingTitle)
 
       operation.completionBlock = {
         DispatchQueue.main.async {
-          coordinator.onAction?(.importOperationFinished(operation.processedFiles, operation.suggestedFolderName))
+          lastItemListViewController.setEditing(false, animated: false)
+          lastItemListViewController.showLoadView(false)
+          lastItemListViewController.viewModel
+            .handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
         }
       }
 
@@ -169,108 +176,94 @@ class LibraryListCoordinator: ItemListCoordinator {
   }
 
   func showImport() {
-    let child = ImportCoordinator(
-      importManager: self.importManager,
-      presentingViewController: self.presentingViewController
+    guard 
+      let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
+    else { return }
+
+    let coordinator = ImportCoordinator(
+      flow: .modalFlow(presentingController: topVC),
+      importManager: self.importManager
     )
-    child.parentCoordinator = self
-    self.childCoordinators.append(child)
-    child.start()
+    importCoordinator = coordinator
+    coordinator.start()
   }
 
   func shouldShowImportScreen() -> Bool {
-    return !self.childCoordinators.contains(where: { $0 is ImportCoordinator })
+    return importCoordinator == nil
   }
 
-  func getLastItemListCoordinator(from coordinator: ItemListCoordinator) -> ItemListCoordinator {
-    if let child = coordinator.childCoordinators.last(where: { $0 is ItemListCoordinator}) as? ItemListCoordinator {
-      return getLastItemListCoordinator(from: child)
-    } else {
-      return coordinator
-    }
+  func syncLastFolderList() {
+    let viewControllers = flow.navigationController.viewControllers
+    guard
+      viewControllers.count > 1,
+      let lastItemListViewController = viewControllers.last as? ItemListViewController
+    else { return }
+
+    lastItemListViewController.viewModel.viewDidAppear()
   }
 
-  override func interactiveDidFinish(vc: UIViewController) {
-    // Coordinator may be already released if popped by VoiceOver gesture
-    guard let vc = vc as? ItemListViewController,
-          vc.viewModel.coordinator != nil else { return }
+  func handleDownloadAction(url: URL) {
+    guard
+      let libraryListViewController = flow.navigationController.viewControllers.first as? ItemListViewController
+    else { return }
 
-    vc.viewModel.coordinator.detach()
+    libraryListViewController.setEditing(false, animated: false)
+    libraryListViewController.viewModel.handleDownload(url)
   }
 
   override func syncList() {
     Task { @MainActor in
-      let lastPlayed: SyncableItem?
+      do {
+        let lastPlayed: SyncableItem?
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
-        lastPlayed = try await syncService.syncListContents(at: nil)
-      } else {
-        lastPlayed = try await syncService.syncLibraryContents()
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+          lastPlayed = try await syncService.syncListContents(at: nil)
+        } else {
+          lastPlayed = try await syncService.syncLibraryContents()
 
-        UserDefaults.standard.set(
-          true,
-          forKey: Constants.UserDefaults.hasScheduledLibraryContents
-        )
-      }
+          UserDefaults.standard.set(
+            true,
+            forKey: Constants.UserDefaults.hasScheduledLibraryContents
+          )
+        }
 
-      reloadItemsWithPadding()
-      if let lastPlayed {
-        handleSyncedLastPlayed(item: lastPlayed)
-      }
-    }
-  }
-
-  func handleSyncedLastPlayed(item: SyncableItem) {
-    guard
-      let localLastItem = libraryService.getLibraryLastItem(),
-      let lastPlayDateTimestamp = item.lastPlayDateTimestamp
-    else {
-      setSyncedLastPlayedItem(relativePath: item.relativePath)
-      return
-    }
-
-    /// Check to update current time or not
-    if item.relativePath == localLastItem.relativePath {
-      /// Add a padding of 1 min to local time
-      if item.currentTime > (localLastItem.currentTime + 60) {
-        /// Continue playback after time sync
-        let wasPlaying = playerManager.isPlaying
-        playerManager.stop()
-        libraryService.updatePlaybackTime(
-          relativePath: item.relativePath,
-          time: item.currentTime,
-          date: Date(timeIntervalSince1970: lastPlayDateTimestamp),
-          scheduleSave: false
-        )
-        AppDelegate.shared?.loadPlayer(
-          item.relativePath,
-          autoplay: wasPlaying,
-          showPlayer: nil,
-          alertPresenter: self
-        )
-      }
-    } else {
-      /// Only continue overriding local book if it's not currently playing
-      guard playerManager.isPlaying == false else { return }
-
-      if let lastPlayDateTimestamp = item.lastPlayDateTimestamp,
-         let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970,
-         lastPlayDateTimestamp > localLastPlayDateTimestamp {
-        setSyncedLastPlayedItem(relativePath: item.relativePath)
+        reloadItemsWithPadding()
+        if let lastPlayed {
+          reloadLastBook(relativePath: lastPlayed.relativePath)
+        }
+      } catch BPSyncError.reloadLastBook(let relativePath) {
+        reloadItemsWithPadding()
+        reloadLastBook(relativePath: relativePath)
+      } catch BPSyncError.differentLastBook(let relativePath) {
+        reloadItemsWithPadding()
+        setSyncedLastPlayedItem(relativePath: relativePath)
+      } catch {
+        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
       }
     }
   }
 
-  func setSyncedLastPlayedItem(relativePath: String?) {
+  func reloadLastBook(relativePath: String) {
+    let wasPlaying = playerManager.isPlaying
+    playerManager.stop()
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: wasPlaying,
+      showPlayer: nil,
+      alertPresenter: self
+    )
+  }
+
+  func setSyncedLastPlayedItem(relativePath: String) {
+    /// Only continue overriding local book if it's not currently playing
+    guard playerManager.isPlaying == false else { return }
+
     libraryService.setLibraryLastBook(with: relativePath)
-
-    if let relativePath {
-      AppDelegate.shared?.loadPlayer(
-        relativePath,
-        autoplay: false,
-        showPlayer: nil,
-        alertPresenter: self
-      )
-    }
+    AppDelegate.shared?.loadPlayer(
+      relativePath,
+      autoplay: false,
+      showPlayer: nil,
+      alertPresenter: self
+    )
   }
 }

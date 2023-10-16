@@ -13,25 +13,21 @@ class BookmarkCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
+  let flow: BPCoordinatorPresentationFlow
 
   init(
+    flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol,
-    presentingViewController: UIViewController?
+    syncService: SyncServiceProtocol
   ) {
+    self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Player),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
     let vc = BookmarksViewController.instantiate(from: .Player)
     let viewModel = BookmarksViewModel(
       playerManager: self.playerManager,
@@ -41,16 +37,14 @@ class BookmarkCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .export(let bookmarks, let item):
-        self?.showExportController(currentItem: item, bookmarks: bookmarks)
+        self.showExportController(currentItem: item, bookmarks: bookmarks)
       }
     }
 
-    navigationController.viewControllers = [vc]
-    navigationController.presentationController?.delegate = self
-    presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+    flow.startPresentation(vc, animated: true)
   }
 
   func showExportController(currentItem: PlayableItem, bookmarks: [SimpleBookmark]) {
@@ -59,9 +53,9 @@ class BookmarkCoordinator: Coordinator {
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 
     if let popoverPresentationController = shareController.popoverPresentationController {
-      popoverPresentationController.barButtonItem = navigationController.topViewController?.navigationItem.rightBarButtonItem!
+      popoverPresentationController.barButtonItem = flow.navigationController.topViewController?.navigationItem.rightBarButtonItem!
     }
 
-    navigationController.present(shareController, animated: true, completion: nil)
+    flow.navigationController.present(shareController, animated: true, completion: nil)
   }
 }

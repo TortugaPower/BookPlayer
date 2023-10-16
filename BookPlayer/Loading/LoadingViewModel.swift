@@ -10,7 +10,9 @@ import BookPlayerKit
 import CoreData
 import Foundation
 
-class LoadingViewModel: BaseViewModel<LoadingCoordinator> {
+class LoadingViewModel: ViewModelProtocol {
+  weak var coordinator: LoadingCoordinator!
+
   func initializeDataIfNeeded() {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
 

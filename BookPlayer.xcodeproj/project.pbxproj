@@ -43,12 +43,10 @@
 		41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
-		4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */; };
+		4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */; };
 		4137BBCE272DBB16009ED9FE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */; };
 		4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */; };
 		4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBD1272DED79009ED9FE /* ItemListCoordinatorTests.swift */; };
-		4137BBD4272DF540009ED9FE /* PlayerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBD3272DF540009ED9FE /* PlayerCoordinatorTests.swift */; };
-		4137BBD6272DF693009ED9FE /* SettingsCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBD5272DF693009ED9FE /* SettingsCoordinatorTests.swift */; };
 		4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */; };
@@ -293,7 +291,6 @@
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
-		6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6279361E272D0D110097837D /* MainCoordinatorTests.swift */; };
 		62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */; };
 		62AAE22D274AA6DE001EB9FF /* LibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE22B274AA3EB001EB9FF /* LibraryService.swift */; };
 		62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE22B274AA3EB001EB9FF /* LibraryService.swift */; };
@@ -305,9 +302,21 @@
 		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
 		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
+		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
+		631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */; };
+		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
+		631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */; };
+		6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
+		6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
+		63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63432B582AC1E6F7002619D0 /* MockNavigationController.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
+		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
+		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
+		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
+		639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
+		639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
@@ -441,8 +450,6 @@
 		9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
 		9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFC9F32995BB5C00FD531E /* RemoteFileURLResponse.swift */; };
-		9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
-		9FB20EA529A281140021663B /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB629A423410021663B /* InterfaceUpdater.swift */; };
 		9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB829A479FB0021663B /* BPAlertContent.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
@@ -457,7 +464,6 @@
 		9FBDDB9C27DD135E005FB447 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDB9B27DD135E005FB447 /* ProfileViewController.swift */; };
 		9FBDDBA027DD13E9005FB447 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDB9F27DD13E9005FB447 /* ProfileViewModel.swift */; };
 		9FBDDBA227DD13FA005FB447 /* ProfileCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */; };
-		9FBDDBA427DD1A00005FB447 /* ProfileCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDDBA327DD1A00005FB447 /* ProfileCoordinatorTests.swift */; };
 		9FBF33EC29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
 		9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
 		9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */; };
@@ -710,12 +716,10 @@
 		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4136175D24019EF000D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
-		4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMControllerProtocol.swift; sourceTree = "<group>"; };
 		4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinatorTests.swift; sourceTree = "<group>"; };
 		4137BBD1272DED79009ED9FE /* ItemListCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListCoordinatorTests.swift; sourceTree = "<group>"; };
-		4137BBD3272DF540009ED9FE /* PlayerCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCoordinatorTests.swift; sourceTree = "<group>"; };
-		4137BBD5272DF693009ED9FE /* SettingsCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinatorTests.swift; sourceTree = "<group>"; };
 		4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4138CE1526E584B60014F11E /* BookmarkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkType.swift; sourceTree = "<group>"; };
@@ -965,14 +969,22 @@
 		620C73C9275DA00400D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioAssetImageDataProvider.swift; sourceTree = "<group>"; };
 		624EB9832755D8E700D462A8 /* Audiobook Player 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 8.xcdatamodel"; sourceTree = "<group>"; };
-		6279361E272D0D110097837D /* MainCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorTests.swift; sourceTree = "<group>"; };
 		62AAE2242749283F001EB9FF /* MiniPlayerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerViewModelTests.swift; sourceTree = "<group>"; };
 		62AAE22B274AA3EB001EB9FF /* LibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryService.swift; sourceTree = "<group>"; };
 		62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryServiceTests.swift; sourceTree = "<group>"; };
 		62CADB8D2724E41800A4A98F /* Audiobook Player 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 7.xcdatamodel"; sourceTree = "<group>"; };
 		62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportableItem.swift; sourceTree = "<group>"; };
+		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
+		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
+		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
+		631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalPresentationFlow.swift; sourceTree = "<group>"; };
+		63432B582AC1E6F7002619D0 /* MockNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNavigationController.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
+		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
+		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
+		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
+		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
@@ -1111,7 +1123,6 @@
 		9FBDDB9B27DD135E005FB447 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		9FBDDB9F27DD13E9005FB447 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		9FBDDBA127DD13FA005FB447 /* ProfileCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCoordinator.swift; sourceTree = "<group>"; };
-		9FBDDBA327DD1A00005FB447 /* ProfileCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCoordinatorTests.swift; sourceTree = "<group>"; };
 		9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleBookmark.swift; sourceTree = "<group>"; };
 		9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksActivityItemProvider.swift; sourceTree = "<group>"; };
 		9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
@@ -1291,7 +1302,6 @@
 				C3D3852E20C1F10F00A0ACC7 /* Views */,
 				41188D2726ED4D5C0017124E /* ItemListViewController.swift */,
 				41188D2926ED4D8E0017124E /* ItemListViewModel.swift */,
-				9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */,
 			);
 			path = "ItemList Screen";
 			sourceTree = "<group>";
@@ -1300,7 +1310,6 @@
 			isa = PBXGroup;
 			children = (
 				62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */,
-				9FB20EA429A281140021663B /* DownloadState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1393,6 +1402,7 @@
 		4151A6DE26E4A13E00E49DBE /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				631C75CA2AB92C5C0013E7E5 /* PresentationFlow */,
 				9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */,
 				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
@@ -1516,9 +1526,12 @@
 		418B6D111D2707F800F974FB /* BookPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
+				63833DF62AAC127900496246 /* Unit Tests.xctestplan */,
+				63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */,
 				62AAE22827492D6E001EB9FF /* Mocks */,
 				6906A551217211A300A9E0B2 /* Support */,
 				69343D34213A079B000C425E /* Services */,
+				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				41C2340B27324AB7006BC7B8 /* ItemListViewModelTests.swift */,
@@ -1793,6 +1806,7 @@
 		62793619272CD9800097837D /* Lightweight-Models */ = {
 			isa = PBXGroup;
 			children = (
+				9FB20EA429A281140021663B /* DownloadState.swift */,
 				41188D3026ED715D0017124E /* SimpleLibraryItem.swift */,
 				9FFCC08E289418CA00F4952E /* SimpleChapter.swift */,
 				41546FF226F559CE00825180 /* SimpleItemType.swift */,
@@ -1847,11 +1861,7 @@
 			isa = PBXGroup;
 			children = (
 				4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */,
-				6279361E272D0D110097837D /* MainCoordinatorTests.swift */,
 				4137BBD1272DED79009ED9FE /* ItemListCoordinatorTests.swift */,
-				4137BBD3272DF540009ED9FE /* PlayerCoordinatorTests.swift */,
-				4137BBD5272DF693009ED9FE /* SettingsCoordinatorTests.swift */,
-				9FBDDBA327DD1A00005FB447 /* ProfileCoordinatorTests.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -1881,10 +1891,30 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		631C75CA2AB92C5C0013E7E5 /* PresentationFlow */ = {
+			isa = PBXGroup;
+			children = (
+				631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */,
+				631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */,
+				631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */,
+				631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */,
+			);
+			path = PresentationFlow;
+			sourceTree = "<group>";
+		};
+		63833DF82AAC134600496246 /* PerformanceTests */ = {
+			isa = PBXGroup;
+			children = (
+				63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */,
+			);
+			path = PerformanceTests;
+			sourceTree = "<group>";
+		};
 		6906A551217211A300A9E0B2 /* Support */ = {
 			isa = PBXGroup;
 			children = (
 				4163E314214ACB4300072AA2 /* DataTestUtils.swift */,
+				63432B582AC1E6F7002619D0 /* MockNavigationController.swift */,
 				6906A552217211C600A9E0B2 /* StubFactory.swift */,
 			);
 			path = Support;
@@ -2145,9 +2175,11 @@
 		9FC1E4572814E09700522FA8 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */,
 				9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */,
 				9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */,
 				6357F1182A8BA084007947FC /* BPURLSession.swift */,
+				639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */,
 				9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */,
 				9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */,
 			);
@@ -2226,7 +2258,7 @@
 				C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */,
 				4151A6A726E48C3400E49DBE /* Storyboarded.swift */,
 				9F3C4357284132640066D99A /* AlertPresenter.swift */,
-				4137BBCB272DAF2E009ED9FE /* BaseViewController.swift */,
+				4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */,
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
 				9F134604293D0A410089B1DE /* ThemeViewModel.swift */,
 				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
@@ -2913,6 +2945,7 @@
 				9F7B64782803B0B000895ECC /* AccountService.swift in Sources */,
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
+				639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F07B72629B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
@@ -2960,6 +2993,7 @@
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
+				6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */,
 				9FF710C12A215B90006490E0 /* QueuedJobInfo.swift in Sources */,
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
@@ -2967,6 +3001,7 @@
 				9F7B64722803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
 				9F7B64752803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */,
+				639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
@@ -3018,6 +3053,8 @@
 				41B2A5F121CD857800917584 /* AddCellView.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
+				631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */,
+				631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */,
 				9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
@@ -3058,6 +3095,7 @@
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				4137BBCE272DBB16009ED9FE /* SettingsViewModel.swift in Sources */,
+				631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */,
 				41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */,
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
@@ -3082,9 +3120,10 @@
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
-				4137BBCC272DAF2E009ED9FE /* BaseViewController.swift in Sources */,
+				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				4138CE2326E66E420014F11E /* BookmarkTableViewCell.swift in Sources */,
+				631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */,
 				C37A6875209F13120063AEAC /* CreditsViewController.swift in Sources */,
 				D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */,
 				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
@@ -3132,7 +3171,6 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
-				9FB20EA529A281140021663B /* DownloadState.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
@@ -3149,7 +3187,6 @@
 				9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
-				9FB20EA329A1BB750021663B /* BPTaskDownloadDelegate.swift in Sources */,
 				9F5F13462977A06300F061A0 /* ProfileCardView.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
 				9F2DA27F27F0C68D00C8EF2B /* CarPlaySceneDelegate.swift in Sources */,
@@ -3188,7 +3225,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4137BBD6272DF693009ED9FE /* SettingsCoordinatorTests.swift in Sources */,
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
 				9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */,
@@ -3196,21 +3232,20 @@
 				41C2340C27324AB7006BC7B8 /* ItemListViewModelTests.swift in Sources */,
 				41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */,
 				9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */,
-				4137BBD4272DF540009ED9FE /* PlayerCoordinatorTests.swift in Sources */,
 				416A9D4B2743D51E00463621 /* StorageViewModelTests.swift in Sources */,
 				4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */,
 				9F7C47532A2C15D300F9A500 /* AutoMockable.generated.swift in Sources */,
 				62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
-				6279361F272D0D110097837D /* MainCoordinatorTests.swift in Sources */,
-				9FBDDBA427DD1A00005FB447 /* ProfileCoordinatorTests.swift in Sources */,
 				9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
+				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
+				63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */,
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
@@ -3228,12 +3263,14 @@
 				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
 				412AB7092701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */,
+				639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
+				6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */,
 				62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */,
 				9F7B64772803B0B000895ECC /* AccountService.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
@@ -3293,6 +3330,7 @@
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
+				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
@@ -3545,7 +3583,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3555,7 +3593,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -3579,7 +3617,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3589,7 +3627,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3611,7 +3649,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
@@ -3621,7 +3659,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3658,7 +3696,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -3700,7 +3738,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3739,7 +3777,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3774,7 +3812,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
@@ -3811,7 +3849,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -3846,7 +3884,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -4005,7 +4043,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -4015,7 +4053,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4043,7 +4081,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -4053,7 +4091,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4079,7 +4117,7 @@
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
@@ -4089,7 +4127,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4242,7 +4280,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4280,7 +4318,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4492,7 +4530,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4505,7 +4543,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -4532,7 +4570,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4545,7 +4583,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4570,7 +4608,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -4583,7 +4621,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.0.8;
+				MARKETING_VERSION = 5.0.10;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4675,7 +4713,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.0.9;
+				MARKETING_VERSION = 5.0.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

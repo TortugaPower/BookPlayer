@@ -11,7 +11,8 @@ import Combine
 import Themeable
 import UIKit
 
-class BookmarksViewController: BaseTableViewController<BookmarkCoordinator, BookmarksViewModel>, Storyboarded {
+class BookmarksViewController: UITableViewController, MVVMControllerProtocol, Storyboarded {
+  var viewModel: BookmarksViewModel!
   private var disposeBag = Set<AnyCancellable>()
 
   override func viewDidLoad() {

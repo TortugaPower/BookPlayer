@@ -1170,6 +1170,78 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(book.currentTime == 50)
   }
 
+  // swiftlint:disable:next function_body_length
+  func testUpdateFolderProgress() throws {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+    let book2 = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book2",
+      duration: 100
+    )
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems(
+      [book.relativePath, book2.relativePath],
+      inside: folder.relativePath
+    )
+
+    let now = Date()
+    self.sut.updatePlaybackTime(
+      relativePath: book.relativePath,
+      time: 50,
+      date: now,
+      scheduleSave: false
+    )
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(book.percentCompleted == 50)
+    XCTAssert(folder.percentCompleted == 25)
+
+    self.sut.updatePlaybackTime(
+      relativePath: book2.relativePath,
+      time: 50,
+      date: now,
+      scheduleSave: false
+    )
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(book2.percentCompleted == 50)
+    XCTAssert(folder.percentCompleted == 50)
+
+    self.sut.markAsFinished(flag: true, relativePath: book2.relativePath)
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 75)
+
+    self.sut.markAsFinished(flag: true, relativePath: book.relativePath)
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 100)
+
+    self.sut.markAsFinished(flag: false, relativePath: book.relativePath)
+    book.percentCompleted = .nan
+    self.sut.dataManager.saveContext()
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 50)
+
+    self.sut.markAsFinished(flag: false, relativePath: book2.relativePath)
+    book2.percentCompleted = .nan
+    self.sut.dataManager.saveContext()
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 0)
+
+    book2.percentCompleted = .infinity
+    self.sut.dataManager.saveContext()
+    self.sut.recursiveFolderProgressUpdate(from: folder.relativePath)
+
+    XCTAssert(folder.percentCompleted == 0)
+  }
+
   func testGetItemSpeed() throws {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,

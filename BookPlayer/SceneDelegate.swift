@@ -12,10 +12,15 @@ import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
-  let coordinator = LoadingCoordinator(
-    navigationController: UINavigationController(),
-    loadingViewController: LoadingViewController.instantiate(from: .Main)
+  /// Hold strong reference
+  var startingNavigationController = UINavigationController()
+  lazy var coordinator = LoadingCoordinator(
+    flow: .pushFlow(navigationController: startingNavigationController)
   )
+
+  var mainCoordinator: MainCoordinator? {
+    coordinator.getMainCoordinator()
+  }
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     // Appearance
@@ -41,7 +46,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     coordinator.start()
 
-    appWindow.rootViewController = coordinator.navigationController
+    appWindow.rootViewController = startingNavigationController
     appWindow.makeKeyAndVisible()
 
     window = appWindow
@@ -71,7 +76,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func sceneDidBecomeActive(_ scene: UIScene) {
     guard
-      let mainCoordinator = coordinator.getMainCoordinator()
+      let mainCoordinator
     else {
       return
     }
@@ -86,10 +91,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       /// Sync list when app is active again
       libraryCoordinator.syncList()
       /// Sync currently shown list
-      let listCoordinator = libraryCoordinator.getLastItemListCoordinator(from: libraryCoordinator)
-      if listCoordinator != libraryCoordinator {
-        listCoordinator.syncList()
-      }
+      libraryCoordinator.syncLastFolderList()
       /// Register import observer in case it's not up already
       libraryCoordinator.bindImportObserverIfNeeded()
     }

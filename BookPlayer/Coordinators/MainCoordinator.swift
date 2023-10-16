@@ -12,7 +12,7 @@ import RevenueCat
 import Themeable
 import UIKit
 
-class MainCoordinator: Coordinator {
+class MainCoordinator: NSObject {
   var tabBarController: AppTabBarController?
 
   let playerManager: PlayerManagerProtocol
@@ -22,12 +22,15 @@ class MainCoordinator: Coordinator {
   var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
 
+  let navigationController: UINavigationController
+  var libraryCoordinator: LibraryListCoordinator?
   private var disposeBag = Set<AnyCancellable>()
 
   init(
     navigationController: UINavigationController,
     coreServices: CoreServices
   ) {
+    self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
@@ -37,12 +40,12 @@ class MainCoordinator: Coordinator {
 
     ThemeManager.shared.libraryService = libraryService
 
-    super.init(navigationController: navigationController, flowType: .modal)
+    super.init()
 
     setUpTheming()
   }
 
-  override func start() {
+  func start() {
     let viewModel = MiniPlayerViewModel(playerManager: playerManager)
 
     viewModel.onTransition = { route in
@@ -58,7 +61,6 @@ class MainCoordinator: Coordinator {
     self.tabBarController = tabBarController
     tabBarController.modalPresentationStyle = .fullScreen
     tabBarController.modalTransitionStyle = .crossDissolve
-    presentingViewController = tabBarController
 
     if var currentTheme = libraryService.getLibraryCurrentTheme() {
       currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
@@ -80,42 +82,37 @@ class MainCoordinator: Coordinator {
 
   func startLibraryCoordinator(with tabBarController: UITabBarController) {
     let libraryCoordinator = LibraryListCoordinator(
-      navigationController: AppNavigationController.instantiate(from: .Main),
+      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       playerManager: self.playerManager,
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: syncService
     )
+    self.libraryCoordinator = libraryCoordinator
     libraryCoordinator.tabBarController = tabBarController
-    libraryCoordinator.parentCoordinator = self
-    self.childCoordinators.append(libraryCoordinator)
     libraryCoordinator.start()
   }
 
   func startProfileCoordinator(with tabBarController: UITabBarController) {
     let profileCoordinator = ProfileCoordinator(
+      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       libraryService: libraryService,
       playerManager: playerManager,
       accountService: accountService,
-      syncService: syncService,
-      navigationController: AppNavigationController.instantiate(from: .Main)
+      syncService: syncService
     )
     profileCoordinator.tabBarController = tabBarController
-    profileCoordinator.parentCoordinator = self
-    self.childCoordinators.append(profileCoordinator)
     profileCoordinator.start()
   }
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
+      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
       libraryService: self.libraryService,
-      accountService: self.accountService,
-      navigationController: AppNavigationController.instantiate(from: .Settings)
+      accountService: self.accountService
     )
     settingsCoordinator.tabBarController = tabBarController
-    settingsCoordinator.parentCoordinator = self
-    self.childCoordinators.append(settingsCoordinator)
     settingsCoordinator.start()
   }
 
@@ -156,13 +153,11 @@ class MainCoordinator: Coordinator {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
+      flow: .modalOnlyFlow(presentingController: tabBarController!, modalPresentationStyle: .overFullScreen),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
-      syncService: self.syncService,
-      presentingViewController: self.presentingViewController
+      syncService: self.syncService
     )
-    playerCoordinator.parentCoordinator = self
-    self.childCoordinators.append(playerCoordinator)
     playerCoordinator.start()
   }
 
@@ -184,24 +179,11 @@ class MainCoordinator: Coordinator {
   }
 
   func hasPlayerShown() -> Bool {
-    return self.childCoordinators.contains(where: { $0 is PlayerCoordinator })
+    return libraryCoordinator?.flow.navigationController.visibleViewController is PlayerViewController
   }
 
   func getLibraryCoordinator() -> LibraryListCoordinator? {
-    return self.childCoordinators.first as? LibraryListCoordinator
-  }
-
-  func getTopController() -> UIViewController? {
-    return getPresentingController(coordinator: self)
-  }
-
-  func getPresentingController(coordinator: Coordinator) -> UIViewController? {
-    guard let lastCoordinator = coordinator.childCoordinators.last else {
-      return coordinator.presentingViewController?.getTopViewController()
-      ?? coordinator.navigationController
-    }
-
-    return getPresentingController(coordinator: lastCoordinator)
+    return libraryCoordinator
   }
 }
 
@@ -223,5 +205,19 @@ extension MainCoordinator: Themeable {
     AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
     ? .dark
     : .light
+  }
+}
+
+extension MainCoordinator: AlertPresenter {
+  func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
+    navigationController.showAlert(title, message: message, completion: completion)
+  }
+
+  func showLoader() {
+    LoadingUtils.loadAndBlock(in: navigationController)
+  }
+
+  func stopLoader() {
+    LoadingUtils.stopLoading(in: navigationController)
   }
 }

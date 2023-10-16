@@ -10,7 +10,15 @@ import AuthenticationServices
 import BookPlayerKit
 import Foundation
 
-class LoginViewModel: BaseViewModel<LoginCoordinator> {
+class LoginViewModel: ViewModelProtocol {
+  enum Routes {
+    case completeAccount
+    case dismiss
+  }
+
+  var onTransition: BPTransition<Routes>?
+
+  weak var coordinator: LoginCoordinator!
   let accountService: AccountServiceProtocol
 
   init(accountService: AccountServiceProtocol) {
@@ -26,7 +34,7 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
       self.coordinator.showError(error)
     }
 
-    self.coordinator.showCompleteAccount()
+    onTransition?(.completeAccount)
   }
 
   func handleSignIn(authorization: ASAuthorization) {
@@ -56,9 +64,9 @@ class LoginViewModel: BaseViewModel<LoginCoordinator> {
 
             if let account = account,
                !account.hasSubscription {
-              self?.coordinator.showCompleteAccount()
+              self?.onTransition?(.completeAccount)
             } else {
-              self?.dismiss()
+              self?.onTransition?(.dismiss)
             }
           }
         } catch {

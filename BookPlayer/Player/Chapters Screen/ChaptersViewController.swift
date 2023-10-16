@@ -11,7 +11,8 @@ import MediaPlayer
 import Themeable
 import UIKit
 
-final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, ChaptersViewModel>, Storyboarded {
+final class ChaptersViewController: UITableViewController, Storyboarded {
+  var viewModel: ChaptersViewModel!
   var chapters = [PlayableChapter]()
   var scrolledToCurrentChapter = false
 
@@ -42,7 +43,7 @@ final class ChaptersViewController: BaseTableViewController<ChapterCoordinator, 
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
-    self.viewModel.coordinator.didFinish()
+    self.viewModel.dismiss()
   }
 
   // MARK: - Table view data source

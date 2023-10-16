@@ -13,7 +13,7 @@ class FolderListCoordinator: ItemListCoordinator {
   let folderRelativePath: String
 
   init(
-    navigationController: UINavigationController,
+    flow: BPCoordinatorPresentationFlow,
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
@@ -23,7 +23,7 @@ class FolderListCoordinator: ItemListCoordinator {
     self.folderRelativePath = folderRelativePath
 
     super.init(
-      navigationController: navigationController,
+      flow: flow,
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
@@ -42,40 +42,43 @@ class FolderListCoordinator: ItemListCoordinator {
       syncService: self.syncService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .showFolder(let relativePath):
-        self?.showFolder(relativePath)
+        self.showFolder(relativePath)
       case .loadPlayer(let relativePath):
-        self?.loadPlayer(relativePath)
+        self.loadPlayer(relativePath)
       case .showDocumentPicker:
-        self?.showDocumentPicker()
+        self.showDocumentPicker()
       case .showSearchList(let relativePath, let placeholderTitle):
-        self?.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
+        self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
-        self?.showItemDetails(item)
+        self.showItemDetails(item)
       case .showExportController(let items):
-        self?.showExportController(for: items)
+        self.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
-        self?.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
+        self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
-        self?.showMiniPlayer(flag: flag)
+        self.showMiniPlayer(flag: flag)
       case .listDidAppear:
-        self?.syncList()
+        self.syncList()
       }
     }
     viewModel.coordinator = self
     vc.viewModel = viewModel
-    presentingViewController = navigationController
-    navigationController.pushViewController(vc, animated: true)
+    flow.startPresentation(vc, animated: true)
 
     documentPickerDelegate = vc
   }
 
   override func syncList() {
     Task { @MainActor in
-      _ = try await syncService.syncListContents(at: folderRelativePath)
-      reloadItemsWithPadding()
+      do {
+        _ = try await syncService.syncListContents(at: folderRelativePath)
+        reloadItemsWithPadding()
+      } catch {
+        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
+      }
     }
   }
 }

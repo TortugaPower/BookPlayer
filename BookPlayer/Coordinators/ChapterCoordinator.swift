@@ -10,30 +10,28 @@ import BookPlayerKit
 import UIKit
 
 class ChapterCoordinator: Coordinator {
+  let flow: BPCoordinatorPresentationFlow
   let playerManager: PlayerManagerProtocol
 
   init(
-    playerManager: PlayerManagerProtocol,
-    presentingViewController: UIViewController?
+    flow: BPCoordinatorPresentationFlow,
+    playerManager: PlayerManagerProtocol
   ) {
+    self.flow = flow
     self.playerManager = playerManager
-
-    super.init(
-      navigationController: AppNavigationController.instantiate(from: .Player),
-      flowType: .modal
-    )
-
-    self.presentingViewController = presentingViewController
   }
 
-  override func start() {
+  func start() {
+    let viewModel = ChaptersViewModel(playerManager: playerManager)
+    viewModel.onTransition = { routes in
+      switch routes {
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
     let vc = ChaptersViewController.instantiate(from: .Player)
-    let viewModel = ChaptersViewModel(playerManager: self.playerManager)
-    viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    self.navigationController.viewControllers = [vc]
-    self.navigationController.presentationController?.delegate = self
-    self.presentingViewController?.present(self.navigationController, animated: true, completion: nil)
+    flow.startPresentation(vc, animated: true)
   }
 }

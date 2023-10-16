@@ -11,7 +11,8 @@ import BookPlayerKit
 import Foundation
 import Themeable
 
-class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> {
+class LoginViewController: UIViewController, MVVMControllerProtocol {
+  var viewModel: LoginViewModel!
   // MARK: - UI components
 
   private lazy var scrollView: UIScrollView = {
@@ -80,8 +81,9 @@ class LoginViewController: BaseViewController<LoginCoordinator, LoginViewModel> 
 
   // MARK: - Initializer
 
-  init() {
+  init(viewModel: LoginViewModel) {
     super.init(nibName: nil, bundle: nil)
+    self.viewModel = viewModel
   }
 
   required init?(coder: NSCoder) {

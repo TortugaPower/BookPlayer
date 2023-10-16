@@ -13,34 +13,33 @@ class ButtonFreeCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
+  let flow: BPCoordinatorPresentationFlow
 
   init(
-    navigationController: UINavigationController,
+    flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
+    self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
-
-    super.init(
-      navigationController: navigationController,
-      flowType: .modal
-    )
   }
 
-  override func start() {
+  func start() {
     let viewModel = ButtonFreeViewModel(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
     )
-    viewModel.coordinator = self
+    viewModel.onTransition = { routes in
+      switch routes {
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
     let vc = ButtonFreeViewController(viewModel: viewModel)
-    let nav = AppNavigationController(rootViewController: vc)
-    nav.modalPresentationStyle = .fullScreen
-    self.presentingViewController?.present(nav, animated: true, completion: nil)
-    self.presentingViewController = nav
+    flow.startPresentation(vc, animated: true)
   }
 }

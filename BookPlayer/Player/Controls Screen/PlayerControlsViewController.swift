@@ -11,7 +11,8 @@ import Combine
 import Themeable
 import UIKit
 
-class PlayerControlsViewController: BaseViewController<PlayerControlsCoordinator, PlayerControlsViewModel>, Storyboarded {
+class PlayerControlsViewController: UIViewController, Storyboarded {
+  var viewModel: PlayerControlsViewModel!
   @IBOutlet weak var mainContainterStackView: UIStackView!
   @IBOutlet weak var playbackContainerStackView: UIStackView!
   @IBOutlet weak var boostContainerStackView: UIStackView!
