@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum DownloadState: Hashable {
+public enum DownloadState: Hashable {
   /// The asset is not downloaded.
   case notDownloaded
   /// The asset has a download in progress.
@@ -16,7 +16,7 @@ enum DownloadState: Hashable {
   /// The asset is downloaded and saved on disk.
   case downloaded
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     // Custom implementation of hashable protocol to ignore the
     // associated values when computing a hash value
     switch self {
@@ -29,7 +29,7 @@ enum DownloadState: Hashable {
     }
   }
 
-  static func == (lhs: DownloadState, rhs: DownloadState) -> Bool {
+  public static func == (lhs: DownloadState, rhs: DownloadState) -> Bool {
     // Custom implementation of Equatable protocol to ignore the
     // associated values when comparing values
     switch (lhs, rhs) {

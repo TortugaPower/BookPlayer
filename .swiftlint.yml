@@ -18,3 +18,4 @@ disabled_rules:
   - type_body_length
   - file_length
   - orphaned_doc_comment
+  - large_tuple

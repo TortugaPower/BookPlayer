@@ -1361,6 +1361,16 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingQueuedJobsCount = value }
     }
     var underlyingQueuedJobsCount: Int!
+    var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> {
+        get { return underlyingDownloadCompletedPublisher }
+        set(value) { underlyingDownloadCompletedPublisher = value }
+    }
+    var underlyingDownloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never>!
+    var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> {
+        get { return underlyingDownloadProgressPublisher }
+        set(value) { underlyingDownloadProgressPublisher = value }
+    }
+    var underlyingDownloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never>!
     //MARK: - syncListContents
 
     var syncListContentsAtThrowableError: Error?
@@ -1455,27 +1465,22 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - downloadRemoteFiles
 
-    var downloadRemoteFilesForTypeDelegateThrowableError: Error?
-    var downloadRemoteFilesForTypeDelegateCallsCount = 0
-    var downloadRemoteFilesForTypeDelegateCalled: Bool {
-        return downloadRemoteFilesForTypeDelegateCallsCount > 0
+    var downloadRemoteFilesForThrowableError: Error?
+    var downloadRemoteFilesForCallsCount = 0
+    var downloadRemoteFilesForCalled: Bool {
+        return downloadRemoteFilesForCallsCount > 0
     }
-    var downloadRemoteFilesForTypeDelegateReceivedArguments: (relativePath: String, type: SimpleItemType, delegate: URLSessionTaskDelegate)?
-    var downloadRemoteFilesForTypeDelegateReceivedInvocations: [(relativePath: String, type: SimpleItemType, delegate: URLSessionTaskDelegate)] = []
-    var downloadRemoteFilesForTypeDelegateReturnValue: [URLSessionDownloadTask]!
-    var downloadRemoteFilesForTypeDelegateClosure: ((String, SimpleItemType, URLSessionTaskDelegate) async throws -> [URLSessionDownloadTask])?
-    func downloadRemoteFiles(for relativePath: String, type: SimpleItemType, delegate: URLSessionTaskDelegate) async throws -> [URLSessionDownloadTask] {
-        if let error = downloadRemoteFilesForTypeDelegateThrowableError {
+    var downloadRemoteFilesForReceivedItem: SimpleLibraryItem?
+    var downloadRemoteFilesForReceivedInvocations: [SimpleLibraryItem] = []
+    var downloadRemoteFilesForClosure: ((SimpleLibraryItem) async throws -> Void)?
+    func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
+        if let error = downloadRemoteFilesForThrowableError {
             throw error
         }
-        downloadRemoteFilesForTypeDelegateCallsCount += 1
-        downloadRemoteFilesForTypeDelegateReceivedArguments = (relativePath: relativePath, type: type, delegate: delegate)
-        downloadRemoteFilesForTypeDelegateReceivedInvocations.append((relativePath: relativePath, type: type, delegate: delegate))
-        if let downloadRemoteFilesForTypeDelegateClosure = downloadRemoteFilesForTypeDelegateClosure {
-            return try await downloadRemoteFilesForTypeDelegateClosure(relativePath, type, delegate)
-        } else {
-            return downloadRemoteFilesForTypeDelegateReturnValue
-        }
+        downloadRemoteFilesForCallsCount += 1
+        downloadRemoteFilesForReceivedItem = item
+        downloadRemoteFilesForReceivedInvocations.append(item)
+        try await downloadRemoteFilesForClosure?(item)
     }
     //MARK: - scheduleUpload
 
@@ -1608,5 +1613,44 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     func cancelAllJobs() {
         cancelAllJobsCallsCount += 1
         cancelAllJobsClosure?()
+    }
+    //MARK: - cancelDownload
+
+    var cancelDownloadOfThrowableError: Error?
+    var cancelDownloadOfCallsCount = 0
+    var cancelDownloadOfCalled: Bool {
+        return cancelDownloadOfCallsCount > 0
+    }
+    var cancelDownloadOfReceivedItem: SimpleLibraryItem?
+    var cancelDownloadOfReceivedInvocations: [SimpleLibraryItem] = []
+    var cancelDownloadOfClosure: ((SimpleLibraryItem) throws -> Void)?
+    func cancelDownload(of item: SimpleLibraryItem) throws {
+        if let error = cancelDownloadOfThrowableError {
+            throw error
+        }
+        cancelDownloadOfCallsCount += 1
+        cancelDownloadOfReceivedItem = item
+        cancelDownloadOfReceivedInvocations.append(item)
+        try cancelDownloadOfClosure?(item)
+    }
+    //MARK: - getDownloadState
+
+    var getDownloadStateForCallsCount = 0
+    var getDownloadStateForCalled: Bool {
+        return getDownloadStateForCallsCount > 0
+    }
+    var getDownloadStateForReceivedItem: SimpleLibraryItem?
+    var getDownloadStateForReceivedInvocations: [SimpleLibraryItem] = []
+    var getDownloadStateForReturnValue: DownloadState!
+    var getDownloadStateForClosure: ((SimpleLibraryItem) -> DownloadState)?
+    func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
+        getDownloadStateForCallsCount += 1
+        getDownloadStateForReceivedItem = item
+        getDownloadStateForReceivedInvocations.append(item)
+        if let getDownloadStateForClosure = getDownloadStateForClosure {
+            return getDownloadStateForClosure(item)
+        } else {
+            return getDownloadStateForReturnValue
+        }
     }
 }

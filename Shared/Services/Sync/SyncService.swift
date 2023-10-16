@@ -26,6 +26,10 @@ public protocol SyncServiceProtocol {
   var isActive: Bool { get set }
   /// Count of the currently queued sync jobs
   var queuedJobsCount: Int { get }
+  /// Completion publisher for ongoing-download tasks
+  var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> { get }
+  /// Progress publisher for ongoing-download tasks
+  var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws -> SyncableItem?
@@ -41,11 +45,7 @@ public protocol SyncServiceProtocol {
     type: SimpleItemType
   ) async throws -> [RemoteFileURL]
 
-  func downloadRemoteFiles(
-    for relativePath: String,
-    type: SimpleItemType,
-    delegate: URLSessionTaskDelegate
-  ) async throws -> [URLSessionDownloadTask]
+  func downloadRemoteFiles(for item: SimpleLibraryItem) async throws
 
   func scheduleUpload(items: [SimpleLibraryItem])
 
@@ -69,6 +69,11 @@ public protocol SyncServiceProtocol {
   func getAllQueuedJobs() -> [QueuedJobInfo]
   /// Cancel all scheduled jobs
   func cancelAllJobs()
+
+  /// Cancel ongoing downloads for an item
+  func cancelDownload(of item: SimpleLibraryItem) throws
+
+  func getDownloadState(for item: SimpleLibraryItem) -> DownloadState
 }
 
 public final class SyncService: SyncServiceProtocol, BPLogger {
@@ -78,6 +83,31 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public var isActive: Bool
 
   public var queuedJobsCount: Int { jobManager.queuedJobsCount }
+
+  /// Dictionary holding the initiating item relative path as key and the download tasks as value
+  private lazy var downloadTasksDictionary = [String: [URLSessionTask]]()
+  /// Reference to the initiating item path for the download tasks (relevant for bound books)
+  private lazy var ongoingTasksParentReference = [String: String]()
+  /// Reference to the parent folder of the initiating item to pass on observer
+  private lazy var initiatingFolderReference = [String: String]()
+  /// Completion publisher for ongoing-download tasks
+  public var downloadCompletedPublisher = PassthroughSubject<(String, String, String?), Never>()
+  /// Progress publisher for ongoing-download tasks
+  public var downloadProgressPublisher = PassthroughSubject<(String, String, String?, Double), Never>()
+  /// Background URL session to handle downloading synced items
+  private lazy var downloadURLSession: BPDownloadURLSession = {
+    BPDownloadURLSession { task, progress in
+      self.handleDownloadProgressUpdated(
+        task: task,
+        individualProgress: progress
+      )
+    } didFinishDownloadingTask: { task, location in
+      self.handleFinishedDownload(
+        task: task,
+        location: location
+      )
+    }
+  }()
 
   private let provider: NetworkProvider<LibraryAPI>
 
@@ -278,9 +308,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws -> [RemoteFileURL] {
     let response: RemoteFileURLResponseContainer
 
-    if type == .bound {
+    switch type {
+    case .folder, .bound:
       response = try await provider.request(.remoteContentsURL(path: relativePath))
-    } else {
+    case .book:
       response = try await self.provider.request(.remoteFileURL(path: relativePath))
     }
 
@@ -291,26 +322,43 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return response.content
   }
 
-  public func downloadRemoteFiles(
-    for relativePath: String,
-    type: SimpleItemType,
-    delegate: URLSessionTaskDelegate
-  ) async throws -> [URLSessionDownloadTask] {
-    let remoteURLs = try await getRemoteFileURLs(of: relativePath, type: type)
+  public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
+    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, type: item.type)
 
-    var tasks = [URLSessionDownloadTask]()
+    let folderURLs = remoteURLs.filter({ $0.type != .book })
 
-    for remoteURL in remoteURLs {
-      let task = self.provider.client.download(
+    /// Handle throwable items first
+    if !folderURLs.isEmpty {
+      let processedFolderURL = DataManager.getProcessedFolderURL()
+
+      for remoteURL in folderURLs {
+        let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+        try DataManager.createBackingFolderIfNeeded(fileURL)
+      }
+    }
+
+    let bookURLs = remoteURLs.filter({ $0.type == .book })
+
+    var tasks = [URLSessionTask]()
+
+    for remoteURL in bookURLs {
+      let task = await provider.client.download(
         url: remoteURL.url,
         taskDescription: remoteURL.relativePath,
-        delegate: delegate
+        session: downloadURLSession.backgroundSession
       )
 
       tasks.append(task)
     }
 
-    return tasks
+    downloadTasksDictionary[item.relativePath] = tasks
+    ongoingTasksParentReference = tasks.reduce(
+      into: ongoingTasksParentReference, {
+        $0[$1.taskDescription!] = item.relativePath
+      }
+    )
+    ongoingTasksParentReference.keys
+      .forEach({ initiatingFolderReference[$0] = item.parentFolder })
   }
 
   public func scheduleUploadArtwork(relativePath: String) {
@@ -436,5 +484,143 @@ extension SyncService {
     guard isActive else { return }
 
     jobManager.scheduleRenameFolderJob(with: relativePath, name: name)
+  }
+}
+
+extension SyncService {
+  private func handleFinishedDownload(task: URLSessionTask, location: URL) {
+    guard let relativePath = task.taskDescription else { return }
+
+    do {
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+      /// If there's already something there, replace with new finished download
+      if FileManager.default.fileExists(atPath: fileURL.path) {
+        try FileManager.default.removeItem(at: fileURL)
+      }
+      try DataManager.createContainingFolderIfNeeded(for: fileURL)
+      try FileManager.default.moveItem(at: location, to: fileURL)
+
+      DispatchQueue.main.async {
+        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+      }
+    } catch {
+      Self.logger.trace("Error moving downloaded file to the destination: \(error.localizedDescription)")
+    }
+
+    guard let startingItemPath = ongoingTasksParentReference[relativePath] else {
+      initiatingFolderReference[relativePath] = nil
+      return
+    }
+
+    let parentFolderPath = initiatingFolderReference[relativePath]
+
+    /// cleanup individual reference
+    if downloadTasksDictionary[startingItemPath]?
+      .filter({ $0 != task })
+      .allSatisfy({ $0.state == .completed }) == true {
+      downloadTasksDictionary[startingItemPath] = nil
+    }
+    ongoingTasksParentReference[relativePath] = nil
+    initiatingFolderReference[relativePath] = nil
+
+    DispatchQueue.main.async {
+      self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
+    }
+  }
+
+  public func cancelDownload(of item: SimpleLibraryItem) throws {
+    guard let tasks = downloadTasksDictionary[item.relativePath] else { return }
+
+    var hasCompletedTasks = false
+
+    for task in tasks {
+      guard task.state != .completed else {
+        hasCompletedTasks = true
+        continue
+      }
+
+      if let relativePath = task.taskDescription {
+        ongoingTasksParentReference[relativePath] = nil
+        initiatingFolderReference[relativePath] = nil
+      }
+
+      task.cancel()
+    }
+
+    /// Clean up bound downloads if at least one was finished
+    if item.type == .bound,
+       hasCompletedTasks {
+      let fileURL = item.fileURL
+      try FileManager.default.removeItem(at: fileURL)
+      try FileManager.default.createDirectory(
+        at: fileURL,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    }
+
+    downloadTasksDictionary[item.relativePath] = nil
+  }
+
+  /// Handler called when the download has finished for a task
+  func handleDownloadProgressUpdated(task: URLSessionTask, individualProgress: Double) {
+    guard
+      let relativePath = task.taskDescription,
+      let initiatingItemRelativePath = ongoingTasksParentReference[relativePath]
+    else { return }
+
+    let progress: Double
+    /// For individual items, the `fractionCompleted` of the current task can be 0
+    let calculatedProgress = calculateDownloadProgress(with: initiatingItemRelativePath)
+    if calculatedProgress != 0 && calculatedProgress.isFinite {
+      progress = calculatedProgress
+    } else {
+      progress = individualProgress
+    }
+
+    let parentFolderPath = initiatingFolderReference[relativePath]
+    downloadProgressPublisher.send(
+      (relativePath, initiatingItemRelativePath, parentFolderPath, progress)
+    )
+  }
+
+  /// Calculate the overall download progress for an item (useful for bound books)
+  func calculateDownloadProgress(with relativePath: String) -> Double {
+    guard let tasks = downloadTasksDictionary[relativePath] else { return 1.0 }
+
+    let completedTasksCount = tasks.filter({ $0.state == .completed }).count
+    let runningTasksProgress = tasks.filter({ $0.state == .running })
+      .reduce(0.0, { $0 + $1.progress.fractionCompleted })
+
+    return (runningTasksProgress + Double(completedTasksCount)) / Double(tasks.count)
+  }
+
+  /// Get download state of an item
+  public func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
+    /// Only process if subscription is active
+    guard isActive else { return .downloaded }
+
+    if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
+      return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
+    }
+
+    let fileURL = item.fileURL
+
+    if (item.type == .bound || item.type == .folder),
+       let enumerator = FileManager.default.enumerator(
+        at: fileURL,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+       ),
+       enumerator.nextObject() == nil {
+      return .notDownloaded
+    }
+
+    if FileManager.default.fileExists(atPath: fileURL.path) {
+      return .downloaded
+    }
+
+    return .notDownloaded
   }
 }
