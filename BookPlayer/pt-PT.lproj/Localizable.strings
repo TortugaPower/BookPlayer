@@ -1,7 +1,7 @@
 "library_title" = "Biblioteca";
 "settings_button" = "Definições";
 "settings_title" = "Definições";
-"settings_autoplay_title" = "Reproduzir automaticamente a Biblioteca"
+"settings_autoplay_title" = "Reproduzir automaticamente a Biblioteca";
 "settings_autoplay_description" = "Ao terminar um audiolivro, a reprodução continuará com todos os itens na biblioteca, incluindo itens nas pastas.";
 "settings_smartrewind_title" = "Rebobinagem Inteligente";
 "settings_smartrewind_description" = "Rebobinar 30 segundos após pausa de 10 minutos.";
