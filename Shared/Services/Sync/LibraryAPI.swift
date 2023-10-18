@@ -79,7 +79,7 @@ extension LibraryAPI: Endpoint {
     case .shallowDelete:
       return .delete
     case .bookmarks:
-      return .post
+      return .get
     case .setBookmark:
       return .put
     case .uploadArtwork:
