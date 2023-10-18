@@ -11,9 +11,12 @@ import AppIntents
 
 @available(iOS 16.0, macOS 14.0, watchOS 10.0, tvOS 16.0, *)
 struct CustomSleepTimerIntent: AppIntent {
-  static var title: LocalizedStringResource = "Set Sleep Timer with duration"
+  static var title: LocalizedStringResource = .init("intent_sleeptimer_set_duration", table: "Localizable.strings")
 
-  @Parameter(title: "Duration", requestValueDialog: "For how long")
+  @Parameter(
+    title: .init("duration_title", table: "Localizable.strings"),
+    requestValueDialog: IntentDialog(LocalizedStringResource("intent_sleeptimer_request_duration_title", table: "Localizable.strings"))
+  )
   var duration: Measurement<UnitDuration>
 
   static var parameterSummary: some ParameterSummary {

@@ -9,7 +9,7 @@
 import Foundation
 import AppIntents
 
-@available(iOS 16.0, macOS 14.0, watchOS 10.0, *)
+@available(iOS 16.4, macOS 14.0, watchOS 10.0, *)
 struct BPAppShortcuts: AppShortcutsProvider {
   static var appShortcuts: [AppShortcut] {
     return [
