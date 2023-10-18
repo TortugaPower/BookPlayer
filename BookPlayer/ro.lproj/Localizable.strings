@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Dezactivați rapoartele de blocare";
 "settings_skan_attribution_title" = "Dezactivați atribuirea SKAN";
 "settings_skan_attribution_description" = "SKAN este soluția Apple de atribuire a confidențialității, care permite măsurarea cât de eficientă a fost o campanie fără a compromite confidențialitatea utilizatorului.";
+"intent_sleeptimer_cancel" = "Cancel Sleep Timer";
+"intent_sleeptimer_set_duration" = "Set Sleep Timer with duration";
+"duration_title" = "Duration";
+"intent_sleeptimer_request_duration_title" = "For how long";
+"Set Sleep Timer for ${duration}" = "Set Sleep Timer for ${duration}";
+"intent_sleeptimer_eoc_title" = "Set Sleep Timer to End of Chapter";
+"intent_lastbook_play_title" = "Resume last played book";
+"intent_lastbook_empty_error" = "There's no last played book";
+"intent_playback_pause_title" = "Pause playback";
