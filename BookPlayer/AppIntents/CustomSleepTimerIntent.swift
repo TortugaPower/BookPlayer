@@ -14,8 +14,8 @@ struct CustomSleepTimerIntent: AppIntent {
   static var title: LocalizedStringResource = .init("intent_sleeptimer_set_duration", table: "Localizable.strings")
 
   @Parameter(
-    title: .init("duration_title", table: "Localizable.strings"),
-    requestValueDialog: IntentDialog(LocalizedStringResource("intent_sleeptimer_request_duration_title", table: "Localizable.strings"))
+    title: LocalizedStringResource("duration_title"),
+    requestValueDialog: IntentDialog(LocalizedStringResource("intent_sleeptimer_request_duration_title"))
   )
   var duration: Measurement<UnitDuration>
 

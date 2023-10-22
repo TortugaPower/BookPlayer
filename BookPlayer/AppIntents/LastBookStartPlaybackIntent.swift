@@ -31,11 +31,7 @@ struct LastBookStartPlaybackIntent: AudioStartingIntent, ForegroundContinuableIn
     let coreServices = await appDelegate.createCoreServicesIfNeeded(from: stack)
 
     guard let book = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first else {
-      throw NSLocalizedString(
-        "intent_lastbook_empty_error",
-        tableName: "Localizable.strings",
-        comment: "Error when there's no last book played"
-      )
+      throw "intent_lastbook_empty_error".localized
     }
 
     await appDelegate.loadPlayer(
