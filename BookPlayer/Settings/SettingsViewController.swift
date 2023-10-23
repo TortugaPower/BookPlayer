@@ -14,6 +14,7 @@ import MessageUI
 import SafariServices
 import Themeable
 import UIKit
+import SwiftUI
 
 protocol IntentSelectionDelegate: AnyObject {
   func didSelectIntent(_ intent: INIntent)
@@ -189,6 +190,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return 0
     }
 
+    if indexPath == lastPlayedShortcutPath {
+      return 55
+    }
+
     guard indexPath.section == 0 else {
       return super.tableView(tableView, heightForRowAt: indexPath)
     }
@@ -237,9 +242,17 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     case self.githubLinkPath:
       self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
-      self.showLastPlayedShortcut()
+      if #available(iOS 16.4, *) {
+        /// SiriKit shortcuts are deprecated
+      } else {
+        self.showLastPlayedShortcut()
+      }
     case self.sleepTimerShortcutPath:
-      self.showSleepTimerShortcut()
+      if #available(iOS 16.4, *) {
+        /// SiriKit shortcuts are deprecated
+      } else {
+        self.showSleepTimerShortcut()
+      }
     case self.storageIndexPath:
       self.viewModel.showStorageManagement()
     case self.cloudDeletedIndexPath:
@@ -270,6 +283,48 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_support_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
+    }
+  }
+
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    var tableViewCell = super.tableView(tableView, cellForRowAt: indexPath)
+
+    guard 
+      #available(iOS 16.4, *)
+    else {
+      return tableViewCell
+    }
+
+    if indexPath == lastPlayedShortcutPath {
+      tableViewCell = UITableViewCell()
+      tableViewCell.contentConfiguration = UIHostingConfiguration {
+        HStack {
+          BPShortcutsLink()
+          Spacer()
+        }
+        .padding(.leading)
+      }
+      .margins(.all, 0)
+      tableViewCell.backgroundColor = .clear
+    }
+
+    return tableViewCell
+  }
+
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    let totalCount = super.tableView(tableView, numberOfRowsInSection: section)
+
+    guard 
+      let settingsSection = SettingsSection(rawValue: section),
+      settingsSection == .siri
+    else {
+      return totalCount
+    }
+
+    if #available(iOS 16.4, *) {
+      return totalCount - 1
+    } else {
+      return totalCount
     }
   }
 
