@@ -27,6 +27,7 @@ class CarPlayManager: NSObject {
 
   // MARK: - Lifecycle
 
+  @MainActor 
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
@@ -41,6 +42,7 @@ class CarPlayManager: NSObject {
     self.libraryTemplate = nil
   }
 
+  @MainActor
   func initializeDataIfNeeded() {
     guard
       AppDelegate.shared?.dataManager == nil,

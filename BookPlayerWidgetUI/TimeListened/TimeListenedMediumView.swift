@@ -85,7 +85,7 @@ struct TimeListenedMediumView: View {
         .padding([.trailing], 5)
         .padding([.bottom], 5)
     }
-    .background(widgetColors.backgroundColor)
+    .widgetBackground(backgroundView: widgetColors.backgroundColor)
     .widgetURL(url)
   }
 }

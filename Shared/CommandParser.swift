@@ -21,7 +21,8 @@ public class CommandParser {
   }
 
   public class func parse(_ intent: INIntent) -> Action? {
-    if let sleepIntent = intent as? SleepTimerIntent {
+    switch intent {
+    case let sleepIntent as SleepTimerIntent:
       var queryItem: URLQueryItem
 
       if let seconds = sleepIntent.seconds {
@@ -32,13 +33,11 @@ public class CommandParser {
       }
 
       return Action(command: .sleep, parameters: [queryItem])
-    }
-
-    if intent is INPlayMediaIntent {
+    case is INPlayMediaIntent:
       return Action(command: .play)
+    default:
+      return nil
     }
-
-    return nil
   }
 
   public class func parse(_ url: URL) -> Action? {

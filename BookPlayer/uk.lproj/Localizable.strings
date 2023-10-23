@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Вимкнути звіти про збої";
 "settings_skan_attribution_title" = "Вимкнути атрибуцію SKAN";
 "settings_skan_attribution_description" = "SKAN — це рішення Apple для визначення конфіденційності, яке дає змогу вимірювати ефективність кампанії без шкоди для конфіденційності користувача";
+"intent_sleeptimer_cancel" = "Скасувати таймер сну";
+"intent_sleeptimer_set_duration" = "Встановіть таймер сну з тривалістю";
+"duration_title" = "Тривалість";
+"intent_sleeptimer_request_duration_title" = "Як довго";
+"Set Sleep Timer for ${duration}" = "Встановити таймер сну на ${duration}";
+"intent_sleeptimer_eoc_title" = "Встановіть таймер сну на кінець розділу";
+"intent_lastbook_play_title" = "Відновити останню відтворену книгу";
+"intent_lastbook_empty_error" = "Немає останньої програної книги";
+"intent_playback_pause_title" = "Призупинити відтворення";

@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Disabilita i rapporti sugli arresti anomali";
 "settings_skan_attribution_title" = "Disabilita l'attribuzione SKAN";
 "settings_skan_attribution_description" = "SKAN è la soluzione di attribuzione Apple basata sulla privacy che consente di misurare l'efficacia di una campagna senza compromettere la privacy dell'utente";
+"intent_sleeptimer_cancel" = "Annulla il timer di spegnimento";
+"intent_sleeptimer_set_duration" = "Imposta il timer di spegnimento con la durata";
+"duration_title" = "Durata";
+"intent_sleeptimer_request_duration_title" = "Per quanto";
+"Set Sleep Timer for ${duration}" = "Imposta il timer di spegnimento per ${duration}";
+"intent_sleeptimer_eoc_title" = "Imposta il timer di spegnimento alla fine del capitolo";
+"intent_lastbook_play_title" = "Riprendi l'ultimo libro riprodotto";
+"intent_lastbook_empty_error" = "Non c'è l'ultimo libro giocato";
+"intent_playback_pause_title" = "Mettere in pausa la riproduzione";

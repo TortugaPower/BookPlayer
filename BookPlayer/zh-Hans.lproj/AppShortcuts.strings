@@ -1,0 +1,14 @@
+"Play the current book in ${applicationName}" = "播放${applicationName}中的当前书籍";
+"Play the last book in ${applicationName}" = "播放${applicationName}中的最后一本书";
+"Continue the last played book in ${applicationName}" = "继续${applicationName}中上次播放的书";
+"Pause the current book in ${applicationName}" = "暂停${applicationName}中的当前书籍";
+"Pause playback in ${applicationName}" = "在${applicationName}中暂停播放";
+"Stop ${applicationName}" = "停止${applicationName}";
+"Stop playback in ${applicationName}" = "在${applicationName}中停止播放";
+"Set the sleep timer to the End of Chapter in ${applicationName}" = "将睡眠计时器设置为${applicationName}中的章节末尾";
+"Set the sleep timer to the End of the current Chapter in ${applicationName}" = "将睡眠计时器设置为${applicationName}中当前章节的结尾";
+"Cancel the sleep timer in ${applicationName}" = "取消${applicationName}中的睡眠定时器";
+"Turn off the sleep timer in ${applicationName}" = "关闭${applicationName}中的睡眠定时器";
+"Set the sleep timer in ${applicationName}" = "在${applicationName}中设置睡眠定时器";
+"Turn on the sleep timer in ${applicationName}" = "打开${applicationName}中的睡眠定时器";
+"Enable the sleep timer in ${applicationName}" = "在${applicationName}中启用睡眠计时器";

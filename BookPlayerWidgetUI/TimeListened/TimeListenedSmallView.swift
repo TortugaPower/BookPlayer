@@ -75,7 +75,7 @@ struct TimeListenedSmallView: View {
       .accessibilityElement(children: .combine)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(widgetColors.backgroundColor)
+    .widgetBackground(backgroundView: widgetColors.backgroundColor)
     .widgetURL(url)
   }
 }

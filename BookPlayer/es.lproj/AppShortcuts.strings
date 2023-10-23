@@ -1,0 +1,14 @@
+"Play the current book in ${applicationName}" = "Reproducir el libro actual en ${applicationName}";
+"Play the last book in ${applicationName}" = "Reproduzca el último libro en ${applicationName}";
+"Continue the last played book in ${applicationName}" = "Continuar con el último libro reproducido en ${applicationName}";
+"Pause the current book in ${applicationName}" = "Pausar el libro actual en ${applicationName}";
+"Pause playback in ${applicationName}" = "Pausar la reproducción en ${applicationName}";
+"Stop ${applicationName}" = "Detener ${applicationName}";
+"Stop playback in ${applicationName}" = "Detener la reproducción en ${applicationName}";
+"Set the sleep timer to the End of Chapter in ${applicationName}" = "Configure el temporizador de apagado al final del capítulo en ${applicationName}";
+"Set the sleep timer to the End of the current Chapter in ${applicationName}" = "Configure el temporizador de apagado al final del capítulo actual en ${applicationName}";
+"Cancel the sleep timer in ${applicationName}" = "Cancelar el temporizador de apagado en ${applicationName}";
+"Turn off the sleep timer in ${applicationName}" = "Apague el temporizador de apagado en ${applicationName}";
+"Set the sleep timer in ${applicationName}" = "Configure el temporizador de apagado en ${applicationName}";
+"Turn on the sleep timer in ${applicationName}" = "Active el temporizador de apagado en ${applicationName}";
+"Enable the sleep timer in ${applicationName}" = "Habilite el temporizador de apagado en ${applicationName}";

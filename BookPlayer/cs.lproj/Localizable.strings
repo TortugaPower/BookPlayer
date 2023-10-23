@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Zakázat zprávy o selhání";
 "settings_skan_attribution_title" = "Zakázat atribuci SKAN";
 "settings_skan_attribution_description" = "SKAN je řešení pro atribuci na prvním místě společnosti Apple, které umožňuje měřit, jak efektivní byla kampaň, aniž by došlo k ohrožení soukromí uživatelů.";
+"intent_sleeptimer_cancel" = "Zrušit časovač vypnutí";
+"intent_sleeptimer_set_duration" = "Nastavte časovač vypnutí s dobou trvání";
+"duration_title" = "Doba trvání";
+"intent_sleeptimer_request_duration_title" = "Jak dlouho";
+"Set Sleep Timer for ${duration}" = "Nastavit časovač spánku na ${duration}";
+"intent_sleeptimer_eoc_title" = "Nastavte časovač spánku na konec kapitoly";
+"intent_lastbook_play_title" = "Obnovit naposledy přehrávanou knihu";
+"intent_lastbook_empty_error" = "Neexistuje žádná naposledy hraná kniha";
+"intent_playback_pause_title" = "Pozastavit přehrávání";

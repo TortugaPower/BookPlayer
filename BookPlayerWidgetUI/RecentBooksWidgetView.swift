@@ -16,71 +16,71 @@ struct RecentBooksProvider: IntentTimelineProvider {
   typealias Entry = LibraryEntry
 
   func placeholder(in context: Context) -> LibraryEntry {
-    return LibraryEntry(date: Date(), items: [], theme: nil, timerSeconds: 300, autoplay: true)
+    return LibraryEntry(
+      date: Date(),
+      items: [
+        SimpleLibraryItem.previewItem(title: "Last played"),
+        SimpleLibraryItem.previewItem(title: "Book title"),
+        SimpleLibraryItem.previewItem(title: "Book title"),
+        SimpleLibraryItem.previewItem(title: "Book title")
+      ],
+      theme: SimpleTheme.getDefaultTheme(),
+      timerSeconds: 300,
+      autoplay: true
+    )
   }
 
-  func getSnapshot(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (LibraryEntry) -> Void) {
-    let stack = DataMigrationManager().getCoreDataStack()
-    stack.loadStore { _, error in
-      guard error == nil else {
-        completion(self.placeholder(in: context))
-        return
+  func getSnapshot(
+    for configuration: PlayAndSleepActionIntent,
+    in context: Context,
+    completion: @escaping (LibraryEntry) -> Void
+  ) {
+    completion(placeholder(in: context))
+  }
+
+  func getTimeline(
+    for configuration: PlayAndSleepActionIntent,
+    in context: Context,
+    completion: @escaping (Timeline<LibraryEntry>) -> Void
+  ) {
+    Task {
+      do {
+        let entry = try await getEntryForTimeline(for: configuration, context: context)
+
+        completion(Timeline(entries: [entry], policy: .never))
+      } catch {
+        completion(Timeline(entries: [], policy: .never))
       }
-
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
-
-      guard
-        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-        let theme = libraryService.getLibraryCurrentTheme()
-      else {
-        completion(self.placeholder(in: context))
-        return
-      }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = LibraryEntry(date: Date(),
-                               items: items,
-                               theme: theme,
-                               timerSeconds: seconds,
-                               autoplay: autoplay)
-
-      completion(entry)
     }
   }
 
-  func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<LibraryEntry>) -> Void) {
-    let stack = DataMigrationManager().getCoreDataStack()
-    stack.loadStore { _, error in
-      guard error == nil else {
-        completion(Timeline(entries: [], policy: .atEnd))
-        return
-      }
+  func getEntryForTimeline(
+    for configuration: PlayAndSleepActionIntent,
+    context: Context
+  ) async throws -> LibraryEntry {
+    let stack = try await DatabaseInitializer().loadCoreDataStack()
+    let dataManager = DataManager(coreDataStack: stack)
+    let libraryService = LibraryService(dataManager: dataManager)
 
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
-
-      guard
-        let items = libraryService.getLastPlayedItems(limit: self.numberOfBooks),
-        let theme = libraryService.getLibraryCurrentTheme()
-      else {
-        completion(Timeline(entries: [], policy: .atEnd))
-        return
-      }
-
-      let autoplay = configuration.autoplay?.boolValue ?? true
-      let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
-      let entry = LibraryEntry(date: Date(),
-                               items: items,
-                               theme: theme,
-                               timerSeconds: seconds,
-                               autoplay: autoplay)
-
-      completion(Timeline(entries: [entry], policy: .atEnd))
+    guard
+      let items = libraryService.getLastPlayedItems(limit: numberOfBooks)
+    else {
+      throw BookPlayerError.emptyResponse
     }
+
+    let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
+    let autoplay = configuration.autoplay?.boolValue ?? true
+    let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
+
+    let entry = LibraryEntry(
+      date: Date(),
+      items: items,
+      theme: theme,
+      timerSeconds: seconds,
+      autoplay: autoplay
+    )
+
+    return entry
   }
 }
 
@@ -108,11 +108,11 @@ struct BookView: View {
 
         Text(title)
           .fontWeight(.semibold)
+          .frame(height: 34, alignment: .leading)
           .foregroundColor(titleColor)
           .font(.caption)
           .lineLimit(2)
           .multilineTextAlignment(.center)
-          .frame(width: nil, height: 34, alignment: .leading)
       }
     }
   }
@@ -156,7 +156,7 @@ struct RecentBooksWidgetView: View {
       Spacer()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(widgetColors.backgroundColor)
+    .widgetBackground(backgroundView: widgetColors.backgroundColor)
   }
 }
 
@@ -166,6 +166,7 @@ struct RecentBooksWidgetView_Previews: PreviewProvider {
       RecentBooksWidgetView(
         entry: LibraryEntry(date: Date(),
                             items: [.previewItem(title: "a very very very long title"),
+                                    .previewItem(title: "a short title"),
                                     .previewItem(title: "a short title"),
                                     .previewItem(title: "a short title")],
                             theme: nil,
@@ -186,15 +187,16 @@ struct RecentBooksWidget: Widget {
     .configurationDisplayName("Recent Books")
     .description("See the recent played books")
     .supportedFamilies([.systemMedium])
+    .contentMarginsDisabledIfAvailable()
   }
 }
 
 extension SimpleLibraryItem {
-  /// Convenience init for SwftUI previews
+  /// Convenience init for SwftUI previews and placeholders
   static public func previewItem(title: String) -> Self {
     SimpleLibraryItem(
       title: title,
-      details: "some details",
+      details: "Author",
       speed: 1,
       currentTime: 1,
       duration: 1,

@@ -1,0 +1,14 @@
+"Play the current book in ${applicationName}" = "Afspil den aktuelle bog i ${applicationName}";
+"Play the last book in ${applicationName}" = "Afspil den sidste bog i ${applicationName}";
+"Continue the last played book in ${applicationName}" = "Fortsæt med den sidst afspillede bog i ${applicationName}";
+"Pause the current book in ${applicationName}" = "Sæt den aktuelle bog på pause i ${applicationName}";
+"Pause playback in ${applicationName}" = "Sæt afspilning på pause i ${applicationName}";
+"Stop ${applicationName}" = "Stop ${applicationName}";
+"Stop playback in ${applicationName}" = "Stop afspilning i ${applicationName}";
+"Set the sleep timer to the End of Chapter in ${applicationName}" = "Indstil sleep-timeren til slutningen af kapitel i ${applicationName}";
+"Set the sleep timer to the End of the current Chapter in ${applicationName}" = "Indstil sleep-timeren til slutningen af det aktuelle kapitel i ${applicationName}";
+"Cancel the sleep timer in ${applicationName}" = "Annuller sleep-timeren i ${applicationName}";
+"Turn off the sleep timer in ${applicationName}" = "Sluk for sleep-timeren i ${applicationName}";
+"Set the sleep timer in ${applicationName}" = "Indstil sleep-timeren i ${applicationName}";
+"Turn on the sleep timer in ${applicationName}" = "Slå sleep-timeren til i ${applicationName}";
+"Enable the sleep timer in ${applicationName}" = "Aktiver sleep-timeren i ${applicationName}";

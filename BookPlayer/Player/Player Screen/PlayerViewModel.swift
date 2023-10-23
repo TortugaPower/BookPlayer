@@ -80,6 +80,7 @@ class PlayerViewModel: ViewModelProtocol {
           return self?.durationFormatter.string(from: seconds)
         }
       }
+      .receive(on: DispatchQueue.main)
       .eraseToAnyPublisher()
   }
 
@@ -99,6 +100,7 @@ class PlayerViewModel: ViewModelProtocol {
           )
         }
       }
+      .receive(on: DispatchQueue.main)
       .eraseToAnyPublisher()
   }
 

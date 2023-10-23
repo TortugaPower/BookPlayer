@@ -13,6 +13,7 @@ import Foundation
 class LoadingViewModel: ViewModelProtocol {
   weak var coordinator: LoadingCoordinator!
 
+  @MainActor
   func initializeDataIfNeeded() {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
 

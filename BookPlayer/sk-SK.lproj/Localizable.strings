@@ -291,3 +291,12 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_crash_reports_title" = "Zakázať správy o zlyhaní";
 "settings_skan_attribution_title" = "Zakázať SKAN";
 "settings_skan_attribution_description" = "SKAN je riešenie spoločnosti Apple zamerané na ochranu súkromia, ktoré umožňuje merať účinnosť kampane bez narušenia súkromia používateľov.";
+"intent_sleeptimer_cancel" = "Zrušiť časovač vypnutia";
+"intent_sleeptimer_set_duration" = "Nastavte časovač vypnutia s trvaním";
+"duration_title" = "Trvanie";
+"intent_sleeptimer_request_duration_title" = "Ako dlho";
+"Set Sleep Timer for ${duration}" = "Nastaviť časovač spánku na ${duration}";
+"intent_sleeptimer_eoc_title" = "Nastavte časovač spánku na koniec kapitoly";
+"intent_lastbook_play_title" = "Obnoviť poslednú prehrávanú knihu";
+"intent_lastbook_empty_error" = "Neexistuje žiadna naposledy hraná kniha";
+"intent_playback_pause_title" = "Pozastaviť prehrávanie";

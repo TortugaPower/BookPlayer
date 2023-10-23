@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Absturzberichte deaktivieren";
 "settings_skan_attribution_title" = "Deaktivieren Sie die SKAN-Attribution";
 "settings_skan_attribution_description" = "SKAN ist Apples datenschutzorientierte Attributionslösung, die es ermöglicht, zu messen, wie effektiv eine Kampagne war, ohne die Privatsphäre des Benutzers zu gefährden";
+"intent_sleeptimer_cancel" = "Abbrechen des Sleep-Timers";
+"intent_sleeptimer_set_duration" = "Stellen Sie den Sleep-Timer mit der Dauer ein";
+"duration_title" = "Dauer";
+"intent_sleeptimer_request_duration_title" = "Für wie lange";
+"Set Sleep Timer for ${duration}" = "Schlaf-Timer auf ${duration} einstellen";
+"intent_sleeptimer_eoc_title" = "Stellen Sie den Sleep-Timer auf Kapitelende ein";
+"intent_lastbook_play_title" = "Setzen Sie das zuletzt gespielte Buch fort";
+"intent_lastbook_empty_error" = "Es gibt kein zuletzt gespieltes Buch";
+"intent_playback_pause_title" = "Wiedergabe anhalten";

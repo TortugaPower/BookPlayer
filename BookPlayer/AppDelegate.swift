@@ -83,9 +83,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func application(_ application: UIApplication, handle intent: INIntent, completionHandler: @escaping (INIntentResponse) -> Void) {
-    ActionParserService.process(intent)
-
-    let response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+    let response: INPlayMediaIntentResponse
+    do {
+      try ActionParserService.process(intent)
+      response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+    } catch {
+      response = INPlayMediaIntentResponse(code: .failure, userActivity: nil)
+    }
     completionHandler(response)
   }
 
