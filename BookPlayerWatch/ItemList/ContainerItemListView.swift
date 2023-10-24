@@ -18,7 +18,7 @@ struct ContainerItemListView: View {
       if contextManager.items.isEmpty,
          contextManager.isConnecting {
         ProgressView()
-      } else if #available(watchOSApplicationExtension 8.0, *) {
+      } else if #available(watchOS 8.0, *) {
         ItemListView()
           .navigationTitle("recent_title")
           .navigationBarTitleDisplayMode(.inline)
