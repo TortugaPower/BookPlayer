@@ -242,15 +242,13 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     case self.githubLinkPath:
       self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
-      if #available(iOS 16.4, *) {
+      if #unavailable(iOS 16.4) {
         /// SiriKit shortcuts are deprecated
-      } else {
         self.showLastPlayedShortcut()
       }
     case self.sleepTimerShortcutPath:
-      if #available(iOS 16.4, *) {
+      if #unavailable(iOS 16.4) { 
         /// SiriKit shortcuts are deprecated
-      } else {
         self.showSleepTimerShortcut()
       }
     case self.storageIndexPath:
