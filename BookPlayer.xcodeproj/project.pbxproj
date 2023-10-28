@@ -116,9 +116,9 @@
 		416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
 		416A29A52569658100605395 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
 		416A29A72569658100605395 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A62569658100605395 /* SwiftUI.framework */; };
-		416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgetUI.swift */; };
+		416A29AA2569658100605395 /* BookPlayerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgets.swift */; };
 		416A29AC2569658300605395 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 416A29AB2569658300605395 /* Assets.xcassets */; };
-		416A29B02569658300605395 /* BookPlayerWidgetUIExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		416A29B02569658300605395 /* BookPlayerWidgetsPhone.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 416A29A32569658100605395 /* BookPlayerWidgetsPhone.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		416A29BC256A43F800605395 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		416A9D4B2743D51E00463621 /* StorageViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A9D4A2743D51E00463621 /* StorageViewModelTests.swift */; };
@@ -299,7 +299,7 @@
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
 		63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */; };
-		63005A302AE7FD8000A4CA2C /* BookPlayerWidgetUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgetUI.swift */; };
+		63005A302AE7FD8000A4CA2C /* BookPlayerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgets.swift */; };
 		63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
 		63005A342AE7FD8000A4CA2C /* MappingModel_v2_to_v3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */; };
 		63005A352AE7FD8000A4CA2C /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
@@ -308,7 +308,7 @@
 		63005A3B2AE7FD8000A4CA2C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A62569658100605395 /* SwiftUI.framework */; };
 		63005A3C2AE7FD8000A4CA2C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
 		63005A3E2AE7FD8000A4CA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 416A29AB2569658300605395 /* Assets.xcassets */; };
-		63005A452AE800C000A4CA2C /* BookPlayerWidgetWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		63005A452AE800C000A4CA2C /* BookPlayerWidgetsWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		630F115E2AE7EEBA000A997A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
@@ -580,7 +580,7 @@
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 416A29A22569658100605395;
-			remoteInfo = BookPlayerWidgetUIExtension;
+			remoteInfo = BookPlayerWidgets;
 		};
 		416A29BE256A43F800605395 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -608,7 +608,7 @@
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 63005A262AE7FD8000A4CA2C;
-			remoteInfo = BookPlayerWidgetWatch;
+			remoteInfo = BookPlayerWidgetsWatch;
 		};
 		630F11462AE7EC1E000A997A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -669,7 +669,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				416A29B02569658300605395 /* BookPlayerWidgetUIExtension.appex in Embed Foundation Extensions */,
+				416A29B02569658300605395 /* BookPlayerWidgetsPhone.appex in Embed Foundation Extensions */,
 				9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed Foundation Extensions */,
 				41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed Foundation Extensions */,
 			);
@@ -693,7 +693,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				63005A452AE800C000A4CA2C /* BookPlayerWidgetWatch.appex in Embed Foundation Extensions */,
+				63005A452AE800C000A4CA2C /* BookPlayerWidgetsWatch.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -813,13 +813,13 @@
 		416A298A256875B300605395 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		416A298B256875B300605395 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		416A298C256875B300605395 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetUIExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		416A29A32569658100605395 /* BookPlayerWidgetsPhone.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetsPhone.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		416A29A42569658100605395 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		416A29A62569658100605395 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		416A29A92569658100605395 /* BookPlayerWidgetUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerWidgetUI.swift; sourceTree = "<group>"; };
+		416A29A92569658100605395 /* BookPlayerWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlayerWidgets.swift; sourceTree = "<group>"; };
 		416A29AB2569658300605395 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		416A29AD2569658300605395 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerWidgetUIExtension.entitlements; sourceTree = "<group>"; };
+		416A29CE256A442200605395 /* BookPlayerWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerWidgets.entitlements; sourceTree = "<group>"; };
 		416A9D4A2743D51E00463621 /* StorageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModelTests.swift; sourceTree = "<group>"; };
 		416AAC2F23F44A88005AD04F /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = cs; path = cs.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		416AAC3023F44A88005AD04F /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -997,7 +997,7 @@
 		62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryServiceTests.swift; sourceTree = "<group>"; };
 		62CADB8D2724E41800A4A98F /* Audiobook Player 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 7.xcdatamodel"; sourceTree = "<group>"; };
 		62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportableItem.swift; sourceTree = "<group>"; };
-		63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetsWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		63005A442AE7FD8100A4CA2C /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Watch-Info.plist"; path = "/Users/pro.gianni.carlo/Workspace/BookPlayer/Watch-Info.plist"; sourceTree = "<absolute>"; };
 		630584E22ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		630584E32ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -1493,21 +1493,17 @@
 			path = BuildConfiguration;
 			sourceTree = "<group>";
 		};
-		416A29A82569658100605395 /* BookPlayerWidgetUI */ = {
+		416A29A82569658100605395 /* BookPlayerWidgets */ = {
 			isa = PBXGroup;
 			children = (
-				416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */,
-				416A29A92569658100605395 /* BookPlayerWidgetUI.swift */,
-				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
-				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
-				417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */,
-				41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */,
-				4106413E258725F1008EB8D0 /* TimeListened */,
+				416A29CE256A442200605395 /* BookPlayerWidgets.entitlements */,
+				416A29A92569658100605395 /* BookPlayerWidgets.swift */,
+				63E5D6A92AECB8AB00A67B32 /* Phone */,
 				416A29AB2569658300605395 /* Assets.xcassets */,
 				416A29AD2569658300605395 /* Info.plist */,
 				63005A442AE7FD8100A4CA2C /* Watch-Info.plist */,
 			);
-			path = BookPlayerWidgetUI;
+			path = BookPlayerWidgets;
 			sourceTree = "<group>";
 		};
 		418B6CEF1D2707F700F974FB = {
@@ -1524,7 +1520,7 @@
 				418B6D111D2707F800F974FB /* BookPlayerTests */,
 				4140EA5F227289720009F794 /* BookPlayerWatchKit */,
 				41342CFF24435D9900F0905B /* BookPlayerIntents */,
-				416A29A82569658100605395 /* BookPlayerWidgetUI */,
+				416A29A82569658100605395 /* BookPlayerWidgets */,
 				9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */,
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
@@ -1544,9 +1540,9 @@
 				4140EA2F227288ED0009F794 /* BookPlayerWatch.app */,
 				4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */,
 				41342CFE24435D9900F0905B /* BookPlayerIntents.appex */,
-				416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */,
+				416A29A32569658100605395 /* BookPlayerWidgetsPhone.appex */,
 				9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */,
-				63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */,
+				63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1983,6 +1979,18 @@
 				63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */,
 			);
 			path = PerformanceTests;
+			sourceTree = "<group>";
+		};
+		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
+			isa = PBXGroup;
+			children = (
+				4106413E258725F1008EB8D0 /* TimeListened */,
+				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
+				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
+				417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */,
+				41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */,
+			);
+			path = Phone;
 			sourceTree = "<group>";
 		};
 		6906A551217211A300A9E0B2 /* Support */ = {
@@ -2537,9 +2545,9 @@
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		416A29A22569658100605395 /* BookPlayerWidgetUIExtension */ = {
+		416A29A22569658100605395 /* BookPlayerWidgetsPhone */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 416A29B42569658300605395 /* Build configuration list for PBXNativeTarget "BookPlayerWidgetUIExtension" */;
+			buildConfigurationList = 416A29B42569658300605395 /* Build configuration list for PBXNativeTarget "BookPlayerWidgetsPhone" */;
 			buildPhases = (
 				416A299F2569658100605395 /* Sources */,
 				416A29A02569658100605395 /* Frameworks */,
@@ -2550,11 +2558,11 @@
 			dependencies = (
 				416A29BF256A43F800605395 /* PBXTargetDependency */,
 			);
-			name = BookPlayerWidgetUIExtension;
+			name = BookPlayerWidgetsPhone;
 			packageProductDependencies = (
 			);
-			productName = BookPlayerWidgetUIExtension;
-			productReference = 416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */;
+			productName = BookPlayerWidgetsPhone;
+			productReference = 416A29A32569658100605395 /* BookPlayerWidgetsPhone.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		418B6CF71D2707F800F974FB /* BookPlayer */ = {
@@ -2633,9 +2641,9 @@
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */ = {
+		63005A262AE7FD8000A4CA2C /* BookPlayerWidgetsWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetWatch" */;
+			buildConfigurationList = 63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetsWatch" */;
 			buildPhases = (
 				63005A292AE7FD8000A4CA2C /* Sources */,
 				63005A392AE7FD8000A4CA2C /* Frameworks */,
@@ -2646,11 +2654,11 @@
 			dependencies = (
 				637DAB102AEBEF1B006DC2D1 /* PBXTargetDependency */,
 			);
-			name = BookPlayerWidgetWatch;
+			name = BookPlayerWidgetsWatch;
 			packageProductDependencies = (
 			);
-			productName = BookPlayerWidgetUIExtension;
-			productReference = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */;
+			productName = BookPlayerWidgetsWatch;
+			productReference = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */ = {
@@ -2785,11 +2793,11 @@
 				418B6CF71D2707F800F974FB /* BookPlayer */,
 				418B6D0D1D2707F800F974FB /* BookPlayerTests */,
 				4140EA2E227288ED0009F794 /* BookPlayerWatch */,
-				63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */,
+				63005A262AE7FD8000A4CA2C /* BookPlayerWidgetsWatch */,
 				41A1B0D1226E9BC400EA0400 /* BookPlayerKit */,
 				4140EA5D227289720009F794 /* BookPlayerWatchKit */,
 				41342CFD24435D9900F0905B /* BookPlayerIntents */,
-				416A29A22569658100605395 /* BookPlayerWidgetUIExtension */,
+				416A29A22569658100605395 /* BookPlayerWidgetsPhone */,
 				9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */,
 			);
 		};
@@ -3102,7 +3110,7 @@
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				41A359C7276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
-				416A29AA2569658100605395 /* BookPlayerWidgetUI.swift in Sources */,
+				416A29AA2569658100605395 /* BookPlayerWidgets.swift in Sources */,
 				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
@@ -3438,7 +3446,7 @@
 			files = (
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
 				63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
-				63005A302AE7FD8000A4CA2C /* BookPlayerWidgetUI.swift in Sources */,
+				63005A302AE7FD8000A4CA2C /* BookPlayerWidgets.swift in Sources */,
 				63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				63005A342AE7FD8000A4CA2C /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				63005A352AE7FD8000A4CA2C /* BookPlayer.xcdatamodeld in Sources */,
@@ -3476,7 +3484,7 @@
 		};
 		416A29AF2569658300605395 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 416A29A22569658100605395 /* BookPlayerWidgetUIExtension */;
+			target = 416A29A22569658100605395 /* BookPlayerWidgetsPhone */;
 			targetProxy = 416A29AE2569658300605395 /* PBXContainerItemProxy */;
 		};
 		416A29BF256A43F800605395 /* PBXTargetDependency */ = {
@@ -3497,7 +3505,7 @@
 		};
 		63005A472AE800C000A4CA2C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */;
+			target = 63005A262AE7FD8000A4CA2C /* BookPlayerWidgetsWatch */;
 			targetProxy = 63005A462AE800C000A4CA2C /* PBXContainerItemProxy */;
 		};
 		630F11472AE7EC1E000A997A /* PBXTargetDependency */ = {
@@ -4066,13 +4074,13 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
+				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4104,13 +4112,13 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
+				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4140,13 +4148,13 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerWidgetUI/Info.plist;
+				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4555,7 +4563,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4594,7 +4602,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4631,7 +4639,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgets/BookPlayerWidgets.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4925,7 +4933,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		416A29B42569658300605395 /* Build configuration list for PBXNativeTarget "BookPlayerWidgetUIExtension" */ = {
+		416A29B42569658300605395 /* Build configuration list for PBXNativeTarget "BookPlayerWidgetsPhone" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				416A29B12569658300605395 /* Debug */,
@@ -4975,7 +4983,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetWatch" */ = {
+		63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetsWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				63005A402AE7FD8000A4CA2C /* Debug */,

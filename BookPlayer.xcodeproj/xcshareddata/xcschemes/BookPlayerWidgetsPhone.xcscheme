@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "416A29A22569658100605395"
-               BuildableName = "BookPlayerWidgetUIExtension.appex"
-               BlueprintName = "BookPlayerWidgetUIExtension"
+               BuildableName = "BookPlayerWidgetsPhone.appex"
+               BlueprintName = "BookPlayerWidgetsPhone"
                ReferencedContainer = "container:BookPlayer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
