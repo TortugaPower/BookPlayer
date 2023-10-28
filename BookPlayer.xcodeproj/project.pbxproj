@@ -297,6 +297,18 @@
 		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
 		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
+		63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
+		63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */; };
+		63005A302AE7FD8000A4CA2C /* BookPlayerWidgetUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgetUI.swift */; };
+		63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
+		63005A342AE7FD8000A4CA2C /* MappingModel_v2_to_v3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */; };
+		63005A352AE7FD8000A4CA2C /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
+		63005A362AE7FD8000A4CA2C /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
+		63005A382AE7FD8000A4CA2C /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */; };
+		63005A3B2AE7FD8000A4CA2C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A62569658100605395 /* SwiftUI.framework */; };
+		63005A3C2AE7FD8000A4CA2C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
+		63005A3E2AE7FD8000A4CA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 416A29AB2569658300605395 /* Assets.xcassets */; };
+		63005A452AE800C000A4CA2C /* BookPlayerWidgetWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		630F115E2AE7EEBA000A997A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
@@ -318,6 +330,8 @@
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6376091B2ADCD81400A01D5D /* AppShortcuts.strings */; };
+		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
+		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
@@ -589,7 +603,21 @@
 			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
 			remoteInfo = BookPlayerKit;
 		};
+		63005A462AE800C000A4CA2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 63005A262AE7FD8000A4CA2C;
+			remoteInfo = BookPlayerWidgetWatch;
+		};
 		630F11462AE7EC1E000A997A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4140EA5D227289720009F794;
+			remoteInfo = BookPlayerWatchKit;
+		};
+		637DAB0F2AEBEF1B006DC2D1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
 			proxyType = 1;
@@ -657,6 +685,17 @@
 				41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		63005A482AE800C000A4CA2C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				63005A452AE800C000A4CA2C /* BookPlayerWidgetWatch.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -958,6 +997,8 @@
 		62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryServiceTests.swift; sourceTree = "<group>"; };
 		62CADB8D2724E41800A4A98F /* Audiobook Player 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 7.xcdatamodel"; sourceTree = "<group>"; };
 		62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportableItem.swift; sourceTree = "<group>"; };
+		63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		63005A442AE7FD8100A4CA2C /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Watch-Info.plist"; path = "/Users/pro.gianni.carlo/Workspace/BookPlayer/Watch-Info.plist"; sourceTree = "<absolute>"; };
 		630584E22ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		630584E32ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		630584E42ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -997,6 +1038,7 @@
 		6376092D2ADCD83A00A01D5D /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376092E2ADCD83C00A01D5D /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376092F2ADCD83D00A01D5D /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntries.swift; sourceTree = "<group>"; };
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
@@ -1270,6 +1312,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		63005A392AE7FD8000A4CA2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63005A3B2AE7FD8000A4CA2C /* SwiftUI.framework in Frameworks */,
+				63005A3C2AE7FD8000A4CA2C /* WidgetKit.framework in Frameworks */,
+				637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9F4A33DA292B0C700034CD4C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1444,13 +1496,16 @@
 		416A29A82569658100605395 /* BookPlayerWidgetUI */ = {
 			isa = PBXGroup;
 			children = (
+				416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */,
 				416A29A92569658100605395 /* BookPlayerWidgetUI.swift */,
+				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
 				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
 				417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */,
 				41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */,
 				4106413E258725F1008EB8D0 /* TimeListened */,
 				416A29AB2569658300605395 /* Assets.xcassets */,
 				416A29AD2569658300605395 /* Info.plist */,
+				63005A442AE7FD8100A4CA2C /* Watch-Info.plist */,
 			);
 			path = BookPlayerWidgetUI;
 			sourceTree = "<group>";
@@ -1460,7 +1515,6 @@
 			children = (
 				9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */,
 				9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */,
-				416A29CE256A442200605395 /* BookPlayerWidgetUIExtension.entitlements */,
 				415A9974264CCD2E002BFD35 /* BuildConfiguration */,
 				C3EF536020800DCC00B9629D /* Meta */,
 				418B6CFA1D2707F800F974FB /* BookPlayer */,
@@ -1492,6 +1546,7 @@
 				41342CFE24435D9900F0905B /* BookPlayerIntents.appex */,
 				416A29A32569658100605395 /* BookPlayerWidgetUIExtension.appex */,
 				9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */,
+				63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2446,11 +2501,13 @@
 				4140EA37227288EF0009F794 /* Sources */,
 				4140EA38227288EF0009F794 /* Frameworks */,
 				4140EA6B227289720009F794 /* Embed Frameworks */,
+				63005A482AE800C000A4CA2C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				630F11472AE7EC1E000A997A /* PBXTargetDependency */,
+				63005A472AE800C000A4CA2C /* PBXTargetDependency */,
 			);
 			name = BookPlayerWatch;
 			productName = BookPlayerWatch;
@@ -2575,6 +2632,26 @@
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetWatch" */;
+			buildPhases = (
+				63005A292AE7FD8000A4CA2C /* Sources */,
+				63005A392AE7FD8000A4CA2C /* Frameworks */,
+				63005A3D2AE7FD8000A4CA2C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				637DAB102AEBEF1B006DC2D1 /* PBXTargetDependency */,
+			);
+			name = BookPlayerWidgetWatch;
+			packageProductDependencies = (
+			);
+			productName = BookPlayerWidgetUIExtension;
+			productReference = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetWatch.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */ = {
 			isa = PBXNativeTarget;
@@ -2708,6 +2785,7 @@
 				418B6CF71D2707F800F974FB /* BookPlayer */,
 				418B6D0D1D2707F800F974FB /* BookPlayerTests */,
 				4140EA2E227288ED0009F794 /* BookPlayerWatch */,
+				63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */,
 				41A1B0D1226E9BC400EA0400 /* BookPlayerKit */,
 				4140EA5D227289720009F794 /* BookPlayerWatchKit */,
 				41342CFD24435D9900F0905B /* BookPlayerIntents */,
@@ -2836,6 +2914,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		63005A3D2AE7FD8000A4CA2C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63005A3E2AE7FD8000A4CA2C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3022,6 +3108,7 @@
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
+				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
@@ -3345,6 +3432,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		63005A292AE7FD8000A4CA2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
+				63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
+				63005A302AE7FD8000A4CA2C /* BookPlayerWidgetUI.swift in Sources */,
+				63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				63005A342AE7FD8000A4CA2C /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
+				63005A352AE7FD8000A4CA2C /* BookPlayer.xcdatamodeld in Sources */,
+				63005A362AE7FD8000A4CA2C /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
+				63005A382AE7FD8000A4CA2C /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9F4A33D9292B0C700034CD4C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3393,10 +3495,20 @@
 			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
 			targetProxy = 41A1B0E5226E9BC500EA0400 /* PBXContainerItemProxy */;
 		};
+		63005A472AE800C000A4CA2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 63005A262AE7FD8000A4CA2C /* BookPlayerWidgetWatch */;
+			targetProxy = 63005A462AE800C000A4CA2C /* PBXContainerItemProxy */;
+		};
 		630F11472AE7EC1E000A997A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4140EA5D227289720009F794 /* BookPlayerWatchKit */;
 			targetProxy = 630F11462AE7EC1E000A997A /* PBXContainerItemProxy */;
+		};
+		637DAB102AEBEF1B006DC2D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4140EA5D227289720009F794 /* BookPlayerWatchKit */;
+			targetProxy = 637DAB0F2AEBEF1B006DC2D1 /* PBXContainerItemProxy */;
 		};
 		9F4A33E6292B0C710034CD4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3708,7 +3820,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch/BookPlayerWatch.entitlements";
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3749,7 +3861,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch/BookPlayerWatch.entitlements";
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3787,7 +3899,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "BookPlayerWatch/BookPlayerWatch.entitlements";
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4431,6 +4543,119 @@
 			};
 			name = Beta;
 		};
+		63005A402AE7FD8000A4CA2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Watch-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 5.0.10;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_WIDGETS)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		63005A412AE7FD8000A4CA2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Watch-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 5.0.10;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_WIDGETS)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+		63005A422AE7FD8000A4CA2C /* Beta */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BookPlayerWidgetUIExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Watch-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 5.0.10;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH_WIDGETS)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Beta;
+		};
 		9F4A33E8292B0C720034CD4C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
@@ -4746,6 +4971,16 @@
 				41A1B0E9226E9BC500EA0400 /* Debug */,
 				41A1B0EA226E9BC500EA0400 /* Release */,
 				41A1B0EB226E9BC500EA0400 /* Beta */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		63005A3F2AE7FD8000A4CA2C /* Build configuration list for PBXNativeTarget "BookPlayerWidgetWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63005A402AE7FD8000A4CA2C /* Debug */,
+				63005A412AE7FD8000A4CA2C /* Release */,
+				63005A422AE7FD8000A4CA2C /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

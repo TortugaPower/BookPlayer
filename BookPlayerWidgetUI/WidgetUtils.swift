@@ -152,28 +152,26 @@ class WidgetUtils {
     return URL(string: urlString)!
   }
 
-  class func getColors(from theme: SimpleTheme?, with colorScheme: ColorScheme) -> WidgetColors {
-    var primaryColor = UIColor.label
-    var accentColor = UIColor.appTintColor
-    var backgroundColor = UIColor.systemBackground
+  class func getColors(from theme: SimpleTheme, with colorScheme: ColorScheme) -> WidgetColors {
+    let hexPrimary: String = colorScheme == .dark
+    ? theme.darkPrimaryHex
+    : theme.lightPrimaryHex
+    let hexAccent: String = colorScheme == .dark
+    ? theme.darkAccentHex
+    : theme.lightAccentHex
+    let hexBackground: String = colorScheme == .dark
+    ? theme.darkSystemBackgroundHex
+    : theme.lightSystemBackgroundHex
 
-    if let theme = theme {
-      let hexPrimary: String = colorScheme == .dark
-      ? theme.darkPrimaryHex
-      : theme.lightPrimaryHex
-      let hexAccent: String = colorScheme == .dark
-      ? theme.darkAccentHex
-      : theme.lightAccentHex
-      let hexBackground: String = colorScheme == .dark
-      ? theme.darkSystemBackgroundHex
-      : theme.lightSystemBackgroundHex
+    let primaryColor = UIColor(hex: hexPrimary)
+    let accentColor = UIColor(hex: hexAccent)
+    let backgroundColor = UIColor(hex: hexBackground)
 
-      primaryColor = UIColor(hex: hexPrimary)
-      accentColor = UIColor(hex: hexAccent)
-      backgroundColor = UIColor(hex: hexBackground)
-    }
-
-    return WidgetColors(primaryColor: Color(primaryColor), accentColor: Color(accentColor), backgroundColor: Color(backgroundColor))
+    return WidgetColors(
+      primaryColor: Color(primaryColor),
+      accentColor: Color(accentColor),
+      backgroundColor: Color(backgroundColor)
+    )
   }
 
   class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {

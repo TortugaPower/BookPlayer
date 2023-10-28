@@ -82,7 +82,13 @@ struct TimeListenedSmallView: View {
 
 struct TimeListenedSmallView_Previews: PreviewProvider {
   static var previews: some View {
-    TimeListenedSmallView(entry: TimeListenedEntry(date: Date(), title: nil, theme: nil, timerSeconds: 300, autoplay: true, playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemSmall)))
-      .previewContext(WidgetPreviewContext(family: .systemSmall))
+    TimeListenedSmallView(entry: TimeListenedEntry(
+      date: Date(),
+      title: nil,
+      timerSeconds: 300,
+      autoplay: true,
+      playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemSmall)
+    ))
+    .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }

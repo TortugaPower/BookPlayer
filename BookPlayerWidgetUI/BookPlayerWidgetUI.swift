@@ -6,41 +6,28 @@
 //  Copyright © 2020 Tortuga Power. All rights reserved.
 //
 
+#if os(watchOS)
+import BookPlayerWatchKit
+#else
 import BookPlayerKit
+#endif
 import SwiftUI
 import WidgetKit
 
-struct SimpleEntry: TimelineEntry {
-  let date: Date
-  let title: String?
-  let relativePath: String?
-  let theme: SimpleTheme?
-  let timerSeconds: Double
-  let autoplay: Bool
-}
-
-struct LibraryEntry: TimelineEntry {
-  let date: Date
-  let items: [SimpleLibraryItem]
-  let theme: SimpleTheme?
-  let timerSeconds: Double
-  let autoplay: Bool
-}
-
-struct TimeListenedEntry: TimelineEntry {
-  let date: Date
-  let title: String?
-  let theme: SimpleTheme?
-  let timerSeconds: Double
-  let autoplay: Bool
-  let playbackRecords: [PlaybackRecordViewer]
-}
-
+// TODO: Setup shared watch widgets
+#if os(iOS)
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      LastPlayedWidgetView(entry: SimpleEntry(date: Date(), title: "Test Book Title", relativePath: nil, theme: nil, timerSeconds: 300, autoplay: true))
-        .previewContext(WidgetPreviewContext(family: .systemSmall))
+
+      LastPlayedWidgetView(entry: SimpleEntry(
+        date: Date(),
+        title: "Test Book Title",
+        relativePath: nil,
+        timerSeconds: 300,
+        autoplay: true
+      ))
+      .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
   }
 }
@@ -54,3 +41,4 @@ struct BookPlayerBundle: WidgetBundle {
     TimeListenedWidget()
   }
 }
+#endif

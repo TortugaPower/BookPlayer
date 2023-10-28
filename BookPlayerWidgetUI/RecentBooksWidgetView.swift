@@ -24,7 +24,6 @@ struct RecentBooksProvider: IntentTimelineProvider {
         SimpleLibraryItem.previewItem(title: "Book title"),
         SimpleLibraryItem.previewItem(title: "Book title")
       ],
-      theme: SimpleTheme.getDefaultTheme(),
       timerSeconds: 300,
       autoplay: true
     )
@@ -100,7 +99,7 @@ struct BookView: View {
     return Link(destination: url) {
       VStack(spacing: 5) {
         Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
-              ?? ArtworkService.generateDefaultArtwork(from: entry.theme?.linkColor)!)
+              ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!)
         .resizable()
         .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
         .aspectRatio(1.0, contentMode: .fit)
@@ -163,15 +162,16 @@ struct RecentBooksWidgetView: View {
 struct RecentBooksWidgetView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      RecentBooksWidgetView(
-        entry: LibraryEntry(date: Date(),
-                            items: [.previewItem(title: "a very very very long title"),
-                                    .previewItem(title: "a short title"),
-                                    .previewItem(title: "a short title"),
-                                    .previewItem(title: "a short title")],
-                            theme: nil,
-                            timerSeconds: 300,
-                            autoplay: true))
+      RecentBooksWidgetView(entry: LibraryEntry(
+        date: Date(),
+        items: [
+          .previewItem(title: "a very very very long title"),
+          .previewItem(title: "a short title"),
+          .previewItem(title: "a short title"),
+          .previewItem(title: "a short title")
+        ],
+        timerSeconds: 300,
+        autoplay: true))
       .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
   }
