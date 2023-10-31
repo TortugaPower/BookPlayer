@@ -1380,20 +1380,15 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     var syncListContentsAtReceivedRelativePath: String?
     var syncListContentsAtReceivedInvocations: [String?] = []
-    var syncListContentsAtReturnValue: SyncableItem?
-    var syncListContentsAtClosure: ((String?) async throws -> SyncableItem?)?
-    func syncListContents(at relativePath: String?) async throws -> SyncableItem? {
+    var syncListContentsAtClosure: ((String?) async throws -> Void)?
+    func syncListContents(at relativePath: String?) async throws {
         if let error = syncListContentsAtThrowableError {
             throw error
         }
         syncListContentsAtCallsCount += 1
         syncListContentsAtReceivedRelativePath = relativePath
         syncListContentsAtReceivedInvocations.append(relativePath)
-        if let syncListContentsAtClosure = syncListContentsAtClosure {
-            return try await syncListContentsAtClosure(relativePath)
-        } else {
-            return syncListContentsAtReturnValue
-        }
+        try await syncListContentsAtClosure?(relativePath)
     }
     //MARK: - syncLibraryContents
 
@@ -1402,18 +1397,13 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var syncLibraryContentsCalled: Bool {
         return syncLibraryContentsCallsCount > 0
     }
-    var syncLibraryContentsReturnValue: SyncableItem?
-    var syncLibraryContentsClosure: (() async throws -> SyncableItem?)?
-    func syncLibraryContents() async throws -> SyncableItem? {
+    var syncLibraryContentsClosure: (() async throws -> Void)?
+    func syncLibraryContents() async throws {
         if let error = syncLibraryContentsThrowableError {
             throw error
         }
         syncLibraryContentsCallsCount += 1
-        if let syncLibraryContentsClosure = syncLibraryContentsClosure {
-            return try await syncLibraryContentsClosure()
-        } else {
-            return syncLibraryContentsReturnValue
-        }
+        try await syncLibraryContentsClosure?()
     }
     //MARK: - syncBookmarksList
 
