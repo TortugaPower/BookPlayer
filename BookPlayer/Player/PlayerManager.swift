@@ -64,6 +64,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  /// Prevent loop from automatic URL refreshes
+  private var canFetchRemoteURL = true
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -623,6 +625,9 @@ extension PlayerManager {
     /// Ignore play commands if there's no item loaded
     guard let currentItem else { return }
 
+    /// Allow refetching remote URL if the action was initiating by the user
+    canFetchRemoteURL = true
+
     guard let playerItem else {
       /// Check if the playbable item is in the process of being set
       if observeStatus == false {
@@ -724,37 +729,47 @@ extension PlayerManager {
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-    guard let path = keyPath,
-          path == "status",
-          let item = object as? AVPlayerItem else {
-      super.observeValue(forKeyPath: keyPath,
-                         of: object,
-                         change: change,
-                         context: context)
+    guard 
+      let path = keyPath,
+      path == "status",
+      let item = object as? AVPlayerItem
+    else {
+      super.observeValue(
+        forKeyPath: keyPath,
+        of: object,
+        change: change,
+        context: context
+      )
       return
     }
 
-    guard item.status == .readyToPlay else {
-      if item.status == .failed {
-        if (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
-           let currentItem {
-          loadAndRefreshURL(item: currentItem)
-        } else {
-          playbackQueued = nil
-          observeStatus = false
-          showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
-        }
+    switch item.status {
+    case .readyToPlay:
+      self.observeStatus = false
+
+      if self.playbackQueued == true {
+        self.play()
       }
-      return
+      // Clean up flag
+      self.playbackQueued = nil
+    case .failed:
+      if canFetchRemoteURL,
+        (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
+        let currentItem {
+        loadAndRefreshURL(item: currentItem)
+        canFetchRemoteURL = false
+      } else {
+        playbackQueued = nil
+        observeStatus = false
+        playerItem = nil
+        showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
+      }
+    case .unknown:
+      /// Do not handle .unknown states, as we're only interested in the success and failure states
+      fallthrough
+    @unknown default:
+      break
     }
-
-    self.observeStatus = false
-
-    if self.playbackQueued == true {
-      self.play()
-    }
-    // Clean up flag
-    self.playbackQueued = nil
   }
   // swiftlint:enable block_based_kvo
 
