@@ -214,12 +214,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   override func syncList() {
     Task { @MainActor in
       do {
-        let lastPlayed: SyncableItem?
-
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
-          lastPlayed = try await syncService.syncListContents(at: nil)
+          try await syncService.syncListContents(at: nil)
         } else {
-          lastPlayed = try await syncService.syncLibraryContents()
+          try await syncService.syncLibraryContents()
 
           UserDefaults.standard.set(
             true,
@@ -228,9 +226,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         }
 
         reloadItemsWithPadding()
-        if let lastPlayed {
-          reloadLastBook(relativePath: lastPlayed.relativePath)
-        }
       } catch BPSyncError.reloadLastBook(let relativePath) {
         reloadItemsWithPadding()
         reloadLastBook(relativePath: relativePath)
