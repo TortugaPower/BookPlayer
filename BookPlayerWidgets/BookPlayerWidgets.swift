@@ -31,14 +31,18 @@ struct BookPlayerWidgetUI_Previews: PreviewProvider {
     }
   }
 }
+#endif
 
 @main
 struct BookPlayerBundle: WidgetBundle {
   @WidgetBundleBuilder
   var body: some Widget {
+#if os(iOS)
     LastPlayedWidget()
     RecentBooksWidget()
     TimeListenedWidget()
+#elseif os(watchOS)
+    WatchWidget()
+#endif
   }
 }
-#endif

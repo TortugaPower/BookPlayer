@@ -11,6 +11,7 @@ import ClockKit
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
 class ContextManager: ObservableObject {
   let watchConnectivityService = WatchConnectivityService()
@@ -77,17 +78,21 @@ class ContextManager: ObservableObject {
   }
 
   func reloadComplications() {
-    let server = CLKComplicationServer.sharedInstance()
+    if #available(watchOS 9.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    } else {
+      let server = CLKComplicationServer.sharedInstance()
 
-    guard
-      let complications = server.activeComplications,
-      !complications.isEmpty
-    else {
-      return
-    }
+      guard
+        let complications = server.activeComplications,
+        !complications.isEmpty
+      else {
+        return
+      }
 
-    for complication in complications {
-      server.reloadTimeline(for: complication)
+      for complication in complications {
+        server.reloadTimeline(for: complication)
+      }
     }
   }
 
