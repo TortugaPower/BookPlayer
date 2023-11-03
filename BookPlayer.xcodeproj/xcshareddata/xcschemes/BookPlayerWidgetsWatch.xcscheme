@@ -74,12 +74,21 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
+            BlueprintIdentifier = "63005A262AE7FD8000A4CA2C"
+            BuildableName = "BookPlayerWidgetsWatch.appex"
+            BlueprintName = "BookPlayerWidgetsWatch"
+            ReferencedContainer = "container:BookPlayer.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
             BlueprintIdentifier = "418B6CF71D2707F800F974FB"
             BuildableName = "BookPlayer.app"
             BlueprintName = "BookPlayer"
             ReferencedContainer = "container:BookPlayer.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCWidgetKind"

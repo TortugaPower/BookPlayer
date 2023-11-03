@@ -212,9 +212,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     if currentItem?.isBoundBook == false {
       libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
 
-      if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
-         let playbackItem = try playbackService.getPlayableItem(from: libraryItem) {
-        currentItem = playbackItem
+      if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath) {
+        currentItem = try playbackService.getPlayableItem(from: libraryItem)
       }
     }
 

@@ -146,7 +146,7 @@ extension ComplicationController: CLKComplicationWidgetMigrator {
     let bundleIdentifier = Bundle.main.configurationString(for: .bundleIdentifier)
 
     completionHandler(CLKComplicationStaticWidgetMigrationConfiguration(
-      kind: "com.bookplayer.watch.widget",
+      kind: "com.bookplayer.shared.widget",
       extensionBundleIdentifier: "\(bundleIdentifier).watchkitapp.widgets"
     ))
   }
