@@ -36,14 +36,16 @@ struct BookPlayerBundle: WidgetBundle {
   @WidgetBundleBuilder
   var body: some Widget {
 #if os(iOS)
-      LastPlayedWidget()
-      RecentBooksWidget()
-      TimeListenedWidget()
+    LastPlayedWidget()
+    RecentBooksWidget()
+    TimeListenedWidget()
     if #available(iOSApplicationExtension 16.0, *) {
       SharedWidget()
+      SharedIconWidget()
     }
 #elseif os(watchOS)
-      SharedWidget()
+    SharedWidget()
+    SharedIconWidget()
 #endif
   }
 }

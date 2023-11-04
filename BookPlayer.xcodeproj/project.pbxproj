@@ -321,6 +321,11 @@
 		630826082AF54BB1002ACE0D /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE36288CBCA400056FCD /* Spacing.swift */; };
 		6308260A2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826092AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift */; };
 		6308260B2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826092AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift */; };
+		6308260D2AF6C312002ACE0D /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
+		630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */; };
+		630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */; };
+		630826152AF6CABC002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
+		630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
 		630F115E2AE7EEBA000A997A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
@@ -1021,6 +1026,9 @@
 		630825FD2AF293DC002ACE0D /* SharedWidgetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetContainerView.swift; sourceTree = "<group>"; };
 		630826002AF29538002ACE0D /* SharedWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetEntry.swift; sourceTree = "<group>"; };
 		630826092AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+BookPlayer.swift"; sourceTree = "<group>"; };
+		6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloadService.swift; sourceTree = "<group>"; };
+		6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidget.swift; sourceTree = "<group>"; };
+		630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidgetEntry.swift; sourceTree = "<group>"; };
 		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1977,6 +1985,15 @@
 		630825FF2AF294B7002ACE0D /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				630826172AF6CB9F002ACE0D /* SharedIconWidget */,
+				6308260E2AF6C988002ACE0D /* SharedNowPlayingWidget */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		6308260E2AF6C988002ACE0D /* SharedNowPlayingWidget */ = {
+			isa = PBXGroup;
+			children = (
 				63F828562AED56FA00B5CE0C /* CornerView.swift */,
 				6329413F2AEEE739000AD2EE /* CircularView.swift */,
 				6340D56D2AF13E4C003D0B09 /* RectangularView.swift */,
@@ -1984,7 +2001,16 @@
 				630825FD2AF293DC002ACE0D /* SharedWidgetContainerView.swift */,
 				6340D5682AF12D48003D0B09 /* SharedWidget.swift */,
 			);
-			path = Shared;
+			path = SharedNowPlayingWidget;
+			sourceTree = "<group>";
+		};
+		630826172AF6CB9F002ACE0D /* SharedIconWidget */ = {
+			isa = PBXGroup;
+			children = (
+				630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */,
+				6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */,
+			);
+			path = SharedIconWidget;
 			sourceTree = "<group>";
 		};
 		631C75CA2AB92C5C0013E7E5 /* PresentationFlow */ = {
@@ -2461,6 +2487,7 @@
 				9F64C6222793C37C00B2493C /* Controls Screen */,
 				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree Screen */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
+				6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */,
 				9F5011F82A6580800075FEBA /* ShakeMotionService.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
@@ -3160,9 +3187,11 @@
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
+				630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */,
 				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
+				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				630826072AF52831002ACE0D /* SharedWidget.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
@@ -3220,6 +3249,7 @@
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
 				9F1345FF293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift in Sources */,
+				6308260D2AF6C312002ACE0D /* WidgetReloadService.swift in Sources */,
 				41A6AFAA26FB666700A69E6B /* SettingsCoordinator.swift in Sources */,
 				9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
@@ -3496,7 +3526,9 @@
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,
+				630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */,
 				63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
+				630826152AF6CABC002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				63005A302AE7FD8000A4CA2C /* BookPlayerWidgets.swift in Sources */,
 				63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */,

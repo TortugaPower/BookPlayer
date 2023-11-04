@@ -153,7 +153,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService()
+        shakeMotionService: ShakeMotionService(),
+        widgetReloadService: WidgetReloadService()
       )
       AppDelegate.shared?.playerManager = playerManager
     }

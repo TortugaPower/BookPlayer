@@ -11,7 +11,6 @@ import BookPlayerKit
 import Combine
 import Foundation
 import MediaPlayer
-import WidgetKit
 
 // swiftlint:disable:next file_length
 /// sourcery: AutoMockable
@@ -49,6 +48,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
   private let shakeMotionService: ShakeMotionServiceProtocol
+  private let widgetReloadService: WidgetReloadServiceProtocol
 
   private var audioPlayer = AVPlayer()
 
@@ -95,7 +95,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
-    shakeMotionService: ShakeMotionServiceProtocol
+    shakeMotionService: ShakeMotionServiceProtocol,
+    widgetReloadService: WidgetReloadServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -103,6 +104,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     self.shakeMotionService = shakeMotionService
+    self.widgetReloadService = widgetReloadService
     super.init()
 
     setupPlayerInstance()
@@ -272,6 +274,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
+      self?.widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
 
     loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
@@ -345,6 +348,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
+        self.widgetReloadService.reloadAllWidgets()
       }
     }
   }
@@ -693,8 +697,6 @@ extension PlayerManager {
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-
-      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
@@ -978,9 +980,12 @@ extension PlayerManager {
     self.playbackService.updatePlaybackTime(item: item, time: time)
     let newPercentage = Int(item.percentCompleted)
 
-    if previousPercentage != newPercentage,
-       let parentFolder = item.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+    if previousPercentage != newPercentage {
+      if let parentFolder = item.parentFolder {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+      }
+
+      widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
   }
 

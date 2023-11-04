@@ -73,7 +73,16 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
           policy: .never
         ))
       } catch {
-        completion(Timeline(entries: [], policy: .never))
+        completion(Timeline(
+          entries: [
+            SharedWidgetEntry(
+              chapterTitle: "",
+              bookTitle: "",
+              percentCompleted: 0
+            )
+          ],
+          policy: .never
+        ))
       }
     }
   }
@@ -120,7 +129,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
 
 @available(iOSApplicationExtension 16.0, watchOS 9.0, *)
 struct SharedWidget: Widget {
-  let kind: String = "com.bookplayer.shared.widget"
+  let kind: String = Constants.Widgets.sharedNowPlayingWidget.rawValue
 
   var body: some WidgetConfiguration {
     StaticConfiguration(
@@ -128,6 +137,8 @@ struct SharedWidget: Widget {
       provider: SharedWidgetTimelineProvider()) { entry in
         SharedWidgetContainerView(entry: entry)
       }
+      .configurationDisplayName("Now Playing")
+      .description("See your last played book")
 #if os(watchOS)
       .supportedFamilies([
         .accessoryCorner,
