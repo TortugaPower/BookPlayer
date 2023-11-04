@@ -18,10 +18,10 @@ final class PlayerSettingsViewModel {
   @Published var playerListPrefersBookmarks: Bool
 
   var prefersChapterContext: Bool {
-    UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
   }
   var prefersRemainingTime: Bool {
-    UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
   }
 
   init() {
@@ -42,10 +42,10 @@ final class PlayerSettingsViewModel {
   }
 
   func handlePrefersChapterContext(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.sharedDefaults.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled)
   }
 
   func handlePrefersRemainingTime(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    UserDefaults.sharedDefaults.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled)
   }
 }

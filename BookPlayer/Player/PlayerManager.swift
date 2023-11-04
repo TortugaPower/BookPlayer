@@ -516,8 +516,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   func setNowPlayingBookTime() {
     guard let currentItem = self.currentItem else { return }
 
-    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
-    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    let prefersChapterContext = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.chapterContextEnabled
+    )
+    let prefersRemainingTime = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.remainingTimeEnabled
+    )
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,

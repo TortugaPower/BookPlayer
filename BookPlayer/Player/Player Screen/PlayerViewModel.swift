@@ -28,8 +28,9 @@ class PlayerViewModel: ViewModelProtocol {
   private let libraryService: LibraryServiceProtocol
   private let syncService: SyncServiceProtocol
   private var chapterBeforeSliderValueChange: PlayableChapter?
-  private var prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
-  private var prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+  private let sharedDefaults: UserDefaults
+  private var prefersChapterContext: Bool
+  private var prefersRemainingTime: Bool
 
   /// Formatter for the sleep timer duration
   private lazy var durationFormatter: DateComponentsFormatter = {
@@ -50,6 +51,10 @@ class PlayerViewModel: ViewModelProtocol {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
+    let sharedDefaults = UserDefaults.sharedDefaults
+    self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+    self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    self.sharedDefaults = sharedDefaults
   }
 
   private func sendEvent(_ event: PlayerViewModel.Events) {
@@ -196,14 +201,14 @@ class PlayerViewModel: ViewModelProtocol {
 
   func processToggleMaxTime() -> ProgressObject {
     self.prefersRemainingTime = !self.prefersRemainingTime
-    UserDefaults.standard.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    sharedDefaults.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)
 
     return self.getCurrentProgressState()
   }
 
   func processToggleProgressState() -> ProgressObject {
     self.prefersChapterContext = !self.prefersChapterContext
-    UserDefaults.standard.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled)
+    sharedDefaults.set(self.prefersChapterContext, forKey: Constants.UserDefaults.chapterContextEnabled)
 
     return self.getCurrentProgressState()
   }

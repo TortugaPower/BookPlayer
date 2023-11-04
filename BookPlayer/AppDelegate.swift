@@ -330,7 +330,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       var newTime = event.positionTime
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
+      if UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
          let currentChapter = currentItem.currentChapter {
         newTime += currentChapter.start
       }

@@ -103,7 +103,18 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
     }
 
     let playbackService = PlaybackService(libraryService: libraryService)
-    return try playbackService.getPlayableItem(from: lastPlayedItem)
+
+    let prefersChapterContext = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.chapterContextEnabled
+    )
+    let currentItem = try playbackService.getPlayableItem(from: lastPlayedItem)
+
+    if prefersChapterContext,
+       let currentChapter = currentItem.currentChapter {
+      currentItem.percentCompleted = ((currentItem.currentTime - currentChapter.start) / currentChapter.duration) * 100
+    }
+
+    return currentItem
   }
 }
 

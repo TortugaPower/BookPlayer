@@ -990,9 +990,9 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
     var getPlayableItemFromReceivedItem: SimpleLibraryItem?
     var getPlayableItemFromReceivedInvocations: [SimpleLibraryItem] = []
-    var getPlayableItemFromReturnValue: PlayableItem?
-    var getPlayableItemFromClosure: ((SimpleLibraryItem) throws -> PlayableItem?)?
-    func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+    var getPlayableItemFromReturnValue: PlayableItem!
+    var getPlayableItemFromClosure: ((SimpleLibraryItem) throws -> PlayableItem)?
+    func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem {
         if let error = getPlayableItemFromThrowableError {
             throw error
         }

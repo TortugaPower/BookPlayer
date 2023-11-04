@@ -14,12 +14,10 @@ import BookPlayerKit
 import SwiftUI
 import WidgetKit
 
-// TODO: Setup shared watch widgets
 #if os(iOS)
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: "Test Book Title",

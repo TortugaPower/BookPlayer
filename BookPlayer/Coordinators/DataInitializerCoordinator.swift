@@ -112,33 +112,57 @@ class DataInitializerCoordinator: BPLogger {
     libraryService: LibraryService,
     dataManager: DataManager
   ) {
-    let sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+    let sharedDefaults = UserDefaults.sharedDefaults
 
-    // Migrate user defaults app icon (legacy)
-    if sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon) == nil {
+    // Migrate user defaults data to shared user defaults
+    if sharedDefaults.string(forKey: Constants.UserDefaults.appIcon) == nil {
       let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
-      sharedDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
-    } else if let sharedAppIcon = sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon),
+      sharedDefaults.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
+    } else if let sharedAppIcon = sharedDefaults.string(forKey: Constants.UserDefaults.appIcon),
               let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
               sharedAppIcon != localAppIcon {
-      sharedDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
+      sharedDefaults.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon)
     }
 
+    migratePlayerPreferences(sharedDefaults: sharedDefaults)
+
     // Migrate protection for Processed folder
-    if !(sharedDefaults?.bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
+    if !sharedDefaults.bool(forKey: Constants.UserDefaults.fileProtectionMigration) {
       DataManager.getProcessedFolderURL().disableFileProtection()
-      sharedDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
+      sharedDefaults.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
     }
 
-    setupUserDefaultsPreferences()
+    setupUserDefaultsPreferences(sharedDefaults: sharedDefaults)
 
     setupDefaultTheme(libraryService: libraryService)
 
     setupBlankAccount(dataManager: dataManager)
   }
 
-  private func setupUserDefaultsPreferences() {
+  private func migratePlayerPreferences(sharedDefaults: UserDefaults) {
+    let chapterContextEnabledKey = Constants.UserDefaults.chapterContextEnabled
+
+    if sharedDefaults.object(forKey: chapterContextEnabledKey) == nil {
+      let localPrefersChapterContext = UserDefaults.standard.bool(
+        forKey: chapterContextEnabledKey
+      )
+      sharedDefaults.set(localPrefersChapterContext, forKey: chapterContextEnabledKey)
+      UserDefaults.standard.removeObject(forKey: chapterContextEnabledKey)
+    }
+
+    let remainingTimeEnabledKey = Constants.UserDefaults.remainingTimeEnabled
+
+    if sharedDefaults.object(forKey: remainingTimeEnabledKey) == nil {
+      let localRemainingTimeEnabled = UserDefaults.standard.bool(
+        forKey: remainingTimeEnabledKey
+      )
+      sharedDefaults.set(localRemainingTimeEnabled, forKey: remainingTimeEnabledKey)
+      UserDefaults.standard.removeObject(forKey: remainingTimeEnabledKey)
+    }
+  }
+
+  private func setupUserDefaultsPreferences(sharedDefaults: UserDefaults) {
     // TODO: Look into NSUbiquitousKeyValueStore to persist preferences across devices with iCloud
     let defaults = UserDefaults.standard
 
@@ -156,7 +180,7 @@ class DataInitializerCoordinator: BPLogger {
     try? processedFolderURL.setResourceValues(resourceValues)
 
     // Set chapter context as default
-    defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
+    sharedDefaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
     // Set smart-rewind as default
     defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
     // Set system theme as default
@@ -166,7 +190,7 @@ class DataInitializerCoordinator: BPLogger {
     // Set autoplay finished enabled as default
     defaults.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled)
     // Set remaining time as default
-    defaults.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    sharedDefaults.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
     // Mark as completed the first launch
     defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
     // Process install attribution if there's any for the first launch
