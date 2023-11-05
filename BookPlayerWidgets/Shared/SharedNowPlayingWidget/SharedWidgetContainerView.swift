@@ -31,13 +31,15 @@ struct SharedWidgetContainerView: View {
     case .accessoryRectangular, .accessoryInline:
       RectangularView(
         chapterTitle: entry.chapterTitle,
-        bookTitle: entry.bookTitle
+        bookTitle: entry.bookTitle,
+        details: entry.details
       )
       .widgetBackground(backgroundView: Color.clear)
     default:
       RectangularView(
         chapterTitle: entry.chapterTitle,
-        bookTitle: entry.bookTitle
+        bookTitle: entry.bookTitle,
+        details: entry.details
       )
       .widgetBackground(backgroundView: Color.clear)
     }

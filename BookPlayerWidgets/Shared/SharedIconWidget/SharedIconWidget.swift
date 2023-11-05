@@ -44,11 +44,15 @@ struct SharedIconWidget: Widget {
     StaticConfiguration(
       kind: kind,
       provider: SharedIconWidgetTimelineProvider()) { _ in
-        Image("Graphic Circular")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .widgetAccentable()
-          .widgetBackground(backgroundView: Color.clear)
+        ZStack {
+          AccessoryWidgetBackground()
+          Image("Graphic Circular")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .padding(Spacing.S3)
+            .widgetAccentable()
+            .widgetBackground(backgroundView: Color.clear)
+        }
       }
       .configurationDisplayName("Icon")
       .description("Quickly launch BookPlayer")

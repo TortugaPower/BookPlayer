@@ -30,7 +30,7 @@ struct CircularView: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .padding(.bottom, Spacing.S2)
-            .padding([.top, .leading, .trailing], 4)
+            .padding([.top, .leading, .trailing], Spacing.S4)
         }
       )
       .gaugeStyle(.accessoryCircular)

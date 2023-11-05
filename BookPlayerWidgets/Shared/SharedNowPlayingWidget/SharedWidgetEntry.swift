@@ -14,5 +14,6 @@ struct SharedWidgetEntry: TimelineEntry {
   let date = Date()
   let chapterTitle: String
   let bookTitle: String
+  let details: String
   let percentCompleted: Double
 }

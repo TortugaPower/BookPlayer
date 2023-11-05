@@ -34,6 +34,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
     return SharedWidgetEntry(
       chapterTitle: chapterTitle,
       bookTitle: "Book title",
+      details: "Details",
       percentCompleted: 0.5
     )
   }
@@ -67,6 +68,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
             SharedWidgetEntry(
               chapterTitle: chapterTitle,
               bookTitle: currentItem.title,
+              details: currentItem.author,
               percentCompleted: currentItem.percentCompleted / 100
             )
           ],
@@ -76,8 +78,9 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
         completion(Timeline(
           entries: [
             SharedWidgetEntry(
-              chapterTitle: "",
-              bookTitle: "",
+              chapterTitle: "-----",
+              bookTitle: "-----",
+              details: "-----",
               percentCompleted: 0
             )
           ],

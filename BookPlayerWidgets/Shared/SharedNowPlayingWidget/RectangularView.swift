@@ -13,14 +13,28 @@ import WidgetKit
 struct RectangularView: View {
   let chapterTitle: String
   let bookTitle: String
+  let details: String
 
   var body: some View {
-    VStack {
-      Text(chapterTitle)
-        .font(.headline)
+    VStack(alignment: .leading) {
+      HStack(spacing: 0) {
+        Image("Graphic Circular")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 24)
+        Text(chapterTitle)
+          .font(.headline)
+        Spacer()
+      }
+      .widgetAccentable()
+      .frame(maxWidth: .infinity)
       Text(bookTitle)
         .font(.body)
-    } .widgetLabel {
+      Text(details)
+        .font(.body)
+    }
+    .frame(width: .infinity)
+    .widgetLabel {
       ViewThatFits {
         Text(bookTitle)
         Text(chapterTitle)
