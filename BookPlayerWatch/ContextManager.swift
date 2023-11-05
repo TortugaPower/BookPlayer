@@ -102,7 +102,7 @@ class ContextManager: ObservableObject, BPLogger {
     guard
       let watchContextFileURL = FileManager.default.containerURL(
         forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
-      )?.appendingPathComponent("WatchContext.data"),
+      )?.appendingPathComponent("WatchContextLastPlayed.data"),
       let applicationContextData = try? encoder.encode(applicationContext.currentItem)
     else { return }
 

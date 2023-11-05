@@ -16,8 +16,8 @@ struct RectangularView: View {
   let details: String
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack(spacing: 0) {
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(spacing: 4) {
         Image("Graphic Circular")
           .resizable()
           .aspectRatio(contentMode: .fit)
@@ -33,7 +33,6 @@ struct RectangularView: View {
       Text(details)
         .font(.body)
     }
-    .frame(width: .infinity)
     .widgetLabel {
       ViewThatFits {
         Text(bookTitle)
