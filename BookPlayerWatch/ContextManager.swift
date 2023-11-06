@@ -11,9 +11,11 @@ import ClockKit
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
-class ContextManager: ObservableObject {
+class ContextManager: ObservableObject, BPLogger {
   let watchConnectivityService = WatchConnectivityService()
+  private lazy var encoder = JSONEncoder()
 
   @Published var isConnecting = true
   @Published var isPlaying = false
@@ -77,17 +79,38 @@ class ContextManager: ObservableObject {
   }
 
   func reloadComplications() {
-    let server = CLKComplicationServer.sharedInstance()
+    if #available(watchOS 9.0, *) {
+      handleReloadingWidgets()
+    } else {
+      let server = CLKComplicationServer.sharedInstance()
 
-    guard
-      let complications = server.activeComplications,
-      !complications.isEmpty
-    else {
-      return
+      guard
+        let complications = server.activeComplications,
+        !complications.isEmpty
+      else {
+        return
+      }
+
+      for complication in complications {
+        server.reloadTimeline(for: complication)
+      }
     }
+  }
 
-    for complication in complications {
-      server.reloadTimeline(for: complication)
+  @available(watchOS 9.0, *)
+  func handleReloadingWidgets() {
+    guard
+      let watchContextFileURL = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
+      )?.appendingPathComponent("WatchContextLastPlayed.data"),
+      let applicationContextData = try? encoder.encode(applicationContext.currentItem)
+    else { return }
+
+    do {
+      try applicationContextData.write(to: watchContextFileURL, options: [.atomic])
+      WidgetCenter.shared.reloadAllTimelines()
+    } catch {
+      Self.logger.trace("Failed to write the watch context data: \(error.localizedDescription)")
     }
   }
 

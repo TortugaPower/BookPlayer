@@ -153,7 +153,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService()
+        shakeMotionService: ShakeMotionService(),
+        widgetReloadService: WidgetReloadService()
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -330,7 +331,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       var newTime = event.positionTime
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
+      if UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
          let currentChapter = currentItem.currentChapter {
         newTime += currentChapter.start
       }

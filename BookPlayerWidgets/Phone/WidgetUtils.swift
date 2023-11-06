@@ -6,7 +6,11 @@
 //  Copyright © 2020 Tortuga Power. All rights reserved.
 //
 
+#if os(watchOS)
+import BookPlayerWatchKit
+#else
 import BookPlayerKit
+#endif
 import Foundation
 import SwiftUI
 import WidgetKit
@@ -152,30 +156,53 @@ class WidgetUtils {
     return URL(string: urlString)!
   }
 
-  class func getColors(from theme: SimpleTheme?, with colorScheme: ColorScheme) -> WidgetColors {
-    var primaryColor = UIColor.label
-    var accentColor = UIColor.appTintColor
-    var backgroundColor = UIColor.systemBackground
+  class func getColors(from theme: SimpleTheme, with colorScheme: ColorScheme) -> WidgetColors {
+    let hexPrimary: String = colorScheme == .dark
+    ? theme.darkPrimaryHex
+    : theme.lightPrimaryHex
+    let hexAccent: String = colorScheme == .dark
+    ? theme.darkAccentHex
+    : theme.lightAccentHex
+    let hexBackground: String = colorScheme == .dark
+    ? theme.darkSystemBackgroundHex
+    : theme.lightSystemBackgroundHex
 
-    if let theme = theme {
-      let hexPrimary: String = colorScheme == .dark
-      ? theme.darkPrimaryHex
-      : theme.lightPrimaryHex
-      let hexAccent: String = colorScheme == .dark
-      ? theme.darkAccentHex
-      : theme.lightAccentHex
-      let hexBackground: String = colorScheme == .dark
-      ? theme.darkSystemBackgroundHex
-      : theme.lightSystemBackgroundHex
+    let primaryColor = UIColor(hex: hexPrimary)
+    let accentColor = UIColor(hex: hexAccent)
+    let backgroundColor = UIColor(hex: hexBackground)
 
-      primaryColor = UIColor(hex: hexPrimary)
-      accentColor = UIColor(hex: hexAccent)
-      backgroundColor = UIColor(hex: hexBackground)
-    }
-
-    return WidgetColors(primaryColor: Color(primaryColor), accentColor: Color(accentColor), backgroundColor: Color(backgroundColor))
+    return WidgetColors(
+      primaryColor: Color(primaryColor),
+      accentColor: Color(accentColor),
+      backgroundColor: Color(backgroundColor)
+    )
   }
+}
 
+extension View {
+  public func widgetBackground(backgroundView: some View) -> some View {
+    if #available(watchOS 10.0, iOSApplicationExtension 17.0, iOS 17.0, macOSApplicationExtension 14.0, *) {
+      return containerBackground(for: .widget) {
+        backgroundView
+      }
+    } else {
+      return background(backgroundView)
+    }
+  }
+}
+
+extension WidgetConfiguration {
+  public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
+    if #available(iOSApplicationExtension 17.0, *) {
+      return self.contentMarginsDisabled()
+    } else {
+      return self
+    }
+  }
+}
+
+#if os(iOS)
+extension WidgetUtils {
   class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
     guard family == .systemMedium else {
       return [PlaybackRecordViewer(time: 20, date: Date())]
@@ -205,25 +232,4 @@ class WidgetUtils {
     return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]
   }
 }
-
-extension View {
-  public func widgetBackground(backgroundView: some View) -> some View {
-    if #available(watchOS 10.0, iOSApplicationExtension 17.0, iOS 17.0, macOSApplicationExtension 14.0, *) {
-      return containerBackground(for: .widget) {
-        backgroundView
-      }
-    } else {
-      return background(backgroundView)
-    }
-  }
-}
-
-extension WidgetConfiguration {
-  public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
-    if #available(iOSApplicationExtension 17.0, *) {
-      return self.contentMarginsDisabled()
-    } else {
-      return self
-    }
-  }
-}
+#endif

@@ -19,7 +19,7 @@ public protocol PlaybackServiceProtocol {
     restartFinished: Bool
   ) -> PlayableItem?
   func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem?
-  func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem?
+  func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem
   func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter?
 }
 
@@ -154,7 +154,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
   }
 
-  public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+  public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem {
     switch item.type {
     case .folder, .bound:
       return try self.getPlayableItemFrom(folder: item)

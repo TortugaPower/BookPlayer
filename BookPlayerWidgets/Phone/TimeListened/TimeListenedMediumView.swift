@@ -92,7 +92,13 @@ struct TimeListenedMediumView: View {
 
 struct TimeListenedMediumView_Previews: PreviewProvider {
   static var previews: some View {
-    TimeListenedMediumView(entry: TimeListenedEntry(date: Date(), title: nil, theme: nil, timerSeconds: 300, autoplay: true, playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)))
-      .previewContext(WidgetPreviewContext(family: .systemMedium))
+    TimeListenedMediumView(entry: TimeListenedEntry(
+      date: Date(),
+      title: nil,
+      timerSeconds: 300,
+      autoplay: true,
+      playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)
+    ))
+    .previewContext(WidgetPreviewContext(family: .systemMedium))
   }
 }

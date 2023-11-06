@@ -8,6 +8,7 @@
 
 import SwiftUI
 import WidgetKit
+import BookPlayerKit
 
 struct BarView: View {
   var currentTime: Double
@@ -52,7 +53,16 @@ struct BarView: View {
 
 struct BarView_Previews: PreviewProvider {
   static var previews: some View {
-    BarView(currentTime: 20, date: Date(), maxTime: 70, cornerRadius: CGFloat(integerLiteral: 7), widgetColors: WidgetUtils.getColors(from: nil, with: .light))
-      .previewContext(WidgetPreviewContext(family: .systemMedium))
+    BarView(
+      currentTime: 20,
+      date: Date(),
+      maxTime: 70,
+      cornerRadius: CGFloat(integerLiteral: 7),
+      widgetColors: WidgetUtils.getColors(
+        from: SimpleTheme.getDefaultTheme(),
+        with: .light
+      )
+    )
+    .previewContext(WidgetPreviewContext(family: .systemMedium))
   }
 }

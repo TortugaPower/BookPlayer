@@ -12,6 +12,9 @@ import BookPlayerWatchKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
 
+  @available(watchOS 9.0, *)
+  var widgetMigrator: CLKComplicationWidgetMigrator { self }
+
   // MARK: - Complication Configuration
 
   func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
@@ -130,5 +133,21 @@ extension ComplicationController {
     default:
       return nil
     }
+  }
+}
+
+@available(watchOS 9.0, *)
+extension ComplicationController: CLKComplicationWidgetMigrator {
+
+  func getWidgetConfiguration(
+    from complicationDescriptor: CLKComplicationDescriptor,
+    completionHandler: @escaping (CLKComplicationWidgetMigrationConfiguration?) -> Void
+  ) {
+    let bundleIdentifier = Bundle.main.configurationString(for: .bundleIdentifier)
+
+    completionHandler(CLKComplicationStaticWidgetMigrationConfiguration(
+      kind: "com.bookplayer.shared.widget",
+      extensionBundleIdentifier: "\(bundleIdentifier).watchkitapp.widgets"
+    ))
   }
 }

@@ -17,7 +17,6 @@ struct TimeListenedProvider: IntentTimelineProvider {
     return TimeListenedEntry(
       date: Date(),
       title: "Las played book title",
-      theme: SimpleTheme.getDefaultTheme(),
       timerSeconds: 300,
       autoplay: true,
       playbackRecords: getSnapshotRecords(context: context)
@@ -129,10 +128,22 @@ struct TimeListenedWidgetView: View {
 struct TimeListenedWidgetView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      TimeListenedWidgetView(entry: TimeListenedEntry(date: Date(), title: nil, theme: nil, timerSeconds: 300, autoplay: true, playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemSmall)))
-        .previewContext(WidgetPreviewContext(family: .systemSmall))
-      TimeListenedWidgetView(entry: TimeListenedEntry(date: Date(), title: nil, theme: nil, timerSeconds: 300, autoplay: true, playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)))
-        .previewContext(WidgetPreviewContext(family: .systemMedium))
+      TimeListenedWidgetView(entry: TimeListenedEntry(
+        date: Date(),
+        title: nil,
+        timerSeconds: 300,
+        autoplay: true,
+        playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemSmall)
+      ))
+      .previewContext(WidgetPreviewContext(family: .systemSmall))
+      TimeListenedWidgetView(entry: TimeListenedEntry(
+        date: Date(),
+        title: nil,
+        timerSeconds: 300,
+        autoplay: true,
+        playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)
+      ))
+      .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
   }
 }
