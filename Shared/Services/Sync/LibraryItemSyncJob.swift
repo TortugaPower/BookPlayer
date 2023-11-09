@@ -292,18 +292,23 @@ class LibraryItemSyncJob: Job, BPLogger {
 
 struct LibraryItemUploadJobCreator: JobCreator {
   func create(type: String, params: [String: Any]?) -> SwiftQueue.Job {
+    var params = params ?? [:]
+
     guard
       type == LibraryItemSyncJob.type,
-      let relativePath = params?["relativePath"] as? String,
-      let jobTypeRaw = params?["jobType"] as? String,
+      let relativePath = params["relativePath"] as? String,
+      let jobTypeRaw = params["jobType"] as? String,
       let jobType = JobType(rawValue: jobTypeRaw)
     else { fatalError("Wrong job type") }
+
+    /// Remove local jobType from parameters payload
+    params.removeValue(forKey: "jobType")
 
     return LibraryItemSyncJob(
       client: NetworkClient(),
       relativePath: relativePath,
       jobType: jobType,
-      parameters: params ?? [:]
+      parameters: params
     )
   }
 }
