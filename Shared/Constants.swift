@@ -44,6 +44,9 @@ public enum Constants {
 
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
+
+    /// Shared widget action URL
+    public static let sharedWidgetActionURL = "sharedWidgetActionURL"
   }
 
   public enum SmartRewind {

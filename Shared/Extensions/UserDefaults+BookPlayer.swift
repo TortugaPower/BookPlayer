@@ -10,4 +10,8 @@ import Foundation
 
 extension UserDefaults {
   public static var sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)!
+
+  @objc public dynamic var sharedWidgetActionURL: URL? {
+    return url(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+  }
 }

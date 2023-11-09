@@ -281,6 +281,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     self.currentItem = item
+    self.libraryService.setLibraryLastBook(with: item.relativePath)
 
     self.playableChapterSubscription?.cancel()
     self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in

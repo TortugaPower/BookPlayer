@@ -54,34 +54,24 @@ struct LibraryEntry: TimelineEntry {
   let date: Date
   let items: [SimpleLibraryItem]
   let theme: SimpleTheme
-  let timerSeconds: Double
-  let autoplay: Bool
 
   init(
     date: Date,
     items: [SimpleLibraryItem],
-    theme: SimpleTheme,
-    timerSeconds: Double,
-    autoplay: Bool
+    theme: SimpleTheme
   ) {
     self.date = date
     self.items = items
     self.theme = theme
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
   }
 
   init(
     date: Date,
-    items: [SimpleLibraryItem],
-    timerSeconds: Double,
-    autoplay: Bool
+    items: [SimpleLibraryItem]
   ) {
     self.date = date
     self.items = items
     self.theme = SimpleTheme.getDefaultTheme()
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
   }
 }
 

@@ -339,6 +339,7 @@
 		6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D5682AF12D48003D0B09 /* SharedWidget.swift */; };
 		6340D56E2AF13E4C003D0B09 /* RectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D56D2AF13E4C003D0B09 /* RectangularView.swift */; };
 		63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63432B582AC1E6F7002619D0 /* MockNavigationController.swift */; };
+		634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
 		6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */; };
 		6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */; };
@@ -1039,6 +1040,7 @@
 		6340D5682AF12D48003D0B09 /* SharedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidget.swift; sourceTree = "<group>"; };
 		6340D56D2AF13E4C003D0B09 /* RectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangularView.swift; sourceTree = "<group>"; };
 		63432B582AC1E6F7002619D0 /* MockNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNavigationController.swift; sourceTree = "<group>"; };
+		634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookStartPlaybackIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndChapterSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -2048,6 +2050,7 @@
 		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
 			isa = PBXGroup;
 			children = (
+				634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */,
 				4106413E258725F1008EB8D0 /* TimeListened */,
 				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
 				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
@@ -3193,6 +3196,7 @@
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
 				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */,
 				630826072AF52831002ACE0D /* SharedWidget.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
 			);

@@ -21,7 +21,7 @@ struct WidgetColors {
   let backgroundColor: Color
 }
 
-struct PlaybackRecordViewer: Hashable {
+struct PlaybackRecordViewer: Hashable, Codable {
   var time: Double
   var date: Date
 }
@@ -151,7 +151,7 @@ class WidgetUtils {
     return UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
   }
 
-  class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> URL {
+  class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double?) -> URL {
     let urlString = CommandParser.createWidgetActionString(with: bookIdentifier, autoplay: autoplay, timerSeconds: timerSeconds)
     return URL(string: urlString)!
   }
