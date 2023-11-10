@@ -235,6 +235,11 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       } catch {
         Self.logger.trace("Sync contents error: \(error.localizedDescription)")
       }
+
+      /// Process any deferred progress calculations for folders
+      if playbackService.processFoldersStaleProgress() {
+        reloadItemsWithPadding()
+      }
     }
   }
 

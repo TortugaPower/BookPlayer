@@ -135,6 +135,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }.store(in: &disposeBag)
   }
 
+  func bindInterruptObserver() {
+    NotificationCenter.default.removeObserver(
+      self,
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.handleAudioInterruptions(_:)),
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
+  }
+
   func setupPlayerInstance() {
     if let observer = periodicTimeObserver {
       audioPlayer.removeTimeObserver(observer)
@@ -690,6 +704,7 @@ extension PlayerManager {
     self.fadeTimer?.invalidate()
     self.shakeMotionService.stopMotionUpdates()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+    bindInterruptObserver()
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
@@ -779,6 +794,10 @@ extension PlayerManager {
   // swiftlint:enable block_based_kvo
 
   func pause() {
+    pause(removeInterruptObserver: true)
+  }
+
+  func pause(removeInterruptObserver: Bool) {
     guard let currentItem = self.currentItem else { return }
 
     self.observeStatus = false
@@ -798,6 +817,13 @@ extension PlayerManager {
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    if removeInterruptObserver {
+      NotificationCenter.default.removeObserver(
+        self,
+        name: AVAudioSession.interruptionNotification,
+        object: nil
+      )
+    }
   }
 
   // Toggle play/pause of book
@@ -828,6 +854,11 @@ extension PlayerManager {
     loadChapterTask?.cancel()
 
     userActivityManager.stopPlaybackActivity()
+    NotificationCenter.default.removeObserver(
+      self,
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
   }
 
   func markAsCompleted(_ flag: Bool) {
@@ -836,7 +867,12 @@ extension PlayerManager {
     self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      if UIApplication.shared.applicationState == .active {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      } else {
+        /// Defer all the folder progress updates until the user opens up the app again
+        playbackService.markStaleProgress(folderPath: parentFolderPath)
+      }
     }
 
     currentItem.isFinished = flag
@@ -982,7 +1018,12 @@ extension PlayerManager {
 
     if previousPercentage != newPercentage {
       if let parentFolder = item.parentFolder {
-        libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+        if UIApplication.shared.applicationState == .active {
+          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+        } else {
+          /// Defer all the folder progress updates until the user opens up the app again
+          playbackService.markStaleProgress(folderPath: parentFolder)
+        }
       }
 
       widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
@@ -1007,6 +1048,33 @@ extension PlayerManager {
     )
 
     setupPlayerInstance()
+  }
+
+  /// Playback may be interrupted by calls. Handle resuming the audio if needed
+  @objc
+  func handleAudioInterruptions(_ notification: Notification) {
+    guard
+      let userInfo = notification.userInfo,
+      let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+      let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+    else {
+      return
+    }
+
+    switch type {
+    case .began:
+      pause(removeInterruptObserver: false)
+    case .ended:
+      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
+        return
+      }
+      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+      if options.contains(.shouldResume) {
+        play()
+      }
+    @unknown default:
+      break
+    }
   }
 }
 

@@ -20,6 +20,7 @@ class PlayerViewModel: ViewModelProtocol {
   enum Events {
     case sleepTimerAlert(content: BPAlertContent)
     case customSleepTimer(title: String)
+    case updateProgress(ProgressObject)
   }
 
   weak var coordinator: PlayerCoordinator!
@@ -129,6 +130,7 @@ class PlayerViewModel: ViewModelProtocol {
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter) {
       self.playerManager.jumpToChapter(previousChapter)
+      sendEvent(.updateProgress(getCurrentProgressState()))
     } else {
       self.playerManager.playPreviousItem()
     }
@@ -140,6 +142,7 @@ class PlayerViewModel: ViewModelProtocol {
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
        let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
       self.playerManager.jumpToChapter(nextChapter)
+      sendEvent(.updateProgress(getCurrentProgressState()))
     } else {
       self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
     }

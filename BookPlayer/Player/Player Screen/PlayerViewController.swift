@@ -414,6 +414,8 @@ extension PlayerViewController {
           self?.presentSleepTimerAlert(content)
         case .customSleepTimer(let title):
           self?.presentCustomSleepTimerAlert(title)
+        case .updateProgress(let progress):
+          self?.updateView(with: progress)
         }
       }.store(in: &disposeBag)
   }

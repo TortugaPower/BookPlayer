@@ -1025,6 +1025,37 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
             return getNextChapterFromAfterReturnValue
         }
     }
+    //MARK: - markStaleProgress
+
+    var markStaleProgressFolderPathCallsCount = 0
+    var markStaleProgressFolderPathCalled: Bool {
+        return markStaleProgressFolderPathCallsCount > 0
+    }
+    var markStaleProgressFolderPathReceivedFolderPath: String?
+    var markStaleProgressFolderPathReceivedInvocations: [String] = []
+    var markStaleProgressFolderPathClosure: ((String) -> Void)?
+    func markStaleProgress(folderPath: String) {
+        markStaleProgressFolderPathCallsCount += 1
+        markStaleProgressFolderPathReceivedFolderPath = folderPath
+        markStaleProgressFolderPathReceivedInvocations.append(folderPath)
+        markStaleProgressFolderPathClosure?(folderPath)
+    }
+    //MARK: - processFoldersStaleProgress
+
+    var processFoldersStaleProgressCallsCount = 0
+    var processFoldersStaleProgressCalled: Bool {
+        return processFoldersStaleProgressCallsCount > 0
+    }
+    var processFoldersStaleProgressReturnValue: Bool!
+    var processFoldersStaleProgressClosure: (() -> Bool)?
+    func processFoldersStaleProgress() -> Bool {
+        processFoldersStaleProgressCallsCount += 1
+        if let processFoldersStaleProgressClosure = processFoldersStaleProgressClosure {
+            return processFoldersStaleProgressClosure()
+        } else {
+            return processFoldersStaleProgressReturnValue
+        }
+    }
 }
 class PlayerManagerProtocolMock: PlayerManagerProtocol {
     var currentItem: PlayableItem?
