@@ -88,12 +88,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     if let libraryCoordinator = mainCoordinator.getLibraryCoordinator() {
-      /// Process any deferred progress calculations for folders
-      if libraryCoordinator.playbackService.processFoldersStaleProgress() {
-        /// Set flag to notify there are changes to be synced
-        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.hasQueuedJobs)
-        libraryCoordinator.reloadItemsWithPadding()
-      }
       /// Sync list when app is active again
       libraryCoordinator.syncList()
       /// Sync currently shown list
