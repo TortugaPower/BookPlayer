@@ -25,7 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var pendingURLActions = [Action]()
 
   var window: UIWindow?
-  var wasPlayingBeforeInterruption: Bool = false
   var documentFolderWatcher: DirectoryWatcher?
   var sharedFolderWatcher: DirectoryWatcher?
 
@@ -54,14 +53,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
-
-    // register to audio-interruption notifications
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(self.handleAudioInterruptions(_:)),
-      name: AVAudioSession.interruptionNotification,
-      object: nil
-    )
 
     NotificationCenter.default.addObserver(
       self,
@@ -244,36 +235,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     DispatchQueue.main.async {
       ActionParserService.handleAction(action)
-    }
-  }
-
-  // Playback may be interrupted by calls. Handle pause
-  @objc func handleAudioInterruptions(_ notification: Notification) {
-    guard
-      let userInfo = notification.userInfo,
-      let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-      let type = AVAudioSession.InterruptionType(rawValue: typeValue),
-      let playerManager = self.playerManager
-    else {
-      return
-    }
-
-    switch type {
-    case .began:
-      if playerManager.isPlaying {
-        playerManager.pause()
-      }
-    case .ended:
-      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
-        return
-      }
-
-      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-      if options.contains(.shouldResume) {
-        playerManager.play()
-      }
-    @unknown default:
-      break
     }
   }
 
