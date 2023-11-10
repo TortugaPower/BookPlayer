@@ -87,7 +87,7 @@ struct LastPlayedWidgetView: View {
 
     let appIconName = WidgetUtils.getAppIconName()
 
-    return VStack {
+    return VStack(alignment: .leading) {
       HStack {
         if let relativePath = entry.relativePath {
           Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
@@ -124,10 +124,9 @@ struct LastPlayedWidgetView: View {
           .font(.footnote)
           .lineLimit(2)
           .accessibility(hidden: true)
-        Spacer()
       }
       .frame(height: 40)
-      .padding([.leading, .trailing])
+      .padding([.leading, .trailing], 15)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .widgetBackground(backgroundView: widgetColors.backgroundColor)

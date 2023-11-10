@@ -107,7 +107,7 @@ struct BookView: View {
 
         Text(title)
           .fontWeight(.semibold)
-          .frame(height: 34, alignment: .leading)
+          .frame(height: 40, alignment: .leading)
           .foregroundColor(titleColor)
           .font(.caption)
           .lineLimit(2)
