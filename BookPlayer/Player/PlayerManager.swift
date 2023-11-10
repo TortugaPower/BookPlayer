@@ -867,7 +867,12 @@ extension PlayerManager {
     self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      if UIApplication.shared.applicationState == .active {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      } else {
+        /// Defer all the folder progress updates until the user opens up the app again
+        playbackService.markStaleProgress(folderPath: parentFolderPath)
+      }
     }
 
     currentItem.isFinished = flag
@@ -1013,7 +1018,12 @@ extension PlayerManager {
 
     if previousPercentage != newPercentage {
       if let parentFolder = item.parentFolder {
-        libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+        if UIApplication.shared.applicationState == .active {
+          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+        } else {
+          /// Defer all the folder progress updates until the user opens up the app again
+          playbackService.markStaleProgress(folderPath: parentFolder)
+        }
       }
 
       widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)

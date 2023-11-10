@@ -81,6 +81,12 @@ class MainCoordinator: NSObject {
   }
 
   func startLibraryCoordinator(with tabBarController: UITabBarController) {
+    /// Process any stale progress for folders
+    if playbackService.processFoldersStaleProgress() {
+      /// Set flag to notify there are changes to be synced
+      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.hasQueuedJobs)
+    }
+
     let libraryCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       playerManager: self.playerManager,
