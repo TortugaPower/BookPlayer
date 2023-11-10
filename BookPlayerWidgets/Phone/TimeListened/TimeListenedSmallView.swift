@@ -54,7 +54,7 @@ struct TimeListenedSmallView: View {
         .padding([.bottom], 8)
         .accessibility(hidden: true)
 
-      VStack {
+      VStack(spacing: 0) {
         HStack {
           Text("Last Book")
             .foregroundColor(widgetColors.primaryColor)
