@@ -359,6 +359,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
             self.initializeChapterTime(time)
           }
+          self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -676,8 +677,6 @@ extension PlayerManager {
 
     self.userActivityManager.resumePlaybackActivity()
 
-    self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
-
     do {
       let audioSession = AVAudioSession.sharedInstance()
       try audioSession.setCategory(
@@ -803,8 +802,6 @@ extension PlayerManager {
     self.observeStatus = false
 
     self.userActivityManager.stopPlaybackActivity()
-
-    self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
     NotificationCenter.default.post(name: .bookPaused, object: nil)
 

@@ -476,7 +476,9 @@ extension LibraryService {
     let library = getLibraryReference(context: context)
 
     if let relativePath = relativePath {
-      library.lastPlayedItem = getItemReference(with: relativePath, context: context)
+      let item = getItemReference(with: relativePath, context: context)
+      item?.lastPlayDate = Date()
+      library.lastPlayedItem = item
     } else {
       library.lastPlayedItem = nil
     }
