@@ -34,7 +34,17 @@ struct RecentBooksProvider: IntentTimelineProvider {
     in context: Context,
     completion: @escaping (LibraryEntry) -> Void
   ) {
-    completion(placeholder(in: context))
+    Task {
+      do {
+        let entry = try await getEntryForTimeline(
+          for: configuration,
+          context: context
+        )
+        completion(entry)
+      } catch {
+        completion(placeholder(in: context))
+      }
+    }
   }
 
   func getTimeline(

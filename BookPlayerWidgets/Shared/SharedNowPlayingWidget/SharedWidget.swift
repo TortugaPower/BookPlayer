@@ -40,38 +40,23 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
   }
 
   func getSnapshot(in context: Context, completion: @escaping (SharedWidgetEntry) -> Void) {
-    completion(placeholder(in: context))
+    Task {
+      do {
+        let entry = try await getEntryForTimeline(context: context)
+        completion(entry)
+      } catch {
+        completion(placeholder(in: context))
+      }
+    }
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<SharedWidgetEntry>) -> Void) {
     Task {
       do {
-        let currentItem: PlayableItem
-#if os(watchOS)
-        currentItem = try getWatchLastPlayedItem()
-#else
-        currentItem = try await getPhoneLastPlayedItem()
-#endif
-        let chapterTitle: String
-
-        switch context.family {
-        case .accessoryCorner, .accessoryCircular:
-          chapterTitle = "CHP \(currentItem.currentChapter.index)"
-        case .accessoryRectangular, .accessoryInline:
-          chapterTitle = currentItem.currentChapter.title
-        default:
-          chapterTitle = currentItem.currentChapter.title
-        }
+        let entry = try await getEntryForTimeline(context: context)
 
         completion(Timeline(
-          entries: [
-            SharedWidgetEntry(
-              chapterTitle: chapterTitle,
-              bookTitle: currentItem.title,
-              details: currentItem.author,
-              percentCompleted: currentItem.percentCompleted / 100
-            )
-          ],
+          entries: [entry],
           policy: .never
         ))
       } catch {
@@ -88,6 +73,32 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
         ))
       }
     }
+  }
+
+  func getEntryForTimeline(context: Context) async throws -> SharedWidgetEntry {
+    let currentItem: PlayableItem
+#if os(watchOS)
+    currentItem = try getWatchLastPlayedItem()
+#else
+    currentItem = try await getPhoneLastPlayedItem()
+#endif
+    let chapterTitle: String
+
+    switch context.family {
+    case .accessoryCorner, .accessoryCircular:
+      chapterTitle = "CHP \(currentItem.currentChapter.index)"
+    case .accessoryRectangular, .accessoryInline:
+      chapterTitle = currentItem.currentChapter.title
+    default:
+      chapterTitle = currentItem.currentChapter.title
+    }
+
+    return SharedWidgetEntry(
+      chapterTitle: chapterTitle,
+      bookTitle: currentItem.title,
+      details: currentItem.author,
+      percentCompleted: currentItem.percentCompleted / 100
+    )
   }
 
   func getWatchLastPlayedItem() throws -> PlayableItem {
