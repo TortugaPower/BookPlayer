@@ -117,6 +117,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     if didAppearForFirstTime {
       didAppearForFirstTime = false
       viewModel.viewDidAppear()
+      /// Can't do this on viewDidLoad as there's no guarantee that the scene delegate will
+      /// have an 'active' status
+      if navigationController?.viewControllers.count == 1 {
+        navigationController!.interactivePopGestureRecognizer!.delegate = self
+        viewModel.notifyPendingFiles()
+      }
     }
   }
 
@@ -137,11 +143,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.adjustBottomOffsetForMiniPlayer()
 
     self.navigationItem.rightBarButtonItem = searchButton
-
-    if self.navigationController?.viewControllers.count == 1 {
-      self.navigationController!.interactivePopGestureRecognizer!.delegate = self
-      self.viewModel.notifyPendingFiles()
-    }
 
     self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
 
