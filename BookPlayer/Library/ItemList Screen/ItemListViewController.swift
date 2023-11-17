@@ -451,8 +451,20 @@ extension ItemListViewController: UITableViewDataSource {
           remoteURL: item.remoteURL
         ),
         placeholder: defaultArtwork,
-        options: [.targetCache(ArtworkService.cache)]
-      )
+        options: [.targetCache(ArtworkService.cache)]) { [weak self] result in
+          /// Cache default artwork if the provider errors out with .missingImage to avoid multiple
+          /// retries on files we know don't have an artwork for
+          guard
+            case .failure(let error) = result,
+            case .imageSettingError(let reason) = error,
+            case .dataProviderError(let provider, let error) = reason,
+            let providerError = error as? AVAudioAssetImageDataProvider.ProviderError,
+            providerError == .missingImage,
+            let artworkData = self?.viewModel.defaultArtwork
+          else { return }
+
+          ArtworkService.storeInCache(artworkData, for: provider.cacheKey)
+        }
     }
     let label = VoiceOverService.getAccessibilityLabel(for: item)
     cell.setAccessibilityLabel(label)

@@ -797,7 +797,7 @@ extension PlayerManager {
   }
 
   func pause(removeInterruptObserver: Bool) {
-    guard let currentItem = self.currentItem else { return }
+    guard self.currentItem != nil else { return }
 
     self.observeStatus = false
 
