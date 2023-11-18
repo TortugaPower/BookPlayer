@@ -143,7 +143,7 @@ struct RecentBooksWidgetView: View {
       .padding([.top], 8)
       HStack {
         ForEach(items, id: \.relativePath) { item in
-          if #available(iOSApplicationExtension 17.0, *) {
+          if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
             Button(intent: BookStartPlaybackIntent(relativePath: item.relativePath)) {
               BookView(
                 item: item,
