@@ -151,6 +151,7 @@ struct RecentBooksWidgetView: View {
               )
               .frame(minWidth: 0, maxWidth: .infinity)
             }
+            .buttonStyle(.plain)
           } else {
             BookView(
               item: item,
