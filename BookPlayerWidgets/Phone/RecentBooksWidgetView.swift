@@ -34,7 +34,6 @@ struct RecentBooksProvider: TimelineProvider {
     Task {
       do {
         let entry = try await getEntryForTimeline(
-          for: configuration,
           context: context
         )
         completion(entry)
@@ -109,7 +108,6 @@ struct BookView: View {
         .font(.caption)
         .lineLimit(2)
         .multilineTextAlignment(.center)
-      }
     }
   }
 }

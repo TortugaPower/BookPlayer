@@ -384,14 +384,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func setupSharedWidgetActionObserver() {
-    let audioSession = AVAudioSession.sharedInstance()
-    try? audioSession.setCategory(
-      AVAudioSession.Category.playback,
-      mode: .spokenAudio,
-      options: []
-    )
-    try? audioSession.setActive(true)
-
     let sharedDefaults = UserDefaults.sharedDefaults
 
     if let actionURL = sharedDefaults.sharedWidgetActionURL {
@@ -400,10 +392,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     sharedWidgetActionURLObserver = sharedDefaults.observe(\.sharedWidgetActionURL) { defaults, _ in
-      guard let actionURL = defaults.sharedWidgetActionURL else { return }
+      DispatchQueue.main.async {
+        guard let actionURL = defaults.sharedWidgetActionURL else { return }
 
-      ActionParserService.process(actionURL)
-      sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+        ActionParserService.process(actionURL)
+        sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+      }
     }
   }
 

@@ -12,6 +12,10 @@ extension UserDefaults {
   public static var sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)!
 
   @objc public dynamic var sharedWidgetActionURL: URL? {
-    return url(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+    guard
+      let widgetActionString = string(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+    else { return nil }
+
+    return URL(string: widgetActionString)
   }
 }

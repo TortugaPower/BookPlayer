@@ -32,7 +32,7 @@ struct BookStartPlaybackIntent: AudioPlaybackIntent {
       with: relativePath,
       autoplay: true,
       timerSeconds: nil
-    )
+    ).absoluteString
 
     let sharedDefaults = UserDefaults.sharedDefaults
     sharedDefaults.set(url, forKey: Constants.UserDefaults.sharedWidgetActionURL)
