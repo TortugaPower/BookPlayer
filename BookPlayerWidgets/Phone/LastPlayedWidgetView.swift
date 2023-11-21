@@ -10,28 +10,24 @@ import BookPlayerKit
 import SwiftUI
 import WidgetKit
 
-struct PlayAndSleepProvider: IntentTimelineProvider {
+struct LastPlayedProvider: TimelineProvider {
   typealias Entry = SimpleEntry
 
   func placeholder(in context: Context) -> SimpleEntry {
     SimpleEntry(
       date: Date(),
       title: "Last played book title",
-      relativePath: nil,
-      timerSeconds: 300,
-      autoplay: true
+      relativePath: nil
     )
   }
 
   func getSnapshot(
-    for configuration: PlayAndSleepActionIntent,
     in context: Context,
     completion: @escaping (Entry) -> Void
   ) {
     Task {
       do {
         let entry = try await getEntryForTimeline(
-          for: configuration,
           context: context
         )
         completion(entry)
@@ -41,10 +37,13 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
     }
   }
 
-  func getTimeline(for configuration: PlayAndSleepActionIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
+  func getTimeline(
+    in context: Context,
+    completion: @escaping (Timeline<Entry>) -> Void
+  ) {
     Task {
       do {
-        let entry = try await getEntryForTimeline(for: configuration, context: context)
+        let entry = try await getEntryForTimeline(context: context)
 
         completion(Timeline(entries: [entry], policy: .never))
       } catch {
@@ -54,7 +53,6 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
   }
 
   func getEntryForTimeline(
-    for configuration: PlayAndSleepActionIntent,
     context: Context
   ) async throws -> SimpleEntry {
     let stack = try await DatabaseInitializer().loadCoreDataStack()
@@ -67,17 +65,16 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
       throw BookPlayerError.emptyResponse
     }
 
+    let isPlaying = true
+
     let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
-    let autoplay = configuration.autoplay?.boolValue ?? true
-    let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
     let entry = SimpleEntry(
       date: Date(),
       title: lastPlayedItem.title,
       relativePath: lastPlayedItem.relativePath,
       theme: theme,
-      timerSeconds: seconds,
-      autoplay: autoplay
+      isPlaying: isPlaying
     )
 
     return entry
@@ -86,26 +83,51 @@ struct PlayAndSleepProvider: IntentTimelineProvider {
 
 struct LastPlayedWidgetView: View {
   @Environment(\.colorScheme) var colorScheme
-  var entry: PlayAndSleepProvider.Entry
+  var entry: LastPlayedProvider.Entry
+
+  func getArtworkView(for relativePath: String) -> some View {
+    ZStack {
+      Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
+            ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!)
+      .resizable()
+      .frame(width: 90, height: 90)
+      .aspectRatio(1.0, contentMode: .fit)
+      .cornerRadius(8.0)
+    }
+  }
 
   var body: some View {
     let titleLabel = entry.title ?? "---"
 
     let widgetColors = WidgetUtils.getColors(from: entry.theme, with: colorScheme)
 
-    let url = WidgetUtils.getWidgetActionURL(with: entry.relativePath, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
+    let imageName = entry.isPlaying ? "pause.fill" : "play.fill"
 
     let appIconName = WidgetUtils.getAppIconName()
 
     return VStack(alignment: .leading) {
       HStack {
         if let relativePath = entry.relativePath {
-          Image(uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
-                ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!)
-          .resizable()
-          .frame(width: 90, height: 90)
-          .aspectRatio(1.0, contentMode: .fit)
-          .cornerRadius(8.0)
+          if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
+            Button(intent: BookStartPlaybackIntent(relativePath: relativePath)) {
+              ZStack {
+                getArtworkView(for: relativePath)
+                Circle()
+                  .foregroundColor(.white)
+                  .frame(width: 30, height: 30)
+                  .opacity(0.8)
+                Image(systemName: imageName)
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .foregroundColor(.black)
+                  .frame(width: 11, height: 11)
+                  .offset(x: 1)
+              }
+            }
+            .buttonStyle(.plain)
+          } else {
+            getArtworkView(for: relativePath)
+          }
         } else {
           Rectangle()
             .fill(Color.secondary)
@@ -140,7 +162,6 @@ struct LastPlayedWidgetView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .widgetBackground(backgroundView: widgetColors.backgroundColor)
-    .widgetURL(url)
   }
 }
 
@@ -150,34 +171,26 @@ struct LastPlayedWidgetView_Previews: PreviewProvider {
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: "Test Book Title",
-        relativePath: nil,
-        timerSeconds: 300,
-        autoplay: true
+        relativePath: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: nil,
-        relativePath: nil,
-        timerSeconds: 300,
-        autoplay: true
+        relativePath: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: "Test Book Title",
-        relativePath: nil,
-        timerSeconds: 300,
-        autoplay: true
+        relativePath: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
       .environment(\.colorScheme, .dark)
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: nil,
-        relativePath: nil,
-        timerSeconds: 300,
-        autoplay: true
+        relativePath: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
       .environment(\.colorScheme, .dark)
@@ -189,9 +202,13 @@ struct LastPlayedWidget: Widget {
   let kind: String = "com.bookplayer.widget.small.lastPlayed"
 
   var body: some WidgetConfiguration {
-    IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: PlayAndSleepProvider()) { entry in
-      LastPlayedWidgetView(entry: entry)
-    }
+    StaticConfiguration(
+      kind: kind,
+      provider: LastPlayedProvider(),
+      content: { entry in
+        LastPlayedWidgetView(entry: entry)
+      }
+    )
     .configurationDisplayName("Last Played Book")
     .description("See and play your last played book")
     .supportedFamilies([.systemSmall])

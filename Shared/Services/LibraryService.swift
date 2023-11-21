@@ -1061,9 +1061,11 @@ extension LibraryService {
       let book = getItem(with: relativePath, context: context) as? Book
     else { return }
 
-    book.loadChaptersIfNeeded(from: asset, context: context)
+    let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
 
-    dataManager.saveSyncContext(context)
+    if hadEmptyChapters {
+      dataManager.saveSyncContext(context)
+    }
   }
 
   func createFolderOnDisk(title: String, inside relativePath: String?, context: NSManagedObjectContext) throws {
