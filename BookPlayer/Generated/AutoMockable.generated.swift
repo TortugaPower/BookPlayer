@@ -990,9 +990,9 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
     var getPlayableItemFromReceivedItem: SimpleLibraryItem?
     var getPlayableItemFromReceivedInvocations: [SimpleLibraryItem] = []
-    var getPlayableItemFromReturnValue: PlayableItem?
-    var getPlayableItemFromClosure: ((SimpleLibraryItem) throws -> PlayableItem?)?
-    func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+    var getPlayableItemFromReturnValue: PlayableItem!
+    var getPlayableItemFromClosure: ((SimpleLibraryItem) throws -> PlayableItem)?
+    func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem {
         if let error = getPlayableItemFromThrowableError {
             throw error
         }
@@ -1023,6 +1023,37 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
             return getNextChapterFromAfterClosure(item, chapter)
         } else {
             return getNextChapterFromAfterReturnValue
+        }
+    }
+    //MARK: - markStaleProgress
+
+    var markStaleProgressFolderPathCallsCount = 0
+    var markStaleProgressFolderPathCalled: Bool {
+        return markStaleProgressFolderPathCallsCount > 0
+    }
+    var markStaleProgressFolderPathReceivedFolderPath: String?
+    var markStaleProgressFolderPathReceivedInvocations: [String] = []
+    var markStaleProgressFolderPathClosure: ((String) -> Void)?
+    func markStaleProgress(folderPath: String) {
+        markStaleProgressFolderPathCallsCount += 1
+        markStaleProgressFolderPathReceivedFolderPath = folderPath
+        markStaleProgressFolderPathReceivedInvocations.append(folderPath)
+        markStaleProgressFolderPathClosure?(folderPath)
+    }
+    //MARK: - processFoldersStaleProgress
+
+    var processFoldersStaleProgressCallsCount = 0
+    var processFoldersStaleProgressCalled: Bool {
+        return processFoldersStaleProgressCallsCount > 0
+    }
+    var processFoldersStaleProgressReturnValue: Bool!
+    var processFoldersStaleProgressClosure: (() -> Bool)?
+    func processFoldersStaleProgress() -> Bool {
+        processFoldersStaleProgressCallsCount += 1
+        if let processFoldersStaleProgressClosure = processFoldersStaleProgressClosure {
+            return processFoldersStaleProgressClosure()
+        } else {
+            return processFoldersStaleProgressReturnValue
         }
     }
 }
@@ -1380,20 +1411,15 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     var syncListContentsAtReceivedRelativePath: String?
     var syncListContentsAtReceivedInvocations: [String?] = []
-    var syncListContentsAtReturnValue: SyncableItem?
-    var syncListContentsAtClosure: ((String?) async throws -> SyncableItem?)?
-    func syncListContents(at relativePath: String?) async throws -> SyncableItem? {
+    var syncListContentsAtClosure: ((String?) async throws -> Void)?
+    func syncListContents(at relativePath: String?) async throws {
         if let error = syncListContentsAtThrowableError {
             throw error
         }
         syncListContentsAtCallsCount += 1
         syncListContentsAtReceivedRelativePath = relativePath
         syncListContentsAtReceivedInvocations.append(relativePath)
-        if let syncListContentsAtClosure = syncListContentsAtClosure {
-            return try await syncListContentsAtClosure(relativePath)
-        } else {
-            return syncListContentsAtReturnValue
-        }
+        try await syncListContentsAtClosure?(relativePath)
     }
     //MARK: - syncLibraryContents
 
@@ -1402,18 +1428,13 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var syncLibraryContentsCalled: Bool {
         return syncLibraryContentsCallsCount > 0
     }
-    var syncLibraryContentsReturnValue: SyncableItem?
-    var syncLibraryContentsClosure: (() async throws -> SyncableItem?)?
-    func syncLibraryContents() async throws -> SyncableItem? {
+    var syncLibraryContentsClosure: (() async throws -> Void)?
+    func syncLibraryContents() async throws {
         if let error = syncLibraryContentsThrowableError {
             throw error
         }
         syncLibraryContentsCallsCount += 1
-        if let syncLibraryContentsClosure = syncLibraryContentsClosure {
-            return try await syncLibraryContentsClosure()
-        } else {
-            return syncLibraryContentsReturnValue
-        }
+        try await syncLibraryContentsClosure?()
     }
     //MARK: - syncBookmarksList
 

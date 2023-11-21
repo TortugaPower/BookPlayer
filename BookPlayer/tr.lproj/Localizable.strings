@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Kilitlenme raporlarını devre dışı bırak";
 "settings_skan_attribution_title" = "SKAN ilişkilendirmesini devre dışı bırak";
 "settings_skan_attribution_description" = "SKAN, kullanıcı gizliliğinden ödün vermeden bir kampanyanın ne kadar etkili olduğunu ölçmeye olanak tanıyan, Apple'ın gizliliğe öncelik veren ilişkilendirme çözümüdür";
+"intent_sleeptimer_cancel" = "Uyku Zamanlayıcısını İptal Et";
+"intent_sleeptimer_set_duration" = "Uyku Zamanlayıcısını süre ile ayarla";
+"duration_title" = "Süre";
+"intent_sleeptimer_request_duration_title" = "Ne kadar süreliğine";
+"Set Sleep Timer for ${duration}" = "${duration} için Uyku Zamanlayıcısını Ayarla";
+"intent_sleeptimer_eoc_title" = "Uyku Zamanlayıcısını Bölümün Sonuna Ayarlayın";
+"intent_lastbook_play_title" = "Son oynatılan kitabı devam ettir";
+"intent_lastbook_empty_error" = "Son çalınan kitap yok";
+"intent_playback_pause_title" = "Oynatmayı duraklat";

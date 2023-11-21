@@ -173,8 +173,9 @@ class ArtworkControl: UIView, UIGestureRecognizerDelegate {
   }
 
   public func setupArtworkImage(relativePath: String) {
-    self.artworkImage.kf.setImage(
+    artworkImage.kf.setImage(
       with: ArtworkService.getArtworkProvider(for: relativePath),
+      placeholder: artworkImage.image,
       options: [.targetCache(ArtworkService.cache)],
       completionHandler: { result in
         switch result {

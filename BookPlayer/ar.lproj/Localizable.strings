@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "تعطيل تقارير الأعطال";
 "settings_skan_attribution_title" = "تعطيل إسناد SKAN";
 "settings_skan_attribution_description" = "SKAN هو حل إسناد الخصوصية أولاً من Apple والذي يتيح قياس مدى فعالية الحملة دون المساس بخصوصية المستخدم";
+"intent_sleeptimer_cancel" = "إلغاء مؤقت النوم";
+"intent_sleeptimer_set_duration" = "اضبط مؤقت النوم مع المدة";
+"duration_title" = "مدة";
+"intent_sleeptimer_request_duration_title" = "إلى متى";
+"Set Sleep Timer for ${duration}" = "ضبط مؤقت النوم لـ ${duration}";
+"intent_sleeptimer_eoc_title" = "اضبط مؤقت النوم على نهاية الفصل";
+"intent_lastbook_play_title" = "استئناف آخر كتاب تم تشغيله";
+"intent_lastbook_empty_error" = "لا يوجد كتاب آخر تم تشغيله";
+"intent_playback_pause_title" = "إيقاف التشغيل مؤقتًا";

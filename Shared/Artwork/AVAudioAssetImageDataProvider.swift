@@ -12,12 +12,12 @@ import Kingfisher
 
 public struct AVAudioAssetImageDataProvider: ImageDataProvider {
 
-  public enum AVAudioAssetImageDataProviderError: Error {
-    case missingImage, missingFile
+  public enum ProviderError: Error {
+    case missingImage, missingFile, metadataFailed
   }
 
-  public let fileURL: URL
-  public let remoteURL: URL?
+  private let fileURL: URL
+  private let remoteURL: URL?
   public var cacheKey: String
 
   public init(
@@ -43,25 +43,33 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
       } else if let remoteURL {
         self.handleFileItem(at: remoteURL, handler: handler)
       } else {
-        return handler(.failure(AVAudioAssetImageDataProviderError.missingFile))
+        return handler(.failure(ProviderError.missingFile))
       }
     }
   }
 
-  private func handleFileItem(at url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
-    self.extractDataFrom(url: url) { data in
-      guard let data = data else {
-        return handler(.failure(AVAudioAssetImageDataProviderError.missingImage))
-      }
+  private func handleFileItem(
+    at url: URL,
+    handler: @escaping (Result<Data, Error>) -> Void
+  ) {
+    Task {
+      do {
+        let data = try await extractDataFrom(url: url)
 
-      handler(.success(data))
+        handler(.success(data))
+      } catch {
+        handler(.failure(error))
+      }
     }
   }
 
-  private func extractDataFrom(url: URL, callback: @escaping (Data?) -> Void) {
+  private func extractDataFrom(url: URL) async throws -> Data {
     let asset = AVAsset(url: url)
 
-    asset.loadValuesAsynchronously(forKeys: ["commonMetadata", "metadata"]) {
+    await asset.loadValues(forKeys: ["metadata"])
+
+    switch asset.statusOfValue(forKey: "metadata", error: nil) {
+    case .loaded:
       var imageData: Data?
 
       if url.pathExtension == "mp3" {
@@ -73,7 +81,13 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         imageData = data
       }
 
-      callback(imageData)
+      if let imageData {
+        return imageData
+      }
+
+      throw ProviderError.missingImage
+    default:
+      throw ProviderError.metadataFailed
     }
   }
 
@@ -92,63 +106,59 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   // Folders
 
   private func handleDirectory(at url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
-    let enumerator = FileManager.default.enumerator(
-      at: self.fileURL,
-      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
-      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
+    Task {
+      let enumerator = FileManager.default.enumerator(
+        at: self.fileURL,
+        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+        options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+          print("directoryEnumerator error at \(url): ", error)
+          return true
+        })!
 
-    var files = [URL]()
-    for case let fileURL as URL in enumerator {
-      files.append(fileURL)
-    }
-
-    // sort items to same order as library
-    files.sort { a, b in
-      guard let first = a.getAppOrderRank() else {
-        return false
+      var files = [URL]()
+      for case let fileURL as URL in enumerator {
+        files.append(fileURL)
       }
 
-      guard let second = b.getAppOrderRank() else {
-        return true
+      // sort items to same order as library
+      files.sort { a, b in
+        guard let first = a.getAppOrderRank() else {
+          return false
+        }
+
+        guard let second = b.getAppOrderRank() else {
+          return true
+        }
+
+        return first < second
       }
 
-      return first < second
-    }
+      do {
+        let data = try await processNextFolderItem(from: files)
 
-    self.processNextFolderItem(from: files) { url in
-      guard let url = url else {
-        return handler(.failure(AVAudioAssetImageDataProviderError.missingImage))
+        handler(.success(data))
+      } catch {
+        handler(.failure(error))
       }
-
-      self.handleFileItem(at: url, handler: handler)
     }
   }
 
-  private func processNextFolderItem(from urls: [URL],
-                                     callback: @escaping (URL?) -> Void) {
+  private func processNextFolderItem(from urls: [URL]) async throws -> Data {
     if urls.isEmpty {
-      return callback(nil)
+      throw ProviderError.missingImage
     }
 
     var mutableUrls = urls
     let newURL = mutableUrls.removeFirst()
 
     guard !newURL.isDirectoryFolder else {
-      return self.processNextFolderItem(from: mutableUrls, callback: callback)
+      return try await processNextFolderItem(from: mutableUrls)
     }
 
-    self.extractDataFrom(url: newURL) { data in
-      // If item doesn't have an artwork, try with the next one
-      guard let newData = data else {
-        return self.processNextFolderItem(from: mutableUrls, callback: callback)
-      }
-
-      ArtworkService.storeInCache(newData, for: self.cacheKey) {
-        callback(newURL)
-      }
+    do {
+      return try await extractDataFrom(url: newURL)
+    } catch {
+      return try await processNextFolderItem(from: mutableUrls)
     }
   }
 }

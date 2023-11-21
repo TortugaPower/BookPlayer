@@ -11,103 +11,88 @@ import Combine
 import CoreData
 import Foundation
 
+@MainActor
 class DataInitializerCoordinator: BPLogger {
-  let dataMigrationManager: DataMigrationManager
+  let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
   let alertPresenter: AlertPresenter
 
   var onFinish: ((CoreDataStack) -> Void)?
 
-  init(
-    dataMigrationManager: DataMigrationManager = DataMigrationManager(),
-    alertPresenter: AlertPresenter
-  ) {
-    self.dataMigrationManager = dataMigrationManager
+  init(alertPresenter: AlertPresenter) {
     self.alertPresenter = alertPresenter
   }
 
   public func start() {
-    self.performMigrations()
-  }
-
-  private func performMigrations() {
-    if self.dataMigrationManager.canPeformMigration() {
-      self.handleMigrations()
-    } else {
-      self.loadLibrary()
+    Task {
+      await initializeLibrary(isRecoveryAttempt: false)
     }
   }
 
-  private func handleMigrations() {
-    guard dataMigrationManager.needsMigration() else {
-      loadLibrary()
-      return
-    }
-
+  func initializeLibrary(isRecoveryAttempt: Bool) async {
     do {
-      try dataMigrationManager.performMigration {
-        self.handleMigrations()
+      let stack = try await databaseInitializer.loadCoreDataStack()
+      finishLibrarySetup(stack, fromRecovery: isRecoveryAttempt)
+    } catch let error as NSError where error.domain == NSPOSIXErrorDomain && (
+      error.code == ENOSPC
+      || error.code == NSFileWriteOutOfSpaceError
+    ) {
+      // CoreData may fail if device doesn't have space
+      alertPresenter.showAlert(
+        "error_title".localized,
+        message: "coredata_error_diskfull_description".localized,
+        completion: nil
+      )
+    } catch let error as NSError where (
+      error.code == NSMigrationError ||
+      error.code == NSMigrationConstraintViolationError ||
+      error.code == NSMigrationCancelledError ||
+      error.code == NSMigrationMissingSourceModelError ||
+      error.code == NSMigrationMissingMappingModelError ||
+      error.code == NSMigrationManagerSourceStoreError ||
+      error.code == NSMigrationManagerDestinationStoreError ||
+      error.code == NSEntityMigrationPolicyError ||
+      error.code == NSValidationMultipleErrorsError ||
+      error.code == NSValidationMissingMandatoryPropertyError
+    ) {
+      // TODO: We can handle `isRecoveryAttempt` to show a different error message
+      Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
+      alertPresenter.showAlert(
+        "error_title".localized,
+        message: "coredata_error_migration_description".localized
+      ) { [unowned self] in
+        recoverLibraryFromFailedMigration()
       }
     } catch {
-      Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
-      loadLibrary()
+      let error = error as NSError
+      fatalError("Unresolved error \(error), \(error.userInfo)")
     }
   }
 
-  func loadLibrary() {
-    let stack = self.dataMigrationManager.getCoreDataStack()
-
-    stack.loadStore { [weak self] _, error in
-      if let error = error {
-        Self.logger.error("Failed to load store")
-        self?.handleCoreDataError(error)
-        return
-      }
-
-      let dataManager = DataManager(coreDataStack: stack)
-      let libraryService = LibraryService(dataManager: dataManager)
-      _ = libraryService.getLibrary()
-
-      self?.setupDefaultState(
-        libraryService: libraryService,
-        dataManager: dataManager
-      )
-
-      self?.onFinish?(stack)
+  func recoverLibraryFromFailedMigration() {
+    Task {
+      databaseInitializer.cleanupStoreFiles()
+      await initializeLibrary(isRecoveryAttempt: true)
     }
   }
 
-  func handleCoreDataError(_ error: Error) {
-    let error = error as NSError
-    // CoreData may fail if device doesn't have space
-    if (error.domain == NSPOSIXErrorDomain && error.code == ENOSPC) ||
-        (error.domain == NSCocoaErrorDomain && error.code == NSFileWriteOutOfSpaceError) {
-      self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_diskfull_description".localized, completion: nil)
-      return
+  func finishLibrarySetup(_ stack: CoreDataStack, fromRecovery: Bool) {
+    let dataManager = DataManager(coreDataStack: stack)
+    let libraryService = LibraryService(dataManager: dataManager)
+
+    setupDefaultState(
+      libraryService: libraryService,
+      dataManager: dataManager
+    )
+
+    if fromRecovery {
+      let files = getLibraryFiles()
+      libraryService.insertItems(from: files)
     }
 
-    // Handle data error migration by reloading library
-    if error.code == NSMigrationError ||
-        error.code == NSMigrationConstraintViolationError ||
-        error.code == NSMigrationCancelledError ||
-        error.code == NSMigrationMissingSourceModelError ||
-        error.code == NSMigrationMissingMappingModelError ||
-        error.code == NSMigrationManagerSourceStoreError ||
-        error.code == NSMigrationManagerDestinationStoreError ||
-        error.code == NSEntityMigrationPolicyError ||
-        error.code == NSValidationMultipleErrorsError ||
-        error.code == NSValidationMissingMandatoryPropertyError {
-      self.alertPresenter.showAlert("error_title".localized, message: "coredata_error_migration_description".localized) {
-        self.dataMigrationManager.cleanupStoreFile()
-        let urls = self.getLibraryFiles()
-        self.reloadLibrary(with: urls)
-      }
-      return
-    }
-
-    fatalError("Unresolved error \(error), \(error.userInfo)")
+    onFinish?(stack)
   }
 
-  func getLibraryFiles() -> [URL] {
+  private func getLibraryFiles() -> [URL] {
     let enumerator = FileManager.default.enumerator(
       at: DataManager.getProcessedFolderURL(),
       includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
@@ -123,63 +108,61 @@ class DataInitializerCoordinator: BPLogger {
     return files
   }
 
-  func reloadLibrary(with files: [URL]) {
-    let stack = self.dataMigrationManager.getCoreDataStack()
-    stack.loadStore { [weak self] _, error in
-      if let error = error {
-        self?.handleCoreDataError(error)
-        return
-      }
-
-      let dataManager = DataManager(coreDataStack: stack)
-
-      let libraryService = LibraryService(dataManager: dataManager)
-
-      /// Create library on disk
-      _ = libraryService.getLibrary()
-
-      self?.setupDefaultState(
-        libraryService: libraryService,
-        dataManager: dataManager
-      )
-
-      libraryService.insertItems(from: files)
-
-      self?.onFinish?(stack)
-    }
-  }
-
   func setupDefaultState(
     libraryService: LibraryService,
     dataManager: DataManager
   ) {
-    let sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+    let sharedDefaults = UserDefaults.sharedDefaults
 
-    // Migrate user defaults app icon (legacy)
-    if sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon) == nil {
+    // Migrate user defaults data to shared user defaults
+    if sharedDefaults.string(forKey: Constants.UserDefaults.appIcon) == nil {
       let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
-      sharedDefaults?.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
-    } else if let sharedAppIcon = sharedDefaults?.string(forKey: Constants.UserDefaults.appIcon),
+      sharedDefaults.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
+    } else if let sharedAppIcon = sharedDefaults.string(forKey: Constants.UserDefaults.appIcon),
               let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
               sharedAppIcon != localAppIcon {
-      sharedDefaults?.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
+      sharedDefaults.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon)
     }
 
+    migratePlayerPreferences(sharedDefaults: sharedDefaults)
+
     // Migrate protection for Processed folder
-    if !(sharedDefaults?.bool(forKey: Constants.UserDefaults.fileProtectionMigration) ?? false) {
+    if !sharedDefaults.bool(forKey: Constants.UserDefaults.fileProtectionMigration) {
       DataManager.getProcessedFolderURL().disableFileProtection()
-      sharedDefaults?.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
+      sharedDefaults.set(true, forKey: Constants.UserDefaults.fileProtectionMigration)
     }
 
-    setupUserDefaultsPreferences()
+    setupUserDefaultsPreferences(sharedDefaults: sharedDefaults)
 
     setupDefaultTheme(libraryService: libraryService)
 
     setupBlankAccount(dataManager: dataManager)
   }
 
-  private func setupUserDefaultsPreferences() {
+  private func migratePlayerPreferences(sharedDefaults: UserDefaults) {
+    let chapterContextEnabledKey = Constants.UserDefaults.chapterContextEnabled
+
+    if sharedDefaults.object(forKey: chapterContextEnabledKey) == nil {
+      let localPrefersChapterContext = UserDefaults.standard.bool(
+        forKey: chapterContextEnabledKey
+      )
+      sharedDefaults.set(localPrefersChapterContext, forKey: chapterContextEnabledKey)
+      UserDefaults.standard.removeObject(forKey: chapterContextEnabledKey)
+    }
+
+    let remainingTimeEnabledKey = Constants.UserDefaults.remainingTimeEnabled
+
+    if sharedDefaults.object(forKey: remainingTimeEnabledKey) == nil {
+      let localRemainingTimeEnabled = UserDefaults.standard.bool(
+        forKey: remainingTimeEnabledKey
+      )
+      sharedDefaults.set(localRemainingTimeEnabled, forKey: remainingTimeEnabledKey)
+      UserDefaults.standard.removeObject(forKey: remainingTimeEnabledKey)
+    }
+  }
+
+  private func setupUserDefaultsPreferences(sharedDefaults: UserDefaults) {
     // TODO: Look into NSUbiquitousKeyValueStore to persist preferences across devices with iCloud
     let defaults = UserDefaults.standard
 
@@ -197,7 +180,7 @@ class DataInitializerCoordinator: BPLogger {
     try? processedFolderURL.setResourceValues(resourceValues)
 
     // Set chapter context as default
-    defaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
+    sharedDefaults.set(true, forKey: Constants.UserDefaults.chapterContextEnabled)
     // Set smart-rewind as default
     defaults.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
     // Set system theme as default
@@ -207,7 +190,7 @@ class DataInitializerCoordinator: BPLogger {
     // Set autoplay finished enabled as default
     defaults.set(true, forKey: Constants.UserDefaults.autoplayRestartEnabled)
     // Set remaining time as default
-    defaults.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    sharedDefaults.set(true, forKey: Constants.UserDefaults.remainingTimeEnabled)
     // Mark as completed the first launch
     defaults.set(true, forKey: Constants.UserDefaults.completedFirstLaunch)
     // Process install attribution if there's any for the first launch

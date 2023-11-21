@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Désactiver les rapports d'erreur";
 "settings_skan_attribution_title" = "Désactiver l'attribution SKAN";
 "settings_skan_attribution_description" = "SKAN est la solution d'attribution d'Apple axée sur la confidentialité qui permet de mesurer l'efficacité d'une campagne sans compromettre la confidentialité des utilisateurs.";
+"intent_sleeptimer_cancel" = "Annuler la minuterie de mise en veille";
+"intent_sleeptimer_set_duration" = "Régler la minuterie de mise en veille avec la durée";
+"duration_title" = "Durée";
+"intent_sleeptimer_request_duration_title" = "Pendant combien de temps";
+"Set Sleep Timer for ${duration}" = "Définir la minuterie de mise en veille sur ${duration}";
+"intent_sleeptimer_eoc_title" = "Régler la minuterie de mise en veille sur la fin du chapitre";
+"intent_lastbook_play_title" = "Reprendre le dernier livre lu";
+"intent_lastbook_empty_error" = "Il n'y a pas de dernier livre joué";
+"intent_playback_pause_title" = "Suspendre la lecture";

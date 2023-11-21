@@ -116,6 +116,18 @@ public final class DataMigrationManager: BPLogger {
     return storeModel != lastVersion.model()
   }
 
+  public func performMigration() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      do {
+        try performMigration {
+          continuation.resume()
+        }
+      } catch {
+        continuation.resume(throwing: error)
+      }
+    }
+  }
+
   public func performMigration(completionHandler: @escaping () -> Void) throws {
     guard let storeModel = self.storeModel,
           let currentVersion = DBVersion(model: storeModel),

@@ -25,7 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var pendingURLActions = [Action]()
 
   var window: UIWindow?
-  var wasPlayingBeforeInterruption: Bool = false
   var documentFolderWatcher: DirectoryWatcher?
   var sharedFolderWatcher: DirectoryWatcher?
 
@@ -55,14 +54,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
 
-    // register to audio-interruption notifications
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(self.handleAudioInterruptions(_:)),
-      name: AVAudioSession.interruptionNotification,
-      object: nil
-    )
-
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(self.messageReceived),
@@ -83,9 +74,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func application(_ application: UIApplication, handle intent: INIntent, completionHandler: @escaping (INIntentResponse) -> Void) {
-    ActionParserService.process(intent)
-
-    let response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+    let response: INPlayMediaIntentResponse
+    do {
+      try ActionParserService.process(intent)
+      response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
+    } catch {
+      response = INPlayMediaIntentResponse(code: .failure, userActivity: nil)
+    }
     completionHandler(response)
   }
 
@@ -149,7 +144,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService()
+        shakeMotionService: ShakeMotionService(),
+        widgetReloadService: WidgetReloadService()
       )
       AppDelegate.shared?.playerManager = playerManager
     }
@@ -242,36 +238,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 
-  // Playback may be interrupted by calls. Handle pause
-  @objc func handleAudioInterruptions(_ notification: Notification) {
-    guard
-      let userInfo = notification.userInfo,
-      let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-      let type = AVAudioSession.InterruptionType(rawValue: typeValue),
-      let playerManager = self.playerManager
-    else {
-      return
-    }
-
-    switch type {
-    case .began:
-      if playerManager.isPlaying {
-        playerManager.pause()
-      }
-    case .ended:
-      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
-        return
-      }
-
-      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-      if options.contains(.shouldResume) {
-        playerManager.play()
-      }
-    @unknown default:
-      break
-    }
-  }
-
   override func accessibilityPerformMagicTap() -> Bool {
     guard
       let playerManager = self.playerManager,
@@ -326,7 +292,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       var newTime = event.positionTime
 
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
+      if UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
          let currentChapter = currentItem.currentChapter {
         newTime += currentChapter.start
       }

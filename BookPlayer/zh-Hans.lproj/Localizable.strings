@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "禁用崩溃报告";
 "settings_skan_attribution_title" = "禁用 SKAN 归因";
 "settings_skan_attribution_description" = "SKAN 是 Apple 隐私优先的归因解决方案，可以在不损害用户隐私的情况下衡量活动的有效性";
+"intent_sleeptimer_cancel" = "取消睡眠定时器";
+"intent_sleeptimer_set_duration" = "设置睡眠定时器的持续时间";
+"duration_title" = "期间";
+"intent_sleeptimer_request_duration_title" = "多长时间";
+"Set Sleep Timer for ${duration}" = "将睡眠定时器设置为${duration}";
+"intent_sleeptimer_eoc_title" = "将睡眠定时器设置为章节结束";
+"intent_lastbook_play_title" = "继续上次播放的书";
+"intent_lastbook_empty_error" = "没有最后玩过的书";
+"intent_playback_pause_title" = "暂停播放";

@@ -32,11 +32,11 @@ public protocol SyncServiceProtocol {
   var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
-  func syncListContents(at relativePath: String?) async throws -> SyncableItem?
+  func syncListContents(at relativePath: String?) async throws
 
   /// Fetch the synced identifiers and upload new local items
   /// Note: Should only be called once when the user logs in
-  func syncLibraryContents() async throws -> SyncableItem?
+  func syncLibraryContents() async throws
 
   func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
 
@@ -152,7 +152,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func syncListContents(
     at relativePath: String?
-  ) async throws -> SyncableItem? {
+  ) async throws {
     guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
@@ -180,11 +180,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let response = try await fetchContents(at: relativePath)
 
     try await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
-
-    return response.lastItemPlayed
   }
 
-  public func syncLibraryContents() async throws -> SyncableItem? {
+  public func syncLibraryContents() async throws {
     guard
       isActive,
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
@@ -205,8 +203,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let response = try await fetchContents(at: nil)
 
     try await processContentsResponse(response, parentFolder: nil, canDelete: false)
-
-    return response.lastItemPlayed
   }
 
   func processContentsResponse(
@@ -250,14 +246,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     /// Only update the time if the remote last played timestamp is greater than the local timestamp
-    guard
-      let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp,
-      remoteLastPlayDateTimestamp > localLastPlayDateTimestamp
-    else {
-      return
+    if let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp,
+       remoteLastPlayDateTimestamp > localLastPlayDateTimestamp {
+      await libraryService.updateInfo(for: item)
+      throw BPSyncError.reloadLastBook(item.relativePath)
     }
-
-    await libraryService.updateInfo(for: item)
   }
 
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {

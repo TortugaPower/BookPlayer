@@ -9,16 +9,18 @@ on:
 jobs:
   build:
     # https://github.com/actions/runner-images/tree/main/images/macos
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Create Debug.xcconfig
       run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
     - name: Swiftlint
       run: swiftlint
+    - name: Set Xcode version
+      run: sudo xcode-select -s "/Applications/Xcode_15.0.1.app/Contents/Developer"
     - name: Resolve dependencies
       run: xcodebuild -resolvePackageDependencies
     - name: Build and Run tests
-      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 13,OS=16.2'
+      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0.1'
 

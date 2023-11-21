@@ -1,0 +1,14 @@
+"Play the current book in ${applicationName}" = "Воспроизвести текущую книгу в ${applicationName}";
+"Play the last book in ${applicationName}" = "Воспроизвести последнюю книгу в ${applicationName}";
+"Continue the last played book in ${applicationName}" = "Продолжить последнюю воспроизведенную книгу в ${applicationName}";
+"Pause the current book in ${applicationName}" = "Приостановить текущую книгу в ${applicationName}";
+"Pause playback in ${applicationName}" = "Приостановить воспроизведение в ${applicationName}";
+"Stop ${applicationName}" = "Остановить ${applicationName}";
+"Stop playback in ${applicationName}" = "Остановить воспроизведение в ${applicationName}";
+"Set the sleep timer to the End of Chapter in ${applicationName}" = "Установите таймер сна на конец главы в ${applicationName}";
+"Set the sleep timer to the End of the current Chapter in ${applicationName}" = "Установите таймер сна на конец текущей главы в ${applicationName}";
+"Cancel the sleep timer in ${applicationName}" = "Отмените таймер сна в ${applicationName}";
+"Turn off the sleep timer in ${applicationName}" = "Отключите таймер сна в ${applicationName}";
+"Set the sleep timer in ${applicationName}" = "Установите таймер сна в ${applicationName}";
+"Turn on the sleep timer in ${applicationName}" = "Включите таймер сна в ${applicationName}";
+"Enable the sleep timer in ${applicationName}" = "Включите таймер сна в ${applicationName}";

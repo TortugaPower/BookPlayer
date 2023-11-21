@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Crashrapporten uitschakelen";
 "settings_skan_attribution_title" = "Schakel SKAN-toeschrijving uit";
 "settings_skan_attribution_description" = "SKAN is Apple's privacy-first attributieoplossing waarmee kan worden gemeten hoe effectief een campagne was, zonder de privacy van de gebruiker in gevaar te brengen";
+"intent_sleeptimer_cancel" = "Annuleer de slaaptimer";
+"intent_sleeptimer_set_duration" = "Stel de slaaptimer in met de duur";
+"duration_title" = "Duur";
+"intent_sleeptimer_request_duration_title" = "Voor hoelang";
+"Set Sleep Timer for ${duration}" = "Slaaptimer instellen voor ${duration}";
+"intent_sleeptimer_eoc_title" = "Stel de Slaaptimer in op Einde van hoofdstuk";
+"intent_lastbook_play_title" = "Hervat het laatst gespeelde boek";
+"intent_lastbook_empty_error" = "Er is geen laatst gespeeld boek";
+"intent_playback_pause_title" = "Pauzeer het afspelen";

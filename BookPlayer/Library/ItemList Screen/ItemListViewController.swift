@@ -117,6 +117,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     if didAppearForFirstTime {
       didAppearForFirstTime = false
       viewModel.viewDidAppear()
+      /// Can't do this on viewDidLoad as there's no guarantee that the scene delegate will
+      /// have an 'active' status
+      if navigationController?.viewControllers.count == 1 {
+        navigationController!.interactivePopGestureRecognizer!.delegate = self
+        viewModel.notifyPendingFiles()
+      }
     }
   }
 
@@ -137,11 +143,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.adjustBottomOffsetForMiniPlayer()
 
     self.navigationItem.rightBarButtonItem = searchButton
-
-    if self.navigationController?.viewControllers.count == 1 {
-      self.navigationController!.interactivePopGestureRecognizer!.delegate = self
-      self.viewModel.notifyPendingFiles()
-    }
 
     self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
 
@@ -450,8 +451,20 @@ extension ItemListViewController: UITableViewDataSource {
           remoteURL: item.remoteURL
         ),
         placeholder: defaultArtwork,
-        options: [.targetCache(ArtworkService.cache)]
-      )
+        options: [.targetCache(ArtworkService.cache)]) { [weak self] result in
+          /// Cache default artwork if the provider errors out with .missingImage to avoid multiple
+          /// retries on files we know don't have an artwork for
+          guard
+            case .failure(let error) = result,
+            case .imageSettingError(let reason) = error,
+            case .dataProviderError(let provider, let error) = reason,
+            let providerError = error as? AVAudioAssetImageDataProvider.ProviderError,
+            providerError == .missingImage,
+            let artworkData = self?.viewModel.defaultArtwork
+          else { return }
+
+          ArtworkService.storeInCache(artworkData, for: provider.cacheKey)
+        }
     }
     let label = VoiceOverService.getAccessibilityLabel(for: item)
     cell.setAccessibilityLabel(label)

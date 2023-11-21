@@ -11,7 +11,6 @@ import BookPlayerKit
 import Combine
 import Foundation
 import MediaPlayer
-import WidgetKit
 
 // swiftlint:disable:next file_length
 /// sourcery: AutoMockable
@@ -49,6 +48,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
   private let shakeMotionService: ShakeMotionServiceProtocol
+  private let widgetReloadService: WidgetReloadServiceProtocol
 
   private var audioPlayer = AVPlayer()
 
@@ -64,6 +64,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  /// Prevent loop from automatic URL refreshes
+  private var canFetchRemoteURL = true
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -93,7 +95,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
-    shakeMotionService: ShakeMotionServiceProtocol
+    shakeMotionService: ShakeMotionServiceProtocol,
+    widgetReloadService: WidgetReloadServiceProtocol
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -101,6 +104,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     self.shakeMotionService = shakeMotionService
+    self.widgetReloadService = widgetReloadService
     super.init()
 
     setupPlayerInstance()
@@ -129,6 +133,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     SleepTimer.shared.timerEndedPublisher.sink { [weak self] state in
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
+  }
+
+  func bindInterruptObserver() {
+    NotificationCenter.default.removeObserver(
+      self,
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.handleAudioInterruptions(_:)),
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
   }
 
   func setupPlayerInstance() {
@@ -210,9 +228,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     if currentItem?.isBoundBook == false {
       libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
 
-      if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
-         let playbackItem = try playbackService.getPlayableItem(from: libraryItem) {
-        currentItem = playbackItem
+      if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath) {
+        currentItem = try playbackService.getPlayableItem(from: libraryItem)
       }
     }
 
@@ -271,6 +288,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
+      self?.widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
 
     loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
@@ -341,9 +359,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
             self.initializeChapterTime(time)
           }
+          self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
+        self.widgetReloadService.reloadAllWidgets()
       }
     }
   }
@@ -515,8 +535,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   func setNowPlayingBookTime() {
     guard let currentItem = self.currentItem else { return }
 
-    let prefersChapterContext = UserDefaults.standard.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
-    let prefersRemainingTime = UserDefaults.standard.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    let prefersChapterContext = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.chapterContextEnabled
+    )
+    let prefersRemainingTime = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.remainingTimeEnabled
+    )
     let currentTimeInContext = currentItem.currentTimeInContext(prefersChapterContext)
     let maxTimeInContext = currentItem.maxTimeInContext(
       prefersChapterContext: prefersChapterContext,
@@ -623,6 +647,9 @@ extension PlayerManager {
     /// Ignore play commands if there's no item loaded
     guard let currentItem else { return }
 
+    /// Allow refetching remote URL if the action was initiating by the user
+    canFetchRemoteURL = true
+
     guard let playerItem else {
       /// Check if the playbable item is in the process of being set
       if observeStatus == false {
@@ -650,8 +677,6 @@ extension PlayerManager {
 
     self.userActivityManager.resumePlaybackActivity()
 
-    self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
-
     do {
       let audioSession = AVAudioSession.sharedInstance()
       try audioSession.setCategory(
@@ -678,6 +703,7 @@ extension PlayerManager {
     self.fadeTimer?.invalidate()
     self.shakeMotionService.stopMotionUpdates()
     self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+    bindInterruptObserver()
     // Set play state on player and control center
     self.audioPlayer.playImmediately(atRate: self.currentSpeed)
 
@@ -685,8 +711,6 @@ extension PlayerManager {
 
     DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-
-      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
@@ -724,48 +748,60 @@ extension PlayerManager {
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-    guard let path = keyPath,
-          path == "status",
-          let item = object as? AVPlayerItem else {
-      super.observeValue(forKeyPath: keyPath,
-                         of: object,
-                         change: change,
-                         context: context)
+    guard 
+      let path = keyPath,
+      path == "status",
+      let item = object as? AVPlayerItem
+    else {
+      super.observeValue(
+        forKeyPath: keyPath,
+        of: object,
+        change: change,
+        context: context
+      )
       return
     }
 
-    guard item.status == .readyToPlay else {
-      if item.status == .failed {
-        if (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
-           let currentItem {
-          loadAndRefreshURL(item: currentItem)
-        } else {
-          playbackQueued = nil
-          observeStatus = false
-          showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
-        }
+    switch item.status {
+    case .readyToPlay:
+      self.observeStatus = false
+
+      if self.playbackQueued == true {
+        self.play()
       }
-      return
+      // Clean up flag
+      self.playbackQueued = nil
+    case .failed:
+      if canFetchRemoteURL,
+        (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
+        let currentItem {
+        loadAndRefreshURL(item: currentItem)
+        canFetchRemoteURL = false
+      } else {
+        playbackQueued = nil
+        observeStatus = false
+        playerItem = nil
+        showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
+      }
+    case .unknown:
+      /// Do not handle .unknown states, as we're only interested in the success and failure states
+      fallthrough
+    @unknown default:
+      break
     }
-
-    self.observeStatus = false
-
-    if self.playbackQueued == true {
-      self.play()
-    }
-    // Clean up flag
-    self.playbackQueued = nil
   }
   // swiftlint:enable block_based_kvo
 
   func pause() {
-    guard let currentItem = self.currentItem else { return }
+    pause(removeInterruptObserver: true)
+  }
+
+  func pause(removeInterruptObserver: Bool) {
+    guard self.currentItem != nil else { return }
 
     self.observeStatus = false
 
     self.userActivityManager.stopPlaybackActivity()
-
-    self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
 
     NotificationCenter.default.post(name: .bookPaused, object: nil)
 
@@ -778,6 +814,13 @@ extension PlayerManager {
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    if removeInterruptObserver {
+      NotificationCenter.default.removeObserver(
+        self,
+        name: AVAudioSession.interruptionNotification,
+        object: nil
+      )
+    }
   }
 
   // Toggle play/pause of book
@@ -808,6 +851,11 @@ extension PlayerManager {
     loadChapterTask?.cancel()
 
     userActivityManager.stopPlaybackActivity()
+    NotificationCenter.default.removeObserver(
+      self,
+      name: AVAudioSession.interruptionNotification,
+      object: nil
+    )
   }
 
   func markAsCompleted(_ flag: Bool) {
@@ -816,7 +864,12 @@ extension PlayerManager {
     self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      if UIApplication.shared.applicationState == .active {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
+      } else {
+        /// Defer all the folder progress updates until the user opens up the app again
+        playbackService.markStaleProgress(folderPath: parentFolderPath)
+      }
     }
 
     currentItem.isFinished = flag
@@ -960,9 +1013,17 @@ extension PlayerManager {
     self.playbackService.updatePlaybackTime(item: item, time: time)
     let newPercentage = Int(item.percentCompleted)
 
-    if previousPercentage != newPercentage,
-       let parentFolder = item.parentFolder {
-      libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+    if previousPercentage != newPercentage {
+      if let parentFolder = item.parentFolder {
+        if UIApplication.shared.applicationState == .active {
+          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+        } else {
+          /// Defer all the folder progress updates until the user opens up the app again
+          playbackService.markStaleProgress(folderPath: parentFolder)
+        }
+      }
+
+      widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
   }
 
@@ -984,6 +1045,33 @@ extension PlayerManager {
     )
 
     setupPlayerInstance()
+  }
+
+  /// Playback may be interrupted by calls. Handle resuming the audio if needed
+  @objc
+  func handleAudioInterruptions(_ notification: Notification) {
+    guard
+      let userInfo = notification.userInfo,
+      let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+      let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+    else {
+      return
+    }
+
+    switch type {
+    case .began:
+      pause(removeInterruptObserver: false)
+    case .ended:
+      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
+        return
+      }
+      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+      if options.contains(.shouldResume) {
+        play()
+      }
+    @unknown default:
+      break
+    }
   }
 }
 

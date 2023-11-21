@@ -31,7 +31,6 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
       "skippedTests" : [
         "PlaybackPerformanceTests"
       ],

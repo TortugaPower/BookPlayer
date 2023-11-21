@@ -19,8 +19,13 @@ public protocol PlaybackServiceProtocol {
     restartFinished: Bool
   ) -> PlayableItem?
   func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem?
-  func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem?
+  func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem
   func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter?
+  /// Mark a folder path as stale when its progress calculation is deferred
+  func markStaleProgress(folderPath: String)
+  /// Process any deferred folder progress calculation
+  /// - Returns: Boolean specifying if there were items to process or not
+  func processFoldersStaleProgress() -> Bool
 }
 
 public final class PlaybackService: PlaybackServiceProtocol {
@@ -154,7 +159,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
   }
 
-  public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem? {
+  public func getPlayableItem(from item: SimpleLibraryItem) throws -> PlayableItem {
     switch item.type {
     case .folder, .bound:
       return try self.getPlayableItemFrom(folder: item)
@@ -296,5 +301,39 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
         return chapter
       })
+  }
+
+  /// Mark a folder path as stale when its progress calculation is deferred
+  public func markStaleProgress(folderPath: String) {
+    let defaults = UserDefaults.standard
+
+    var staleIdentifiers = defaults.stringArray(
+      forKey: Constants.UserDefaults.staleProgressIdentifiers
+    ) ?? []
+
+    guard !staleIdentifiers.contains(folderPath) else { return }
+
+    staleIdentifiers.append(folderPath)
+    defaults.set(staleIdentifiers, forKey: Constants.UserDefaults.staleProgressIdentifiers)
+  }
+
+  /// Process any deferred folder progress calculation
+  /// - Returns: Boolean specifying if there were items to process or not
+  public func processFoldersStaleProgress() -> Bool {
+    let defaults = UserDefaults.standard
+
+    guard 
+      let staleIdentifiers = defaults.stringArray(
+        forKey: Constants.UserDefaults.staleProgressIdentifiers
+      ),
+      !staleIdentifiers.isEmpty
+    else { return false }
+
+    for staleIdentifier in staleIdentifiers {
+      libraryService.recursiveFolderProgressUpdate(from: staleIdentifier)
+    }
+
+    defaults.removeObject(forKey: Constants.UserDefaults.staleProgressIdentifiers)
+    return true
   }
 }

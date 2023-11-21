@@ -291,3 +291,12 @@
 "settings_crash_reports_title" = "Отключить отчеты о сбоях";
 "settings_skan_attribution_title" = "Отключить СКАН-атрибуцию";
 "settings_skan_attribution_description" = "SKAN — это решение Apple для атрибуции, ориентированное на конфиденциальность, которое позволяет оценить эффективность кампании без ущерба для конфиденциальности пользователей.";
+"intent_sleeptimer_cancel" = "Отменить таймер сна";
+"intent_sleeptimer_set_duration" = "Установите таймер сна с продолжительностью";
+"duration_title" = "Продолжительность";
+"intent_sleeptimer_request_duration_title" = "Как долго";
+"Set Sleep Timer for ${duration}" = "Установить таймер сна на ${duration}";
+"intent_sleeptimer_eoc_title" = "Установите таймер сна на конец главы";
+"intent_lastbook_play_title" = "Возобновить последнюю воспроизведенную книгу";
+"intent_lastbook_empty_error" = "Нет последней прослушанной книги";
+"intent_playback_pause_title" = "Пауза воспроизведения";

@@ -83,13 +83,17 @@ public class ArtworkService {
   ) -> AVAudioAssetImageDataProvider {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    return AVAudioAssetImageDataProvider(fileURL: fileURL, remoteURL: remoteURL, cacheKey: relativePath)
+    return AVAudioAssetImageDataProvider(
+      fileURL: fileURL,
+      remoteURL: remoteURL,
+      cacheKey: relativePath
+    )
   }
+}
 
 #if os(iOS)
+extension ArtworkService {
   public class func generateDefaultArtwork(from color: UIColor?, with size: CGSize = CGSize(width: 50, height: 50)) -> UIImage? {
-    guard Thread.isMainThread else { return nil }
-
     let baseColorLCH = self.getLCHColor(from: color)
 
     let blankspace = UIView()
@@ -119,9 +123,8 @@ public class ArtworkService {
 
     return self.image(with: stackView)
   }
-#endif
 
-  public class func getLCHColor(from color: UIColor?) -> LCHColor {
+  private class func getLCHColor(from color: UIColor?) -> LCHColor {
     let baseColorLCH: LCHColor
     if let color = color,
        let rgbColor = color.rgbColor() {
@@ -137,7 +140,7 @@ public class ArtworkService {
     return self.getLeftGradiants(for: self.getLCHColor(from: color))
   }
 
-  public class func getLeftGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
+  private class func getLeftGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
     let leftColor = LCHColor(l: baseColorLCH.l + self.leftLuminanceGradientOffset, c: baseColorLCH.c + self.leftChromaGradientOffset, h: baseColorLCH.h + self.leftHueGradientOffset, alpha: baseColorLCH.alpha)
     let leftBlankColor = LCHColor(l: baseColorLCH.l + self.leftLuminanceGradientOffset, c: baseColorLCH.c + self.leftChromaGradientOffset, h: baseColorLCH.h + self.leftHueGradientOffset, alpha: 0)
 
@@ -148,23 +151,23 @@ public class ArtworkService {
     return self.getRightGradiants(for: self.getLCHColor(from: color))
   }
 
-  public class func getRightGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
+  private class func getRightGradiants(for baseColorLCH: LCHColor) -> [CGColor] {
     let rightColor = LCHColor(l: baseColorLCH.l + self.rightLuminanceGradientOffset, c: baseColorLCH.c + self.rightChromaGradientOffset, h: baseColorLCH.h + self.rightHueGradientOffset, alpha: baseColorLCH.alpha)
     let rightBlankColor = LCHColor(l: baseColorLCH.l + self.rightLuminanceGradientOffset, c: baseColorLCH.c + self.rightChromaGradientOffset, h: baseColorLCH.h + self.rightHueGradientOffset, alpha: 0)
 
     return [rightColor.toRGB().color().cgColor, rightBlankColor.toRGB().color().cgColor]
   }
 
-#if os(iOS)
-  public class func image(with view: UIView) -> UIImage? {
+  private class func image(with view: UIView) -> UIImage? {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.isOpaque, 0.0)
     defer { UIGraphicsEndImageContext() }
     if let context = UIGraphicsGetCurrentContext() {
       view.layer.render(in: context)
       let image = UIGraphicsGetImageFromCurrentImageContext()
       return image
+    } else {
+      return nil
     }
-    return nil
   }
-#endif
 }
+#endif

@@ -9,6 +9,10 @@
 import Foundation
 
 public struct Spacing {
+  /// Value: 4
+  public static let S4: CGFloat = 4
+  /// Value: 6
+  public static let S3: CGFloat = 6
   /// Value: 8
   public static let S2: CGFloat = 8
   /// Value: 12
