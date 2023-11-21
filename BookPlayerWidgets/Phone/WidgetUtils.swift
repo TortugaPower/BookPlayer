@@ -152,7 +152,22 @@ class WidgetUtils {
   }
 
   class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double?) -> URL {
-    let urlString = CommandParser.createWidgetActionString(with: bookIdentifier, autoplay: autoplay, timerSeconds: timerSeconds)
+    let urlString = CommandParser.createWidgetActionString(
+      with: bookIdentifier,
+      autoplay: autoplay,
+      timerSeconds: timerSeconds
+    )
+    return URL(string: urlString)!
+  }
+
+  class func getWidgetActionURL(
+    with bookIdentifier: String?,
+    playbackToggle: Bool
+  ) -> URL {
+    let urlString = CommandParser.createWidgetActionString(
+      with: bookIdentifier,
+      playbackToggle: playbackToggle
+    )
     return URL(string: urlString)!
   }
 

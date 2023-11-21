@@ -65,7 +65,9 @@ struct LastPlayedProvider: TimelineProvider {
       throw BookPlayerError.emptyResponse
     }
 
-    let isPlaying = true
+    let isPlaying = UserDefaults.sharedDefaults.bool(
+      forKey: Constants.UserDefaults.sharedWidgetIsPlaying
+    )
 
     let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
 
@@ -109,7 +111,7 @@ struct LastPlayedWidgetView: View {
       HStack {
         if let relativePath = entry.relativePath {
           if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
-            Button(intent: BookStartPlaybackIntent(relativePath: relativePath)) {
+            Button(intent: BookPlaybackToggleIntent(relativePath: relativePath)) {
               ZStack {
                 getArtworkView(for: relativePath)
                 Circle()
@@ -199,7 +201,7 @@ struct LastPlayedWidgetView_Previews: PreviewProvider {
 }
 
 struct LastPlayedWidget: Widget {
-  let kind: String = "com.bookplayer.widget.small.lastPlayed"
+  let kind: String = Constants.Widgets.lastPlayedWidget.rawValue
 
   var body: some WidgetConfiguration {
     StaticConfiguration(

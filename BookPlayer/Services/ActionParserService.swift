@@ -50,6 +50,8 @@ class ActionParserService {
       self.handlePlayAction(action)
     case .pause:
       self.handlePauseAction(action)
+    case .playbackToggle:
+      self.handlePlaybackToggleAction(action)
     case .download:
       self.handleDownloadAction(action)
     case .sleep:
@@ -152,8 +154,26 @@ class ActionParserService {
     }
   }
 
+  private class func handlePlaybackToggleAction(_ action: Action) {
+    guard
+      let playerManager = AppDelegate.shared?.playerManager
+    else {
+      return
+    }
+
+    self.removeAction(action)
+    playerManager.playPause()
+  }
+
   private class func handlePauseAction(_ action: Action) {
-    AppDelegate.shared?.playerManager?.pause()
+    guard
+      let playerManager = AppDelegate.shared?.playerManager
+    else {
+      return
+    }
+
+    self.removeAction(action)
+    playerManager.pause()
   }
 
   private class func handlePlayAction(_ action: Action) {
@@ -216,6 +236,11 @@ class ActionParserService {
   private class func handleWidgetAction(_ action: Action) {
     if action.getQueryValue(for: "autoplay") != nil {
       let playAction = Action(command: .play, parameters: action.parameters)
+      self.handleAction(playAction)
+    }
+
+    if action.getQueryValue(for: "playbackToggle") != nil {
+      let playAction = Action(command: .playbackToggle, parameters: action.parameters)
       self.handleAction(playAction)
     }
 
