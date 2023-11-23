@@ -134,7 +134,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
 
-    isPlayingPublisher().sink { [weak self] isPlayingValue in
+    isPlayingPublisher()
+      .removeDuplicates()
+      .sink { [weak self] isPlayingValue in
       UserDefaults.sharedDefaults.set(
         isPlayingValue,
         forKey: Constants.UserDefaults.sharedWidgetIsPlaying
@@ -289,7 +291,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     self.currentItem = item
-    self.libraryService.setLibraryLastBook(with: item.relativePath)
 
     self.playableChapterSubscription?.cancel()
     self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
