@@ -407,6 +407,7 @@ extension ItemListViewController: UITableViewDataSource {
     return self.viewModel.items.count
   }
 
+  // swiftlint:disable:next function_body_length
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard indexPath.sectionValue != .add,
           let cell = tableView.dequeueReusableCell(withIdentifier: "BookCellView", for: indexPath) as? BookCellView else {

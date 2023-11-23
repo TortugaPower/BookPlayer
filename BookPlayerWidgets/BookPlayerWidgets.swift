@@ -21,9 +21,7 @@ struct BookPlayerWidgetUI_Previews: PreviewProvider {
       LastPlayedWidgetView(entry: SimpleEntry(
         date: Date(),
         title: "Test Book Title",
-        relativePath: nil,
-        timerSeconds: 300,
-        autoplay: true
+        relativePath: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
     }

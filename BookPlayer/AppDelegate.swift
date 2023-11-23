@@ -48,8 +48,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return lastSceneToResignActive
     }
   }
-  /// Reference for observer
+  /// Reference for observers
   private var crashReportsAccessObserver: NSKeyValueObservation?
+  private var sharedWidgetActionURLObserver: NSKeyValueObservation?
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -69,6 +70,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
+    // Setup observer for interactive widgets
+    self.setupSharedWidgetActionObserver()
 
     return true
   }
@@ -378,6 +381,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     handleSentryPreference(
       isDisabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsDisabled)
     )
+  }
+
+  func setupSharedWidgetActionObserver() {
+    let sharedDefaults = UserDefaults.sharedDefaults
+
+    if let actionURL = sharedDefaults.sharedWidgetActionURL {
+      ActionParserService.process(actionURL)
+      sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+    }
+
+    sharedWidgetActionURLObserver = sharedDefaults.observe(\.sharedWidgetActionURL) { defaults, _ in
+      DispatchQueue.main.async {
+        guard let actionURL = defaults.sharedWidgetActionURL else { return }
+
+        ActionParserService.process(actionURL)
+        sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetActionURL)
+      }
+    }
   }
 
   /// Setup or stop Sentry based on flag

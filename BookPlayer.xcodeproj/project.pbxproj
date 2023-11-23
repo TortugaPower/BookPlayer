@@ -326,6 +326,8 @@
 		630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */; };
 		630826152AF6CABC002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
 		630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
+		6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */; };
+		6309F1272B0CF658002B86A4 /* BookPlaybackToggleIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */; };
 		630F115E2AE7EEBA000A997A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
@@ -339,6 +341,7 @@
 		6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D5682AF12D48003D0B09 /* SharedWidget.swift */; };
 		6340D56E2AF13E4C003D0B09 /* RectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D56D2AF13E4C003D0B09 /* RectangularView.swift */; };
 		63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63432B582AC1E6F7002619D0 /* MockNavigationController.swift */; };
+		634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
 		6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */; };
 		6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */; };
@@ -358,6 +361,10 @@
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
+		63C1A8AF2B09158600C4B418 /* BookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */; };
+		63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418445C2258AE11E0072DD13 /* WidgetUtils.swift */; };
+		63C1A8B12B09165400C4B418 /* RecentBooksWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */; };
+		63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
@@ -1029,6 +1036,7 @@
 		6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloadService.swift; sourceTree = "<group>"; };
 		6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidget.swift; sourceTree = "<group>"; };
 		630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidgetEntry.swift; sourceTree = "<group>"; };
+		6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlaybackToggleIntent.swift; sourceTree = "<group>"; };
 		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1039,6 +1047,7 @@
 		6340D5682AF12D48003D0B09 /* SharedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidget.swift; sourceTree = "<group>"; };
 		6340D56D2AF13E4C003D0B09 /* RectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangularView.swift; sourceTree = "<group>"; };
 		63432B582AC1E6F7002619D0 /* MockNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNavigationController.swift; sourceTree = "<group>"; };
+		634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookStartPlaybackIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndChapterSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -2048,6 +2057,8 @@
 		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
 			isa = PBXGroup;
 			children = (
+				634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */,
+				6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */,
 				4106413E258725F1008EB8D0 /* TimeListened */,
 				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
 				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
@@ -3182,6 +3193,7 @@
 				630826052AF522FF002ACE0D /* RectangularView.swift in Sources */,
 				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
+				6309F1272B0CF658002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				630826032AF5225F002ACE0D /* CircularView.swift in Sources */,
 				630826042AF522EA002ACE0D /* SharedWidgetEntry.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
@@ -3193,6 +3205,7 @@
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
 				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */,
 				630826072AF52831002ACE0D /* SharedWidget.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
 			);
@@ -3216,6 +3229,7 @@
 				631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */,
 				9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
+				63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
 				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
@@ -3239,6 +3253,7 @@
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
 				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
+				63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */,
 				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
@@ -3324,10 +3339,12 @@
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */,
+				63C1A8AF2B09158600C4B418 /* BookStartPlaybackIntent.swift in Sources */,
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
+				63C1A8B12B09165400C4B418 /* RecentBooksWidgetView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
@@ -3373,6 +3390,7 @@
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
+				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */,
 				D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */,
 				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,

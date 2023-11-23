@@ -133,6 +133,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     SleepTimer.shared.timerEndedPublisher.sink { [weak self] state in
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
+
+    isPlayingPublisher()
+      .removeDuplicates()
+      .sink { [weak self] isPlayingValue in
+      UserDefaults.sharedDefaults.set(
+        isPlayingValue,
+        forKey: Constants.UserDefaults.sharedWidgetIsPlaying
+      )
+      self?.widgetReloadService.reloadWidget(.lastPlayedWidget)
+    }.store(in: &disposeBag)
   }
 
   func bindInterruptObserver() {
