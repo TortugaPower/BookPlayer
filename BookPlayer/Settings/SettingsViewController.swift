@@ -389,7 +389,11 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
       mail.mailComposeDelegate = self
       mail.setToRecipients([self.supportEmail])
-      mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
+      /// Note: c for cloud enabled
+      let subject: String = viewModel.hasMadeDonation()
+      ? "I need help with BookPlayer \(self.version)-\(self.build)c"
+      : "I need help with BookPlayer \(self.version)-\(self.build)"
+      mail.setSubject(subject)
       mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
 
       self.present(mail, animated: true)

@@ -48,6 +48,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showTipJar()
       case .credits:
         self.showCredits()
+      case .debugFiles:
+        self.shareDebugFiles()
       }
     }
 
@@ -108,7 +110,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   }
 
   func showPro() {
-//    let presentingVC = flow.navigationController.getTopViewController()
     let child: Coordinator
 
     if self.accountService.getAccountId() != nil {
@@ -207,5 +208,20 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     nav.viewControllers = [vc]
 
     flow.navigationController.present(nav, animated: true)
+  }
+
+  func shareDebugFiles() {
+    let provider = LibraryRepresentationActivityItemProvider(libraryService: libraryService)
+
+    let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
+
+    if let popoverPresentationController = shareController.popoverPresentationController,
+       let view = flow.navigationController.topViewController?.view {
+      popoverPresentationController.permittedArrowDirections = []
+      popoverPresentationController.sourceView = view
+      popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+    }
+
+    flow.navigationController.present(shareController, animated: true, completion: nil)
   }
 }

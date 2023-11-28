@@ -21,6 +21,7 @@ class SettingsViewModel: ViewModelProtocol {
     case deletedFilesManagement
     case tipJar
     case credits
+    case debugFiles
   }
   weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
@@ -104,5 +105,9 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showCredits() {
     onTransition?(.credits)
+  }
+
+  func showDebugFiles() {
+    onTransition?(.debugFiles)
   }
 }
