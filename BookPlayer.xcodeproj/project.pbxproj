@@ -352,6 +352,7 @@
 		6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
+		635907A02B161B14002FA524 /* LibraryRepresentationActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* LibraryRepresentationActivityItemProvider.swift */; };
 		637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6376091B2ADCD81400A01D5D /* AppShortcuts.strings */; };
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
@@ -1056,6 +1057,7 @@
 		6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseInitializer.swift; sourceTree = "<group>"; };
 		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
+		6359079F2B161B14002FA524 /* LibraryRepresentationActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryRepresentationActivityItemProvider.swift; sourceTree = "<group>"; };
 		6376091A2ADCD81400A01D5D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091C2ADCD82100A01D5D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091D2ADCD82100A01D5D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/AppShortcuts.strings"; sourceTree = "<group>"; };
@@ -2085,6 +2087,7 @@
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
+				6359079F2B161B14002FA524 /* LibraryRepresentationActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
@@ -3389,6 +3392,7 @@
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
+				635907A02B161B14002FA524 /* LibraryRepresentationActivityItemProvider.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */,

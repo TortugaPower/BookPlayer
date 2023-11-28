@@ -39,6 +39,9 @@ public protocol LibraryServiceProtocol {
 
   /// Fetch folder or library contents at the specified path
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
+  /// Fetch folder or library managed contents at the specified path
+  /// Note: Meant for read-only access, and lightway of fetching specified properties
+  func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]?
   /// Get max items count inside the specified path
   func getMaxItemsCount(at relativePath: String?) -> Int
   /// Fetch the most recent played items
@@ -130,10 +133,6 @@ public protocol LibraryServiceProtocol {
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
   func deleteBookmark(_ bookmark: SimpleBookmark)
-
-  /// Get a representation of the library like with the `tree` command
-  /// Note: '✓' means the backing file exists, and '𐄂' that it's missing locally
-  func getLibraryRepresentation() -> String
 }
 
 // swiftlint:disable force_cast
@@ -732,7 +731,7 @@ extension LibraryService {
     return parseFetchedItems(from: results)
   }
 
-  func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
+  public func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.propertiesToFetch = propertiesToFetch
 
@@ -1827,117 +1826,3 @@ extension LibraryService {
   }
 }
 // swiftlint:enable force_cast
-
-// MARK: - Debug functionality
-extension LibraryService {
-  public func getLibraryRepresentation() -> String {
-    let contents = fetchRawContents(
-      at: nil,
-      propertiesToFetch: [
-        #keyPath(LibraryItem.relativePath),
-        #keyPath(LibraryItem.type)
-      ]
-    ) ?? []
-
-    var libraryRepresentation = ".\n"
-    let processedFolderURL = DataManager.getProcessedFolderURL()
-
-    for (index, item) in contents.enumerated() {
-      let itemRepresentation: String
-
-      switch item.type {
-      case .book:
-        itemRepresentation = processBookRepresentation(
-          item.relativePath,
-          isLast: index == (contents.endIndex - 1),
-          processedFolderURL: processedFolderURL
-        )
-      case .folder, .bound:
-        itemRepresentation = processFolderRepresentation(
-          item.relativePath,
-          nestedLevel: 0,
-          processedFolderURL: processedFolderURL
-        )
-      }
-
-      libraryRepresentation += itemRepresentation + "\n"
-    }
-
-    return libraryRepresentation
-  }
-
-  private func processFolderRepresentation(
-    _ relativePath: String,
-    nestedLevel: Int,
-    processedFolderURL: URL
-  ) -> String {
-    let contents = fetchRawContents(
-      at: relativePath,
-      propertiesToFetch: [
-        #keyPath(LibraryItem.relativePath),
-        #keyPath(LibraryItem.type)
-      ]
-    ) ?? []
-
-    let fileURL = processedFolderURL.appendingPathComponent(relativePath)
-    let fileExistsRepresentation = FileManager.default.fileExists(atPath: fileURL.path)
-    ? "✓"
-    : "𐄂"
-
-    let baseSeparator = "|   "
-    var horizontalSeparator = String(repeating: baseSeparator, count: nestedLevel)
-    var folderRepresentation = horizontalSeparator + "`-- \(fileURL.lastPathComponent) \(fileExistsRepresentation)"
-    horizontalSeparator += baseSeparator
-
-    if !contents.isEmpty {
-      folderRepresentation += "\n"
-    }
-
-    for (index, item) in contents.enumerated() {
-      let itemRepresentation: String
-      let isLast = index == (contents.endIndex - 1)
-
-      switch item.type {
-      case .book:
-        let bookRepresentation = processBookRepresentation(
-          item.relativePath,
-          isLast: isLast,
-          processedFolderURL: processedFolderURL
-        )
-
-        itemRepresentation = horizontalSeparator + bookRepresentation
-      case .folder, .bound:
-        itemRepresentation = processFolderRepresentation(
-          item.relativePath,
-          nestedLevel: nestedLevel + 1,
-          processedFolderURL: processedFolderURL
-        )
-      }
-
-      if isLast {
-        folderRepresentation += itemRepresentation
-      } else {
-        folderRepresentation += itemRepresentation + "\n"
-      }
-    }
-
-    return folderRepresentation
-  }
-
-  private func processBookRepresentation(
-    _ relativePath: String,
-    isLast: Bool,
-    processedFolderURL: URL
-  ) -> String {
-    let fileURL = processedFolderURL.appendingPathComponent(relativePath)
-    let fileExistsRepresentation = FileManager.default.fileExists(atPath: fileURL.path)
-    ? "✓"
-    : "𐄂"
-
-    if isLast {
-      return "`-- \(fileURL.lastPathComponent) \(fileExistsRepresentation)"
-    } else {
-      return "|-- \(fileURL.lastPathComponent) \(fileExistsRepresentation)"
-    }
-  }
-}
