@@ -107,7 +107,7 @@ class SettingsViewModel: ViewModelProtocol {
     onTransition?(.credits)
   }
 
-  func showDebugFiles() {
+  func shareDebugFiles() {
     onTransition?(.debugFiles)
   }
 }

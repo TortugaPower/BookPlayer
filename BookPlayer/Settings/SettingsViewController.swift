@@ -50,9 +50,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
   let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
-  let githubLinkPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
+  let tipJarPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
   let supportEmailPath = IndexPath(row: 1, section: SettingsSection.support.rawValue)
-  let tipJarPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
+  let debugFilesPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
+  let githubLinkPath = IndexPath(row: 3, section: SettingsSection.support.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -239,6 +240,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showTipJar()
     case self.supportEmailPath:
       self.sendSupportEmail()
+    case self.debugFilesPath:
+      self.shareDebugFiles()
     case self.githubLinkPath:
       self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
@@ -412,6 +415,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
       self.present(alert, animated: true, completion: nil)
     }
+  }
+
+  func shareDebugFiles() {
+    viewModel.shareDebugFiles()
   }
 
   func showProjectOnGitHub() {
