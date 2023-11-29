@@ -251,6 +251,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return fetchContentsAtLimitOffsetReturnValue
         }
     }
+    //MARK: - fetchRawContents
+
+    var fetchRawContentsAtPropertiesToFetchCallsCount = 0
+    var fetchRawContentsAtPropertiesToFetchCalled: Bool {
+        return fetchRawContentsAtPropertiesToFetchCallsCount > 0
+    }
+    var fetchRawContentsAtPropertiesToFetchReceivedArguments: (relativePath: String?, propertiesToFetch: [String])?
+    var fetchRawContentsAtPropertiesToFetchReceivedInvocations: [(relativePath: String?, propertiesToFetch: [String])] = []
+    var fetchRawContentsAtPropertiesToFetchReturnValue: [LibraryItem]?
+    var fetchRawContentsAtPropertiesToFetchClosure: ((String?, [String]) -> [LibraryItem]?)?
+    func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
+        fetchRawContentsAtPropertiesToFetchCallsCount += 1
+        fetchRawContentsAtPropertiesToFetchReceivedArguments = (relativePath: relativePath, propertiesToFetch: propertiesToFetch)
+        fetchRawContentsAtPropertiesToFetchReceivedInvocations.append((relativePath: relativePath, propertiesToFetch: propertiesToFetch))
+        if let fetchRawContentsAtPropertiesToFetchClosure = fetchRawContentsAtPropertiesToFetchClosure {
+            return fetchRawContentsAtPropertiesToFetchClosure(relativePath, propertiesToFetch)
+        } else {
+            return fetchRawContentsAtPropertiesToFetchReturnValue
+        }
+    }
     //MARK: - getMaxItemsCount
 
     var getMaxItemsCountAtCallsCount = 0
