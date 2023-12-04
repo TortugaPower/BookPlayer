@@ -251,24 +251,20 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return fetchContentsAtLimitOffsetReturnValue
         }
     }
-    //MARK: - fetchRawContents
+    //MARK: - fetchIdentifiers
 
-    var fetchRawContentsAtPropertiesToFetchCallsCount = 0
-    var fetchRawContentsAtPropertiesToFetchCalled: Bool {
-        return fetchRawContentsAtPropertiesToFetchCallsCount > 0
+    var fetchIdentifiersCallsCount = 0
+    var fetchIdentifiersCalled: Bool {
+        return fetchIdentifiersCallsCount > 0
     }
-    var fetchRawContentsAtPropertiesToFetchReceivedArguments: (relativePath: String?, propertiesToFetch: [String])?
-    var fetchRawContentsAtPropertiesToFetchReceivedInvocations: [(relativePath: String?, propertiesToFetch: [String])] = []
-    var fetchRawContentsAtPropertiesToFetchReturnValue: [LibraryItem]?
-    var fetchRawContentsAtPropertiesToFetchClosure: ((String?, [String]) -> [LibraryItem]?)?
-    func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
-        fetchRawContentsAtPropertiesToFetchCallsCount += 1
-        fetchRawContentsAtPropertiesToFetchReceivedArguments = (relativePath: relativePath, propertiesToFetch: propertiesToFetch)
-        fetchRawContentsAtPropertiesToFetchReceivedInvocations.append((relativePath: relativePath, propertiesToFetch: propertiesToFetch))
-        if let fetchRawContentsAtPropertiesToFetchClosure = fetchRawContentsAtPropertiesToFetchClosure {
-            return fetchRawContentsAtPropertiesToFetchClosure(relativePath, propertiesToFetch)
+    var fetchIdentifiersReturnValue: [String]!
+    var fetchIdentifiersClosure: (() -> [String])?
+    func fetchIdentifiers() -> [String] {
+        fetchIdentifiersCallsCount += 1
+        if let fetchIdentifiersClosure = fetchIdentifiersClosure {
+            return fetchIdentifiersClosure()
         } else {
-            return fetchRawContentsAtPropertiesToFetchReturnValue
+            return fetchIdentifiersReturnValue
         }
     }
     //MARK: - getMaxItemsCount
@@ -1478,6 +1474,26 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return try await syncBookmarksListRelativePathClosure(relativePath)
         } else {
             return syncBookmarksListRelativePathReturnValue
+        }
+    }
+    //MARK: - fetchSyncedIdentifiers
+
+    var fetchSyncedIdentifiersThrowableError: Error?
+    var fetchSyncedIdentifiersCallsCount = 0
+    var fetchSyncedIdentifiersCalled: Bool {
+        return fetchSyncedIdentifiersCallsCount > 0
+    }
+    var fetchSyncedIdentifiersReturnValue: [String]!
+    var fetchSyncedIdentifiersClosure: (() async throws -> [String])?
+    func fetchSyncedIdentifiers() async throws -> [String] {
+        if let error = fetchSyncedIdentifiersThrowableError {
+            throw error
+        }
+        fetchSyncedIdentifiersCallsCount += 1
+        if let fetchSyncedIdentifiersClosure = fetchSyncedIdentifiersClosure {
+            return try await fetchSyncedIdentifiersClosure()
+        } else {
+            return fetchSyncedIdentifiersReturnValue
         }
     }
     //MARK: - getRemoteFileURLs

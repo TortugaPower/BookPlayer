@@ -40,6 +40,9 @@ public protocol SyncServiceProtocol {
 
   func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
 
+  /// Fetch the remote synced identifiers
+  func fetchSyncedIdentifiers() async throws -> [String]
+
   func getRemoteFileURLs(
     of relativePath: String,
     type: SimpleItemType
@@ -270,7 +273,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
   }
 
-  func fetchSyncedIdentifiers() async throws -> [String] {
+  public func fetchSyncedIdentifiers() async throws -> [String] {
     let response: IdentifiersResponse = try await self.provider.request(.syncedIdentifiers)
 
     return response.content

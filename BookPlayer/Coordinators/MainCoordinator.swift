@@ -109,7 +109,8 @@ class MainCoordinator: NSObject {
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: self.libraryService,
+      libraryService: self.libraryService, 
+      syncService: self.syncService,
       accountService: self.accountService
     )
     settingsCoordinator.tabBarController = tabBarController

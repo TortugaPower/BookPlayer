@@ -15,20 +15,27 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
   let flow: BPCoordinatorPresentationFlow
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     accountService: AccountServiceProtocol
   ) {
     self.flow = flow
     self.libraryService = libraryService
+    self.syncService = syncService
     self.accountService = accountService
   }
 
   func start() {
-    let viewModel = SettingsViewModel(accountService: accountService)
+    let viewModel = SettingsViewModel(
+      accountService: accountService,
+      libraryService: libraryService,
+      syncService: syncService
+    )
 
     viewModel.onTransition = { route in
       switch route {
@@ -48,8 +55,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showTipJar()
       case .credits:
         self.showCredits()
-      case .debugFiles:
-        self.shareDebugFiles()
+      case .debugFiles(let libraryRepresentation):
+        self.shareDebugFiles(libraryRepresentation: libraryRepresentation)
       }
     }
 
@@ -210,8 +217,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     flow.navigationController.present(nav, animated: true)
   }
 
-  func shareDebugFiles() {
-    let provider = LibraryRepresentationActivityItemProvider(libraryService: libraryService)
+  func shareDebugFiles(libraryRepresentation: String) {
+    let provider = LibraryRepresentationActivityItemProvider(libraryRepresentation: libraryRepresentation)
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 

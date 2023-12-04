@@ -74,9 +74,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
     setUpTheming()
 
-    self.bindObservers()
+    bindObservers()
+    bindDataItems()
 
-    self.setupSwitchValues()
+    setupSwitchValues()
 
     guard
       let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -183,6 +184,28 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func skanPreferenceDidChange() {
     viewModel.toggleSKANPreference(skanSwitch.isOn)
+  }
+
+  func bindDataItems() {
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .showLoader(let flag):
+          self?.showLoader(flag)
+        case .showAlert(let content):
+          self?.showAlert(content)
+        }
+      }
+      .store(in: &disposeBag)
+  }
+
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
