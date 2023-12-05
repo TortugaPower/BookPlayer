@@ -15,20 +15,27 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
   let flow: BPCoordinatorPresentationFlow
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     accountService: AccountServiceProtocol
   ) {
     self.flow = flow
     self.libraryService = libraryService
+    self.syncService = syncService
     self.accountService = accountService
   }
 
   func start() {
-    let viewModel = SettingsViewModel(accountService: accountService)
+    let viewModel = SettingsViewModel(
+      accountService: accountService,
+      libraryService: libraryService,
+      syncService: syncService
+    )
 
     viewModel.onTransition = { route in
       switch route {
@@ -48,6 +55,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showTipJar()
       case .credits:
         self.showCredits()
+      case .debugFiles(let libraryRepresentation):
+        self.shareDebugFiles(libraryRepresentation: libraryRepresentation)
       }
     }
 
@@ -108,7 +117,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   }
 
   func showPro() {
-//    let presentingVC = flow.navigationController.getTopViewController()
     let child: Coordinator
 
     if self.accountService.getAccountId() != nil {
@@ -207,5 +215,20 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     nav.viewControllers = [vc]
 
     flow.navigationController.present(nav, animated: true)
+  }
+
+  func shareDebugFiles(libraryRepresentation: String) {
+    let provider = LibraryRepresentationActivityItemProvider(libraryRepresentation: libraryRepresentation)
+
+    let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
+
+    if let popoverPresentationController = shareController.popoverPresentationController,
+       let view = flow.navigationController.topViewController?.view {
+      popoverPresentationController.permittedArrowDirections = []
+      popoverPresentationController.sourceView = view
+      popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+    }
+
+    flow.navigationController.present(shareController, animated: true, completion: nil)
   }
 }

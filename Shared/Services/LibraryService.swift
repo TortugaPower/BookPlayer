@@ -39,6 +39,9 @@ public protocol LibraryServiceProtocol {
 
   /// Fetch folder or library contents at the specified path
   func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]?
+  /// Fetch all the stored identifiers in the library
+  /// Note: This is meant for debugging purposes
+  func fetchIdentifiers() -> [String]
   /// Get max items count inside the specified path
   func getMaxItemsCount(at relativePath: String?) -> Int
   /// Fetch the most recent played items
@@ -715,6 +718,21 @@ extension LibraryService {
 
 // MARK: - Fetch library items
 extension LibraryService {
+  public func fetchIdentifiers() -> [String] {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath)]
+    let sortDescriptor = NSSortDescriptor(
+      key: #keyPath(LibraryItem.relativePath),
+      ascending: true,
+      selector: #selector(NSString.localizedStandardCompare(_:))
+    )
+    fetchRequest.sortDescriptors = [sortDescriptor]
+
+    let results = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
+
+    return results.map { $0.relativePath }
+  }
+
   public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
     let fetchRequest = buildListContentsFetchRequest(
       properties: SimpleLibraryItem.fetchRequestProperties,
@@ -1079,7 +1097,11 @@ extension LibraryService {
     }
 
     try? removeFolderIfNeeded(destinationURL, context: context)
-    try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: false, attributes: nil)
+    try FileManager.default.createDirectory(
+      at: destinationURL,
+      withIntermediateDirectories: true,
+      attributes: nil
+    )
   }
 
   func createFolderOnDisk(title: String, inside relativePath: String?) throws {

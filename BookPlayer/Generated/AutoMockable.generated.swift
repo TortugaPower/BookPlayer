@@ -251,6 +251,22 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return fetchContentsAtLimitOffsetReturnValue
         }
     }
+    //MARK: - fetchIdentifiers
+
+    var fetchIdentifiersCallsCount = 0
+    var fetchIdentifiersCalled: Bool {
+        return fetchIdentifiersCallsCount > 0
+    }
+    var fetchIdentifiersReturnValue: [String]!
+    var fetchIdentifiersClosure: (() -> [String])?
+    func fetchIdentifiers() -> [String] {
+        fetchIdentifiersCallsCount += 1
+        if let fetchIdentifiersClosure = fetchIdentifiersClosure {
+            return fetchIdentifiersClosure()
+        } else {
+            return fetchIdentifiersReturnValue
+        }
+    }
     //MARK: - getMaxItemsCount
 
     var getMaxItemsCountAtCallsCount = 0
@@ -1458,6 +1474,26 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return try await syncBookmarksListRelativePathClosure(relativePath)
         } else {
             return syncBookmarksListRelativePathReturnValue
+        }
+    }
+    //MARK: - fetchSyncedIdentifiers
+
+    var fetchSyncedIdentifiersThrowableError: Error?
+    var fetchSyncedIdentifiersCallsCount = 0
+    var fetchSyncedIdentifiersCalled: Bool {
+        return fetchSyncedIdentifiersCallsCount > 0
+    }
+    var fetchSyncedIdentifiersReturnValue: [String]!
+    var fetchSyncedIdentifiersClosure: (() async throws -> [String])?
+    func fetchSyncedIdentifiers() async throws -> [String] {
+        if let error = fetchSyncedIdentifiersThrowableError {
+            throw error
+        }
+        fetchSyncedIdentifiersCallsCount += 1
+        if let fetchSyncedIdentifiersClosure = fetchSyncedIdentifiersClosure {
+            return try await fetchSyncedIdentifiersClosure()
+        } else {
+            return fetchSyncedIdentifiersReturnValue
         }
     }
     //MARK: - getRemoteFileURLs
