@@ -143,10 +143,18 @@ class SettingsViewModel: ViewModelProtocol {
 
         let localidentifiers = libraryService.fetchIdentifiers()
 
-        let libraryRepresentation = getLibraryRepresentation(
+        var libraryRepresentation = getLibraryRepresentation(
           localidentifiers: localidentifiers,
           remoteIdentifiers: remoteIdentifiers
         )
+
+        if let remoteIdentifiers,
+           let remoteOnlyInfo = getRemoteOnlyInformation(
+            localidentifiers: localidentifiers,
+            remoteIdentifiers: remoteIdentifiers
+           ) {
+          libraryRepresentation += remoteOnlyInfo
+        }
 
         sendEvent(.showLoader(flag: false))
         onTransition?(.debugFiles(libraryRepresentation: libraryRepresentation))
@@ -168,7 +176,7 @@ class SettingsViewModel: ViewModelProtocol {
   ) -> String {
     let identifiers = libraryService.fetchIdentifiers()
 
-    var libraryRepresentation = ".\n"
+    var libraryRepresentation = "Library\n.\n"
     let processedFolderURL = DataManager.getProcessedFolderURL()
 
     let baseSeparator = "|   "
@@ -217,5 +225,26 @@ class SettingsViewModel: ViewModelProtocol {
     } else {
       return localRepresentation + "[☐]"
     }
+  }
+
+  func getRemoteOnlyInformation(
+    localidentifiers: [String],
+    remoteIdentifiers: [String]
+  ) -> String? {
+    var remoteOnlyIdentifiers = Array(Set(remoteIdentifiers).subtracting(Set(localidentifiers)))
+
+    guard !remoteOnlyIdentifiers.isEmpty else {
+      return nil
+    }
+
+    remoteOnlyIdentifiers.sort(by: { $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending })
+
+    var remoteInfo = "\n\nRemote only items:\n"
+
+    for remoteOnlyIdentifier in remoteOnlyIdentifiers {
+      remoteInfo += "\(remoteOnlyIdentifier)\n"
+    }
+
+    return remoteInfo
   }
 }
