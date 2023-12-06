@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Der er ingen sidst spillet bog";
 "intent_playback_pause_title" = "Sæt afspilning på pause";
 "storage_artwork_cache_title" = "Artwork cache størrelse";
+"settings_share_debug_information" = "Del fejlretningsoplysninger";

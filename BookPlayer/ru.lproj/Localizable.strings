@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Нет последней прослушанной книги";
 "intent_playback_pause_title" = "Пауза воспроизведения";
 "storage_artwork_cache_title" = "Размер кэша иллюстраций";
+"settings_share_debug_information" = "Делитесь отладочной информацией";

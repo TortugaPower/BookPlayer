@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Il n'y a pas de dernier livre joué";
 "intent_playback_pause_title" = "Suspendre la lecture";
 "storage_artwork_cache_title" = "Taille du cache des illustrations";
+"settings_share_debug_information" = "Partager les informations de débogage";

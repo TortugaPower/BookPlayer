@@ -264,7 +264,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     case self.supportEmailPath:
       self.sendSupportEmail()
     case self.debugFilesPath:
-      self.shareDebugFiles()
+      self.shareDebugInformation()
     case self.githubLinkPath:
       self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
@@ -440,8 +440,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
   }
 
-  func shareDebugFiles() {
-    viewModel.shareDebugFiles()
+  func shareDebugInformation() {
+    viewModel.shareDebugInformation()
   }
 
   func showProjectOnGitHub() {

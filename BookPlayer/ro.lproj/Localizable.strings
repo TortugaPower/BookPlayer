@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Nu există ultima carte jucată";
 "intent_playback_pause_title" = "Întrerupeți redarea";
 "storage_artwork_cache_title" = "Dimensiunea memoriei cache a lucrărilor de artă";
+"settings_share_debug_information" = "Partajați informațiile de depanare";

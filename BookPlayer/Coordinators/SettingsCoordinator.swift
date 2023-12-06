@@ -55,8 +55,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showTipJar()
       case .credits:
         self.showCredits()
-      case .debugFiles(let libraryRepresentation):
-        self.shareDebugFiles(libraryRepresentation: libraryRepresentation)
+      case .shareDebugInformation(let info):
+        self.shareDebugInformation(info: info)
       }
     }
 
@@ -217,8 +217,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     flow.navigationController.present(nav, animated: true)
   }
 
-  func shareDebugFiles(libraryRepresentation: String) {
-    let provider = LibraryRepresentationActivityItemProvider(libraryRepresentation: libraryRepresentation)
+  func shareDebugInformation(info: String) {
+    let provider = DebugInformationActivityItemProvider(info: info)
 
     let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
 

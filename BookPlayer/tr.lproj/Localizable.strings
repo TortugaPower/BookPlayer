@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Son çalınan kitap yok";
 "intent_playback_pause_title" = "Oynatmayı duraklat";
 "storage_artwork_cache_title" = "Resim önbellek boyutu";
+"settings_share_debug_information" = "Hata ayıklama bilgilerini paylaşın";

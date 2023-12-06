@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "没有最后玩过的书";
 "intent_playback_pause_title" = "暂停播放";
 "storage_artwork_cache_title" = "艺术品缓存大小";
+"settings_share_debug_information" = "共享调试信息";

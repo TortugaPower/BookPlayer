@@ -301,3 +301,4 @@
 "intent_lastbook_empty_error" = "Er is geen laatst gespeeld boek";
 "intent_playback_pause_title" = "Pauzeer het afspelen";
 "storage_artwork_cache_title" = "Grootte van de artworkcache";
+"settings_share_debug_information" = "Deel foutopsporingsinformatie";
