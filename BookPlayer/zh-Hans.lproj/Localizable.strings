@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "继续上次播放的书";
 "intent_lastbook_empty_error" = "没有最后玩过的书";
 "intent_playback_pause_title" = "暂停播放";
+"storage_artwork_cache_title" = "艺术品缓存大小";

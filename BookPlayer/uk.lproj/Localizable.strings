@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Відновити останню відтворену книгу";
 "intent_lastbook_empty_error" = "Немає останньої програної книги";
 "intent_playback_pause_title" = "Призупинити відтворення";
+"storage_artwork_cache_title" = "Розмір кеша ілюстрації";

@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Utoljára lejátszott könyv folytatása";
 "intent_lastbook_empty_error" = "Nincs utoljára játszott könyv";
 "intent_playback_pause_title" = "Lejátszás szüneteltetése";
+"storage_artwork_cache_title" = "Az alkotás gyorsítótár mérete";

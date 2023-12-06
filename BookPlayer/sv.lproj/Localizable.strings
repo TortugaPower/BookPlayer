@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Återuppta senast spelade bok";
 "intent_lastbook_empty_error" = "Det finns ingen senast spelad bok";
 "intent_playback_pause_title" = "Pausa uppspelningen";
+"storage_artwork_cache_title" = "Artwork cachestorlek";

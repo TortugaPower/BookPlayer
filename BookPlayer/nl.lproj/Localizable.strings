@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Hervat het laatst gespeelde boek";
 "intent_lastbook_empty_error" = "Er is geen laatst gespeeld boek";
 "intent_playback_pause_title" = "Pauzeer het afspelen";
+"storage_artwork_cache_title" = "Grootte van de artworkcache";

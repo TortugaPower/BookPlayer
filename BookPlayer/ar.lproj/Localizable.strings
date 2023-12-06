@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "استئناف آخر كتاب تم تشغيله";
 "intent_lastbook_empty_error" = "لا يوجد كتاب آخر تم تشغيله";
 "intent_playback_pause_title" = "إيقاف التشغيل مؤقتًا";
+"storage_artwork_cache_title" = "حجم ذاكرة التخزين المؤقت للعمل الفني";

@@ -111,7 +111,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       }
     }
 
-    let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
+    let vc = UIHostingController(rootView: StorageCloudDeletedView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
   }

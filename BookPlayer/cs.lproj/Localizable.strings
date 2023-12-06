@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Obnovit naposledy přehrávanou knihu";
 "intent_lastbook_empty_error" = "Neexistuje žádná naposledy hraná kniha";
 "intent_playback_pause_title" = "Pozastavit přehrávání";
+"storage_artwork_cache_title" = "Velikost mezipaměti uměleckých děl";

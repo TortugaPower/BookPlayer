@@ -300,3 +300,4 @@
 "intent_lastbook_play_title" = "Wznów ostatnio odtwarzaną książkę";
 "intent_lastbook_empty_error" = "Nie ma ostatnio odtwarzanej książki";
 "intent_playback_pause_title" = "Wstrzymaj odtwarzanie";
+"storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
