@@ -48,7 +48,14 @@ final class BookmarksActivityItemProvider: UIActivityItemProvider {
       let chapterTime = currentItem.getChapterTime(in: chapter, for: bookmark.time)
       let formattedTime = TimeParser.formatTime(chapterTime)
 
-      fileContents += String.localizedStringWithFormat("chapter_number_title".localized, chapter.index)
+      var chapterTitle = String.localizedStringWithFormat("chapter_number_title".localized, chapter.index)
+      /// Add title if it's different from the numeric title (do not consider volumes as titles would be numeric)
+      if !currentItem.isBoundBook,
+         chapterTitle.lowercased() != chapter.title.lowercased() {
+        chapterTitle += " – \(chapter.title)"
+      }
+
+      fileContents += chapterTitle
       + " / \(formattedTime)\n"
       if currentItem.isBoundBook {
         fileContents += "\("title_button".localized): \(chapter.title)\n"
