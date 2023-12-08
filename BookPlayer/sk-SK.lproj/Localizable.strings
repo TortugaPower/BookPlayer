@@ -300,3 +300,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_lastbook_play_title" = "Obnovenie poslednej prehrávanej knihy";
 "intent_lastbook_empty_error" = "Žiadna naposledy prehrávaná kniha";
 "intent_playback_pause_title" = "Pozastavenie prehrávanie";
+"storage_artwork_cache_title" = "Veľkosť vyrovnávacej pamäte obalov kníh";
+"settings_share_debug_information" = "Zdieľať informácie o ladení";

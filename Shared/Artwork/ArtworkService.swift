@@ -11,14 +11,17 @@ import Kingfisher
 import UIKit
 
 public class ArtworkService {
-  static public var cache: ImageCache {
+  static public var cache: ImageCache = {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
     let cache = try! ImageCache(name: "BookPlayer", cacheDirectoryURL: url)
     cache.diskStorage.config.expiration = .never
-
     return cache
-  }
+  }()
+
+  static public var cacheDirectoryURL: URL = {
+    return cache.diskStorage.directoryURL
+  }()
 
   static private var manager: KingfisherManager {
     return KingfisherManager(downloader: .default, cache: ArtworkService.cache)

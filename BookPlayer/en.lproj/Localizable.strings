@@ -300,3 +300,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "intent_lastbook_play_title" = "Resume last played book";
 "intent_lastbook_empty_error" = "There's no last played book";
 "intent_playback_pause_title" = "Pause playback";
+"storage_artwork_cache_title" = "Artwork cache size";
+"settings_share_debug_information" = "Share debug information";

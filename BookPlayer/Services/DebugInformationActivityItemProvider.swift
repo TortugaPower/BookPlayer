@@ -1,5 +1,5 @@
 //
-//  LibraryRepresentationActivityItemProvider.swift
+//  DebugInformationActivityItemProvider.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 28/11/23.
@@ -9,11 +9,11 @@
 import BookPlayerKit
 import Foundation
 
-final class LibraryRepresentationActivityItemProvider: UIActivityItemProvider {
-  let libraryRepresentation: String
+final class DebugInformationActivityItemProvider: UIActivityItemProvider {
+  let info: String
 
-  init(libraryRepresentation: String) {
-    self.libraryRepresentation = libraryRepresentation
+  init(info: String) {
+    self.info = info
     super.init(placeholderItem: URL(fileURLWithPath: "placeholder.txt"))
   }
 
@@ -21,7 +21,7 @@ final class LibraryRepresentationActivityItemProvider: UIActivityItemProvider {
     _ activityViewController: UIActivityViewController,
     itemForActivityType activityType: UIActivity.ActivityType?
   ) -> Any? {
-    let fileTitle = "library_hierarchy_tree.txt"
+    let fileTitle = "bookplayer_debug_information.txt"
     let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileTitle)
 
     do {
@@ -29,7 +29,7 @@ final class LibraryRepresentationActivityItemProvider: UIActivityItemProvider {
         try FileManager.default.removeItem(at: fileURL)
       }
 
-      let contentsData = libraryRepresentation.data(using: .utf8)
+      let contentsData = info.data(using: .utf8)
       FileManager.default.createFile(atPath: fileURL.path, contents: contentsData)
     } catch {
       return nil

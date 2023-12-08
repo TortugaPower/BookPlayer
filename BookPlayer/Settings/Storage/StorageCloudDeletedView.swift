@@ -1,15 +1,15 @@
 //
-//  StorageView.swift
+//  StorageCloudDeletedView.swift
 //  BookPlayer
 //
-//  Created by Dmitrij Hojkolov on 29.06.2023.
+//  Created by Gianni Carlo on 5/12/23.
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
 import SwiftUI
 import BookPlayerKit
 
-struct StorageView<Model: StorageViewModelProtocol>: View {
+struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: View {
 
   @StateObject var themeViewModel = ThemeViewModel()
   @ObservedObject var viewModel: Model
@@ -31,23 +31,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
 
             Spacer()
 
-            Text(viewModel.getTotalFoldersSize())
-              .foregroundColor(themeViewModel.secondaryColor)
-          }
-          .padding(.horizontal, 16)
-          .padding(.top, 4)
-          .accessibilityElement(children: .combine)
-
-          Divider()
-            .background(themeViewModel.separatorColor)
-
-          HStack(alignment: .center) {
-            Text("storage_artwork_cache_title".localized)
-              .foregroundColor(themeViewModel.primaryColor)
-
-            Spacer()
-
-            Text(viewModel.getArtworkFolderSize())
+            Text(viewModel.getFolderSize())
               .foregroundColor(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
@@ -158,8 +142,8 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
   }
 }
 
-struct StorageView_Previews: PreviewProvider {
-  class MockStorageViewModel: StorageViewModelProtocol, ObservableObject {
+struct StorageCloudDeletedView_Previews: PreviewProvider {
+  class MockStorageViewModel: StorageCloudDeletedViewModelProtocol, ObservableObject {
     var folderURL: URL { URL(string: "file://")! }
     var navigationTitle: String = "Files"
     var publishedFiles: [StorageItem] = []
@@ -171,11 +155,10 @@ struct StorageView_Previews: PreviewProvider {
     var alert: Alert { Alert(title: Text("")) }
     let fixButtonTitle = "Fix all"
 
-    func getTotalFoldersSize() -> String { return "0 Kb" }
-    func getArtworkFolderSize() -> String { return "0 Kb" }
+    func getFolderSize() -> String { return "0 Kb" }
     func dismiss() {}
   }
   static var previews: some View {
-    StorageView(viewModel: MockStorageViewModel())
+    StorageCloudDeletedView(viewModel: MockStorageViewModel())
   }
 }

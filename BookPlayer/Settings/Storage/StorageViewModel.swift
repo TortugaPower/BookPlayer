@@ -23,29 +23,9 @@ protocol StorageViewModelProtocol: ObservableObject {
   var alert: Alert { get }
   var fixButtonTitle: String { get }
 
-  func getFolderSize() -> String
+  func getTotalFoldersSize() -> String
+  func getArtworkFolderSize() -> String
   func dismiss()
-}
-
-extension StorageViewModelProtocol {
-  func getFolderSize() -> String {
-    var folderSize: Int64 = 0
-
-    let enumerator = FileManager.default.enumerator(
-      at: folderURL,
-      includingPropertiesForKeys: [],
-      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
-
-    for case let fileURL as URL in enumerator {
-      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
-      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
-    }
-
-    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
-  }
 }
 
 enum BPStorageSortBy: Int {
@@ -70,6 +50,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   // MARK: - Properties
   let libraryService: LibraryServiceProtocol
   let folderURL: URL
+  let artworkCacheFolderURL = ArtworkService.cacheDirectoryURL
 
   @Published var publishedFiles = [StorageItem]() {
     didSet {
@@ -125,6 +106,46 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   // MARK: - Public interface
+
+  func getTotalFoldersSize() -> String {
+    var folderSize: Int64 = 0
+
+    folderSize = getFolderSize(folderURL)
+    folderSize += getFolderSize(artworkCacheFolderURL)
+
+    return ByteCountFormatter.string(
+      fromByteCount: folderSize,
+      countStyle: ByteCountFormatter.CountStyle.file
+    )
+  }
+
+  func getArtworkFolderSize() -> String {
+    let folderSize: Int64 = getFolderSize(artworkCacheFolderURL)
+
+    return ByteCountFormatter.string(
+      fromByteCount: folderSize,
+      countStyle: ByteCountFormatter.CountStyle.file
+    )
+  }
+
+  func getFolderSize(_ url: URL) -> Int64 {
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: url,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return folderSize
+  }
 
   func shouldShowWarning(for relativePath: String) -> Bool {
     // Fetch may fail with unicode characters, this is a last resort to double check it's not really linked

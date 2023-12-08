@@ -21,7 +21,7 @@ class SettingsViewModel: ViewModelProtocol {
     case deletedFilesManagement
     case tipJar
     case credits
-    case debugFiles(libraryRepresentation: String)
+    case shareDebugInformation(info: String)
   }
 
   enum Events {
@@ -130,15 +130,17 @@ class SettingsViewModel: ViewModelProtocol {
     onTransition?(.credits)
   }
 
-  func shareDebugFiles() {
+  func shareDebugInformation() {
     sendEvent(.showLoader(flag: true))
 
     Task { @MainActor in
       do {
         var remoteIdentifiers: [String]?
+        var syncJobsInformation: String?
 
         if syncService.isActive {
           remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
+          syncJobsInformation = getSyncOperationsInformation()
         }
 
         let localidentifiers = libraryService.fetchIdentifiers()
@@ -156,8 +158,12 @@ class SettingsViewModel: ViewModelProtocol {
           libraryRepresentation += remoteOnlyInfo
         }
 
+        if let syncJobsInformation {
+          libraryRepresentation += syncJobsInformation
+        }
+
         sendEvent(.showLoader(flag: false))
-        onTransition?(.debugFiles(libraryRepresentation: libraryRepresentation))
+        onTransition?(.shareDebugInformation(info: libraryRepresentation))
       } catch {
         sendEvent(.showLoader(flag: false))
         sendEvent(.showAlert(
@@ -246,5 +252,23 @@ class SettingsViewModel: ViewModelProtocol {
     }
 
     return remoteInfo
+  }
+
+  func getSyncOperationsInformation() -> String {
+    var information = ""
+
+    if let syncEmail = accountService.getAccount()?.email {
+      information += "\n\nProfile: \(syncEmail)\n"
+    }
+
+    let jobs = syncService.getAllQueuedJobs()
+
+    information += "Queued jobs count: \(jobs.count)\n"
+
+    for job in jobs {
+      information += "[\(job.jobType.rawValue)] \(job.relativePath)\n"
+    }
+
+    return information
   }
 }

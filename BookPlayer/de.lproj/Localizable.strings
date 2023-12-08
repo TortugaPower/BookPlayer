@@ -300,3 +300,5 @@
 "intent_lastbook_play_title" = "Setzen Sie das zuletzt gespielte Buch fort";
 "intent_lastbook_empty_error" = "Es gibt kein zuletzt gespieltes Buch";
 "intent_playback_pause_title" = "Wiedergabe anhalten";
+"storage_artwork_cache_title" = "Größe des Grafik-Cache";
+"settings_share_debug_information" = "Teilen Sie Debug-Informationen";
