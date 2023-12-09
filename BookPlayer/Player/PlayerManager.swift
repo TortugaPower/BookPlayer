@@ -672,9 +672,9 @@ extension PlayerManager {
       return
     }
 
-    guard playerItem.status == .readyToPlay else {
+    guard playerItem.status == .readyToPlay && playerItem.error == nil else {
       /// Try to reload the item if it failed to load previously
-      if playerItem.status == .failed {
+      if playerItem.status == .failed || playerItem.error != nil {
         load(currentItem, autoplay: true)
       } else {
         // queue playback
