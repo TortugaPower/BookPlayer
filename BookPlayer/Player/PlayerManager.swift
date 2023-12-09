@@ -705,8 +705,16 @@ extension PlayerManager {
       type: .play
     )
 
+    let playerCurrentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
+
+    /// Catch instance where the audio player does not have a valid value
+    if !playerCurrentTime.isFinite {
+      load(currentItem, autoplay: true)
+      return
+    }
+
     // If book is completed, stop
-    if Int(currentItem.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime())) { return }
+    if Int(currentItem.duration) == Int(playerCurrentTime) { return }
 
     self.handleSmartRewind(currentItem)
 
