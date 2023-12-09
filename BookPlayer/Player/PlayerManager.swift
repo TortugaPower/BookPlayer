@@ -672,9 +672,9 @@ extension PlayerManager {
       return
     }
 
-    guard playerItem.status == .readyToPlay else {
+    guard playerItem.status == .readyToPlay && playerItem.error == nil else {
       /// Try to reload the item if it failed to load previously
-      if playerItem.status == .failed {
+      if playerItem.status == .failed || playerItem.error != nil {
         load(currentItem, autoplay: true)
       } else {
         // queue playback
@@ -705,16 +705,8 @@ extension PlayerManager {
       type: .play
     )
 
-    let playerCurrentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
-
-    /// Catch instance where the audio player does not have a valid value
-    if !playerCurrentTime.isFinite {
-      load(currentItem, autoplay: true)
-      return
-    }
-
     // If book is completed, stop
-    if Int(currentItem.duration) == Int(playerCurrentTime) { return }
+    if Int(currentItem.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime())) { return }
 
     self.handleSmartRewind(currentItem)
 
