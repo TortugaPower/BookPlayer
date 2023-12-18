@@ -214,17 +214,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   override func syncList() {
-    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_library"
-    let now = Date().timeIntervalSince1970
-    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
-
-    /// Do not sync if one minute hasn't passed since last sync
-    guard now - lastSync > 60 else {
-      Self.logger.trace("Throttled sync operation")
-      return
-    }
-
-    UserDefaults.standard.set(now, forKey: userDefaultsKey)
+    guard syncService.canSyncListContents(at: nil) else { return }
 
     /// Create new task to sync the library and the last played
     contentsFetchTask?.cancel()
