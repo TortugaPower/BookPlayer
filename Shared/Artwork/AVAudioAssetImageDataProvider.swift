@@ -120,19 +120,6 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
         files.append(fileURL)
       }
 
-      // sort items to same order as library
-      files.sort { a, b in
-        guard let first = a.getAppOrderRank() else {
-          return false
-        }
-
-        guard let second = b.getAppOrderRank() else {
-          return true
-        }
-
-        return first < second
-      }
-
       do {
         let data = try await processNextFolderItem(from: files)
 
