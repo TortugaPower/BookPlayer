@@ -18,6 +18,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   var importOperationSubscription: AnyCancellable?
   /// Reference to know if the import screen is already being shown (or in the process of showing)
   weak var importCoordinator: ImportCoordinator?
+  /// Reference to ongoing library fetch task
+  var contentsFetchTask: Task<(), Error>?
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -212,7 +214,21 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   override func syncList() {
-    Task { @MainActor in
+    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_library"
+    let now = Date().timeIntervalSince1970
+    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
+
+    /// Do not sync if one minute hasn't passed since last sync
+    guard now - lastSync > 60 else {
+      Self.logger.trace("Throttled sync operation")
+      return
+    }
+
+    UserDefaults.standard.set(now, forKey: userDefaultsKey)
+
+    /// Create new task to sync the library and the last played
+    contentsFetchTask?.cancel()
+    contentsFetchTask = Task { @MainActor in
       do {
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
           try await syncService.syncListContents(at: nil)
@@ -265,5 +281,11 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       showPlayer: nil,
       alertPresenter: self
     )
+  }
+}
+
+extension LibraryListCoordinator: PlaybackSyncProgressDelegate {
+  func waitForSyncInProgress() async {
+    _ = await contentsFetchTask?.result
   }
 }
