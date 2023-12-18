@@ -11,7 +11,7 @@ import AppIntents
 
 @available(iOS 16.4, macOS 14.0, watchOS 10.0, *)
 struct EndChapterSleepTimerIntent: AppIntent {
-  static var title: LocalizedStringResource = .init("intent_sleeptimer_eoc_title", table: "Localizable.strings")
+  static var title: LocalizedStringResource = "intent_sleeptimer_eoc_title"
 
   func perform() async throws -> some IntentResult {
     SleepTimer.shared.setTimer(.endOfChapter)
