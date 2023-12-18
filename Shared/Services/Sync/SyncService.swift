@@ -8,7 +8,6 @@
 
 import Combine
 import Foundation
-import RevenueCat
 
 /// Sync errors that must be handled (not shown as alerts)
 public enum BPSyncError: Error {
@@ -163,20 +162,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false else {
       throw BookPlayerError.runtimeError("Can't fetch items while there are sync operations in progress")
     }
-
-    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
-    let now = Date().timeIntervalSince1970
-    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
-
-    /// Do not sync if one minute hasn't passed since last sync
-    guard now - lastSync > 60 else {
-      throw BookPlayerError.networkError("Throttled sync operation")
-    }
-
-    UserDefaults.standard.set(
-      Date().timeIntervalSince1970,
-      forKey: userDefaultsKey
-    )
 
     Self.logger.trace("Fetching list of contents")
 

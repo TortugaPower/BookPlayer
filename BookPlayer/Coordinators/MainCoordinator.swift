@@ -89,6 +89,7 @@ class MainCoordinator: NSObject {
       playbackService: self.playbackService,
       syncService: syncService
     )
+    playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator
     libraryCoordinator.tabBarController = tabBarController
     libraryCoordinator.start()
