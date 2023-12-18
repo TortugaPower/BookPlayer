@@ -1085,6 +1085,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         set(value) { underlyingIsPlaying = value }
     }
     var underlyingIsPlaying: Bool!
+    var syncProgressDelegate: PlaybackSyncProgressDelegate?
     //MARK: - load
 
     var loadAutoplayCallsCount = 0
