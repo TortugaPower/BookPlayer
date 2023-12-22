@@ -30,6 +30,9 @@ public protocol SyncServiceProtocol {
   /// Progress publisher for ongoing-download tasks
   var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
 
+  /// Check if we can safely fetch the list contents
+  func canSyncListContents(at relativePath: String?) -> Bool
+
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
 
@@ -152,17 +155,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     .store(in: &disposeBag)
   }
 
-  public func syncListContents(
-    at relativePath: String?
-  ) async throws {
+  public func canSyncListContents(at relativePath: String?) -> Bool {
     guard isActive else {
-      throw BookPlayerError.networkError("Sync is not enabled")
+      Self.logger.trace("Sync is not enabled")
+      return false
     }
 
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false else {
-      throw BookPlayerError.runtimeError("Can't fetch items while there are sync operations in progress")
+      Self.logger.trace("Can't fetch items while there are sync operations in progress")
+      return false
     }
 
+    let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
+    let now = Date().timeIntervalSince1970
+    let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
+
+    /// Do not sync if one minute hasn't passed since last sync
+    guard now - lastSync > 60 else {
+      Self.logger.trace("Throttled sync operation")
+      return false
+    }
+
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: userDefaultsKey
+    )
+
+    return true
+  }
+
+  public func syncListContents(
+    at relativePath: String?
+  ) async throws {
     Self.logger.trace("Fetching list of contents")
 
     let response = try await fetchContents(at: relativePath)

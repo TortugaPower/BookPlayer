@@ -1419,6 +1419,26 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadProgressPublisher = value }
     }
     var underlyingDownloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never>!
+    //MARK: - canSyncListContents
+
+    var canSyncListContentsAtCallsCount = 0
+    var canSyncListContentsAtCalled: Bool {
+        return canSyncListContentsAtCallsCount > 0
+    }
+    var canSyncListContentsAtReceivedRelativePath: String?
+    var canSyncListContentsAtReceivedInvocations: [String?] = []
+    var canSyncListContentsAtReturnValue: Bool!
+    var canSyncListContentsAtClosure: ((String?) -> Bool)?
+    func canSyncListContents(at relativePath: String?) -> Bool {
+        canSyncListContentsAtCallsCount += 1
+        canSyncListContentsAtReceivedRelativePath = relativePath
+        canSyncListContentsAtReceivedInvocations.append(relativePath)
+        if let canSyncListContentsAtClosure = canSyncListContentsAtClosure {
+            return canSyncListContentsAtClosure(relativePath)
+        } else {
+            return canSyncListContentsAtReturnValue
+        }
+    }
     //MARK: - syncListContents
 
     var syncListContentsAtThrowableError: Error?

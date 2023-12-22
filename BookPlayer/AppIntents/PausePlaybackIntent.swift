@@ -12,7 +12,7 @@ import BookPlayerKit
 
 @available(iOS 16.4, macOS 14.0, watchOS 10.0, *)
 struct PausePlaybackIntent: AudioStartingIntent, ForegroundContinuableIntent {
-  static var title: LocalizedStringResource = .init("intent_playback_pause_title", table: "Localizable.strings")
+  static var title: LocalizedStringResource = "intent_playback_pause_title"
 
   func perform() async throws -> some IntentResult {
     let stack = try await DatabaseInitializer().loadCoreDataStack()
