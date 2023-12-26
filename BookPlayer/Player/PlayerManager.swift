@@ -809,8 +809,10 @@ extension PlayerManager {
       self.playbackQueued = nil
     case .failed:
       if canFetchRemoteURL,
-        (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
-        let currentItem {
+         let nsError = item.error as? NSError,
+         (nsError.code == NSURLErrorResourceUnavailable
+          || nsError.code == NSURLErrorNoPermissionsToReadFile),
+         let currentItem {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
       } else {
