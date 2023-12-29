@@ -223,7 +223,7 @@
                                 <constraints>
                                     <constraint firstItem="GAA-F6-6lf" firstAttribute="leading" secondItem="oVP-SJ-Vkq" secondAttribute="leading" constant="12" id="G7I-0H-RUz"/>
                                     <constraint firstItem="GAA-F6-6lf" firstAttribute="top" secondItem="q8y-d7-HKX" secondAttribute="bottom" constant="16" id="Kdg-10-Xf3"/>
-                                    <constraint firstItem="q8y-d7-HKX" firstAttribute="centerY" secondItem="ine-tP-Is6" secondAttribute="centerY" constant="-50" id="LV4-lL-Boh"/>
+                                    <constraint firstItem="q8y-d7-HKX" firstAttribute="centerY" secondItem="ine-tP-Is6" secondAttribute="centerY" constant="-80" id="LV4-lL-Boh"/>
                                     <constraint firstAttribute="trailing" secondItem="GAA-F6-6lf" secondAttribute="trailing" constant="16" id="Tqt-AP-cw8"/>
                                     <constraint firstItem="ine-tP-Is6" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="GAA-F6-6lf" secondAttribute="bottom" id="Yl9-3o-iAe"/>
                                     <constraint firstItem="q8y-d7-HKX" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ine-tP-Is6" secondAttribute="top" id="jfg-AW-LQJ"/>
