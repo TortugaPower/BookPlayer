@@ -167,7 +167,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
           self?.showPlayer()
         }
       },
-      alertPresenter: self
+      alertPresenter: self,
+      recordAsLastBook: false
     )
   }
 

@@ -379,7 +379,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
             self.initializeChapterTime(time)
           }
-          self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -463,7 +462,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   // MARK: - Player states
 
   var isPlaying: Bool {
-    return self.audioPlayer.timeControlStatus == .playing
+    let controlStatusFlag = audioPlayer.timeControlStatus != .paused
+    let playbackQueuedFlag = playbackQueued == true
+
+    return controlStatusFlag
+    || playbackQueuedFlag
+    || (isFetchingRemoteURL == true && playbackQueuedFlag)
   }
 
   /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,

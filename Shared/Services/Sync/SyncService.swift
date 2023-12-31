@@ -224,14 +224,19 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     guard !response.content.isEmpty else { return }
 
-    let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    let completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
 
-    await libraryService.updateInfo(for: itemsDict, parentFolder: parentFolder)
+    var filteredItemsDict = completeItemsDict
+    /// Avoid updating the las played info preemptively
+    if let lastItemPlayed = response.lastItemPlayed {
+      filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
+    }
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
-    await libraryService.storeNewItems(from: itemsDict, parentFolder: parentFolder)
+    await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
-      await libraryService.removeItems(notIn: Array(itemsDict.keys), parentFolder: parentFolder)
+      await libraryService.removeItems(notIn: Array(completeItemsDict.keys), parentFolder: parentFolder)
     }
 
     /// Only handle if the last item played is stored in the local library
