@@ -10,6 +10,8 @@ import AVFoundation
 import Foundation
 import Kingfisher
 
+/// Note: This provider does not take into account items at the DB level, only at the disk level
+/// so for folders where all the items are offloaded, it won't find items to parse an artwork
 public struct AVAudioAssetImageDataProvider: ImageDataProvider {
 
   public enum ProviderError: Error {
