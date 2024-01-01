@@ -181,7 +181,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ relativePath: String,
     autoplay: Bool,
     showPlayer: (() -> Void)?,
-    alertPresenter: AlertPresenter
+    alertPresenter: AlertPresenter,
+    recordAsLastBook: Bool = true
   ) {
     Task { @MainActor in
       let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
@@ -224,6 +225,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       guard let item = item else { return }
 
       playerManager?.load(item, autoplay: autoplay)
+
+      if recordAsLastBook {
+        await libraryService?.setLibraryLastBook(with: item.relativePath)
+      }
 
       showPlayer?()
     }
