@@ -10,7 +10,23 @@ import BookPlayerKit
 import Foundation
 import SwiftUI
 
-final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
+protocol StorageCloudDeletedViewModelProtocol: ObservableObject {
+  var folderURL: URL { get }
+  var navigationTitle: String { get }
+  var publishedFiles: [StorageItem] { get set }
+  var showFixAllButton: Bool { get set }
+  var sortBy: BPStorageSortBy { get set }
+  var storageAlert: BPStorageAlert { get set }
+  var showAlert: Bool { get set }
+  var showProgressIndicator: Bool { get set }
+  var alert: Alert { get }
+  var fixButtonTitle: String { get }
+
+  func getFolderSize() -> String
+  func dismiss()
+}
+
+final class StorageCloudDeletedViewModel: StorageCloudDeletedViewModelProtocol {  
   /// Available routes
   enum Routes {
     case showAlert(title: String, message: String)
@@ -68,6 +84,25 @@ final class StorageCloudDeletedViewModel: StorageViewModelProtocol {
 
   func dismiss() {
     onTransition?(.dismiss)
+  }
+
+  func getFolderSize() -> String {
+    var folderSize: Int64 = 0
+
+    let enumerator = FileManager.default.enumerator(
+      at: folderURL,
+      includingPropertiesForKeys: [],
+      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
+
+    for case let fileURL as URL in enumerator {
+      guard let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
+      folderSize += fileAttributes[FileAttributeKey.size] as? Int64 ?? 0
+    }
+
+    return ByteCountFormatter.string(fromByteCount: folderSize, countStyle: ByteCountFormatter.CountStyle.file)
   }
 
   private func loadItems() {

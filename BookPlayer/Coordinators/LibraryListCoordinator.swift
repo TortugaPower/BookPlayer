@@ -18,6 +18,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   var importOperationSubscription: AnyCancellable?
   /// Reference to know if the import screen is already being shown (or in the process of showing)
   weak var importCoordinator: ImportCoordinator?
+  /// Reference to ongoing library fetch task
+  var contentsFetchTask: Task<(), Error>?
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -165,7 +167,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
           self?.showPlayer()
         }
       },
-      alertPresenter: self
+      alertPresenter: self,
+      recordAsLastBook: false
     )
   }
 
@@ -212,7 +215,11 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   override func syncList() {
-    Task { @MainActor in
+    guard syncService.canSyncListContents(at: nil) else { return }
+
+    /// Create new task to sync the library and the last played
+    contentsFetchTask?.cancel()
+    contentsFetchTask = Task { @MainActor in
       do {
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
           try await syncService.syncListContents(at: nil)
@@ -265,5 +272,11 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       showPlayer: nil,
       alertPresenter: self
     )
+  }
+}
+
+extension LibraryListCoordinator: PlaybackSyncProgressDelegate {
+  func waitForSyncInProgress() async {
+    _ = await contentsFetchTask?.result
   }
 }

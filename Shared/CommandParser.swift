@@ -106,8 +106,33 @@ public class CommandParser {
     return actionString
   }
 
-  public class func createWidgetActionString(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> String {
-    var actionString = "bookplayer://widget?autoplay=\(autoplay)&seconds=\(timerSeconds)"
+  public class func createWidgetActionString(
+    with bookIdentifier: String?,
+    autoplay: Bool,
+    timerSeconds: Double?
+  ) -> String {
+    var actionString = "bookplayer://widget?autoplay=\(autoplay)"
+
+    if let identifier = bookIdentifier {
+      actionString += "&identifier=\(identifier)"
+    }
+
+    if let timerSeconds {
+      actionString += "&seconds=\(timerSeconds)"
+    }
+
+    if let encodedActionString = actionString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+      actionString = encodedActionString
+    }
+
+    return actionString
+  }
+
+  public class func createWidgetActionString(
+    with bookIdentifier: String?,
+    playbackToggle: Bool
+  ) -> String {
+    var actionString = "bookplayer://widget?playbackToggle=\(playbackToggle)"
 
     if let identifier = bookIdentifier {
       actionString += "&identifier=\(identifier)"
@@ -124,6 +149,7 @@ public class CommandParser {
 public enum Command: String {
   case play
   case pause
+  case playbackToggle
   case download
   case refresh
   case skipRewind

@@ -56,10 +56,11 @@ extension CodingUserInfoKey {
 }
 
 extension Book {
-  public func loadChaptersIfNeeded(from asset: AVAsset, context: NSManagedObjectContext) {
-    guard chapters?.count == 0 else { return }
+  public func loadChaptersIfNeeded(from asset: AVAsset, context: NSManagedObjectContext) -> Bool {
+    guard chapters?.count == 0 else { return false }
 
     setChapters(from: asset, context: context)
+    return true
   }
 
   public func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {

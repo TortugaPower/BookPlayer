@@ -300,3 +300,5 @@
 "intent_lastbook_play_title" = "Riprendi l'ultimo libro riprodotto";
 "intent_lastbook_empty_error" = "Non c'è l'ultimo libro giocato";
 "intent_playback_pause_title" = "Mettere in pausa la riproduzione";
+"storage_artwork_cache_title" = "Dimensioni della cache della grafica";
+"settings_share_debug_information" = "Condividi le informazioni di debug";

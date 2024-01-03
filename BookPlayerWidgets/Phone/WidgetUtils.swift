@@ -21,7 +21,7 @@ struct WidgetColors {
   let backgroundColor: Color
 }
 
-struct PlaybackRecordViewer: Hashable {
+struct PlaybackRecordViewer: Hashable, Codable {
   var time: Double
   var date: Date
 }
@@ -151,8 +151,23 @@ class WidgetUtils {
     return UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
   }
 
-  class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double) -> URL {
-    let urlString = CommandParser.createWidgetActionString(with: bookIdentifier, autoplay: autoplay, timerSeconds: timerSeconds)
+  class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double?) -> URL {
+    let urlString = CommandParser.createWidgetActionString(
+      with: bookIdentifier,
+      autoplay: autoplay,
+      timerSeconds: timerSeconds
+    )
+    return URL(string: urlString)!
+  }
+
+  class func getWidgetActionURL(
+    with bookIdentifier: String?,
+    playbackToggle: Bool
+  ) -> URL {
+    let urlString = CommandParser.createWidgetActionString(
+      with: bookIdentifier,
+      playbackToggle: playbackToggle
+    )
     return URL(string: urlString)!
   }
 
@@ -193,7 +208,7 @@ extension View {
 
 extension WidgetConfiguration {
   public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
-    if #available(iOSApplicationExtension 17.0, *) {
+    if #available(iOSApplicationExtension 17.0, iOS 15.0, *) {
       return self.contentMarginsDisabled()
     } else {
       return self

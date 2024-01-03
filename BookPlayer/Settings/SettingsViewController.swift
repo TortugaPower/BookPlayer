@@ -50,9 +50,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
   let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
-  let githubLinkPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
+  let tipJarPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
   let supportEmailPath = IndexPath(row: 1, section: SettingsSection.support.rawValue)
-  let tipJarPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
+  let debugFilesPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
+  let githubLinkPath = IndexPath(row: 3, section: SettingsSection.support.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -73,9 +74,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
     setUpTheming()
 
-    self.bindObservers()
+    bindObservers()
+    bindDataItems()
 
-    self.setupSwitchValues()
+    setupSwitchValues()
 
     guard
       let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
@@ -184,6 +186,28 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     viewModel.toggleSKANPreference(skanSwitch.isOn)
   }
 
+  func bindDataItems() {
+    self.viewModel.observeEvents()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        switch event {
+        case .showLoader(let flag):
+          self?.showLoader(flag)
+        case .showAlert(let content):
+          self?.showAlert(content)
+        }
+      }
+      .store(in: &disposeBag)
+  }
+
+  func showLoader(_ flag: Bool) {
+    if flag {
+      LoadingUtils.loadAndBlock(in: self)
+    } else {
+      LoadingUtils.stopLoading(in: self)
+    }
+  }
+
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     if indexPath == cloudDeletedIndexPath,
        !self.viewModel.hasMadeDonation() {
@@ -239,6 +263,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showTipJar()
     case self.supportEmailPath:
       self.sendSupportEmail()
+    case self.debugFilesPath:
+      self.shareDebugInformation()
     case self.githubLinkPath:
       self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
@@ -389,7 +415,11 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
       mail.mailComposeDelegate = self
       mail.setToRecipients([self.supportEmail])
-      mail.setSubject("I need help with BookPlayer \(self.version)-\(self.build)")
+      /// Note: c for cloud enabled
+      let subject: String = viewModel.hasMadeDonation()
+      ? "I need help with BookPlayer \(self.version)-\(self.build)c"
+      : "I need help with BookPlayer \(self.version)-\(self.build)"
+      mail.setSubject(subject)
       mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
 
       self.present(mail, animated: true)
@@ -408,6 +438,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
       self.present(alert, animated: true, completion: nil)
     }
+  }
+
+  func shareDebugInformation() {
+    viewModel.shareDebugInformation()
   }
 
   func showProjectOnGitHub() {

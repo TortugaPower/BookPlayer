@@ -14,10 +14,11 @@ import MediaPlayer
 
 // swiftlint:disable:next file_length
 /// sourcery: AutoMockable
-public protocol PlayerManagerProtocol {
+public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
   var isPlaying: Bool { get }
+  var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
 
   func load(_ item: PlayableItem, autoplay: Bool)
   func hasLoadedBook() -> Bool
@@ -39,6 +40,11 @@ public protocol PlayerManagerProtocol {
   func currentSpeedPublisher() -> AnyPublisher<Float, Never>
   func isPlayingPublisher() -> AnyPublisher<Bool, Never>
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never>
+}
+
+/// Delegate that hooks into the playback sequence
+public protocol PlaybackSyncProgressDelegate: AnyObject {
+  func waitForSyncInProgress() async
 }
 
 final class PlayerManager: NSObject, PlayerManagerProtocol {
@@ -81,6 +87,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
+  weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
+  /// Reference to the ongoing play task
+  private var playTask: Task<(), Error>?
   private var playerItem: AVPlayerItem?
   private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
@@ -132,6 +141,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     SleepTimer.shared.timerEndedPublisher.sink { [weak self] state in
       self?.handleSleepTimerEndEvent(state)
+    }.store(in: &disposeBag)
+
+    isPlayingPublisher()
+      .removeDuplicates()
+      .sink { [weak self] isPlayingValue in
+      UserDefaults.sharedDefaults.set(
+        isPlayingValue,
+        forKey: Constants.UserDefaults.sharedWidgetIsPlaying
+      )
+      self?.widgetReloadService.reloadWidget(.lastPlayedWidget)
     }.store(in: &disposeBag)
   }
 
@@ -264,6 +283,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task
+    playTask?.cancel()
     loadChapterTask?.cancel()
 
     // Recover in case of failure
@@ -359,7 +379,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
             let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
             self.initializeChapterTime(time)
           }
-          self.libraryService.setLibraryLastBook(with: currentItem.relativePath)
         }
 
         NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
@@ -443,7 +462,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   // MARK: - Player states
 
   var isPlaying: Bool {
-    return self.audioPlayer.timeControlStatus == .playing
+    let controlStatusFlag = audioPlayer.timeControlStatus != .paused
+    let playbackQueuedFlag = playbackQueued == true
+
+    return controlStatusFlag
+    || playbackQueuedFlag
+    || (isFetchingRemoteURL == true && playbackQueuedFlag)
   }
 
   /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,
@@ -643,10 +667,7 @@ extension PlayerManager {
 // MARK: - Playback
 
 extension PlayerManager {
-  func play() {
-    /// Ignore play commands if there's no item loaded
-    guard let currentItem else { return }
-
+  func prepareForPlayback(_ currentItem: PlayableItem) async -> Bool {
     /// Allow refetching remote URL if the action was initiating by the user
     canFetchRemoteURL = true
 
@@ -659,12 +680,12 @@ extension PlayerManager {
           load(currentItem, autoplay: true)
         }
       }
-      return
+      return false
     }
 
-    guard playerItem.status == .readyToPlay else {
+    guard playerItem.status == .readyToPlay && playerItem.error == nil else {
       /// Try to reload the item if it failed to load previously
-      if playerItem.status == .failed {
+      if playerItem.status == .failed || playerItem.error != nil {
         load(currentItem, autoplay: true)
       } else {
         // queue playback
@@ -672,44 +693,63 @@ extension PlayerManager {
         self.observeStatus = true
       }
 
-      return
+      return false
     }
 
-    self.userActivityManager.resumePlaybackActivity()
+    /// Update nowPlaying state so the UI displays correctly
+    playbackQueued = true
+    await syncProgressDelegate?.waitForSyncInProgress()
 
-    do {
-      let audioSession = AVAudioSession.sharedInstance()
-      try audioSession.setCategory(
-        AVAudioSession.Category.playback,
-        mode: .spokenAudio,
-        options: []
+    return true
+  }
+
+  func play() {
+    playTask?.cancel()
+    playTask = Task { @MainActor in
+      /// Ignore play commands if there's no item loaded,
+      /// and only continue if the item is loaded and ready
+      guard
+        let currentItem,
+        await prepareForPlayback(currentItem),
+        !Task.isCancelled
+      else { return }
+
+      userActivityManager.resumePlaybackActivity()
+
+      do {
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(
+          AVAudioSession.Category.playback,
+          mode: .spokenAudio,
+          options: []
+        )
+        try audioSession.setActive(true)
+      } catch {
+        fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+      }
+
+      createOrUpdateAutomaticBookmark(
+        at: currentItem.currentTime,
+        relativePath: currentItem.relativePath,
+        type: .play
       )
-      try audioSession.setActive(true)
-    } catch {
-      fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-    }
 
-    self.createOrUpdateAutomaticBookmark(
-      at: currentItem.currentTime,
-      relativePath: currentItem.relativePath,
-      type: .play
-    )
+      // If book is completed, stop
+      if Int(currentItem.duration) == Int(CMTimeGetSeconds(audioPlayer.currentTime())) { return }
 
-    // If book is completed, stop
-    if Int(currentItem.duration) == Int(CMTimeGetSeconds(self.audioPlayer.currentTime())) { return }
+      handleSmartRewind(currentItem)
 
-    self.handleSmartRewind(currentItem)
+      fadeTimer?.invalidate()
+      shakeMotionService.stopMotionUpdates()
+      boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+      bindInterruptObserver()
+      // Set play state on player and control center
+      audioPlayer.playImmediately(atRate: currentSpeed)
+      /// Clean up flag after player starts playing
+      playbackQueued = nil
 
-    self.fadeTimer?.invalidate()
-    self.shakeMotionService.stopMotionUpdates()
-    self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
-    bindInterruptObserver()
-    // Set play state on player and control center
-    self.audioPlayer.playImmediately(atRate: self.currentSpeed)
+      setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
-    self.setNowPlayingBookTitle(chapter: currentItem.currentChapter)
-
-    DispatchQueue.main.async {
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
     }
   }
@@ -773,8 +813,10 @@ extension PlayerManager {
       self.playbackQueued = nil
     case .failed:
       if canFetchRemoteURL,
-        (item.error as? NSError)?.code == NSURLErrorResourceUnavailable,
-        let currentItem {
+         let nsError = item.error as? NSError,
+         (nsError.code == NSURLErrorResourceUnavailable
+          || nsError.code == NSURLErrorNoPermissionsToReadFile),
+         let currentItem {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
       } else {
@@ -809,6 +851,7 @@ extension PlayerManager {
     // Set pause state on player and control center
     audioPlayer.pause()
     playbackQueued = nil
+    playTask?.cancel()
     loadChapterTask?.cancel()
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
     MPNowPlayingInfoCenter.default().playbackState = .paused
@@ -848,6 +891,7 @@ extension PlayerManager {
     playbackQueued = nil
 
     audioPlayer.pause()
+    playTask?.cancel()
     loadChapterTask?.cancel()
 
     userActivityManager.stopPlaybackActivity()

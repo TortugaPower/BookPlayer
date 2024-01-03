@@ -13,6 +13,8 @@ import WidgetKit
 protocol WidgetReloadServiceProtocol {
   /// Reload all the registered widgets
   func reloadAllWidgets()
+  /// Reload specific widget
+  func reloadWidget(_ type: Constants.Widgets)
   /// Reload a specific widget
   /// Note: Widgets showing progress info are subject to be constantly updated, so it's better to just make one update
   func scheduleWidgetReload(of type: Constants.Widgets)
@@ -30,6 +32,14 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
     })
     referenceWorkItems = [:]
     WidgetCenter.shared.reloadAllTimelines()
+  }
+
+  func reloadWidget(_ type: Constants.Widgets) {
+    let referenceWorkItem = referenceWorkItems[type]
+
+    referenceWorkItem?.cancel()
+
+    WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
   }
 
   func scheduleWidgetReload(of type: Constants.Widgets) {

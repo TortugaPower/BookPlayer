@@ -300,3 +300,5 @@
 "intent_lastbook_play_title" = "Jatka viimeksi toistettua kirjaa";
 "intent_lastbook_empty_error" = "Ei ole viimeksi pelattua kirjaa";
 "intent_playback_pause_title" = "Keskeytä toisto";
+"storage_artwork_cache_title" = "Taideteoksen välimuistin koko";
+"settings_share_debug_information" = "Jaa virheenkorjaustiedot";

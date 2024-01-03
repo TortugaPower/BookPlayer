@@ -89,6 +89,7 @@ class MainCoordinator: NSObject {
       playbackService: self.playbackService,
       syncService: syncService
     )
+    playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator
     libraryCoordinator.tabBarController = tabBarController
     libraryCoordinator.start()
@@ -109,7 +110,8 @@ class MainCoordinator: NSObject {
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: self.libraryService,
+      libraryService: self.libraryService, 
+      syncService: self.syncService,
       accountService: self.accountService
     )
     settingsCoordinator.tabBarController = tabBarController

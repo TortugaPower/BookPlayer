@@ -8,7 +8,6 @@
 
 import Combine
 import Foundation
-import RevenueCat
 
 /// Sync errors that must be handled (not shown as alerts)
 public enum BPSyncError: Error {
@@ -31,6 +30,9 @@ public protocol SyncServiceProtocol {
   /// Progress publisher for ongoing-download tasks
   var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
 
+  /// Check if we can safely fetch the list contents
+  func canSyncListContents(at relativePath: String?) -> Bool
+
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
 
@@ -39,6 +41,9 @@ public protocol SyncServiceProtocol {
   func syncLibraryContents() async throws
 
   func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
+
+  /// Fetch the remote synced identifiers
+  func fetchSyncedIdentifiers() async throws -> [String]
 
   func getRemoteFileURLs(
     of relativePath: String,
@@ -150,15 +155,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     .store(in: &disposeBag)
   }
 
-  public func syncListContents(
-    at relativePath: String?
-  ) async throws {
+  public func canSyncListContents(at relativePath: String?) -> Bool {
     guard isActive else {
-      throw BookPlayerError.networkError("Sync is not enabled")
+      Self.logger.trace("Sync is not enabled")
+      return false
     }
 
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false else {
-      throw BookPlayerError.runtimeError("Can't fetch items while there are sync operations in progress")
+      Self.logger.trace("Can't fetch items while there are sync operations in progress")
+      return false
     }
 
     let userDefaultsKey = "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
@@ -167,7 +172,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Do not sync if one minute hasn't passed since last sync
     guard now - lastSync > 60 else {
-      throw BookPlayerError.networkError("Throttled sync operation")
+      Self.logger.trace("Throttled sync operation")
+      return false
     }
 
     UserDefaults.standard.set(
@@ -175,6 +181,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       forKey: userDefaultsKey
     )
 
+    return true
+  }
+
+  public func syncListContents(
+    at relativePath: String?
+  ) async throws {
     Self.logger.trace("Fetching list of contents")
 
     let response = try await fetchContents(at: relativePath)
@@ -212,14 +224,19 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     guard !response.content.isEmpty else { return }
 
-    let itemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    let completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
 
-    await libraryService.updateInfo(for: itemsDict, parentFolder: parentFolder)
+    var filteredItemsDict = completeItemsDict
+    /// Avoid updating the las played info preemptively
+    if let lastItemPlayed = response.lastItemPlayed {
+      filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
+    }
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
-    await libraryService.storeNewItems(from: itemsDict, parentFolder: parentFolder)
+    await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
-      await libraryService.removeItems(notIn: Array(itemsDict.keys), parentFolder: parentFolder)
+      await libraryService.removeItems(notIn: Array(completeItemsDict.keys), parentFolder: parentFolder)
     }
 
     /// Only handle if the last item played is stored in the local library
@@ -270,7 +287,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
   }
 
-  func fetchSyncedIdentifiers() async throws -> [String] {
+  public func fetchSyncedIdentifiers() async throws -> [String] {
     let response: IdentifiersResponse = try await self.provider.request(.syncedIdentifiers)
 
     return response.content

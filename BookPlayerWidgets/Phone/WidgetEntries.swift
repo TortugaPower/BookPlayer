@@ -15,38 +15,32 @@ struct SimpleEntry: TimelineEntry {
   let title: String?
   let relativePath: String?
   let theme: SimpleTheme
-  let timerSeconds: Double
-  let autoplay: Bool
+  let isPlaying: Bool
 
   init(
     date: Date,
     title: String?,
     relativePath: String?,
     theme: SimpleTheme,
-    timerSeconds: Double,
-    autoplay: Bool
+    isPlaying: Bool
   ) {
     self.date = date
     self.title = title
     self.relativePath = relativePath
     self.theme = theme
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
+    self.isPlaying = isPlaying
   }
 
   init(
     date: Date,
     title: String?,
-    relativePath: String?,
-    timerSeconds: Double,
-    autoplay: Bool
+    relativePath: String?
   ) {
     self.date = date
     self.title = title
     self.relativePath = relativePath
     self.theme = SimpleTheme.getDefaultTheme()
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
+    self.isPlaying = false
   }
 }
 
@@ -54,34 +48,24 @@ struct LibraryEntry: TimelineEntry {
   let date: Date
   let items: [SimpleLibraryItem]
   let theme: SimpleTheme
-  let timerSeconds: Double
-  let autoplay: Bool
 
   init(
     date: Date,
     items: [SimpleLibraryItem],
-    theme: SimpleTheme,
-    timerSeconds: Double,
-    autoplay: Bool
+    theme: SimpleTheme
   ) {
     self.date = date
     self.items = items
     self.theme = theme
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
   }
 
   init(
     date: Date,
-    items: [SimpleLibraryItem],
-    timerSeconds: Double,
-    autoplay: Bool
+    items: [SimpleLibraryItem]
   ) {
     self.date = date
     self.items = items
     self.theme = SimpleTheme.getDefaultTheme()
-    self.timerSeconds = timerSeconds
-    self.autoplay = autoplay
   }
 }
 

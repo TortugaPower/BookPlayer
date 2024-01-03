@@ -72,6 +72,8 @@ class FolderListCoordinator: ItemListCoordinator {
   }
 
   override func syncList() {
+    guard syncService.canSyncListContents(at: folderRelativePath) else { return }
+
     Task { @MainActor in
       do {
         _ = try await syncService.syncListContents(at: folderRelativePath)
