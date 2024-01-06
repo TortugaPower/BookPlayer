@@ -1,5 +1,5 @@
 //
-//  DebugInformationActivityItemProvider.swift
+//  DebugInformationFileActivityItemProvider.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 28/11/23.
@@ -9,7 +9,7 @@
 import BookPlayerKit
 import Foundation
 
-final class DebugInformationActivityItemProvider: UIActivityItemProvider {
+final class DebugInformationFileActivityItemProvider: UIActivityItemProvider {
   let info: String
 
   init(info: String) {

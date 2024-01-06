@@ -218,9 +218,16 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   }
 
   func shareDebugInformation(info: String) {
-    let provider = DebugInformationActivityItemProvider(info: info)
+    let shareController: UIActivityViewController
 
-    let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
+    /// Sharing a txt file does not work well on a Mac, it's better to just share the info string
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      let source = DebugInformationActivityItemSource(info: info)
+      shareController = UIActivityViewController(activityItems: [source], applicationActivities: nil)
+    } else {
+      let provider = DebugInformationFileActivityItemProvider(info: info)
+      shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
+    }
 
     if let popoverPresentationController = shareController.popoverPresentationController,
        let view = flow.navigationController.topViewController?.view {
