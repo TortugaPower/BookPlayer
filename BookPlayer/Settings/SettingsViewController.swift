@@ -22,8 +22,6 @@ protocol IntentSelectionDelegate: AnyObject {
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
-  @IBOutlet weak var autoplayLibrarySwitch: UISwitch!
-  @IBOutlet weak var autoplayRestartSwitch: UISwitch!
   @IBOutlet weak var disableAutolockSwitch: UISwitch!
   @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
@@ -39,11 +37,12 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, autoplay, autolock, siri, backups, privacy, support, credits
+    case plus = 0, appearance, playback, storage, autolock, siri, backups, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
+  let autoplayIndexPath = IndexPath(row: 1, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
   let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
@@ -118,8 +117,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   func setupSwitchValues() {
-    self.autoplayLibrarySwitch.addTarget(self, action: #selector(self.autoplayToggleDidChange), for: .valueChanged)
-    self.autoplayRestartSwitch.addTarget(self, action: #selector(self.autoplayRestartToggleDidChange), for: .valueChanged)
     self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
     self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
@@ -139,12 +136,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
       animated: false
     )
-    let isAutoplayEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
-    self.autoplayLibrarySwitch.setOn(isAutoplayEnabled, animated: false)
-    autoplayRestartSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled), animated: false)
-    if !isAutoplayEnabled {
-      autoplayRestartSwitch.isEnabled = false
-    }
     self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled), animated: false)
     self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered), animated: false)
     self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
@@ -153,15 +144,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func donationMade() {
     self.tableView.reloadData()
-  }
-
-  @objc func autoplayToggleDidChange() {
-    UserDefaults.standard.set(self.autoplayLibrarySwitch.isOn, forKey: Constants.UserDefaults.autoplayEnabled)
-    self.autoplayRestartSwitch.isEnabled = autoplayLibrarySwitch.isOn
-  }
-
-  @objc func autoplayRestartToggleDidChange() {
-    UserDefaults.standard.set(self.autoplayRestartSwitch.isOn, forKey: Constants.UserDefaults.autoplayRestartEnabled)
   }
 
   @objc func disableAutolockDidChange() {
@@ -255,6 +237,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showCredits()
     case self.playbackIndexPath:
       self.viewModel.showPlayerControls()
+    case self.autoplayIndexPath:
+      self.viewModel.showAutoplay()
     case self.themesIndexPath:
       self.viewModel.showThemes()
     case self.iconsIndexPath:
@@ -313,6 +297,11 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     var tableViewCell = super.tableView(tableView, cellForRowAt: indexPath)
 
+    if indexPath == autoplayIndexPath {
+      /// Override title with capitalized string
+      tableViewCell.textLabel?.text = "settings_autoplay_section_title".localized.localizedCapitalized
+    }
+
     guard 
       #available(iOS 16.4, *)
     else {
@@ -358,8 +347,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
 
     switch settingsSection {
-    case .autoplay:
-      return "settings_autoplay_description".localized
     case .autolock:
       return "settings_autolock_description".localized
     case .support:
