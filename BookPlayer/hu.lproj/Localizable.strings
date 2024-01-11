@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Lejátszás szüneteltetése";
 "storage_artwork_cache_title" = "Az alkotás gyorsítótár mérete";
 "settings_share_debug_information" = "Ossza meg a hibakeresési információkat";
+"settings_autlock_section_title" = "Automata zár";

@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Sæt afspilning på pause";
 "storage_artwork_cache_title" = "Artwork cache størrelse";
 "settings_share_debug_information" = "Del fejlretningsoplysninger";
+"settings_autlock_section_title" = "Autolås";

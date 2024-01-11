@@ -302,3 +302,4 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_playback_pause_title" = "Pozastavenie prehrávanie";
 "storage_artwork_cache_title" = "Veľkosť vyrovnávacej pamäte obalov kníh";
 "settings_share_debug_information" = "Zdieľať informácie o ladení";
+"settings_autlock_section_title" = "Automatické zamknutie";

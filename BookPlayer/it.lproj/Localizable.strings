@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Mettere in pausa la riproduzione";
 "storage_artwork_cache_title" = "Dimensioni della cache della grafica";
 "settings_share_debug_information" = "Condividi le informazioni di debug";
+"settings_autlock_section_title" = "Chiusura automatica";

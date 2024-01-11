@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Пауза воспроизведения";
 "storage_artwork_cache_title" = "Размер кэша иллюстраций";
 "settings_share_debug_information" = "Делитесь отладочной информацией";
+"settings_autlock_section_title" = "Автоматическая блокировка";

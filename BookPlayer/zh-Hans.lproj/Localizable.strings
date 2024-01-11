@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "暂停播放";
 "storage_artwork_cache_title" = "艺术品缓存大小";
 "settings_share_debug_information" = "共享调试信息";
+"settings_autlock_section_title" = "自动锁";
