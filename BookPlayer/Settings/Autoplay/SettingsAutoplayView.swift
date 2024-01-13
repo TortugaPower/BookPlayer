@@ -15,6 +15,15 @@ struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
   var body: some View {
+    if #available(iOS 16.0, *) {
+      formView
+        .scrollContentBackground(.hidden)
+    } else {
+      formView
+    }
+  }
+
+  var formView: some View {
     Form {
       Section {
         Toggle(isOn: $viewModel.autoplayLibraryEnabled, label: {
@@ -30,6 +39,7 @@ struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
         Text("settings_autoplay_description".localized)
           .foregroundColor(themeViewModel.secondaryColor)
       }
+      .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
     }
     .background(
       themeViewModel.systemGroupedBackgroundColor
