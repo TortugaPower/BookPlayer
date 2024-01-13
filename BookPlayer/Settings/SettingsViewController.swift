@@ -22,12 +22,9 @@ protocol IntentSelectionDelegate: AnyObject {
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
-  @IBOutlet weak var disableAutolockSwitch: UISwitch!
-  @IBOutlet weak var autolockDisabledOnlyWhenPoweredSwitch: UISwitch!
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
   @IBOutlet weak var crashReportsSwitch: UISwitch!
   @IBOutlet weak var skanSwitch: UISwitch!
-  @IBOutlet weak var autolockDisabledOnlyWhenPoweredLabel: UILabel!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
   @IBOutlet weak var plusBannerView: PlusBannerView!
@@ -37,12 +34,13 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, autolock, siri, backups, privacy, support, credits
+    case plus = 0, appearance, playback, storage, siri, backups, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
   let autoplayIndexPath = IndexPath(row: 1, section: SettingsSection.playback.rawValue)
+  let autolockIndexPath = IndexPath(row: 2, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
   let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
@@ -117,8 +115,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   func setupSwitchValues() {
-    self.disableAutolockSwitch.addTarget(self, action: #selector(self.disableAutolockDidChange), for: .valueChanged)
-    self.autolockDisabledOnlyWhenPoweredSwitch.addTarget(self, action: #selector(self.autolockOnlyWhenPoweredDidChange), for: .valueChanged)
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
     crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
     skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
@@ -136,24 +132,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
       animated: false
     )
-    self.disableAutolockSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled), animated: false)
-    self.autolockDisabledOnlyWhenPoweredSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered), animated: false)
-    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
-    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled)
   }
 
   @objc func donationMade() {
     self.tableView.reloadData()
-  }
-
-  @objc func disableAutolockDidChange() {
-    UserDefaults.standard.set(self.disableAutolockSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabled)
-    self.autolockDisabledOnlyWhenPoweredSwitch.isEnabled = self.disableAutolockSwitch.isOn
-    self.autolockDisabledOnlyWhenPoweredLabel.isEnabled = self.disableAutolockSwitch.isOn
-  }
-
-  @objc func autolockOnlyWhenPoweredDidChange() {
-    UserDefaults.standard.set(self.autolockDisabledOnlyWhenPoweredSwitch.isOn, forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered)
   }
 
   @objc func iCloudBackupsDidChange() {
@@ -239,6 +221,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showPlayerControls()
     case self.autoplayIndexPath:
       self.viewModel.showAutoplay()
+    case self.autolockIndexPath:
+      self.viewModel.showAutolock()
     case self.themesIndexPath:
       self.viewModel.showThemes()
     case self.iconsIndexPath:
@@ -347,8 +331,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
 
     switch settingsSection {
-    case .autolock:
-      return "settings_autolock_description".localized
     case .support:
       return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
     case .privacy:

@@ -18,6 +18,7 @@ class SettingsViewModel: ViewModelProtocol {
     case icons
     case playerControls
     case autoplay
+    case autolock
     case storageManagement
     case deletedFilesManagement
     case tipJar
@@ -129,6 +130,10 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showAutoplay() {
     onTransition?(.autoplay)
+  }
+
+  func showAutolock() {
+    onTransition?(.autolock)
   }
 
   func showCredits() {

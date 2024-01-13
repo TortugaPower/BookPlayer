@@ -370,6 +370,8 @@
 		63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418445C2258AE11E0072DD13 /* WidgetUtils.swift */; };
 		63C1A8B12B09165400C4B418 /* RecentBooksWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */; };
 		63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
+		63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */; };
+		63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
@@ -1093,6 +1095,8 @@
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedView.swift; sourceTree = "<group>"; };
+		63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockView.swift; sourceTree = "<group>"; };
+		63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockViewModel.swift; sourceTree = "<group>"; };
 		63F828562AED56FA00B5CE0C /* CornerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerView.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
@@ -2074,6 +2078,15 @@
 			path = PerformanceTests;
 			sourceTree = "<group>";
 		};
+		63C6C2E42B50299D00FFE0D8 /* Autolock */ = {
+			isa = PBXGroup;
+			children = (
+				63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */,
+				63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */,
+			);
+			path = Autolock;
+			sourceTree = "<group>";
+		};
 		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
 			isa = PBXGroup;
 			children = (
@@ -2410,6 +2423,7 @@
 				4151A6AF26E490C900E49DBE /* Plus Screen */,
 				4124121B26CF289B00B099DB /* Storage */,
 				6304CF682B4C2AB000055285 /* Autoplay */,
+				63C6C2E42B50299D00FFE0D8 /* Autolock */,
 				41964C842220C74D00FF1A2F /* Cells */,
 				410D0FEC1EDCF4B000A52EB9 /* SettingsViewController.swift */,
 				4137BBCD272DBB16009ED9FE /* SettingsViewModel.swift */,
@@ -3309,6 +3323,7 @@
 				41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
+				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
@@ -3351,6 +3366,7 @@
 				4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */,
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
+				63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */,
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */,
