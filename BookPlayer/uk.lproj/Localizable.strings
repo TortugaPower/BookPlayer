@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Розмір кеша ілюстрації";
 "settings_share_debug_information" = "Поділіться інформацією про налагодження";
 "settings_autlock_section_title" = "Автоблокування";
+"settings_sleeptimer_auto_title" = "Автоматичний таймер сну";
+"settings_sleeptimer_auto_description" = "Перезапустіть останній активний таймер сну, коли відтворення відновиться";

@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Resim önbellek boyutu";
 "settings_share_debug_information" = "Hata ayıklama bilgilerini paylaşın";
 "settings_autlock_section_title" = "Otomatik kilit";
+"settings_sleeptimer_auto_title" = "Otomatik Uyku Zamanlayıcısı";
+"settings_sleeptimer_auto_description" = "Oynatma devam ettirildiğinde son aktif uyku zamanlayıcısını yeniden başlatın";

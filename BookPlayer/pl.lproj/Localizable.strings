@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
 "settings_share_debug_information" = "Udostępnij informacje debugowania";
 "settings_autlock_section_title" = "Automatyczna blokada";
+"settings_sleeptimer_auto_title" = "Automatyczny wyłącznik czasowy";
+"settings_sleeptimer_auto_description" = "Po wznowieniu odtwarzania uruchom ponownie ostatni aktywny timer uśpienia";

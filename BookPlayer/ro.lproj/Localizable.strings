@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Dimensiunea memoriei cache a lucrărilor de artă";
 "settings_share_debug_information" = "Partajați informațiile de depanare";
 "settings_autlock_section_title" = "Închidere automată";
+"settings_sleeptimer_auto_title" = "Temporizator de oprire automată";
+"settings_sleeptimer_auto_description" = "Reporniți ultimul temporizator de repaus activ când redarea este reluată";
