@@ -93,11 +93,11 @@ final class SleepTimer {
 
   // MARK: Public methods
 
-  public func setSticky(stickyState: Bool){
+  public func setSticky(stickyState: Bool) {
       sticky = stickyState
   }
   
-  public func getSticky() -> Bool{
+  public func getSticky() -> Bool {
     return sticky
   }
   
