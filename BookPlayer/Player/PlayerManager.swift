@@ -776,9 +776,9 @@ extension PlayerManager {
   }
   
   func handleStickyTimer() {
-    if SleepTimer.shared.getSticky() {
-      SleepTimer.shared.restartTimer()
-    }
+    guard SleepTimer.shared.isStickyPreferenceEnabled() else { return }
+    
+    SleepTimer.shared.restartTimer()
   }
 
   func setSpeed(_ newValue: Float) {
