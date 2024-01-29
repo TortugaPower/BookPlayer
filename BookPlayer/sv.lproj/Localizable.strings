@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Pausa uppspelningen";
 "storage_artwork_cache_title" = "Artwork cachestorlek";
 "settings_share_debug_information" = "Dela felsökningsinformation";
+"settings_autlock_section_title" = "Auto lås";

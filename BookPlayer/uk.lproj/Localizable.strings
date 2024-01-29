@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Призупинити відтворення";
 "storage_artwork_cache_title" = "Розмір кеша ілюстрації";
 "settings_share_debug_information" = "Поділіться інформацією про налагодження";
+"settings_autlock_section_title" = "Автоблокування";

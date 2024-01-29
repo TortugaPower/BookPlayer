@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Întrerupeți redarea";
 "storage_artwork_cache_title" = "Dimensiunea memoriei cache a lucrărilor de artă";
 "settings_share_debug_information" = "Partajați informațiile de depanare";
+"settings_autlock_section_title" = "Închidere automată";

@@ -49,6 +49,10 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showPlayerControls()
       case .storageManagement:
         self.showStorageManagement()
+      case .autoplay:
+        self.showAutoplay()
+      case .autolock:
+        self.showAutolock()
       case .deletedFilesManagement:
         self.showCloudDeletedFiles()
       case .tipJar:
@@ -95,6 +99,34 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
+  }
+
+  func showAutoplay() {
+    let viewModel = SettingsAutoplayViewModel()
+    viewModel.onTransition = { route in
+      switch route {
+      case .dismiss:
+        self.flow.navigationController.dismiss(animated: true)
+      }
+    }
+
+    let vc = UIHostingController(rootView: SettingsAutoplayView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
+  }
+
+  func showAutolock() {
+    let viewModel = SettingsAutolockViewModel()
+    viewModel.onTransition = { route in
+      switch route {
+      case .dismiss:
+        self.flow.navigationController.dismiss(animated: true)
+      }
+    }
+
+    let vc = UIHostingController(rootView: SettingsAutolockView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
   }

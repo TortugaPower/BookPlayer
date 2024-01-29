@@ -302,3 +302,4 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "intent_playback_pause_title" = "Sett avspilling på pause";
 "storage_artwork_cache_title" = "Artwork cache-størrelse";
 "settings_share_debug_information" = "Del feilsøkingsinformasjon";
+"settings_autlock_section_title" = "Automatisk lås";

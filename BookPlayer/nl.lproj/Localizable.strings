@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Pauzeer het afspelen";
 "storage_artwork_cache_title" = "Grootte van de artworkcache";
 "settings_share_debug_information" = "Deel foutopsporingsinformatie";
+"settings_autlock_section_title" = "Automatische vergrendeling";

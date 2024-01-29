@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Pausar la reproducción";
 "storage_artwork_cache_title" = "Tamaño de caché de ilustraciones";
 "settings_share_debug_information" = "Compartir información de depuración";
+"settings_autlock_section_title" = "Bloqueo automático";

@@ -302,3 +302,4 @@
 "intent_playback_pause_title" = "Wstrzymaj odtwarzanie";
 "storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
 "settings_share_debug_information" = "Udostępnij informacje debugowania";
+"settings_autlock_section_title" = "Automatyczna blokada";
