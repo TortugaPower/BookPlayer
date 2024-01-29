@@ -63,7 +63,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   /// Initializer
   /// - Parameters:
   ///   - client: Network client
-  ///   - task: 
+  ///   - task: Sync task to be handled in the operation
   init(
     client: NetworkClientProtocol,
     task: SyncTask
