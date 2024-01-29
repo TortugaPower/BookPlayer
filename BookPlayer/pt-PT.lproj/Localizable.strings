@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Tamanho do cache de arte";
 "settings_share_debug_information" = "Compartilhe informações de depuração";
 "settings_autlock_section_title" = "Bloqueio automático";
+"settings_sleeptimer_auto_title" = "Temporizador automático";
+"settings_sleeptimer_auto_description" = "Reinicie o último temporizador ativo quando a reprodução for retomada";

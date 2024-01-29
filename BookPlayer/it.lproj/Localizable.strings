@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Dimensioni della cache della grafica";
 "settings_share_debug_information" = "Condividi le informazioni di debug";
 "settings_autlock_section_title" = "Chiusura automatica";
+"settings_sleeptimer_auto_title" = "Temporizzatore di spegnimento automatico";
+"settings_sleeptimer_auto_description" = "Riavvia l'ultimo timer di spegnimento attivo quando viene ripresa la riproduzione";

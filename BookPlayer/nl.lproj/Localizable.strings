@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Grootte van de artworkcache";
 "settings_share_debug_information" = "Deel foutopsporingsinformatie";
 "settings_autlock_section_title" = "Automatische vergrendeling";
+"settings_sleeptimer_auto_title" = "Automatische slaaptimer";
+"settings_sleeptimer_auto_description" = "Start de laatste actieve slaaptimer opnieuw wanneer het afspelen wordt hervat";

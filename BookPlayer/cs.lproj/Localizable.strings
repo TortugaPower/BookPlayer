@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Velikost mezipaměti uměleckých děl";
 "settings_share_debug_information" = "Sdílejte informace o ladění";
 "settings_autlock_section_title" = "Automatický zámek";
+"settings_sleeptimer_auto_title" = "Časovač automatického vypnutí";
+"settings_sleeptimer_auto_description" = "Po obnovení přehrávání restartujte poslední aktivní časovač vypnutí";

@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "Taideteoksen välimuistin koko";
 "settings_share_debug_information" = "Jaa virheenkorjaustiedot";
 "settings_autlock_section_title" = "Automaattinen lukitus";
+"settings_sleeptimer_auto_title" = "Automaattinen uniajastin";
+"settings_sleeptimer_auto_description" = "Käynnistä viimeinen aktiivinen uniajastin uudelleen, kun toistoa jatketaan";

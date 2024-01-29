@@ -39,8 +39,6 @@ final class SleepTimer {
     1800.0,
     3600.0
   ]
-  
-  public var sticky = false
 
   /// Publisher when the countdown timer reaches the defined threshold
   public var countDownThresholdPublisher = PassthroughSubject<Bool, Never>()
@@ -92,25 +90,17 @@ final class SleepTimer {
   }
 
   // MARK: Public methods
-
-  public func setSticky(stickyState: Bool) {
-      sticky = stickyState
-  }
-  
-  public func getSticky() -> Bool {
-    return sticky
-  }
   
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer
     reset()
     state = newState
-    lastActiveState = newState
 
     switch newState {
     case .off:
       donateTimerIntent(with: .cancel)
     case .countdown(let interval):
+      lastActiveState = newState
       if let option = TimeParser.getTimerOption(from: interval) {
         donateTimerIntent(with: option)
       }
@@ -120,11 +110,12 @@ final class SleepTimer {
           self?.update()
         }
     case .endOfChapter:
+      lastActiveState = newState
       donateTimerIntent(with: .endChapter)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
     }
-    }
+  }
 
   public func restartTimer() {
     setTimer(lastActiveState)

@@ -303,3 +303,5 @@
 "storage_artwork_cache_title" = "حجم ذاكرة التخزين المؤقت للعمل الفني";
 "settings_share_debug_information" = "مشاركة معلومات التصحيح";
 "settings_autlock_section_title" = "القفل التلقائي";
+"settings_sleeptimer_auto_title" = "مؤقت النوم التلقائي";
+"settings_sleeptimer_auto_description" = "أعد تشغيل آخر مؤقت نوم نشط عند استئناف التشغيل";

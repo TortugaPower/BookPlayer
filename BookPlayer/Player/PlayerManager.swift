@@ -739,8 +739,8 @@ extension PlayerManager {
 
       handleSmartRewind(currentItem)
 
-      handleStickyTimer()
-      
+      handleAutoTimer()
+
       fadeTimer?.invalidate()
       shakeMotionService.stopMotionUpdates()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
@@ -775,10 +775,10 @@ extension PlayerManager {
     }
   }
   
-  func handleStickyTimer() {
-    if SleepTimer.shared.getSticky() {
-      SleepTimer.shared.restartTimer()
-    }
+  func handleAutoTimer() {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled) else { return }
+
+    SleepTimer.shared.restartTimer()
   }
 
   func setSpeed(_ newValue: Float) {
