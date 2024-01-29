@@ -415,7 +415,6 @@ class PlayerViewModel: ViewModelProtocol {
       )
     )
 
-    actions.append(getStickyPreferenceAction())
     actions.append(BPActionItem.cancelAction)
 
     sendEvent(.sleepTimerAlert(
@@ -474,18 +473,6 @@ class PlayerViewModel: ViewModelProtocol {
         }
       )
     }
-  }
-
-  private func getStickyPreferenceAction() -> BPActionItem {
-    let isStickyPreferenceEnabled = SleepTimer.shared.isStickyPreferenceEnabled()
-    let title = isStickyPreferenceEnabled ? "sleeptimer_option_sticky_on" : "sleeptimer_option_sticky_off"
-
-    return BPActionItem(
-      title: title.localized,
-      handler: {
-        SleepTimer.shared.setStickyPreference(!isStickyPreferenceEnabled)
-      }
-    )
   }
 }
 

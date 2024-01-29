@@ -202,8 +202,6 @@
 "error_loading_chapters" = "Chapters couldn't be loaded from: \n%@";
 "error_empty_chapters" = "Chapters are empty, please verify the contents of the folder: %@";
 "sleeptimer_option_custom" = "Custom";
-"sleeptimer_option_sticky_on" = "Sticky ✓";
-"sleeptimer_option_sticky_off" = "Sticky";
 "sleeptimer_custom_alert_title" = "Custom sleep timer";
 "settings_progresslabels_title" = "Progress Labels";
 "settings_playerinterface_list_title" = "Opens";
@@ -305,3 +303,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "storage_artwork_cache_title" = "Artwork cache size";
 "settings_share_debug_information" = "Share debug information";
 "settings_autlock_section_title" = "Autolock";
+"settings_sleeptimer_auto_title" = "Auto Sleep Timer";
+"settings_sleeptimer_auto_description" = "Restart the last active sleep timer when playback is resumed";

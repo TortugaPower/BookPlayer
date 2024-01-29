@@ -90,14 +90,6 @@ final class SleepTimer {
   }
 
   // MARK: Public methods
-
-  public func setStickyPreference(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.stickyTimerEnabled)
-  }
-  
-  public func isStickyPreferenceEnabled() -> Bool {
-    return UserDefaults.standard.bool(forKey: Constants.UserDefaults.stickyTimerEnabled)
-  }
   
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer

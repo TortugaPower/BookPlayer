@@ -35,7 +35,7 @@ public enum Constants {
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
     public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
-    public static let stickyTimerEnabled = "userSettingsStickyTimerEnabled"
+    public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"
