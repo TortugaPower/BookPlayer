@@ -739,6 +739,8 @@ extension PlayerManager {
 
       handleSmartRewind(currentItem)
 
+      handleStickyTimer()
+      
       fadeTimer?.invalidate()
       shakeMotionService.stopMotionUpdates()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
@@ -770,6 +772,12 @@ extension PlayerManager {
       let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTime, 0)
 
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    }
+  }
+  
+  func handleStickyTimer() {
+    if(SleepTimer.shared.getSticky()){
+      SleepTimer.shared.restartTimer()
     }
   }
 
