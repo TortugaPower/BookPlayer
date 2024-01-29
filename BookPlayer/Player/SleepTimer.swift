@@ -30,7 +30,7 @@ final class SleepTimer {
   /// Current time left on the timer
   @Published public var state: SleepTimerState = .off
   /// Last manually set sleep timer
-  private var lastActivedState: SleepTimerState = .off
+  private var lastActiveState: SleepTimerState = .off
   /// Default available options
   public let intervals: [TimeInterval] = [
     300.0,
@@ -39,6 +39,8 @@ final class SleepTimer {
     1800.0,
     3600.0
   ]
+  
+  public var sticky = false
 
   /// Publisher when the countdown timer reaches the defined threshold
   public var countDownThresholdPublisher = PassthroughSubject<Bool, Never>()
@@ -91,11 +93,19 @@ final class SleepTimer {
 
   // MARK: Public methods
 
+  public func setSticky(stickyState: Bool){
+      sticky = stickyState
+  }
+  
+  public func getSticky() -> Bool{
+    return sticky
+  }
+  
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer
     reset()
     state = newState
-    lastActivedState = newState
+    lastActiveState = newState
 
     switch newState {
     case .off:
@@ -114,9 +124,9 @@ final class SleepTimer {
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
     }
-  }
+    }
 
   public func restartTimer() {
-    setTimer(lastActivedState)
+    setTimer(lastActiveState)
   }
 }

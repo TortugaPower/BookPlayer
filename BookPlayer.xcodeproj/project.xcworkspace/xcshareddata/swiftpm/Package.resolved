@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/devicekit/DeviceKit.git",
       "state" : {
-        "revision" : "66837ecf1516e41fd4251bbb684dc4b1997f08ab",
-        "version" : "5.1.0"
+        "revision" : "e1c258c6070ddd6465265fe4692f29717404aede",
+        "version" : "5.2.1"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/iosdevzone/IDZSwiftCommonCrypto.git",
       "state" : {
-        "revision" : "d824371e670bd57eb456bbc41139b4997f7207b8",
-        "version" : "0.13.1"
+        "revision" : "47f9747d12137cd59d783ab376e3ccab7206319b",
+        "version" : "0.16.1"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "c75584ac759cbb16b204d0a7de3ebf53ea6b304d",
-        "version" : "7.9.0"
+        "revision" : "3ec0ab0bca4feb56e8b33e289c9496e89059dd08",
+        "version" : "7.10.2"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cbpowell/MarqueeLabel.git",
       "state" : {
-        "revision" : "bc00d4cbff7f6c416035e3d16c21885452cd159e",
-        "version" : "4.3.1"
+        "revision" : "ae3cf7c647dd7f67f1946658285f5f0ce2476caf",
+        "version" : "4.4.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/RevenueCat/purchases-ios.git",
       "state" : {
-        "revision" : "ec48897eff464c040bf774741b5f1d5a97053436",
-        "version" : "4.25.1"
+        "revision" : "ff4907a2b01fb6e0e891f36e9a14421a5500cc04",
+        "version" : "4.31.9"
       }
     },
     {
