@@ -64,15 +64,6 @@
       }
     },
     {
-      "identity" : "swiftqueue",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/lucas34/SwiftQueue.git",
-      "state" : {
-        "revision" : "2757fe47eec085a1cda750fd398ebb4f2a69f3a4",
-        "version" : "6.0.2"
-      }
-    },
-    {
       "identity" : "themeable",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GianniCarlo/Themeable.git",

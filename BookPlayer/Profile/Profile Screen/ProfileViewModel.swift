@@ -48,7 +48,8 @@ class ProfileViewModel: ProfileViewModelProtocol {
   @Published var refreshStatusMessage: String = ""
   @Published var bottomOffset: CGFloat = ModelConstants.defaultBottomOffset
 
-  var syncStatusObserver: NSKeyValueObservation!
+  /// Reference for observer
+  private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -62,30 +63,18 @@ class ProfileViewModel: ProfileViewModelProtocol {
     self.playerManager = playerManager
     self.syncService = syncService
 
-    tasksButtonText = String(format: "queued_sync_tasks_title".localized, syncService.queuedJobsCount)
     self.reloadAccount()
     self.reloadListenedTime()
     self.bindObservers()
   }
 
-  func updateQueuedJobsCount() {
-    tasksButtonText = String(format: "queued_sync_tasks_title".localized, syncService.queuedJobsCount)
-  }
-
   func bindObservers() {
-    NotificationCenter.default.publisher(for: .jobScheduled)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        self?.updateQueuedJobsCount()
+    syncTasksObserver = UserDefaults.standard.observe(\.userSyncTasksQueue, options: [.initial, .new]) { [unowned self] _, _ in
+      Task { @MainActor in
+        let count = await self.syncService.queuedJobsCount()
+        self.tasksButtonText = String(format: "queued_sync_tasks_title".localized, count)
       }
-      .store(in: &disposeBag)
-
-    NotificationCenter.default.publisher(for: .jobTerminated)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        self?.updateQueuedJobsCount()
-      }
-      .store(in: &disposeBag)
+    }
 
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in

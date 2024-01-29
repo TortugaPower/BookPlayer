@@ -1404,11 +1404,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingIsActive = value }
     }
     var underlyingIsActive: Bool!
-    var queuedJobsCount: Int {
-        get { return underlyingQueuedJobsCount }
-        set(value) { underlyingQueuedJobsCount = value }
-    }
-    var underlyingQueuedJobsCount: Int!
     var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> {
         get { return underlyingDownloadCompletedPublisher }
         set(value) { underlyingDownloadCompletedPublisher = value }
@@ -1419,6 +1414,22 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadProgressPublisher = value }
     }
     var underlyingDownloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never>!
+    //MARK: - queuedJobsCount
+
+    var queuedJobsCountCallsCount = 0
+    var queuedJobsCountCalled: Bool {
+        return queuedJobsCountCallsCount > 0
+    }
+    var queuedJobsCountReturnValue: Int!
+    var queuedJobsCountClosure: (() async -> Int)?
+    func queuedJobsCount() async -> Int {
+        queuedJobsCountCallsCount += 1
+        if let queuedJobsCountClosure = queuedJobsCountClosure {
+            return await queuedJobsCountClosure()
+        } else {
+            return queuedJobsCountReturnValue
+        }
+    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtCallsCount = 0
@@ -1428,13 +1439,13 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var canSyncListContentsAtReceivedRelativePath: String?
     var canSyncListContentsAtReceivedInvocations: [String?] = []
     var canSyncListContentsAtReturnValue: Bool!
-    var canSyncListContentsAtClosure: ((String?) -> Bool)?
-    func canSyncListContents(at relativePath: String?) -> Bool {
+    var canSyncListContentsAtClosure: ((String?) async -> Bool)?
+    func canSyncListContents(at relativePath: String?) async -> Bool {
         canSyncListContentsAtCallsCount += 1
         canSyncListContentsAtReceivedRelativePath = relativePath
         canSyncListContentsAtReceivedInvocations.append(relativePath)
         if let canSyncListContentsAtClosure = canSyncListContentsAtClosure {
-            return canSyncListContentsAtClosure(relativePath)
+            return await canSyncListContentsAtClosure(relativePath)
         } else {
             return canSyncListContentsAtReturnValue
         }
@@ -1671,12 +1682,12 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var getAllQueuedJobsCalled: Bool {
         return getAllQueuedJobsCallsCount > 0
     }
-    var getAllQueuedJobsReturnValue: [QueuedJobInfo]!
-    var getAllQueuedJobsClosure: (() -> [QueuedJobInfo])?
-    func getAllQueuedJobs() -> [QueuedJobInfo] {
+    var getAllQueuedJobsReturnValue: [SyncTask]!
+    var getAllQueuedJobsClosure: (() async -> [SyncTask])?
+    func getAllQueuedJobs() async -> [SyncTask] {
         getAllQueuedJobsCallsCount += 1
         if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
-            return getAllQueuedJobsClosure()
+            return await getAllQueuedJobsClosure()
         } else {
             return getAllQueuedJobsReturnValue
         }

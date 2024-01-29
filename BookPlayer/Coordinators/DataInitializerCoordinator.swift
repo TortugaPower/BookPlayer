@@ -138,6 +138,8 @@ class DataInitializerCoordinator: BPLogger {
     setupDefaultTheme(libraryService: libraryService)
 
     setupBlankAccount(dataManager: dataManager)
+
+    migrateSyncTasksIfNecessary()
   }
 
   private func migratePlayerPreferences(sharedDefaults: UserDefaults) {
@@ -216,5 +218,36 @@ class DataInitializerCoordinator: BPLogger {
     )
 
     UserDefaults.standard.set(nil, forKey: Constants.UserDefaults.donationMade)
+  }
+
+  /// Migrate queued tasks
+  private func migrateSyncTasksIfNecessary() {
+    let store = UserDefaults.standard
+
+    let values: [String: [String: String]] = store.value(forKey: "LibraryItemSyncJob") as? [String: [String: String]] ?? [:]
+    let dictionaryTasks: [String: String] = values["GLOBAL"] ?? [:]
+    let storedTasks = Array(dictionaryTasks.values)
+
+    guard !storedTasks.isEmpty else { return }
+
+    let migratedTasks: [Data] = storedTasks.compactMap { task in
+      guard
+        let taskData = task.data(using: .utf8),
+        let taskDictionary = try? JSONSerialization.jsonObject(with: taskData) as? [String: Any],
+        let taskRawParams = taskDictionary["params"] as? String,
+        let taskParamsData = taskRawParams.data(using: .utf8),
+        var taskParams = try? JSONSerialization.jsonObject(with: taskParamsData) as? [String: Any]
+      else {
+        return nil
+      }
+      
+      taskParams["id"] = UUID().uuidString
+
+      return try? JSONSerialization.data(withJSONObject: taskParams)
+    }
+
+    store.set(migratedTasks, forKey: Constants.UserDefaults.syncTasksQueue)
+    store.removeObject(forKey: "LibraryItemSyncJob")
+    store.removeObject(forKey: "userSettingsHasQueuedJobs")
   }
 }

@@ -394,7 +394,6 @@ class PlayerViewModel: ViewModelProtocol {
         }
       )
     )
-    
 
     let formatter = DateComponentsFormatter()
 
@@ -431,26 +430,22 @@ class PlayerViewModel: ViewModelProtocol {
         }
       )
     )
-    
-    if(SleepTimer.shared.getSticky()){
-      actions.append(
-        BPActionItem(
-          title: "sleeptimer_option_sticky_on".localized,
-          handler: {
-            SleepTimer.shared.setSticky(stickyState:false)
-          }
-        )
-      )
-    } else {
-      actions.append(
-        BPActionItem(
-          title: "sleeptimer_option_sticky_off".localized,
-          handler: {
-            SleepTimer.shared.setSticky(stickyState:true)
-          }
-        )
-      )
-    }
+
+    let stickyAction = SleepTimer.shared.getSticky()
+    ? BPActionItem(
+      title: "sleeptimer_option_sticky_on".localized,
+      handler: {
+        SleepTimer.shared.setSticky(stickyState: false)
+      }
+    )
+    : BPActionItem(
+      title: "sleeptimer_option_sticky_off".localized,
+      handler: {
+        SleepTimer.shared.setSticky(stickyState: true)
+      }
+    )
+
+    actions.append(stickyAction)
     actions.append(BPActionItem.cancelAction)
 
     sendEvent(.sleepTimerAlert(
