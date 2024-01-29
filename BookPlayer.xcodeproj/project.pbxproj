@@ -236,7 +236,6 @@
 		41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
 		41D4F2EF21053944009F1B1E /* IndexPath+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */; };
 		41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */; };
-		41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */; };
 		41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CC22394F5200C06BC9 /* ayu-light@2x.png */; };
 		41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562CD22394F5200C06BC9 /* ayu-light@3x.png */; };
 		41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562D022394F5A00C06BC9 /* dark@2x.png */; };
@@ -372,6 +371,12 @@
 		63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */; };
 		63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */; };
+		63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */; };
+		63C6C30E2B538D8600FFE0D8 /* SyncTasksStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */; };
+		63C6C3112B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */; };
+		63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */; };
+		63C6C3192B5E102200FFE0D8 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */; };
+		63C6C31A2B5E102200FFE0D8 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
@@ -385,8 +390,6 @@
 		9F00A6242951F2F3005EA316 /* ItemDetailsFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A6232951F2F3005EA316 /* ItemDetailsFormViewModel.swift */; };
 		9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E72807B5CB00996BBB /* RevenueCat */; };
 		9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9F00F6E92807B5D300996BBB /* RevenueCat */; };
-		9F07B72529B512F1005A939D /* LibraryItemSyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */; };
-		9F07B72629B512F1005A939D /* LibraryItemSyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */; };
 		9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
 		9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */; };
 		9F0872DB2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */; };
@@ -424,8 +427,6 @@
 		9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */; };
 		9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */; };
 		9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */; };
-		9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FD286FF05C00868B2C /* SwiftQueue */; };
-		9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */ = {isa = PBXBuildFile; productRef = 9F3F90FF286FF06600868B2C /* SwiftQueue */; };
 		9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691EF2800C97000A8F0E8 /* CompleteAccountViewModel.swift */; };
 		9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F12800D58A00A8F0E8 /* CompleteAccountCoordinator.swift */; };
 		9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4691F42800F84800A8F0E8 /* AccountViewController.swift */; };
@@ -561,8 +562,6 @@
 		9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */; };
 		9FF710BB2A215558006490E0 /* QueuedSyncTasksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BA2A215558006490E0 /* QueuedSyncTasksViewModel.swift */; };
 		9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */; };
-		9FF710C02A215B8F006490E0 /* QueuedJobInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */; };
-		9FF710C12A215B90006490E0 /* QueuedJobInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */; };
 		9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
@@ -976,7 +975,6 @@
 		41D4F2EE21053944009F1B1E /* IndexPath+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IndexPath+BookPlayer.swift"; sourceTree = "<group>"; };
 		41D7944E22260EC000228580 /* SwiftyStoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyStoreKit.framework; path = Carthage/Build/iOS/SwiftyStoreKit.framework; sourceTree = "<group>"; };
 		41E34E4F2138EA8200A3997C /* ImportOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperation.swift; sourceTree = "<group>"; };
-		41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+BookPlayer.swift"; sourceTree = "<group>"; };
 		41E562CC22394F5200C06BC9 /* ayu-light@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ayu-light@2x.png"; sourceTree = "<group>"; };
 		41E562CD22394F5200C06BC9 /* ayu-light@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ayu-light@3x.png"; sourceTree = "<group>"; };
 		41E562D022394F5A00C06BC9 /* dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dark@2x.png"; sourceTree = "<group>"; };
@@ -1097,6 +1095,9 @@
 		63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedView.swift; sourceTree = "<group>"; };
 		63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockView.swift; sourceTree = "<group>"; };
 		63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockViewModel.swift; sourceTree = "<group>"; };
+		63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksStorage.swift; sourceTree = "<group>"; };
+		63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemSyncOperation.swift; sourceTree = "<group>"; };
+		63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
 		63F828562AED56FA00B5CE0C /* CornerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerView.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
@@ -1110,7 +1111,6 @@
 		9F00A6232951F2F3005EA316 /* ItemDetailsFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsFormViewModel.swift; sourceTree = "<group>"; };
 		9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "IAP-Configuration.storekit"; sourceTree = "<group>"; };
 		9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
-		9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemSyncJob.swift; sourceTree = "<group>"; };
 		9F07B79629B7706B005A939D /* BPTaskUploadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPTaskUploadDelegate.swift; sourceTree = "<group>"; };
 		9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkResponse.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -1264,7 +1264,6 @@
 		9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskRowView.swift; sourceTree = "<group>"; };
 		9FF710BA2A215558006490E0 /* QueuedSyncTasksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTasksViewModel.swift; sourceTree = "<group>"; };
 		9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskType.swift; sourceTree = "<group>"; };
-		9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedJobInfo.swift; sourceTree = "<group>"; };
 		9FFCC08E289418CA00F4952E /* SimpleChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleChapter.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
 		C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArtworkControl.xib; sourceTree = "<group>"; };
@@ -1320,7 +1319,6 @@
 			files = (
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
 				62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */,
-				9F3F9100286FF06600868B2C /* SwiftQueue in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1362,7 +1360,6 @@
 			files = (
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
 				62CADBA82725BCE800A4A98F /* Kingfisher in Frameworks */,
-				9F3F90FE286FF05C00868B2C /* SwiftQueue in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2396,8 +2393,9 @@
 				9FC1E46A2815A8A800522FA8 /* LibraryAPI.swift */,
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
-				9FF710BE2A215B57006490E0 /* QueuedJobInfo.swift */,
-				9F07B72229B512F0005A939D /* LibraryItemSyncJob.swift */,
+				63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */,
+				63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */,
+				63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */,
 			);
 			path = Sync;
 			sourceTree = "<group>";
@@ -2552,7 +2550,6 @@
 				C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */,
 				C39401E820DEE83100F3DC71 /* UIView+BookPlayer.swift */,
 				C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */,
-				41E562C3223896B500C06BC9 /* UserDefaults+BookPlayer.swift */,
 				41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */,
 				416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */,
 				410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */,
@@ -2652,7 +2649,6 @@
 			packageProductDependencies = (
 				62CADBA92725BCF000A4A98F /* Kingfisher */,
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
-				9F3F90FF286FF06600868B2C /* SwiftQueue */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -2748,7 +2744,6 @@
 			packageProductDependencies = (
 				62CADBA72725BCE800A4A98F /* Kingfisher */,
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
-				9F3F90FD286FF05C00868B2C /* SwiftQueue */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -2897,7 +2892,6 @@
 				41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
-				9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -3141,7 +3135,6 @@
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
-				9F07B72629B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
@@ -3171,11 +3164,13 @@
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
 				9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */,
 				4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */,
+				63C6C30E2B538D8600FFE0D8 /* SyncTasksStorage.swift in Sources */,
 				4140EA7A227289C20009F794 /* Book+CoreDataClass.swift in Sources */,
 				9F49072D2903663800054AD6 /* SortType.swift in Sources */,
 				6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */,
 				9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
+				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
@@ -3186,12 +3181,12 @@
 				41EB07192752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
+				63C6C31A2B5E102200FFE0D8 /* SyncTask.swift in Sources */,
 				9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
 				6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */,
-				9FF710C12A215B90006490E0 /* QueuedJobInfo.swift in Sources */,
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
@@ -3268,7 +3263,6 @@
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
 				63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
-				41E562C4223896B500C06BC9 /* UserDefaults+BookPlayer.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
 				9F17D5CB29159289004F4929 /* SearchListViewController.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
@@ -3500,6 +3494,7 @@
 				9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
 				6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */,
+				63C6C3192B5E102200FFE0D8 /* SyncTask.swift in Sources */,
 				62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */,
 				9F7B64772803B0B000895ECC /* AccountService.swift in Sources */,
 				41A1B128226F88C500EA0400 /* Library+CoreDataProperties.swift in Sources */,
@@ -3535,6 +3530,7 @@
 				41A1B122226F88C500EA0400 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */,
 				9F49072C2903663800054AD6 /* SortType.swift in Sources */,
+				63C6C3112B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
 				9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */,
 				9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */,
 				9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
@@ -3550,7 +3546,6 @@
 				9F2E00922A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				41A1B10C226E9E9700EA0400 /* DeleteMode.swift in Sources */,
 				9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
-				9F07B72529B512F1005A939D /* LibraryItemSyncJob.swift in Sources */,
 				9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */,
@@ -3566,11 +3561,11 @@
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
-				9FF710C02A215B8F006490E0 /* QueuedJobInfo.swift in Sources */,
 				41A90C4527563F5A00C30394 /* ItemType.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
+				63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */,
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				9F1345B62938DF070089B1DE /* Fonts.swift in Sources */,
@@ -5215,14 +5210,6 @@
 				minimumVersion = 2.3.0;
 			};
 		};
-		9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lucas34/SwiftQueue.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.0.0;
-			};
-		};
 		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -5288,16 +5275,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
-		};
-		9F3F90FD286FF05C00868B2C /* SwiftQueue */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */;
-			productName = SwiftQueue;
-		};
-		9F3F90FF286FF06600868B2C /* SwiftQueue */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9F3F90FA286FF03600868B2C /* XCRemoteSwiftPackageReference "SwiftQueue" */;
-			productName = SwiftQueue;
 		};
 /* End XCSwiftPackageProductDependency section */
 

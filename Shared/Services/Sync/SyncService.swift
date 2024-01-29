@@ -23,15 +23,15 @@ public enum BPSyncError: Error {
 public protocol SyncServiceProtocol {
   /// Flag to check if it can sync or not
   var isActive: Bool { get set }
-  /// Count of the currently queued sync jobs
-  var queuedJobsCount: Int { get }
   /// Completion publisher for ongoing-download tasks
   var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> { get }
   /// Progress publisher for ongoing-download tasks
   var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
 
+  /// Count of the currently queued sync jobs
+  func queuedJobsCount() async -> Int
   /// Check if we can safely fetch the list contents
-  func canSyncListContents(at relativePath: String?) -> Bool
+  func canSyncListContents(at relativePath: String?) async -> Bool
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
@@ -71,7 +71,7 @@ public protocol SyncServiceProtocol {
   func scheduleUploadArtwork(relativePath: String)
 
   /// Get all queued jobs
-  func getAllQueuedJobs() -> [QueuedJobInfo]
+  func getAllQueuedJobs() async -> [SyncTask]
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 
@@ -86,8 +86,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   var jobManager: JobSchedulerProtocol
   let client: NetworkClientProtocol
   public var isActive: Bool
-
-  public var queuedJobsCount: Int { jobManager.queuedJobsCount }
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
   private lazy var downloadTasksDictionary = [String: [URLSessionTask]]()
@@ -155,13 +153,18 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     .store(in: &disposeBag)
   }
 
-  public func canSyncListContents(at relativePath: String?) -> Bool {
+  /// Count of the currently queued sync jobs
+  public func queuedJobsCount() async -> Int {
+    return await jobManager.queuedJobsCount()
+  }
+
+  public func canSyncListContents(at relativePath: String?) async -> Bool {
     guard isActive else {
       Self.logger.trace("Sync is not enabled")
       return false
     }
 
-    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false else {
+    guard await queuedJobsCount() == 0 else {
       Self.logger.trace("Can't fetch items while there are sync operations in progress")
       return false
     }
@@ -195,11 +198,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func syncLibraryContents() async throws {
-    guard
-      isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
-    else {
+    guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
+    }
+
+    guard await queuedJobsCount() == 0 else {
+      Self.logger.trace("Can't sync library while there are sync operations in progress")
+      return
     }
 
     Self.logger.trace("Fetching synced library identifiers")
@@ -209,7 +214,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
        !itemsToUpload.isEmpty {
       Self.logger.trace("Scheduling upload tasks")
-      handleItemsToUpload(itemsToUpload)
+      await handleItemsToUpload(itemsToUpload)
     }
 
     let response = try await fetchContents(at: nil)
@@ -271,11 +276,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
-    guard
-      isActive,
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasQueuedJobs) == false
-    else {
+    guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
+    }
+
+    guard await queuedJobsCount() == 0 else {
+      throw BookPlayerError.networkError("Can't sync bookmarks while there are sync operations in progress")
     }
 
     let bookmarks = try await fetchBookmarks(for: relativePath)
@@ -374,11 +380,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func scheduleUploadArtwork(relativePath: String) {
     guard isActive else { return }
 
-    jobManager.scheduleArtworkUpload(with: relativePath)
+    Task {
+      await jobManager.scheduleArtworkUpload(with: relativePath)
+    }
   }
 
-  public func getAllQueuedJobs() -> [QueuedJobInfo] {
-    return jobManager.getAllQueuedJobs()
+  public func getAllQueuedJobs() async -> [SyncTask] {
+    return await jobManager.getAllQueuedJobs()
   }
 
   public func cancelAllJobs() {
@@ -390,8 +398,10 @@ extension SyncService {
   public func scheduleMove(items: [String], to parentFolder: String?) {
     guard isActive else { return }
 
-    for relativePath in items {
-      jobManager.scheduleMoveItemJob(with: relativePath, to: parentFolder)
+    Task {
+      for relativePath in items {
+        await jobManager.scheduleMoveItemJob(with: relativePath, to: parentFolder)
+      }
     }
   }
 }
@@ -403,28 +413,30 @@ extension SyncService {
       let relativePath = params["relativePath"] as? String
     else { return }
 
-    var params = params
+    Task {
+      var params = params
 
-    /// Override param `lastPlayDate` if it exists with the proper name
-    if let lastPlayDate = params.removeValue(forKey: #keyPath(LibraryItem.lastPlayDate)) {
-      params["lastPlayDateTimestamp"] = lastPlayDate
+      /// Override param `lastPlayDate` if it exists with the proper name
+      if let lastPlayDate = params.removeValue(forKey: #keyPath(LibraryItem.lastPlayDate)) {
+        params["lastPlayDateTimestamp"] = lastPlayDate
+      }
+
+      await jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
     }
-
-    jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
   }
 }
 
 extension SyncService {
-  func handleItemsToUpload(_ items: [SyncableItem]) {
+  func handleItemsToUpload(_ items: [SyncableItem]) async {
     for item in items {
-      jobManager.scheduleLibraryItemUploadJob(for: item)
+      await jobManager.scheduleLibraryItemUploadJob(for: item)
     }
 
     /// Handle bookmarks in separate loop, as the viewContext can be unreliable
     for item in items {
       if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
         for bookmark in bookmarks {
-          jobManager.scheduleSetBookmarkJob(
+          await jobManager.scheduleSetBookmarkJob(
             with: bookmark.relativePath,
             time: floor(bookmark.time),
             note: bookmark.note
@@ -437,21 +449,22 @@ extension SyncService {
   /// Schedule upload tasks for recently imported books and folders
   public func scheduleUpload(items: [SimpleLibraryItem]) {
     guard isActive else { return }
+    Task {
+      let syncItems = items.map({ SyncableItem(from: $0) })
 
-    let syncItems = items.map({ SyncableItem(from: $0) })
+      let folders = items.filter({ $0.type != .book })
 
-    let folders = items.filter({ $0.type != .book })
+      var itemsToUpload = syncItems
 
-    var itemsToUpload = syncItems
-
-    for folder in folders {
-      if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
-         !contents.isEmpty {
-        itemsToUpload.append(contentsOf: contents)
+      for folder in folders {
+        if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
+           !contents.isEmpty {
+          itemsToUpload.append(contentsOf: contents)
+        }
       }
-    }
 
-    handleItemsToUpload(itemsToUpload)
+      await handleItemsToUpload(itemsToUpload)
+    }
   }
 }
 
@@ -460,8 +473,10 @@ extension SyncService {
   public func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode) {
     guard isActive else { return }
 
-    for item in items {
-      jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode)
+    Task {
+      for item in items {
+        await jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode)
+      }
     }
   }
 }
@@ -474,26 +489,32 @@ extension SyncService {
   ) {
     guard isActive else { return }
 
-    jobManager.scheduleSetBookmarkJob(
-      with: relativePath,
-      time: time,
-      note: note
-    )
+    Task {
+      await jobManager.scheduleSetBookmarkJob(
+        with: relativePath,
+        time: time,
+        note: note
+      )
+    }
   }
 
   public func scheduleDeleteBookmark(_ bookmark: SimpleBookmark) {
     guard isActive else { return }
 
-    jobManager.scheduleDeleteBookmarkJob(
-      with: bookmark.relativePath,
-      time: bookmark.time
-    )
+    Task {
+      await jobManager.scheduleDeleteBookmarkJob(
+        with: bookmark.relativePath,
+        time: bookmark.time
+      )
+    }
   }
 
   public func scheduleRenameFolder(at relativePath: String, name: String) {
     guard isActive else { return }
 
-    jobManager.scheduleRenameFolderJob(with: relativePath, name: name)
+    Task {
+      await jobManager.scheduleRenameFolderJob(with: relativePath, name: name)
+    }
   }
 }
 

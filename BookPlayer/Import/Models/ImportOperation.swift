@@ -11,11 +11,7 @@ import Foundation
 import IDZSwiftCommonCrypto
 import ZipArchive
 
-/**
- Process files located at a specific `URL`, renames it with the hash and moves it to the specified destination folder.
- The new file maintains the extension of the original `URL`
- */
-
+/// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
 public class ImportOperation: Operation {
   public let files: [URL]
   public let libraryService: LibraryServiceProtocol

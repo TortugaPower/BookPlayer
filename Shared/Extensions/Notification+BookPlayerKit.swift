@@ -22,6 +22,4 @@ extension Notification.Name {
   public static let uploadProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.progress.update")
   public static let uploadCompleted = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.completed")
   public static let recreateQueue = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).queue.recreate")
-  public static let jobScheduled = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).job.scheduled")
-  public static let jobTerminated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).job.terminated")
 }

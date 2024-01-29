@@ -215,37 +215,39 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   override func syncList() {
-    guard syncService.canSyncListContents(at: nil) else { return }
+    Task { @MainActor in
+      guard await syncService.canSyncListContents(at: nil) else { return }
 
-    /// Create new task to sync the library and the last played
-    contentsFetchTask?.cancel()
-    contentsFetchTask = Task { @MainActor in
-      do {
-        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
-          try await syncService.syncListContents(at: nil)
-        } else {
-          try await syncService.syncLibraryContents()
+      /// Create new task to sync the library and the last played
+      contentsFetchTask?.cancel()
+      contentsFetchTask = Task { @MainActor in
+        do {
+          if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+            try await syncService.syncListContents(at: nil)
+          } else {
+            try await syncService.syncLibraryContents()
 
-          UserDefaults.standard.set(
-            true,
-            forKey: Constants.UserDefaults.hasScheduledLibraryContents
-          )
+            UserDefaults.standard.set(
+              true,
+              forKey: Constants.UserDefaults.hasScheduledLibraryContents
+            )
+          }
+
+          reloadItemsWithPadding()
+        } catch BPSyncError.reloadLastBook(let relativePath) {
+          reloadItemsWithPadding()
+          reloadLastBook(relativePath: relativePath)
+        } catch BPSyncError.differentLastBook(let relativePath) {
+          reloadItemsWithPadding()
+          setSyncedLastPlayedItem(relativePath: relativePath)
+        } catch {
+          Self.logger.trace("Sync contents error: \(error.localizedDescription)")
         }
 
-        reloadItemsWithPadding()
-      } catch BPSyncError.reloadLastBook(let relativePath) {
-        reloadItemsWithPadding()
-        reloadLastBook(relativePath: relativePath)
-      } catch BPSyncError.differentLastBook(let relativePath) {
-        reloadItemsWithPadding()
-        setSyncedLastPlayedItem(relativePath: relativePath)
-      } catch {
-        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
-      }
-
-      /// Process any deferred progress calculations for folders
-      if playbackService.processFoldersStaleProgress() {
-        reloadItemsWithPadding()
+        /// Process any deferred progress calculations for folders
+        if playbackService.processFoldersStaleProgress() {
+          reloadItemsWithPadding()
+        }
       }
     }
   }

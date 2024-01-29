@@ -39,7 +39,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
     }
   }
 
-  func parseImageName(_ job: QueuedJobInfo) -> String {
+  func parseImageName(_ job: SyncTask) -> String {
     switch job.jobType {
     case .upload:
       return "arrow.up.to.line"
@@ -76,9 +76,19 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
 
 struct QueuedSyncTasksView_Previews: PreviewProvider {
   class MockQueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol, ObservableObject {
-    var queuedJobs: [BookPlayerKit.QueuedJobInfo] = [
-      QueuedJobInfo(id: "1", relativePath: "test/path.mp3", jobType: .upload),
-      QueuedJobInfo(id: "2", relativePath: "test/path2.mp3", jobType: .upload)
+    var queuedJobs: [BookPlayerKit.SyncTask] = [
+      SyncTask(
+        id: "1",
+        relativePath: "test/path.mp3",
+        jobType: .upload,
+        parameters: [:]
+      ),
+      SyncTask(
+        id: "2",
+        relativePath: "test/path2.mp3",
+        jobType: .upload,
+        parameters: [:]
+      )
     ]
   }
 
