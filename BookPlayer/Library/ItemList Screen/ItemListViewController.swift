@@ -109,6 +109,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.configureInitialState()
     self.bindNetworkObserver()
     self.viewModel.bindObservers()
+    self.setupRefreshControl()
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -140,6 +141,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   }
 
   func configureInitialState() {
+    /// Fix jumpy state for large navigation titles
+    self.extendedLayoutIncludesOpaqueBars = true
+    self.edgesForExtendedLayout = UIRectEdge.top
+    /// Set offset
+    self.tableView.contentInset.top = 40
+
     self.adjustBottomOffsetForMiniPlayer()
 
     self.navigationItem.rightBarButtonItem = searchButton
@@ -155,9 +162,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
     // Remove the line after the last cell
     self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
-
-    // Fixed tableview having strange offset
-    self.edgesForExtendedLayout = UIRectEdge()
 
     self.setUpTheming()
 
@@ -203,6 +207,16 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
         self?.showLoadView(false)
       }
       .store(in: &disposeBag)
+  }
+
+  func setupRefreshControl() {
+    let refreshControl = UIRefreshControl()
+    refreshControl.addTarget(self, action: #selector(handleRefreshControl), for: .valueChanged)
+    tableView.refreshControl = refreshControl
+  }
+
+  @objc func handleRefreshControl() {
+    viewModel.refreshAppState()
   }
 
   func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
@@ -291,6 +305,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
           self?.showLoader(flag)
         case .showProcessingView(let flag, let title, let subtitle):
           self?.showLoadView(flag, title: title, subtitle: subtitle)
+        case .refreshedData:
+          self?.tableView.refreshControl?.endRefreshing()
         }
       }
       .store(in: &disposeBag)

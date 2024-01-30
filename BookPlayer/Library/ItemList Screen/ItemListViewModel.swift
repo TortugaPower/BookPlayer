@@ -37,6 +37,7 @@ class ItemListViewModel: ViewModelProtocol {
     case showAlert(content: BPAlertContent)
     case showLoader(flag: Bool)
     case showProcessingView(Bool, title: String?, subtitle: String?)
+    case refreshedData
   }
 
   weak var coordinator: ItemListCoordinator!
@@ -940,6 +941,13 @@ class ItemListViewModel: ViewModelProtocol {
 
   private func sendEvent(_ event: ItemListViewModel.Events) {
     eventsPublisher.send(event)
+  }
+
+  func refreshAppState() {
+    /// Check if there's any pending file to import
+    notifyPendingFiles()
+    /// TODO: sync list
+    sendEvent(.refreshedData)
   }
 }
 
