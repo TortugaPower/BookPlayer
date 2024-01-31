@@ -29,7 +29,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     importManager: ImportManager,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    listRefreshService: ListSyncRefreshService
   ) {
     self.importManager = importManager
 
@@ -38,7 +39,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
-      syncService: syncService
+      syncService: syncService,
+      listRefreshService: listRefreshService
     )
   }
 
@@ -215,65 +217,21 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   override func syncList() {
-    Task { @MainActor in
-      guard await syncService.canSyncListContents(at: nil) else { return }
+    /// Process any deferred progress calculations for folders
+    if playbackService.processFoldersStaleProgress() {
+      reloadItemsWithPadding()
+    }
 
-      /// Create new task to sync the library and the last played
-      contentsFetchTask?.cancel()
-      contentsFetchTask = Task { @MainActor in
-        do {
-          if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
-            try await syncService.syncListContents(at: nil)
-          } else {
-            try await syncService.syncLibraryContents()
+    guard syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false) else { return }
 
-            UserDefaults.standard.set(
-              true,
-              forKey: Constants.UserDefaults.hasScheduledLibraryContents
-            )
-          }
-
-          reloadItemsWithPadding()
-        } catch BPSyncError.reloadLastBook(let relativePath) {
-          reloadItemsWithPadding()
-          reloadLastBook(relativePath: relativePath)
-        } catch BPSyncError.differentLastBook(let relativePath) {
-          reloadItemsWithPadding()
-          setSyncedLastPlayedItem(relativePath: relativePath)
-        } catch {
-          Self.logger.trace("Sync contents error: \(error.localizedDescription)")
-        }
-
-        /// Process any deferred progress calculations for folders
-        if playbackService.processFoldersStaleProgress() {
-          reloadItemsWithPadding()
-        }
+    /// Create new task to sync the library and the last played
+    contentsFetchTask?.cancel()
+    contentsFetchTask = Task {
+      await listRefreshService.syncList(at: nil, alertPresenter: self)
+      await MainActor.run {
+        self.reloadItemsWithPadding()
       }
     }
-  }
-
-  func reloadLastBook(relativePath: String) {
-    let wasPlaying = playerManager.isPlaying
-    playerManager.stop()
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: wasPlaying,
-      showPlayer: nil,
-      alertPresenter: self
-    )
-  }
-
-  func setSyncedLastPlayedItem(relativePath: String) {
-    /// Only continue overriding local book if it's not currently playing
-    guard playerManager.isPlaying == false else { return }
-
-    libraryService.setLibraryLastBook(with: relativePath)
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: false,
-      showPlayer: nil,
-      alertPresenter: self
-    )
   }
 }
 

@@ -28,6 +28,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     playerManagerMock.currentSpeedPublisherReturnValue = Just(1.0).eraseToAnyPublisher()
     playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
+    let syncServiceMock = SyncServiceProtocolMock()
 
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -35,7 +36,12 @@ class LibraryListCoordinatorTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
-      syncService: SyncServiceProtocolMock()
+      syncService: syncServiceMock,
+      listRefreshService: ListSyncRefreshService(
+        playerManager: playerManagerMock,
+        libraryService: libraryService,
+        syncService: syncServiceMock
+      )
     )
 
     self.libraryListCoordinator.start()
@@ -77,6 +83,7 @@ class FolderListCoordinatorTests: XCTestCase {
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    let syncServiceMock = SyncServiceProtocolMock()
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -84,7 +91,12 @@ class FolderListCoordinatorTests: XCTestCase {
       playerManager: playerManagerMock,
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService),
-      syncService: SyncServiceProtocolMock()
+      syncService: syncServiceMock,
+      listRefreshService: ListSyncRefreshService(
+        playerManager: playerManagerMock,
+        libraryService: libraryService,
+        syncService: syncServiceMock
+      )
     )
 
     self.folderListCoordinator.start()

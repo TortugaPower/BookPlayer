@@ -1432,22 +1432,22 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - canSyncListContents
 
-    var canSyncListContentsAtCallsCount = 0
-    var canSyncListContentsAtCalled: Bool {
-        return canSyncListContentsAtCallsCount > 0
+    var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
+    var canSyncListContentsAtIgnoreLastTimestampCalled: Bool {
+        return canSyncListContentsAtIgnoreLastTimestampCallsCount > 0
     }
-    var canSyncListContentsAtReceivedRelativePath: String?
-    var canSyncListContentsAtReceivedInvocations: [String?] = []
-    var canSyncListContentsAtReturnValue: Bool!
-    var canSyncListContentsAtClosure: ((String?) async -> Bool)?
-    func canSyncListContents(at relativePath: String?) async -> Bool {
-        canSyncListContentsAtCallsCount += 1
-        canSyncListContentsAtReceivedRelativePath = relativePath
-        canSyncListContentsAtReceivedInvocations.append(relativePath)
-        if let canSyncListContentsAtClosure = canSyncListContentsAtClosure {
-            return await canSyncListContentsAtClosure(relativePath)
+    var canSyncListContentsAtIgnoreLastTimestampReceivedArguments: (relativePath: String?, ignoreLastTimestamp: Bool)?
+    var canSyncListContentsAtIgnoreLastTimestampReceivedInvocations: [(relativePath: String?, ignoreLastTimestamp: Bool)] = []
+    var canSyncListContentsAtIgnoreLastTimestampReturnValue: Bool!
+    var canSyncListContentsAtIgnoreLastTimestampClosure: ((String?, Bool) -> Bool)?
+    func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool {
+        canSyncListContentsAtIgnoreLastTimestampCallsCount += 1
+        canSyncListContentsAtIgnoreLastTimestampReceivedArguments = (relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp)
+        canSyncListContentsAtIgnoreLastTimestampReceivedInvocations.append((relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp))
+        if let canSyncListContentsAtIgnoreLastTimestampClosure = canSyncListContentsAtIgnoreLastTimestampClosure {
+            return canSyncListContentsAtIgnoreLastTimestampClosure(relativePath, ignoreLastTimestamp)
         } else {
-            return canSyncListContentsAtReturnValue
+            return canSyncListContentsAtIgnoreLastTimestampReturnValue
         }
     }
     //MARK: - syncListContents

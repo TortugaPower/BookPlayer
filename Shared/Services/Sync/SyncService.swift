@@ -31,7 +31,7 @@ public protocol SyncServiceProtocol {
   /// Count of the currently queued sync jobs
   func queuedJobsCount() async -> Int
   /// Check if we can safely fetch the list contents
-  func canSyncListContents(at relativePath: String?) async -> Bool
+  func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
@@ -158,13 +158,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return await jobManager.queuedJobsCount()
   }
 
-  public func canSyncListContents(at relativePath: String?) async -> Bool {
+  public func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool {
     guard isActive else {
       Self.logger.trace("Sync is not enabled")
       return false
     }
 
-    guard await queuedJobsCount() == 0 else {
+    guard UserDefaults.standard.array(forKey: Constants.UserDefaults.syncTasksQueue)?.count == 0 else {
       Self.logger.trace("Can't fetch items while there are sync operations in progress")
       return false
     }
@@ -174,7 +174,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let lastSync = UserDefaults.standard.double(forKey: userDefaultsKey)
 
     /// Do not sync if one minute hasn't passed since last sync
-    guard now - lastSync > 60 else {
+    guard ignoreLastTimestamp || now - lastSync > 60 else {
       Self.logger.trace("Throttled sync operation")
       return false
     }
@@ -219,6 +219,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     let response = try await fetchContents(at: nil)
 
+    UserDefaults.standard.set(
+      true,
+      forKey: Constants.UserDefaults.hasScheduledLibraryContents
+    )
+
     try await processContentsResponse(response, parentFolder: nil, canDelete: false)
   }
 
@@ -232,7 +237,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
 
     var filteredItemsDict = completeItemsDict
-    /// Avoid updating the las played info preemptively
+    /// Avoid updating the last played info preemptively
     if let lastItemPlayed = response.lastItemPlayed {
       filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
     }
