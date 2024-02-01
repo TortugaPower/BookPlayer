@@ -54,6 +54,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService,
+      listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in
@@ -76,6 +77,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.showMiniPlayer(flag: flag)
       case .listDidAppear:
         self.handleLibraryLoaded()
+      case .showQueuedTasks:
+        self.showQueuedTasks()
       }
     }
     viewModel.coordinator = self

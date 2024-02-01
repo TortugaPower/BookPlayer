@@ -305,3 +305,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "settings_autlock_section_title" = "Autolock";
 "settings_sleeptimer_auto_title" = "Auto Sleep Timer";
 "settings_sleeptimer_auto_description" = "Restart the last active sleep timer when playback is resumed";
+"sync_tasks_inprogress_alert_title" = "Can't sync data while there are queued tasks in progress";
+"sync_tasks_view_title" = "View tasks";

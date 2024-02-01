@@ -9,6 +9,11 @@
 import BookPlayerKit
 import Foundation
 
+enum BPSyncRefreshError: Error {
+  /// There are queued tasks and can't fetch remote data
+  case scheduledTasks
+}
+
 class ListSyncRefreshService: BPLogger {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
@@ -43,7 +48,7 @@ class ListSyncRefreshService: BPLogger {
   }
 
   @MainActor
-  func reloadLastBook(relativePath: String, alertPresenter: AlertPresenter) {
+  private func reloadLastBook(relativePath: String, alertPresenter: AlertPresenter) {
     let wasPlaying = playerManager.isPlaying
     playerManager.stop()
     AppDelegate.shared?.loadPlayer(
@@ -55,7 +60,7 @@ class ListSyncRefreshService: BPLogger {
   }
 
   @MainActor
-  func setSyncedLastPlayedItem(relativePath: String, alertPresenter: AlertPresenter) {
+  private func setSyncedLastPlayedItem(relativePath: String, alertPresenter: AlertPresenter) {
     /// Only continue overriding local book if it's not currently playing
     guard playerManager.isPlaying == false else { return }
 

@@ -62,6 +62,13 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     child.start()
   }
 
+  func showQueuedTasks() {
+    let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
+    let vc = QueuedSyncTasksViewController(viewModel: viewModel)
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
+  }
+
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       flow: .modalOnlyFlow(presentingController: flow.navigationController, modalPresentationStyle: .overFullScreen),

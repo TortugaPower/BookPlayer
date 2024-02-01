@@ -41,7 +41,8 @@ class FolderListCoordinator: ItemListCoordinator {
       networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
-      syncService: self.syncService,
+      syncService: self.syncService, 
+      listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in
@@ -64,6 +65,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self.showMiniPlayer(flag: flag)
       case .listDidAppear:
         self.syncList()
+      case .showQueuedTasks:
+        self.showQueuedTasks()
       }
     }
     viewModel.coordinator = self

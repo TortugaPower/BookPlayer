@@ -216,7 +216,30 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   }
 
   @objc func handleRefreshControl() {
-    viewModel.refreshAppState()
+    Task {
+      do {
+        try await viewModel.refreshAppState()
+        tableView.refreshControl?.endRefreshing()
+      } catch {
+        tableView.refreshControl?.endRefreshing()
+
+        /// Allow the refresh animation to complete and avoid jumping when showing the alert
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        await MainActor.run {
+          self.showAlert(BPAlertContent(
+            title: "sync_tasks_inprogress_alert_title".localized,
+            style: .alert,
+            actionItems: [
+              BPActionItem(title: "sync_tasks_view_title".localized, handler: { [weak self] in
+                self?.viewModel.showQueuedTasks()
+              }),
+              BPActionItem.okAction
+            ]
+          ))
+        }
+      }
+    }
   }
 
   func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
@@ -305,8 +328,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
           self?.showLoader(flag)
         case .showProcessingView(let flag, let title, let subtitle):
           self?.showLoadView(flag, title: title, subtitle: subtitle)
-        case .refreshedData:
-          self?.tableView.refreshControl?.endRefreshing()
         }
       }
       .store(in: &disposeBag)

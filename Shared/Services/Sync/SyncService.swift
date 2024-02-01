@@ -179,11 +179,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       return false
     }
 
-    UserDefaults.standard.set(
-      Date().timeIntervalSince1970,
-      forKey: userDefaultsKey
-    )
-
     return true
   }
 
@@ -195,6 +190,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let response = try await fetchContents(at: relativePath)
 
     try await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
+
+    UserDefaults.standard.set(
+      Date().timeIntervalSince1970,
+      forKey: "\(Constants.UserDefaults.lastSyncTimestamp)_\(relativePath ?? "library")"
+    )
   }
 
   public func syncLibraryContents() async throws {
