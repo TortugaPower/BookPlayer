@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Automata zár";
 "settings_sleeptimer_auto_title" = "Automatikus elalváskapcsoló";
 "settings_sleeptimer_auto_description" = "A lejátszás folytatásakor indítsa újra az utolsó aktív elalváskapcsolót";
+"sync_tasks_inprogress_alert_title" = "Nem lehet szinkronizálni az adatokat, amíg vannak folyamatban lévő feladatok";
+"sync_tasks_view_title" = "Feladatok megtekintése";

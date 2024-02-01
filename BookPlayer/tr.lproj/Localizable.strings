@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Otomatik kilit";
 "settings_sleeptimer_auto_title" = "Otomatik Uyku Zamanlayıcısı";
 "settings_sleeptimer_auto_description" = "Oynatma devam ettirildiğinde son aktif uyku zamanlayıcısını yeniden başlatın";
+"sync_tasks_inprogress_alert_title" = "Devam eden sıraya alınmış görevler varken veriler senkronize edilemez";
+"sync_tasks_view_title" = "Görevleri görüntüle";

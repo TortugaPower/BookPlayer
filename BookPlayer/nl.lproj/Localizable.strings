@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Automatische vergrendeling";
 "settings_sleeptimer_auto_title" = "Automatische slaaptimer";
 "settings_sleeptimer_auto_description" = "Start de laatste actieve slaaptimer opnieuw wanneer het afspelen wordt hervat";
+"sync_tasks_inprogress_alert_title" = "Kan gegevens niet synchroniseren terwijl er taken in de wachtrij staan";
+"sync_tasks_view_title" = "Bekijk taken";

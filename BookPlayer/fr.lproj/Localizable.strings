@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Verrouillage automatique";
 "settings_sleeptimer_auto_title" = "Minuterie de mise en veille automatique";
 "settings_sleeptimer_auto_description" = "Redémarrez la dernière minuterie de mise en veille active lorsque la lecture reprend";
+"sync_tasks_inprogress_alert_title" = "Impossible de synchroniser les données alors que des tâches en file d'attente sont en cours";
+"sync_tasks_view_title" = "Afficher les tâches";

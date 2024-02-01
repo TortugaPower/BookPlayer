@@ -305,3 +305,5 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "settings_autlock_section_title" = "Automatisk lås";
 "settings_sleeptimer_auto_title" = "Auto Sleep Timer";
 "settings_sleeptimer_auto_description" = "Start den siste aktive innsovningstimeren på nytt når avspillingen gjenopptas";
+"sync_tasks_inprogress_alert_title" = "Kan ikke synkronisere data mens det pågår oppgaver i kø";
+"sync_tasks_view_title" = "Se oppgaver";

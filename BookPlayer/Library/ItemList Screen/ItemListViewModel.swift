@@ -27,6 +27,7 @@ class ItemListViewModel: ViewModelProtocol {
     )
     case showMiniPlayer(flag: Bool)
     case listDidAppear
+    case showQueuedTasks
   }
 
   enum Events {
@@ -47,6 +48,7 @@ class ItemListViewModel: ViewModelProtocol {
   private let networkClient: NetworkClientProtocol
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
+  private let listRefreshService: ListSyncRefreshService
   let syncService: SyncServiceProtocol
   var offset = 0
 
@@ -77,6 +79,7 @@ class ItemListViewModel: ViewModelProtocol {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
+    listRefreshService: ListSyncRefreshService,
     themeAccent: UIColor
   ) {
     self.folderRelativePath = folderRelativePath
@@ -85,6 +88,7 @@ class ItemListViewModel: ViewModelProtocol {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
+    self.listRefreshService = listRefreshService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
 
@@ -941,6 +945,21 @@ class ItemListViewModel: ViewModelProtocol {
   private func sendEvent(_ event: ItemListViewModel.Events) {
     eventsPublisher.send(event)
   }
+
+  func refreshAppState() async throws {
+    /// Check if there's any pending file to import
+    notifyPendingFiles()
+
+    guard await syncService.queuedJobsCount() == 0 else {
+      throw BPSyncRefreshError.scheduledTasks
+    }
+
+    await listRefreshService.syncList(at: folderRelativePath, alertPresenter: self)
+  }
+
+  func showQueuedTasks() {
+    onTransition?(.showQueuedTasks)
+  }
 }
 
 // MARK: - Import related functions
@@ -1264,5 +1283,26 @@ extension ItemListViewModel {
         message: "Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))"
       )
     ))
+  }
+}
+
+extension ItemListViewModel: AlertPresenter {
+  func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
+    sendEvent(.showAlert(
+      content: BPAlertContent(
+        title: title,
+        message: message,
+        style: .alert,
+        actionItems: [BPActionItem.okAction]
+      )
+    ))
+  }
+  
+  func showLoader() {
+    sendEvent(.showLoader(flag: true))
+  }
+  
+  func stopLoader() {
+    sendEvent(.showLoader(flag: false))
   }
 }

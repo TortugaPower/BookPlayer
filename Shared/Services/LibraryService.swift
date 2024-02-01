@@ -1097,9 +1097,13 @@ extension LibraryService {
     }
 
     try? removeFolderIfNeeded(destinationURL, context: context)
+
+    /// If the folder already exists, `withIntermediateDirectories` being true will not throw the error
+    let destinationFolderExists = FileManager.default.fileExists(atPath: destinationURL.path)
+
     try FileManager.default.createDirectory(
       at: destinationURL,
-      withIntermediateDirectories: true,
+      withIntermediateDirectories: !destinationFolderExists,
       attributes: nil
     )
   }

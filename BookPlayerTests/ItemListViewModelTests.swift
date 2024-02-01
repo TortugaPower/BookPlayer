@@ -23,6 +23,7 @@ class ItemListViewModelTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    let syncServiceMock = SyncServiceProtocolMock()
 
     self.sut = ItemListViewModel(
       folderRelativePath: nil,
@@ -30,7 +31,12 @@ class ItemListViewModelTests: XCTestCase {
       networkClient: NetworkClient(),
       libraryService: libraryService,
       playbackService: PlaybackServiceProtocolMock(),
-      syncService: SyncServiceProtocolMock(),
+      syncService: syncServiceMock, 
+      listRefreshService: ListSyncRefreshService(
+        playerManager: playerManagerMock,
+        libraryService: libraryService,
+        syncService: syncServiceMock
+      ),
       themeAccent: .blue
     )
 

@@ -87,7 +87,12 @@ class MainCoordinator: NSObject {
       importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
-      syncService: syncService
+      syncService: syncService,
+      listRefreshService: ListSyncRefreshService(
+        playerManager: playerManager,
+        libraryService: libraryService,
+        syncService: syncService
+      )
     )
     playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator

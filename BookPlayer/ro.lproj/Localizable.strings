@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Închidere automată";
 "settings_sleeptimer_auto_title" = "Temporizator de oprire automată";
 "settings_sleeptimer_auto_description" = "Reporniți ultimul temporizator de repaus activ când redarea este reluată";
+"sync_tasks_inprogress_alert_title" = "Nu se pot sincroniza datele în timp ce sunt sarcini în coadă în desfășurare";
+"sync_tasks_view_title" = "Vizualizați sarcini";
