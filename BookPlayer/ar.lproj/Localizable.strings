@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "القفل التلقائي";
 "settings_sleeptimer_auto_title" = "مؤقت النوم التلقائي";
 "settings_sleeptimer_auto_description" = "أعد تشغيل آخر مؤقت نوم نشط عند استئناف التشغيل";
+"sync_tasks_inprogress_alert_title" = "لا يمكن مزامنة البيانات أثناء وجود مهام في قائمة الانتظار قيد التقدم";
+"sync_tasks_view_title" = "عرض المهام";

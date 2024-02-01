@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "自动锁";
 "settings_sleeptimer_auto_title" = "自动睡眠定时器";
 "settings_sleeptimer_auto_description" = "恢复播放时重新启动最后一个活动的睡眠计时器";
+"sync_tasks_inprogress_alert_title" = "有正在进行的排队任务时无法同步数据";
+"sync_tasks_view_title" = "查看任务";

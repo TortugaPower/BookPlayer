@@ -305,3 +305,5 @@
 "settings_autlock_section_title" = "Automatický zámek";
 "settings_sleeptimer_auto_title" = "Časovač automatického vypnutí";
 "settings_sleeptimer_auto_description" = "Po obnovení přehrávání restartujte poslední aktivní časovač vypnutí";
+"sync_tasks_inprogress_alert_title" = "Nelze synchronizovat data, když probíhají úlohy ve frontě";
+"sync_tasks_view_title" = "Zobrazit úkoly";
