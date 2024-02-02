@@ -302,8 +302,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_playback_pause_title" = "Pozastavenie prehrávanie";
 "storage_artwork_cache_title" = "Veľkosť vyrovnávacej pamäte obalov kníh";
 "settings_share_debug_information" = "Zdieľať informácie o ladení";
-"settings_autlock_section_title" = "Automatické zamknutie";
-"settings_sleeptimer_auto_title" = "Časovač automatického vypnutia";
-"settings_sleeptimer_auto_description" = "Po obnovení prehrávania reštartujte posledný aktívny časovač spánku";
-"sync_tasks_inprogress_alert_title" = "Nie je možné synchronizovať údaje, kým prebiehajú úlohy vo fronte";
+"settings_autlock_section_title" = "Automatické uzamknutie";
+"settings_sleeptimer_auto_title" = "Časovač automatického spánku";
+"settings_sleeptimer_auto_description" = "Po obnovení prehrávania sa reštartuje posledný aktívny časovač spánku";
+"sync_tasks_inprogress_alert_title" = "Nie je možné synchronizovať dáta, pokiaľ prebiehajú úlohy vo fronte";
 "sync_tasks_view_title" = "Zobraziť úlohy";
