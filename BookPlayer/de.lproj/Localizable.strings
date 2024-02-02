@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Wiedergabe anhalten";
 "storage_artwork_cache_title" = "Größe des Grafik-Cache";
 "settings_share_debug_information" = "Teilen Sie Debug-Informationen";
+"settings_autlock_section_title" = "Automatische Sperre";
+"settings_sleeptimer_auto_title" = "Automatischer Sleep-Timer";
+"settings_sleeptimer_auto_description" = "Starten Sie den zuletzt aktiven Sleep-Timer neu, wenn die Wiedergabe fortgesetzt wird";
+"sync_tasks_inprogress_alert_title" = "Daten können nicht synchronisiert werden, während Aufgaben in der Warteschlange ausgeführt werden";
+"sync_tasks_view_title" = "Aufgaben anzeigen";

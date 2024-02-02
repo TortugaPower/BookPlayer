@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Sæt afspilning på pause";
 "storage_artwork_cache_title" = "Artwork cache størrelse";
 "settings_share_debug_information" = "Del fejlretningsoplysninger";
+"settings_autlock_section_title" = "Autolås";
+"settings_sleeptimer_auto_title" = "Auto Sleep Timer";
+"settings_sleeptimer_auto_description" = "Genstart den sidst aktive sleep-timer, når afspilningen genoptages";
+"sync_tasks_inprogress_alert_title" = "Kan ikke synkronisere data, mens der er igangværende opgaver i kø";
+"sync_tasks_view_title" = "Se opgaver";

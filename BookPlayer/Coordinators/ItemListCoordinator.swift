@@ -16,6 +16,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
+  let listRefreshService: ListSyncRefreshService
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -25,13 +26,15 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    listRefreshService: ListSyncRefreshService
   ) {
     self.flow = flow
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
+    self.listRefreshService = listRefreshService
   }
 
   func start() {
@@ -49,9 +52,21 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
-      syncService: syncService
+      syncService: syncService,
+      listRefreshService: ListSyncRefreshService(
+        playerManager: playerManager,
+        libraryService: libraryService,
+        syncService: syncService
+      )
     )
     child.start()
+  }
+
+  func showQueuedTasks() {
+    let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
+    let vc = QueuedSyncTasksViewController(viewModel: viewModel)
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showPlayer() {

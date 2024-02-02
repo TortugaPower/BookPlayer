@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Mettere in pausa la riproduzione";
 "storage_artwork_cache_title" = "Dimensioni della cache della grafica";
 "settings_share_debug_information" = "Condividi le informazioni di debug";
+"settings_autlock_section_title" = "Chiusura automatica";
+"settings_sleeptimer_auto_title" = "Temporizzatore di spegnimento automatico";
+"settings_sleeptimer_auto_description" = "Riavvia l'ultimo timer di spegnimento attivo quando viene ripresa la riproduzione";
+"sync_tasks_inprogress_alert_title" = "Impossibile sincronizzare i dati mentre sono presenti attività in coda in corso";
+"sync_tasks_view_title" = "Visualizza attività";

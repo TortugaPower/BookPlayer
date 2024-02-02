@@ -8,56 +8,54 @@
 
 import Combine
 import Foundation
-import SwiftQueue
 
 public protocol JobSchedulerProtocol {
-  /// Count of the currently queued sync jobs
-  var queuedJobsCount: Int { get }
+
+  func queuedJobsCount() async -> Int
   /// Uploads the metadata for the first time to the server
-  func scheduleLibraryItemUploadJob(for item: SyncableItem)
+  func scheduleLibraryItemUploadJob(for item: SyncableItem) async
   /// Update existing metadata in the server
-  func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any])
+  func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) async
   /// Move item to destination
-  func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?)
+  func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) async
   /// Delete item
-  func scheduleDeleteJob(with relativePath: String, mode: DeleteMode)
+  func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) async
   /// Create or update a bookmark
   func scheduleSetBookmarkJob(
     with relativePath: String,
     time: Double,
     note: String?
-  )
+  ) async
   /// Delete a bookmark
-  func scheduleDeleteBookmarkJob(with relativePath: String, time: Double)
+  func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) async
   /// Rename a folder
-  func scheduleRenameFolderJob(with relativePath: String, name: String)
+  func scheduleRenameFolderJob(with relativePath: String, name: String) async
   /// Upload current cached artwork
-  func scheduleArtworkUpload(with relativePath: String)
+  func scheduleArtworkUpload(with relativePath: String) async
   /// Get all queued jobs
-  func getAllQueuedJobs() -> [QueuedJobInfo]
+  func getAllQueuedJobs() async -> [SyncTask]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
-  let libraryJobsPersister: UserDefaultsPersister
-  var libraryQueueManager: SwiftQueueManager!
+  let networkClient: NetworkClientProtocol
+  let operationQueue: OperationQueue
+  let taskStore: BPTasksStorageProtocol
+  /// Reference for observer
+  private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
 
-  private var pendingOperations: [JobInfo] {
-    if libraryQueueManager != nil {
-      return libraryQueueManager.getAll()["GLOBAL"] ?? []
-    } else {
-      return []
-    }
-  }
+  public init(
+    networkClient: NetworkClientProtocol = NetworkClient(),
+    operationQueue: OperationQueue = OperationQueue(),
+    taskStore: BPTasksStorageProtocol = SyncTasksStorage()
+  ) {
+    operationQueue.maxConcurrentOperationCount = 1
+    self.operationQueue = operationQueue
+    self.networkClient = networkClient
+    self.taskStore = taskStore
 
-  public var queuedJobsCount: Int { pendingOperations.count }
-
-  public init() {
-    self.libraryJobsPersister = UserDefaultsPersister(key: LibraryItemSyncJob.type)
-
-    recreateQueue()
     bindObservers()
   }
 
@@ -78,11 +76,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       }
       .store(in: &disposeBag)
 
-    NotificationCenter.default.publisher(for: .recreateQueue, object: nil)
-      .sink { [weak self] _ in
-        self?.recreateQueue()
-      }
-      .store(in: &disposeBag)
+    /// This will start the loop where it will periodically check for queued tasks to execute
+    queueNextTask()
   }
 
   private func createHardLink(for item: SyncableItem) {
@@ -99,11 +94,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     try? FileManager.default.linkItem(at: fileURL, to: hardLinkURL)
   }
 
-  public func scheduleLibraryItemUploadJob(for item: SyncableItem) {
+  public func scheduleLibraryItemUploadJob(for item: SyncableItem) async {
     /// Create hard link to file location in case the user moves the item around in the library
     createHardLink(for: item)
 
     var parameters: [String: Any] = [
+      "id": UUID().uuidString,
       "relativePath": item.relativePath,
       "originalFileName": item.originalFileName,
       "title": item.title,
@@ -114,7 +110,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "isFinished": item.isFinished,
       "orderRank": item.orderRank,
       "type": item.type.rawValue,
-      "jobType": JobType.upload.rawValue
+      "jobType": SyncJobType.upload.rawValue
     ]
 
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
@@ -127,199 +123,161 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       parameters["speed"] = speed
     }
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.upload.identifier)/\(item.relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .wifi)
-      .with(params: parameters)
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: parameters)
   }
 
-  public func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) {
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.move.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .cellular)
-      .with(params: [
-        "relativePath": relativePath,
-        "origin": relativePath,
-        "destination": parentFolder ?? "",
-        "jobType": JobType.move.rawValue
-      ])
-      .schedule(manager: libraryQueueManager)
+  public func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) async {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "origin": relativePath,
+      "destination": parentFolder ?? "",
+      "jobType": SyncJobType.move.rawValue
+    ]
+
+    await persistTask(parameters: parameters)
   }
 
   /// Note: folder renames originalFilename property
-  public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) {
+  public func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) async {
     var parameters = parameters
-    parameters["jobType"] = JobType.update.rawValue
+    parameters["jobType"] = SyncJobType.update.rawValue
+    parameters["id"] = UUID().uuidString
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.update.identifier)/\(relativePath)", override: true)
-      .persist()
-      .retry(limit: .limited(3))
-      .internet(atLeast: .cellular)
-      .with(params: parameters)
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: parameters)
   }
 
-  public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) {
-    let jobType: JobType
+  public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) async {
+    let jobType: SyncJobType
 
     switch mode {
     case .deep:
-      jobType = JobType.delete
+      jobType = SyncJobType.delete
     case .shallow:
-      jobType = JobType.shallowDelete
+      jobType = SyncJobType.shallowDelete
     }
+    
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "jobType": jobType.rawValue
+    ]
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(jobType.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .limited(3))
-      .internet(atLeast: .cellular)
-      .with(params: [
-        "relativePath": relativePath,
-        "jobType": jobType.rawValue
-      ])
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: parameters)
   }
 
-  public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) {
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.deleteBookmark.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .cellular)
-      .with(params: [
-        "relativePath": relativePath,
-        "time": time,
-        "jobType": JobType.deleteBookmark.rawValue
-      ])
-      .schedule(manager: libraryQueueManager)
+  public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) async {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "time": time,
+      "jobType": SyncJobType.deleteBookmark.rawValue
+    ]
+
+    await persistTask(parameters: parameters)
   }
 
   public func scheduleSetBookmarkJob(
     with relativePath: String,
     time: Double,
     note: String?
-  ) {
+  ) async {
     var params: [String: Any] = [
+      "id": UUID().uuidString,
       "relativePath": relativePath,
       "time": time,
-      "jobType": JobType.setBookmark.rawValue
+      "jobType": SyncJobType.setBookmark.rawValue
     ]
 
     if let note {
       params["note"] = note
     }
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.setBookmark.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .cellular)
-      .with(params: params)
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: params)
   }
 
-  public func scheduleRenameFolderJob(with relativePath: String, name: String) {
+  public func scheduleRenameFolderJob(with relativePath: String, name: String) async {
     let params: [String: Any] = [
+      "id": UUID().uuidString,
       "relativePath": relativePath,
       "name": name,
-      "jobType": JobType.renameFolder.rawValue
+      "jobType": SyncJobType.renameFolder.rawValue
     ]
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.renameFolder.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .cellular)
-      .with(params: params)
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: params)
   }
 
-  public func scheduleArtworkUpload(with relativePath: String) {
+  public func scheduleArtworkUpload(with relativePath: String) async {
     let params: [String: Any] = [
+      "id": UUID().uuidString,
       "relativePath": relativePath,
-      "jobType": JobType.uploadArtwork.rawValue
+      "jobType": SyncJobType.uploadArtwork.rawValue
     ]
 
-    JobBuilder(type: LibraryItemSyncJob.type)
-      .singleInstance(forId: "\(JobType.uploadArtwork.identifier)/\(relativePath)")
-      .persist()
-      .retry(limit: .unlimited)
-      .internet(atLeast: .cellular)
-      .with(params: params)
-      .schedule(manager: libraryQueueManager)
+    await persistTask(parameters: params)
   }
 
-  public func getAllQueuedJobs() -> [QueuedJobInfo] {
-    return pendingOperations.compactMap({ job -> QueuedJobInfo? in
-      guard
-        let relativePath = job.params["relativePath"] as? String,
-        let jobTypeRaw = job.params["jobType"] as? String,
-        let jobType = JobType(rawValue: jobTypeRaw)
-      else {
-        return nil
-      }
-
-      return QueuedJobInfo(
-        id: "\(jobTypeRaw)/\(relativePath)",
-        relativePath: relativePath,
-        jobType: jobType
-      )
-    })
+  public func getAllQueuedJobs() async -> [SyncTask] {
+    return await taskStore.getAllTasks()
   }
 
   public func cancelAllJobs() {
-    if libraryQueueManager != nil {
-      libraryQueueManager.cancelAllOperations()
+    Task {
+      await taskStore.clearAll()
+      operationQueue.cancelAllOperations()
     }
-    libraryJobsPersister.clearAll()
   }
 
-  public func recreateQueue() {
-    /// Suspend queue if it's already created
-    if libraryQueueManager != nil {
-      libraryQueueManager.isSuspended = true
+  public func queuedJobsCount() async -> Int {
+    return await taskStore.getTasksCount()
+  }
+
+  private func persistTask(parameters: [String: Any]) async {
+    do {
+      try await taskStore.appendTask(parameters: parameters)
+    } catch {
+      Self.logger.error("Failed to persist task")
     }
-
-    libraryQueueManager = SwiftQueueManagerBuilder(creator: LibraryItemUploadJobCreator())
-      .set(persister: libraryJobsPersister)
-      .set(listener: self)
-      .build()
-  }
-}
-
-extension SyncJobScheduler: JobListener {
-  public func onJobScheduled(job: SwiftQueue.JobInfo) {
-    Self.logger.trace("Scheduled job for \(job.params["relativePath"] as? String)")
-
-    UserDefaults.standard.set(
-      true,
-      forKey: Constants.UserDefaults.hasQueuedJobs
-    )
-
-    NotificationCenter.default.post(name: .jobScheduled, object: nil)
   }
 
-  public func onBeforeRun(job: SwiftQueue.JobInfo) {}
+  private func queueNextTask() {
+    Task {
+      do {
+        guard 
+          let task = try await self.taskStore.getNextTask()
+        else {
+          self.retryQueuedTask()
+          return
+        }
 
-  public func onAfterRun(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {}
+        let operationTask = LibraryItemSyncOperation(
+          client: networkClient,
+          task: task
+        )
 
-  public func onTerminated(job: SwiftQueue.JobInfo, result: SwiftQueue.JobCompletion) {
-    Self.logger.trace("Terminated job for \(job.params["relativePath"] as? String)")
+        operationTask.completionBlock = { [unowned self, unowned operationTask] in
+          if let error = operationTask.error {
+            Self.logger.error("Operation failed: \(error.localizedDescription)")
+            self.retryQueuedTask()
+          } else {
+            Task {
+              try! await self.taskStore.finishedTask(id: task.id)
+              self.queueNextTask()
+            }
+          }
+        }
 
-    NotificationCenter.default.post(name: .jobTerminated, object: nil)
+        operationQueue.addOperation(operationTask)
+      } catch {
+        Self.logger.error("\(error.localizedDescription)")
+      }
+    }
+  }
 
-    guard pendingOperations.isEmpty else { return }
-
-    UserDefaults.standard.set(
-      false,
-      forKey: Constants.UserDefaults.hasQueuedJobs
-    )
+  private func retryQueuedTask() {
+    /// Retry in 5 seconds
+    DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(5)) {
+      self.queueNextTask()
+    }
   }
 }

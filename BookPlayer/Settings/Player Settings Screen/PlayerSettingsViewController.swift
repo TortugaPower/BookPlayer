@@ -12,6 +12,7 @@ import Themeable
 import UIKit
 
 class PlayerSettingsViewController: UITableViewController, Storyboarded {
+  @IBOutlet weak var autoSleepTimerSwitch: UISwitch!
   @IBOutlet weak var smartRewindSwitch: UISwitch!
   @IBOutlet weak var boostVolumeSwitch: UISwitch!
   @IBOutlet weak var globalSpeedSwitch: UISwitch!
@@ -26,7 +27,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   private var disposeBag = Set<AnyCancellable>()
 
   enum SettingsSection: Int {
-    case intervals = 0, rewind, volume, speed, playerList, progressLabels
+    case intervals = 0, rewind, sleepTimer, volume, speed, playerList, progressLabels
   }
 
   let playerListPreferencePath = IndexPath(row: 0, section: SettingsSection.playerList.rawValue)
@@ -43,16 +44,36 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       target: self,
       action: #selector(self.didPressClose)
     )
-    self.smartRewindSwitch.addTarget(self, action: #selector(self.rewindToggleDidChange), for: .valueChanged)
-    self.boostVolumeSwitch.addTarget(self, action: #selector(self.boostVolumeToggleDidChange), for: .valueChanged)
-    self.globalSpeedSwitch.addTarget(self, action: #selector(self.globalSpeedToggleDidChange), for: .valueChanged)
+    smartRewindSwitch.addTarget(self, action: #selector(rewindToggleDidChange), for: .valueChanged)
+    autoSleepTimerSwitch.addTarget(self, action: #selector(autoSleepTimerToggleDidChange), for: .valueChanged)
+    boostVolumeSwitch.addTarget(self, action: #selector(boostVolumeToggleDidChange), for: .valueChanged)
+    globalSpeedSwitch.addTarget(self, action: #selector(globalSpeedToggleDidChange), for: .valueChanged)
 
     // Set initial switch positions
-    self.smartRewindSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled), animated: false)
-    self.boostVolumeSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled), animated: false)
-    self.globalSpeedSwitch.setOn(UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled), animated: false)
-    self.chapterTimeSwitch.setOn(self.viewModel.prefersChapterContext, animated: false)
-    self.remainingTimeSwitch.setOn(self.viewModel.prefersRemainingTime, animated: false)
+    smartRewindSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled), 
+      animated: false
+    )
+    autoSleepTimerSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled), 
+      animated: false
+    )
+    boostVolumeSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled), 
+      animated: false
+    )
+    globalSpeedSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled), 
+      animated: false
+    )
+    chapterTimeSwitch.setOn(
+      viewModel.prefersChapterContext,
+      animated: false
+    )
+    remainingTimeSwitch.setOn(
+      viewModel.prefersRemainingTime,
+      animated: false
+    )
 
     // Retrieve initial skip values from PlayerManager
     self.rewindIntervalLabel.text = TimeParser.formatDuration(PlayerManager.rewindInterval)
@@ -172,6 +193,8 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       return "settings_skip_description".localized
     case .rewind:
       return "settings_smartrewind_description".localized
+    case .sleepTimer:
+      return "settings_sleeptimer_auto_description".localized
     case .volume:
       return "settings_boostvolume_description".localized
     case .speed:
@@ -185,6 +208,10 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
 
   @objc func rewindToggleDidChange() {
     UserDefaults.standard.set(self.smartRewindSwitch.isOn, forKey: Constants.UserDefaults.smartRewindEnabled)
+  }
+
+  @objc func autoSleepTimerToggleDidChange() {
+    UserDefaults.standard.set(autoSleepTimerSwitch.isOn, forKey: Constants.UserDefaults.autoTimerEnabled)
   }
 
   @objc func boostVolumeToggleDidChange() {

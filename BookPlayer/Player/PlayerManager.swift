@@ -603,7 +603,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
 extension PlayerManager {
   func jumpToChapter(_ chapter: PlayableChapter) {
-    jumpTo(chapter.start + 0.5, recordBookmark: false)
+    jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
   func initializeChapterTime(_ time: Double) {
@@ -739,6 +739,8 @@ extension PlayerManager {
 
       handleSmartRewind(currentItem)
 
+      handleAutoTimer()
+
       fadeTimer?.invalidate()
       shakeMotionService.stopMotionUpdates()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
@@ -771,6 +773,12 @@ extension PlayerManager {
 
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
+  }
+  
+  func handleAutoTimer() {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled) else { return }
+
+    SleepTimer.shared.restartTimer()
   }
 
   func setSpeed(_ newValue: Float) {

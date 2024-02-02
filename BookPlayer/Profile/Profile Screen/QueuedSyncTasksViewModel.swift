@@ -11,7 +11,7 @@ import BookPlayerKit
 import Combine
 
 protocol QueuedSyncTasksViewModelProtocol: ObservableObject {
-  var queuedJobs: [QueuedJobInfo] { get set }
+  var queuedJobs: [SyncTask] { get set }
 }
 
 class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
@@ -21,7 +21,10 @@ class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
 
   let syncService: SyncServiceProtocol
 
-  @Published var queuedJobs: [QueuedJobInfo] = []
+  @Published var queuedJobs: [SyncTask] = []
+
+  /// Reference for observers
+  private var syncTasksObserver: NSKeyValueObservation?
 
   var eventsPublisher = InterfaceUpdater<QueuedSyncTasksViewModel.Events>()
   private var disposeBag = Set<AnyCancellable>()
@@ -34,15 +37,9 @@ class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
   }
 
   func bindObservers() {
-    Publishers.CombineLatest(
-      NotificationCenter.default.publisher(for: .jobScheduled),
-      NotificationCenter.default.publisher(for: .jobTerminated)
-    )
-    .debounce(for: 1.0, scheduler: DispatchQueue.main)
-    .sink { [weak self] _ in
+    syncTasksObserver = UserDefaults.standard.observe(\.userSyncTasksQueue) { [weak self] _, _ in
       self?.reloadQueuedJobs()
     }
-    .store(in: &disposeBag)
   }
 
   func observeEvents() -> AnyPublisher<QueuedSyncTasksViewModel.Events, Never> {
@@ -50,7 +47,9 @@ class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
   }
 
   func reloadQueuedJobs() {
-    queuedJobs = syncService.getAllQueuedJobs()
+    Task { @MainActor in
+      queuedJobs = await syncService.getAllQueuedJobs()
+    }
   }
 
   private func sendEvent(_ event: QueuedSyncTasksViewModel.Events) {

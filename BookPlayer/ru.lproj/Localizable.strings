@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Пауза воспроизведения";
 "storage_artwork_cache_title" = "Размер кэша иллюстраций";
 "settings_share_debug_information" = "Делитесь отладочной информацией";
+"settings_autlock_section_title" = "Автоматическая блокировка";
+"settings_sleeptimer_auto_title" = "Автоматический таймер сна";
+"settings_sleeptimer_auto_description" = "Перезапустите последний активный таймер сна, когда воспроизведение возобновится.";
+"sync_tasks_inprogress_alert_title" = "Невозможно синхронизировать данные, пока выполняются задачи в очереди.";
+"sync_tasks_view_title" = "Просмотр задач";

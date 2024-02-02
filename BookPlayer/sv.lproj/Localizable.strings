@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Pausa uppspelningen";
 "storage_artwork_cache_title" = "Artwork cachestorlek";
 "settings_share_debug_information" = "Dela felsökningsinformation";
+"settings_autlock_section_title" = "Auto lås";
+"settings_sleeptimer_auto_title" = "Automatisk insomningstimer";
+"settings_sleeptimer_auto_description" = "Starta om den senast aktiva insomningstimern när uppspelningen återupptas";
+"sync_tasks_inprogress_alert_title" = "Det går inte att synkronisera data medan det pågår uppgifter i kö";
+"sync_tasks_view_title" = "Visa uppgifter";

@@ -17,6 +17,8 @@ class SettingsViewModel: ViewModelProtocol {
     case themes
     case icons
     case playerControls
+    case autoplay
+    case autolock
     case storageManagement
     case deletedFilesManagement
     case tipJar
@@ -126,6 +128,14 @@ class SettingsViewModel: ViewModelProtocol {
     onTransition?(.playerControls)
   }
 
+  func showAutoplay() {
+    onTransition?(.autoplay)
+  }
+
+  func showAutolock() {
+    onTransition?(.autolock)
+  }
+
   func showCredits() {
     onTransition?(.credits)
   }
@@ -140,7 +150,7 @@ class SettingsViewModel: ViewModelProtocol {
 
         if syncService.isActive {
           remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
-          syncJobsInformation = getSyncOperationsInformation()
+          syncJobsInformation = await getSyncOperationsInformation()
         }
 
         let localidentifiers = libraryService.fetchIdentifiers()
@@ -254,14 +264,14 @@ class SettingsViewModel: ViewModelProtocol {
     return remoteInfo
   }
 
-  func getSyncOperationsInformation() -> String {
+  func getSyncOperationsInformation() async -> String {
     var information = ""
 
     if let syncEmail = accountService.getAccount()?.email {
       information += "\n\nProfile: \(syncEmail)\n"
     }
 
-    let jobs = syncService.getAllQueuedJobs()
+    let jobs = await syncService.getAllQueuedJobs()
 
     information += "Queued jobs count: \(jobs.count)\n"
 

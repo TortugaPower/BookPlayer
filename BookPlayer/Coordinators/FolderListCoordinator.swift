@@ -18,7 +18,8 @@ class FolderListCoordinator: ItemListCoordinator {
     playerManager: PlayerManagerProtocol,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    listRefreshService: ListSyncRefreshService
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -27,7 +28,8 @@ class FolderListCoordinator: ItemListCoordinator {
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
-      syncService: syncService
+      syncService: syncService,
+      listRefreshService: listRefreshService
     )
   }
 
@@ -39,7 +41,8 @@ class FolderListCoordinator: ItemListCoordinator {
       networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
-      syncService: self.syncService,
+      syncService: self.syncService, 
+      listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in
@@ -62,6 +65,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self.showMiniPlayer(flag: flag)
       case .listDidAppear:
         self.syncList()
+      case .showQueuedTasks:
+        self.showQueuedTasks()
       }
     }
     viewModel.coordinator = self
@@ -72,14 +77,12 @@ class FolderListCoordinator: ItemListCoordinator {
   }
 
   override func syncList() {
-    guard syncService.canSyncListContents(at: folderRelativePath) else { return }
+    guard syncService.canSyncListContents(at: folderRelativePath, ignoreLastTimestamp: false) else { return }
 
-    Task { @MainActor in
-      do {
-        _ = try await syncService.syncListContents(at: folderRelativePath)
-        reloadItemsWithPadding()
-      } catch {
-        Self.logger.trace("Sync contents error: \(error.localizedDescription)")
+    Task {
+      await listRefreshService.syncList(at: folderRelativePath, alertPresenter: self)
+      await MainActor.run {
+        self.reloadItemsWithPadding()
       }
     }
   }

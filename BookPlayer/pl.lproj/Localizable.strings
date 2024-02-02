@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Wstrzymaj odtwarzanie";
 "storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
 "settings_share_debug_information" = "Udostępnij informacje debugowania";
+"settings_autlock_section_title" = "Automatyczna blokada";
+"settings_sleeptimer_auto_title" = "Automatyczny wyłącznik czasowy";
+"settings_sleeptimer_auto_description" = "Po wznowieniu odtwarzania uruchom ponownie ostatni aktywny timer uśpienia";
+"sync_tasks_inprogress_alert_title" = "Nie można zsynchronizować danych, gdy w kolejce znajdują się zadania w toku";
+"sync_tasks_view_title" = "Zobacz zadania";

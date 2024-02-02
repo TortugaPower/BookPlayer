@@ -30,7 +30,7 @@ final class SleepTimer {
   /// Current time left on the timer
   @Published public var state: SleepTimerState = .off
   /// Last manually set sleep timer
-  private var lastActivedState: SleepTimerState = .off
+  private var lastActiveState: SleepTimerState = .off
   /// Default available options
   public let intervals: [TimeInterval] = [
     300.0,
@@ -90,17 +90,17 @@ final class SleepTimer {
   }
 
   // MARK: Public methods
-
+  
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer
     reset()
     state = newState
-    lastActivedState = newState
 
     switch newState {
     case .off:
       donateTimerIntent(with: .cancel)
     case .countdown(let interval):
+      lastActiveState = newState
       if let option = TimeParser.getTimerOption(from: interval) {
         donateTimerIntent(with: option)
       }
@@ -110,6 +110,7 @@ final class SleepTimer {
           self?.update()
         }
     case .endOfChapter:
+      lastActiveState = newState
       donateTimerIntent(with: .endChapter)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
@@ -117,6 +118,6 @@ final class SleepTimer {
   }
 
   public func restartTimer() {
-    setTimer(lastActivedState)
+    setTimer(lastActiveState)
   }
 }

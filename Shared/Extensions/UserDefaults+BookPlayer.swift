@@ -8,14 +8,26 @@
 
 import Foundation
 
-extension UserDefaults {
-  public static var sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)!
+public extension UserDefaults {
+  static var sharedDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)!
 
-  @objc public dynamic var sharedWidgetActionURL: URL? {
+  @objc dynamic var sharedWidgetActionURL: URL? {
     guard
       let widgetActionString = string(forKey: Constants.UserDefaults.sharedWidgetActionURL)
     else { return nil }
 
     return URL(string: widgetActionString)
+  }
+
+  @objc dynamic var userSettingsAppIcon: String? {
+    return string(forKey: Constants.UserDefaults.appIcon)
+  }
+
+  @objc dynamic var userSettingsCrashReportsDisabled: Bool {
+    return bool(forKey: Constants.UserDefaults.crashReportsDisabled)
+  }
+
+  @objc dynamic var userSyncTasksQueue: [Data]? {
+    return array(forKey: Constants.UserDefaults.syncTasksQueue) as? [Data]
   }
 }

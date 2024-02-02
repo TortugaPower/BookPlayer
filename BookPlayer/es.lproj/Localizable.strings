@@ -302,3 +302,8 @@
 "intent_playback_pause_title" = "Pausar la reproducción";
 "storage_artwork_cache_title" = "Tamaño de caché de ilustraciones";
 "settings_share_debug_information" = "Compartir información de depuración";
+"settings_autlock_section_title" = "Bloqueo automático";
+"settings_sleeptimer_auto_title" = "Temporizador de apagado automático";
+"settings_sleeptimer_auto_description" = "Reinicie el último temporizador de apagado activo cuando se reanude la reproducción";
+"sync_tasks_inprogress_alert_title" = "No se pueden sincronizar datos mientras hay tareas en cola en progreso";
+"sync_tasks_view_title" = "Ver tareas";

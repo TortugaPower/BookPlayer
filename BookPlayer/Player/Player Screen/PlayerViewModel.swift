@@ -395,23 +395,7 @@ class PlayerViewModel: ViewModelProtocol {
       )
     )
 
-    let formatter = DateComponentsFormatter()
-
-    formatter.unitsStyle = .full
-    formatter.allowedUnits = [.hour, .minute]
-
-    for interval in SleepTimer.shared.intervals {
-      guard let formattedDuration = formatter.string(from: interval) else { continue }
-
-      actions.append(
-        BPActionItem(
-          title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
-          handler: {
-            SleepTimer.shared.setTimer(.countdown(interval))
-          }
-        )
-      )
-    }
+    actions.append(contentsOf: getCountdownActions())
 
     actions.append(
       BPActionItem(
@@ -472,6 +456,23 @@ class PlayerViewModel: ViewModelProtocol {
     guard storedTime > 0 else { return nil }
 
     return storedTime
+  }
+
+  private func getCountdownActions() -> [BPActionItem] {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .full
+    formatter.allowedUnits = [.hour, .minute]
+
+    return SleepTimer.shared.intervals.compactMap { interval in
+      guard let formattedDuration = formatter.string(from: interval) else { return nil }
+
+      return BPActionItem(
+        title: String.localizedStringWithFormat("sleep_interval_title".localized, formattedDuration),
+        handler: {
+          SleepTimer.shared.setTimer(.countdown(interval))
+        }
+      )
+    }
   }
 }
 
