@@ -164,7 +164,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       return false
     }
 
-    guard UserDefaults.standard.array(forKey: Constants.UserDefaults.syncTasksQueue)?.count == 0 else {
+    let queuedTasksArray = UserDefaults.standard.array(forKey: Constants.UserDefaults.syncTasksQueue) ?? []
+
+    guard queuedTasksArray.count == 0 else {
       Self.logger.trace("Can't fetch items while there are sync operations in progress")
       return false
     }
