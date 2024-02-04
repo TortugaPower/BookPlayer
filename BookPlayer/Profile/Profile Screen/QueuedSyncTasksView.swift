@@ -24,16 +24,20 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
           .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
         }
       } header: {
-        HStack {
-          Image(systemName: "wifi")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 20, height: 20)
-            .foregroundColor(themeViewModel.linkColor)
-            .padding([.trailing], 5)
-          Text("upload_wifi_required_title".localized)
-            .font(Font(Fonts.body))
-            .foregroundColor(themeViewModel.secondaryColor)
+        if !viewModel.allowsCellularData {
+          HStack {
+            Spacer()
+            Image(systemName: "wifi")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 20, height: 20)
+              .foregroundColor(themeViewModel.linkColor)
+              .padding([.trailing], 5)
+            Text("upload_wifi_required_title".localized)
+              .font(Font(Fonts.body))
+              .foregroundColor(themeViewModel.secondaryColor)
+            Spacer()
+          }
         }
       }
     }
@@ -76,6 +80,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
 
 struct QueuedSyncTasksView_Previews: PreviewProvider {
   class MockQueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol, ObservableObject {
+    var allowsCellularData: Bool = false
     var queuedJobs: [BookPlayerKit.SyncTask] = [
       SyncTask(
         id: "1",
