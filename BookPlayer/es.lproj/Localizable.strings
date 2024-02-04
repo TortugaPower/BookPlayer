@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Reinicie el último temporizador de apagado activo cuando se reanude la reproducción";
 "sync_tasks_inprogress_alert_title" = "No se pueden sincronizar datos mientras hay tareas en cola en progreso";
 "sync_tasks_view_title" = "Ver tareas";
+"settings_datausage_title" = "Uso de datos";
+"datausage_upload_wifionly_title" = "Subir usando datos móviles";

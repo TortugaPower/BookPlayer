@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Start de laatste actieve slaaptimer opnieuw wanneer het afspelen wordt hervat";
 "sync_tasks_inprogress_alert_title" = "Kan gegevens niet synchroniseren terwijl er taken in de wachtrij staan";
 "sync_tasks_view_title" = "Bekijk taken";
+"settings_datausage_title" = "Data gebruik";
+"datausage_upload_wifionly_title" = "Uploaden met mobiele data";

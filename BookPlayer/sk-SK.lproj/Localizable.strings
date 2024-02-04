@@ -307,3 +307,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_sleeptimer_auto_description" = "Po obnovení prehrávania sa reštartuje posledný aktívny časovač spánku";
 "sync_tasks_inprogress_alert_title" = "Nie je možné synchronizovať dáta, pokiaľ prebiehajú úlohy vo fronte";
 "sync_tasks_view_title" = "Zobraziť úlohy";
+"settings_datausage_title" = "Využitie dát";
+"datausage_upload_wifionly_title" = "Nahrajte pomocou mobilných dát";

@@ -13,6 +13,7 @@ import Combine
 class LibraryItemSyncOperation: Operation, BPLogger {
   // MARK: - Async operation properties
 
+  private var cellularDataObserver: NSKeyValueObservation?
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.synctask", attributes: .concurrent)
   override var isAsynchronous: Bool { true }
 
@@ -202,11 +203,15 @@ extension LibraryItemSyncOperation {
     remoteURL: URL,
     relativePath: String
   ) async {
+    let session: URLSession = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
+    ? BPURLSession.shared.backgroundCellularSession
+    : BPURLSession.shared.backgroundSession
+
     let uploadTask = await self.client.uploadTask(
       fileURL,
       remoteURL: remoteURL,
       taskDescription: relativePath,
-      session: BPURLSession.shared.backgroundSession
+      session: session
     )
 
     // TODO: remove these subscribers
@@ -224,7 +229,12 @@ extension LibraryItemSyncOperation {
 
     completionSubscriber?.cancel()
     completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self] (task, error) in
-      if let error {
+      self?.cellularDataObserver?.invalidate()
+      if let nserror = error as? NSError,
+         nserror.domain == NSURLErrorDomain,
+         nserror.code == NSURLErrorCancelled {
+        /// Do nothing, as the task is already being rescheduled
+      } else if let error {
         self?.error = error
         self?.finish()
       } else {
@@ -232,7 +242,46 @@ extension LibraryItemSyncOperation {
       }
     })
 
+    cellularDataObserver?.invalidate()
+    cellularDataObserver = UserDefaults.standard.observe(
+      \.userSettingsAllowCellularData,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard
+        let newValue = change.newValue
+      else { return }
+
+      let previousSession: URLSession = newValue
+      ? BPURLSession.shared.backgroundSession
+      : BPURLSession.shared.backgroundCellularSession
+
+      self?.rescheduleUploadFile(
+        fileURL: fileURL,
+        remoteURL: remoteURL,
+        relativePath: relativePath,
+        previousSession: previousSession
+      )
+    }
+
     uploadTask.resume()
+  }
+
+  func rescheduleUploadFile(
+    fileURL: URL,
+    remoteURL: URL,
+    relativePath: String,
+    previousSession: URLSession
+  ) {
+    Task {
+      let task = await previousSession.allTasks.filter({ $0.taskDescription == relativePath }).first
+      task?.cancel()
+
+      await self.uploadFile(
+        fileURL: fileURL,
+        remoteURL: remoteURL,
+        relativePath: relativePath
+      )
+    }
   }
 
   func handleUploadFinished(_ task: URLSessionTask) {

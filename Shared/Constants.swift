@@ -27,6 +27,7 @@ public enum Constants {
     public static let globalSpeedEnabled = "userSettingsGlobalSpeed"
     public static let autoplayEnabled = "userSettingsAutoplay"
     public static let autoplayRestartEnabled = "userSettingsAutoplayRestart"
+    public static let allowCellularData = "userSettingsAllowCellularData"
     public static let iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
     public static let crashReportsDisabled = "userSettingsCrashReportsDisabled"
     public static let skanAttributionDisabled = "userSettingsSKANAttributionDisabled"

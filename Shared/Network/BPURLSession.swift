@@ -14,8 +14,10 @@ class BPURLSession {
   static let shared = BPURLSession()
 
   public let backgroundSession: URLSession
+  public let backgroundCellularSession: URLSession
   public let progressPublisher: PassthroughSubject<(String, Double), Never>
   public let completionPublisher: PassthroughSubject<(URLSessionTask, Error?), Never>
+  private var cellularDataObserver: NSKeyValueObservation?
 
   private init() {
     let progressPublisher = PassthroughSubject<(String, Double), Never>()
@@ -34,10 +36,25 @@ class BPURLSession {
 
     self.progressPublisher = progressPublisher
     self.completionPublisher = completionPublisher
+
+    let configuration = URLSessionConfiguration.background(
+      withIdentifier: "\(bundleIdentifier).background"
+    )
+    configuration.allowsCellularAccess = false
+
     self.backgroundSession = URLSession(
-      configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background"
-      ),
+      configuration: configuration,
+      delegate: delegate,
+      delegateQueue: OperationQueue()
+    )
+
+    let configurationForCellular = URLSessionConfiguration.background(
+      withIdentifier: "\(bundleIdentifier).background.cellular"
+    )
+    configurationForCellular.allowsCellularAccess = true
+
+    self.backgroundCellularSession = URLSession(
+      configuration: configurationForCellular,
       delegate: delegate,
       delegateQueue: OperationQueue()
     )

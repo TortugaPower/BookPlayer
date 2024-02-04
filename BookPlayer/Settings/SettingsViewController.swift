@@ -24,6 +24,7 @@ protocol IntentSelectionDelegate: AnyObject {
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
   @IBOutlet weak var crashReportsSwitch: UISwitch!
+  @IBOutlet weak var allowCellularDataSwitch: UISwitch!
   @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -34,7 +35,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, siri, backups, privacy, support, credits
+    case plus = 0, appearance, playback, storage, data, siri, backups, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
@@ -115,11 +116,16 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   func setupSwitchValues() {
+    allowCellularDataSwitch.addTarget(self, action: #selector(self.allowCellularDataDidChange), for: .valueChanged)
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
     crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
     skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
 
     // Set initial switch positions
+    allowCellularDataSwitch.setOn(
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData),
+      animated: false
+    )
     iCloudBackupsSwitch.setOn(
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled),
       animated: false
@@ -136,6 +142,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func donationMade() {
     self.tableView.reloadData()
+  }
+
+  @objc func allowCellularDataDidChange() {
+    viewModel.toggleCellularDataUsage(allowCellularDataSwitch.isOn)
   }
 
   @objc func iCloudBackupsDidChange() {
@@ -182,33 +192,52 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return 55
     }
 
-    guard indexPath.section == 0 else {
+    switch indexPath.section {
+    case SettingsSection.plus.rawValue:
+      if viewModel.hasMadeDonation() {
+        return 0
+      } else {
+        return 152
+      }
+    case SettingsSection.data.rawValue:
+      if viewModel.hasMadeDonation() {
+        return super.tableView(tableView, heightForRowAt: indexPath)
+      } else {
+        return 0
+      }
+    default:
       return super.tableView(tableView, heightForRowAt: indexPath)
     }
-
-    guard !self.viewModel.hasMadeDonation() else { return 0 }
-
-    return 152
   }
 
   override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-    guard
-      section == 0
-    else {
+    switch section {
+    case SettingsSection.plus.rawValue:
+      return CGFloat.leastNormalMagnitude
+    case SettingsSection.data.rawValue:
+      if viewModel.hasMadeDonation() {
+        return super.tableView(tableView, heightForHeaderInSection: section)
+      } else {
+        return CGFloat.leastNormalMagnitude
+      }
+    default:
       return super.tableView(tableView, heightForHeaderInSection: section)
     }
-
-    return CGFloat.leastNormalMagnitude
   }
 
   override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-    guard
-      section == 0
-    else {
+    switch section {
+    case SettingsSection.plus.rawValue:
+      return CGFloat.leastNormalMagnitude
+    case SettingsSection.data.rawValue:
+      if viewModel.hasMadeDonation() {
+        return super.tableView(tableView, heightForFooterInSection: section)
+      } else {
+        return CGFloat.leastNormalMagnitude
+      }
+    default:
       return super.tableView(tableView, heightForFooterInSection: section)
     }
-
-    return CGFloat.leastNormalMagnitude
   }
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -265,6 +294,12 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_playback_title".localized
     case .storage:
       return "settings_storage_title".localized
+    case .data:
+      if viewModel.hasMadeDonation() {
+        return "settings_datausage_title".localized
+      } else {
+        return nil
+      }
     case .siri:
       return "settings_siri_title".localized
     case .backups:

@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Po wznowieniu odtwarzania uruchom ponownie ostatni aktywny timer uśpienia";
 "sync_tasks_inprogress_alert_title" = "Nie można zsynchronizować danych, gdy w kolejce znajdują się zadania w toku";
 "sync_tasks_view_title" = "Zobacz zadania";
+"settings_datausage_title" = "Użycie danych";
+"datausage_upload_wifionly_title" = "Przesyłaj, korzystając z komórkowej transmisji danych";

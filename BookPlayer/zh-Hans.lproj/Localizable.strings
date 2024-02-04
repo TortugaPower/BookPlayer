@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "恢复播放时重新启动最后一个活动的睡眠计时器";
 "sync_tasks_inprogress_alert_title" = "有正在进行的排队任务时无法同步数据";
 "sync_tasks_view_title" = "查看任务";
+"settings_datausage_title" = "数据使用";
+"datausage_upload_wifionly_title" = "使用蜂窝数据上传";

@@ -79,6 +79,11 @@ class SettingsViewModel: ViewModelProtocol {
     return account?.hasSubscription == true
   }
 
+  /// Handle registering the value in `UserDefaults`
+  func toggleCellularDataUsage(_ flag: Bool) {
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.allowCellularData)
+  }
+
   func toggleFileBackupsPreference(_ flag: Bool) {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
 

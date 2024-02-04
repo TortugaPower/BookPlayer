@@ -307,3 +307,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "settings_sleeptimer_auto_description" = "Restart the last active sleep timer when playback is resumed";
 "sync_tasks_inprogress_alert_title" = "Can't sync data while there are queued tasks in progress";
 "sync_tasks_view_title" = "View tasks";
+"settings_datausage_title" = "Data Usage";
+"datausage_upload_wifionly_title" = "Upload using cellular data";
