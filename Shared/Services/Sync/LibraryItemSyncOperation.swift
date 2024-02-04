@@ -214,7 +214,31 @@ extension LibraryItemSyncOperation {
       session: session
     )
 
-    // TODO: remove these subscribers
+    bindUploadObservers()
+
+    cellularDataObserver?.invalidate()
+    cellularDataObserver = UserDefaults.standard.observe(
+      \.userSettingsAllowCellularData,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+
+      let previousSession: URLSession = newValue
+      ? BPURLSession.shared.backgroundSession
+      : BPURLSession.shared.backgroundCellularSession
+
+      self?.rescheduleUploadFile(
+        fileURL: fileURL,
+        remoteURL: remoteURL,
+        relativePath: relativePath,
+        previousSession: previousSession
+      )
+    }
+
+    uploadTask.resume()
+  }
+
+  func bindUploadObservers() {
     progressSubscriber?.cancel()
     progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
       NotificationCenter.default.post(
@@ -241,29 +265,6 @@ extension LibraryItemSyncOperation {
         self?.handleUploadFinished(task)
       }
     })
-
-    cellularDataObserver?.invalidate()
-    cellularDataObserver = UserDefaults.standard.observe(
-      \.userSettingsAllowCellularData,
-       options: [.new]
-    ) { [weak self] _, change in
-      guard
-        let newValue = change.newValue
-      else { return }
-
-      let previousSession: URLSession = newValue
-      ? BPURLSession.shared.backgroundSession
-      : BPURLSession.shared.backgroundCellularSession
-
-      self?.rescheduleUploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath,
-        previousSession: previousSession
-      )
-    }
-
-    uploadTask.resume()
   }
 
   func rescheduleUploadFile(
