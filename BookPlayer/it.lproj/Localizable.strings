@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Riavvia l'ultimo timer di spegnimento attivo quando viene ripresa la riproduzione";
 "sync_tasks_inprogress_alert_title" = "Impossibile sincronizzare i dati mentre sono presenti attività in coda in corso";
 "sync_tasks_view_title" = "Visualizza attività";
+"settings_datausage_title" = "Utilizzo dei dati";
+"datausage_upload_wifionly_title" = "Carica utilizzando la rete dati";

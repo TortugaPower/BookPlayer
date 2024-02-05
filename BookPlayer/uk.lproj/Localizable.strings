@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Перезапустіть останній активний таймер сну, коли відтворення відновиться";
 "sync_tasks_inprogress_alert_title" = "Неможливо синхронізувати дані, поки виконуються завдання в черзі";
 "sync_tasks_view_title" = "Переглянути завдання";
+"settings_datausage_title" = "Використання даних";
+"datausage_upload_wifionly_title" = "Завантажувати за допомогою мобільних даних";
