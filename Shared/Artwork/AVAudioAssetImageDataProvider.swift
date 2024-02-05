@@ -108,26 +108,35 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   // Folders
 
   private func handleDirectory(at url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
-    Task {
-      let enumerator = FileManager.default.enumerator(
-        at: self.fileURL,
-        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
-        options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-          print("directoryEnumerator error at \(url): ", error)
-          return true
-        })!
+    /// Process any image file from within the folder
+    if let contents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil),
+       let imageURL = contents.first(where: {
+         UTType(filenameExtension: $0.pathExtension, conformingTo: .image) != nil
+       }),
+       let imageData = try? Data(contentsOf: imageURL) {
+      handler(.success(imageData))
+    } else { /// Go through the internal files' metadata
+      Task {
+        let enumerator = FileManager.default.enumerator(
+          at: self.fileURL,
+          includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+          options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
+            print("directoryEnumerator error at \(url): ", error)
+            return true
+          })!
 
-      var files = [URL]()
-      for case let fileURL as URL in enumerator {
-        files.append(fileURL)
-      }
+        var files = [URL]()
+        for case let fileURL as URL in enumerator {
+          files.append(fileURL)
+        }
 
-      do {
-        let data = try await processNextFolderItem(from: files)
+        do {
+          let data = try await processNextFolderItem(from: files)
 
-        handler(.success(data))
-      } catch {
-        handler(.failure(error))
+          handler(.success(data))
+        } catch {
+          handler(.failure(error))
+        }
       }
     }
   }
