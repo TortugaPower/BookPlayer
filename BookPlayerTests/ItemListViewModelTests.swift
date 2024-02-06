@@ -32,6 +32,7 @@ class ItemListViewModelTests: XCTestCase {
       libraryService: libraryService,
       playbackService: PlaybackServiceProtocolMock(),
       syncService: syncServiceMock, 
+      importManager: ImportManager(libraryService: libraryService), 
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
         libraryService: libraryService,

@@ -16,6 +16,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
+  let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
   let flow: BPCoordinatorPresentationFlow
 
@@ -27,6 +28,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
+    importManager: ImportManager,
     listRefreshService: ListSyncRefreshService
   ) {
     self.flow = flow
@@ -34,6 +36,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
+    self.importManager = importManager
     self.listRefreshService = listRefreshService
   }
 
@@ -53,6 +56,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,
+      importManager: importManager,
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
         libraryService: libraryService,
