@@ -19,6 +19,7 @@ class FolderListCoordinator: ItemListCoordinator {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
+    importManager: ImportManager,
     listRefreshService: ListSyncRefreshService
   ) {
     self.folderRelativePath = folderRelativePath
@@ -28,7 +29,8 @@ class FolderListCoordinator: ItemListCoordinator {
       playerManager: playerManager,
       libraryService: libraryService,
       playbackService: playbackService,
-      syncService: syncService,
+      syncService: syncService, 
+      importManager: importManager,
       listRefreshService: listRefreshService
     )
   }
@@ -42,6 +44,7 @@ class FolderListCoordinator: ItemListCoordinator {
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService, 
+      importManager: self.importManager, 
       listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )

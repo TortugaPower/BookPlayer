@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Po obnovení přehrávání restartujte poslední aktivní časovač vypnutí";
 "sync_tasks_inprogress_alert_title" = "Nelze synchronizovat data, když probíhají úlohy ve frontě";
 "sync_tasks_view_title" = "Zobrazit úkoly";
+"settings_datausage_title" = "Využití dat";
+"datausage_upload_wifionly_title" = "Nahrajte pomocí mobilních dat";

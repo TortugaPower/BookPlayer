@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Starta om den senast aktiva insomningstimern när uppspelningen återupptas";
 "sync_tasks_inprogress_alert_title" = "Det går inte att synkronisera data medan det pågår uppgifter i kö";
 "sync_tasks_view_title" = "Visa uppgifter";
+"settings_datausage_title" = "Dataanvändning";
+"datausage_upload_wifionly_title" = "Ladda upp med mobildata";

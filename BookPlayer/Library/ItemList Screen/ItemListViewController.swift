@@ -118,11 +118,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     if didAppearForFirstTime {
       didAppearForFirstTime = false
       viewModel.viewDidAppear()
-      /// Can't do this on viewDidLoad as there's no guarantee that the scene delegate will
-      /// have an 'active' status
       if navigationController?.viewControllers.count == 1 {
         navigationController!.interactivePopGestureRecognizer!.delegate = self
-        viewModel.notifyPendingFiles()
       }
     }
   }

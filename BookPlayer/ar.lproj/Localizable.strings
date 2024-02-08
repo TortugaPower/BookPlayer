@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "أعد تشغيل آخر مؤقت نوم نشط عند استئناف التشغيل";
 "sync_tasks_inprogress_alert_title" = "لا يمكن مزامنة البيانات أثناء وجود مهام في قائمة الانتظار قيد التقدم";
 "sync_tasks_view_title" = "عرض المهام";
+"settings_datausage_title" = "استخدام البيانات";
+"datausage_upload_wifionly_title" = "تحميل باستخدام البيانات الخلوية";

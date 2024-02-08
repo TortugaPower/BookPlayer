@@ -84,10 +84,10 @@ class MainCoordinator: NSObject {
     let libraryCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       playerManager: self.playerManager,
-      importManager: ImportManager(libraryService: self.libraryService),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: syncService,
+      importManager: ImportManager(libraryService: self.libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
         libraryService: libraryService,

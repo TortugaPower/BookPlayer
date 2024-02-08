@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Käynnistä viimeinen aktiivinen uniajastin uudelleen, kun toistoa jatketaan";
 "sync_tasks_inprogress_alert_title" = "Tietoja ei voi synkronoida, kun jonossa on tehtäviä kesken";
 "sync_tasks_view_title" = "Näytä tehtävät";
+"settings_datausage_title" = "Datan käyttö";
+"datausage_upload_wifionly_title" = "Lataa mobiilidatan avulla";

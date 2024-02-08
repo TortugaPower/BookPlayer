@@ -33,10 +33,10 @@ class LibraryListCoordinatorTests: XCTestCase {
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       playerManager: playerManagerMock,
-      importManager: ImportManager(libraryService: libraryService),
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
       syncService: syncServiceMock,
+      importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
         libraryService: libraryService,
@@ -91,7 +91,8 @@ class FolderListCoordinatorTests: XCTestCase {
       playerManager: playerManagerMock,
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService),
-      syncService: syncServiceMock,
+      syncService: syncServiceMock, 
+      importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
         libraryService: libraryService,

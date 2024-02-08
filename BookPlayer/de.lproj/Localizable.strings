@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Starten Sie den zuletzt aktiven Sleep-Timer neu, wenn die Wiedergabe fortgesetzt wird";
 "sync_tasks_inprogress_alert_title" = "Daten können nicht synchronisiert werden, während Aufgaben in der Warteschlange ausgeführt werden";
 "sync_tasks_view_title" = "Aufgaben anzeigen";
+"settings_datausage_title" = "Datenverbrauch";
+"datausage_upload_wifionly_title" = "Hochladen mit Mobilfunkdaten";

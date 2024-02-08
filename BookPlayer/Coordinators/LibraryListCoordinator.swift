@@ -12,7 +12,6 @@ import UIKit
 
 class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegate {
   weak var tabBarController: UITabBarController?
-  let importManager: ImportManager
 
   var fileSubscription: AnyCancellable?
   var importOperationSubscription: AnyCancellable?
@@ -23,27 +22,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   private var disposeBag = Set<AnyCancellable>()
 
-  init(
-    flow: BPCoordinatorPresentationFlow,
-    playerManager: PlayerManagerProtocol,
-    importManager: ImportManager,
-    libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol,
-    listRefreshService: ListSyncRefreshService
-  ) {
-    self.importManager = importManager
-
-    super.init(
-      flow: flow,
-      playerManager: playerManager,
-      libraryService: libraryService,
-      playbackService: playbackService,
-      syncService: syncService,
-      listRefreshService: listRefreshService
-    )
-  }
-
   // swiftlint:disable:next function_body_length
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
@@ -53,7 +31,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
-      syncService: self.syncService,
+      syncService: self.syncService, 
+      importManager: importManager,
       listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
@@ -120,7 +99,9 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       AppDelegate.shared?.activeSceneDelegate != nil
     else { return }
 
-    self.fileSubscription = self.importManager.observeFiles().sink { [weak self] files in
+    fileSubscription = importManager.observeFiles()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] files in
       guard let self = self,
             !files.isEmpty,
             self.shouldShowImportScreen() else { return }
@@ -128,7 +109,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       self.showImport()
     }
 
-    self.importOperationSubscription = self.importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
+    importOperationSubscription = importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
       guard 
         let self,
         let lastItemListViewController = self.flow.navigationController.viewControllers.last as? ItemListViewController
@@ -151,6 +132,41 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
       self.importManager.start(operation)
     })
+
+    notifyPendingFiles()
+  }
+
+  @MainActor
+  func notifyPendingFiles() {
+    // Get reference of all the files located inside the Documents, Shared and Inbox folders
+    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getDocumentsFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? [])
+      .filter {
+        $0.lastPathComponent != DataManager.processedFolderName
+        && $0.lastPathComponent != DataManager.inboxFolderName
+        && $0.lastPathComponent != DataManager.backupFolderName
+      }
+
+    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getSharedFilesFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
+
+    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
+      at: DataManager.getInboxFolderURL(),
+      includingPropertiesForKeys: nil,
+      options: .skipsSubdirectoryDescendants
+    )) ?? []
+
+    let urls = documentsURLs + sharedURLs + inboxURLs
+
+    guard !urls.isEmpty else { return }
+
+    processFiles(urls: urls)
   }
 
   func loadLastBookIfNeeded() {

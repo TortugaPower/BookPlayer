@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Genstart den sidst aktive sleep-timer, når afspilningen genoptages";
 "sync_tasks_inprogress_alert_title" = "Kan ikke synkronisere data, mens der er igangværende opgaver i kø";
 "sync_tasks_view_title" = "Se opgaver";
+"settings_datausage_title" = "Dataforbrug";
+"datausage_upload_wifionly_title" = "Upload ved hjælp af mobildata";

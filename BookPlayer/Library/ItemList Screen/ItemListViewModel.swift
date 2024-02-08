@@ -50,6 +50,7 @@ class ItemListViewModel: ViewModelProtocol {
   let playbackService: PlaybackServiceProtocol
   private let listRefreshService: ListSyncRefreshService
   let syncService: SyncServiceProtocol
+  private let importManager: ImportManager
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
@@ -79,6 +80,7 @@ class ItemListViewModel: ViewModelProtocol {
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
+    importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     themeAccent: UIColor
   ) {
@@ -88,6 +90,7 @@ class ItemListViewModel: ViewModelProtocol {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
+    self.importManager = importManager
     self.listRefreshService = listRefreshService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
@@ -948,7 +951,7 @@ class ItemListViewModel: ViewModelProtocol {
 
   func refreshAppState() async throws {
     /// Check if there's any pending file to import
-    notifyPendingFiles()
+    await coordinator.getMainCoordinator()?.getLibraryCoordinator()?.notifyPendingFiles()
 
     guard await syncService.queuedJobsCount() == 0 else {
       throw BPSyncRefreshError.scheduledTasks
@@ -964,40 +967,10 @@ class ItemListViewModel: ViewModelProtocol {
 
 // MARK: - Import related functions
 extension ItemListViewModel {
-  func notifyPendingFiles() {
-    // Get reference of all the files located inside the Documents, Shared and Inbox folders
-    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getDocumentsFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? [])
-      .filter {
-        $0.lastPathComponent != DataManager.processedFolderName
-        && $0.lastPathComponent != DataManager.inboxFolderName
-        && $0.lastPathComponent != DataManager.backupFolderName
-      }
-
-    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getSharedFilesFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
-
-    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getInboxFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
-
-    let urls = documentsURLs + sharedURLs + inboxURLs
-
-    guard !urls.isEmpty else { return }
-
-    self.handleNewFiles(urls)
-  }
-
   func handleNewFiles(_ urls: [URL]) {
-    self.coordinator.getMainCoordinator()?.getLibraryCoordinator()?.processFiles(urls: urls)
+    for url in urls {
+      importManager.process(url)
+    }
   }
 
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {

@@ -307,3 +307,5 @@
 "settings_sleeptimer_auto_description" = "Reinicie o último temporizador ativo quando a reprodução for retomada";
 "sync_tasks_inprogress_alert_title" = "Não é possível sincronizar dados enquanto há tarefas na fila em andamento";
 "sync_tasks_view_title" = "Ver tarefas";
+"settings_datausage_title" = "Uso de dados";
+"datausage_upload_wifionly_title" = "Fazer upload usando dados de celular";

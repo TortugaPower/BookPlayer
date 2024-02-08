@@ -39,20 +39,22 @@ struct SharedIconWidgetTimelineProvider: TimelineProvider {
 @available(iOSApplicationExtension 16.0, watchOS 9.0, *)
 struct SharedIconWidget: Widget {
   let kind: String = Constants.Widgets.sharedIconWidget.rawValue
+  #if os(watchOS)
+  let imageName = "Graphic Circular"
+  #else
+  let imageName = "logo-nopadding"
+  #endif
 
   var body: some WidgetConfiguration {
     StaticConfiguration(
       kind: kind,
       provider: SharedIconWidgetTimelineProvider()) { _ in
-        ZStack {
-          AccessoryWidgetBackground()
-          Image("Graphic Circular")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .padding(Spacing.S3)
-            .widgetAccentable()
-            .widgetBackground(backgroundView: Color.clear)
-        }
+        Image(imageName)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .padding(0)
+          .widgetAccentable()
+          .widgetBackground(backgroundView: Color.clear)
       }
       .configurationDisplayName("Icon")
       .description("Quickly launch BookPlayer")
