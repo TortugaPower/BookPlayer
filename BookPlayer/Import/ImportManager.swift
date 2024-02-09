@@ -44,7 +44,8 @@ final class ImportManager {
   }
 
   public func removeFile(_ item: URL, updateCollection: Bool = true) throws {
-    if FileManager.default.fileExists(atPath: item.path) {
+    if FileManager.default.fileExists(atPath: item.path),
+       FileManager.default.isDeletableFile(atPath: item.path) {
       try FileManager.default.removeItem(at: item)
     }
 
