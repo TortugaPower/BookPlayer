@@ -148,6 +148,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         $0.lastPathComponent != DataManager.processedFolderName
         && $0.lastPathComponent != DataManager.inboxFolderName
         && $0.lastPathComponent != DataManager.backupFolderName
+        && $0.lastPathComponent != DataManager.trashFolderName
       }
 
     let sharedURLs = (try? FileManager.default.contentsOfDirectory(
