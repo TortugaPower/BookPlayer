@@ -212,12 +212,13 @@ public class ImportOperation: Operation {
     // Add support for iCloud documents
     let accessGranted = currentFile.startAccessingSecurityScopedResource()
 
+    defer { currentFile.stopAccessingSecurityScopedResource() }
+
     let destinationURL = self.getNextAvailableURL(for: currentFile)
 
     do {
       if accessGranted {
         try FileManager.default.copyItem(at: currentFile, to: destinationURL)
-        currentFile.stopAccessingSecurityScopedResource()
       } else {
         try FileManager.default.moveItem(at: currentFile, to: destinationURL)
       }

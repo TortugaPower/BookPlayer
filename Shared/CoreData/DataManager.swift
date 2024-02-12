@@ -14,6 +14,7 @@ public class DataManager {
   public static let backupFolderName = "BPBackup"
   public static let inboxFolderName = "Inbox"
   public static let sharedFolderName = "SharedBP"
+  public static let trashFolderName = ".Trash"
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
   private var pendingSaveContext: DispatchWorkItem?
