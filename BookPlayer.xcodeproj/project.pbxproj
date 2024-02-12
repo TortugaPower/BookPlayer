@@ -355,6 +355,7 @@
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */; };
+		63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63717EA92B792E350006291E /* RefreshTaskOperation.swift */; };
 		637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6376091B2ADCD81400A01D5D /* AppShortcuts.strings */; };
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
@@ -1066,6 +1067,7 @@
 		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationFileActivityItemProvider.swift; sourceTree = "<group>"; };
+		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
 		6376091A2ADCD81400A01D5D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091C2ADCD82100A01D5D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091D2ADCD82100A01D5D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/AppShortcuts.strings"; sourceTree = "<group>"; };
@@ -2460,6 +2462,7 @@
 				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
 				9FD8D95729DC53750074C2D8 /* CoreServices.swift */,
 				6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */,
+				63717EA92B792E350006291E /* RefreshTaskOperation.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3284,6 +3287,7 @@
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
+				63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				41B2A5DC21CAEE0E00917584 /* PlayerSettingsViewController.swift in Sources */,
 				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,

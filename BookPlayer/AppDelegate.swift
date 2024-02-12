@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import BackgroundTasks
 import BookPlayerKit
 import Combine
 import CoreData
@@ -20,7 +21,7 @@ import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   static weak var shared: AppDelegate?
   var pendingURLActions = [Action]()
 
@@ -51,6 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   /// Reference for observers
   private var crashReportsAccessObserver: NSKeyValueObservation?
   private var sharedWidgetActionURLObserver: NSKeyValueObservation?
+  /// Background refresh task identifier
+  private lazy var refreshTaskIdentifier = "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.refresh"
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -62,6 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       object: nil
     )
 
+    // register background refresh tasks
+    self.setupBackgroundRefreshTasks()
     // register for remote events
     self.setupMPRemoteCommands()
     // register document's folder listener
@@ -270,7 +275,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = self?.playerManager else { return .commandFailed }
 
+      let wasPlaying = playerManager.isPlaying
       playerManager.playPause()
+
+      if wasPlaying,
+         UIApplication.shared.applicationState == .background {
+        self?.scheduleAppRefresh()
+      }
       return .success
     }
 
@@ -287,6 +298,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       guard let playerManager = self?.playerManager else { return .commandFailed }
 
       playerManager.pause()
+
+      if UIApplication.shared.applicationState == .background {
+        self?.scheduleAppRefresh()
+      }
+
       return .success
     }
 
@@ -480,5 +496,75 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        !mainCoordinator.hasPlayerShown() {
       mainCoordinator.showPlayer()
     }
+  }
+}
+
+// MARK: - Background tasks
+
+extension AppDelegate {
+
+  func setupBackgroundRefreshTasks() {
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.didEnterBackgroundNotification,
+      object: nil, queue: nil) { _ in
+        if self.playerManager?.isPlaying != true {
+          self.scheduleAppRefresh()
+        }
+    }
+
+    BGTaskScheduler.shared.register(
+      forTaskWithIdentifier: refreshTaskIdentifier,
+      using: nil
+    ) { task in
+      Self.logFile(message: "\(Date()): began executing task")
+      guard let refreshTask = task as? BGAppRefreshTask else { return }
+
+      self.handleAppRefresh(task: refreshTask)
+    }
+  }
+
+  func scheduleAppRefresh() {
+    let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
+    request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
+
+    Self.logFile(message: "\(Date()): scheduling refreshTask")
+    do {
+      try BGTaskScheduler.shared.submit(request)
+    } catch {
+      Self.logFile(message: "\(Date()): error scheduling: \(error.localizedDescription)")
+    }
+  }
+
+  func handleAppRefresh(task: BGAppRefreshTask) {
+    Self.logFile(message: "\(Date()): refreshTask: executing task")
+
+    guard let syncService else {
+      Self.logFile(message: "\(Date()): refreshTask: syncService not in memory")
+      return
+    }
+
+    let refreshOperation = RefreshTaskOperation(syncService: syncService)
+
+    refreshOperation.completionBlock = { [weak self] in
+      let success = !refreshOperation.isCancelled
+
+      Self.logFile(message: "\(Date()): refreshTask: completionBlock, was cancelled: \(refreshOperation.isCancelled)")
+      if !success {
+        self?.scheduleAppRefresh()
+      }
+
+      task.setTaskCompleted(success: success)
+    }
+
+    task.expirationHandler = {
+      Self.logFile(message: "\(Date()): refreshTask: expiration handler")
+      refreshOperation.cancel()
+      refreshOperation.finish()
+    }
+
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 1
+
+    queue.addOperation(refreshOperation)
   }
 }

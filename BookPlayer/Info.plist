@@ -7,7 +7,6 @@
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.cellular</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.refresh</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.sync.tasksQueue</string>
 	</array>
 	<key>BP_API_DOMAIN</key>
 	<string>$(BP_API_DOMAIN)</string>
@@ -358,7 +357,6 @@
 	<array>
 		<string>audio</string>
 		<string>fetch</string>
-		<string>processing</string>
 	</array>
 	<key>UIBrowsableContentSupportsSectionedBrowsing</key>
 	<true/>
