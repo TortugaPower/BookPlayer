@@ -11,7 +11,7 @@ import Combine
 import Foundation
 
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
-class RefreshTaskOperation: Operation, BPLogger {
+class RefreshTaskOperation: Operation {
   /// Sync service
   let syncService: SyncServiceProtocol
   private var syncTasksObserver: NSKeyValueObservation?
@@ -75,10 +75,7 @@ class RefreshTaskOperation: Operation, BPLogger {
       
       Task {
         if await self.syncService.queuedJobsCount() == 0 {
-          Self.logFile(message: "\(Date()): operation 0 queued jobs")
           self.finish()
-        } else {
-          Self.logFile(message: "\(Date()): operation has queued jobs")
         }
       }
     }

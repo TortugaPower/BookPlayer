@@ -21,7 +21,7 @@ import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
+class AppDelegate: UIResponder, UIApplicationDelegate {
   static weak var shared: AppDelegate?
   var pendingURLActions = [Action]()
 
@@ -516,7 +516,6 @@ extension AppDelegate {
       forTaskWithIdentifier: refreshTaskIdentifier,
       using: nil
     ) { task in
-      Self.logFile(message: "\(Date()): began executing task")
       guard let refreshTask = task as? BGAppRefreshTask else { return }
 
       self.handleAppRefresh(task: refreshTask)
@@ -527,28 +526,17 @@ extension AppDelegate {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
 
-    Self.logFile(message: "\(Date()): scheduling refreshTask")
-    do {
-      try BGTaskScheduler.shared.submit(request)
-    } catch {
-      Self.logFile(message: "\(Date()): error scheduling: \(error.localizedDescription)")
-    }
+    try? BGTaskScheduler.shared.submit(request)
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    Self.logFile(message: "\(Date()): refreshTask: executing task")
-
-    guard let syncService else {
-      Self.logFile(message: "\(Date()): refreshTask: syncService not in memory")
-      return
-    }
+    guard let syncService else { return }
 
     let refreshOperation = RefreshTaskOperation(syncService: syncService)
 
     refreshOperation.completionBlock = { [weak self] in
       let success = !refreshOperation.isCancelled
 
-      Self.logFile(message: "\(Date()): refreshTask: completionBlock, was cancelled: \(refreshOperation.isCancelled)")
       if !success {
         self?.scheduleAppRefresh()
       }
@@ -557,7 +545,6 @@ extension AppDelegate {
     }
 
     task.expirationHandler = {
-      Self.logFile(message: "\(Date()): refreshTask: expiration handler")
       refreshOperation.cancel()
       refreshOperation.finish()
     }
