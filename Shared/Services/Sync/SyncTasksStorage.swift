@@ -41,9 +41,27 @@ public actor SyncTasksStorage: BPTasksStorageProtocol {
   public init() {}
 
   public func appendTask(parameters: [String: Any]) throws {
-    let data = try JSONSerialization.data(withJSONObject: parameters)
-    
     var storedJobs = store.array(forKey: Constants.UserDefaults.syncTasksQueue) as? [Data] ?? []
+
+    let finalParameters: [String: Any]
+
+    /// Merge update tasks when it's for the same item
+    if storedJobs.count >= 2,
+      let lastTaskData = storedJobs.last,
+       let taskParams = try JSONSerialization.jsonObject(with: lastTaskData) as? [String: Any],
+       let relativePath = taskParams["relativePath"] as? String,
+       parameters["relativePath"] as? String == relativePath,
+       let rawJobType = parameters["jobType"] as? String,
+       let jobType = SyncJobType(rawValue: rawJobType),
+       jobType == .update {
+      finalParameters = taskParams.merging(parameters) { (_, new) in new }
+      /// Remove the last item we are replacing
+      storedJobs.removeLast()
+    } else {
+      finalParameters = parameters
+    }
+
+    let data = try JSONSerialization.data(withJSONObject: finalParameters)
     storedJobs.append(data)
 
     if let rawJobType = parameters["jobType"] as? String,
