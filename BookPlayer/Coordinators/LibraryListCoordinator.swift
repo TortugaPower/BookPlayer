@@ -76,12 +76,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    if let appDelegate = AppDelegate.shared {
-      for action in appDelegate.pendingURLActions {
-        ActionParserService.handleAction(action)
-      }
-    }
-
     self.documentPickerDelegate = vc
 
     AppDelegate.shared?.watchConnectivityService?.startSession()
@@ -91,6 +85,12 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     loadLastBookIfNeeded()
     syncList()
     bindImportObserverIfNeeded()
+
+    if let appDelegate = AppDelegate.shared {
+      for action in appDelegate.pendingURLActions {
+        ActionParserService.handleAction(action)
+      }
+    }
   }
 
   func bindImportObserverIfNeeded() {
