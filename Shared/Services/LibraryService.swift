@@ -1488,9 +1488,9 @@ extension LibraryService {
     item.currentTime = time
     item.lastPlayDate = date
     let progress = round((item.currentTime / item.duration) * 100)
-    let percentCompleted = (progress.isNaN || progress.isInfinite)
-    ? 0
-    : progress
+    let percentCompleted = progress.isFinite
+    ? progress
+    : 0
     item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {

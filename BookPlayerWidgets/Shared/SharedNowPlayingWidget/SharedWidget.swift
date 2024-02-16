@@ -93,11 +93,15 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
       chapterTitle = currentItem.currentChapter.title
     }
 
+    let percentCompleted: Double = currentItem.percentCompleted.isFinite
+    ? currentItem.percentCompleted
+    : 0
+
     return SharedWidgetEntry(
       chapterTitle: chapterTitle,
       bookTitle: currentItem.title,
       details: currentItem.author,
-      percentCompleted: currentItem.percentCompleted / 100
+      percentCompleted: percentCompleted / 100
     )
   }
 
