@@ -39,7 +39,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
     let now = Date()
     item.lastPlayDate = now
     item.currentTime = time
-    item.percentCompleted = round((item.currentTime / item.duration) * 100)
+    let progress = round((item.currentTime / item.duration) * 100)
+    let percentCompleted = progress.isFinite
+    ? progress
+    : 0
+    item.percentCompleted = percentCompleted
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now, scheduleSave: true)
   }
 
