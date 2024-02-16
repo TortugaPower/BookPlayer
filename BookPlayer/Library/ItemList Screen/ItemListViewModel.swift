@@ -748,23 +748,7 @@ class ItemListViewModel: ViewModelProtocol {
       case .downloaded:
         title = "remove_downloaded_file_title".localized
         handler = { [weak self] in
-          do {
-            let fileURL = item.fileURL
-            try FileManager.default.removeItem(at: fileURL)
-            if item.type == .bound || item.type == .folder {
-              try FileManager.default.createDirectory(
-                at: fileURL,
-                withIntermediateDirectories: false,
-                attributes: nil
-              )
-            }
-            self?.reloadItems()
-          } catch {
-            self?.sendEvent(.showAlert(
-              content: BPAlertContent.errorAlert(message: error.localizedDescription)
-            ))
-            return
-          }
+          self?.handleOffloading(of: item)
         }
       }
       actions.append(
@@ -794,6 +778,46 @@ class ItemListViewModel: ViewModelProtocol {
         actionItems: actions
       )
     ))
+  }
+
+  func handleOffloading(of item: SimpleLibraryItem) {
+    verifyUploadTask(for: item) { [weak self] in
+      do {
+        let fileURL = item.fileURL
+        try FileManager.default.removeItem(at: fileURL)
+        if item.type == .bound || item.type == .folder {
+          try FileManager.default.createDirectory(
+            at: fileURL,
+            withIntermediateDirectories: false,
+            attributes: nil
+          )
+        }
+        self?.reloadItems()
+      } catch {
+        self?.sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+      }
+    }
+  }
+
+  func verifyUploadTask(for item: SimpleLibraryItem, completionHandler: @escaping () -> Void) {
+    Task { @MainActor in
+      if await syncService.hasUploadTask(for: item.relativePath) {
+        sendEvent(.showAlert(
+          content: BPAlertContent(
+            title: "Warning",
+            message: "There's a queued upload task for:\n\(item.relativePath)\nRemoving the file will prevent the app from uploading it",
+            style: .alert,
+            actionItems: [
+              BPActionItem.cancelAction,
+              BPActionItem(title: "Continue", handler: completionHandler)
+          ])
+        ))
+      } else {
+        completionHandler()
+      }
+    }
   }
 
   func showMoveOptions(selectedItems: [SimpleLibraryItem], availableFolders: [SimpleLibraryItem]) {

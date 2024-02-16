@@ -15,11 +15,28 @@ public protocol BPTasksStorageProtocol: AnyActor {
   func getAllTasks() async -> [SyncTask]
   func getTasksCount() async -> Int
   func clearAll() async
+  /// Check if there's an upload task queued for the item
+  func hasUploadTask(for relativePath: String) async -> Bool
 }
 
 /// Persist jobs in UserDefaults
 public actor SyncTasksStorage: BPTasksStorageProtocol {
   private let store = UserDefaults.standard
+  private lazy var uploadTasks: [String: Any] = {
+    guard let tasks = store.array(forKey: Constants.UserDefaults.syncTasksQueue) as? [Data] else { return [:] }
+
+    return tasks.reduce(into: [:], { dict, taskData in
+      guard
+        let taskParams = try? JSONSerialization.jsonObject(with: taskData) as? [String: Any],
+        let rawJobType = taskParams["jobType"] as? String,
+        let jobType = SyncJobType(rawValue: rawJobType),
+        jobType == .upload,
+        let relativePath = taskParams["relativePath"] as? String
+      else { return }
+
+      dict[relativePath] = taskParams
+    })
+  }()
 
   public init() {}
 
@@ -28,7 +45,14 @@ public actor SyncTasksStorage: BPTasksStorageProtocol {
     
     var storedJobs = store.array(forKey: Constants.UserDefaults.syncTasksQueue) as? [Data] ?? []
     storedJobs.append(data)
-    
+
+    if let rawJobType = parameters["jobType"] as? String,
+       let jobType = SyncJobType(rawValue: rawJobType),
+       jobType == .upload,
+       let relativePath = parameters["relativePath"] as? String {
+      uploadTasks[relativePath] = parameters
+    }
+
     store.set(storedJobs, forKey: Constants.UserDefaults.syncTasksQueue)
   }
 
@@ -65,6 +89,13 @@ public actor SyncTasksStorage: BPTasksStorageProtocol {
 
     guard let taskParams = try JSONSerialization.jsonObject(with: taskData) as? [String: Any] else {
       throw BookPlayerError.runtimeError("Failed to decode task")
+    }
+
+    if let rawJobType = taskParams["jobType"] as? String,
+       let jobType = SyncJobType(rawValue: rawJobType),
+       jobType == .upload,
+       let relativePath = taskParams["relativePath"] as? String {
+      uploadTasks.removeValue(forKey: relativePath)
     }
 
     let taskId = taskParams["id"] as? String
@@ -105,5 +136,11 @@ public actor SyncTasksStorage: BPTasksStorageProtocol {
 
   public func clearAll() {
     store.removeObject(forKey: Constants.UserDefaults.syncTasksQueue)
+    uploadTasks = [:]
+  }
+
+  /// Check if there's an upload task queued for the item
+  public func hasUploadTask(for relativePath: String) -> Bool {
+    return uploadTasks[relativePath] != nil
   }
 }

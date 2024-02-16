@@ -79,6 +79,9 @@ public protocol SyncServiceProtocol {
   func cancelDownload(of item: SimpleLibraryItem) throws
 
   func getDownloadState(for item: SimpleLibraryItem) -> DownloadState
+
+  /// Check if there's an upload task queued for the item
+  func hasUploadTask(for relativePath: String) async -> Bool
 }
 
 public final class SyncService: SyncServiceProtocol, BPLogger {
@@ -472,6 +475,11 @@ extension SyncService {
 
       await handleItemsToUpload(itemsToUpload)
     }
+  }
+
+  /// Check if there's an upload task queued for the item
+  public func hasUploadTask(for relativePath: String) async -> Bool {
+    return await jobManager.hasUploadTask(for: relativePath)
   }
 }
 

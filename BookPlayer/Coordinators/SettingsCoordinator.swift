@@ -86,13 +86,16 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   func showStorageManagement() {
     let viewModel = StorageViewModel(
       libraryService: libraryService,
+      syncService: syncService,
       folderURL: DataManager.getProcessedFolderURL()
     )
 
     viewModel.onTransition = { [weak self] route in
       switch route {
-      case .showAlert(let title, let message):
-        self?.showAlert(title, message: message)
+      case .showAlert(let content):
+        self?.flow.navigationController
+          .getTopVisibleViewController()?
+          .showAlert(content)
       case .dismiss:
         self?.flow.navigationController.dismiss(animated: true)
       }
