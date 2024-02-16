@@ -36,6 +36,8 @@ public protocol JobSchedulerProtocol {
   func getAllQueuedJobs() async -> [SyncTask]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
+  /// Check if there's an upload task queued for the item
+  func hasUploadTask(for relativePath: String) async -> Bool
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
@@ -238,6 +240,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     } catch {
       Self.logger.error("Failed to persist task")
     }
+  }
+
+  /// Check if there's an upload task queued for the item
+  public func hasUploadTask(for relativePath: String) async -> Bool {
+    return await taskStore.hasUploadTask(for: relativePath)
   }
 
   private func queueNextTask() {

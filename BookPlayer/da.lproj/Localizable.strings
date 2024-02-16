@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Se opgaver";
 "settings_datausage_title" = "Dataforbrug";
 "datausage_upload_wifionly_title" = "Upload ved hjælp af mobildata";
+"warning_title" = "Advarsel";
+"sync_tasks_item_upload_queued" = "Der er en uploadopgave i kø for: \n %@ \n Fjernelse af filen forhindrer appen i at uploade den";

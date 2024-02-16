@@ -309,3 +309,5 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "sync_tasks_view_title" = "Se oppgaver";
 "settings_datausage_title" = "Databruk";
 "datausage_upload_wifionly_title" = "Last opp ved hjelp av mobildata";
+"warning_title" = "Advarsel";
+"sync_tasks_item_upload_queued" = "Det er en opplastingsoppgave i kø for: \n %@ \n Fjerning av filen vil hindre appen i å laste den opp";

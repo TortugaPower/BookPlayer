@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Zobrazit úkoly";
 "settings_datausage_title" = "Využití dat";
 "datausage_upload_wifionly_title" = "Nahrajte pomocí mobilních dat";
+"warning_title" = "Varování";
+"sync_tasks_item_upload_queued" = "Ve frontě je úloha nahrávání pro: \n %@ \n Odebráním souboru zabráníte aplikaci v jeho nahrání";

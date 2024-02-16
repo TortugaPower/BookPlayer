@@ -1742,4 +1742,24 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return getDownloadStateForReturnValue
         }
     }
+    //MARK: - hasUploadTask
+
+    var hasUploadTaskForCallsCount = 0
+    var hasUploadTaskForCalled: Bool {
+        return hasUploadTaskForCallsCount > 0
+    }
+    var hasUploadTaskForReceivedRelativePath: String?
+    var hasUploadTaskForReceivedInvocations: [String] = []
+    var hasUploadTaskForReturnValue: Bool!
+    var hasUploadTaskForClosure: ((String) async -> Bool)?
+    func hasUploadTask(for relativePath: String) async -> Bool {
+        hasUploadTaskForCallsCount += 1
+        hasUploadTaskForReceivedRelativePath = relativePath
+        hasUploadTaskForReceivedInvocations.append(relativePath)
+        if let hasUploadTaskForClosure = hasUploadTaskForClosure {
+            return await hasUploadTaskForClosure(relativePath)
+        } else {
+            return hasUploadTaskForReturnValue
+        }
+    }
 }
