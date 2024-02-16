@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Vizualizați sarcini";
 "settings_datausage_title" = "Utilizarea de date";
 "datausage_upload_wifionly_title" = "Încărcați folosind date celulare";
+"warning_title" = "Avertizare";
+"sync_tasks_item_upload_queued" = "Există o sarcină de încărcare în coadă pentru: \n %@ \n Eliminarea fișierului va împiedica aplicația să îl încarce";

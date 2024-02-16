@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Переглянути завдання";
 "settings_datausage_title" = "Використання даних";
 "datausage_upload_wifionly_title" = "Завантажувати за допомогою мобільних даних";
+"warning_title" = "УВАГА";
+"sync_tasks_item_upload_queued" = "Є завдання завантаження в черзі для: \n %@ \n Видалення файлу не дозволить програмі завантажити його";

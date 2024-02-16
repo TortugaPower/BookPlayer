@@ -806,8 +806,8 @@ class ItemListViewModel: ViewModelProtocol {
       if await syncService.hasUploadTask(for: item.relativePath) {
         sendEvent(.showAlert(
           content: BPAlertContent(
-            title: "Warning",
-            message: "There's a queued upload task for:\n\(item.relativePath)\nRemoving the file will prevent the app from uploading it",
+            title: "warning_title".localized,
+            message: String(format: "sync_tasks_item_upload_queued".localized, item.relativePath),
             style: .alert,
             actionItems: [
               BPActionItem.cancelAction,

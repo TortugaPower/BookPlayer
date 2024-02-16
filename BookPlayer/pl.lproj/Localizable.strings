@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Zobacz zadania";
 "settings_datausage_title" = "Użycie danych";
 "datausage_upload_wifionly_title" = "Przesyłaj, korzystając z komórkowej transmisji danych";
+"warning_title" = "Ostrzeżenie";
+"sync_tasks_item_upload_queued" = "W kolejce znajduje się zadanie przesyłania dla: \n %@ \n Usunięcie pliku uniemożliwi przesyłanie go przez aplikację";

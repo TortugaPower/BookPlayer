@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Bekijk taken";
 "settings_datausage_title" = "Data gebruik";
 "datausage_upload_wifionly_title" = "Uploaden met mobiele data";
+"warning_title" = "Waarschuwing";
+"sync_tasks_item_upload_queued" = "Er staat een uploadtaak in de wachtrij voor: \n %@ \n Als u het bestand verwijdert, kan de app het niet uploaden";

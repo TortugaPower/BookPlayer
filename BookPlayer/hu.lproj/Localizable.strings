@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Feladatok megtekintése";
 "settings_datausage_title" = "Adathasználat";
 "datausage_upload_wifionly_title" = "Feltöltés mobiladat-kapcsolaton keresztül";
+"warning_title" = "Figyelem";
+"sync_tasks_item_upload_queued" = "Várakozóban van egy feltöltési feladat a következőhöz: \n %@ \n A fájl eltávolításával az alkalmazás nem tudja feltölteni";

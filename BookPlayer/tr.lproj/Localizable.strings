@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Görevleri görüntüle";
 "settings_datausage_title" = "Veri kullanımı";
 "datausage_upload_wifionly_title" = "Hücresel verileri kullanarak yükleme";
+"warning_title" = "Uyarı";
+"sync_tasks_item_upload_queued" = "Şunun için sıraya alınmış bir yükleme görevi var: \n %@ \n Dosyanın kaldırılması uygulamanın onu yüklemesini engelleyecektir";

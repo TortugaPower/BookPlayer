@@ -395,8 +395,8 @@ final class StorageViewModel: StorageViewModelProtocol {
       if await syncService.hasUploadTask(for: item.path) {
         onTransition?(.showAlert(
           BPAlertContent(
-            title: "Warning",
-            message: "There's a queued upload task for:\n\(item.path)\nRemoving the file will prevent the app from uploading it",
+            title: "warning_title".localized,
+            message: String(format: "sync_tasks_item_upload_queued".localized, item.path),
             style: .alert,
             actionItems: [
               BPActionItem.cancelAction,

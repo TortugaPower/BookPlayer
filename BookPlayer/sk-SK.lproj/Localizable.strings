@@ -309,3 +309,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "sync_tasks_view_title" = "Zobraziť úlohy";
 "settings_datausage_title" = "Využitie dát";
 "datausage_upload_wifionly_title" = "Nahrajte pomocou mobilných dát";
+"warning_title" = "POZOR";
+"sync_tasks_item_upload_queued" = "Vo fronte je úloha nahrávania pre: \n %@ \n Odstránením súboru zabránite aplikácii nahrať ho";

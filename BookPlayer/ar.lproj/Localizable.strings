@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "عرض المهام";
 "settings_datausage_title" = "استخدام البيانات";
 "datausage_upload_wifionly_title" = "تحميل باستخدام البيانات الخلوية";
+"warning_title" = "تحذير";
+"sync_tasks_item_upload_queued" = "توجد مهمة تحميل في قائمة الانتظار لـ: \n %@ \n ستؤدي إزالة الملف إلى منع التطبيق من تحميله";
