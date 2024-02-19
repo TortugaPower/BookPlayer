@@ -47,6 +47,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
+  private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
 
   public init(
     networkClient: NetworkClientProtocol = NetworkClient(),
@@ -267,10 +268,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
             self.retryQueuedTask()
           } else {
-            Task {
-              try! await self.taskStore.finishedTask(id: task.id)
-              self.queueNextTask()
-            }
+            self.handleFinishedTask(id: task.id)
           }
         }
 
@@ -283,8 +281,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   private func retryQueuedTask() {
     /// Retry in 5 seconds
-    DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(5)) {
+    lockQueue.asyncAfter(deadline: .now() + .seconds(5)) {
       self.queueNextTask()
+    }
+  }
+
+  private func handleFinishedTask(id: String) {
+    lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
+      Task {
+        try! await self.taskStore.finishedTask(id: id)
+        self.queueNextTask()
+      }
     }
   }
 }
