@@ -18,6 +18,12 @@ public class CoreDataStack {
     return self.storeContainer.viewContext
   }
 
+  public lazy var backgroundContext: NSManagedObjectContext = {
+    let backgroundContext = self.storeContainer.newBackgroundContext()
+    backgroundContext.automaticallyMergesChangesFromParent = true
+    return backgroundContext
+  }()
+
   public init(modelName: String) {
     self.modelName = modelName
     let storeUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!.appendingPathComponent("BookPlayer.sqlite")
@@ -51,6 +57,7 @@ public class CoreDataStack {
   public func loadStore(completionHandler: ((NSPersistentStoreDescription, Error?) -> Void)?) {
     self.storeContainer.loadPersistentStores { storeDescription, error in
       self.storeContainer.viewContext.undoManager = nil
+      self.storeContainer.viewContext.automaticallyMergesChangesFromParent = true
       completionHandler?(storeDescription, error)
     }
   }
@@ -66,9 +73,5 @@ public class CoreDataStack {
     } catch let error as NSError {
       fatalError("Unresolved error \(error), \(error.userInfo)")
     }
-  }
-
-  public func getBackgroundContext() -> NSManagedObjectContext {
-    return self.storeContainer.newBackgroundContext()
   }
 }

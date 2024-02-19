@@ -137,7 +137,7 @@ public class DataManager {
   }
 
   public func getBackgroundContext() -> NSManagedObjectContext {
-    return self.coreDataStack.getBackgroundContext()
+    return self.coreDataStack.backgroundContext
   }
 
   public func delete(_ item: NSManagedObject, context: NSManagedObjectContext) {

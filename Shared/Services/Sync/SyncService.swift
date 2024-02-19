@@ -82,6 +82,8 @@ public protocol SyncServiceProtocol {
 
   /// Check if there's an upload task queued for the item
   func hasUploadTask(for relativePath: String) async -> Bool
+  /// Set the last played book (on the background context)
+  func setLibraryLastBook(with relativePath: String?) async
 }
 
 public final class SyncService: SyncServiceProtocol, BPLogger {
@@ -268,7 +270,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970
     else {
       await libraryService.updateInfo(for: item)
-      await libraryService.setLibraryLastBook(with: item.relativePath)
+      await libraryService.updateLibraryLastBook(with: item.relativePath)
       throw BPSyncError.reloadLastBook(item.relativePath)
     }
 
@@ -283,6 +285,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       await libraryService.updateInfo(for: item)
       throw BPSyncError.reloadLastBook(item.relativePath)
     }
+  }
+
+  public func setLibraryLastBook(with relativePath: String?) async {
+    await libraryService.updateLibraryLastBook(with: relativePath)
   }
 
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
@@ -547,8 +553,8 @@ extension SyncService {
       try DataManager.createContainingFolderIfNeeded(for: fileURL)
       try FileManager.default.moveItem(at: location, to: fileURL)
 
-      DispatchQueue.main.async {
-        self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+      Task {
+        await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
       }
     } catch {
       Self.logger.trace("Error moving downloaded file to the destination: \(error.localizedDescription)")

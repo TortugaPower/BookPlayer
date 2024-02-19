@@ -515,12 +515,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var loadChaptersIfNeededRelativePathAssetReceivedArguments: (relativePath: String, asset: AVAsset)?
     var loadChaptersIfNeededRelativePathAssetReceivedInvocations: [(relativePath: String, asset: AVAsset)] = []
-    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) -> Void)?
-    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
+    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) async -> Void)?
+    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
         loadChaptersIfNeededRelativePathAssetCallsCount += 1
         loadChaptersIfNeededRelativePathAssetReceivedArguments = (relativePath: relativePath, asset: asset)
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
-        loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
+        await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
     //MARK: - createFolder
 
@@ -1761,5 +1761,20 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         } else {
             return hasUploadTaskForReturnValue
         }
+    }
+    //MARK: - setLibraryLastBook
+
+    var setLibraryLastBookWithCallsCount = 0
+    var setLibraryLastBookWithCalled: Bool {
+        return setLibraryLastBookWithCallsCount > 0
+    }
+    var setLibraryLastBookWithReceivedRelativePath: String?
+    var setLibraryLastBookWithReceivedInvocations: [String?] = []
+    var setLibraryLastBookWithClosure: ((String?) async -> Void)?
+    func setLibraryLastBook(with relativePath: String?) async {
+        setLibraryLastBookWithCallsCount += 1
+        setLibraryLastBookWithReceivedRelativePath = relativePath
+        setLibraryLastBookWithReceivedInvocations.append(relativePath)
+        await setLibraryLastBookWithClosure?(relativePath)
     }
 }

@@ -58,11 +58,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: ListSyncRefreshService(
-        playerManager: playerManager,
-        libraryService: libraryService,
-        syncService: syncService
-      )
+      listRefreshService: listRefreshService
     )
     child.start()
   }
