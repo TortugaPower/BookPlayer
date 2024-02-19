@@ -16,16 +16,13 @@ enum BPSyncRefreshError: Error {
 
 class ListSyncRefreshService: BPLogger {
   let playerManager: PlayerManagerProtocol
-  let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
 
   init(
     playerManager: PlayerManagerProtocol,
-    libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
     self.playerManager = playerManager
-    self.libraryService = libraryService
     self.syncService = syncService
   }
 
@@ -60,11 +57,11 @@ class ListSyncRefreshService: BPLogger {
   }
 
   @MainActor
-  private func setSyncedLastPlayedItem(relativePath: String, alertPresenter: AlertPresenter) {
+  private func setSyncedLastPlayedItem(relativePath: String, alertPresenter: AlertPresenter) async {
     /// Only continue overriding local book if it's not currently playing
     guard playerManager.isPlaying == false else { return }
 
-    libraryService.setLibraryLastBook(with: relativePath)
+    await syncService.setLibraryLastBook(with: relativePath)
     AppDelegate.shared?.loadPlayer(
       relativePath,
       autoplay: false,

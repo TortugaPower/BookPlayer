@@ -39,7 +39,6 @@ class LibraryListCoordinatorTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        libraryService: libraryService,
         syncService: syncServiceMock
       )
     )
@@ -95,7 +94,6 @@ class FolderListCoordinatorTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        libraryService: libraryService,
         syncService: syncServiceMock
       )
     )

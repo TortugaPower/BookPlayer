@@ -35,7 +35,6 @@ class ItemListViewModelTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService), 
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        libraryService: libraryService,
         syncService: syncServiceMock
       ),
       themeAccent: .blue

@@ -90,7 +90,6 @@ class MainCoordinator: NSObject {
       importManager: ImportManager(libraryService: self.libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
-        libraryService: libraryService,
         syncService: syncService
       )
     )

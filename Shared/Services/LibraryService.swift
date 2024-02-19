@@ -76,7 +76,7 @@ public protocol LibraryServiceProtocol {
   /// Create book core data object
   func createBook(from url: URL) -> Book
   /// Load metadata chapters if needed
-  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset)
+  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
   /// Create folder
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   /// Update folder type
@@ -1072,17 +1072,21 @@ extension LibraryService {
     return newBook
   }
 
-  public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
-    let context = dataManager.getContext()
+  public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        guard
+          let book = getItem(with: relativePath, context: context) as? Book
+        else { return }
 
-    guard
-      let book = getItem(with: relativePath, context: context) as? Book
-    else { return }
+        let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
 
-    let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
-
-    if hadEmptyChapters {
-      dataManager.saveSyncContext(context)
+        if hadEmptyChapters {
+          dataManager.saveSyncContext(context)
+        }
+        continuation.resume()
+      }
     }
   }
 
