@@ -80,7 +80,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .store(in: &disposeBag)
 
     /// This will start the loop where it will periodically check for queued tasks to execute
-    queueNextTask()
+    Task {
+      await taskStore.initializeData()
+      queueNextTask()
+    }
   }
 
   private func createHardLink(for item: SyncableItem) {
