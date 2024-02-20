@@ -27,7 +27,7 @@ public protocol LibrarySyncProtocol {
   func removeItems(notIn identifiers: [String], parentFolder: String?) async
 
   /// Get last played library item
-  func getLibraryLastItem() -> SimpleLibraryItem?
+  func fetchLibraryLastItem() async -> SimpleLibraryItem?
   /// Set the last played book
   func updateLibraryLastBook(with relativePath: String?) async
   /// Returns boolean determining if the item exists for the relativePath
@@ -51,6 +51,16 @@ extension LibraryService: LibrarySyncProtocol {
       context.perform { [unowned self, context] in
         setLibraryLastBook(with: relativePath, context: context)
         continuation.resume()
+      }
+    }
+  }
+
+  public func fetchLibraryLastItem() async -> SimpleLibraryItem? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let lastItem = getLibraryLastItem(context: context)
+        continuation.resume(returning: lastItem)
       }
     }
   }

@@ -266,7 +266,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   func handleSyncedLastPlayed(item: SyncableItem) async throws {
     guard
-      let localLastItem = libraryService.getLibraryLastItem(),
+      let localLastItem = await libraryService.fetchLibraryLastItem(),
       let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970
     else {
       await libraryService.updateInfo(for: item)

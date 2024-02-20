@@ -232,7 +232,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager?.load(item, autoplay: autoplay)
 
       if recordAsLastBook {
-        await libraryService?.setLibraryLastBook(with: item.relativePath)
+        await MainActor.run {
+          libraryService?.setLibraryLastBook(with: item.relativePath)
+        }
       }
 
       showPlayer?()
