@@ -9,7 +9,6 @@
 import Foundation
 
 /// Wrapper for `DataMigrationManager` to simplify handling all the migrations
-@MainActor
 public class DatabaseInitializer: BPLogger {
   private let dataMigrationManager: DataMigrationManager
 

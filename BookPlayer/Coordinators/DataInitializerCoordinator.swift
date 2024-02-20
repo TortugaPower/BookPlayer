@@ -11,7 +11,6 @@ import Combine
 import CoreData
 import Foundation
 
-@MainActor
 class DataInitializerCoordinator: BPLogger {
   let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
   let alertPresenter: AlertPresenter
@@ -89,7 +88,9 @@ class DataInitializerCoordinator: BPLogger {
       libraryService.insertItems(from: files)
     }
 
-    onFinish?(stack)
+    DispatchQueue.main.async {
+      self.onFinish?(stack)
+    }
   }
 
   private func getLibraryFiles() -> [URL] {
