@@ -1430,6 +1430,22 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return queuedJobsCountReturnValue
         }
     }
+    //MARK: - observeTasksCount
+
+    var observeTasksCountCallsCount = 0
+    var observeTasksCountCalled: Bool {
+        return observeTasksCountCallsCount > 0
+    }
+    var observeTasksCountReturnValue: AnyPublisher<Int, Never>!
+    var observeTasksCountClosure: (() -> AnyPublisher<Int, Never>)?
+    func observeTasksCount() -> AnyPublisher<Int, Never> {
+        observeTasksCountCallsCount += 1
+        if let observeTasksCountClosure = observeTasksCountClosure {
+            return observeTasksCountClosure()
+        } else {
+            return observeTasksCountReturnValue
+        }
+    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
@@ -1439,13 +1455,13 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var canSyncListContentsAtIgnoreLastTimestampReceivedArguments: (relativePath: String?, ignoreLastTimestamp: Bool)?
     var canSyncListContentsAtIgnoreLastTimestampReceivedInvocations: [(relativePath: String?, ignoreLastTimestamp: Bool)] = []
     var canSyncListContentsAtIgnoreLastTimestampReturnValue: Bool!
-    var canSyncListContentsAtIgnoreLastTimestampClosure: ((String?, Bool) -> Bool)?
-    func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool {
+    var canSyncListContentsAtIgnoreLastTimestampClosure: ((String?, Bool) async -> Bool)?
+    func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool {
         canSyncListContentsAtIgnoreLastTimestampCallsCount += 1
         canSyncListContentsAtIgnoreLastTimestampReceivedArguments = (relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp)
         canSyncListContentsAtIgnoreLastTimestampReceivedInvocations.append((relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp))
         if let canSyncListContentsAtIgnoreLastTimestampClosure = canSyncListContentsAtIgnoreLastTimestampClosure {
-            return canSyncListContentsAtIgnoreLastTimestampClosure(relativePath, ignoreLastTimestamp)
+            return await canSyncListContentsAtIgnoreLastTimestampClosure(relativePath, ignoreLastTimestamp)
         } else {
             return canSyncListContentsAtIgnoreLastTimestampReturnValue
         }
@@ -1682,9 +1698,9 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var getAllQueuedJobsCalled: Bool {
         return getAllQueuedJobsCallsCount > 0
     }
-    var getAllQueuedJobsReturnValue: [SyncTask]!
-    var getAllQueuedJobsClosure: (() async -> [SyncTask])?
-    func getAllQueuedJobs() async -> [SyncTask] {
+    var getAllQueuedJobsReturnValue: [SyncTaskReference]!
+    var getAllQueuedJobsClosure: (() async -> [SyncTaskReference])?
+    func getAllQueuedJobs() async -> [SyncTaskReference] {
         getAllQueuedJobsCallsCount += 1
         if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
             return await getAllQueuedJobsClosure()
