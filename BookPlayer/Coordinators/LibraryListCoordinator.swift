@@ -243,9 +243,9 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     }
 
     Task {
-//      guard
-//        await syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false)
-//      else { return }
+      guard
+        await syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false)
+      else { return }
 
       /// Create new task to sync the library and the last played
       await MainActor.run {
