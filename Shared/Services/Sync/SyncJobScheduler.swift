@@ -33,7 +33,7 @@ public protocol JobSchedulerProtocol {
   /// Upload current cached artwork
   func scheduleArtworkUpload(with relativePath: String) async
   /// Get all queued jobs
-  func getAllQueuedJobs() async -> [SyncTask]
+  func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
   /// Check if there's an upload task queued for the item
@@ -43,21 +43,22 @@ public protocol JobSchedulerProtocol {
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let networkClient: NetworkClientProtocol
   let operationQueue: OperationQueue
-  let taskStore: BPTasksStorageProtocol
+
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
   private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
+  /// Reference to ongoing library fetch task
+  private var initializeStoreTask: Task<(), Error>?
+  private var taskStore: SyncTasksStorage!
 
   public init(
     networkClient: NetworkClientProtocol = NetworkClient(),
-    operationQueue: OperationQueue = OperationQueue(),
-    taskStore: BPTasksStorageProtocol = SyncTasksStorage()
+    operationQueue: OperationQueue = OperationQueue()
   ) {
     operationQueue.maxConcurrentOperationCount = 1
     self.operationQueue = operationQueue
     self.networkClient = networkClient
-    self.taskStore = taskStore
 
     bindObservers()
   }
@@ -79,9 +80,18 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       }
       .store(in: &disposeBag)
 
-    /// This will start the loop where it will periodically check for queued tasks to execute
-    Task {
-      await taskStore.initializeData()
+    initializeStore()
+  }
+
+  private func initializeStore() {
+    initializeStoreTask = Task {
+      do {
+        taskStore = try await SyncTasksStorage()
+      } catch {
+        fatalError("Failed to initialize sync tasks store: \(error.localizedDescription)")
+      }
+
+      /// This will start the loop where it will periodically check for queued tasks to execute
       queueNextTask()
     }
   }
@@ -223,23 +233,27 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
 
-  public func getAllQueuedJobs() async -> [SyncTask] {
+  public func getAllQueuedJobs() async -> [SyncTaskReference] {
+    _ = await initializeStoreTask?.result
     return await taskStore.getAllTasks()
   }
 
   public func cancelAllJobs() {
     Task {
-      await taskStore.clearAll()
+      _ = await initializeStoreTask?.result
+      try await taskStore.clearAll()
       operationQueue.cancelAllOperations()
     }
   }
 
   public func queuedJobsCount() async -> Int {
+    _ = await initializeStoreTask?.result
     return await taskStore.getTasksCount()
   }
 
   private func persistTask(parameters: [String: Any]) async {
     do {
+      _ = await initializeStoreTask?.result
       try await taskStore.appendTask(parameters: parameters)
     } catch {
       Self.logger.error("Failed to persist task")
@@ -253,8 +267,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   private func queueNextTask() {
     Task {
+      _ = await initializeStoreTask?.result
+
       do {
-        guard 
+        guard
           let task = try await self.taskStore.getNextTask()
         else {
           self.retryQueuedTask()
@@ -292,6 +308,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private func handleFinishedTask(id: String) {
     lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
       Task {
+        _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: id)
         self.queueNextTask()
       }

@@ -80,9 +80,11 @@ class FolderListCoordinator: ItemListCoordinator {
   }
 
   override func syncList() {
-    guard syncService.canSyncListContents(at: folderRelativePath, ignoreLastTimestamp: false) else { return }
-
     Task {
+      guard
+        await syncService.canSyncListContents(at: folderRelativePath, ignoreLastTimestamp: false)
+      else { return }
+
       await listRefreshService.syncList(at: folderRelativePath, alertPresenter: self)
       await MainActor.run {
         self.reloadItemsWithPadding()

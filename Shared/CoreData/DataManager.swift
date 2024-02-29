@@ -44,6 +44,26 @@ public class DataManager {
     return processedFolderURL
   }
 
+  public class func getSyncTasksRealmURL() -> URL {
+    let hiddenFolderURL = self.getDocumentsFolderURL()
+      .appendingPathComponent(self.processedFolderName)
+      .appendingPathComponent(".dbRealm")
+
+    if !FileManager.default.fileExists(atPath: hiddenFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(
+          at: hiddenFolderURL,
+          withIntermediateDirectories: true,
+          attributes: nil
+        )
+      } catch {
+        fatalError("Couldn't create Realm folder")
+      }
+    }
+
+    return hiddenFolderURL.appendingPathComponent("bookplayer-synctasks.realm")
+  }
+
   public class func getBackupFolderURL() -> URL {
     let documentsURL = self.getDocumentsFolderURL()
 

@@ -11,6 +11,7 @@ public enum Constants {
     public static let appIcon = "userSettingsAppIcon"
     public static let donationMade = "userSettingsDonationMade"
     public static let showPlayer = "userSettingsShowPlayer"
+    /// Deprecated
     public static let syncTasksQueue = "userSyncTasksQueue"
     public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"

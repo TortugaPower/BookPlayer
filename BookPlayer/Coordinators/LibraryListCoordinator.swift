@@ -242,14 +242,20 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       reloadItemsWithPadding()
     }
 
-    guard syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false) else { return }
+    Task {
+//      guard
+//        await syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false)
+//      else { return }
 
-    /// Create new task to sync the library and the last played
-    contentsFetchTask?.cancel()
-    contentsFetchTask = Task {
-      await listRefreshService.syncList(at: nil, alertPresenter: self)
+      /// Create new task to sync the library and the last played
       await MainActor.run {
-        self.reloadItemsWithPadding()
+        contentsFetchTask?.cancel()
+        contentsFetchTask = Task {
+          await listRefreshService.syncList(at: nil, alertPresenter: self)
+          await MainActor.run {
+            self.reloadItemsWithPadding()
+          }
+        }
       }
     }
   }
