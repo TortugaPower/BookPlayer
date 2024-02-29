@@ -12,9 +12,8 @@ import Foundation
 
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
 class RefreshTaskOperation: Operation {
-  /// Sync service
   let syncService: SyncServiceProtocol
-  private var syncTasksObserver: NSKeyValueObservation?
+  private var syncTasksObserver: AnyCancellable?
 
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.refreshtask", attributes: .concurrent)
   override var isAsynchronous: Bool { true }
@@ -67,16 +66,11 @@ class RefreshTaskOperation: Operation {
   }
 
   override func main() {
-    syncTasksObserver = UserDefaults.standard.observe(
-      \.userSyncTasksQueue,
-       options: [.initial, .new]
-    ) { [weak self] _, _ in
+    syncTasksObserver = syncService.observeTasksCount().sink { [weak self] count in
       guard let self else { return }
-      
-      Task {
-        if await self.syncService.queuedJobsCount() == 0 {
-          self.finish()
-        }
+
+      if count == 0 {
+        self.finish()
       }
     }
   }

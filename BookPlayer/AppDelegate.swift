@@ -15,13 +15,14 @@ import DirectoryWatcher
 import Intents
 import MediaPlayer
 import Sentry
+import RealmSwift
 import RevenueCat
 import StoreKit
 import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   static weak var shared: AppDelegate?
   var pendingURLActions = [Action]()
 
@@ -75,6 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
+    // Setup Realm
+    self.setupRealm()
     // Setup observer for interactive widgets
     self.setupSharedWidgetActionObserver()
 
@@ -232,7 +235,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager?.load(item, autoplay: autoplay)
 
       if recordAsLastBook {
-        await libraryService?.setLibraryLastBook(with: item.relativePath)
+        await MainActor.run {
+          libraryService?.setLibraryLastBook(with: item.relativePath)
+        }
       }
 
       showPlayer?()
@@ -402,6 +407,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     handleSentryPreference(
       isDisabled: userDefaults.bool(forKey: Constants.UserDefaults.crashReportsDisabled)
     )
+  }
+
+  /// Initialize Realm empty database
+  func setupRealm() {
+    /// Tasks database
+    let tasksRealmURL = DataManager.getSyncTasksRealmURL()
+    if !FileManager.default.fileExists(atPath: tasksRealmURL.path) {
+      _ = try! Realm(configuration: Realm.Configuration(fileURL: tasksRealmURL))
+    }
   }
 
   func setupSharedWidgetActionObserver() {

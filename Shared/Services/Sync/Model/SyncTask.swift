@@ -22,14 +22,14 @@ public struct SyncTask: Identifiable {
   }
 }
 
-public enum SyncJobType: String {
-  case upload
-  case update
-  case move
-  case renameFolder
-  case delete
-  case shallowDelete
-  case setBookmark
-  case deleteBookmark
-  case uploadArtwork
+public struct SyncTaskReference: Identifiable {
+  public let id: String
+  public let relativePath: String
+  public let jobType: SyncJobType
+
+  public init(id: String, relativePath: String, jobType: SyncJobType) {
+    self.id = id
+    self.relativePath = relativePath
+    self.jobType = jobType
+  }
 }

@@ -30,8 +30,10 @@ public protocol SyncServiceProtocol {
 
   /// Count of the currently queued sync jobs
   func queuedJobsCount() async -> Int
+  /// Observe the queued jobs count
+  func observeTasksCount() -> AnyPublisher<Int, Never>
   /// Check if we can safely fetch the list contents
-  func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool
+  func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool
 
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
@@ -71,7 +73,7 @@ public protocol SyncServiceProtocol {
   func scheduleUploadArtwork(relativePath: String)
 
   /// Get all queued jobs
-  func getAllQueuedJobs() async -> [SyncTask]
+  func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 
@@ -88,6 +90,7 @@ public protocol SyncServiceProtocol {
 
 public final class SyncService: SyncServiceProtocol, BPLogger {
   let libraryService: LibrarySyncProtocol
+  private let tasksCountService: SyncTasksCountServiceProtocol
   var jobManager: JobSchedulerProtocol
   let client: NetworkClientProtocol
   public var isActive: Bool
@@ -124,11 +127,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public init(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
+    tasksCountService: SyncTasksCountServiceProtocol = SyncTasksCountService(),
     jobManager: JobSchedulerProtocol = SyncJobScheduler(),
     client: NetworkClientProtocol = NetworkClient()
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
+    self.tasksCountService = tasksCountService
     self.jobManager = jobManager
     self.client = client
     self.provider = NetworkProvider(client: client)
@@ -163,15 +168,17 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     return await jobManager.queuedJobsCount()
   }
 
-  public func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool {
+  public func observeTasksCount() -> AnyPublisher<Int, Never> {
+    return tasksCountService.observeTasksCount()
+  }
+
+  public func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool {
     guard isActive else {
       Self.logger.trace("Sync is not enabled")
       return false
     }
 
-    let queuedTasksArray = UserDefaults.standard.array(forKey: Constants.UserDefaults.syncTasksQueue) ?? []
-
-    guard queuedTasksArray.count == 0 else {
+    guard await jobManager.queuedJobsCount() == 0 else {
       Self.logger.trace("Can't fetch items while there are sync operations in progress")
       return false
     }
@@ -266,7 +273,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   func handleSyncedLastPlayed(item: SyncableItem) async throws {
     guard
-      let localLastItem = libraryService.getLibraryLastItem(),
+      let localLastItem = await libraryService.fetchLibraryLastItem(),
       let localLastPlayDateTimestamp = localLastItem.lastPlayDate?.timeIntervalSince1970
     else {
       await libraryService.updateInfo(for: item)
@@ -401,7 +408,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
-  public func getAllQueuedJobs() async -> [SyncTask] {
+  public func getAllQueuedJobs() async -> [SyncTaskReference] {
     return await jobManager.getAllQueuedJobs()
   }
 

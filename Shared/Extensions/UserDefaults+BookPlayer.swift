@@ -30,8 +30,4 @@ public extension UserDefaults {
   @objc dynamic var userSettingsAllowCellularData: Bool {
     return bool(forKey: Constants.UserDefaults.allowCellularData)
   }
-
-  @objc dynamic var userSyncTasksQueue: [Data]? {
-    return array(forKey: Constants.UserDefaults.syncTasksQueue) as? [Data]
-  }
 }

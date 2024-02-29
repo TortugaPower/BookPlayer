@@ -418,18 +418,23 @@ extension LibraryService {
 
   public func getLibraryLastItem() -> SimpleLibraryItem? {
     let context = self.dataManager.getContext()
+    return getLibraryLastItem(context: context)
+  }
+
+  func getLibraryLastItem(context: NSManagedObjectContext) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["lastPlayedItem.relativePath"]
+    fetchRequest.propertiesToFetch = ["lastPlayedItem"]
     fetchRequest.resultType = .dictionaryResultType
 
     guard
-      let dict = (try? context.fetch(fetchRequest))?.first as? [String: String],
-      let relativePath = dict["lastPlayedItem.relativePath"]
+      let dict = (try? context.fetch(fetchRequest))?.first as? [String: NSManagedObjectID],
+      let itemId = dict["lastPlayedItem"],
+      let item = try? context.existingObject(with: itemId) as? LibraryItem
     else {
       return nil
     }
 
-    return getSimpleItem(with: relativePath)
+    return SimpleLibraryItem(from: item)
   }
 
   public func getLibraryCurrentTheme() -> SimpleTheme? {
