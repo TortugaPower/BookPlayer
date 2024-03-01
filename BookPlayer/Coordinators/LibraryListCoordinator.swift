@@ -76,12 +76,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       tabBarController.setViewControllers(newControllersArray, animated: false)
     }
 
-    if let appDelegate = AppDelegate.shared {
-      for action in appDelegate.pendingURLActions {
-        ActionParserService.handleAction(action)
-      }
-    }
-
     self.documentPickerDelegate = vc
 
     AppDelegate.shared?.watchConnectivityService?.startSession()
@@ -91,6 +85,12 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     loadLastBookIfNeeded()
     syncList()
     bindImportObserverIfNeeded()
+
+    if let appDelegate = AppDelegate.shared {
+      for action in appDelegate.pendingURLActions {
+        ActionParserService.handleAction(action)
+      }
+    }
   }
 
   func bindImportObserverIfNeeded() {
@@ -148,6 +148,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         $0.lastPathComponent != DataManager.processedFolderName
         && $0.lastPathComponent != DataManager.inboxFolderName
         && $0.lastPathComponent != DataManager.backupFolderName
+        && $0.lastPathComponent != DataManager.trashFolderName
       }
 
     let sharedURLs = (try? FileManager.default.contentsOfDirectory(
@@ -241,14 +242,20 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       reloadItemsWithPadding()
     }
 
-    guard syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false) else { return }
+    Task {
+      guard
+        await syncService.canSyncListContents(at: nil, ignoreLastTimestamp: false)
+      else { return }
 
-    /// Create new task to sync the library and the last played
-    contentsFetchTask?.cancel()
-    contentsFetchTask = Task {
-      await listRefreshService.syncList(at: nil, alertPresenter: self)
+      /// Create new task to sync the library and the last played
       await MainActor.run {
-        self.reloadItemsWithPadding()
+        contentsFetchTask?.cancel()
+        contentsFetchTask = Task {
+          await listRefreshService.syncList(at: nil, alertPresenter: self)
+          await MainActor.run {
+            self.reloadItemsWithPadding()
+          }
+        }
       }
     }
   }

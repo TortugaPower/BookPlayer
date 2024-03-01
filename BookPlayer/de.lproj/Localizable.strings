@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Aufgaben anzeigen";
 "settings_datausage_title" = "Datenverbrauch";
 "datausage_upload_wifionly_title" = "Hochladen mit Mobilfunkdaten";
+"warning_title" = "Warnung";
+"sync_tasks_item_upload_queued" = "Es gibt eine Upload-Aufgabe in der Warteschlange für: \n %@ \n Durch das Entfernen der Datei wird verhindert, dass die App sie hochlädt";

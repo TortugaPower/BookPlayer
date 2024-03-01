@@ -43,12 +43,13 @@ enum BPStorageAlert {
 final class StorageViewModel: StorageViewModelProtocol {
   /// Available routes
   enum Routes {
-    case showAlert(title: String, message: String)
+    case showAlert(BPAlertContent)
     case dismiss
   }
 
   // MARK: - Properties
   let libraryService: LibraryServiceProtocol
+  let syncService: SyncServiceProtocol
   let folderURL: URL
   let artworkCacheFolderURL = ArtworkService.cacheDirectoryURL
 
@@ -96,8 +97,13 @@ final class StorageViewModel: StorageViewModelProtocol {
     libraryService.getLibrary()
   }()
 
-  init(libraryService: LibraryServiceProtocol, folderURL: URL) {
+  init(
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
+    folderURL: URL
+  ) {
     self.libraryService = libraryService
+    self.syncService = syncService
     self.folderURL = folderURL
 
     self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
@@ -178,8 +184,14 @@ final class StorageViewModel: StorageViewModelProtocol {
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
       onTransition?(.showAlert(
-        title: "storage_duplicate_item_title".localized,
-        message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!)
+        BPAlertContent(
+          title: "storage_duplicate_item_title".localized,
+          message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!),
+          style: .alert,
+          actionItems: [
+            BPActionItem.okAction
+          ]
+        )
       ))
       if shouldReloadItems {
         self.loadItems()
@@ -195,11 +207,13 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   func deleteSelectedItem(_ item: StorageItem) {
-    do {
-      try handleDelete(for: item)
-    } catch {
-      storageAlert = .error(errorMessage: error.localizedDescription)
-      showAlert = true
+    verifyUploadTask(for: item) { [unowned self] in
+      do {
+        try handleDelete(for: item)
+      } catch {
+        storageAlert = .error(errorMessage: error.localizedDescription)
+        showAlert = true
+      }
     }
   }
 
@@ -374,6 +388,25 @@ final class StorageViewModel: StorageViewModelProtocol {
     try FileManager.default.removeItem(at: item.fileURL)
     let filteredFiles = publishedFiles.filter { $0.fileURL != item.fileURL }
     publishedFiles = self.sortedItems(items: filteredFiles)
+  }
+
+  func verifyUploadTask(for item: StorageItem, completionHandler: @escaping () -> Void) {
+    Task { @MainActor in
+      if await syncService.hasUploadTask(for: item.path) {
+        onTransition?(.showAlert(
+          BPAlertContent(
+            title: "warning_title".localized,
+            message: String(format: "sync_tasks_item_upload_queued".localized, item.path),
+            style: .alert,
+            actionItems: [
+              BPActionItem.cancelAction,
+              BPActionItem(title: "Continue", handler: completionHandler)
+            ])
+        ))
+      } else {
+        completionHandler()
+      }
+    }
   }
 
   private func handleFix(for items: [StorageItem], completion: @escaping () -> Void) throws {

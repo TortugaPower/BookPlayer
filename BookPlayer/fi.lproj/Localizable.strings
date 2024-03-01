@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Näytä tehtävät";
 "settings_datausage_title" = "Datan käyttö";
 "datausage_upload_wifionly_title" = "Lataa mobiilidatan avulla";
+"warning_title" = "Varoitus";
+"sync_tasks_item_upload_queued" = "Jonossa on lähetystehtävä kohteelle: \n %@ \n Tiedoston poistaminen estää sovellusta lataamasta sitä";

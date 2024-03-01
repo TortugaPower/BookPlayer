@@ -27,13 +27,13 @@ public protocol LibrarySyncProtocol {
   func removeItems(notIn identifiers: [String], parentFolder: String?) async
 
   /// Get last played library item
-  func getLibraryLastItem() -> SimpleLibraryItem?
+  func fetchLibraryLastItem() async -> SimpleLibraryItem?
   /// Set the last played book
-  func setLibraryLastBook(with relativePath: String?) async
+  func updateLibraryLastBook(with relativePath: String?) async
   /// Returns boolean determining if the item exists for the relativePath
   func itemExists(for relativePath: String) async -> Bool
   /// Load encoded chapters from file into DB
-  func loadChaptersIfNeeded(relativePath: String)
+  func loadChaptersIfNeeded(relativePath: String) async
 
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
@@ -45,9 +45,9 @@ public protocol LibrarySyncProtocol {
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func setLibraryLastBook(with relativePath: String?) async {
+  public func updateLibraryLastBook(with relativePath: String?) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         setLibraryLastBook(with: relativePath, context: context)
         continuation.resume()
@@ -55,9 +55,19 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
 
+  public func fetchLibraryLastItem() async -> SimpleLibraryItem? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let lastItem = getLibraryLastItem(context: context)
+        continuation.resume(returning: lastItem)
+      }
+    }
+  }
+
   public func itemExists(for relativePath: String) async -> Bool {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         let storedItem = getItemReference(with: relativePath, context: context)
 
@@ -68,7 +78,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         guard let storedItems = getItems(in: Array(itemsDict.keys), parentFolder: parentFolder, context: context) else {
           continuation.resume()
@@ -89,7 +99,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func updateInfo(for item: SyncableItem) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         updateInfo(for: item, context: context, shouldSaveContext: true)
         continuation.resume()
@@ -124,7 +134,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         let incomingKeys = Set(itemsDict.keys)
         let storedKeys = Set(getItemIdentifiers(in: parentFolder, context: context) ?? [])
@@ -183,7 +193,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func addBookmark(from bookmark: SimpleBookmark) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         if let fetchedBookmark = getBookmarkReference(from: bookmark, context: context) {
           fetchedBookmark.note = bookmark.note
@@ -201,7 +211,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]? {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
         fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
@@ -233,7 +243,7 @@ extension LibraryService: LibrarySyncProtocol {
       format: "%K BEGINSWITH %@", #keyPath(LibraryItem.folder.relativePath), relativePath
     )
 
-    let results = try? self.dataManager.getContext().fetch(fetchRequest) as? [[String: Any]]
+    let results = try? self.dataManager.getBackgroundContext().fetch(fetchRequest) as? [[String: Any]]
 
     return parseSyncableItems(from: results)
   }
@@ -282,7 +292,7 @@ extension LibraryService: LibrarySyncProtocol {
 
   public func removeItems(notIn identifiers: [String], parentFolder: String?) async {
     return await withCheckedContinuation { continuation in
-      let context = dataManager.getContext()
+      let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         guard
           let items = getItems(notIn: identifiers, parentFolder: parentFolder, context: context)
@@ -336,9 +346,9 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
 
-  public func loadChaptersIfNeeded(relativePath: String) {
+  public func loadChaptersIfNeeded(relativePath: String) async {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
+    await loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
   }
 }

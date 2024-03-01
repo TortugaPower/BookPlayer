@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Ver tareas";
 "settings_datausage_title" = "Uso de datos";
 "datausage_upload_wifionly_title" = "Subir usando datos móviles";
+"warning_title" = "Advertencia";
+"sync_tasks_item_upload_queued" = "Hay una tarea de carga en cola para: \n %@ \n Eliminar el archivo evitará que la aplicación lo cargue";

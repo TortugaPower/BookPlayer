@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Ver tarefas";
 "settings_datausage_title" = "Uso de dados";
 "datausage_upload_wifionly_title" = "Fazer upload usando dados de celular";
+"warning_title" = "Aviso";
+"sync_tasks_item_upload_queued" = "Há uma tarefa de upload na fila para: \n %@ \n A remoção do arquivo impedirá que o aplicativo o carregue";

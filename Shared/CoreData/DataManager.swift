@@ -14,6 +14,7 @@ public class DataManager {
   public static let backupFolderName = "BPBackup"
   public static let inboxFolderName = "Inbox"
   public static let sharedFolderName = "SharedBP"
+  public static let trashFolderName = ".Trash"
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
   private var pendingSaveContext: DispatchWorkItem?
@@ -41,6 +42,26 @@ public class DataManager {
     }
 
     return processedFolderURL
+  }
+
+  public class func getSyncTasksRealmURL() -> URL {
+    let hiddenFolderURL = self.getDocumentsFolderURL()
+      .appendingPathComponent(self.processedFolderName)
+      .appendingPathComponent(".dbRealm")
+
+    if !FileManager.default.fileExists(atPath: hiddenFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(
+          at: hiddenFolderURL,
+          withIntermediateDirectories: true,
+          attributes: nil
+        )
+      } catch {
+        fatalError("Couldn't create Realm folder")
+      }
+    }
+
+    return hiddenFolderURL.appendingPathComponent("bookplayer-synctasks.realm")
   }
 
   public class func getBackupFolderURL() -> URL {
@@ -136,7 +157,7 @@ public class DataManager {
   }
 
   public func getBackgroundContext() -> NSManagedObjectContext {
-    return self.coreDataStack.getBackgroundContext()
+    return self.coreDataStack.backgroundContext
   }
 
   public func delete(_ item: NSManagedObject, context: NSManagedObjectContext) {

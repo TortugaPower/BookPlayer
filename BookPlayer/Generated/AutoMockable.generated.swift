@@ -515,12 +515,12 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var loadChaptersIfNeededRelativePathAssetReceivedArguments: (relativePath: String, asset: AVAsset)?
     var loadChaptersIfNeededRelativePathAssetReceivedInvocations: [(relativePath: String, asset: AVAsset)] = []
-    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) -> Void)?
-    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
+    var loadChaptersIfNeededRelativePathAssetClosure: ((String, AVAsset) async -> Void)?
+    func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
         loadChaptersIfNeededRelativePathAssetCallsCount += 1
         loadChaptersIfNeededRelativePathAssetReceivedArguments = (relativePath: relativePath, asset: asset)
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
-        loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
+        await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
     //MARK: - createFolder
 
@@ -1430,6 +1430,22 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return queuedJobsCountReturnValue
         }
     }
+    //MARK: - observeTasksCount
+
+    var observeTasksCountCallsCount = 0
+    var observeTasksCountCalled: Bool {
+        return observeTasksCountCallsCount > 0
+    }
+    var observeTasksCountReturnValue: AnyPublisher<Int, Never>!
+    var observeTasksCountClosure: (() -> AnyPublisher<Int, Never>)?
+    func observeTasksCount() -> AnyPublisher<Int, Never> {
+        observeTasksCountCallsCount += 1
+        if let observeTasksCountClosure = observeTasksCountClosure {
+            return observeTasksCountClosure()
+        } else {
+            return observeTasksCountReturnValue
+        }
+    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
@@ -1439,13 +1455,13 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var canSyncListContentsAtIgnoreLastTimestampReceivedArguments: (relativePath: String?, ignoreLastTimestamp: Bool)?
     var canSyncListContentsAtIgnoreLastTimestampReceivedInvocations: [(relativePath: String?, ignoreLastTimestamp: Bool)] = []
     var canSyncListContentsAtIgnoreLastTimestampReturnValue: Bool!
-    var canSyncListContentsAtIgnoreLastTimestampClosure: ((String?, Bool) -> Bool)?
-    func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) -> Bool {
+    var canSyncListContentsAtIgnoreLastTimestampClosure: ((String?, Bool) async -> Bool)?
+    func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool {
         canSyncListContentsAtIgnoreLastTimestampCallsCount += 1
         canSyncListContentsAtIgnoreLastTimestampReceivedArguments = (relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp)
         canSyncListContentsAtIgnoreLastTimestampReceivedInvocations.append((relativePath: relativePath, ignoreLastTimestamp: ignoreLastTimestamp))
         if let canSyncListContentsAtIgnoreLastTimestampClosure = canSyncListContentsAtIgnoreLastTimestampClosure {
-            return canSyncListContentsAtIgnoreLastTimestampClosure(relativePath, ignoreLastTimestamp)
+            return await canSyncListContentsAtIgnoreLastTimestampClosure(relativePath, ignoreLastTimestamp)
         } else {
             return canSyncListContentsAtIgnoreLastTimestampReturnValue
         }
@@ -1682,9 +1698,9 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var getAllQueuedJobsCalled: Bool {
         return getAllQueuedJobsCallsCount > 0
     }
-    var getAllQueuedJobsReturnValue: [SyncTask]!
-    var getAllQueuedJobsClosure: (() async -> [SyncTask])?
-    func getAllQueuedJobs() async -> [SyncTask] {
+    var getAllQueuedJobsReturnValue: [SyncTaskReference]!
+    var getAllQueuedJobsClosure: (() async -> [SyncTaskReference])?
+    func getAllQueuedJobs() async -> [SyncTaskReference] {
         getAllQueuedJobsCallsCount += 1
         if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
             return await getAllQueuedJobsClosure()
@@ -1741,5 +1757,40 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         } else {
             return getDownloadStateForReturnValue
         }
+    }
+    //MARK: - hasUploadTask
+
+    var hasUploadTaskForCallsCount = 0
+    var hasUploadTaskForCalled: Bool {
+        return hasUploadTaskForCallsCount > 0
+    }
+    var hasUploadTaskForReceivedRelativePath: String?
+    var hasUploadTaskForReceivedInvocations: [String] = []
+    var hasUploadTaskForReturnValue: Bool!
+    var hasUploadTaskForClosure: ((String) async -> Bool)?
+    func hasUploadTask(for relativePath: String) async -> Bool {
+        hasUploadTaskForCallsCount += 1
+        hasUploadTaskForReceivedRelativePath = relativePath
+        hasUploadTaskForReceivedInvocations.append(relativePath)
+        if let hasUploadTaskForClosure = hasUploadTaskForClosure {
+            return await hasUploadTaskForClosure(relativePath)
+        } else {
+            return hasUploadTaskForReturnValue
+        }
+    }
+    //MARK: - setLibraryLastBook
+
+    var setLibraryLastBookWithCallsCount = 0
+    var setLibraryLastBookWithCalled: Bool {
+        return setLibraryLastBookWithCallsCount > 0
+    }
+    var setLibraryLastBookWithReceivedRelativePath: String?
+    var setLibraryLastBookWithReceivedInvocations: [String?] = []
+    var setLibraryLastBookWithClosure: ((String?) async -> Void)?
+    func setLibraryLastBook(with relativePath: String?) async {
+        setLibraryLastBookWithCallsCount += 1
+        setLibraryLastBookWithReceivedRelativePath = relativePath
+        setLibraryLastBookWithReceivedInvocations.append(relativePath)
+        await setLibraryLastBookWithClosure?(relativePath)
     }
 }

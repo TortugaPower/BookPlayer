@@ -44,6 +44,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }
 
+  @MainActor
   func getMainCoordinator() -> MainCoordinator? {
     return AppDelegate.shared?.activeSceneDelegate?.mainCoordinator
   }
@@ -57,11 +58,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: ListSyncRefreshService(
-        playerManager: playerManager,
-        libraryService: libraryService,
-        syncService: syncService
-      )
+      listRefreshService: listRefreshService
     )
     child.start()
   }
@@ -117,7 +114,9 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func showMiniPlayer(flag: Bool) {
-    getMainCoordinator()?.showMiniPlayer(flag)
+    Task { @MainActor in
+      getMainCoordinator()?.showMiniPlayer(flag)
+    }
   }
 
   func syncList() {

@@ -12,7 +12,7 @@ import Combine
 
 protocol QueuedSyncTasksViewModelProtocol: ObservableObject {
   var allowsCellularData: Bool { get }
-  var queuedJobs: [SyncTask] { get set }
+  var queuedJobs: [SyncTaskReference] { get set }
 }
 
 class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
@@ -22,11 +22,10 @@ class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
 
   let syncService: SyncServiceProtocol
 
-  @Published var queuedJobs: [SyncTask] = []
+  @Published var queuedJobs: [SyncTaskReference] = []
   @Published var allowsCellularData: Bool = false
 
   /// Reference for observers
-  private var syncTasksObserver: NSKeyValueObservation?
   private var cellularDataObserver: NSKeyValueObservation?
 
   var eventsPublisher = InterfaceUpdater<QueuedSyncTasksViewModel.Events>()
@@ -40,9 +39,10 @@ class QueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol {
   }
 
   func bindObservers() {
-    syncTasksObserver = UserDefaults.standard.observe(\.userSyncTasksQueue) { [weak self] _, _ in
+    syncService.observeTasksCount().sink { [weak self] _ in
       self?.reloadQueuedJobs()
     }
+    .store(in: &disposeBag)
 
     cellularDataObserver = UserDefaults.standard.observe(
       \.userSettingsAllowCellularData,

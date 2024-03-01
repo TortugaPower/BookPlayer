@@ -309,3 +309,5 @@
 "sync_tasks_view_title" = "Visa uppgifter";
 "settings_datausage_title" = "Dataanvändning";
 "datausage_upload_wifionly_title" = "Ladda upp med mobildata";
+"warning_title" = "Varning";
+"sync_tasks_item_upload_queued" = "Det finns en uppladdningsuppgift i kö för: \n %@ \n Om du tar bort filen förhindrar appen att ladda upp den";

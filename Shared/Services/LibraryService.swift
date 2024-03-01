@@ -76,7 +76,7 @@ public protocol LibraryServiceProtocol {
   /// Create book core data object
   func createBook(from url: URL) -> Book
   /// Load metadata chapters if needed
-  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset)
+  func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
   /// Create folder
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   /// Update folder type
@@ -418,18 +418,23 @@ extension LibraryService {
 
   public func getLibraryLastItem() -> SimpleLibraryItem? {
     let context = self.dataManager.getContext()
+    return getLibraryLastItem(context: context)
+  }
+
+  func getLibraryLastItem(context: NSManagedObjectContext) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "Library")
-    fetchRequest.propertiesToFetch = ["lastPlayedItem.relativePath"]
+    fetchRequest.propertiesToFetch = ["lastPlayedItem"]
     fetchRequest.resultType = .dictionaryResultType
 
     guard
-      let dict = (try? context.fetch(fetchRequest))?.first as? [String: String],
-      let relativePath = dict["lastPlayedItem.relativePath"]
+      let dict = (try? context.fetch(fetchRequest))?.first as? [String: NSManagedObjectID],
+      let itemId = dict["lastPlayedItem"],
+      let item = try? context.existingObject(with: itemId) as? LibraryItem
     else {
       return nil
     }
 
-    return getSimpleItem(with: relativePath)
+    return SimpleLibraryItem(from: item)
   }
 
   public func getLibraryCurrentTheme() -> SimpleTheme? {
@@ -1072,17 +1077,21 @@ extension LibraryService {
     return newBook
   }
 
-  public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) {
-    let context = dataManager.getContext()
+  public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        guard
+          let book = getItem(with: relativePath, context: context) as? Book
+        else { return }
 
-    guard
-      let book = getItem(with: relativePath, context: context) as? Book
-    else { return }
+        let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
 
-    let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
-
-    if hadEmptyChapters {
-      dataManager.saveSyncContext(context)
+        if hadEmptyChapters {
+          dataManager.saveSyncContext(context)
+        }
+        continuation.resume()
+      }
     }
   }
 
@@ -1488,9 +1497,9 @@ extension LibraryService {
     item.currentTime = time
     item.lastPlayDate = date
     let progress = round((item.currentTime / item.duration) * 100)
-    let percentCompleted = (progress.isNaN || progress.isInfinite)
-    ? 0
-    : progress
+    let percentCompleted = progress.isFinite
+    ? progress
+    : 0
     item.percentCompleted = percentCompleted
 
     if let parentFolderPath = item.folder?.relativePath {

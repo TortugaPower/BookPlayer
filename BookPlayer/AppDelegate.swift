@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import BackgroundTasks
 import BookPlayerKit
 import Combine
 import CoreData
@@ -14,13 +15,14 @@ import DirectoryWatcher
 import Intents
 import MediaPlayer
 import Sentry
+import RealmSwift
 import RevenueCat
 import StoreKit
 import UIKit
 import WatchConnectivity
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   static weak var shared: AppDelegate?
   var pendingURLActions = [Action]()
 
@@ -51,6 +53,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   /// Reference for observers
   private var crashReportsAccessObserver: NSKeyValueObservation?
   private var sharedWidgetActionURLObserver: NSKeyValueObservation?
+  /// Background refresh task identifier
+  private lazy var refreshTaskIdentifier = "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.refresh"
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     Self.shared = self
@@ -62,6 +66,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       object: nil
     )
 
+    // register background refresh tasks
+    self.setupBackgroundRefreshTasks()
     // register for remote events
     self.setupMPRemoteCommands()
     // register document's folder listener
@@ -70,6 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
+    // Setup Realm
+    self.setupRealm()
     // Setup observer for interactive widgets
     self.setupSharedWidgetActionObserver()
 
@@ -227,7 +235,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       playerManager?.load(item, autoplay: autoplay)
 
       if recordAsLastBook {
-        await libraryService?.setLibraryLastBook(with: item.relativePath)
+        await MainActor.run {
+          libraryService?.setLibraryLastBook(with: item.relativePath)
+        }
       }
 
       showPlayer?()
@@ -270,7 +280,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = self?.playerManager else { return .commandFailed }
 
+      let wasPlaying = playerManager.isPlaying
       playerManager.playPause()
+
+      if wasPlaying,
+         UIApplication.shared.applicationState == .background {
+        self?.scheduleAppRefresh()
+      }
       return .success
     }
 
@@ -287,6 +303,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       guard let playerManager = self?.playerManager else { return .commandFailed }
 
       playerManager.pause()
+
+      if UIApplication.shared.applicationState == .background {
+        self?.scheduleAppRefresh()
+      }
+
       return .success
     }
 
@@ -388,6 +409,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
   }
 
+  /// Initialize Realm empty database
+  func setupRealm() {
+    /// Tasks database
+    let tasksRealmURL = DataManager.getSyncTasksRealmURL()
+    if !FileManager.default.fileExists(atPath: tasksRealmURL.path) {
+      _ = try! Realm(configuration: Realm.Configuration(fileURL: tasksRealmURL))
+    }
+  }
+
   func setupSharedWidgetActionObserver() {
     let sharedDefaults = UserDefaults.sharedDefaults
 
@@ -480,5 +510,62 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        !mainCoordinator.hasPlayerShown() {
       mainCoordinator.showPlayer()
     }
+  }
+}
+
+// MARK: - Background tasks
+
+extension AppDelegate {
+
+  func setupBackgroundRefreshTasks() {
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.didEnterBackgroundNotification,
+      object: nil, queue: nil) { _ in
+        if self.playerManager?.isPlaying != true {
+          self.scheduleAppRefresh()
+        }
+    }
+
+    BGTaskScheduler.shared.register(
+      forTaskWithIdentifier: refreshTaskIdentifier,
+      using: nil
+    ) { task in
+      guard let refreshTask = task as? BGAppRefreshTask else { return }
+
+      self.handleAppRefresh(task: refreshTask)
+    }
+  }
+
+  func scheduleAppRefresh() {
+    let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
+    request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
+
+    try? BGTaskScheduler.shared.submit(request)
+  }
+
+  func handleAppRefresh(task: BGAppRefreshTask) {
+    guard let syncService else { return }
+
+    let refreshOperation = RefreshTaskOperation(syncService: syncService)
+
+    refreshOperation.completionBlock = { [weak self] in
+      let success = !refreshOperation.isCancelled
+
+      if !success {
+        self?.scheduleAppRefresh()
+      }
+
+      task.setTaskCompleted(success: success)
+    }
+
+    task.expirationHandler = {
+      refreshOperation.cancel()
+      refreshOperation.finish()
+    }
+
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 1
+
+    queue.addOperation(refreshOperation)
   }
 }

@@ -18,7 +18,7 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
       Section {
         ForEach(viewModel.queuedJobs) { job in
           QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job)),
+            imageName: .constant(parseImageName(job.jobType)),
             title: .constant(job.relativePath)
           )
           .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
@@ -43,8 +43,8 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
     }
   }
 
-  func parseImageName(_ job: SyncTask) -> String {
-    switch job.jobType {
+  func parseImageName(_ jobType: SyncJobType) -> String {
+    switch jobType {
     case .upload:
       return "arrow.up.to.line"
     case .update:
@@ -81,18 +81,16 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
 struct QueuedSyncTasksView_Previews: PreviewProvider {
   class MockQueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol, ObservableObject {
     var allowsCellularData: Bool = false
-    var queuedJobs: [BookPlayerKit.SyncTask] = [
-      SyncTask(
+    var queuedJobs: [BookPlayerKit.SyncTaskReference] = [
+      SyncTaskReference(
         id: "1",
         relativePath: "test/path.mp3",
-        jobType: .upload,
-        parameters: [:]
+        jobType: .upload
       ),
-      SyncTask(
+      SyncTaskReference(
         id: "2",
         relativePath: "test/path2.mp3",
-        jobType: .upload,
-        parameters: [:]
+        jobType: .upload
       )
     ]
   }
