@@ -1207,7 +1207,7 @@ extension LibraryService {
     case .folder:
       folder.type = .folder
       folder.lastPlayDate = nil
-      metadataUpdates[#keyPath(LibraryItem.lastPlayDate)] = ""
+      metadataUpdates[#keyPath(LibraryItem.lastPlayDate)] = 0
     case .bound:
       guard let items = folder.items?.allObjects as? [Book] else {
         throw BookPlayerError.runtimeError("The folder needs to only contain book items")
@@ -1221,7 +1221,7 @@ extension LibraryService {
         item.lastPlayDate = nil
         metadataPassthroughPublisher.send([
           #keyPath(LibraryItem.relativePath): item.relativePath!,
-          #keyPath(LibraryItem.lastPlayDate): "",
+          #keyPath(LibraryItem.lastPlayDate): 0,
         ])
       }
 
