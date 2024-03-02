@@ -47,6 +47,10 @@ class MigrationStoredSyncTasks: MigrationHandler {
           let taskId = UUID().uuidString
           taskParams["id"] = taskId
 
+          if taskParams["lastPlayDateTimestamp"] is String {
+            taskParams["lastPlayDateTimestamp"] = 0
+          }
+
           let task = migrateTask(
             taskParams,
             id: taskId,
@@ -77,11 +81,16 @@ class MigrationStoredSyncTasks: MigrationHandler {
 
     for taskData in storedTasks {
       autoreleasepool {
-        if let taskParams = try? JSONSerialization.jsonObject(with: taskData) as? [String: Any],
+        if var taskParams = try? JSONSerialization.jsonObject(with: taskData) as? [String: Any],
            let taskId = taskParams["id"] as? String,
            let relativePath = taskParams["relativePath"] as? String,
            let jobTypeRaw = taskParams["jobType"] as? String,
            let jobType = SyncJobType(rawValue: jobTypeRaw) {
+
+          if taskParams["lastPlayDateTimestamp"] is String {
+            taskParams["lastPlayDateTimestamp"] = 0
+          }
+
           let task = migrateTask(
             taskParams,
             id: taskId,
