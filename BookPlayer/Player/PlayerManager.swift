@@ -704,6 +704,10 @@ extension PlayerManager {
   }
 
   func play() {
+    play(autoPlayed: false)
+  }
+
+  func play(autoPlayed: Bool) {
     playTask?.cancel()
     playTask = Task { @MainActor in
       /// Ignore play commands if there's no item loaded,
@@ -739,7 +743,9 @@ extension PlayerManager {
 
       handleSmartRewind(currentItem)
 
-      handleAutoTimer()
+      if !autoPlayed {
+        handleAutoTimer()
+      }
 
       fadeTimer?.invalidate()
       shakeMotionService.stopMotionUpdates()
@@ -815,7 +821,7 @@ extension PlayerManager {
       self.observeStatus = false
 
       if self.playbackQueued == true {
-        self.play()
+        self.play(autoPlayed: true)
       }
       // Clean up flag
       self.playbackQueued = nil
@@ -1119,7 +1125,7 @@ extension PlayerManager {
       }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        play()
+        play(autoPlayed: true)
       }
     @unknown default:
       break
