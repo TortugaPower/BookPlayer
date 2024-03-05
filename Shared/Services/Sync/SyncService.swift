@@ -27,6 +27,8 @@ public protocol SyncServiceProtocol {
   var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> { get }
   /// Progress publisher for ongoing-download tasks
   var downloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never> { get }
+  /// Error publisher for ongoing-download tasks
+  var downloadErrorPublisher: PassthroughSubject<(String, Error), Never> { get }
 
   /// Count of the currently queued sync jobs
   func queuedJobsCount() async -> Int
@@ -105,6 +107,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public var downloadCompletedPublisher = PassthroughSubject<(String, String, String?), Never>()
   /// Progress publisher for ongoing-download tasks
   public var downloadProgressPublisher = PassthroughSubject<(String, String, String?, Double), Never>()
+  /// Error publisher for ongoing-download tasks
+  public var downloadErrorPublisher = PassthroughSubject<(String, Error), Never>()
   /// Background URL session to handle downloading synced items
   private lazy var downloadURLSession: BPDownloadURLSession = {
     BPDownloadURLSession { task, progress in
@@ -112,10 +116,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         task: task,
         individualProgress: progress
       )
-    } didFinishDownloadingTask: { task, location in
+    } didFinishDownloadingTask: { task, location, error in
       self.handleFinishedDownload(
         task: task,
-        location: location
+        location: location,
+        error: error
       )
     }
   }()
@@ -547,24 +552,37 @@ extension SyncService {
 }
 
 extension SyncService {
-  private func handleFinishedDownload(task: URLSessionTask, location: URL) {
+  private func handleFinishedDownload(
+    task: URLSessionTask,
+    location: URL?,
+    error: Error?
+  ) {
     guard let relativePath = task.taskDescription else { return }
 
     do {
-      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+      if error == nil,
+         let location {
+        let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-      /// If there's already something there, replace with new finished download
-      if FileManager.default.fileExists(atPath: fileURL.path) {
-        try FileManager.default.removeItem(at: fileURL)
-      }
-      try DataManager.createContainingFolderIfNeeded(for: fileURL)
-      try FileManager.default.moveItem(at: location, to: fileURL)
+        /// If there's already something there, replace with new finished download
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+          try FileManager.default.removeItem(at: fileURL)
+        }
+        try DataManager.createContainingFolderIfNeeded(for: fileURL)
+        try FileManager.default.moveItem(at: location, to: fileURL)
 
-      Task {
-        await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+        Task {
+          await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+        }
       }
     } catch {
       Self.logger.trace("Error moving downloaded file to the destination: \(error.localizedDescription)")
+    }
+
+    if let error {
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((relativePath, error))
+      }
     }
 
     guard let startingItemPath = ongoingTasksParentReference[relativePath] else {

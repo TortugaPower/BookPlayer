@@ -19,7 +19,7 @@ public class BPDownloadURLSession {
   ///   - didFinishDownloadingTask: Callback triggered when the download task is finished
   public init(
     downloadProgressUpdated: @escaping ((URLSessionDownloadTask, Double) -> Void),
-    didFinishDownloadingTask: @escaping ((URLSessionDownloadTask, URL) -> Void)
+    didFinishDownloadingTask: @escaping ((URLSessionTask, URL?, Error?) -> Void)
   ) {
     let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
 
