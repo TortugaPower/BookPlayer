@@ -183,17 +183,19 @@ final class StorageViewModel: StorageViewModelProtocol {
     // Check if existing book already has its file, and this one is a duplicate
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
-      onTransition?(.showAlert(
-        BPAlertContent(
-          title: "storage_duplicate_item_title".localized,
-          message: String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!),
-          style: .alert,
-          actionItems: [
-            BPActionItem.okAction
-          ]
-        )
-      ))
       if shouldReloadItems {
+        let alertMessage = String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!)
+        /// only show alert when doing individual fix
+        self.onTransition?(.showAlert(
+          BPAlertContent(
+            title: "storage_duplicate_item_title".localized,
+            message: alertMessage,
+            style: .alert,
+            actionItems: [
+              BPActionItem.okAction
+            ]
+          )
+        ))
         self.loadItems()
       }
       return
@@ -232,20 +234,14 @@ final class StorageViewModel: StorageViewModelProtocol {
     guard !brokenItems.isEmpty else { return }
 
     showProgressIndicator = true
-    DispatchQueue.global().async {
-      do {
-        try self.handleFix(for: brokenItems) {
-          DispatchQueue.main.async { [weak self] in
-            self?.showProgressIndicator = false
-          }
-        }
-      } catch {
-        DispatchQueue.main.async { [weak self] in
-          self?.showProgressIndicator = false
-          self?.storageAlert = .error(errorMessage: error.localizedDescription)
-          self?.showAlert = true
-        }
+    do {
+      try handleFix(for: brokenItems) { [weak self] in
+        self?.showProgressIndicator = false
       }
+    } catch {
+      showProgressIndicator = false
+      storageAlert = .error(errorMessage: error.localizedDescription)
+      showAlert = true
     }
   }
 
@@ -256,8 +252,8 @@ final class StorageViewModel: StorageViewModelProtocol {
   // MARK: - Private functions
 
   private func loadItems() {
-    showProgressIndicator = true
     Task { @MainActor in
+      showProgressIndicator = true
       let processedFolder = self.folderURL
 
       let enumerator = FileManager.default.enumerator(
@@ -391,18 +387,20 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   func verifyUploadTask(for item: StorageItem, completionHandler: @escaping () -> Void) {
-    Task { @MainActor in
+    Task {
       if await syncService.hasUploadTask(for: item.path) {
-        onTransition?(.showAlert(
-          BPAlertContent(
-            title: "warning_title".localized,
-            message: String(format: "sync_tasks_item_upload_queued".localized, item.path),
-            style: .alert,
-            actionItems: [
-              BPActionItem.cancelAction,
-              BPActionItem(title: "Continue", handler: completionHandler)
-            ])
-        ))
+        await MainActor.run {
+          onTransition?(.showAlert(
+            BPAlertContent(
+              title: "warning_title".localized,
+              message: String(format: "sync_tasks_item_upload_queued".localized, item.path),
+              style: .alert,
+              actionItems: [
+                BPActionItem.cancelAction,
+                BPActionItem(title: "Continue", handler: completionHandler)
+              ])
+          ))
+        }
       } else {
         completionHandler()
       }
