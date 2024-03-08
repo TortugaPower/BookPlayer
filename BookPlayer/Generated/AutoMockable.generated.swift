@@ -1414,6 +1414,11 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadProgressPublisher = value }
     }
     var underlyingDownloadProgressPublisher: PassthroughSubject<(String, String, String?, Double), Never>!
+    var downloadErrorPublisher: PassthroughSubject<(String, Error), Never> {
+        get { return underlyingDownloadErrorPublisher }
+        set(value) { underlyingDownloadErrorPublisher = value }
+    }
+    var underlyingDownloadErrorPublisher: PassthroughSubject<(String, Error), Never>!
     //MARK: - queuedJobsCount
 
     var queuedJobsCountCallsCount = 0

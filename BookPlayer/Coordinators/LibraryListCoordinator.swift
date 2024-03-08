@@ -85,6 +85,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     loadLastBookIfNeeded()
     syncList()
     bindImportObserverIfNeeded()
+    bindDownloadErrorObserver()
 
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
@@ -134,6 +135,13 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     })
 
     notifyPendingFiles()
+  }
+
+  func bindDownloadErrorObserver() {
+    syncService.downloadErrorPublisher.sink { (relativePath, error) in
+      self.showAlert("network_error_title".localized, message: "\(relativePath)\n\(error.localizedDescription)")
+    }
+    .store(in: &disposeBag)
   }
 
   @MainActor

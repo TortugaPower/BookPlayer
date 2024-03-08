@@ -36,11 +36,13 @@ class DataInitializerCoordinator: BPLogger {
       || error.code == NSFileWriteOutOfSpaceError
     ) {
       // CoreData may fail if device doesn't have space
-      alertPresenter.showAlert(
-        "error_title".localized,
-        message: "coredata_error_diskfull_description".localized,
-        completion: nil
-      )
+      await MainActor.run {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: "coredata_error_diskfull_description".localized,
+          completion: nil
+        )
+      }
     } catch let error as NSError where (
       error.code == NSMigrationError ||
       error.code == NSMigrationConstraintViolationError ||
@@ -55,11 +57,13 @@ class DataInitializerCoordinator: BPLogger {
     ) {
       // TODO: We can handle `isRecoveryAttempt` to show a different error message
       Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
-      alertPresenter.showAlert(
-        "error_title".localized,
-        message: "coredata_error_migration_description".localized
-      ) { [unowned self] in
-        recoverLibraryFromFailedMigration()
+      await MainActor.run {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: "coredata_error_migration_description".localized
+        ) { [unowned self] in
+          recoverLibraryFromFailedMigration()
+        }
       }
     } catch {
       let error = error as NSError

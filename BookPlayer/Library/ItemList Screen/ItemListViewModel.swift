@@ -211,12 +211,12 @@ class ItemListViewModel: ViewModelProtocol {
       ))
     }
 
-    singleDownloadProgressDelegateInterface.didFinishDownloadingTask = { [weak self] (task, fileURL) in
-      self?.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
-    }
-
-    singleDownloadProgressDelegateInterface.didFinishTaskWithError = { [weak self] (task, error) in
-      self?.handleSingleDownloadTaskFinishedWithError(task, error: error)
+    singleDownloadProgressDelegateInterface.didFinishDownloadingTask = { [weak self] (task, fileURL, error) in
+      if let error {
+        self?.handleSingleDownloadTaskFinishedWithError(task, error: error)
+      } else if let fileURL {
+        self?.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
+      }
     }
   }
 
