@@ -451,6 +451,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.debug = false
       options.enableCoreDataTracing = false
       options.enableFileIOTracing = false
+      options.enableAppHangTracking = false
       options.tracesSampleRate = 0.5
     }
   }

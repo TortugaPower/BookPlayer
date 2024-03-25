@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/RevenueCat/purchases-ios.git",
       "state" : {
-        "revision" : "ff4907a2b01fb6e0e891f36e9a14421a5500cc04",
-        "version" : "4.31.9"
+        "revision" : "022748f79384035c0752602300e4e112018cd9c9",
+        "version" : "4.38.1"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/getsentry/sentry-cocoa.git",
       "state" : {
-        "revision" : "9cf7d2e514af1600cc2b3c5592e2848c6c5a76d6",
-        "version" : "8.7.3"
+        "revision" : "38f4f70d07117b9f958a76b1bff278c2f29ffe0e",
+        "version" : "8.21.0"
       }
     },
     {
