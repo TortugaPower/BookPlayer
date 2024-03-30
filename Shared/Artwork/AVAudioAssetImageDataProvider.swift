@@ -110,8 +110,9 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   private func handleDirectory(at url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
     /// Process any image file from within the folder
     if let contents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil),
-       let imageURL = contents.first(where: {
-         UTType(filenameExtension: $0.pathExtension, conformingTo: .image) != nil
+       let imageURL = contents.first(where: { file in
+         let type = UTType(filenameExtension: file.pathExtension)
+         return type?.isSubtype(of: .image) == true
        }),
        let imageData = try? Data(contentsOf: imageURL) {
       handler(.success(imageData))
