@@ -121,7 +121,7 @@ public class ImportOperation: Operation {
 
       let enumerator = FileManager.default.enumerator(
         at: tempDirectoryURL,
-        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+        includingPropertiesForKeys: [.isDirectoryKey],
         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
           print("directoryEnumerator error at \(url): ", error)
           return true
