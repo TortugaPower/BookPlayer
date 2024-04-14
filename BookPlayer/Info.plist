@@ -2,6 +2,28 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.pkware.zip-archive</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.pkware.lpf-zip-archive</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/lpf+zip</string>
+				</array>
+				<key>public.filename-extension</key>
+				<array>
+					<string>lpf</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
