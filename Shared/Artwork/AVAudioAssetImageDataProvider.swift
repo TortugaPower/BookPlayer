@@ -120,7 +120,7 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
       Task {
         let enumerator = FileManager.default.enumerator(
           at: self.fileURL,
-          includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+          includingPropertiesForKeys: [.isDirectoryKey],
           options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
             print("directoryEnumerator error at \(url): ", error)
             return true
