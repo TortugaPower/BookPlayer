@@ -438,7 +438,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     if currentItem.isBoundBook {
       currentTime += currentItem.currentChapter.start
     } else if currentTime >= currentItem.currentChapter.end || currentTime < currentItem.currentChapter.start,
-              let newChapter = currentItem.getChapter(at: currentTime) {
+              let newChapter = currentItem.getChapter(at: currentTime),
+              newChapter != currentItem.currentChapter {
+      /// Avoid setting the same chapter, as it would publish an update event
       currentItem.currentChapter = newChapter
     }
 
