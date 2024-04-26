@@ -203,8 +203,17 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   func processFiles(urls: [URL]) {
+    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
     for url in urls {
-      self.importManager.process(url)
+      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
+      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
+      if url.absoluteString.contains(temporaryDirectoryPath) {
+        try! FileManager.default.moveItem(at: url, to: documentsFolder)
+      } else {
+        importManager.process(url)
+      }
     }
   }
 

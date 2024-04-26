@@ -992,8 +992,20 @@ class ItemListViewModel: ViewModelProtocol {
 // MARK: - Import related functions
 extension ItemListViewModel {
   func handleNewFiles(_ urls: [URL]) {
+    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
     for url in urls {
-      importManager.process(url)
+      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
+      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
+      if url.absoluteString.contains(temporaryDirectoryPath) {
+        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+        if !FileManager.default.fileExists(atPath: destinationURL.path) {
+          try! FileManager.default.copyItem(at: url, to: destinationURL)
+        }
+      } else {
+        importManager.process(url)
+      }
     }
   }
 
