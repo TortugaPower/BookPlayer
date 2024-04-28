@@ -121,7 +121,7 @@ public class ImportOperation: Operation {
 
       let enumerator = FileManager.default.enumerator(
         at: tempDirectoryURL,
-        includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+        includingPropertiesForKeys: [.isDirectoryKey],
         options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
           print("directoryEnumerator error at \(url): ", error)
           return true
@@ -204,7 +204,7 @@ public class ImportOperation: Operation {
 
     NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": currentFile.lastPathComponent])
 
-    guard currentFile.pathExtension != "zip" else {
+    if shouldUnzip(currentFile) {
       self.handleZip(file: currentFile, remainingFiles: mutableFiles)
       return
     }
@@ -230,5 +230,9 @@ public class ImportOperation: Operation {
 
     self.processedFiles.append(destinationURL)
     self.processFile(from: mutableFiles)
+  }
+  
+  func shouldUnzip(_ file: URL) -> Bool {
+    return file.pathExtension == "zip" || file.pathExtension == "lpf"
   }
 }

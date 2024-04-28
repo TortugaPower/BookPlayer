@@ -540,7 +540,7 @@ extension LibraryService {
   private func handleDirectory(_ folderURL: URL) {
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
-      includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+      includingPropertiesForKeys: [.isDirectoryKey],
       options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
         print("directoryEnumerator error at \(url): ", error)
         return true
