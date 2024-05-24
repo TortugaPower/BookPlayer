@@ -845,7 +845,21 @@ extension PlayerManager {
         playbackQueued = nil
         observeStatus = false
         playerItem = nil
-        showErrorAlert(title: "\("error_title".localized) AVPlayerItem", item.error?.localizedDescription)
+
+        if let nsError = item.error as? NSError {
+          let errorDescription = """
+          \(nsError.localizedDescription)
+
+          Error Domain
+          \(nsError.domain)
+          
+          Additional Info
+          \(nsError.userInfo)
+          """
+          showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
+        } else {
+          showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
+        }
       }
     case .unknown:
       /// Do not handle .unknown states, as we're only interested in the success and failure states
