@@ -842,24 +842,28 @@ extension PlayerManager {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
       } else {
+        /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
+        /// where we preload the player with the last played item
+        if playbackQueued == true {
+          if let nsError = item.error as? NSError {
+            let errorDescription = """
+            \(nsError.localizedDescription)
+
+            Error Domain
+            \(nsError.domain)
+
+            Additional Info
+            \(nsError.userInfo)
+            """
+            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
+          } else {
+            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
+          }
+        }
+
         playbackQueued = nil
         observeStatus = false
         playerItem = nil
-
-        if let nsError = item.error as? NSError {
-          let errorDescription = """
-          \(nsError.localizedDescription)
-
-          Error Domain
-          \(nsError.domain)
-          
-          Additional Info
-          \(nsError.userInfo)
-          """
-          showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
-        } else {
-          showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
-        }
       }
     case .unknown:
       /// Do not handle .unknown states, as we're only interested in the success and failure states
