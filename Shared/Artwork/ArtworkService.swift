@@ -27,6 +27,9 @@ public class ArtworkService {
     return KingfisherManager(downloader: .default, cache: ArtworkService.cache)
   }
 
+  /// Background dispatch queue to handle moving cached artwork
+  static private let artworkQueue = DispatchQueue(label: "com.bookplayer.artworkservices", target: .global())
+
   static let baseDefaultColor = UIColor(hex: "#5FBFD5").rgbColor()!
   static let leftLuminanceGradientOffset: CGFloat = -27.779
   static let leftChromaGradientOffset: CGFloat = 12.363
@@ -77,6 +80,17 @@ public class ArtworkService {
       cache.storeToDisk(data, forKey: relativePath) { _ in
         continuation.resume()
       }
+    }
+  }
+
+  public class func moveCachedImage(from relativePath: String, to finalRelativePath: String) {
+    artworkQueue.async {
+      guard
+        Self.isCached(relativePath: relativePath),
+        let cachedImageData = try? Data(contentsOf: Self.getCachedImageURL(for: relativePath))
+      else { return }
+
+      Self.storeInCache(cachedImageData, for: finalRelativePath)
     }
   }
 
