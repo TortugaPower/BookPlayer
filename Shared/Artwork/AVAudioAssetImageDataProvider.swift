@@ -155,7 +155,14 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
     }
 
     do {
-      return try await extractDataFrom(url: newURL)
+      /// Check if the folder item already has a cached artwork
+      let folderItemCacheKey = cacheKey.appending("/\(newURL.lastPathComponent)")
+      if ArtworkService.isCached(relativePath: folderItemCacheKey),
+         let imageData = try? Data(contentsOf: ArtworkService.getCachedImageURL(for: folderItemCacheKey)) {
+        return imageData
+      } else {
+        return try await extractDataFrom(url: newURL)
+      }
     } catch {
       return try await processNextFolderItem(from: mutableUrls)
     }
