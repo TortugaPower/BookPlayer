@@ -91,6 +91,7 @@ public class ArtworkService {
       else { return }
 
       Self.storeInCache(cachedImageData, for: finalRelativePath)
+      Self.removeCache(for: relativePath)
     }
   }
 
