@@ -10,6 +10,12 @@
         "imageName": "retro-icon"
     },
     {
+        "id": "Pride",
+        "title": "Pride",
+        "imageName": "pride",
+        "locked": true
+    },
+    {
         "id": "Heart of Glass",
         "title": "Heart of Glass",
         "imageName": "heart-of-glass",
