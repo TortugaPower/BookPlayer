@@ -19,11 +19,11 @@
         <key>two</key>
         <string>%d اثنان</string>
         <key>few</key>
-        <string>%d عدة</string>
+        <string>%d القليل من</string>
         <key>many</key>
-        <string>%d كثير</string>
+        <string>%d الكثير من</string>
         <key>other</key>
-        <string>%d اخرى</string>
+        <string>%d أخرى</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -35,7 +35,7 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>zero</key>
         <string>صفر</string>
         <key>one</key>
@@ -43,11 +43,11 @@
         <key>two</key>
         <string>اثنان</string>
         <key>few</key>
-        <string>عدة</string>
+        <string>القليل من</string>
         <key>many</key>
-        <string>كثير</string>
+        <string>الكثير من</string>
         <key>other</key>
-        <string>اخرى</string>
+        <string>أخرى</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -59,7 +59,7 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>zero</key>
         <string>صفر</string>
         <key>one</key>
@@ -67,11 +67,11 @@
         <key>two</key>
         <string>اثنان</string>
         <key>few</key>
-        <string>عدة</string>
+        <string>القليل من</string>
         <key>many</key>
-        <string>كثير</string>
+        <string>الكثير من</string>
         <key>other</key>
-        <string>اخرى</string>
+        <string>أخرى</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -83,7 +83,7 @@
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
+        <string>d</string>
         <key>zero</key>
         <string>صفر</string>
         <key>one</key>
@@ -91,11 +91,11 @@
         <key>two</key>
         <string>اثنان</string>
         <key>few</key>
-        <string>عدة</string>
+        <string>القليل من</string>
         <key>many</key>
-        <string>كثير</string>
+        <string>الكثير من</string>
         <key>other</key>
-        <string>اخرى</string>
+        <string>أخرى</string>
       </dict>
     </dict>
   </dict>
