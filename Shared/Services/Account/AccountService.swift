@@ -21,6 +21,10 @@ public enum AccountError: Error {
   case missingToken
 }
 
+public enum SecondOnboardingError: Error {
+  case notApplicable
+}
+
 extension AccountError: LocalizedError {
   public var errorDescription: String? {
     switch self {
@@ -70,6 +74,8 @@ public protocol AccountServiceProtocol {
 
   func logout() throws
   func deleteAccount() async throws -> String
+
+  func getSecondOnboarding() async throws -> Data
 }
 
 public final class AccountService: AccountServiceProtocol {
@@ -300,5 +306,22 @@ public final class AccountService: AccountServiceProtocol {
     try logout()
 
     return response.message
+  }
+
+  // TODO: Update return type
+  public func getSecondOnboarding() async throws -> Data {
+    guard
+      let customerInfo = Purchases.shared.cachedCustomerInfo,
+      customerInfo.activeSubscriptions.isEmpty,
+      let regionCode = Locale.current.regionCode
+    else {
+      throw SecondOnboardingError.notApplicable
+    }
+
+    return try await provider.request(.secondOnboarding(
+      anonymousId: customerInfo.id,
+      firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
+      region: regionCode
+    ))
   }
 }

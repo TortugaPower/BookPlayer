@@ -91,7 +91,8 @@ class MainCoordinator: NSObject {
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
         syncService: syncService
-      )
+      ), 
+      accountService: self.accountService
     )
     playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator

@@ -346,6 +346,7 @@
 		634BA5462C0BD0190015314D /* pride@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634BA5442C0BD0180015314D /* pride@3x.png */; };
 		634BA5492C0BD06B0015314D /* pride-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634BA5472C0BD06B0015314D /* pride-ipad@3x.png */; };
 		634BA54A2C0BD06B0015314D /* pride-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634BA5482C0BD06B0015314D /* pride-ipad@2x.png */; };
+		634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA54B2C0C21AF0015314D /* SecondOnboardingCoordinator.swift */; };
 		634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */; };
 		6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
@@ -1084,6 +1085,7 @@
 		634BA5442C0BD0180015314D /* pride@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride@3x.png"; sourceTree = "<group>"; };
 		634BA5472C0BD06B0015314D /* pride-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-ipad@3x.png"; sourceTree = "<group>"; };
 		634BA5482C0BD06B0015314D /* pride-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-ipad@2x.png"; sourceTree = "<group>"; };
+		634BA54B2C0C21AF0015314D /* SecondOnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingCoordinator.swift; sourceTree = "<group>"; };
 		634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookStartPlaybackIntent.swift; sourceTree = "<group>"; };
 		6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationActivityItemSource.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -1565,6 +1567,7 @@
 				4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */,
 				4158388226EBD76A00F4A12B /* LibraryListCoordinator.swift */,
 				4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */,
+				634BA54B2C0C21AF0015314D /* SecondOnboardingCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
@@ -3420,6 +3423,7 @@
 				41188D2826ED4D5C0017124E /* ItemListViewController.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
+				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,
 				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
