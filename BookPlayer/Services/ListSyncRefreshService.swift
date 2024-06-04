@@ -12,6 +12,7 @@ import Foundation
 enum BPSyncRefreshError: Error {
   /// There are queued tasks and can't fetch remote data
   case scheduledTasks
+  case disabled
 }
 
 class ListSyncRefreshService: BPLogger {

@@ -217,7 +217,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
       do {
         try await viewModel.refreshAppState()
         tableView.refreshControl?.endRefreshing()
-      } catch {
+      } catch BPSyncRefreshError.scheduledTasks {
         tableView.refreshControl?.endRefreshing()
 
         /// Allow the refresh animation to complete and avoid jumping when showing the alert
@@ -235,6 +235,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
             ]
           ))
         }
+      } catch {
+        tableView.refreshControl?.endRefreshing()
       }
     }
   }

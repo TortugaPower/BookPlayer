@@ -21,6 +21,10 @@ public enum AccountError: Error {
   case missingToken
 }
 
+public enum SecondOnboardingError: Error {
+  case notApplicable
+}
+
 extension AccountError: LocalizedError {
   public var errorDescription: String? {
     switch self {
@@ -38,9 +42,11 @@ extension AccountError: LocalizedError {
 
 public protocol AccountServiceProtocol {
   func getAccountId() -> String?
+  func getAnonymousId() -> String?
   func getAccount() -> Account?
   func hasAccount() -> Bool
-  func hasActiveSubscription() -> Bool
+  func hasSyncEnabled() -> Bool
+  func hasPlusAccess() -> Bool
 
   func createAccount(donationMade: Bool)
 
@@ -57,9 +63,10 @@ public protocol AccountServiceProtocol {
   func getSubscriptionOptions() async throws -> [PricingModel]
 
   func subscribe(option: PricingModel) async throws -> Bool
+  func subscribe(option: PricingOption) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  func loginTestAccount(token: String) throws
+  func loginTestAccount(token: String) async throws
   func login(
     with token: String,
     userId: String
@@ -70,6 +77,8 @@ public protocol AccountServiceProtocol {
 
   func logout() throws
   func deleteAccount() async throws -> String
+
+  func getSecondOnboarding<T: Decodable>() async throws -> T
 }
 
 public final class AccountService: AccountServiceProtocol {
@@ -104,6 +113,10 @@ public final class AccountService: AccountServiceProtocol {
     }
   }
 
+  public func getAnonymousId() -> String? {
+    return Purchases.shared.cachedCustomerInfo?.id
+  }
+
   public func getAccount() -> Account? {
     let context = self.dataManager.getContext()
     let fetch: NSFetchRequest<Account> = Account.fetchRequest()
@@ -123,8 +136,16 @@ public final class AccountService: AccountServiceProtocol {
     return false
   }
 
-  public func hasActiveSubscription() -> Bool {
-    return getAccount()?.hasSubscription == true
+  public func hasSyncEnabled() -> Bool {
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true
+  }
+
+  public func hasPlusAccess() -> Bool {
+    let entitlements = Purchases.shared.cachedCustomerInfo?.entitlements.all
+
+    return entitlements?["plus"]?.isActive == true ||
+    entitlements?["pro"]?.isActive == true ||
+    getAccount()?.donationMade == true
   }
 
   public func createAccount(donationMade: Bool) {
@@ -208,7 +229,15 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func subscribe(option: PricingModel) async throws -> Bool {
-    let products = await Purchases.shared.products([option.id])
+    return try await subscribe(productId: option.id)
+  }
+
+  public func subscribe(option: PricingOption) async throws -> Bool {
+    return try await subscribe(productId: option.rawValue)
+  }
+
+  private func subscribe(productId: String) async throws -> Bool {
+    let products = await Purchases.shared.products([productId])
 
     guard let product = products.first else {
       throw AccountError.emptyProducts
@@ -227,15 +256,18 @@ public final class AccountService: AccountServiceProtocol {
     return try await Purchases.shared.restorePurchases()
   }
 
-  public func loginTestAccount(token: String) throws {
+  public func loginTestAccount(token: String) async throws {
+    let userId = "001918.a2d23624056d45618b7c2699d98c535e.2333"
     self.updateAccount(
-      id: "001918.a2d23624056d45618b7c2699d98c535e.2333",
+      id: userId,
       email: "gcarlo89@hotmail.com",
       donationMade: true,
       hasSubscription: true
     )
 
     try self.keychain.setAccessToken(token)
+
+    _ = try await Purchases.shared.logIn(userId)
   }
 
   public func login(
@@ -300,5 +332,21 @@ public final class AccountService: AccountServiceProtocol {
     try logout()
 
     return response.message
+  }
+
+  public func getSecondOnboarding<T: Decodable>() async throws -> T {
+    guard
+      let customerInfo = Purchases.shared.cachedCustomerInfo,
+      customerInfo.activeSubscriptions.isEmpty,
+      let countryCode = await Storefront.currentStorefront?.countryCode
+    else {
+      throw SecondOnboardingError.notApplicable
+    }
+
+    return try await provider.request(.secondOnboarding(
+      anonymousId: customerInfo.id,
+      firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
+      region: countryCode
+    ))
   }
 }

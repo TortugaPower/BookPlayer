@@ -29,7 +29,7 @@ class LoginCoordinator: Coordinator, AlertPresenter {
 
   func start() {
     let viewModel = LoginViewModel(accountService: self.accountService)
-    viewModel.coordinator = self
+    viewModel.alertPresenter = self
     viewModel.onTransition = { routes in
       switch routes {
       case .completeAccount:

@@ -130,7 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       syncService = sharedSyncService
     } else {
       syncService = SyncService(
-        isActive: accountService.hasActiveSubscription(),
+        isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService
       )
       AppDelegate.shared?.syncService = syncService

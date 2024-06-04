@@ -148,8 +148,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        self?.isActive = false
+      .sink(receiveValue: { _ in
         UserDefaults.standard.set(
           false,
           forKey: Constants.UserDefaults.hasScheduledLibraryContents
