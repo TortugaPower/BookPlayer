@@ -43,10 +43,11 @@ extension AccountAPI: Endpoint {
       return ["token_id": token]
     case .delete:
       return nil
-    case .secondOnboarding(let anonymousId, let firstSeen):
+    case .secondOnboarding(let anonymousId, let firstSeen, let region):
       return [
         "id": anonymousId,
-        "first_seen": firstSeen
+        "first_seen": firstSeen,
+        "region": region
       ]
     }
   }
