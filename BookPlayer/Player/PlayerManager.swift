@@ -1003,6 +1003,7 @@ extension PlayerManager {
     }
 
     load(nextBook, autoplay: shouldAutoplay)
+    libraryService.setLibraryLastBook(with: nextBook.relativePath)
   }
 
   /// Check `UTType` of the book before returning it
