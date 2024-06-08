@@ -404,30 +404,32 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
-    do {
-      let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
-      syncService.scheduleUpload(items: [folder])
-      if let fetchedItems = items {
-        try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-        syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
-      }
-      try self.libraryService.updateFolder(at: folder.relativePath, type: type)
-      libraryService.rebuildFolderDetails(folder.relativePath)
+    Task { @MainActor in
+      do {
+        let folder = try self.libraryService.createFolder(with: title, inside: self.folderRelativePath)
+        await syncService.scheduleUpload(items: [folder])
+        if let fetchedItems = items {
+          try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+          syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+        }
+        try self.libraryService.updateFolder(at: folder.relativePath, type: type)
+        libraryService.rebuildFolderDetails(folder.relativePath)
 
-      // stop playback if folder items contain that current item
-      if let items = items,
-         let currentRelativePath = self.playerManager.currentItem?.relativePath,
-         items.contains(currentRelativePath) {
-        self.playerManager.stop()
+        // stop playback if folder items contain that current item
+        if let items = items,
+           let currentRelativePath = self.playerManager.currentItem?.relativePath,
+           items.contains(currentRelativePath) {
+          self.playerManager.stop()
+        }
+
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
       }
 
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
+      self.coordinator.reloadItemsWithPadding(padding: 1)
     }
-
-    self.coordinator.reloadItemsWithPadding(padding: 1)
   }
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
@@ -1012,37 +1014,39 @@ extension ItemListViewModel {
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
     guard !files.isEmpty else { return }
 
-    let processedItems = libraryService.insertItems(from: files)
-    var itemIdentifiers = processedItems.map({ $0.relativePath })
-    do {
-      syncService.scheduleUpload(items: processedItems)
-      /// Move imported files to current selected folder so the user can see them
-      if let folderRelativePath {
-        try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
-        syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
-        /// Update identifiers after moving for the follow up action alert
-        itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+    Task { @MainActor in
+      let processedItems = libraryService.insertItems(from: files)
+      var itemIdentifiers = processedItems.map({ $0.relativePath })
+      do {
+        await syncService.scheduleUpload(items: processedItems)
+        /// Move imported files to current selected folder so the user can see them
+        if let folderRelativePath {
+          try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
+          syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
+          /// Update identifiers after moving for the follow up action alert
+          itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+        }
+      } catch {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(message: error.localizedDescription)
+        ))
+        return
       }
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(message: error.localizedDescription)
-      ))
-      return
+
+      self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
+
+      let availableFolders = self.libraryService.getItems(
+        notIn: itemIdentifiers,
+        parentFolder: folderRelativePath
+      )?.filter({ $0.type == .folder }) ?? []
+
+      showOperationCompletedAlert(
+        itemIdentifiers: itemIdentifiers,
+        hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
+        availableFolders: availableFolders,
+        suggestedFolderName: suggestedFolderName
+      )
     }
-
-    self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
-
-    let availableFolders = self.libraryService.getItems(
-      notIn: itemIdentifiers,
-      parentFolder: folderRelativePath
-    )?.filter({ $0.type == .folder }) ?? []
-
-    showOperationCompletedAlert(
-      itemIdentifiers: itemIdentifiers,
-      hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
-      availableFolders: availableFolders,
-      suggestedFolderName: suggestedFolderName
-    )
   }
 
   // swiftlint:disable:next function_body_length
