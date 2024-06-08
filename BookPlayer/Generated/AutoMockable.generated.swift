@@ -1600,12 +1600,12 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     var scheduleUploadItemsReceivedItems: [SimpleLibraryItem]?
     var scheduleUploadItemsReceivedInvocations: [[SimpleLibraryItem]] = []
-    var scheduleUploadItemsClosure: (([SimpleLibraryItem]) -> Void)?
-    func scheduleUpload(items: [SimpleLibraryItem]) {
+    var scheduleUploadItemsClosure: (([SimpleLibraryItem]) async -> Void)?
+    func scheduleUpload(items: [SimpleLibraryItem]) async {
         scheduleUploadItemsCallsCount += 1
         scheduleUploadItemsReceivedItems = items
         scheduleUploadItemsReceivedInvocations.append(items)
-        scheduleUploadItemsClosure?(items)
+        await scheduleUploadItemsClosure?(items)
     }
     //MARK: - scheduleDelete
 
