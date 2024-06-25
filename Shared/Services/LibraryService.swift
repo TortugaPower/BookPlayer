@@ -172,6 +172,8 @@ public final class LibraryService: LibraryServiceProtocol {
   }
 
   private func rebuildRelativePaths(for item: LibraryItem, parentFolder: String?) {
+    let originalPath = item.relativePath!
+
     switch item {
     case let book as Book:
       if let parentPath = parentFolder {
@@ -180,6 +182,8 @@ public final class LibraryService: LibraryServiceProtocol {
       } else {
         book.relativePath = book.originalFileName
       }
+
+      ArtworkService.moveCachedImage(from: originalPath, to: book.relativePath)
     case let folder as Folder:
       /// Get contents before updating relative path
       let contents = fetchRawContents(
@@ -196,6 +200,8 @@ public final class LibraryService: LibraryServiceProtocol {
       } else {
         folder.relativePath = folder.originalFileName
       }
+
+      ArtworkService.moveCachedImage(from: originalPath, to: folder.relativePath)
 
       for nestedItem in contents {
         rebuildRelativePaths(for: nestedItem, parentFolder: folder.relativePath)

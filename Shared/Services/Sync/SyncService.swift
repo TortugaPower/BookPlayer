@@ -56,7 +56,7 @@ public protocol SyncServiceProtocol {
 
   func downloadRemoteFiles(for item: SimpleLibraryItem) async throws
 
-  func scheduleUpload(items: [SimpleLibraryItem])
+  func scheduleUpload(items: [SimpleLibraryItem]) async
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
@@ -475,24 +475,23 @@ extension SyncService {
   }
 
   /// Schedule upload tasks for recently imported books and folders
-  public func scheduleUpload(items: [SimpleLibraryItem]) {
+  public func scheduleUpload(items: [SimpleLibraryItem]) async {
     guard isActive else { return }
-    Task {
-      let syncItems = items.map({ SyncableItem(from: $0) })
 
-      let folders = items.filter({ $0.type != .book })
+    let syncItems = items.map({ SyncableItem(from: $0) })
 
-      var itemsToUpload = syncItems
+    let folders = items.filter({ $0.type != .book })
 
-      for folder in folders {
-        if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
-           !contents.isEmpty {
-          itemsToUpload.append(contentsOf: contents)
-        }
+    var itemsToUpload = syncItems
+
+    for folder in folders {
+      if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
+         !contents.isEmpty {
+        itemsToUpload.append(contentsOf: contents)
       }
-
-      await handleItemsToUpload(itemsToUpload)
     }
+
+    await handleItemsToUpload(itemsToUpload)
   }
 
   /// Check if there's an upload task queued for the item
