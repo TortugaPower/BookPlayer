@@ -30,7 +30,23 @@ final class SleepTimer {
   /// Current time left on the timer
   @Published public var state: SleepTimerState = .off
   /// Last manually set sleep timer
-  private var lastActiveState: SleepTimerState = .off
+  private var lastActiveState: SleepTimerState {
+    didSet {
+      let lastEnabledTimer: Double
+      switch lastActiveState {
+      case .off:
+        lastEnabledTimer = -1
+      case .countdown(let timeInterval):
+        lastEnabledTimer = timeInterval
+      case .endOfChapter:
+        lastEnabledTimer = -2
+      }
+      UserDefaults.standard.set(
+        lastEnabledTimer,
+        forKey: Constants.UserDefaults.lastEnabledTimer
+      )
+    }
+  }
   /// Default available options
   public let intervals: [TimeInterval] = [
     300.0,
@@ -47,7 +63,17 @@ final class SleepTimer {
 
   // MARK: Internals
 
-  private init() {}
+  private init() {
+    let lastTimer = UserDefaults.standard.double(forKey: Constants.UserDefaults.lastEnabledTimer)
+    switch lastTimer {
+    case -2:
+      lastActiveState = .endOfChapter
+    case -1, 0:
+      lastActiveState = .off
+    default:
+      lastActiveState = .countdown(lastTimer)
+    }
+  }
 
   /// Cancels any ongoing timer, and set the state to `.off`
   private func reset() {
