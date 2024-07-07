@@ -76,7 +76,7 @@ class SettingsViewModel: ViewModelProtocol {
   }
 
   func hasMadeDonation() -> Bool {
-    return account?.hasSubscription == true
+    return accountService.hasSyncEnabled()
   }
 
   /// Handle registering the value in `UserDefaults`

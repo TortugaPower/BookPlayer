@@ -19,8 +19,34 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   weak var importCoordinator: ImportCoordinator?
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
+  /// Account service
+  let accountService: AccountServiceProtocol
 
   private var disposeBag = Set<AnyCancellable>()
+
+  /// Initializer
+  init(
+    flow: BPCoordinatorPresentationFlow,
+    playerManager: PlayerManagerProtocol,
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol,
+    importManager: ImportManager,
+    listRefreshService: ListSyncRefreshService,
+    accountService: AccountServiceProtocol
+  ) {
+    self.accountService = accountService
+
+    super.init(
+      flow: flow,
+      playerManager: playerManager,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      syncService: syncService,
+      importManager: importManager,
+      listRefreshService: listRefreshService
+    )
+  }
 
   // swiftlint:disable:next function_body_length
   override func start() {
@@ -84,6 +110,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   func handleLibraryLoaded() {
     loadLastBookIfNeeded()
     syncList()
+    showSecondOnboarding()
     bindImportObserverIfNeeded()
     bindDownloadErrorObserver()
 
@@ -92,6 +119,21 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         ActionParserService.handleAction(action)
       }
     }
+  }
+
+  func showSecondOnboarding() {
+    guard let anonymousId = accountService.getAnonymousId() else { return }
+
+    let coordinator = SecondOnboardingCoordinator(
+      flow: .modalOnlyFlow(
+        presentingController: flow.navigationController,
+        modalPresentationStyle: .fullScreen
+      ),
+      anonymousId: anonymousId,
+      accountService: accountService,
+      eventsService: EventsService()
+    )
+    coordinator.start()
   }
 
   func bindImportObserverIfNeeded() {

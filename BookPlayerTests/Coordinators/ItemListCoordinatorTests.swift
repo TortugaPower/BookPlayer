@@ -40,7 +40,8 @@ class LibraryListCoordinatorTests: XCTestCase {
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
         syncService: syncServiceMock
-      )
+      ),
+      accountService: coreServices.accountService
     )
 
     self.libraryListCoordinator.start()

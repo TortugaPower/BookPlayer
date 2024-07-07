@@ -10,7 +10,12 @@ import AuthenticationServices
 import BookPlayerKit
 import Foundation
 
-class LoginViewModel: ViewModelProtocol {
+protocol LoginViewModelProtocol: ObservableObject {
+  func handleSignIn(authorization: ASAuthorization)
+  func dismiss()
+}
+
+class LoginViewModel: LoginViewModelProtocol {
   enum Routes {
     case completeAccount
     case dismiss
@@ -18,7 +23,7 @@ class LoginViewModel: ViewModelProtocol {
 
   var onTransition: BPTransition<Routes>?
 
-  weak var coordinator: LoginCoordinator!
+  weak var alertPresenter: AlertPresenter!
   let accountService: AccountServiceProtocol
 
   init(accountService: AccountServiceProtocol) {
@@ -27,14 +32,27 @@ class LoginViewModel: ViewModelProtocol {
 
   /// This should only be used when running the app in the simulator
   func setupTestAccount() {
-    do {
-      let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
-      try self.accountService.loginTestAccount(token: token)
-    } catch {
-      self.coordinator.showError(error)
-    }
+    Task {
+      await MainActor.run { [weak self] in
+        self?.alertPresenter.showLoader()
+      }
+      do {
+        let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
+        try await self.accountService.loginTestAccount(token: token)
+        await MainActor.run { [weak self] in
+          self?.alertPresenter.stopLoader()
+        }
+      } catch {
+        await MainActor.run { [weak self, error] in
+          self?.alertPresenter.stopLoader()
+          self?.handleError(error)
+        }
+      }
 
-    onTransition?(.completeAccount)
+      await MainActor.run { [weak self] in
+        self?.onTransition?(.completeAccount)
+      }
+    }
   }
 
   func handleSignIn(authorization: ASAuthorization) {
@@ -44,13 +62,13 @@ class LoginViewModel: ViewModelProtocol {
         let tokenData = appleIDCredential.identityToken,
         let token = String(data: tokenData, encoding: .utf8)
       else {
-        self.coordinator.showError(AccountError.missingToken)
+        handleError(AccountError.missingToken)
         return
       }
 
       Task { [weak self, accountService, token, appleIDCredential] in
         await MainActor.run { [weak self] in
-          self?.coordinator.showLoader()
+          self?.alertPresenter.showLoader()
         }
 
         do {
@@ -60,7 +78,7 @@ class LoginViewModel: ViewModelProtocol {
           )
 
           await MainActor.run { [weak self, account] in
-            self?.coordinator.stopLoader()
+            self?.alertPresenter.stopLoader()
 
             if let account = account,
                !account.hasSubscription {
@@ -71,8 +89,8 @@ class LoginViewModel: ViewModelProtocol {
           }
         } catch {
           await MainActor.run { [weak self, error] in
-            self?.coordinator.stopLoader()
-            self?.coordinator.showError(error)
+            self?.alertPresenter.stopLoader()
+            self?.handleError(error)
           }
         }
       }
@@ -83,6 +101,14 @@ class LoginViewModel: ViewModelProtocol {
   }
 
   func handleError(_ error: Error) {
-    self.coordinator.showError(error)
+    alertPresenter.showAlert(
+      "error_title".localized,
+      message: error.localizedDescription,
+      completion: nil
+    )
+  }
+
+  func dismiss() {
+    onTransition?(.dismiss)
   }
 }

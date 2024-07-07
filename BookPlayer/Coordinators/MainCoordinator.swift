@@ -91,7 +91,8 @@ class MainCoordinator: NSObject {
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
         syncService: syncService
-      )
+      ), 
+      accountService: self.accountService
     )
     playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator
@@ -127,17 +128,19 @@ class MainCoordinator: NSObject {
       .sink(receiveValue: { [weak self] _ in
         guard
           let self = self,
-          let account = self.accountService.getAccount()
+          self.accountService.hasAccount()
         else { return }
 
-        if account.hasSubscription, !account.id.isEmpty {
+        if self.accountService.hasSyncEnabled() {
           if !self.syncService.isActive {
             self.syncService.isActive = true
             self.getLibraryCoordinator()?.syncList()
           }
         } else {
-          self.syncService.isActive = false
-          self.syncService.cancelAllJobs()
+          if self.syncService.isActive {
+            self.syncService.isActive = false
+            self.syncService.cancelAllJobs()
+          }
         }
 
       })

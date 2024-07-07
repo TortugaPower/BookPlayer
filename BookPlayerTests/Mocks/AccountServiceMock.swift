@@ -11,8 +11,20 @@ import Foundation
 import RevenueCat
 
 class AccountServiceMock: AccountServiceProtocol {
-  func hasActiveSubscription() -> Bool {
-    return account?.hasSubscription == true
+  func getAnonymousId() -> String? {
+    return nil
+  }
+
+  func hasSyncEnabled() -> Bool {
+    return false
+  }
+
+  func hasPlusAccess() -> Bool {
+    return false
+  }
+
+  func getSecondOnboarding<T: Decodable>() async throws -> T {
+    throw BookPlayerError.cancelledTask
   }
 
   var account: Account?
@@ -81,6 +93,11 @@ class AccountServiceMock: AccountServiceProtocol {
     return true
   }
 
+  func subscribe(option: BookPlayerKit.PricingOption) async throws -> Bool {
+    self.account?.hasSubscription = true
+    return true
+  }
+
   func restorePurchases() async throws -> CustomerInfo {
     self.account?.hasSubscription = true
     return try await Purchases.shared.customerInfo()
@@ -93,7 +110,7 @@ class AccountServiceMock: AccountServiceProtocol {
     return self.account
   }
 
-  func loginTestAccount(token: String) throws {}
+  func loginTestAccount(token: String) async throws {}
 
   func logout() throws {}
 

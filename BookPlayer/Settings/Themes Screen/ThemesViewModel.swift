@@ -27,7 +27,7 @@ final class ThemesViewModel {
   @Published var account: Account?
 
   var hasSubscription: Bool {
-    return account?.hasSubscription == true
+    return accountService.hasSyncEnabled()
   }
 
   /// Callback to handle actions on this screen
@@ -65,7 +65,7 @@ final class ThemesViewModel {
   }
 
   func hasMadeDonation() -> Bool {
-    return (self.account?.donationMade ?? false) || account?.hasSubscription == true
+    return accountService.hasPlusAccess()
   }
 
   func showPro() {
