@@ -64,6 +64,15 @@ extension Book {
   }
 
   public func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
+    if !asset.availableChapterLocales.isEmpty {
+      setStandardChapters(from: asset, context: context)
+    } else if #available(iOS 16.0, watchOS 9.0, *) {
+      setOverdriveChapters(from: asset, context: context)
+    }
+  }
+
+  /// Store chapters that are automatically parsed by the native SDK
+  private func setStandardChapters(from asset: AVAsset, context: NSManagedObjectContext) {
     for locale in asset.availableChapterLocales {
       let chaptersMetadata = asset.chapterMetadataGroups(
         withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork]
@@ -83,6 +92,52 @@ extension Book {
 
         self.addToChapters(chapter)
       }
+    }
+  }
+
+  /// Try to store chapters info from the TXXX tag for mp3s (used by Overdrive)
+  /// Note: `XMLParser` does not have an async/await API, so I would rather use regex with
+  /// what was introduced in iOS 16 to parse the info
+  @available(iOS 16.0, watchOS 9.0, *)
+  private func setOverdriveChapters(from asset: AVAsset, context: NSManagedObjectContext) {
+    guard
+      let fileURL,
+      fileURL.pathExtension == "mp3",
+      let overdriveMetadata = asset.metadata.first(where: { $0.identifier?.rawValue == "id3/TXXX" })?.value as? String
+    else { return }
+
+    let matches = overdriveMetadata.matches(of: /<Marker>(.+?)<\/Marker>/)
+    var chapters = [Chapter]()
+
+    for (index, match) in matches.enumerated() {
+      let (_, marker) = match.output
+
+      guard let (_, timeMatch) = marker.matches(of: /<Time>(.+?)<\/Time>/).first?.output else {
+        continue
+      }
+
+      let chapter = Chapter(context: context)
+      chapter.index = Int16(index + 1)
+      chapter.start = TimeParser.getDuration(from: String(timeMatch))
+
+      if let (_, nameMatch) = marker.matches(of: /<Name>(.+?)<\/Name>/).first?.output {
+        chapter.title = String(nameMatch)
+      } else {
+        chapter.title = ""
+      }
+
+      chapters.append(chapter)
+    }
+
+    /// Overdrive markers do not include the duration, we have to parse it from the next chapter over
+    for (index, chapter) in chapters.enumerated() {
+      if index == chapters.endIndex - 1 {
+        chapter.duration = self.duration - chapter.start
+      } else {
+        chapter.duration = chapters[index + 1].start - chapter.start
+      }
+
+      self.addToChapters(chapter)
     }
   }
 
@@ -166,5 +221,23 @@ extension Book {
     }
     self.type = .book
     // chapters will be loaded after the book is downloaded
+  }
+}
+
+extension String {
+  func matches(for regex: String, in text: String) -> [String] {
+    do {
+      let regex = try NSRegularExpression(pattern: regex)
+      let results = regex.matches(
+        in: text,
+        range: NSRange(text.startIndex..., in: text)
+      )
+      return results.map {
+        String(text[Range($0.range, in: text)!])
+      }
+    } catch let error {
+      print("invalid regex: \(error.localizedDescription)")
+      return []
+    }
   }
 }

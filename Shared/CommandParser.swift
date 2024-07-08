@@ -284,4 +284,24 @@ public class TimeParser {
 
     return (Double(Int(time * multiplier)) / multiplier)
   }
+
+  /// Get duration in seconds from a string with the format HH:mm:ss or mm:ss
+  public class func getDuration(from formattedTime: String) -> Double {
+    let components = formattedTime.split(separator: ":")
+
+    let hours: Double
+    let minutes: Double
+    let seconds: Double
+    if components.count == 3 {
+      hours = Double(String(components[0])) ?? 0
+      minutes = Double(String(components[1])) ?? 0
+      seconds = Double(String(components[2])) ?? 0
+    } else {
+      hours = 0
+      minutes = Double(String(components[0])) ?? 0
+      seconds = Double(String(components[1])) ?? 0
+    }
+
+    return (hours * 3600) + (minutes * 60) + seconds
+  }
 }
