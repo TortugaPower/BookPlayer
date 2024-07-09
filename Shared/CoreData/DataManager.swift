@@ -18,20 +18,13 @@ public class DataManager {
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
   private var pendingSaveContext: DispatchWorkItem?
-
-  public init(coreDataStack: CoreDataStack) {
-    self.coreDataStack = coreDataStack
-  }
-  // MARK: - Folder URLs
-
-  public class func getDocumentsFolderURL() -> URL {
+  private static var documentsFolderURL: URL = {
     return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-  }
+  }()
+  private static var processedFolderURL: URL = {
+    let documentsURL = documentsFolderURL
 
-  public class func getProcessedFolderURL() -> URL {
-    let documentsURL = self.getDocumentsFolderURL()
-
-    let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
+    let processedFolderURL = documentsURL.appendingPathComponent(processedFolderName)
 
     if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
       do {
@@ -41,6 +34,19 @@ public class DataManager {
       }
     }
 
+    return processedFolderURL
+  }()
+
+  public init(coreDataStack: CoreDataStack) {
+    self.coreDataStack = coreDataStack
+  }
+  // MARK: - Folder URLs
+
+  public class func getDocumentsFolderURL() -> URL {
+    return documentsFolderURL
+  }
+
+  public class func getProcessedFolderURL() -> URL {
     return processedFolderURL
   }
 

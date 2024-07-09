@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 /// sourcery: AutoMockable
 public protocol PlaybackServiceProtocol {
@@ -286,10 +287,21 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     var currentDuration = 0.0
+    var index = 0
 
-    return items.enumerated()
-      .map({ (index, book) in
+    return items
+      .compactMap({ book in
+        let fileExtension = book.fileURL.pathExtension
+
+        /// If file is not audiovisual content, don't include it as part of the playback item
+        if !fileExtension.isEmpty,
+           let fileType = UTType(filenameExtension: fileExtension),
+           !fileType.isSubtype(of: .audiovisualContent) {
+          return nil
+        }
+
         let truncatedDuration = TimeParser.truncateTime(book.duration)
+        index += 1
 
         let chapter = PlayableChapter(
           title: book.title,
@@ -298,7 +310,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: Int16(index + 1)
+          index: Int16(index)
         )
 
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
