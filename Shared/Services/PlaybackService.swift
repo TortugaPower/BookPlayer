@@ -287,7 +287,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     }
 
     var currentDuration = 0.0
-    var index = 0
+    var index: Int16 = 0
 
     return items
       .compactMap({ book in
@@ -310,7 +310,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: Int16(index)
+          index: index
         )
 
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
