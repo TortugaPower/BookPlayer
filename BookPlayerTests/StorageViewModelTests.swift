@@ -46,6 +46,9 @@ final class StorageViewModelMissingFileTests: XCTestCase {
   }
 
   func testSetup(with filename: String) {
+    /// Avoid making the second onboarding network call
+    AppDelegate.shared?.accountService = AccountServiceMock(account: nil)
+
     let bookContents = "bookcontents".data(using: .utf8)!
 
     let documentsURL = DataManager.getDocumentsFolderURL()
@@ -77,7 +80,7 @@ final class StorageViewModelMissingFileTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Items load expectation")
     expectation.isInverted = true
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 3.0)
 
     let loadedItems: [StorageItem] = self.viewModel.publishedFiles
     XCTAssert(loadedItems.count == 1)
@@ -99,7 +102,7 @@ final class StorageViewModelMissingFileTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Items load expectation")
     expectation.isInverted = true
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 3.0)
 
     let loadedItems: [StorageItem] = viewModel.publishedFiles
     XCTAssert(loadedItems.count == 1)
@@ -116,7 +119,7 @@ final class StorageViewModelMissingFileTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Items load expectation")
     expectation.isInverted = true
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 3.0)
 
     guard let item = viewModel.publishedFiles.first else {
       return

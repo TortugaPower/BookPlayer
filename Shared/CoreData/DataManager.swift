@@ -21,7 +21,8 @@ public class DataManager {
   private static var documentsFolderURL: URL = {
     return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
   }()
-  private static var processedFolderURL: URL = {
+  /// Prefer using this instead of ``getProcessedFolderURL()``, as it's calculated just once
+  public static var processedFolderURL: URL = {
     let documentsURL = documentsFolderURL
 
     let processedFolderURL = documentsURL.appendingPathComponent(processedFolderName)
@@ -46,7 +47,18 @@ public class DataManager {
     return documentsFolderURL
   }
 
+  /// Keeping original implementation due to unit tests behaviors
   public class func getProcessedFolderURL() -> URL {
+    let processedFolderURL = documentsFolderURL.appendingPathComponent(processedFolderName)
+
+    if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: processedFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Processed folder")
+      }
+    }
+
     return processedFolderURL
   }
 
