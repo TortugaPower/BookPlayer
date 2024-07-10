@@ -39,7 +39,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
   }
 
   public var fileURL: URL {
-    return DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    return DataManager.processedFolderURL.appendingPathComponent(relativePath)
   }
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
