@@ -641,9 +641,17 @@ extension ItemListViewController: UIDropInteractionDelegate {
       }
     } else if #available(iOS 16.0, *) {
       /// Fallback in case it's a folder
-      _ = item.itemProvider.loadFileRepresentation(for: .folder) { [weak self] url, _, _ in
+      _ = item.itemProvider.loadFileRepresentation(for: .folder) { url, _, _ in
         guard let url else { return }
-        self?.viewModel.importData(from: url)
+
+        let destinationURL = DataManager.getDocumentsFolderURL()
+          .appendingPathComponent(url.lastPathComponent)
+
+        do {
+          try FileManager.default.moveItem(at: url, to: destinationURL)
+        } catch {
+          print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
+        }
       }
     }
   }
