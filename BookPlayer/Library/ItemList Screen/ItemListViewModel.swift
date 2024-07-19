@@ -997,6 +997,8 @@ class ItemListViewModel: ViewModelProtocol {
 
 // MARK: - Import related functions
 extension ItemListViewModel {
+  typealias ImportVolumeParams = (hasOnlyBooks: Bool, singleFolder: SimpleLibraryItem?)
+
   func handleNewFiles(_ urls: [URL]) {
     let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
     let documentsFolder = DataManager.getDocumentsFolderURL()
@@ -1044,9 +1046,13 @@ extension ItemListViewModel {
         parentFolder: folderRelativePath
       )?.filter({ $0.type == .folder }) ?? []
 
+      let singleFolder: SimpleLibraryItem? = processedItems.count == 1 && processedItems.allSatisfy({ $0.type == .folder })
+      ? processedItems.first : nil
+      let hasOnlyBooks = processedItems.allSatisfy({ $0.type == .book })
+
       showOperationCompletedAlert(
         itemIdentifiers: itemIdentifiers,
-        hasOnlyBooks: processedItems.allSatisfy({ $0.type == .book }),
+        volumeParams: (hasOnlyBooks, singleFolder),
         availableFolders: availableFolders,
         suggestedFolderName: suggestedFolderName
       )
@@ -1056,7 +1062,7 @@ extension ItemListViewModel {
   // swiftlint:disable:next function_body_length
   func showOperationCompletedAlert(
     itemIdentifiers: [String],
-    hasOnlyBooks: Bool,
+    volumeParams: ImportVolumeParams,
     availableFolders: [SimpleLibraryItem],
     suggestedFolderName: String?
   ) {
@@ -1114,11 +1120,15 @@ extension ItemListViewModel {
 
     actions.append(BPActionItem(
       title: "bound_books_create_button".localized,
-      isEnabled: hasOnlyBooks,
+      isEnabled: volumeParams.hasOnlyBooks || volumeParams.singleFolder != nil,
       handler: { [firstTitle, weak self] in
         let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
 
-        self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
+        if volumeParams.hasOnlyBooks {
+          self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
+        } else if let singleFolder = volumeParams.singleFolder {
+          self?.updateFolders([singleFolder], type: .bound)
+        }
       }
     ))
 
