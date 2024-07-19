@@ -631,12 +631,20 @@ extension ItemListViewController: UIDropInteractionDelegate {
   func handleDroppedItem(_ item: UIDragItem) {
     let providerReference = item.itemProvider
 
-    item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
-      guard let item = object as? ImportableItem else { return }
-      /// Set `suggesteName` from the provider
-      item.suggestedName = providerReference.suggestedName
+    if item.itemProvider.canLoadObject(ofClass: ImportableItem.self) {
+      item.itemProvider.loadObject(ofClass: ImportableItem.self) { [weak self] (object, _) in
+        guard let item = object as? ImportableItem else { return }
+        /// Set `suggesteName` from the provider
+        item.suggestedName = providerReference.suggestedName
 
-      self?.viewModel.importData(from: item)
+        self?.viewModel.importData(from: item)
+      }
+    } else if #available(iOS 16.0, *) {
+      /// Fallback in case it's a folder
+      _ = item.itemProvider.loadFileRepresentation(for: .folder) { [weak self] url, _, _ in
+        guard let url else { return }
+        self?.viewModel.importData(from: url)
+      }
     }
   }
 }

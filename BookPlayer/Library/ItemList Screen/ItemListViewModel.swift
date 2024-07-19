@@ -1186,6 +1186,17 @@ extension ItemListViewModel {
       print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
   }
+
+  func importData(from url: URL) {
+    let destinationURL = DataManager.getDocumentsFolderURL()
+      .appendingPathComponent(url.lastPathComponent)
+
+    do {
+      try FileManager.default.moveItem(at: url, to: destinationURL)
+    } catch {
+      print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
+    }
+  }
 }
 
 // MARK: - Network related handlers
