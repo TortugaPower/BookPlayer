@@ -21,7 +21,7 @@ public class EventsService: EventsServiceProtocol, BPLogger {
     self.provider = NetworkProvider(client: client)
   }
 
-  public func sendEvent(_ event: String, payload: [String : Any]) {
+  public func sendEvent(_ event: String, payload: [String: Any]) {
     Task {
       do {
         let _: Empty = try await provider.request(.sendEvent(event: event, payload: payload))
