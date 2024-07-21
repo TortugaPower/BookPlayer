@@ -73,7 +73,7 @@ extension SyncableItem: Decodable {
     self.duration = try container.decodeIfPresent(Double.self, forKey: .duration) ?? 0.0
     self.percentCompleted = try container.decodeIfPresent(Double.self, forKey: .percentCompleted) ?? 0.0
     self.isFinished = try container.decode(Bool.self, forKey: .isFinished)
-    self.orderRank = try container.decode(Int.self, forKey: .orderRank)
+    self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
   }

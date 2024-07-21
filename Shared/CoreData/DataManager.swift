@@ -18,6 +18,25 @@ public class DataManager {
   public static var loadingDataError: Error?
   private let coreDataStack: CoreDataStack
   private var pendingSaveContext: DispatchWorkItem?
+  private static var documentsFolderURL: URL = {
+    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+  }()
+  /// Prefer using this instead of ``getProcessedFolderURL()``, as it's calculated just once
+  public static var processedFolderURL: URL = {
+    let documentsURL = documentsFolderURL
+
+    let processedFolderURL = documentsURL.appendingPathComponent(processedFolderName)
+
+    if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: processedFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Processed folder")
+      }
+    }
+
+    return processedFolderURL
+  }()
 
   public init(coreDataStack: CoreDataStack) {
     self.coreDataStack = coreDataStack
@@ -25,13 +44,12 @@ public class DataManager {
   // MARK: - Folder URLs
 
   public class func getDocumentsFolderURL() -> URL {
-    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    return documentsFolderURL
   }
 
+  /// Keeping original implementation due to unit tests behaviors
   public class func getProcessedFolderURL() -> URL {
-    let documentsURL = self.getDocumentsFolderURL()
-
-    let processedFolderURL = documentsURL.appendingPathComponent(self.processedFolderName)
+    let processedFolderURL = documentsFolderURL.appendingPathComponent(processedFolderName)
 
     if !FileManager.default.fileExists(atPath: processedFolderURL.path) {
       do {
