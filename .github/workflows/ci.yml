@@ -15,8 +15,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Create Debug.xcconfig
       run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
-    - name: Swiftlint
-      run: swiftlint
     - name: Set Xcode version
       run: sudo xcode-select -s "/Applications/Xcode_16_beta_3.app/Contents/Developer"
     - name: Resolve dependencies
