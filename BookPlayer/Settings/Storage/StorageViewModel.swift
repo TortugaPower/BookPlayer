@@ -55,7 +55,9 @@ final class StorageViewModel: StorageViewModelProtocol {
 
   @Published var publishedFiles = [StorageItem]() {
     didSet {
-      self.showFixAllButton = self.publishedFiles.contains { $0.showWarning }
+      DispatchQueue.main.async {
+        self.showFixAllButton = self.publishedFiles.contains { $0.showWarning }
+      }
     }
   }
   @Published var showFixAllButton = false
@@ -402,7 +404,9 @@ final class StorageViewModel: StorageViewModelProtocol {
           ))
         }
       } else {
-        completionHandler()
+        await MainActor.run {
+          completionHandler()
+        }
       }
     }
   }
