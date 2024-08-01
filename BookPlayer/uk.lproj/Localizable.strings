@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Завантажувати за допомогою мобільних даних";
 "warning_title" = "УВАГА";
 "sync_tasks_item_upload_queued" = "Є завдання завантаження в черзі для: \n %@ \n Видалення файлу не дозволить програмі завантажити його";
+"intent_custom_skipforward_title" = "Перехід вперед з інтервалом";
+"intent_custom_skip_request_title" = "Скільки часу?";
+"intent_custom_interval_title" = "Проміжок часу";
+"Skip forward ${interval}" = "Перейти вперед ${interval}";
+"intent_custom_skiprewind_title" = "Перемотування назад з інтервалом";
+"Rewind ${interval}" = "Перемотати ${interval}";

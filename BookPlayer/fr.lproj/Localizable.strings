@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Télécharger à l'aide de données cellulaires";
 "warning_title" = "Avertissement";
 "sync_tasks_item_upload_queued" = "Il existe une tâche de téléchargement en file d'attente pour : \n %@ \n La suppression du fichier empêchera l'application de le télécharger";
+"intent_custom_skipforward_title" = "Avancer avec un intervalle";
+"intent_custom_skip_request_title" = "Combien de temps?";
+"intent_custom_interval_title" = "Intervalle de temps";
+"Skip forward ${interval}" = "Avancer ${interval}";
+"intent_custom_skiprewind_title" = "Rembobiner avec intervalle";
+"Rewind ${interval}" = "Rembobiner ${interval}";

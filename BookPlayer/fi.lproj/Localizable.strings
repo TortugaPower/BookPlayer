@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Lataa mobiilidatan avulla";
 "warning_title" = "Varoitus";
 "sync_tasks_item_upload_queued" = "Jonossa on lähetystehtävä kohteelle: \n %@ \n Tiedoston poistaminen estää sovellusta lataamasta sitä";
+"intent_custom_skipforward_title" = "Hyppää eteenpäin intervallin kanssa";
+"intent_custom_skip_request_title" = "Kuinka paljon aikaa?";
+"intent_custom_interval_title" = "Aikaväli";
+"Skip forward ${interval}" = "Siirry eteenpäin ${interval}";
+"intent_custom_skiprewind_title" = "Kelaa taaksepäin intervalleilla";
+"Rewind ${interval}" = "Kelaa taaksepäin ${interval}";

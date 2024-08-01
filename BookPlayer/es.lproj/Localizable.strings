@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Subir usando datos móviles";
 "warning_title" = "Advertencia";
 "sync_tasks_item_upload_queued" = "Hay una tarea de carga en cola para: \n %@ \n Eliminar el archivo evitará que la aplicación lo cargue";
+"intent_custom_skipforward_title" = "Saltar hacia adelante con intervalo";
+"intent_custom_skip_request_title" = "¿Cuanto tiempo?";
+"intent_custom_interval_title" = "Intervalo de tiempo";
+"Skip forward ${interval}" = "Saltar hacia adelante ${interval}";
+"intent_custom_skiprewind_title" = "Rebobinar con intervalo";
+"Rewind ${interval}" = "Rebobinar ${interval}";

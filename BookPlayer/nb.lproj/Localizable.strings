@@ -311,3 +311,9 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "datausage_upload_wifionly_title" = "Last opp ved hjelp av mobildata";
 "warning_title" = "Advarsel";
 "sync_tasks_item_upload_queued" = "Det er en opplastingsoppgave i kø for: \n %@ \n Fjerning av filen vil hindre appen i å laste den opp";
+"intent_custom_skipforward_title" = "Hopp fremover med intervall";
+"intent_custom_skip_request_title" = "Hvor mye tid?";
+"intent_custom_interval_title" = "Tidsintervall";
+"Skip forward ${interval}" = "Hopp fremover ${interval}";
+"intent_custom_skiprewind_title" = "Spol tilbake med intervall";
+"Rewind ${interval}" = "Spol tilbake ${interval}";
