@@ -311,3 +311,9 @@ We're working hard on providing a seamless experience, if possible, please conta
 "datausage_upload_wifionly_title" = "Upload using cellular data";
 "warning_title" = "Warning";
 "sync_tasks_item_upload_queued" = "There's a queued upload task for:\n%@\nRemoving the file will prevent the app from uploading it";
+"intent_custom_skipforward_title" = "Skip forward with interval";
+"intent_custom_skip_request_title" = "How much time?";
+"intent_custom_interval_title" = "Time interval";
+"Skip forward ${interval}" = "Skip forward ${interval}";
+"intent_custom_skiprewind_title" = "Rewind with interval";
+"Rewind ${interval}" = "Rewind ${interval}";
