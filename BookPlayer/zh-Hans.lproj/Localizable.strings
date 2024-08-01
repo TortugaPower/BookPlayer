@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "使用蜂窝数据上传";
 "warning_title" = "警告";
 "sync_tasks_item_upload_queued" = "有一个排队上传任务： \n %@ \n删除文件将阻止应用程序上传该文件";
+"intent_custom_skipforward_title" = "按间隔向前跳过";
+"intent_custom_skip_request_title" = "多少时间？";
+"intent_custom_interval_title" = "时间间隔";
+"Skip forward ${interval}" = "向前跳过${interval}";
+"intent_custom_skiprewind_title" = "间隔倒带";
+"Rewind ${interval}" = "后退 ${interval}";

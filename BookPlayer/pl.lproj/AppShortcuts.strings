@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Ustaw wyłącznik czasowy w ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Włącz wyłącznik czasowy w ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Włącz wyłącznik czasowy w ${applicationName}";
+"Rewind in ${applicationName}" = "Przewiń do tyłu w ${applicationName}";
+"Jump back in ${applicationName}" = "Wróć do ${applicationName}";
+"Skip back in ${applicationName}" = "Przejdź z powrotem do ${applicationName}";
+"Go back in ${applicationName}" = "Wróć do ${applicationName}";
+"Fast forward in ${applicationName}" = "Przewiń do przodu w ${applicationName}";
+"Skip forward in ${applicationName}" = "Przejdź do przodu w ${applicationName}";
+"Jump forward in ${applicationName}" = "Przejdź do przodu w ${applicationName}";

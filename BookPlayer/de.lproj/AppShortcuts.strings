@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Stellen Sie den Sleep-Timer in ${applicationName} ein";
 "Turn on the sleep timer in ${applicationName}" = "Schalten Sie den Sleep-Timer in ${applicationName} ein";
 "Enable the sleep timer in ${applicationName}" = "Aktivieren Sie den Sleep-Timer in ${applicationName}";
+"Rewind in ${applicationName}" = "Zurückspulen in ${applicationName}";
+"Jump back in ${applicationName}" = "Zurückspringen in ${applicationName}";
+"Skip back in ${applicationName}" = "Zurückspringen in ${applicationName}";
+"Go back in ${applicationName}" = "Gehen Sie zurück in ${applicationName}";
+"Fast forward in ${applicationName}" = "Schneller Vorlauf in ${applicationName}";
+"Skip forward in ${applicationName}" = "Vorwärts springen in ${applicationName}";
+"Jump forward in ${applicationName}" = "Vorwärts springen in ${applicationName}";

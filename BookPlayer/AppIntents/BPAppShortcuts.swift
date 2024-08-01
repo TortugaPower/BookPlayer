@@ -57,6 +57,25 @@ struct BPAppShortcuts: AppShortcutsProvider {
         ],
         systemImageName: "moon.fill"
       ),
+      AppShortcut(
+        intent: CustomRewindIntent(),
+        phrases: [
+          "Rewind in \(.applicationName)",
+          "Jump back in \(.applicationName)",
+          "Skip back in \(.applicationName)",
+          "Go back in \(.applicationName)",
+        ],
+        systemImageName: "arrow.counterclockwise"
+      ),
+      AppShortcut(
+        intent: CustomSkipForwardIntent(),
+        phrases: [
+          "Fast forward in \(.applicationName)",
+          "Skip forward in \(.applicationName)",
+          "Jump forward in \(.applicationName)",
+        ],
+        systemImageName: "arrow.clockwise"
+      ),
     ]
   }
 

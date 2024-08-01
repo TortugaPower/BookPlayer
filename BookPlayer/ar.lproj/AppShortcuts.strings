@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "ضبط مؤقت النوم في ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "تشغيل مؤقت النوم في ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "تشغيل مؤقت النوم في ${applicationName}";
+"Rewind in ${applicationName}" = "الترجيع في ${applicationName}";
+"Jump back in ${applicationName}" = "انتقل مرة أخرى إلى ${applicationName}";
+"Skip back in ${applicationName}" = "التخطي مرة أخرى في ${applicationName}";
+"Go back in ${applicationName}" = "العودة في ${applicationName}";
+"Fast forward in ${applicationName}" = "تقدم سريعًا في ${applicationName}";
+"Skip forward in ${applicationName}" = "التخطي للأمام في ${applicationName}";
+"Jump forward in ${applicationName}" = "الانتقال للأمام في ${applicationName}";

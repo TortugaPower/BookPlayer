@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Przesyłaj, korzystając z komórkowej transmisji danych";
 "warning_title" = "Ostrzeżenie";
 "sync_tasks_item_upload_queued" = "W kolejce znajduje się zadanie przesyłania dla: \n %@ \n Usunięcie pliku uniemożliwi przesyłanie go przez aplikację";
+"intent_custom_skipforward_title" = "Przeskocz do przodu z interwałem";
+"intent_custom_skip_request_title" = "Ile czasu?";
+"intent_custom_interval_title" = "Przedział czasowy";
+"Skip forward ${interval}" = "Przejdź do przodu ${interval}";
+"intent_custom_skiprewind_title" = "Przewijanie do tyłu z interwałem";
+"Rewind ${interval}" = "Przewiń ${interval}";

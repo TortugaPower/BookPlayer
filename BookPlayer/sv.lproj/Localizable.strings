@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Ladda upp med mobildata";
 "warning_title" = "Varning";
 "sync_tasks_item_upload_queued" = "Det finns en uppladdningsuppgift i kö för: \n %@ \n Om du tar bort filen förhindrar appen att ladda upp den";
+"intent_custom_skipforward_title" = "Hoppa framåt med intervall";
+"intent_custom_skip_request_title" = "Hur mycket tid?";
+"intent_custom_interval_title" = "Tidsintervall";
+"Skip forward ${interval}" = "Hoppa framåt ${interval}";
+"intent_custom_skiprewind_title" = "Spola tillbaka med intervall";
+"Rewind ${interval}" = "Spola tillbaka ${interval}";

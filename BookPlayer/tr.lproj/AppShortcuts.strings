@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "${applicationName} uygulamasında uyku zamanlayıcısını ayarlayın";
 "Turn on the sleep timer in ${applicationName}" = "${applicationName} uygulamasında uyku zamanlayıcısını açın";
 "Enable the sleep timer in ${applicationName}" = "${applicationName} uygulamasında uyku zamanlayıcısını etkinleştirin";
+"Rewind in ${applicationName}" = "${applicationName} uygulamasında geri sar";
+"Jump back in ${applicationName}" = "${applicationName} e geri dönün";
+"Skip back in ${applicationName}" = "${applicationName} uygulamasında geri atla";
+"Go back in ${applicationName}" = "${applicationName} uygulamasına geri dönün";
+"Fast forward in ${applicationName}" = "${applicationName} uygulamasında hızlı ileri sar";
+"Skip forward in ${applicationName}" = "${applicationName} uygulamasında ileri atla";
+"Jump forward in ${applicationName}" = "${applicationName} içinde ileri atlayın";

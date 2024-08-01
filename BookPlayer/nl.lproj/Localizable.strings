@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Uploaden met mobiele data";
 "warning_title" = "Waarschuwing";
 "sync_tasks_item_upload_queued" = "Er staat een uploadtaak in de wachtrij voor: \n %@ \n Als u het bestand verwijdert, kan de app het niet uploaden";
+"intent_custom_skipforward_title" = "Vooruit springen met interval";
+"intent_custom_skip_request_title" = "Hoeveel tijd?";
+"intent_custom_interval_title" = "Tijdsinterval";
+"Skip forward ${interval}" = "Vooruit springen ${interval}";
+"intent_custom_skiprewind_title" = "Terugspoelen met interval";
+"Rewind ${interval}" = "Terugspoelen ${interval}";

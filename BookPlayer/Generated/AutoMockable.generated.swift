@@ -1209,6 +1209,21 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         forwardCallsCount += 1
         forwardClosure?()
     }
+    //MARK: - skip
+
+    var skipCallsCount = 0
+    var skipCalled: Bool {
+        return skipCallsCount > 0
+    }
+    var skipReceivedInterval: TimeInterval?
+    var skipReceivedInvocations: [TimeInterval] = []
+    var skipClosure: ((TimeInterval) -> Void)?
+    func skip(_ interval: TimeInterval) {
+        skipCallsCount += 1
+        skipReceivedInterval = interval
+        skipReceivedInvocations.append(interval)
+        skipClosure?(interval)
+    }
     //MARK: - jumpTo
 
     var jumpToRecordBookmarkCallsCount = 0

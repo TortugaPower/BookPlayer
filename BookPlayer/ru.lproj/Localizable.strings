@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Загрузка с использованием сотовых данных";
 "warning_title" = "Предупреждение";
 "sync_tasks_item_upload_queued" = "Существует задача загрузки в очередь для: \n %@ \n Удаление файла не позволит приложению загрузить его.";
+"intent_custom_skipforward_title" = "Перейти вперед с интервалом";
+"intent_custom_skip_request_title" = "Сколько времени?";
+"intent_custom_interval_title" = "Временной интервал";
+"Skip forward ${interval}" = "Перейти вперед ${interval}";
+"intent_custom_skiprewind_title" = "Перемотка назад с интервалом";
+"Rewind ${interval}" = "Перемотка назад ${interval}";

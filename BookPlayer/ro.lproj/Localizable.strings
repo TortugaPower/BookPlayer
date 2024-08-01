@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Încărcați folosind date celulare";
 "warning_title" = "Avertizare";
 "sync_tasks_item_upload_queued" = "Există o sarcină de încărcare în coadă pentru: \n %@ \n Eliminarea fișierului va împiedica aplicația să îl încarce";
+"intent_custom_skipforward_title" = "Sari înainte cu interval";
+"intent_custom_skip_request_title" = "Cât timp?";
+"intent_custom_interval_title" = "Interval de timp";
+"Skip forward ${interval}" = "Salt înainte ${interval}";
+"intent_custom_skiprewind_title" = "Derulați înapoi cu interval";
+"Rewind ${interval}" = "Derulați înapoi ${interval}";

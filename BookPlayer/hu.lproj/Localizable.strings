@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Feltöltés mobiladat-kapcsolaton keresztül";
 "warning_title" = "Figyelem";
 "sync_tasks_item_upload_queued" = "Várakozóban van egy feltöltési feladat a következőhöz: \n %@ \n A fájl eltávolításával az alkalmazás nem tudja feltölteni";
+"intent_custom_skipforward_title" = "Ugrás előre intervallumokkal";
+"intent_custom_skip_request_title" = "Mennyi időt?";
+"intent_custom_interval_title" = "Időintervallum";
+"Skip forward ${interval}" = "Ugrás előre ${interval}";
+"intent_custom_skiprewind_title" = "Visszatekerés időközzel";
+"Rewind ${interval}" = "Visszatekerés ${interval}";
