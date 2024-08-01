@@ -165,9 +165,16 @@ public class ImportOperation: Operation {
   }
 
   private func hasExistingBook(_ fileURL: URL) -> Bool {
-    guard let existingBook = self.libraryService.findBooks(containing: fileURL)?.first,
-          let existingFileURL = existingBook.fileURL,
-          !FileManager.default.fileExists(atPath: existingFileURL.path) else { return false }
+    guard
+      let existingBook = self.libraryService.findBooks(containing: fileURL)?.first,
+      let existingFileURL = existingBook.fileURL,
+      !FileManager.default.fileExists(atPath: existingFileURL.path)
+    else { return false }
+
+    // Add support for iCloud documents
+    let accessGranted = fileURL.startAccessingSecurityScopedResource()
+
+    defer { fileURL.stopAccessingSecurityScopedResource() }
 
     do {
       // create parent folder if it doesn't exist
@@ -177,10 +184,15 @@ public class ImportOperation: Operation {
         try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
       }
 
-      try FileManager.default.moveItem(at: fileURL, to: existingFileURL)
-      try (existingFileURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+      if accessGranted {
+        try FileManager.default.copyItem(at: fileURL, to: existingFileURL)
+      } else {
+        try FileManager.default.moveItem(at: fileURL, to: existingFileURL)
+      }
+
+      existingFileURL.disableFileProtection()
     } catch {
-      fatalError("Fail to move file from \(fileURL) to \(existingFileURL)")
+      fatalError("Existing book, fail to move file from \(fileURL) to \(existingFileURL). Error: \(error.localizedDescription)")
     }
 
     return true
