@@ -1,0 +1,18 @@
+/* 
+  Localizable.strings
+  BookPlayer
+
+  Created by Gianni Carlo on 12/29/19.
+  Copyright © 2019 Tortuga Power. All rights reserved.
+*/
+
+"library_title" = "Βιβλιοθήκη";
+"ok_button" = "Εντάξει";
+"recent_title" = "Πρόσφατος";
+"watchapp_last_played_title" = "Τελευταία αναπαραγωγή";
+"watchapp_refresh_data_title" = "Ανανέωση δεδομένων";
+"watchapp_connect_error_title" = "Σφάλμα συνδεσιμότητας";
+"watchapp_connect_error_description" = "Παρουσιάστηκε πρόβλημα με τη σύνδεση με το τηλέφωνό σας, δοκιμάστε ξανά αργότερα";
+"chapters_title" = "Κεφάλαια";
+"settings_controls_title" = "Χειριστήρια αναπαραγωγού";
+"settings_boostvolume_title" = "Ενίσχυση όγκου";

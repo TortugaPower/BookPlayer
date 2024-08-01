@@ -1132,6 +1132,10 @@
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationFileActivityItemProvider.swift; sourceTree = "<group>"; };
 		636086002C5B3EB400341D78 /* CustomRewindIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRewindIntent.swift; sourceTree = "<group>"; };
+		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		636086052C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
 		6376091A2ADCD81400A01D5D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091C2ADCD82100A01D5D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
@@ -3062,6 +3066,7 @@
 				nl,
 				nb,
 				"pt-PT",
+				el,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -3926,6 +3931,7 @@
 				9F2DC9CE29FEDFFF006CDF1F /* nl */,
 				9F5011F32A62027C0075FEBA /* nb */,
 				630584E32ADEB88500FBFA6F /* pt-PT */,
+				636086022C5B589900341D78 /* el */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -4004,6 +4010,7 @@
 				9F2DC9CF29FEDFFF006CDF1F /* nl */,
 				9F5011F42A62027C0075FEBA /* nb */,
 				630584E42ADEB88500FBFA6F /* pt-PT */,
+				636086032C5B589900341D78 /* el */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4034,6 +4041,7 @@
 				9F2DC9D029FEDFFF006CDF1F /* nl */,
 				9F5011F52A62027C0075FEBA /* nb */,
 				630584E22ADEB88500FBFA6F /* pt-PT */,
+				636086052C5B589900341D78 /* el */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4071,6 +4079,7 @@
 				6376092E2ADCD83C00A01D5D /* tr */,
 				6376092F2ADCD83D00A01D5D /* uk */,
 				633BE3E12AE43D1300F983AC /* pt-PT */,
+				636086042C5B589900341D78 /* el */,
 			);
 			name = AppShortcuts.strings;
 			sourceTree = "<group>";
