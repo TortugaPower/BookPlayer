@@ -130,7 +130,7 @@ struct StoryView: View {
         duration: 2,
         action: .init(
           options: [
-            .supportTier3,
+            .supportTier4,
             .proMonthly,
             .supportTier10
           ],
