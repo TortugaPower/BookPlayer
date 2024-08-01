@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Állítsa be az elalvási időzítőt ${applicationName} alkalmazásban";
 "Turn on the sleep timer in ${applicationName}" = "Kapcsolja be az elalvási időzítőt a ${applicationName} alkalmazásban";
 "Enable the sleep timer in ${applicationName}" = "Engedélyezze az elalvási időzítőt ${applicationName} alkalmazásban";
+"Rewind in ${applicationName}" = "Visszatekerés itt: ${applicationName}";
+"Jump back in ${applicationName}" = "Ugrás vissza itt: ${applicationName}";
+"Skip back in ${applicationName}" = "Ugrás vissza itt: ${applicationName}";
+"Go back in ${applicationName}" = "Menjen vissza itt: ${applicationName}";
+"Fast forward in ${applicationName}" = "Gyors előrelépés a ${applicationName}";
+"Skip forward in ${applicationName}" = "Ugrás előre itt: ${applicationName}";
+"Jump forward in ${applicationName}" = "Ugrás előre a ${applicationName}";

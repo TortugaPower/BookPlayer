@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Stel de slaaptimer in ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Schakel de slaaptimer in ${applicationName} in";
 "Enable the sleep timer in ${applicationName}" = "Schakel de slaaptimer in ${applicationName} in";
+"Rewind in ${applicationName}" = "Terugspoelen in ${applicationName}";
+"Jump back in ${applicationName}" = "Ga terug naar ${applicationName}";
+"Skip back in ${applicationName}" = "Ga terug naar ${applicationName}";
+"Go back in ${applicationName}" = "Ga terug naar ${applicationName}";
+"Fast forward in ${applicationName}" = "Snel vooruitspoelen in ${applicationName}";
+"Skip forward in ${applicationName}" = "Vooruit springen in ${applicationName}";
+"Jump forward in ${applicationName}" = "Spring vooruit in ${applicationName}";

@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Nastavte časovač spánku v ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Zapněte časovač spánku v ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Povolte časovač spánku v ${applicationName}";
+"Rewind in ${applicationName}" = "Přetočit zpět v ${applicationName}";
+"Jump back in ${applicationName}" = "Přejít zpět do ${applicationName}";
+"Skip back in ${applicationName}" = "Přejít zpět v ${applicationName}";
+"Go back in ${applicationName}" = "Přejít zpět v ${applicationName}";
+"Fast forward in ${applicationName}" = "Rychle vpřed v ${applicationName}";
+"Skip forward in ${applicationName}" = "Přeskočit vpřed v ${applicationName}";
+"Jump forward in ${applicationName}" = "Přejít vpřed v ${applicationName}";

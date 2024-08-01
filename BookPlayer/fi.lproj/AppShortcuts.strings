@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Aseta uniajastin kohteessa ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Ota uniajastin käyttöön kohteessa ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Ota uniajastin käyttöön kohteessa ${applicationName}";
+"Rewind in ${applicationName}" = "Kelaa taaksepäin ${applicationName}";
+"Jump back in ${applicationName}" = "Siirry takaisin sovelluksessa ${applicationName}";
+"Skip back in ${applicationName}" = "Siirry takaisin ${applicationName}";
+"Go back in ${applicationName}" = "Palaa sisään ${applicationName}";
+"Fast forward in ${applicationName}" = "Kelaa eteenpäin kohteessa ${applicationName}";
+"Skip forward in ${applicationName}" = "Siirry eteenpäin kohteessa ${applicationName}";
+"Jump forward in ${applicationName}" = "Siirry eteenpäin kohteessa ${applicationName}";

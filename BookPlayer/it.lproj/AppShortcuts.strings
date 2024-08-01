@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Imposta il timer di spegnimento in ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Attiva il timer di spegnimento in ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Abilita il timer di spegnimento in ${applicationName}";
+"Rewind in ${applicationName}" = "Riavvolgi tra ${applicationName}";
+"Jump back in ${applicationName}" = "Torna indietro in ${applicationName}";
+"Skip back in ${applicationName}" = "Torna indietro a ${applicationName}";
+"Go back in ${applicationName}" = "Torna indietro in ${applicationName}";
+"Fast forward in ${applicationName}" = "Avanza velocemente in ${applicationName}";
+"Skip forward in ${applicationName}" = "Vai avanti in ${applicationName}";
+"Jump forward in ${applicationName}" = "Vai avanti in ${applicationName}";

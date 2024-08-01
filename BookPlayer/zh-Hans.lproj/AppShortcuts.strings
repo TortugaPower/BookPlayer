@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "在${applicationName}中设置睡眠定时器";
 "Turn on the sleep timer in ${applicationName}" = "打开${applicationName}中的睡眠定时器";
 "Enable the sleep timer in ${applicationName}" = "在${applicationName}中启用睡眠计时器";
+"Rewind in ${applicationName}" = "在${applicationName}中后退";
+"Jump back in ${applicationName}" = "返回${applicationName}";
+"Skip back in ${applicationName}" = "跳回${applicationName}";
+"Go back in ${applicationName}" = "返回${applicationName}";
+"Fast forward in ${applicationName}" = "在${applicationName}中快进";
+"Skip forward in ${applicationName}" = "在${applicationName}中向前跳";
+"Jump forward in ${applicationName}" = "在${applicationName}中向前跳转";

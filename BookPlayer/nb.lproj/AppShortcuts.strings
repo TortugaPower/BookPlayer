@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Still inn dvaletimeren i ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Slå på innsovningstimeren i ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Aktiver innsovningstimeren i ${applicationName}";
+"Rewind in ${applicationName}" = "Spol tilbake i ${applicationName}";
+"Jump back in ${applicationName}" = "Hopp tilbake i ${applicationName}";
+"Skip back in ${applicationName}" = "Hopp tilbake i ${applicationName}";
+"Go back in ${applicationName}" = "Gå tilbake i ${applicationName}";
+"Fast forward in ${applicationName}" = "Spol frem i ${applicationName}";
+"Skip forward in ${applicationName}" = "Hopp fremover i ${applicationName}";
+"Jump forward in ${applicationName}" = "Hopp fremover i ${applicationName}";
