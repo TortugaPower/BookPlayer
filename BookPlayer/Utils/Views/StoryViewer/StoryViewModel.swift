@@ -10,8 +10,8 @@ import BookPlayerKit
 import Foundation
 
 struct StoryActionType: Codable {
-  var options: [PricingOption]
-  var defaultOption: PricingOption
+  var options: [PricingModel]
+  var defaultOption: PricingModel
   var sliderOptions: SliderOptions?
   var button: String
   var dismiss: String?

@@ -8,13 +8,15 @@
 
 import SwiftUI
 
-public struct PricingModel: Identifiable, Equatable {
+public struct PricingModel: Identifiable, Equatable, Codable {
   public var id: String
   public let title: String
+  public let price: Double
 
-  public init(id: String, title: String) {
+  public init(id: String, title: String, price: Double) {
     self.id = id
     self.title = title
+    self.price = price
   }
 }
 

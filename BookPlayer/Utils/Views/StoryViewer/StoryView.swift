@@ -15,7 +15,7 @@ struct StoryView: View {
   var onNext: () -> Void
   var onPause: () -> Void
   var onResume: () -> Void
-  var onSubscription: (PricingOption) -> Void
+  var onSubscription: (PricingModel) -> Void
   var onDismiss: () -> Void
 
   var body: some View {
@@ -130,11 +130,11 @@ struct StoryView: View {
         duration: 2,
         action: .init(
           options: [
-            .supportTier4,
-            .proMonthly,
-            .supportTier10
+            .init(id: "supportTier4", title: "$3.99", price: 3.99),
+            .init(id: "proMonthly", title: "$4.99", price: 4.99),
+            .init(id: "supportTier10", title: "$9.99", price: 9.99)
           ],
-          defaultOption: .proMonthly,
+          defaultOption: .init(id: "proMonthly", title: "$4.99", price: 4.99),
           button: ""
         )
       )), onPrevious: {

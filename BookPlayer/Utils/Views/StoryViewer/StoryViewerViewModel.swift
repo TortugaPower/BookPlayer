@@ -75,7 +75,7 @@ class StoryViewerViewModel: ObservableObject {
     cancellable?.cancel()
   }
 
-  func handleSubscription(option: PricingOption) {
+  func handleSubscription(option: PricingModel) {
     Task { @MainActor [weak self] in
       guard let self = self else { return }
 

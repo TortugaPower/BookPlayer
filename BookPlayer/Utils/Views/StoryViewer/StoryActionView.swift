@@ -11,25 +11,33 @@ import SwiftUI
 
 struct StoryActionView: View {
   @Binding var action: StoryActionType
-  @State private var selected: PricingOption
+  @State private var selected: PricingModel
   @State private var showSlider = false
   @State private var sliderValue: Double
-  private var sliderSelectedOption: PricingOption? {
+  private var sliderSelectedOption: PricingModel? {
     let intValue = Int(ceil(sliderValue))
 
-    return PricingOption.parseValue(intValue)
+    guard let option = PricingOption.parseValue(intValue) else {
+      return nil
+    }
+
+    return PricingModel(
+      id: option.rawValue,
+      title: option.title,
+      price: option.cost
+    )
   }
-  var onSubscription: (PricingOption) -> Void
+  var onSubscription: (PricingModel) -> Void
   var onDismiss: () -> Void
 
   init(
     action: Binding<StoryActionType>,
-    onSubscription: @escaping (PricingOption) -> Void,
+    onSubscription: @escaping (PricingModel) -> Void,
     onDismiss: @escaping () -> Void
   ) {
     self._action = action
     self.selected = action.wrappedValue.defaultOption
-    self.sliderValue = action.wrappedValue.defaultOption.cost
+    self.sliderValue = action.wrappedValue.defaultOption.price
     self.onSubscription = onSubscription
     self.onDismiss = onDismiss
   }
@@ -50,12 +58,12 @@ struct StoryActionView: View {
           ) {
             Text("Pay what you think is fair")
           } minimumValueLabel: {
-            Text(String(format: "$%.0f", action.options.first!.cost))
+            Text(String(format: "$%.0f", action.options.first!.price))
               .font(Font(Fonts.title))
               .foregroundColor(.white)
               .accessibilityHidden(true)
           } maximumValueLabel: {
-            Text(String(format: "$%.0f", action.options.last!.cost))
+            Text(String(format: "$%.0f", action.options.last!.price))
               .font(Font(Fonts.title))
               .foregroundColor(.white)
               .accessibilityHidden(true)
@@ -135,8 +143,12 @@ struct StoryActionView: View {
     StoryBackgroundView()
     StoryActionView(
       action: .constant(.init(
-        options: [.supportTier4, .supportTier7, .supportTier10],
-        defaultOption: .proMonthly,
+        options: [
+          .init(id: "supportTier4", title: "$3.99", price: 3.99),
+          .init(id: "proMonthly", title: "$4.99", price: 4.99),
+          .init(id: "supportTier10", title: "$9.99", price: 9.99)
+        ],
+        defaultOption: .init(id: "proMonthly", title: "$4.99", price: 4.99),
         sliderOptions: .init(min: 3.99, max: 9.99),
         button: "Continue"
       )),
