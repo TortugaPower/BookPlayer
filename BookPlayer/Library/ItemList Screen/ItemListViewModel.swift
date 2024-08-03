@@ -925,12 +925,13 @@ class ItemListViewModel: ViewModelProtocol {
           BPActionItem(
             title: "download_title".localized,
             inputHandler: { [weak self] url in
+              guard let self else { return }
+
               do {
-                if let bookUrl = try self?.getDownloadURL(for: url) {
-                  self?.handleDownload(bookUrl)
-                }
+                let bookUrl = try self.getDownloadURL(for: url)
+                self.handleDownload(bookUrl)
               } catch {
-                self?.sendEvent(.showAlert(
+                self.sendEvent(.showAlert(
                   content: BPAlertContent.errorAlert(message: error.localizedDescription)
                 ))
               }
@@ -1314,7 +1315,7 @@ extension ItemListViewModel {
     ))
   }
 
-  func getDownloadURL(for givenString : String) throws -> URL {
+  func getDownloadURL(for givenString: String) throws -> URL {
     guard
       let givenUrl = URL(string: givenString),
       let hostname = givenUrl.host
@@ -1322,7 +1323,7 @@ extension ItemListViewModel {
       throw String.localizedStringWithFormat("invalid_url_title".localized, givenString)
     }
     switch hostname {
-    case "drive.google.com" :
+    case "drive.google.com":
       return getGoogleDriveURL(for: givenUrl)
     case "dropbox.com", "www.dropbox.com":
       return try getDropboxURL(for: givenUrl)
@@ -1335,15 +1336,15 @@ extension ItemListViewModel {
     let pathComponents = url.pathComponents
     guard
       let index = pathComponents.firstIndex(of: "d"),
-      index + 1 < pathComponents.count ,
+      index + 1 < pathComponents.count,
       let newUrl = URL(string: "https://drive.google.com/uc?export=download&id=" + pathComponents[index + 1])
     else {
       return url
     }
-    return newUrl;
+    return newUrl
   }
 
-  func getDropboxURL (for url : URL) throws -> URL {
+  func getDropboxURL(for url: URL) throws -> URL {
     guard
       var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
     else {
