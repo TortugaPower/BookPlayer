@@ -679,7 +679,7 @@ extension ItemListViewController {
   }
 
   func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
-    guard self.isViewLoaded else {
+    guard self.isViewLoaded && self.view.window != nil else {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
         self?.showLoadView(show, title: title, subtitle: subtitle)
       }
