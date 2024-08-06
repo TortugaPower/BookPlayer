@@ -925,11 +925,14 @@ class ItemListViewModel: ViewModelProtocol {
           BPActionItem(
             title: "download_title".localized,
             inputHandler: { [weak self] url in
-              if let bookUrl = URL(string: url) {
-                self?.handleDownload(bookUrl)
-              } else {
-                self?.sendEvent(.showAlert(
-                  content: BPAlertContent.errorAlert(message: String.localizedStringWithFormat("invalid_url_title".localized, url))
+              guard let self else { return }
+
+              do {
+                let bookUrl = try self.getDownloadURL(for: url)
+                self.handleDownload(bookUrl)
+              } catch {
+                self.sendEvent(.showAlert(
+                  content: BPAlertContent.errorAlert(message: error.localizedDescription)
                 ))
               }
             }
@@ -1310,6 +1313,51 @@ extension ItemListViewModel {
         message: "Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))"
       )
     ))
+  }
+
+  func getDownloadURL(for givenString: String) throws -> URL {
+    guard
+      let givenUrl = URL(string: givenString),
+      let hostname = givenUrl.host
+    else {
+      throw String.localizedStringWithFormat("invalid_url_title".localized, givenString)
+    }
+    switch hostname {
+    case "drive.google.com":
+      return getGoogleDriveURL(for: givenUrl)
+    case "dropbox.com", "www.dropbox.com":
+      return try getDropboxURL(for: givenUrl)
+    default:
+      return givenUrl
+    }
+  }
+
+  func getGoogleDriveURL(for url: URL) -> URL {
+    let pathComponents = url.pathComponents
+    guard
+      let index = pathComponents.firstIndex(of: "d"),
+      index + 1 < pathComponents.count,
+      let newUrl = URL(string: "https://drive.google.com/uc?export=download&id=" + pathComponents[index + 1])
+    else {
+      return url
+    }
+    return newUrl
+  }
+
+  func getDropboxURL(for url: URL) throws -> URL {
+    guard
+      var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    else {
+      throw String.localizedStringWithFormat("invalid_url_title".localized, url.absoluteString)
+    }
+    var queryItems = urlComponents.queryItems ?? []
+    if let index = queryItems.firstIndex(where: {$0.name == "dl"}) {
+      queryItems[index].value = "1"
+    } else {
+      queryItems.append(URLQueryItem(name: "dl", value: "1"))
+    }
+    urlComponents.queryItems = queryItems
+    return urlComponents.url ?? url
   }
 }
 

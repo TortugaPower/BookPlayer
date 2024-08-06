@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Définir la minuterie de mise en veille dans ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Activez la minuterie de mise en veille dans ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Activer la minuterie de mise en veille dans ${applicationName}";
+"Rewind in ${applicationName}" = "Rembobiner dans ${applicationName}";
+"Jump back in ${applicationName}" = "Revenir dans ${applicationName}";
+"Skip back in ${applicationName}" = "Revenir dans ${applicationName}";
+"Go back in ${applicationName}" = "Revenir dans ${applicationName}";
+"Fast forward in ${applicationName}" = "Avance rapide dans ${applicationName}";
+"Skip forward in ${applicationName}" = "Avancer dans ${applicationName}";
+"Jump forward in ${applicationName}" = "Avancer dans ${applicationName}";

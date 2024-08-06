@@ -31,6 +31,7 @@ public protocol PlayerManagerProtocol: AnyObject {
   func stop()
   func rewind()
   func forward()
+  func skip(_ interval: TimeInterval)
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func jumpToChapter(_ chapter: PlayableChapter)
   func markAsCompleted(_ flag: Bool)
@@ -658,16 +659,17 @@ extension PlayerManager {
   }
 
   func forward() {
-    guard let currentItem = self.currentItem else { return }
-
-    let newTime = currentItem.getInterval(from: PlayerManager.forwardInterval) + currentItem.currentTime
-    self.jumpTo(newTime)
+    skip(PlayerManager.forwardInterval)
   }
 
   func rewind() {
+    skip(-PlayerManager.rewindInterval)
+  }
+
+  func skip(_ interval: TimeInterval) {
     guard let currentItem = self.currentItem else { return }
 
-    let newTime = currentItem.getInterval(from: -PlayerManager.rewindInterval) + currentItem.currentTime
+    let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
     self.jumpTo(newTime)
   }
 }
@@ -810,7 +812,7 @@ extension PlayerManager {
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-    guard 
+    guard
       let path = keyPath,
       path == "status",
       let item = object as? AVPlayerItem

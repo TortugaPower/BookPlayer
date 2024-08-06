@@ -311,3 +311,9 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "datausage_upload_wifionly_title" = "Nahrajte pomocou mobilných dát";
 "warning_title" = "POZOR";
 "sync_tasks_item_upload_queued" = "Vo fronte je úloha nahrávania pre: \n %@ \n Odstránením súboru zabránite aplikácii nahrať ho";
+"intent_custom_skipforward_title" = "Preskočiť dopredu s intervalom";
+"intent_custom_skip_request_title" = "Ako dlho?";
+"intent_custom_interval_title" = "Časový interval";
+"Skip forward ${interval}" = "Preskočiť dopredu ${interval}";
+"intent_custom_skiprewind_title" = "Pretáčanie dozadu s intervalom";
+"Rewind ${interval}" = "Pretočiť ${interval}";

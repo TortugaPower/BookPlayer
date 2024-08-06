@@ -363,6 +363,7 @@
 		634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5AC2C180F5E0015314D /* StoryViewModel.swift */; };
 		634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */; };
 		6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */; };
+		6356D48C2C584EFD00994B71 /* CustomSkipForwardIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
 		6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */; };
 		6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */; };
@@ -374,6 +375,7 @@
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */; };
+		636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636086002C5B3EB400341D78 /* CustomRewindIntent.swift */; };
 		63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63717EA92B792E350006291E /* RefreshTaskOperation.swift */; };
 		637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6376091B2ADCD81400A01D5D /* AppShortcuts.strings */; };
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
@@ -1119,6 +1121,7 @@
 		634BA5AC2C180F5E0015314D /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
 		634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookStartPlaybackIntent.swift; sourceTree = "<group>"; };
 		6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationActivityItemSource.swift; sourceTree = "<group>"; };
+		6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSkipForwardIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndChapterSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -1128,6 +1131,11 @@
 		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationFileActivityItemProvider.swift; sourceTree = "<group>"; };
+		636086002C5B3EB400341D78 /* CustomRewindIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRewindIntent.swift; sourceTree = "<group>"; };
+		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		636086052C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
 		6376091A2ADCD81400A01D5D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091C2ADCD82100A01D5D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
@@ -2201,6 +2209,8 @@
 				6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */,
 				6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */,
 				6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */,
+				6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */,
+				636086002C5B3EB400341D78 /* CustomRewindIntent.swift */,
 				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
 			);
 			path = AppIntents;
@@ -3056,6 +3066,7 @@
 				nl,
 				nb,
 				"pt-PT",
+				el,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -3502,6 +3513,7 @@
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */,
+				636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */,
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
 				634BA5932C160B890015314D /* LoadingBar.swift in Sources */,
 				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
@@ -3609,6 +3621,7 @@
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
 				9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */,
 				41A1B12E226FC7E500EA0400 /* ImportOperation.swift in Sources */,
+				6356D48C2C584EFD00994B71 /* CustomSkipForwardIntent.swift in Sources */,
 				5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9F5F13462977A06300F061A0 /* ProfileCardView.swift in Sources */,
 				410D0FED1EDCF4B000A52EB9 /* SettingsViewController.swift in Sources */,
@@ -3918,6 +3931,7 @@
 				9F2DC9CE29FEDFFF006CDF1F /* nl */,
 				9F5011F32A62027C0075FEBA /* nb */,
 				630584E32ADEB88500FBFA6F /* pt-PT */,
+				636086022C5B589900341D78 /* el */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -3996,6 +4010,7 @@
 				9F2DC9CF29FEDFFF006CDF1F /* nl */,
 				9F5011F42A62027C0075FEBA /* nb */,
 				630584E42ADEB88500FBFA6F /* pt-PT */,
+				636086032C5B589900341D78 /* el */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4026,6 +4041,7 @@
 				9F2DC9D029FEDFFF006CDF1F /* nl */,
 				9F5011F52A62027C0075FEBA /* nb */,
 				630584E22ADEB88500FBFA6F /* pt-PT */,
+				636086052C5B589900341D78 /* el */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4063,6 +4079,7 @@
 				6376092E2ADCD83C00A01D5D /* tr */,
 				6376092F2ADCD83D00A01D5D /* uk */,
 				633BE3E12AE43D1300F983AC /* pt-PT */,
+				636086042C5B589900341D78 /* el */,
 			);
 			name = AppShortcuts.strings;
 			sourceTree = "<group>";
@@ -4099,7 +4116,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4133,7 +4150,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4165,7 +4182,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4201,7 +4218,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4242,7 +4259,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4280,7 +4297,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4449,7 +4466,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4487,7 +4504,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4523,7 +4540,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4676,7 +4693,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4714,7 +4731,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4936,7 +4953,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -4974,7 +4991,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5010,7 +5027,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5049,7 +5066,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5089,7 +5106,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5127,7 +5144,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5219,7 +5236,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.3.2;
+				MARKETING_VERSION = 5.3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5410,7 +5427,7 @@
 			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
 			requirement = {
 				kind = exactVersion;
-				version = 8.21.0;
+				version = 8.32.0;
 			};
 		};
 		41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {

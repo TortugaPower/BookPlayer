@@ -63,7 +63,6 @@ public protocol AccountServiceProtocol {
   func getSubscriptionOptions() async throws -> [PricingModel]
 
   func subscribe(option: PricingModel) async throws -> Bool
-  func subscribe(option: PricingOption) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
   func loginTestAccount(token: String) async throws
@@ -197,8 +196,16 @@ public final class AccountService: AccountServiceProtocol {
 
   public func getHardcodedSubscriptionOptions() -> [PricingModel] {
     return [
-      PricingModel(id: yearlySubscriptionId, title: "49.99 USD \("yearly_title".localized)"),
-      PricingModel(id: monthlySubscriptionId, title: "4.99 USD \("monthly_title".localized)")
+      PricingModel(
+        id: yearlySubscriptionId,
+        title: "49.99 USD \("yearly_title".localized)",
+        price: 49.99
+      ),
+      PricingModel(
+        id: monthlySubscriptionId,
+        title: "4.99 USD \("monthly_title".localized)",
+        price: 4.99
+      )
     ]
   }
 
@@ -210,14 +217,16 @@ public final class AccountService: AccountServiceProtocol {
     if let product = products.first(where: { $0.productIdentifier == yearlySubscriptionId }) {
       options.append(PricingModel(
         id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("yearly_title".localized)"
+        title: "\(product.localizedPriceString) \("yearly_title".localized)",
+        price: product.priceDecimalNumber.doubleValue
       ))
     }
 
     if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
       options.append(PricingModel(
         id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("monthly_title".localized)"
+        title: "\(product.localizedPriceString) \("monthly_title".localized)",
+        price: product.priceDecimalNumber.doubleValue
       ))
     }
 
@@ -230,10 +239,6 @@ public final class AccountService: AccountServiceProtocol {
 
   public func subscribe(option: PricingModel) async throws -> Bool {
     return try await subscribe(productId: option.id)
-  }
-
-  public func subscribe(option: PricingOption) async throws -> Bool {
-    return try await subscribe(productId: option.rawValue)
   }
 
   private func subscribe(productId: String) async throws -> Bool {

@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Hücresel verileri kullanarak yükleme";
 "warning_title" = "Uyarı";
 "sync_tasks_item_upload_queued" = "Şunun için sıraya alınmış bir yükleme görevi var: \n %@ \n Dosyanın kaldırılması uygulamanın onu yüklemesini engelleyecektir";
+"intent_custom_skipforward_title" = "Aralıklı ileri atla";
+"intent_custom_skip_request_title" = "Ne kadar zaman?";
+"intent_custom_interval_title" = "Zaman aralığı";
+"Skip forward ${interval}" = "İleri atla ${interval}";
+"intent_custom_skiprewind_title" = "Aralıklı geri sarma";
+"Rewind ${interval}" = "${interval} geri sar";

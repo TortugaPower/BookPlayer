@@ -41,8 +41,7 @@ class ActionParserService {
     appDelegate.pendingURLActions.append(action)
 
     guard
-      let watchConnectivityService = appDelegate.watchConnectivityService,
-      let playerManager = appDelegate.playerManager
+      let watchConnectivityService = appDelegate.watchConnectivityService
     else { return }
 
     switch action.command {
@@ -60,9 +59,9 @@ class ActionParserService {
       watchConnectivityService.sendApplicationContext()
       self.removeAction(action)
     case .skipRewind:
-      playerManager.rewind()
+      self.handleRewindAction(action)
     case .skipForward:
-      playerManager.forward()
+      self.handleForwardAction(action)
     case .widget:
       self.handleWidgetAction(action)
     case .fileImport:
@@ -73,6 +72,36 @@ class ActionParserService {
       self.handleSpeedRateAction(action)
     case .chapter:
       self.handleChapterAction(action)
+    }
+  }
+
+  private class func handleRewindAction(_ action: Action) {
+    guard
+      let playerManager = AppDelegate.shared?.playerManager
+    else {
+      return
+    }
+
+    if let valueString = action.getQueryValue(for: "interval"),
+       let interval = Double(valueString) {
+      playerManager.skip(-interval)
+    } else {
+      playerManager.rewind()
+    }
+  }
+
+  private class func handleForwardAction(_ action: Action) {
+    guard
+      let playerManager = AppDelegate.shared?.playerManager
+    else {
+      return
+    }
+
+    if let valueString = action.getQueryValue(for: "interval"),
+       let interval = Double(valueString) {
+      playerManager.skip(interval)
+    } else {
+      playerManager.forward()
     }
   }
 

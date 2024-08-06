@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Setați temporizatorul de repaus în ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Activați temporizatorul de repaus în ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Activați temporizatorul de repaus în ${applicationName}";
+"Rewind in ${applicationName}" = "Derulați înapoi în ${applicationName}";
+"Jump back in ${applicationName}" = "Salt înapoi în ${applicationName}";
+"Skip back in ${applicationName}" = "Treceți înapoi în ${applicationName}";
+"Go back in ${applicationName}" = "Reveniți în ${applicationName}";
+"Fast forward in ${applicationName}" = "Înainte rapid în ${applicationName}";
+"Skip forward in ${applicationName}" = "Treceți înainte în ${applicationName}";
+"Jump forward in ${applicationName}" = "Salt înainte în ${applicationName}";

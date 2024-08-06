@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Встановіть таймер сну в ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Увімкніть таймер сну в ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Увімкніть таймер сну в ${applicationName}";
+"Rewind in ${applicationName}" = "Перемотати назад у ${applicationName}";
+"Jump back in ${applicationName}" = "Перейти назад у ${applicationName}";
+"Skip back in ${applicationName}" = "Перейти назад у ${applicationName}";
+"Go back in ${applicationName}" = "Повернутися в ${applicationName}";
+"Fast forward in ${applicationName}" = "Перемотати вперед у ${applicationName}";
+"Skip forward in ${applicationName}" = "Перейти вперед у ${applicationName}";
+"Jump forward in ${applicationName}" = "Перейти вперед у ${applicationName}";

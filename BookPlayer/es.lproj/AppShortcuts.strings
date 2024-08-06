@@ -12,3 +12,10 @@
 "Set the sleep timer in ${applicationName}" = "Configure el temporizador de apagado en ${applicationName}";
 "Turn on the sleep timer in ${applicationName}" = "Active el temporizador de apagado en ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Habilite el temporizador de apagado en ${applicationName}";
+"Rewind in ${applicationName}" = "Rebobinar en ${applicationName}";
+"Jump back in ${applicationName}" = "Retroceder en ${applicationName}";
+"Skip back in ${applicationName}" = "Saltar hacia atrás en ${applicationName}";
+"Go back in ${applicationName}" = "Regrese a ${applicationName}";
+"Fast forward in ${applicationName}" = "Avance rápido en ${applicationName}";
+"Skip forward in ${applicationName}" = "Saltar hacia adelante en ${applicationName}";
+"Jump forward in ${applicationName}" = "Saltar hacia adelante en ${applicationName}";

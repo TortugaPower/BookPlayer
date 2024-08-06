@@ -37,10 +37,10 @@ struct PricingOptionsView_Previews: PreviewProvider {
   static var previews: some View {
     PricingOptionsView(
       options: .constant([
-        PricingModel(id: "yearly", title: "$49.99 per year"),
-        PricingModel(id: "monthly", title: "$4.99 per month")
+        PricingModel(id: "yearly", title: "$49.99 per year", price: 49.99),
+        PricingModel(id: "monthly", title: "$4.99 per month", price: 4.99)
       ]),
-      selected: .constant(PricingModel(id: "yearly", title: "$49.99 per year")),
+      selected: .constant(PricingModel(id: "yearly", title: "$49.99 per year", price: 49.99)),
       isLoading: .constant(false),
       onSelected: nil
     )

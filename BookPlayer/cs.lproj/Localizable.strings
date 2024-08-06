@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Nahrajte pomocí mobilních dat";
 "warning_title" = "Varování";
 "sync_tasks_item_upload_queued" = "Ve frontě je úloha nahrávání pro: \n %@ \n Odebráním souboru zabráníte aplikaci v jeho nahrání";
+"intent_custom_skipforward_title" = "Přeskočit vpřed s intervalem";
+"intent_custom_skip_request_title" = "Jak dlouho?";
+"intent_custom_interval_title" = "Časový interval";
+"Skip forward ${interval}" = "Přeskočit vpřed ${interval}";
+"intent_custom_skiprewind_title" = "Přetočit s intervalem";
+"Rewind ${interval}" = "Přetočit ${interval}";

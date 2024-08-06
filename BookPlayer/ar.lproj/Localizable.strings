@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "تحميل باستخدام البيانات الخلوية";
 "warning_title" = "تحذير";
 "sync_tasks_item_upload_queued" = "توجد مهمة تحميل في قائمة الانتظار لـ: \n %@ \n ستؤدي إزالة الملف إلى منع التطبيق من تحميله";
+"intent_custom_skipforward_title" = "تخطي للأمام مع الفاصل الزمني";
+"intent_custom_skip_request_title" = "كم من الوقت؟";
+"intent_custom_interval_title" = "الفاصل الزمني";
+"Skip forward ${interval}" = "التخطي للأمام ${interval}";
+"intent_custom_skiprewind_title" = "الترجيع مع الفاصل الزمني";
+"Rewind ${interval}" = "ترجيع ${interval}";

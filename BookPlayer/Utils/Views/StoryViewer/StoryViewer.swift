@@ -54,7 +54,7 @@ private class PreviewSubscriptionServiceMock: StoryAccountSubscriptionProtocol {
     throw BPSyncRefreshError.disabled
   }
   
-  func subscribe(option: PricingOption) async throws -> Bool {
+  func subscribe(option: PricingModel) async throws -> Bool {
     return true
   }
 }
@@ -76,7 +76,12 @@ private class PreviewSubscriptionServiceMock: StoryAccountSubscriptionProtocol {
             "Body 2",
           duration: 5,
           action: .init(
-            options: [.supportTier4, .supportTier7, .supportTier10], defaultOption: .supportTier7,
+            options: [
+              .init(id: "supportTier4", title: "$3.99", price: 3.99),
+              .init(id: "proMonthly", title: "$4.99", price: 4.99),
+              .init(id: "supportTier10", title: "$9.99", price: 9.99)
+            ],
+            defaultOption: .init(id: "proMonthly", title: "$4.99", price: 4.99),
             sliderOptions: .init(min: 3.99, max: 9.99), button: "Continue", dismiss: "Not now")),
       ]))
 }

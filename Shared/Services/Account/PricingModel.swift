@@ -8,13 +8,15 @@
 
 import SwiftUI
 
-public struct PricingModel: Identifiable, Equatable {
+public struct PricingModel: Identifiable, Equatable, Codable {
   public var id: String
   public let title: String
+  public let price: Double
 
-  public init(id: String, title: String) {
+  public init(id: String, title: String, price: Double) {
     self.id = id
     self.title = title
+    self.price = price
   }
 }
 
@@ -23,8 +25,6 @@ public enum PricingOption: String, Identifiable, Codable {
 
   public static func parseValue(_ value: Int) -> Self? {
     switch value {
-    case 3:
-      return .supportTier3
     case 4:
       return .supportTier4
     case 5:
@@ -46,7 +46,6 @@ public enum PricingOption: String, Identifiable, Codable {
 
   case proMonthly = "com.tortugapower.audiobookplayer.subscription.pro"
   case proYearly = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
-  case supportTier3 = "com.tortugapower.audiobookplayer.subscription.support.3"
   case supportTier4 = "com.tortugapower.audiobookplayer.subscription.support.4"
   case supportTier6 = "com.tortugapower.audiobookplayer.subscription.support.6"
   case supportTier7 = "com.tortugapower.audiobookplayer.subscription.support.7"
@@ -60,8 +59,6 @@ public enum PricingOption: String, Identifiable, Codable {
       return "$4.99"
     case .proYearly:
       return "$49.99"
-    case .supportTier3:
-      return "$2.99"
     case .supportTier4:
       return "$3.99"
     case .supportTier6:
@@ -83,8 +80,6 @@ public enum PricingOption: String, Identifiable, Codable {
       return 4.99
     case .proYearly:
       return 49.99
-    case .supportTier3:
-      return 2.99
     case .supportTier4:
       return 3.99
     case .supportTier6:

@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Foundation
+import RevenueCat
 import SwiftUI
 
 /// Handle second onboarding flows
@@ -39,19 +40,62 @@ class SecondOnboardingCoordinator: Coordinator {
   }
 
   @MainActor
-  func showOnboarding(data: SecondOnboardingResponse) {
+  func showOnboarding(data: SecondOnboardingResponse) async {
     switch data.type {
     case .support:
+      let stories = await parseStoryData(data.support)
+
       let coordinator = SupportFlowCoordinator(
         flow: flow,
         anonymousId: anonymousId,
         onboardingId: data.onboardingId,
-        stories: data.support,
-        accountService: accountService, 
+        stories: stories,
+        accountService: accountService,
         eventsService: eventsService
       )
       coordinator.start()
     }
+  }
+
+  func parseStoryData(_ data: [StoryResponseModel]) async -> [StoryViewModel] {
+    var stories: [StoryViewModel] = []
+    for model in data {
+      var parsedAction: StoryActionType?
+
+      if let action = model.action {
+        let products = await Purchases.shared.products(action.options)
+        let pricingModels = products.map { PricingModel(
+          id: $0.productIdentifier,
+          title: $0.localizedPriceString,
+          price: $0.priceDecimalNumber.doubleValue
+        ) }.sorted { $0.price < $1.price }
+        let defaultProduct = await Purchases.shared.products([action.defaultOption]).first!
+
+        parsedAction = StoryActionType(
+          options: pricingModels,
+          defaultOption: PricingModel(
+            id: defaultProduct.productIdentifier,
+            title: defaultProduct.localizedPriceString,
+            price: defaultProduct.priceDecimalNumber.doubleValue
+          ),
+          sliderOptions: action.sliderOptions,
+          button: action.button,
+          dismiss: action.dismiss
+        )
+      }
+
+      stories.append(
+        StoryViewModel(
+          title: model.title,
+          body: model.body,
+          image: model.image,
+          duration: model.duration,
+          action: parsedAction
+        )
+      )
+    }
+
+    return stories
   }
 
   func showAlert(_ content: BPAlertContent) {

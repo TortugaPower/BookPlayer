@@ -11,7 +11,7 @@ import Foundation
 
 protocol StoryAccountSubscriptionProtocol {
   func hasAccount() -> Bool
-  func subscribe(option: PricingOption) async throws -> Bool
+  func subscribe(option: PricingModel) async throws -> Bool
   func getSecondOnboarding<T: Decodable>() async throws -> T
 }
 
@@ -22,7 +22,7 @@ struct StoryAccountSubscriptionService: StoryAccountSubscriptionProtocol {
     return accountService.hasAccount()
   }
 
-  func subscribe(option: PricingOption) async throws -> Bool {
+  func subscribe(option: PricingModel) async throws -> Bool {
     return try await accountService.subscribe(option: option)
   }
 

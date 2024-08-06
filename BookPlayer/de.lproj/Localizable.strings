@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Hochladen mit Mobilfunkdaten";
 "warning_title" = "Warnung";
 "sync_tasks_item_upload_queued" = "Es gibt eine Upload-Aufgabe in der Warteschlange für: \n %@ \n Durch das Entfernen der Datei wird verhindert, dass die App sie hochlädt";
+"intent_custom_skipforward_title" = "Vorwärts springen mit Intervall";
+"intent_custom_skip_request_title" = "Wie viel Zeit?";
+"intent_custom_interval_title" = "Zeitintervall";
+"Skip forward ${interval}" = "Vorwärts springen ${interval}";
+"intent_custom_skiprewind_title" = "Rücklauf mit Pause";
+"Rewind ${interval}" = "Zurückspulen ${interval}";

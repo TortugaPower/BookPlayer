@@ -311,3 +311,9 @@
 "datausage_upload_wifionly_title" = "Upload ved hjælp af mobildata";
 "warning_title" = "Advarsel";
 "sync_tasks_item_upload_queued" = "Der er en uploadopgave i kø for: \n %@ \n Fjernelse af filen forhindrer appen i at uploade den";
+"intent_custom_skipforward_title" = "Spring frem med interval";
+"intent_custom_skip_request_title" = "Hvor meget tid?";
+"intent_custom_interval_title" = "Tids interval";
+"Skip forward ${interval}" = "Spring frem ${interval}";
+"intent_custom_skiprewind_title" = "Spol tilbage med interval";
+"Rewind ${interval}" = "Spol ${interval} tilbage";
