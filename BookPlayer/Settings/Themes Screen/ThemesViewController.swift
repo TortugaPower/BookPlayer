@@ -279,16 +279,10 @@ class ThemesViewController: UIViewController, Storyboarded {
 
 extension ThemesViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
-    return tableView == self.localThemesTableView
-    ? 1
-    : BPSection.allCases.count
+    return 1
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    guard section == BPSection.data.rawValue else {
-      return 1
-    }
-
     return tableView == self.localThemesTableView
     ? self.localThemes.count
     : self.extractedThemes.count
@@ -302,16 +296,6 @@ extension ThemesViewController: UITableViewDataSource {
     cell.showCaseView.isHidden = false
     cell.accessoryType = .none
     cell.titleLabel.textColor = ThemeManager.shared.currentTheme.primaryColor
-
-    guard indexPath.sectionValue != .add else {
-      cell.titleLabel.text = "library_add_button".localized
-      cell.titleLabel.textColor = ThemeManager.shared.currentTheme.linkColor
-      cell.plusImageView.isHidden = false
-      cell.plusImageView.tintColor = ThemeManager.shared.currentTheme.linkColor
-      cell.showCaseView.isHidden = true
-      cell.isLocked = !self.viewModel.hasMadeDonation()
-      return cell
-    }
 
     let item = tableView == self.localThemesTableView
     ? self.localThemes[indexPath.row]
@@ -335,11 +319,6 @@ extension ThemesViewController: UITableViewDelegate {
 
     guard !cell.isLocked else {
       tableView.reloadData()
-      return
-    }
-
-    guard indexPath.sectionValue != .add else {
-      self.extractTheme()
       return
     }
 
