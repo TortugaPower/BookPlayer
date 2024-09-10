@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "Перейти вперед ${interval}";
 "intent_custom_skiprewind_title" = "Перемотування назад з інтервалом";
 "Rewind ${interval}" = "Перемотати ${interval}";
+"settings_lock_orientation_title" = "Орієнтація заблокована";

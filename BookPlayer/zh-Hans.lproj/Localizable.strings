@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "向前跳过${interval}";
 "intent_custom_skiprewind_title" = "间隔倒带";
 "Rewind ${interval}" = "后退 ${interval}";
+"settings_lock_orientation_title" = "方向已锁定";

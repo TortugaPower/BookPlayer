@@ -105,6 +105,18 @@ class SettingsViewModel: ViewModelProtocol {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.skanAttributionDisabled)
   }
 
+  /// Handle registering the value in `UserDefaults`
+  func toggleOrientationLockPreference(_ flag: Bool) {
+    if flag {
+      UserDefaults.standard.set(
+        UIDevice.current.orientation.rawValue,
+        forKey: Constants.UserDefaults.orientationLock
+      )
+    } else {
+      UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.orientationLock)
+    }
+  }
+
   func showPro() {
     onTransition?(.pro)
   }

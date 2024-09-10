@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "İleri atla ${interval}";
 "intent_custom_skiprewind_title" = "Aralıklı geri sarma";
 "Rewind ${interval}" = "${interval} geri sar";
+"settings_lock_orientation_title" = "Yönlendirme Kilitli";
