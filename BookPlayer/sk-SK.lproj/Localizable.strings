@@ -317,3 +317,4 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "Skip forward ${interval}" = "Preskočiť dopredu ${interval}";
 "intent_custom_skiprewind_title" = "Pretáčanie dozadu s intervalom";
 "Rewind ${interval}" = "Pretočiť ${interval}";
+"settings_lock_orientation_title" = "Orientácia uzamknutá";

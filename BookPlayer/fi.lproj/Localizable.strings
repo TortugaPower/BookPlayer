@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "Siirry eteenpäin ${interval}";
 "intent_custom_skiprewind_title" = "Kelaa taaksepäin intervalleilla";
 "Rewind ${interval}" = "Kelaa taaksepäin ${interval}";
+"settings_lock_orientation_title" = "Suunta lukittu";

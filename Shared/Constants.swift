@@ -32,6 +32,7 @@ public enum Constants {
     public static let iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
     public static let crashReportsDisabled = "userSettingsCrashReportsDisabled"
     public static let skanAttributionDisabled = "userSettingsSKANAttributionDisabled"
+    public static let orientationLock = "userSettingsOrientationLock"
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"

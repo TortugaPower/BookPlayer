@@ -317,3 +317,4 @@ We're working hard on providing a seamless experience, if possible, please conta
 "Skip forward ${interval}" = "Skip forward ${interval}";
 "intent_custom_skiprewind_title" = "Rewind with interval";
 "Rewind ${interval}" = "Rewind ${interval}";
+"settings_lock_orientation_title" = "Orientation Locked";

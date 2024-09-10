@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "Μετάβαση προς τα εμπρός ${interval}";
 "intent_custom_skiprewind_title" = "Πίσω με μεσοδιάστημα";
 "Rewind ${interval}" = "Επαναφορά ${interval}";
+"settings_lock_orientation_title" = "Ο προσανατολισμός είναι κλειδωμένος";

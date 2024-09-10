@@ -17,6 +17,16 @@ class AppTabBarController: UITabBarController {
 
   private var disposeBag = Set<AnyCancellable>()
   private var themedStatusBarStyle: UIStatusBarStyle?
+  override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+    if UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
+       let orientation = UIDeviceOrientation(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.orientationLock)) {
+      return (orientation == .landscapeLeft || orientation == .landscapeRight)
+      ? .landscape
+      : .portrait
+    } else {
+      return .all
+    }
+  }
 
   public var isMiniPlayerVisible: Bool { !self.miniPlayer.isHidden }
 
