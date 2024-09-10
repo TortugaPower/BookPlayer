@@ -275,60 +275,62 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   }
 
   func setupMPPlaybackRemoteCommands() {
-    // Play / Pause
-    MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.playerManager else { return .commandFailed }
-
-      let wasPlaying = playerManager.isPlaying
-      playerManager.playPause()
-
-      if wasPlaying,
-         UIApplication.shared.applicationState == .background {
-        self?.scheduleAppRefresh()
+    Task {
+      // Play / Pause
+      MPRemoteCommandCenter.shared().togglePlayPauseCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+        guard let playerManager = self?.playerManager else { return .commandFailed }
+        
+        let wasPlaying = playerManager.isPlaying
+        playerManager.playPause()
+        
+        if wasPlaying,
+           UIApplication.shared.applicationState == .background {
+          self?.scheduleAppRefresh()
+        }
+        return .success
       }
-      return .success
-    }
-
-    MPRemoteCommandCenter.shared().playCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().playCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.playerManager else { return .commandFailed }
-
-      playerManager.play()
-      return .success
-    }
-
-    MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().pauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.playerManager else { return .commandFailed }
-
-      playerManager.pause()
-
-      if UIApplication.shared.applicationState == .background {
-        self?.scheduleAppRefresh()
+      
+      MPRemoteCommandCenter.shared().playCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().playCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+        guard let playerManager = self?.playerManager else { return .commandFailed }
+        
+        playerManager.play()
+        return .success
       }
-
-      return .success
-    }
-
-    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
-    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
-      guard
-        let playerManager = self?.playerManager,
-        let currentItem = playerManager.currentItem,
-        let event = remoteEvent as? MPChangePlaybackPositionCommandEvent
-      else { return .commandFailed }
-
-      var newTime = event.positionTime
-
-      if UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
-         let currentChapter = currentItem.currentChapter {
-        newTime += currentChapter.start
+      
+      MPRemoteCommandCenter.shared().pauseCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().pauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
+        guard let playerManager = self?.playerManager else { return .commandFailed }
+        
+        playerManager.pause()
+        
+        if UIApplication.shared.applicationState == .background {
+          self?.scheduleAppRefresh()
+        }
+        
+        return .success
       }
-
-      playerManager.jumpTo(newTime, recordBookmark: true)
-
-      return .success
+      
+      MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
+      MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
+        guard
+          let playerManager = self?.playerManager,
+          let currentItem = playerManager.currentItem,
+          let event = remoteEvent as? MPChangePlaybackPositionCommandEvent
+        else { return .commandFailed }
+        
+        var newTime = event.positionTime
+        
+        if UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled),
+           let currentChapter = currentItem.currentChapter {
+          newTime += currentChapter.start
+        }
+        
+        playerManager.jumpTo(newTime, recordBookmark: true)
+        
+        return .success
+      }
     }
   }
 

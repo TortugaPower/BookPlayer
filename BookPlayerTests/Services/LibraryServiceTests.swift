@@ -1085,8 +1085,8 @@ class ModifyLibraryTests: LibraryServiceTests {
     self.sut.reorderItem(
       with: book3.relativePath,
       inside: nil,
-      sourceIndexPath: IndexPath(row: 0, section: .data),
-      destinationIndexPath: IndexPath(row: 2, section: .data)
+      sourceIndexPath: IndexPath(row: 0, section: 0),
+      destinationIndexPath: IndexPath(row: 2, section: 0)
     )
 
     let sortedContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
@@ -1106,8 +1106,8 @@ class ModifyLibraryTests: LibraryServiceTests {
     self.sut.reorderItem(
       with: book3.relativePath,
       inside: folder.relativePath,
-      sourceIndexPath: IndexPath(row: 2, section: .data),
-      destinationIndexPath: IndexPath(row: 0, section: .data)
+      sourceIndexPath: IndexPath(row: 2, section: 0),
+      destinationIndexPath: IndexPath(row: 0, section: 0)
     )
 
     let sortedFolderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
