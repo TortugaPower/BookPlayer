@@ -17,6 +17,15 @@ class AppTabBarController: UITabBarController {
 
   private var disposeBag = Set<AnyCancellable>()
   private var themedStatusBarStyle: UIStatusBarStyle?
+  /// iPadOS 18 moves the regular tab bar to the navigation bar
+  private let regularOffset: CGFloat = -24
+  private var compactOffset: CGFloat {
+    -tabBar.bounds.size.height + self.view.safeAreaInsets.bottom
+  }
+  private lazy var viewBottomConstraint = self.miniPlayer.bottomAnchor.constraint(
+    equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+    constant: compactOffset
+  )
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
     if UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
        let orientation = UIDeviceOrientation(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.orientationLock)) {
@@ -49,6 +58,14 @@ class AppTabBarController: UITabBarController {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
+    if #available(iOS 18.0, *),
+       UIDevice.current.userInterfaceIdiom == .pad,
+       traitCollection.horizontalSizeClass != .compact {
+      viewBottomConstraint.constant = regularOffset
+    } else {
+      viewBottomConstraint.constant = compactOffset
+    }
+
     guard self.traitCollection.userInterfaceStyle != .unspecified else { return }
 
     ThemeManager.shared.checkSystemMode()
@@ -72,8 +89,21 @@ class AppTabBarController: UITabBarController {
       self.miniPlayer.heightAnchor.constraint(equalToConstant: 88),
       self.miniPlayer.leftAnchor.constraint(equalTo: view.leftAnchor),
       self.miniPlayer.rightAnchor.constraint(equalTo: view.rightAnchor),
-      self.miniPlayer.bottomAnchor.constraint(equalTo: tabBar.topAnchor)
+      viewBottomConstraint,
     ])
+
+    guard
+      #available(iOS 18.0, *),
+      UIDevice.current.userInterfaceIdiom == .pad
+    else {
+      return
+    }
+
+    if traitCollection.horizontalSizeClass == .compact {
+      viewBottomConstraint.constant = compactOffset
+    } else {
+      viewBottomConstraint.constant = regularOffset
+    }
   }
 
   func bindObservers() {
