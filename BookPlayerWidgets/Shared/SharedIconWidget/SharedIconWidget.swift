@@ -36,7 +36,7 @@ struct SharedIconWidgetTimelineProvider: TimelineProvider {
   typealias Entry = SharedIconWidgetEntry
 }
 
-@available(iOSApplicationExtension 16.0, watchOS 9.0, *)
+@available(iOSApplicationExtension 16.1, watchOS 9.0, *)
 struct SharedIconWidget: Widget {
   let kind: String = Constants.Widgets.sharedIconWidget.rawValue
   #if os(watchOS)
