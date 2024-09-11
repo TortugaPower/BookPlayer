@@ -749,7 +749,8 @@ extension PlayerManager {
       )
 
       // If book is completed, stop
-      if Int(currentItem.duration) == Int(CMTimeGetSeconds(audioPlayer.currentTime())) { return }
+      let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
+      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
       handleSmartRewind(currentItem)
 

@@ -25,6 +25,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
   @IBOutlet weak var crashReportsSwitch: UISwitch!
   @IBOutlet weak var allowCellularDataSwitch: UISwitch!
+  @IBOutlet weak var lockOrientationSwitch: UISwitch!
   @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -120,6 +121,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
     crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
     skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
+    lockOrientationSwitch.addTarget(self, action: #selector(orientationLockDidChange), for: .valueChanged)
 
     // Set initial switch positions
     allowCellularDataSwitch.setOn(
@@ -136,6 +138,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     )
     skanSwitch.setOn(
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
+      animated: false
+    )
+    lockOrientationSwitch.setOn(
+      UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
       animated: false
     )
   }
@@ -158,6 +164,15 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func skanPreferenceDidChange() {
     viewModel.toggleSKANPreference(skanSwitch.isOn)
+  }
+
+  @objc func orientationLockDidChange() {
+    viewModel.toggleOrientationLockPreference(lockOrientationSwitch.isOn)
+    if #available(iOS 16.0, *) {
+      setNeedsUpdateOfSupportedInterfaceOrientations()
+    } else {
+      Self.attemptRotationToDeviceOrientation()
+    }
   }
 
   func bindDataItems() {

@@ -289,7 +289,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var currentDuration = 0.0
     var index: Int16 = 0
 
-    return items
+    let chapters: [PlayableChapter] = items
       .compactMap({ book in
         let fileExtension = book.fileURL.pathExtension
 
@@ -317,6 +317,17 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
         return chapter
       })
+
+    guard !chapters.isEmpty else {
+      throw BookPlayerError.runtimeError(
+        String.localizedStringWithFormat(
+          "error_empty_chapters".localized,
+          String(describing: folder.title)
+        )
+      )
+    }
+
+    return chapters
   }
 
   /// Mark a folder path as stale when its progress calculation is deferred

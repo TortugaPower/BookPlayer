@@ -163,7 +163,7 @@ class ItemListViewModel: ViewModelProtocol {
 
         self?.items[index].percentCompleted = progress
 
-        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+        let indexModified = IndexPath(row: index, section: 0)
         self?.sendEvent(.reloadIndex(indexModified))
       }.store(in: &disposeBag)
   }
@@ -181,7 +181,7 @@ class ItemListViewModel: ViewModelProtocol {
         else { return }
 
         self?.sendEvent(
-          .reloadIndex(IndexPath(row: index, section: BPSection.data.rawValue))
+          .reloadIndex(IndexPath(row: index, section: 0))
         )
       }.store(in: &disposeBag)
 
@@ -196,7 +196,7 @@ class ItemListViewModel: ViewModelProtocol {
           })
         else { return }
 
-        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+        let indexModified = IndexPath(row: index, section: 0)
         self?.sendEvent(
           .downloadState(.downloading(progress: progress), indexPath: indexModified)
         )
@@ -257,7 +257,7 @@ class ItemListViewModel: ViewModelProtocol {
 
         self.items[index].percentCompleted = percentCompleted
 
-        let indexModified = IndexPath(row: index, section: BPSection.data.rawValue)
+        let indexModified = IndexPath(row: index, section: 0)
         self.sendEvent(.reloadIndex(indexModified))
       })
   }
@@ -1251,7 +1251,7 @@ extension ItemListViewModel {
               }
 
               if let index = self?.items.firstIndex(of: item) {
-                self?.sendEvent(.reloadIndex(IndexPath(row: index, section: .data)))
+                self?.sendEvent(.reloadIndex(IndexPath(row: index, section: 0)))
               }
             }
           ),

@@ -13,6 +13,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    # We only use Xcode 15.4
+    - name: Remove unused applications
+      run: |
+        df -hI /dev/disk3s1s1
+        sudo rm -rf /Applications/Xcode_14.3.1.app
+        sudo rm -rf /Applications/Xcode_15.0.1.app
+        sudo rm -rf /Applications/Xcode_15.1.app
+        sudo rm -rf /Applications/Xcode_15.2.app
+        sudo rm -rf /Applications/Xcode_15.3.app
+        df -hI /dev/disk3s1s1
     - name: Create Debug.xcconfig
       run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
     - name: Set Xcode version

@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "Avancer ${interval}";
 "intent_custom_skiprewind_title" = "Rembobiner avec intervalle";
 "Rewind ${interval}" = "Rembobiner ${interval}";
+"settings_lock_orientation_title" = "Orientation verrouillée";

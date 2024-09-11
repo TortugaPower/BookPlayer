@@ -317,3 +317,4 @@
 "Skip forward ${interval}" = "Avançar ${interval}";
 "intent_custom_skiprewind_title" = "Retroceder com intervalo";
 "Rewind ${interval}" = "Retroceder ${interval}";
+"settings_lock_orientation_title" = "Orientação bloqueada";
