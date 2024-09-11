@@ -14,7 +14,7 @@ import BookPlayerWatchKit
 import BookPlayerKit
 #endif
 
-@available(iOSApplicationExtension 16.0, watchOS 9.0, *)
+@available(iOSApplicationExtension 16.1, watchOS 9.0, *)
 struct CircularView: View {
   let title: String
   let fillFraction: Double

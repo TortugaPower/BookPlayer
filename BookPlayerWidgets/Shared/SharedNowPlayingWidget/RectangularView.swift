@@ -9,7 +9,7 @@
 import SwiftUI
 import WidgetKit
 
-@available(iOSApplicationExtension 16.0, watchOS 9.0, *)
+@available(iOSApplicationExtension 16.1, watchOS 9.0, *)
 struct RectangularView: View {
   let chapterTitle: String
   let bookTitle: String
