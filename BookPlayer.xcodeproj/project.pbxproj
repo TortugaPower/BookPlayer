@@ -382,6 +382,7 @@
 		638E64CC2B8E086400DCFA3B /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CA2B8E086400DCFA3B /* RealmManager.swift */; };
 		638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
+		6397206F2CA71D600045A4DB /* .swift-format in Resources */ = {isa = PBXBuildFile; fileRef = 6397206E2CA71D600045A4DB /* .swift-format */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
@@ -1158,6 +1159,7 @@
 		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
 		638E64CA2B8E086400DCFA3B /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
 		638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCountService.swift; sourceTree = "<group>"; };
+		6397206E2CA71D600045A4DB /* .swift-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-format"; sourceTree = "<group>"; };
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
@@ -2740,6 +2742,7 @@
 				C35BADE7206989E6007687C1 /* LICENSE */,
 				C35BADE9206989E6007687C1 /* .swiftlint.yml */,
 				C3EA7175218DEC870005D488 /* .swiftformat */,
+				6397206E2CA71D600045A4DB /* .swift-format */,
 			);
 			name = Meta;
 			sourceTree = "<group>";
@@ -3183,6 +3186,7 @@
 				41AD3D9A221C737F00DC41E1 /* retro-icon@2x.png in Resources */,
 				419B373F23B8D14100128A8F /* LoadingView.xib in Resources */,
 				9F665EDE2A4898F6004BFE27 /* heart-of-glass-ayu@2x.png in Resources */,
+				6397206F2CA71D600045A4DB /* .swift-format in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
