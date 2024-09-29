@@ -40,7 +40,7 @@ public final class PlayableItem: NSObject, Identifiable {
 
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration,
-         relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
+      relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
   }
 
   public init(
@@ -74,12 +74,13 @@ public final class PlayableItem: NSObject, Identifiable {
   }
 
   public func getChapterTime(in chapter: PlayableChapter, for globalTime: TimeInterval) -> TimeInterval {
-    return globalTime - chapter.start
+    return globalTime - chapter.start + chapter.chapterOffset
   }
 
   public func getChapter(at globalTime: Double) -> PlayableChapter? {
     if let lastChapter = chapters.last,
-       lastChapter.end == globalTime {
+      lastChapter.end == globalTime
+    {
       return lastChapter
     }
 
@@ -88,8 +89,8 @@ public final class PlayableItem: NSObject, Identifiable {
 
   public func currentTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
     return prefersChapterContext
-    ? self.currentTime - self.currentChapter.start
-    : self.currentTime
+      ? self.currentTime - self.currentChapter.start
+      : self.currentTime
   }
 
   public func maxTimeInContext(
@@ -116,14 +117,15 @@ public final class PlayableItem: NSObject, Identifiable {
 
   public func durationTimeInContext(_ prefersChapterContext: Bool) -> TimeInterval {
     return prefersChapterContext
-    ? self.currentChapter.duration
-    : self.duration
+      ? self.currentChapter.duration
+      : self.duration
   }
 
   public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
-    let interval = proposedInterval > 0
-    ? self.getForwardInterval(from: proposedInterval)
-    : self.getRewindInterval(from: proposedInterval)
+    let interval =
+      proposedInterval > 0
+      ? self.getForwardInterval(from: proposedInterval)
+      : self.getRewindInterval(from: proposedInterval)
 
     return interval
   }

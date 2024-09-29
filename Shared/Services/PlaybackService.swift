@@ -41,9 +41,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
     item.lastPlayDate = now
     item.currentTime = time
     let progress = round((item.currentTime / item.duration) * 100)
-    let percentCompleted = progress.isFinite
-    ? progress
-    : 0
+    let percentCompleted =
+      progress.isFinite
+      ? progress
+      : 0
     item.percentCompleted = percentCompleted
     self.libraryService.updatePlaybackTime(relativePath: item.relativePath, time: time, date: now, scheduleSave: true)
   }
@@ -71,10 +72,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
       )
     else {
       if let parentFolderPath = parentFolder {
-        let containerPathForParentFolder = self.libraryService.getItemProperty(
-          #keyPath(LibraryItem.folder.relativePath),
-          relativePath: parentFolderPath
-        ) as? String
+        let containerPathForParentFolder =
+          self.libraryService.getItemProperty(
+            #keyPath(LibraryItem.folder.relativePath),
+            relativePath: parentFolderPath
+          ) as? String
         return getPlayableItem(
           before: parentFolderPath,
           parentFolder: containerPathForParentFolder
@@ -110,7 +112,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var isUnfinished: Bool?
 
     if autoplayed == true,
-       !restartFinished {
+      !restartFinished
+    {
       isUnfinished = true
     }
 
@@ -122,10 +125,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
       )
     else {
       if let parentFolderPath = parentFolder {
-        let containerPathForParentFolder = self.libraryService.getItemProperty(
-          #keyPath(LibraryItem.folder.relativePath),
-          relativePath: parentFolderPath
-        ) as? String
+        let containerPathForParentFolder =
+          self.libraryService.getItemProperty(
+            #keyPath(LibraryItem.folder.relativePath),
+            relativePath: parentFolderPath
+          ) as? String
         return getPlayableItem(
           after: parentFolderPath,
           parentFolder: containerPathForParentFolder,
@@ -148,10 +152,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   public func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem? {
-    guard let child = self.libraryService.findFirstItem(
-      in: folder.relativePath,
-      isUnfinished: isUnfinished
-    ) else { return nil }
+    guard
+      let child = self.libraryService.findFirstItem(
+        in: folder.relativePath,
+        isUnfinished: isUnfinished
+      )
+    else { return nil }
 
     switch child.type {
     case .folder:
@@ -289,34 +295,45 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var currentDuration = 0.0
     var index: Int16 = 0
 
-    let chapters: [PlayableChapter] = items
-      .compactMap({ book in
-        let fileExtension = book.fileURL.pathExtension
+    var chapters = [PlayableChapter]()
+    for book in items {
+      /// nestd chapters need a way to set the nestedStart reference here in the building
+      var nestedChapters = try getPlayableChapters(book: book)
+      var hasNestedChapters = nestedChapters.count > 1
+      var localDuration: TimeInterval = 0
+      var localCurrentDuration: TimeInterval = 0
+
+      for nestedChapter in nestedChapters {
+        let fileExtension = nestedChapter.fileURL.pathExtension
 
         /// If file is not audiovisual content, don't include it as part of the playback item
         if !fileExtension.isEmpty,
-           let fileType = UTType(filenameExtension: fileExtension),
-           !fileType.isSubtype(of: .audiovisualContent) {
-          return nil
+          let fileType = UTType(filenameExtension: fileExtension),
+          !fileType.isSubtype(of: .audiovisualContent)
+        {
+          continue
         }
 
-        let truncatedDuration = TimeParser.truncateTime(book.duration)
+        let truncatedDuration = TimeParser.truncateTime(nestedChapter.duration)
+        localDuration = truncatedDuration
         index += 1
 
         let chapter = PlayableChapter(
-          title: book.title,
-          author: book.details,
+          title: nestedChapter.title,
+          author: nestedChapter.author,
           start: currentDuration,
           duration: truncatedDuration,
-          relativePath: book.relativePath,
-          remoteURL: book.remoteURL,
-          index: index
+          relativePath: nestedChapter.relativePath,
+          remoteURL: nestedChapter.remoteURL,
+          index: index,
+          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
         )
-
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
+        localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)
 
-        return chapter
-      })
+        chapters.append(chapter)
+      }
+    }
 
     guard !chapters.isEmpty else {
       throw BookPlayerError.runtimeError(
@@ -334,9 +351,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
   public func markStaleProgress(folderPath: String) {
     let defaults = UserDefaults.standard
 
-    var staleIdentifiers = defaults.stringArray(
-      forKey: Constants.UserDefaults.staleProgressIdentifiers
-    ) ?? []
+    var staleIdentifiers =
+      defaults.stringArray(
+        forKey: Constants.UserDefaults.staleProgressIdentifiers
+      ) ?? []
 
     guard !staleIdentifiers.contains(folderPath) else { return }
 
@@ -349,7 +367,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
   public func processFoldersStaleProgress() -> Bool {
     let defaults = UserDefaults.standard
 
-    guard 
+    guard
       let staleIdentifiers = defaults.stringArray(
         forKey: Constants.UserDefaults.staleProgressIdentifiers
       ),

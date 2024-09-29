@@ -147,12 +147,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     isPlayingPublisher()
       .removeDuplicates()
       .sink { [weak self] isPlayingValue in
-      UserDefaults.sharedDefaults.set(
-        isPlayingValue,
-        forKey: Constants.UserDefaults.sharedWidgetIsPlaying
-      )
-      self?.widgetReloadService.reloadWidget(.lastPlayedWidget)
-    }.store(in: &disposeBag)
+        UserDefaults.sharedDefaults.set(
+          isPlayingValue,
+          forKey: Constants.UserDefaults.sharedWidgetIsPlaying
+        )
+        self?.widgetReloadService.reloadWidget(.lastPlayedWidget)
+      }.store(in: &disposeBag)
   }
 
   func bindInterruptObserver() {
@@ -208,11 +208,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let fileURL: URL
 
     if !forceRefresh,
-       let chapterURL = chapter.remoteURL {
+      let chapterURL = chapter.remoteURL
+    {
       fileURL = chapterURL
     } else {
       isFetchingRemoteURL = true
-      fileURL = try await syncService
+      fileURL =
+        try await syncService
         .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
       isFetchingRemoteURL = false
     }
@@ -229,7 +231,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       "hasProtectedContent",
       "providesPreciseDurationAndTiming",
       "commonMetadata",
-      "metadata"
+      "metadata",
     ])
 
     guard !Task.isCancelled else {
@@ -238,10 +240,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     /// Load artwork if it's not cached
     if !ArtworkService.isCached(relativePath: chapter.relativePath),
-       let data = AVMetadataItem.metadataItems(
+      let data = AVMetadataItem.metadataItems(
         from: asset.commonMetadata,
         filteredByIdentifier: .commonIdentifierArtwork
-       ).first?.dataValue {
+      ).first?.dataValue
+    {
       await ArtworkService.storeInCache(data, for: chapter.relativePath)
     }
 
@@ -262,7 +265,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let asset: AVURLAsset
 
     if syncService.isActive,
-       !FileManager.default.fileExists(atPath: fileURL.path) {
+      !FileManager.default.fileExists(atPath: fileURL.path)
+    {
       asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -392,7 +396,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     var pathForArtwork = chapter.relativePath
 
     if !ArtworkService.isCached(relativePath: chapter.relativePath),
-       let currentItem = currentItem {
+      let currentItem = currentItem
+    {
       pathForArtwork = currentItem.relativePath
     }
 
@@ -412,7 +417,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         boundsSize: image.size,
         requestHandler: { (_) -> UIImage in
           image
-        })
+        }
+      )
 
       MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
     }
@@ -437,10 +443,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     if currentItem.isBoundBook {
-      currentTime += currentItem.currentChapter.start
-    } else if currentTime >= currentItem.currentChapter.end || currentTime < currentItem.currentChapter.start,
-              let newChapter = currentItem.getChapter(at: currentTime),
-              newChapter != currentItem.currentChapter {
+      currentTime += (currentItem.currentChapter.start - currentItem.currentChapter.chapterOffset)
+    }
+
+    if currentTime >= currentItem.currentChapter.end || currentTime < currentItem.currentChapter.start,
+      let newChapter = currentItem.getChapter(at: currentTime),
+      newChapter != currentItem.currentChapter
+    {
       /// Avoid setting the same chapter, as it would publish an update event
       currentItem.currentChapter = newChapter
     }
@@ -469,8 +478,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     let playbackQueuedFlag = playbackQueued == true
 
     return controlStatusFlag
-    || playbackQueuedFlag
-    || (isFetchingRemoteURL == true && playbackQueuedFlag)
+      || playbackQueuedFlag
+      || (isFetchingRemoteURL == true && playbackQueuedFlag)
   }
 
   /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,
@@ -485,7 +494,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
   func bindPauseObserver() {
     self.isPlayingSubscription?.cancel()
-    self.isPlayingSubscription = timeControlPassthroughPublisher
+    self.isPlayingSubscription =
+      timeControlPassthroughPublisher
       .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
       .sink { timeControlStatus in
         if timeControlStatus == .paused {
@@ -505,17 +515,18 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       let controlStatusFlag = timeControlStatus != .paused
       let playbackQueuedFlag = playbackQueued == true
       return controlStatusFlag
-      || playbackQueuedFlag
-      || (isFetchingRemoteURL == true && playbackQueuedFlag)
+        || playbackQueuedFlag
+        || (isFetchingRemoteURL == true && playbackQueuedFlag)
     })
     .eraseToAnyPublisher()
   }
 
   var boostVolume: Bool = false {
     didSet {
-      self.audioPlayer.volume = self.boostVolume
-      ? Constants.Volume.boosted
-      : Constants.Volume.normal
+      self.audioPlayer.volume =
+        self.boostVolume
+        ? Constants.Volume.boosted
+        : Constants.Volume.normal
     }
   }
 
@@ -555,7 +566,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     guard let currentItem = self.currentItem else { return }
 
     self.nowPlayingInfo[MPMediaItemPropertyTitle] = chapter.title
-    
+
     /// If the chapter title is the same as the current item, show the author instead
     if chapter.title == currentItem.title {
       self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentItem.author
@@ -620,9 +631,10 @@ extension PlayerManager {
 
     let boundedTime = min(max(time, 0), currentItem.duration)
 
-    let newTime = currentItem.isBoundBook
-    ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
-    : boundedTime
+    let newTime =
+      currentItem.isBoundBook
+      ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
+      : boundedTime
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -642,19 +654,23 @@ extension PlayerManager {
     let chapterBeforeSkip = currentItem.currentChapter
     updatePlaybackTime(item: currentItem, time: boundedTime)
     if let chapterAfterSkip = currentItem.getChapter(at: boundedTime),
-       chapterBeforeSkip != chapterAfterSkip {
+      chapterBeforeSkip != chapterAfterSkip
+    {
       currentItem.currentChapter = chapterAfterSkip
       // If chapters are different, and it's a bound book,
       // load the new chapter
-      if currentItem.isBoundBook {
+      if currentItem.isBoundBook,
+        chapterBeforeSkip?.relativePath != chapterAfterSkip.relativePath
+      {
         loadChapterMetadata(chapterAfterSkip)
         return
       }
     }
 
-    let newTime = currentItem.isBoundBook
-    ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
-    : boundedTime
+    let newTime =
+      currentItem.isBoundBook
+      ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
+      : boundedTime
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -777,7 +793,8 @@ extension PlayerManager {
     let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
 
     if smartRewindEnabled,
-       let lastPlayTime = item.lastPlayDate {
+      let lastPlayTime = item.lastPlayDate
+    {
       let timePassed = Date().timeIntervalSince(lastPlayTime)
       let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold)
 
@@ -791,7 +808,7 @@ extension PlayerManager {
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
   }
-  
+
   func handleAutoTimer() {
     guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled) else { return }
 
@@ -812,7 +829,12 @@ extension PlayerManager {
 
   // swiftlint:disable block_based_kvo
   // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
-  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+  override func observeValue(
+    forKeyPath keyPath: String?,
+    of object: Any?,
+    change: [NSKeyValueChangeKey: Any]?,
+    context: UnsafeMutableRawPointer?
+  ) {
     guard
       let path = keyPath,
       path == "status",
@@ -838,10 +860,11 @@ extension PlayerManager {
       self.playbackQueued = nil
     case .failed:
       if canFetchRemoteURL,
-         let nsError = item.error as? NSError,
-         (nsError.code == NSURLErrorResourceUnavailable
-          || nsError.code == NSURLErrorNoPermissionsToReadFile),
-         let currentItem {
+        let nsError = item.error as? NSError,
+        nsError.code == NSURLErrorResourceUnavailable
+          || nsError.code == NSURLErrorNoPermissionsToReadFile,
+        let currentItem
+      {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
       } else {
@@ -850,14 +873,14 @@ extension PlayerManager {
         if playbackQueued == true {
           if let nsError = item.error as? NSError {
             let errorDescription = """
-            \(nsError.localizedDescription)
+              \(nsError.localizedDescription)
 
-            Error Domain
-            \(nsError.domain)
+              Error Domain
+              \(nsError.domain)
 
-            Additional Info
-            \(nsError.userInfo)
-            """
+              Additional Info
+              \(nsError.userInfo)
+              """
             showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
           } else {
             showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
@@ -983,7 +1006,8 @@ extension PlayerManager {
   func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
     /// If it's autoplayed, check if setting is enabled
     if autoPlayed,
-       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled) {
+      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
+    {
       return
     }
 
@@ -1000,8 +1024,9 @@ extension PlayerManager {
 
     /// If autoplaying a finished book and restart is enabled, set currentTime to 0
     if autoPlayed,
-       nextBook.isFinished,
-       restartFinished {
+      nextBook.isFinished,
+      restartFinished
+    {
       updatePlaybackTime(item: nextBook, time: 0)
     }
 
@@ -1029,8 +1054,9 @@ extension PlayerManager {
 
     /// Only check for audiovisual content if a file extension is present
     if !fileExtension.isEmpty,
-       let fileType = UTType(filenameExtension: fileExtension),
-       !fileType.isSubtype(of: .audiovisualContent) {
+      let fileType = UTType(filenameExtension: fileExtension),
+      !fileType.isSubtype(of: .audiovisualContent)
+    {
       return getNextPlayableBook(
         after: nextBook,
         autoPlayed: autoPlayed,
@@ -1047,17 +1073,20 @@ extension PlayerManager {
     currentItem: PlayableItem,
     after chapter: PlayableChapter
   ) -> PlayableChapter? {
-    guard let nextChapter = self.playbackService.getNextChapter(
-      from: currentItem,
-      after: chapter
-    ) else { return nil }
+    guard
+      let nextChapter = self.playbackService.getNextChapter(
+        from: currentItem,
+        after: chapter
+      )
+    else { return nil }
 
     let fileExtension = nextChapter.fileURL.pathExtension
 
     /// Only check for audiovisual content if a file extension is present
     if !fileExtension.isEmpty,
-       let fileType = UTType(filenameExtension: fileExtension),
-       !fileType.isSubtype(of: .audiovisualContent) {
+      let fileType = UTType(filenameExtension: fileExtension),
+      !fileType.isSubtype(of: .audiovisualContent)
+    {
       return getNextPlayableChapter(
         currentItem: currentItem,
         after: nextChapter
