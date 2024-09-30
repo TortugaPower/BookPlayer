@@ -297,9 +297,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     var chapters = [PlayableChapter]()
     for book in items {
-      /// nestd chapters need a way to set the nestedStart reference here in the building
-      var nestedChapters = try getPlayableChapters(book: book)
-      var hasNestedChapters = nestedChapters.count > 1
+      let nestedChapters = try getPlayableChapters(book: book)
+      /// Nested chapters need to calculate the offset they'll use as a reference
       var localDuration: TimeInterval = 0
       var localCurrentDuration: TimeInterval = 0
 
