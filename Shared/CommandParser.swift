@@ -246,11 +246,12 @@ public class TimeParser {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .positional
-    durationFormatter.allowedUnits = [.minute, .second]
     durationFormatter.zeroFormattingBehavior = .pad
     durationFormatter.collapsesLargestUnit = false
 
-    if abs(time) > 3599.0 {
+    if abs(time) < 3600 {
+      durationFormatter.allowedUnits = [.minute, .second]
+    } else {
       durationFormatter.allowedUnits = [.hour, .minute, .second]
     }
 

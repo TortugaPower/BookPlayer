@@ -19,6 +19,7 @@ public struct PlayableChapter: Codable, Identifiable {
   public let relativePath: String
   public let remoteURL: URL?
   public let index: Int16
+  public let chapterOffset: TimeInterval
 
   public var end: TimeInterval {
     return start + duration
@@ -35,7 +36,8 @@ public struct PlayableChapter: Codable, Identifiable {
     duration: TimeInterval,
     relativePath: String,
     remoteURL: URL?,
-    index: Int16
+    index: Int16,
+    chapterOffset: TimeInterval = 0
   ) {
     self.title = title
     self.author = author
@@ -44,14 +46,15 @@ public struct PlayableChapter: Codable, Identifiable {
     self.relativePath = relativePath
     self.remoteURL = remoteURL
     self.index = index
+    self.chapterOffset = chapterOffset
   }
 }
 
 extension PlayableChapter: Equatable {
   public static func == (lhs: PlayableChapter, rhs: PlayableChapter) -> Bool {
     return lhs.relativePath == rhs.relativePath
-    && lhs.index == rhs.index
-    && lhs.title == rhs.title
-    && lhs.start == rhs.start
+      && lhs.index == rhs.index
+      && lhs.title == rhs.title
+      && lhs.start == rhs.start
   }
 }
