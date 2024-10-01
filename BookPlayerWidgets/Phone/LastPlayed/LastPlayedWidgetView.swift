@@ -18,7 +18,7 @@ struct LastPlayedWidgetView: View {
   var body: some View {
     switch widgetFamily {
     case .systemMedium:
-      EmptyView()
+      RecentBooksWidgetView(entry: entry)
     default:
       LastPlayedView(
         model: .init(
@@ -42,8 +42,8 @@ struct LastPlayedWidget: Widget {
         LastPlayedWidgetView(entry: entry)
       }
     )
-    .configurationDisplayName("Last Played Book")
-    .description("See and play your last played book")
+    .configurationDisplayName("Last Played Books")
+    .description("See and play your last played books")
     .supportedFamilies([.systemSmall, .systemMedium])
     .contentMarginsDisabledIfAvailable()
   }

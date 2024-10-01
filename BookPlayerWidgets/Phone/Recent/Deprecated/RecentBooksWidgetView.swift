@@ -11,26 +11,40 @@ import SwiftUI
 import WidgetKit
 
 struct BookView: View {
-  var item: SimpleLibraryItem
+  var item: WidgetLibraryItem
   var titleColor: Color
-  var theme: SimpleTheme?
-  var entry: RecentBooksProvider.Entry
+  var theme: SimpleTheme
+  var isPlaying: Bool
 
   var body: some View {
     let title = item.title
     let identifier = item.relativePath
+    let pauseImage: String? = isPlaying ? "pause.fill" : nil
 
     let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
     return VStack(spacing: 5) {
-      Image(
-        uiImage: UIImage(contentsOfFile: cachedImageURL.path)
-          ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!
-      )
-      .resizable()
-      .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-      .aspectRatio(1.0, contentMode: .fit)
-      .cornerRadius(8.0)
+      ZStack {
+        Image(
+          uiImage: UIImage(contentsOfFile: cachedImageURL.path)
+            ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)!
+        )
+        .resizable()
+        .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
+        .aspectRatio(1.0, contentMode: .fit)
+        .cornerRadius(8.0)
+        if let pauseImage {
+          Circle()
+            .foregroundColor(.white)
+            .frame(width: 30, height: 30)
+            .opacity(0.8)
+          Image(systemName: pauseImage)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(.black)
+            .frame(width: 11, height: 11)
+        }
+      }
 
       Text(title)
         .fontWeight(.semibold)
@@ -45,7 +59,7 @@ struct BookView: View {
 
 struct RecentBooksWidgetView: View {
   @Environment(\.colorScheme) var colorScheme
-  var entry: RecentBooksProvider.Entry
+  var entry: LastPlayedProvider.Entry
 
   var body: some View {
     let items = Array(entry.items.prefix(4))
@@ -73,12 +87,12 @@ struct RecentBooksWidgetView: View {
       HStack {
         ForEach(items, id: \.relativePath) { item in
           if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
-            Button(intent: BookStartPlaybackIntent(relativePath: item.relativePath)) {
+            Button(intent: BookPlaybackToggleIntent(relativePath: item.relativePath)) {
               BookView(
                 item: item,
                 titleColor: widgetColors.primaryColor,
                 theme: entry.theme,
-                entry: entry
+                isPlaying: item.relativePath == entry.currentlyPlaying
               )
               .frame(minWidth: 0, maxWidth: .infinity)
             }
@@ -88,7 +102,7 @@ struct RecentBooksWidgetView: View {
               item: item,
               titleColor: widgetColors.primaryColor,
               theme: entry.theme,
-              entry: entry
+              isPlaying: item.relativePath == entry.currentlyPlaying
             )
             .frame(minWidth: 0, maxWidth: .infinity)
           }
@@ -103,32 +117,13 @@ struct RecentBooksWidgetView: View {
   }
 }
 
-struct RecentBooksWidgetView_Previews: PreviewProvider {
-  static var previews: some View {
-    Group {
-      RecentBooksWidgetView(
-        entry: LibraryEntry(
-          date: Date(),
-          items: [
-            .previewItem(title: "a very very very long title"),
-            .previewItem(title: "a short title"),
-            .previewItem(title: "a short title"),
-            .previewItem(title: "a short title"),
-          ]
-        )
-      )
-      .previewContext(WidgetPreviewContext(family: .systemMedium))
-    }
-  }
-}
-
 struct RecentBooksWidget: Widget {
   let kind: String = "com.bookplayer.widget.medium.recentBooks"
 
   var body: some WidgetConfiguration {
     StaticConfiguration(
       kind: kind,
-      provider: RecentBooksProvider(),
+      provider: LastPlayedProvider(),
       content: { entry in
         RecentBooksWidgetView(entry: entry)
       }

@@ -10,20 +10,6 @@ import BookPlayerKit
 import SwiftUI
 import WidgetKit
 
-struct LastPlayedModel {
-  let relativePath: String?
-  let title: String?
-  let isPlaying: Bool
-  let theme: SimpleTheme
-
-  init(item: WidgetLibraryItem?, isPlaying: Bool, theme: SimpleTheme) {
-    self.relativePath = item?.relativePath
-    self.title = item?.title
-    self.isPlaying = isPlaying
-    self.theme = theme
-  }
-}
-
 struct LastPlayedView: View {
   @Environment(\.colorScheme) var colorScheme
   var model: LastPlayedModel
@@ -66,7 +52,7 @@ struct LastPlayedView: View {
                   .aspectRatio(contentMode: .fit)
                   .foregroundColor(.black)
                   .frame(width: 11, height: 11)
-                  .offset(x: 1)
+                  .offset(x: model.isPlaying ? 0 : 1)
               }
             }
             .buttonStyle(.plain)

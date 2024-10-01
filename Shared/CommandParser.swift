@@ -58,7 +58,8 @@ public class CommandParser {
     if command == .download {
       guard let query = url.query, let parameter = query.components(separatedBy: "url=").last else { return nil }
 
-      let paramURLstring = parameter.replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "\"", with: "").replacingOccurrences(of: "%22", with: "")
+      let paramURLstring = parameter.replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "\"", with: "")
+        .replacingOccurrences(of: "%22", with: "")
 
       let queryItem = URLQueryItem(name: "url", value: paramURLstring)
 
@@ -68,7 +69,8 @@ public class CommandParser {
     var parameters = [URLQueryItem]()
 
     if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-       let queryItems = components.queryItems {
+      let queryItems = components.queryItems
+    {
       parameters = queryItems
     }
 
@@ -77,7 +79,8 @@ public class CommandParser {
 
   public class func parse(_ message: [String: Any]) -> Action? {
     guard let commandString = message["command"] as? String,
-          let command = Command(rawValue: commandString) else { return nil }
+      let command = Command(rawValue: commandString)
+    else { return nil }
 
     var dictionary = message
     dictionary.removeValue(forKey: "command")
@@ -258,7 +261,10 @@ public class TimeParser {
     return durationFormatter.string(from: time)!
   }
 
-  public class func formatDuration(_ duration: TimeInterval, unitsStyle: DateComponentsFormatter.UnitsStyle = .short) -> String {
+  public class func formatDuration(
+    _ duration: TimeInterval,
+    unitsStyle: DateComponentsFormatter.UnitsStyle = .short
+  ) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = unitsStyle
@@ -268,7 +274,10 @@ public class TimeParser {
     return durationFormatter.string(from: duration)!
   }
 
-  public class func formatTotalDuration(_ duration: TimeInterval, allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]) -> String {
+  public class func formatTotalDuration(
+    _ duration: TimeInterval,
+    allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]
+  ) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .abbreviated

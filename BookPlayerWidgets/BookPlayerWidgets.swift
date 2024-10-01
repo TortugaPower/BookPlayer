@@ -37,7 +37,6 @@ struct BookPlayerBundle: WidgetBundle {
   var body: some Widget {
 #if os(iOS)
     LastPlayedWidget()
-    RecentBooksWidget()
     TimeListenedWidget()
     if #available(iOSApplicationExtension 16.1, *) {
       SharedWidget()
