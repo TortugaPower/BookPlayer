@@ -6,9 +6,9 @@
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Foundation
 import WidgetKit
-import BookPlayerKit
 
 struct SimpleEntry: TimelineEntry {
   let date: Date
@@ -65,6 +65,36 @@ struct LibraryEntry: TimelineEntry {
   ) {
     self.date = date
     self.items = items
+    self.theme = SimpleTheme.getDefaultTheme()
+  }
+}
+
+struct RecentlyPlayedEntry: TimelineEntry {
+  let date: Date
+  let items: [WidgetLibraryItem]
+  let currentlyPlaying: String?
+  let theme: SimpleTheme
+
+  init(
+    date: Date,
+    items: [WidgetLibraryItem],
+    currentlyPlaying: String?,
+    theme: SimpleTheme
+  ) {
+    self.date = date
+    self.items = items
+    self.currentlyPlaying = currentlyPlaying
+    self.theme = theme
+  }
+
+  init(
+    date: Date,
+    items: [WidgetLibraryItem],
+    currentlyPlaying: String?
+  ) {
+    self.date = date
+    self.items = items
+    self.currentlyPlaying = currentlyPlaying
     self.theme = SimpleTheme.getDefaultTheme()
   }
 }

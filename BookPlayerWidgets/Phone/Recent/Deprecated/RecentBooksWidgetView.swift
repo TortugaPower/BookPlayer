@@ -10,77 +10,6 @@ import BookPlayerKit
 import SwiftUI
 import WidgetKit
 
-struct RecentBooksProvider: TimelineProvider {
-  let numberOfBooks = 4
-
-  typealias Entry = LibraryEntry
-
-  func placeholder(in context: Context) -> LibraryEntry {
-    return LibraryEntry(
-      date: Date(),
-      items: [
-        SimpleLibraryItem.previewItem(title: "Last played"),
-        SimpleLibraryItem.previewItem(title: "Book title"),
-        SimpleLibraryItem.previewItem(title: "Book title"),
-        SimpleLibraryItem.previewItem(title: "Book title")
-      ]
-    )
-  }
-
-  func getSnapshot(
-    in context: Context,
-    completion: @escaping (LibraryEntry) -> Void
-  ) {
-    Task {
-      do {
-        let entry = try await getEntryForTimeline(
-          context: context
-        )
-        completion(entry)
-      } catch {
-        completion(placeholder(in: context))
-      }
-    }
-  }
-
-  func getTimeline(
-    in context: Context,
-    completion: @escaping (Timeline<LibraryEntry>) -> Void
-  ) {
-    Task {
-      do {
-        let entry = try await getEntryForTimeline(context: context)
-
-        completion(Timeline(entries: [entry], policy: .never))
-      } catch {
-        completion(Timeline(entries: [], policy: .never))
-      }
-    }
-  }
-
-  func getEntryForTimeline(context: Context) async throws -> LibraryEntry {
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
-    let dataManager = DataManager(coreDataStack: stack)
-    let libraryService = LibraryService(dataManager: dataManager)
-
-    guard
-      let items = libraryService.getLastPlayedItems(limit: numberOfBooks)
-    else {
-      throw BookPlayerError.emptyResponse
-    }
-
-    let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
-
-    let entry = LibraryEntry(
-      date: Date(),
-      items: items,
-      theme: theme
-    )
-
-    return entry
-  }
-}
-
 struct BookView: View {
   var item: SimpleLibraryItem
   var titleColor: Color
@@ -94,8 +23,10 @@ struct BookView: View {
     let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
     return VStack(spacing: 5) {
-      Image(uiImage: UIImage(contentsOfFile: cachedImageURL.path)
-            ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!)
+      Image(
+        uiImage: UIImage(contentsOfFile: cachedImageURL.path)
+          ?? ArtworkService.generateDefaultArtwork(from: entry.theme.linkColor)!
+      )
       .resizable()
       .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
       .aspectRatio(1.0, contentMode: .fit)
@@ -175,14 +106,17 @@ struct RecentBooksWidgetView: View {
 struct RecentBooksWidgetView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      RecentBooksWidgetView(entry: LibraryEntry(
-        date: Date(),
-        items: [
-          .previewItem(title: "a very very very long title"),
-          .previewItem(title: "a short title"),
-          .previewItem(title: "a short title"),
-          .previewItem(title: "a short title")
-        ]))
+      RecentBooksWidgetView(
+        entry: LibraryEntry(
+          date: Date(),
+          items: [
+            .previewItem(title: "a very very very long title"),
+            .previewItem(title: "a short title"),
+            .previewItem(title: "a short title"),
+            .previewItem(title: "a short title"),
+          ]
+        )
+      )
       .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
   }
@@ -224,6 +158,7 @@ extension SimpleLibraryItem {
       parentFolder: nil,
       originalFileName: "",
       lastPlayDate: nil,
-      type: SimpleItemType.book)
+      type: SimpleItemType.book
+    )
   }
 }

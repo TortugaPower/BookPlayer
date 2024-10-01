@@ -93,6 +93,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   private var playTask: Task<(), Error>?
   private var playerItem: AVPlayerItem?
   private var loadChapterTask: Task<(), Never>?
+  private let encoder = JSONEncoder()
+  private let decoder = JSONDecoder()
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
 
@@ -147,11 +149,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     isPlayingPublisher()
       .removeDuplicates()
       .sink { [weak self] isPlayingValue in
-        UserDefaults.sharedDefaults.set(
-          isPlayingValue,
-          forKey: Constants.UserDefaults.sharedWidgetIsPlaying
-        )
-        self?.widgetReloadService.reloadWidget(.lastPlayedWidget)
+        if isPlayingValue {
+          UserDefaults.sharedDefaults.set(
+            self?.currentItem?.relativePath,
+            forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+          )
+        } else {
+          UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath)
+        }
       }.store(in: &disposeBag)
   }
 
@@ -317,6 +322,31 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
 
     loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
+    storeWidgetItem(item)
+  }
+
+  func storeWidgetItem(_ item: PlayableItem) {
+    var widgetItems: [WidgetLibraryItem] = [
+      WidgetLibraryItem(
+        relativePath: item.relativePath,
+        title: item.title,
+        details: item.author
+      )
+    ]
+
+    if let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
+      let items = try? decoder.decode([WidgetLibraryItem].self, from: itemsData)
+    {
+      widgetItems.append(contentsOf: items.filter({ $0.relativePath != item.relativePath }))
+      widgetItems = Array(widgetItems.prefix(10))
+    }
+
+    guard let data = try? encoder.encode(widgetItems) else {
+      return
+    }
+
+    UserDefaults.sharedDefaults.set(data, forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems)
+    widgetReloadService.reloadWidget(.lastPlayedWidget)
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {

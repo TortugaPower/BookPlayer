@@ -383,6 +383,12 @@
 		638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		6397206F2CA71D600045A4DB /* .swift-format in Resources */ = {isa = PBXBuildFile; fileRef = 6397206E2CA71D600045A4DB /* .swift-format */; };
+		639720722CAAF8290045A4DB /* LastPlayedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720712CAAF8290045A4DB /* LastPlayedProvider.swift */; };
+		639720742CAAFB010045A4DB /* WidgetLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */; };
+		639720752CAAFB010045A4DB /* WidgetLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */; };
+		639720832CAB0C380045A4DB /* LastPlayedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720822CAB0C380045A4DB /* LastPlayedView.swift */; };
+		639720852CABB0D00045A4DB /* RecentBooksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720842CABB0D00045A4DB /* RecentBooksProvider.swift */; };
+		639720862CABB0D00045A4DB /* RecentBooksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720842CABB0D00045A4DB /* RecentBooksProvider.swift */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
@@ -1160,6 +1166,10 @@
 		638E64CA2B8E086400DCFA3B /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
 		638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCountService.swift; sourceTree = "<group>"; };
 		6397206E2CA71D600045A4DB /* .swift-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-format"; sourceTree = "<group>"; };
+		639720712CAAF8290045A4DB /* LastPlayedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedProvider.swift; sourceTree = "<group>"; };
+		639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLibraryItem.swift; sourceTree = "<group>"; };
+		639720822CAB0C380045A4DB /* LastPlayedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedView.swift; sourceTree = "<group>"; };
+		639720842CABB0D00045A4DB /* RecentBooksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentBooksProvider.swift; sourceTree = "<group>"; };
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
@@ -2013,6 +2023,7 @@
 		62793619272CD9800097837D /* Lightweight-Models */ = {
 			isa = PBXGroup;
 			children = (
+				639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */,
 				9FB20EA429A281140021663B /* DownloadState.swift */,
 				41188D3026ED715D0017124E /* SimpleLibraryItem.swift */,
 				9FFCC08E289418CA00F4952E /* SimpleChapter.swift */,
@@ -2220,6 +2231,33 @@
 			path = PerformanceTests;
 			sourceTree = "<group>";
 		};
+		639720702CAAF8180045A4DB /* LastPlayed */ = {
+			isa = PBXGroup;
+			children = (
+				417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */,
+				639720822CAB0C380045A4DB /* LastPlayedView.swift */,
+				639720712CAAF8290045A4DB /* LastPlayedProvider.swift */,
+			);
+			path = LastPlayed;
+			sourceTree = "<group>";
+		};
+		639720772CAAFCAF0045A4DB /* Recent */ = {
+			isa = PBXGroup;
+			children = (
+				639720782CAAFCBB0045A4DB /* Deprecated */,
+			);
+			path = Recent;
+			sourceTree = "<group>";
+		};
+		639720782CAAFCBB0045A4DB /* Deprecated */ = {
+			isa = PBXGroup;
+			children = (
+				41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */,
+				639720842CABB0D00045A4DB /* RecentBooksProvider.swift */,
+			);
+			path = Deprecated;
+			sourceTree = "<group>";
+		};
 		63B2303B2B8CCDDB00AEECED /* Realm */ = {
 			isa = PBXGroup;
 			children = (
@@ -2266,8 +2304,8 @@
 				4106413E258725F1008EB8D0 /* TimeListened */,
 				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
 				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
-				417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */,
-				41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */,
+				639720702CAAF8180045A4DB /* LastPlayed */,
+				639720772CAAFCAF0045A4DB /* Recent */,
 			);
 			path = Phone;
 			sourceTree = "<group>";
@@ -3377,6 +3415,7 @@
 				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				63C6C31A2B5E102200FFE0D8 /* SyncTask.swift in Sources */,
 				9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
+				639720752CAAFB010045A4DB /* WidgetLibraryItem.swift in Sources */,
 				63B230432B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */,
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
@@ -3435,7 +3474,10 @@
 				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				634E67462AFC7DEF00595BAC /* BookStartPlaybackIntent.swift in Sources */,
+				639720832CAB0C380045A4DB /* LastPlayedView.swift in Sources */,
+				639720852CABB0D00045A4DB /* RecentBooksProvider.swift in Sources */,
 				630826072AF52831002ACE0D /* SharedWidget.swift in Sources */,
+				639720722CAAF8290045A4DB /* LastPlayedProvider.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3633,6 +3675,7 @@
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
+				639720862CABB0D00045A4DB /* RecentBooksProvider.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */,
@@ -3774,6 +3817,7 @@
 				639E12C62B85AACF00C875F7 /* SyncTasksObject.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
 				418CABB425EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
+				639720742CAAFB010045A4DB /* WidgetLibraryItem.swift in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,

@@ -18,10 +18,12 @@ import WidgetKit
 struct BookPlayerWidgetUI_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      LastPlayedWidgetView(entry: SimpleEntry(
+      LastPlayedWidgetView(entry: .init(
         date: Date(),
-        title: "Test Book Title",
-        relativePath: nil
+        items: [
+          .init(relativePath: "path1", title: "Test Book Title")
+        ],
+        currentlyPlaying: nil
       ))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
