@@ -53,8 +53,14 @@ public enum Constants {
     /// Shared widget action URL
     public static let sharedWidgetActionURL = "sharedWidgetActionURL"
 
-    /// Shared widget isPlaying state
-    public static let sharedWidgetIsPlaying = "sharedWidgetIsPlaying"
+    /// Shared widget currently playing relative path
+    public static let sharedWidgetNowPlayingPath = "sharedWidgetNowPlayingPath"
+
+    /// Key to store the last played items
+    public static let sharedWidgetLastPlayedItems = "sharedWidgetLastPlayedItems"
+
+    /// Key to store the current theme
+    public static let sharedWidgetTheme = "sharedWidgetTheme"
   }
 
   public enum SmartRewind {
