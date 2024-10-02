@@ -389,6 +389,8 @@
 		639720832CAB0C380045A4DB /* LastPlayedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720822CAB0C380045A4DB /* LastPlayedView.swift */; };
 		639720852CABB0D00045A4DB /* RecentBooksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720842CABB0D00045A4DB /* RecentBooksProvider.swift */; };
 		6397208A2CAC5C870045A4DB /* LastPlayedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720892CAC5C870045A4DB /* LastPlayedModel.swift */; };
+		6397208C2CAC95040045A4DB /* LaunchAppControlWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6397208B2CAC95040045A4DB /* LaunchAppControlWidgetView.swift */; };
+		6397208D2CAC95040045A4DB /* LaunchAppControlWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6397208B2CAC95040045A4DB /* LaunchAppControlWidgetView.swift */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
@@ -1170,6 +1172,7 @@
 		639720822CAB0C380045A4DB /* LastPlayedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedView.swift; sourceTree = "<group>"; };
 		639720842CABB0D00045A4DB /* RecentBooksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentBooksProvider.swift; sourceTree = "<group>"; };
 		639720892CAC5C870045A4DB /* LastPlayedModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedModel.swift; sourceTree = "<group>"; };
+		6397208B2CAC95040045A4DB /* LaunchAppControlWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAppControlWidgetView.swift; sourceTree = "<group>"; };
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
@@ -2302,6 +2305,7 @@
 			children = (
 				634E67432AFB2DF500595BAC /* BookStartPlaybackIntent.swift */,
 				6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */,
+				6397208B2CAC95040045A4DB /* LaunchAppControlWidgetView.swift */,
 				4106413E258725F1008EB8D0 /* TimeListened */,
 				637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */,
 				418445C2258AE11E0072DD13 /* WidgetUtils.swift */,
@@ -3465,6 +3469,7 @@
 				410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */,
 				6309F1272B0CF658002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				630826032AF5225F002ACE0D /* CircularView.swift in Sources */,
+				6397208C2CAC95040045A4DB /* LaunchAppControlWidgetView.swift in Sources */,
 				630826042AF522EA002ACE0D /* SharedWidgetEntry.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
@@ -3640,6 +3645,7 @@
 				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
+				6397208D2CAC95040045A4DB /* LaunchAppControlWidgetView.swift in Sources */,
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				6304CF6A2B4C2AE800055285 /* SettingsAutoplayView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
