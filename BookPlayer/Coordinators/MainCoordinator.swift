@@ -91,7 +91,7 @@ class MainCoordinator: NSObject {
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManager,
         syncService: syncService
-      ), 
+      ),
       accountService: self.accountService
     )
     playerManager.syncProgressDelegate = libraryCoordinator
@@ -115,7 +115,7 @@ class MainCoordinator: NSObject {
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: self.libraryService, 
+      libraryService: self.libraryService,
       syncService: self.syncService,
       accountService: self.accountService
     )
@@ -148,16 +148,31 @@ class MainCoordinator: NSObject {
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: autoplay,
-      showPlayer: { [weak self] in
+    Task {
+      let alertPresenter: AlertPresenter = getLibraryCoordinator() ?? self
+      do {
+        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: autoplay
+        )
         if showPlayer {
-          self?.showPlayer()
+          self.showPlayer()
         }
-      },
-      alertPresenter: (getLibraryCoordinator() ?? self)
-    )
+      } catch BPPlayerError.fileMissing {
+        alertPresenter.showAlert(
+          "file_missing_title".localized,
+          message:
+            "\("file_missing_description".localized)\n\(relativePath)",
+          completion: nil
+        )
+      } catch {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: error.localizedDescription,
+          completion: nil
+        )
+      }
+    }
   }
 
   func showPlayer() {
@@ -211,9 +226,10 @@ extension MainCoordinator: Themeable {
       return
     }
     // This fixes native components like alerts having the proper color theme
-    AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = theme.useDarkVariant
-    ? .dark
-    : .light
+    AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle =
+      theme.useDarkVariant
+      ? .dark
+      : .light
   }
 }
 

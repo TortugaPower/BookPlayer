@@ -6,12 +6,12 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import AppIntents
 import BookPlayerKit
 import Foundation
-import AppIntents
 
-@available(iOS 16.4, macOS 14.0, watchOS 10.0, tvOS 16.0, *)
-struct CustomSkipForwardIntent: AudioStartingIntent, ForegroundContinuableIntent {
+@available(iOS 16.0, macOS 14.0, watchOS 10.0, tvOS 16.0, *)
+struct CustomSkipForwardIntent: AudioStartingIntent {
   static var title: LocalizedStringResource = "intent_custom_skipforward_title"
 
   @Parameter(
@@ -24,30 +24,22 @@ struct CustomSkipForwardIntent: AudioStartingIntent, ForegroundContinuableIntent
     Summary("Skip forward \(\.$interval)")
   }
 
+  @Dependency
+  var playerLoaderService: PlayerLoaderService
+
+  @Dependency
+  var libraryService: LibraryService
+
   func perform() async throws -> some IntentResult {
     let seconds = interval.converted(to: .seconds).value
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
 
-    let continuation: (@MainActor () async throws -> Void) = {
-      let actionString = CommandParser.createActionString(
-        from: .skipForward,
-        parameters: [URLQueryItem(name: "interval", value: "\(seconds)")]
-      )
-      let actionURL = URL(string: actionString)!
-      UIApplication.shared.open(actionURL)
+    if !playerLoaderService.playerManager.hasLoadedBook(),
+      let book = libraryService.getLastPlayedItems(limit: 1)?.first
+    {
+      try await playerLoaderService.loadPlayer(book.relativePath, autoplay: false)
     }
 
-    guard let appDelegate = await AppDelegate.shared else {
-      throw needsToContinueInForegroundError(continuation: continuation)
-    }
-
-    let coreServices = await appDelegate.createCoreServicesIfNeeded(from: stack)
-
-    guard coreServices.playerManager.hasLoadedBook() else {
-      throw needsToContinueInForegroundError(continuation: continuation)
-    }
-
-    coreServices.playerManager.skip(seconds)
+    playerLoaderService.playerManager.skip(seconds)
 
     return .result()
   }

@@ -27,7 +27,8 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   private var disposeBag = Set<AnyCancellable>()
 
   enum SettingsSection: Int {
-    case intervals = 0, rewind, sleepTimer, volume, speed, playerList, progressLabels
+    case intervals = 0
+    case rewind, sleepTimer, volume, speed, playerList, progressLabels
   }
 
   let playerListPreferencePath = IndexPath(row: 0, section: SettingsSection.playerList.rawValue)
@@ -51,19 +52,19 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
 
     // Set initial switch positions
     smartRewindSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled), 
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled),
       animated: false
     )
     autoSleepTimerSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled), 
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoTimerEnabled),
       animated: false
     )
     boostVolumeSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled), 
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled),
       animated: false
     )
     globalSpeedSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled), 
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled),
       animated: false
     )
     chapterTimeSwitch.setOn(
@@ -112,13 +113,17 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   func showPlayerListOptionAlert(indexPath: IndexPath) {
     let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    sheet.addAction(UIAlertAction(title: "chapters_title".localized, style: .default) { [weak self] _ in
-      self?.viewModel.handleOptionSelected(.chapters)
-    })
+    sheet.addAction(
+      UIAlertAction(title: "chapters_title".localized, style: .default) { [weak self] _ in
+        self?.viewModel.handleOptionSelected(.chapters)
+      }
+    )
 
-    sheet.addAction(UIAlertAction(title: "bookmarks_title".localized, style: .default) { [weak self] _ in
-      self?.viewModel.handleOptionSelected(.bookmarks)
-    })
+    sheet.addAction(
+      UIAlertAction(title: "bookmarks_title".localized, style: .default) { [weak self] _ in
+        self?.viewModel.handleOptionSelected(.bookmarks)
+      }
+    )
 
     sheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel))
 
@@ -217,7 +222,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   @objc func boostVolumeToggleDidChange() {
     UserDefaults.standard.set(self.boostVolumeSwitch.isOn, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
-    guard let playerManager = AppDelegate.shared?.playerManager else { return }
+    guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
 
     playerManager.setBoostVolume(self.boostVolumeSwitch.isOn)
   }

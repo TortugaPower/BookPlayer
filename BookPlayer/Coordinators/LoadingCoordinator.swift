@@ -25,8 +25,8 @@ class LoadingCoordinator: Coordinator, AlertPresenter {
     flow.startPresentation(vc, animated: false)
   }
 
-  func didFinishLoadingSequence(coreDataStack: CoreDataStack) {
-    let coreServices = AppDelegate.shared!.createCoreServicesIfNeeded(from: coreDataStack)
+  func didFinishLoadingSequence() {
+    let coreServices = AppDelegate.shared!.coreServices!
 
     let coordinator = MainCoordinator(
       navigationController: flow.navigationController,

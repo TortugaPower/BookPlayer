@@ -11,10 +11,11 @@ import Foundation
 
 struct CoreServices {
   let dataManager: DataManager
-  let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
-  let libraryService: LibraryServiceProtocol
-  let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
+  let accountService: AccountService
+  let syncService: SyncService
+  let libraryService: LibraryService
+  let playbackService: PlaybackService
+  let playerManager: PlayerManager
+  let playerLoaderService: PlayerLoaderService
   let watchService: PhoneWatchConnectivityService
 }

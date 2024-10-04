@@ -50,9 +50,6 @@ public enum Constants {
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
 
-    /// Shared widget action URL
-    public static let sharedWidgetActionURL = "sharedWidgetActionURL"
-
     /// Shared widget currently playing relative path
     public static let sharedWidgetNowPlayingPath = "sharedWidgetNowPlayingPath"
 

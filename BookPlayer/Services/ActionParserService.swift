@@ -41,7 +41,7 @@ class ActionParserService {
     appDelegate.pendingURLActions.append(action)
 
     guard
-      let watchConnectivityService = appDelegate.watchConnectivityService
+      let watchConnectivityService = appDelegate.coreServices?.watchService
     else { return }
 
     switch action.command {
@@ -77,7 +77,7 @@ class ActionParserService {
 
   private class func handleRewindAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -93,7 +93,7 @@ class ActionParserService {
 
   private class func handleForwardAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -111,7 +111,7 @@ class ActionParserService {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -130,7 +130,7 @@ class ActionParserService {
     let roundedValue = round(speedRate * 100) / 100.0
 
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -144,7 +144,7 @@ class ActionParserService {
     let isOn = valueString == "true"
 
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -188,7 +188,7 @@ class ActionParserService {
 
   private class func handlePlaybackToggleAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -208,7 +208,7 @@ class ActionParserService {
 
   private class func handlePauseAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -219,7 +219,7 @@ class ActionParserService {
 
   private class func handlePlayAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
