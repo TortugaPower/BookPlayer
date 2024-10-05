@@ -66,6 +66,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     XCTAssertTrue(presentingController.horizontalStack == ["ItemListViewController", "ItemListViewController"])
   }
 
+  @MainActor
   func testShowPlayer() {
     self.libraryListCoordinator.showPlayer()
     XCTAssert(presentingController.verticalStack == ["PlayerViewController"])

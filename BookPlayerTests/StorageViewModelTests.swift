@@ -46,9 +46,6 @@ final class StorageViewModelMissingFileTests: XCTestCase {
   }
 
   func testSetup(with filename: String) {
-    /// Avoid making the second onboarding network call
-    AppDelegate.shared?.accountService = AccountServiceMock(account: nil)
-
     let bookContents = "bookcontents".data(using: .utf8)!
 
     let documentsURL = DataManager.getDocumentsFolderURL()
@@ -68,9 +65,34 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: self.testPath))
     let libraryService = LibraryService(dataManager: dataManager)
     _ = libraryService.getLibrary()
+    let syncService = SyncServiceProtocolMock()
+    let playbackService = PlaybackServiceProtocolMock()
+    let playerManager = PlayerManagerProtocolMock()
+
+    /// Avoid making the second onboarding network call
+    AppDelegate.shared?.coreServices = CoreServices(
+      dataManager: dataManager,
+      accountService: AccountServiceMock(account: nil),
+      syncService: syncService,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager,
+      playerLoaderService: PlayerLoaderService(
+        syncService: syncService,
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerManager: playerManager
+      ),
+      watchService: PhoneWatchConnectivityService(
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerManager: playerManager
+      )
+    )
+
     self.viewModel = StorageViewModel(
       libraryService: libraryService,
-      syncService: SyncServiceProtocolMock(),
+      syncService: syncService,
       folderURL: self.directoryURL
     )
   }
