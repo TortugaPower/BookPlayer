@@ -16,8 +16,8 @@ class LoadingViewModel: ViewModelProtocol {
   func initializeDataIfNeeded() {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
 
-    dataInitializerCoordinator.onFinish = { stack in
-      self.coordinator.didFinishLoadingSequence(coreDataStack: stack)
+    dataInitializerCoordinator.onFinish = {
+      self.coordinator.didFinishLoadingSequence()
     }
 
     dataInitializerCoordinator.start()

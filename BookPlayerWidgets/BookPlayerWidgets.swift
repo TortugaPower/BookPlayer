@@ -46,7 +46,7 @@ struct BookPlayerBundle: WidgetBundle {
         SharedIconWidget()
       }
       if #available(iOSApplicationExtension 18.0, *) {
-        LaunchAppButton()
+        PlayLastControlWidgetView()
       }
     #elseif os(watchOS)
       SharedWidget()

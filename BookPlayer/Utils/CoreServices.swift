@@ -13,8 +13,9 @@ struct CoreServices {
   let dataManager: DataManager
   let accountService: AccountServiceProtocol
   let syncService: SyncServiceProtocol
-  let libraryService: LibraryServiceProtocol
+  let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
+  let playerLoaderService: PlayerLoaderService
   let watchService: PhoneWatchConnectivityService
 }

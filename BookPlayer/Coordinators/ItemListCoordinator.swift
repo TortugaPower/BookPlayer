@@ -70,6 +70,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     flow.navigationController.present(nav, animated: true)
   }
 
+  @MainActor
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
       flow: .modalOnlyFlow(presentingController: flow.navigationController, modalPresentationStyle: .overFullScreen),
@@ -103,14 +104,29 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func loadPlayer(_ relativePath: String) {
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: true,
-      showPlayer: { [weak self] in
-        self?.showPlayer()
-      },
-      alertPresenter: self
-    )
+    Task {
+      let alertPresenter: AlertPresenter = self
+      do {
+        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: true
+        )
+        await self.showPlayer()
+      } catch BPPlayerError.fileMissing {
+        alertPresenter.showAlert(
+          "file_missing_title".localized,
+          message:
+            "\("file_missing_description".localized)\n\(relativePath)",
+          completion: nil
+        )
+      } catch {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: error.localizedDescription,
+          completion: nil
+        )
+      }
+    }
   }
 
   func showMiniPlayer(flag: Bool) {
@@ -131,7 +147,7 @@ extension ItemListCoordinator {
         UTType.audio,
         UTType.movie,
         UTType.zip,
-        UTType.folder
+        UTType.folder,
       ],
       asCopy: true
     )
@@ -151,7 +167,8 @@ extension ItemListCoordinator {
     shareController.excludedActivityTypes = [.copyToPasteboard]
 
     if let popoverPresentationController = shareController.popoverPresentationController,
-       let view = flow.navigationController.topViewController?.view {
+      let view = flow.navigationController.topViewController?.view
+    {
       popoverPresentationController.permittedArrowDirections = []
       popoverPresentationController.sourceView = view
       popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
