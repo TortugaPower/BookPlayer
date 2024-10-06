@@ -214,7 +214,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         return .commandFailed
       }
 
-      playerManager.play()
+      let wasPlaying = playerManager.isPlaying
+      playerManager.playPause()
+
+      if wasPlaying,
+        UIApplication.shared.applicationState == .background
+      {
+        self?.scheduleAppRefresh()
+      }
       return .success
     }
 
