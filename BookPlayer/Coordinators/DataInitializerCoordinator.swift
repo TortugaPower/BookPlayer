@@ -15,7 +15,7 @@ class DataInitializerCoordinator: BPLogger {
   let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
   let alertPresenter: AlertPresenter
 
-  var onFinish: ((CoreDataStack) -> Void)?
+  var onFinish: (() -> Void)?
 
   init(alertPresenter: AlertPresenter) {
     self.alertPresenter = alertPresenter
@@ -28,13 +28,22 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func initializeLibrary(isRecoveryAttempt: Bool) async {
-    do {
-      let stack = try await databaseInitializer.loadCoreDataStack()
-      finishLibrarySetup(stack, fromRecovery: isRecoveryAttempt)
-    } catch let error as NSError where error.domain == NSPOSIXErrorDomain && (
-      error.code == ENOSPC
-      || error.code == NSFileWriteOutOfSpaceError
-    ) {
+    let appDelegate = await AppDelegate.shared!
+    _ = await appDelegate.setupCoreServicesTask?.result
+
+    if let errorCoreServicesSetup = await appDelegate.errorCoreServicesSetup {
+      await handleError(errorCoreServicesSetup as NSError)
+      return
+    }
+
+    await finishLibrarySetup(fromRecovery: isRecoveryAttempt)
+  }
+
+  func handleError(_ error: NSError) async {
+    if error.domain == NSPOSIXErrorDomain
+      && (error.code == ENOSPC
+        || error.code == NSFileWriteOutOfSpaceError)
+    {
       // CoreData may fail if device doesn't have space
       await MainActor.run {
         alertPresenter.showAlert(
@@ -43,19 +52,12 @@ class DataInitializerCoordinator: BPLogger {
           completion: nil
         )
       }
-    } catch let error as NSError where (
-      error.code == NSMigrationError ||
-      error.code == NSMigrationConstraintViolationError ||
-      error.code == NSMigrationCancelledError ||
-      error.code == NSMigrationMissingSourceModelError ||
-      error.code == NSMigrationMissingMappingModelError ||
-      error.code == NSMigrationManagerSourceStoreError ||
-      error.code == NSMigrationManagerDestinationStoreError ||
-      error.code == NSEntityMigrationPolicyError ||
-      error.code == NSValidationMultipleErrorsError ||
-      error.code == NSValidationMissingMandatoryPropertyError
-    ) {
-      // TODO: We can handle `isRecoveryAttempt` to show a different error message
+    } else if error.code == NSMigrationError || error.code == NSMigrationConstraintViolationError
+      || error.code == NSMigrationCancelledError || error.code == NSMigrationMissingSourceModelError
+      || error.code == NSMigrationMissingMappingModelError || error.code == NSMigrationManagerSourceStoreError
+      || error.code == NSMigrationManagerDestinationStoreError || error.code == NSEntityMigrationPolicyError
+      || error.code == NSValidationMultipleErrorsError || error.code == NSValidationMissingMandatoryPropertyError
+    {
       Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
       await MainActor.run {
         alertPresenter.showAlert(
@@ -65,35 +67,33 @@ class DataInitializerCoordinator: BPLogger {
           recoverLibraryFromFailedMigration()
         }
       }
-    } catch {
-      let error = error as NSError
+    } else {
       fatalError("Unresolved error \(error), \(error.userInfo)")
     }
   }
 
   func recoverLibraryFromFailedMigration() {
     Task {
-      databaseInitializer.cleanupStoreFiles()
+      await AppDelegate.shared?.resetCoreServices()
       await initializeLibrary(isRecoveryAttempt: true)
     }
   }
 
-  func finishLibrarySetup(_ stack: CoreDataStack, fromRecovery: Bool) {
-    let dataManager = DataManager(coreDataStack: stack)
-    let libraryService = LibraryService(dataManager: dataManager)
+  func finishLibrarySetup(fromRecovery: Bool) async {
+    let coreServices = await AppDelegate.shared!.coreServices!
 
     setupDefaultState(
-      libraryService: libraryService,
-      dataManager: dataManager
+      libraryService: coreServices.libraryService,
+      dataManager: coreServices.dataManager
     )
 
     if fromRecovery {
       let files = getLibraryFiles()
-      libraryService.insertItems(from: files)
+      coreServices.libraryService.insertItems(from: files)
     }
 
-    DispatchQueue.main.async {
-      self.onFinish?(stack)
+    await MainActor.run {
+      self.onFinish?()
     }
   }
 
@@ -101,10 +101,12 @@ class DataInitializerCoordinator: BPLogger {
     let enumerator = FileManager.default.enumerator(
       at: DataManager.getProcessedFolderURL(),
       includingPropertiesForKeys: [.isDirectoryKey],
-      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants],
+      errorHandler: { (url, error) -> Bool in
         print("directoryEnumerator error at \(url): ", error)
         return true
-      })!
+      }
+    )!
     var files = [URL]()
     for case let fileURL as URL in enumerator {
       files.append(fileURL)
@@ -124,8 +126,9 @@ class DataInitializerCoordinator: BPLogger {
       let storedIconId = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon)
       sharedDefaults.set(storedIconId, forKey: Constants.UserDefaults.appIcon)
     } else if let sharedAppIcon = sharedDefaults.string(forKey: Constants.UserDefaults.appIcon),
-              let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
-              sharedAppIcon != localAppIcon {
+      let localAppIcon = UserDefaults.standard.string(forKey: Constants.UserDefaults.appIcon),
+      sharedAppIcon != localAppIcon
+    {
       sharedDefaults.set(localAppIcon, forKey: Constants.UserDefaults.appIcon)
       UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.appIcon)
     }

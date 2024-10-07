@@ -25,7 +25,7 @@ class LoadingCoordinatorTests: XCTestCase {
   }
 
   func testFinishedLoadingSequence() {
-    self.loadingCoordinator.didFinishLoadingSequence(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    self.loadingCoordinator.didFinishLoadingSequence()
     XCTAssertNotNil(self.loadingCoordinator.getMainCoordinator())
   }
 }

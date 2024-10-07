@@ -136,7 +136,7 @@ public protocol LibraryServiceProtocol {
 }
 
 // swiftlint:disable force_cast
-public final class LibraryService: LibraryServiceProtocol {
+public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   let dataManager: DataManager
 
   /// Internal passthrough publisher for emitting metadata update events

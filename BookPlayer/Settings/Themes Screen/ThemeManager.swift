@@ -15,6 +15,7 @@ final class ThemeManager: ThemeProvider {
 
   var libraryService: LibraryServiceProtocol!
   private var theme: SubscribableValue<SimpleTheme>!
+  private let encoder = JSONEncoder()
 
   /// The current theme that is active
   var currentTheme: SimpleTheme {
@@ -24,6 +25,10 @@ final class ThemeManager: ThemeProvider {
     set {
       self.setNewTheme(newValue)
       self.libraryService.setLibraryTheme(with: newValue)
+
+      guard let themeData = try? encoder.encode(newValue) else { return }
+
+      UserDefaults.sharedDefaults.set(themeData, forKey: Constants.UserDefaults.sharedWidgetTheme)
     }
   }
 
@@ -57,13 +62,19 @@ final class ThemeManager: ThemeProvider {
       self.theme = SubscribableValue<SimpleTheme>(value: defaultTheme)
     }
 
-    NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged(_:)), name: UIScreen.brightnessDidChangeNotification, object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(self.brightnessChanged(_:)),
+      name: UIScreen.brightnessDidChangeNotification,
+      object: nil
+    )
   }
 
   public class func getLocalThemes() -> [SimpleTheme] {
     guard let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
-          let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
-          let themes = try? JSONDecoder().decode([SimpleTheme].self, from: data) else {
+      let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
+      let themes = try? JSONDecoder().decode([SimpleTheme].self, from: data)
+    else {
       return []
     }
 
@@ -92,11 +103,13 @@ final class ThemeManager: ThemeProvider {
     }
 
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
-    UIView.transition(with: window,
-                      duration: 0.3,
-                      options: [.transitionCrossDissolve],
-                      animations: { self.theme.value = newTheme },
-                      completion: nil)
+    UIView.transition(
+      with: window,
+      duration: 0.3,
+      options: [.transitionCrossDissolve],
+      animations: { self.theme.value = newTheme },
+      completion: nil
+    )
   }
 
   /// Subscribe to be notified when the theme changes. Handler will be

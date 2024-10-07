@@ -7,8 +7,8 @@
 //
 
 import BookPlayerKit
-import Combine
 import CarPlay
+import Combine
 
 class CarPlayManager: NSObject {
   var interfaceController: CPInterfaceController?
@@ -27,7 +27,7 @@ class CarPlayManager: NSObject {
 
   // MARK: - Lifecycle
 
-  @MainActor 
+  @MainActor
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
@@ -45,18 +45,14 @@ class CarPlayManager: NSObject {
   @MainActor
   func initializeDataIfNeeded() {
     guard
-      AppDelegate.shared?.dataManager == nil,
       AppDelegate.shared?.activeSceneDelegate == nil
     else { return }
 
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
-    dataInitializerCoordinator.onFinish = { [weak self] stack in
-      let services = AppDelegate.shared?.createCoreServicesIfNeeded(from: stack)
-
+    dataInitializerCoordinator.onFinish = { [weak self] in
       self?.setRootTemplate()
-
-      services?.watchService.startSession()
+      AppDelegate.shared?.coreServices?.watchService.startSession()
     }
 
     dataInitializerCoordinator.start()
@@ -94,13 +90,14 @@ class CarPlayManager: NSObject {
         object: self,
         userInfo: [
           "command": Command.boostVolume.rawValue,
-          "isOn": "\(!flag)"
+          "isOn": "\(!flag)",
         ]
       )
 
-      let boostTitle = !flag
-      ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
-      : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
+      let boostTitle =
+        !flag
+        ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
+        : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
 
       self?.boostVolumeItem.setText(boostTitle)
       completion()
@@ -109,7 +106,7 @@ class CarPlayManager: NSObject {
 
   func loadLibraryItems(at relativePath: String?) -> [SimpleLibraryItem] {
     guard
-      let libraryService = AppDelegate.shared?.libraryService
+      let libraryService = AppDelegate.shared?.coreServices?.libraryService
     else { return [] }
 
     return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
@@ -118,9 +115,11 @@ class CarPlayManager: NSObject {
   // swiftlint:disable:next function_body_length
   func setupNowPlayingTemplate() {
     guard
-      let libraryService = AppDelegate.shared?.libraryService,
-      let playerManager = AppDelegate.shared?.playerManager
+      let coreServices = AppDelegate.shared?.coreServices
     else { return }
+
+    let libraryService = coreServices.libraryService
+    let playerManager = coreServices.playerManager
 
     let prevButton = self.getPreviousChapterButton()
 
@@ -158,7 +157,7 @@ class CarPlayManager: NSObject {
         relativePath: currentItem.relativePath,
         type: .user
       ) {
-        AppDelegate.shared?.syncService?.scheduleSetBookmark(
+        coreServices.syncService.scheduleSetBookmark(
           relativePath: currentItem.relativePath,
           time: currentTime,
           note: nil
@@ -177,7 +176,9 @@ class CarPlayManager: NSObject {
       self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
     }
 
-    CPNowPlayingTemplate.shared.updateNowPlayingButtons([prevButton, controlsButton, bookmarksButton, listButton, nextButton])
+    CPNowPlayingTemplate.shared.updateNowPlayingButtons([
+      prevButton, controlsButton, bookmarksButton, listButton, nextButton,
+    ])
   }
 
   /// Setup root Tab bar template with the Recent and Library tabs
@@ -213,7 +214,7 @@ class CarPlayManager: NSObject {
   /// Returns the library contents at a specified level
   func getLibraryContents(at relativePath: String? = nil) -> [CPListItem] {
     guard
-      let libraryService = AppDelegate.shared?.libraryService
+      let libraryService = AppDelegate.shared?.coreServices?.libraryService
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
@@ -247,7 +248,7 @@ class CarPlayManager: NSObject {
   /// Reloads the recent items tab
   func reloadRecentItems() {
     guard
-      let libraryService = AppDelegate.shared?.libraryService
+      let libraryService = AppDelegate.shared?.coreServices?.libraryService
     else { return }
 
     let items = libraryService.getLastPlayedItems(limit: 20) ?? []
@@ -262,17 +263,32 @@ class CarPlayManager: NSObject {
 
   /// Handle playing the selected item
   func playItem(with relativePath: String) {
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: true,
-      showPlayer: { [weak self] in
+    Task {
+      let alertPresenter: AlertPresenter = self
+      do {
+        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: true
+        )
         /// Avoid trying to show the now playing screen if it's already shown
-        if self?.interfaceController?.topTemplate != CPNowPlayingTemplate.shared {
-          self?.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
+        if self.interfaceController?.topTemplate != CPNowPlayingTemplate.shared {
+          self.interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
         }
-      },
-      alertPresenter: self
-    )
+      } catch BPPlayerError.fileMissing {
+        alertPresenter.showAlert(
+          "file_missing_title".localized,
+          message:
+            "\("file_missing_description".localized)\n\(relativePath)",
+          completion: nil
+        )
+      } catch {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: error.localizedDescription,
+          completion: nil
+        )
+      }
+    }
   }
 
   func formatSpeed(_ speed: Float) -> String {
@@ -285,7 +301,7 @@ class CarPlayManager: NSObject {
 extension CarPlayManager {
   func hasChapter(before chapter: PlayableChapter?) -> Bool {
     guard
-      let playerManager = AppDelegate.shared?.playerManager,
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
       let chapter = chapter
     else { return false }
 
@@ -294,7 +310,7 @@ extension CarPlayManager {
 
   func hasChapter(after chapter: PlayableChapter?) -> Bool {
     guard
-      let playerManager = AppDelegate.shared?.playerManager,
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
       let chapter = chapter
     else { return false }
 
@@ -302,17 +318,19 @@ extension CarPlayManager {
   }
 
   func getPreviousChapterButton() -> CPNowPlayingImageButton {
-    let prevChapterImageName = self.hasChapter(before: AppDelegate.shared?.playerManager?.currentItem?.currentChapter)
-    ? "carplay.chevron.left"
-    : "carplay.chevron.left.2"
+    let prevChapterImageName =
+      self.hasChapter(before: AppDelegate.shared?.coreServices?.playerManager.currentItem?.currentChapter)
+      ? "carplay.chevron.left"
+      : "carplay.chevron.left.2"
 
     return CPNowPlayingImageButton(
       image: UIImage(named: prevChapterImageName)!
     ) { _ in
-      guard let playerManager = AppDelegate.shared?.playerManager else { return }
+      guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
-         let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter) {
+        let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter)
+      {
         playerManager.jumpToChapter(previousChapter)
       } else {
         playerManager.playPreviousItem()
@@ -321,17 +339,19 @@ extension CarPlayManager {
   }
 
   func getNextChapterButton() -> CPNowPlayingImageButton {
-    let nextChapterImageName = self.hasChapter(after: AppDelegate.shared?.playerManager?.currentItem?.currentChapter)
-    ? "carplay.chevron.right"
-    : "carplay.chevron.right.2"
+    let nextChapterImageName =
+      self.hasChapter(after: AppDelegate.shared?.coreServices?.playerManager.currentItem?.currentChapter)
+      ? "carplay.chevron.right"
+      : "carplay.chevron.right.2"
 
     return CPNowPlayingImageButton(
       image: UIImage(named: nextChapterImageName)!
     ) { _ in
-      guard let playerManager = AppDelegate.shared?.playerManager else { return }
+      guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
-         let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter) {
+        let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter)
+      {
         playerManager.jumpToChapter(nextChapter)
       } else {
         playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
@@ -345,21 +365,27 @@ extension CarPlayManager {
 extension CarPlayManager {
   func showChapterListTemplate() {
     guard
-      let playerManager = AppDelegate.shared?.playerManager,
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
       let chapters = playerManager.currentItem?.chapters
     else { return }
 
     let chapterItems = chapters.enumerated().map({ [weak self, playerManager] (index, chapter) -> CPListItem in
-      let chapterTitle = chapter.title == ""
-      ? String.localizedStringWithFormat("chapter_number_title".localized, index + 1)
-      : chapter.title
+      let chapterTitle =
+        chapter.title == ""
+        ? String.localizedStringWithFormat("chapter_number_title".localized, index + 1)
+        : chapter.title
 
-      let chapterDetail = String.localizedStringWithFormat("chapters_item_description".localized, TimeParser.formatTime(chapter.start), TimeParser.formatTime(chapter.duration))
+      let chapterDetail = String.localizedStringWithFormat(
+        "chapters_item_description".localized,
+        TimeParser.formatTime(chapter.start),
+        TimeParser.formatTime(chapter.duration)
+      )
 
       let item = CPListItem(text: chapterTitle, detailText: chapterDetail)
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
-         currentChapter.index == chapter.index {
+        currentChapter.index == chapter.index
+      {
         item.isPlaying = true
       }
 
@@ -369,7 +395,7 @@ extension CarPlayManager {
           object: self,
           userInfo: [
             "command": Command.chapter.rawValue,
-            "start": "\(chapter.start)"
+            "start": "\(chapter.start)",
           ]
         )
         completion()
@@ -405,7 +431,7 @@ extension CarPlayManager {
         object: self,
         userInfo: [
           "command": Command.chapter.rawValue,
-          "start": "\(bookmark.time)"
+          "start": "\(bookmark.time)",
         ]
       )
       completion()
@@ -417,10 +443,11 @@ extension CarPlayManager {
 
   func showBookmarkListTemplate() {
     guard
-      let playerManager = AppDelegate.shared?.playerManager,
-      let libraryService = AppDelegate.shared?.libraryService,
-      let currentItem = playerManager.currentItem
+      let coreServices = AppDelegate.shared?.coreServices,
+        let currentItem = coreServices.playerManager.currentItem
     else { return }
+
+    let libraryService = coreServices.libraryService
 
     let playBookmarks = libraryService.getBookmarks(of: .play, relativePath: currentItem.relativePath) ?? []
     let skipBookmarks = libraryService.getBookmarks(of: .skip, relativePath: currentItem.relativePath) ?? []
@@ -439,7 +466,11 @@ extension CarPlayManager {
       return self?.createBookmarkCPItem(from: bookmark, includeImage: false)
     }
 
-    let section1 = CPListSection(items: automaticItems, header: "bookmark_type_automatic_title".localized, sectionIndexTitle: nil)
+    let section1 = CPListSection(
+      items: automaticItems,
+      header: "bookmark_type_automatic_title".localized,
+      sectionIndexTitle: nil
+    )
 
     let section2 = CPListSection(items: userItems, header: "bookmark_type_user_title".localized, sectionIndexTitle: nil)
 
@@ -453,15 +484,16 @@ extension CarPlayManager {
 
 extension CarPlayManager {
   func showPlaybackControlsTemplate() {
-    let boostTitle = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
-    ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
-    : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
+    let boostTitle =
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+      ? "\("settings_boostvolume_title".localized): \("active_title".localized)"
+      : "\("settings_boostvolume_title".localized): \("sleep_off_title".localized)"
 
     boostVolumeItem.setText(boostTitle)
 
     let section1 = CPListSection(items: [boostVolumeItem])
 
-    let currentSpeed = AppDelegate.shared?.playerManager?.currentSpeed ?? 1
+    let currentSpeed = AppDelegate.shared?.coreServices?.playerManager.currentSpeed ?? 1
     let formattedSpeed = formatSpeed(currentSpeed)
 
     let speedItems = self.getSpeedOptions()
@@ -475,7 +507,7 @@ extension CarPlayManager {
             object: self,
             userInfo: [
               "command": Command.speed.rawValue,
-              "rate": "\(roundedValue)"
+              "rate": "\(roundedValue)",
             ]
           )
 
@@ -485,7 +517,11 @@ extension CarPlayManager {
         return item
       })
 
-    let section2 = CPListSection(items: speedItems, header: "\("player_speed_title".localized): \(formattedSpeed)", sectionIndexTitle: nil)
+    let section2 = CPListSection(
+      items: speedItems,
+      header: "\("player_speed_title".localized): \(formattedSpeed)",
+      sectionIndexTitle: nil
+    )
 
     let listTemplate = CPListTemplate(title: "settings_controls_title".localized, sections: [section1, section2])
 
@@ -498,7 +534,7 @@ extension CarPlayManager {
       1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
       2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
       3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9,
-      4.0
+      4.0,
     ]
   }
 }
@@ -506,8 +542,8 @@ extension CarPlayManager {
 extension CarPlayManager: CPInterfaceControllerDelegate {}
 
 extension CarPlayManager: AlertPresenter {
-  func showLoader() { }
-  func stopLoader() { }
+  func showLoader() {}
+  func stopLoader() {}
 
   public func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
     let okAction = CPAlertAction(title: "ok_button".localized, style: .default) { _ in

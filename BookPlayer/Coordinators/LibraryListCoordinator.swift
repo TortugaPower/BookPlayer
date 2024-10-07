@@ -57,7 +57,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       networkClient: NetworkClient(),
       libraryService: self.libraryService,
       playbackService: self.playbackService,
-      syncService: self.syncService, 
+      syncService: self.syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
@@ -104,7 +104,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
     self.documentPickerDelegate = vc
 
-    AppDelegate.shared?.watchConnectivityService?.startSession()
+    AppDelegate.shared?.coreServices?.watchService.startSession()
   }
 
   func handleLibraryLoaded() {
@@ -145,15 +145,16 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     fileSubscription = importManager.observeFiles()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] files in
-      guard let self = self,
-            !files.isEmpty,
-            self.shouldShowImportScreen() else { return }
+        guard let self = self,
+          !files.isEmpty,
+          self.shouldShowImportScreen()
+        else { return }
 
-      self.showImport()
-    }
+        self.showImport()
+      }
 
     importOperationSubscription = importManager.operationPublisher.sink(receiveValue: { [weak self] operation in
-      guard 
+      guard
         let self,
         let lastItemListViewController = self.flow.navigationController.viewControllers.last as? ItemListViewController
       else {
@@ -161,7 +162,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       }
 
       lastItemListViewController.setEditing(false, animated: false)
-      let loadingTitle = String.localizedStringWithFormat("import_processing_description".localized, operation.files.count)
+      let loadingTitle = String.localizedStringWithFormat(
+        "import_processing_description".localized,
+        operation.files.count
+      )
       lastItemListViewController.showLoadView(true, title: loadingTitle)
 
       operation.completionBlock = {
@@ -189,29 +193,32 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   @MainActor
   func notifyPendingFiles() {
     // Get reference of all the files located inside the Documents, Shared and Inbox folders
-    let documentsURLs = ((try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getDocumentsFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? [])
+    let documentsURLs =
+      ((try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getDocumentsFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? [])
       .filter {
         $0.lastPathComponent != DataManager.processedFolderName
-        && $0.lastPathComponent != DataManager.inboxFolderName
-        && $0.lastPathComponent != DataManager.backupFolderName
-        && $0.lastPathComponent != DataManager.trashFolderName
+          && $0.lastPathComponent != DataManager.inboxFolderName
+          && $0.lastPathComponent != DataManager.backupFolderName
+          && $0.lastPathComponent != DataManager.trashFolderName
       }
 
-    let sharedURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getSharedFilesFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
+    let sharedURLs =
+      (try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getSharedFilesFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? []
 
-    let inboxURLs = (try? FileManager.default.contentsOfDirectory(
-      at: DataManager.getInboxFolderURL(),
-      includingPropertiesForKeys: nil,
-      options: .skipsSubdirectoryDescendants
-    )) ?? []
+    let inboxURLs =
+      (try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getInboxFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? []
 
     let urls = documentsURLs + sharedURLs + inboxURLs
 
@@ -225,23 +232,38 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       let libraryItem = libraryService.getLibraryLastItem()
     else { return }
 
-    AppDelegate.shared?.loadPlayer(
-      libraryItem.relativePath,
-      autoplay: false,
-      showPlayer: { [weak self] in
+    Task {
+      let alertPresenter: AlertPresenter = self
+      do {
+        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+          libraryItem.relativePath,
+          autoplay: false,
+          recordAsLastBook: false
+        )
         if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
           UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-          self?.playerManager.play()
+          self.playerManager.play()
         }
 
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
           UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
-          self?.showPlayer()
+          self.showPlayer()
         }
-      },
-      alertPresenter: self,
-      recordAsLastBook: false
-    )
+      } catch BPPlayerError.fileMissing {
+        alertPresenter.showAlert(
+          "file_missing_title".localized,
+          message:
+            "\("file_missing_description".localized)\n\(libraryItem.relativePath)",
+          completion: nil
+        )
+      } catch {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: error.localizedDescription,
+          completion: nil
+        )
+      }
+    }
   }
 
   func processFiles(urls: [URL]) {
@@ -263,7 +285,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   }
 
   func showImport() {
-    guard 
+    guard
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
     else { return }
 

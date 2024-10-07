@@ -50,11 +50,14 @@ public enum Constants {
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
 
-    /// Shared widget action URL
-    public static let sharedWidgetActionURL = "sharedWidgetActionURL"
+    /// Shared widget currently playing relative path
+    public static let sharedWidgetNowPlayingPath = "sharedWidgetNowPlayingPath"
 
-    /// Shared widget isPlaying state
-    public static let sharedWidgetIsPlaying = "sharedWidgetIsPlaying"
+    /// Key to store the last played items
+    public static let sharedWidgetLastPlayedItems = "sharedWidgetLastPlayedItems"
+
+    /// Key to store the current theme
+    public static let sharedWidgetTheme = "sharedWidgetTheme"
   }
 
   public enum SmartRewind {

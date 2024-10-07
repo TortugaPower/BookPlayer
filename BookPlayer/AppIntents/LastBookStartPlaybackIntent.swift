@@ -6,40 +6,26 @@
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
-import Foundation
 import AppIntents
 import BookPlayerKit
+import Foundation
 
-@available(iOS 16.4, macOS 14.0, watchOS 10.0, *)
-struct LastBookStartPlaybackIntent: AudioStartingIntent, ForegroundContinuableIntent {
+@available(iOS 16.0, macOS 14.0, watchOS 10.0, *)
+struct LastBookStartPlaybackIntent: AudioStartingIntent {
   static var title: LocalizedStringResource = "intent_lastbook_play_title"
 
+  @Dependency
+  var playerLoaderService: PlayerLoaderService
+
+  @Dependency
+  var libraryService: LibraryService
+
   func perform() async throws -> some IntentResult {
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
-    
-    guard let appDelegate = await AppDelegate.shared else {
-      throw needsToContinueInForegroundError {
-        let actionString = CommandParser.createActionString(
-          from: .play,
-          parameters: [URLQueryItem(name: "autoplay", value: "true")]
-        )
-        let actionURL = URL(string: actionString)!
-        UIApplication.shared.open(actionURL)
-      }
-    }
-
-    let coreServices = await appDelegate.createCoreServicesIfNeeded(from: stack)
-
-    guard let book = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first else {
+    guard let book = libraryService.getLastPlayedItems(limit: 1)?.first else {
       throw "intent_lastbook_empty_error".localized
     }
 
-    await appDelegate.loadPlayer(
-      book.relativePath,
-      autoplay: true,
-      showPlayer: nil,
-      alertPresenter: VoidAlertPresenter()
-    )
+    try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
 
     return .result()
   }

@@ -21,7 +21,11 @@ class AccountServiceTests: XCTestCase {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.mockKeychain = KeychainServiceProtocolMock()
-    self.sut = AccountService(dataManager: dataManager, keychain: self.mockKeychain)
+    self.sut = AccountService(
+      dataManager: dataManager,
+      client: NetworkClientMock(mockedResponse: Empty()),
+      keychain: self.mockKeychain
+    )
   }
 
   private func setupBlankAccount() {

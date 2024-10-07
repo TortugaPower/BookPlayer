@@ -6,10 +6,10 @@
 //  Copyright © 2023 Tortuga Power. All rights reserved.
 //
 
-import Foundation
+import AVFoundation
 import AppIntents
 import BookPlayerKit
-import AVFoundation
+import Foundation
 
 @available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
 struct BookPlaybackToggleIntent: AudioPlaybackIntent {
@@ -17,10 +17,13 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = .init("Toggle playback of book")
 
   @Parameter(title: "relativePath")
-  var relativePath: String?
+  var relativePath: String
+
+  @Dependency
+  var playerLoaderService: PlayerLoaderService
 
   init() {
-    relativePath = nil
+    self.relativePath = ""
   }
 
   init(relativePath: String) {
@@ -28,15 +31,11 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
   }
 
   func perform() async throws -> some IntentResult {
-    let url = WidgetUtils.getWidgetActionURL(
-      with: relativePath,
-      playbackToggle: true
-    ).absoluteString
-
-    UserDefaults.sharedDefaults.set(
-      url,
-      forKey: Constants.UserDefaults.sharedWidgetActionURL
-    )
+    if playerLoaderService.playerManager.currentItem?.relativePath == relativePath {
+      playerLoaderService.playerManager.playPause()
+    } else {
+      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+    }
 
     return .result()
   }

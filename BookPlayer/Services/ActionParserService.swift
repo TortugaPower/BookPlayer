@@ -41,7 +41,7 @@ class ActionParserService {
     appDelegate.pendingURLActions.append(action)
 
     guard
-      let watchConnectivityService = appDelegate.watchConnectivityService
+      let watchConnectivityService = appDelegate.coreServices?.watchService
     else { return }
 
     switch action.command {
@@ -77,13 +77,14 @@ class ActionParserService {
 
   private class func handleRewindAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
 
     if let valueString = action.getQueryValue(for: "interval"),
-       let interval = Double(valueString) {
+      let interval = Double(valueString)
+    {
       playerManager.skip(-interval)
     } else {
       playerManager.rewind()
@@ -92,13 +93,14 @@ class ActionParserService {
 
   private class func handleForwardAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
 
     if let valueString = action.getQueryValue(for: "interval"),
-       let interval = Double(valueString) {
+      let interval = Double(valueString)
+    {
       playerManager.skip(interval)
     } else {
       playerManager.forward()
@@ -109,7 +111,7 @@ class ActionParserService {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -128,7 +130,7 @@ class ActionParserService {
     let roundedValue = round(speedRate * 100) / 100.0
 
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -142,7 +144,7 @@ class ActionParserService {
     let isOn = valueString == "true"
 
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -169,7 +171,8 @@ class ActionParserService {
 
   private class func handleSleepAction(_ action: Action) {
     guard let value = action.getQueryValue(for: "seconds"),
-          let seconds = Double(value) else {
+      let seconds = Double(value)
+    else {
       return
     }
 
@@ -185,18 +188,27 @@ class ActionParserService {
 
   private class func handlePlaybackToggleAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
 
-    self.removeAction(action)
-    playerManager.playPause()
+    if let bookIdentifier = action.getQueryValue(for: "identifier"),
+      playerManager.currentItem?.relativePath != bookIdentifier
+    {
+      if let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator() {
+        self.removeAction(action)
+        libraryCoordinator.loadPlayer(bookIdentifier)
+      }
+    } else {
+      self.removeAction(action)
+      playerManager.playPause()
+    }
   }
 
   private class func handlePauseAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
@@ -207,20 +219,22 @@ class ActionParserService {
 
   private class func handlePlayAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.playerManager
+      let playerManager = AppDelegate.shared?.coreServices?.playerManager
     else {
       return
     }
 
     if let value = action.getQueryValue(for: "showPlayer"),
-       let showPlayer = Bool(value),
-       showPlayer {
+      let showPlayer = Bool(value),
+      showPlayer
+    {
       AppDelegate.shared?.showPlayer()
     }
 
     if let value = action.getQueryValue(for: "autoplay"),
-       let autoplay = Bool(value),
-       !autoplay {
+      let autoplay = Bool(value),
+      !autoplay
+    {
       return
     }
 
@@ -231,7 +245,8 @@ class ActionParserService {
     }
 
     if let loadedItem = playerManager.currentItem,
-       loadedItem.relativePath == bookIdentifier {
+      loadedItem.relativePath == bookIdentifier
+    {
       self.removeAction(action)
       playerManager.play()
       return
@@ -254,7 +269,10 @@ class ActionParserService {
     }
 
     guard let url = URL(string: urlString) else {
-      libraryCoordinator.showAlert("error_title".localized, message: String.localizedStringWithFormat("invalid_url_title".localized, urlString))
+      libraryCoordinator.showAlert(
+        "error_title".localized,
+        message: String.localizedStringWithFormat("invalid_url_title".localized, urlString)
+      )
       return
     }
 

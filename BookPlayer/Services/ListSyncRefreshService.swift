@@ -49,12 +49,28 @@ class ListSyncRefreshService: BPLogger {
   private func reloadLastBook(relativePath: String, alertPresenter: AlertPresenter) {
     let wasPlaying = playerManager.isPlaying
     playerManager.stop()
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: wasPlaying,
-      showPlayer: nil,
-      alertPresenter: alertPresenter
-    )
+
+    Task {
+      do {
+        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: wasPlaying
+        )
+      } catch BPPlayerError.fileMissing {
+        alertPresenter.showAlert(
+          "file_missing_title".localized,
+          message:
+            "\("file_missing_description".localized)\n\(relativePath)",
+          completion: nil
+        )
+      } catch {
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: error.localizedDescription,
+          completion: nil
+        )
+      }
+    }
   }
 
   @MainActor
@@ -63,11 +79,25 @@ class ListSyncRefreshService: BPLogger {
     guard playerManager.isPlaying == false else { return }
 
     await syncService.setLibraryLastBook(with: relativePath)
-    AppDelegate.shared?.loadPlayer(
-      relativePath,
-      autoplay: false,
-      showPlayer: nil,
-      alertPresenter: alertPresenter
-    )
+
+    do {
+      try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+        relativePath,
+        autoplay: false
+      )
+    } catch BPPlayerError.fileMissing {
+      alertPresenter.showAlert(
+        "file_missing_title".localized,
+        message:
+          "\("file_missing_description".localized)\n\(relativePath)",
+        completion: nil
+      )
+    } catch {
+      alertPresenter.showAlert(
+        "error_title".localized,
+        message: error.localizedDescription,
+        completion: nil
+      )
+    }
   }
 }
