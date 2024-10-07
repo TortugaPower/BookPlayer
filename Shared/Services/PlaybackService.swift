@@ -199,7 +199,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
   func getPlayableChapters(book: SimpleLibraryItem) throws -> [PlayableChapter] {
     guard
-      let chapters = self.libraryService.getChapters(from: book.relativePath)
+      var chapters = self.libraryService.getChapters(from: book.relativePath)
     else {
       throw BookPlayerError.runtimeError(
         String.localizedStringWithFormat(
@@ -208,6 +208,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
         )
       )
     }
+
+    /// Ignore chapters that don't have the duration set properly
+    chapters = chapters.filter { $0.duration > 0 }
 
     guard !chapters.isEmpty else {
       return [
