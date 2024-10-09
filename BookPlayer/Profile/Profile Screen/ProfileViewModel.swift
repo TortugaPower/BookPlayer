@@ -80,6 +80,7 @@ class ProfileViewModel: ProfileViewModelProtocol {
       .store(in: &disposeBag)
 
     NotificationCenter.default.publisher(for: .bookPaused, object: nil)
+      .receive(on: DispatchQueue.main)
       .sink(receiveValue: { [weak self] _ in
         self?.reloadListenedTime()
       })
