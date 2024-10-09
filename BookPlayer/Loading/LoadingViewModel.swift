@@ -14,12 +14,14 @@ class LoadingViewModel: ViewModelProtocol {
   weak var coordinator: LoadingCoordinator!
 
   func initializeDataIfNeeded() {
-    let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
+    Task { @MainActor in
+      let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self.coordinator)
 
-    dataInitializerCoordinator.onFinish = {
-      self.coordinator.didFinishLoadingSequence()
+      dataInitializerCoordinator.onFinish = {
+        self.coordinator.didFinishLoadingSequence()
+      }
+
+      dataInitializerCoordinator.start()
     }
-
-    dataInitializerCoordinator.start()
   }
 }
