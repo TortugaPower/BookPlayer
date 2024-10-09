@@ -148,7 +148,7 @@ class MainCoordinator: NSObject {
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
-    Task {
+    Task { @MainActor in
       let alertPresenter: AlertPresenter = getLibraryCoordinator() ?? self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
