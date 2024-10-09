@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Spol tilbage med interval";
 "Rewind ${interval}" = "Spol ${interval} tilbage";
 "settings_lock_orientation_title" = "Orientering låst";
+"more_title" = "Mere";

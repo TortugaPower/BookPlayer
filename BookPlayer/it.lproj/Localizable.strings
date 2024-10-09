@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Riavvolgi con intervallo";
 "Rewind ${interval}" = "Riavvolgi ${interval}";
 "settings_lock_orientation_title" = "Orientamento bloccato";
+"more_title" = "Di più";

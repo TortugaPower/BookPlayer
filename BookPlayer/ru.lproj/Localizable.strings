@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Перемотка назад с интервалом";
 "Rewind ${interval}" = "Перемотка назад ${interval}";
 "settings_lock_orientation_title" = "Ориентация заблокирована";
+"more_title" = "Более";

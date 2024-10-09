@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Terugspoelen met interval";
 "Rewind ${interval}" = "Terugspoelen ${interval}";
 "settings_lock_orientation_title" = "Oriëntatie vergrendeld";
+"more_title" = "Meer";

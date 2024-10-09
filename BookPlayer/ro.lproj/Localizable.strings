@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Derulați înapoi cu interval";
 "Rewind ${interval}" = "Derulați înapoi ${interval}";
 "settings_lock_orientation_title" = "Orientare blocată";
+"more_title" = "Mai mult";

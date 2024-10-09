@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Przewijanie do tyłu z interwałem";
 "Rewind ${interval}" = "Przewiń ${interval}";
 "settings_lock_orientation_title" = "Zablokowana orientacja";
+"more_title" = "Więcej";
