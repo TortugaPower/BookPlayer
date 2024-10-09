@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "الترجيع مع الفاصل الزمني";
 "Rewind ${interval}" = "ترجيع ${interval}";
 "settings_lock_orientation_title" = "الاتجاه مغلق";
+"more_title" = "أكثر";

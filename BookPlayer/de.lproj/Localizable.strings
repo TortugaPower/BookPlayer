@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Rücklauf mit Pause";
 "Rewind ${interval}" = "Zurückspulen ${interval}";
 "settings_lock_orientation_title" = "Ausrichtung gesperrt";
+"more_title" = "Mehr";

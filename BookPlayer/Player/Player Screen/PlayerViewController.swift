@@ -105,7 +105,8 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
     /// Patch to fix background layers on default artwork for iPad
     if UIDevice.current.userInterfaceIdiom != .phone,
-       artworkControl.artworkImage.isHidden {
+      artworkControl.artworkImage.isHidden
+    {
       artworkControl.setupGradients(with: size)
     }
   }
@@ -169,8 +170,10 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
     self.currentTimeLabel.text = progressObject.formattedCurrentTime
     self.currentTimeLabel.accessibilityLabel = String(
-      describing: String.localizedStringWithFormat(self.viewModel.getCurrentTimeVoiceOverPrefix(),
-                                                   VoiceOverService.secondsToMinutes(progressObject.currentTime))
+      describing: String.localizedStringWithFormat(
+        self.viewModel.getCurrentTimeVoiceOverPrefix(),
+        VoiceOverService.secondsToMinutes(progressObject.currentTime)
+      )
     )
 
     if let progress = progressObject.progress {
@@ -178,7 +181,8 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     }
 
     if let maxTime = progressObject.maxTime,
-       let formattedMaxTime = progressObject.formattedMaxTime {
+      let formattedMaxTime = progressObject.formattedMaxTime
+    {
       self.maxTimeButton.setTitle(formattedMaxTime, for: .normal)
       self.maxTimeButton.accessibilityLabel = String(
         describing: "\(self.viewModel.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
@@ -193,13 +197,17 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
     let leftChevron = UIImage(
       systemName: progressObject.prevChapterImageName,
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
+      withConfiguration: UIImage.SymbolConfiguration(
+        pointSize: 18,
+        weight: .semibold
+      )
     )
     let rightChevron = UIImage(
       systemName: progressObject.nextChapterImageName,
-      withConfiguration: UIImage.SymbolConfiguration(pointSize: 18,
-                                                     weight: .semibold)
+      withConfiguration: UIImage.SymbolConfiguration(
+        pointSize: 18,
+        weight: .semibold
+      )
     )
 
     self.previousChapterButton.setImage(leftChevron, for: .normal)
@@ -233,7 +241,8 @@ extension PlayerViewController {
     self.progressSlider.publisher(for: .valueChanged)
       .sink { [weak self] sender in
         guard let self = self,
-              let slider = sender as? UISlider else { return }
+          let slider = sender as? UISlider
+        else { return }
         self.progressSlider.setNeedsDisplay()
 
         let progressObject = self.viewModel.processSliderValueChangedEvent(with: slider.value)
@@ -262,7 +271,8 @@ extension PlayerViewController {
     self.maxTimeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         guard let self = self,
-              !self.progressSlider.isTracking else { return }
+          !self.progressSlider.isTracking
+        else { return }
 
         let progressObject = self.viewModel.processToggleMaxTime()
 
@@ -273,7 +283,8 @@ extension PlayerViewController {
       .merge(with: self.chapterTitleButton.publisher(for: .touchUpInside))
       .sink { [weak self] _ in
         guard let self = self,
-              !self.progressSlider.isTracking else { return }
+          !self.progressSlider.isTracking
+        else { return }
 
         let progressObject = self.viewModel.processToggleProgressState()
 
@@ -319,18 +330,22 @@ extension PlayerViewController {
 
       if let timeFormatted = toolbarDescription {
         self.sleepLabel.isAccessibilityElement = true
-        let remainingTitle = String(describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted))
+        let remainingTitle = String(
+          describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted)
+        )
         self.sleepLabel.accessibilityLabel = String(describing: remainingTitle)
 
         if let items = self.bottomToolbar.items,
-           !items.contains(self.sleepLabel) {
+          !items.contains(self.sleepLabel)
+        {
           self.updateToolbar(true, animated: true)
         }
       } else {
         self.sleepLabel.isAccessibilityElement = false
 
         if let items = self.bottomToolbar.items,
-           items.contains(self.sleepLabel) {
+          items.contains(self.sleepLabel)
+        {
           self.updateToolbar(false, animated: true)
         }
       }
@@ -368,7 +383,8 @@ extension PlayerViewController {
       .sink { [weak self] item in
         self?.currentChapterSubscriber?.cancel()
         guard let self = self,
-              let item = item else { return }
+          let item = item
+        else { return }
 
         self.setupPlayerView(with: item)
         self.bindCurrentChapterObserver(for: item)
@@ -380,7 +396,9 @@ extension PlayerViewController {
         guard let self = self else { return }
 
         self.speedButton.title = self.formatSpeed(speed)
-        self.speedButton.accessibilityLabel = String(describing: self.formatSpeed(speed) + " \("speed_title".localized)")
+        self.speedButton.accessibilityLabel = String(
+          describing: self.formatSpeed(speed) + " \("speed_title".localized)"
+        )
 
         // Only update progress if the player is in pause state
         guard !self.playIconView.isPlaying else { return }
@@ -396,7 +414,8 @@ extension PlayerViewController {
       let relativePath: String
 
       if let chapter,
-         ArtworkService.isCached(relativePath: chapter.relativePath) {
+        ArtworkService.isCached(relativePath: chapter.relativePath)
+      {
         relativePath = chapter.relativePath
       } else {
         relativePath = item.relativePath
@@ -426,10 +445,18 @@ extension PlayerViewController {
   func setupToolbar() {
     self.bottomToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .any, barMetrics: .default)
     self.bottomToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-    self.speedButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)], for: .normal)
+    self.speedButton.setTitleTextAttributes(
+      [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18.0, weight: .semibold)],
+      for: .normal
+    )
     self.previousChapterButton.accessibilityLabel = "chapters_previous_title".localized
     self.nextChapterButton.accessibilityLabel = "chapters_next_title".localized
     self.bookmarkButton.accessibilityLabel = "bookmark_create_title".localized
+    self.sleepButton.accessibilityLabel = "settings_siri_sleeptimer_title".localized
+    self.listButton.accessibilityLabel =
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks)
+      ? "bookmarks_title".localized : "chapters_title".localized
+    self.moreButton.accessibilityLabel = "more_title".localized
   }
 
   func updateToolbar(_ showTimerLabel: Bool = false, animated: Bool = false) {
@@ -438,7 +465,7 @@ extension PlayerViewController {
     var items: [UIBarButtonItem] = [
       self.speedButton,
       spacer,
-      self.sleepButton
+      self.sleepButton,
     ]
 
     if showTimerLabel {
@@ -534,29 +561,48 @@ extension PlayerViewController {
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-    actionSheet.addAction(UIAlertAction(
-      title: self.viewModel.getListTitleForMoreAction(),
-      style: .default,
-      handler: { [weak self] _ in
-        self?.viewModel.showListFromMoreAction()
-      }))
+    actionSheet.addAction(
+      UIAlertAction(
+        title: self.viewModel.getListTitleForMoreAction(),
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.showListFromMoreAction()
+        }
+      )
+    )
 
-    actionSheet.addAction(UIAlertAction(title: "jump_start_title".localized, style: .default, handler: { [weak self] _ in
-      self?.viewModel.handleJumpToStart()
-    }))
+    actionSheet.addAction(
+      UIAlertAction(
+        title: "jump_start_title".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.handleJumpToStart()
+        }
+      )
+    )
 
-    let markTitle = self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
+    let markTitle =
+      self.viewModel.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
 
-    actionSheet.addAction(UIAlertAction(title: markTitle, style: .default, handler: { [weak self] _ in
-      self?.viewModel.handleMarkCompletion()
-    }))
+    actionSheet.addAction(
+      UIAlertAction(
+        title: markTitle,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.handleMarkCompletion()
+        }
+      )
+    )
 
-    actionSheet.addAction(UIAlertAction(
-      title: "button_free_title".localized,
-      style: .default,
-      handler: { [weak self] _ in
-        self?.viewModel.showButtonFree()
-      }))
+    actionSheet.addAction(
+      UIAlertAction(
+        title: "button_free_title".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.showButtonFree()
+        }
+      )
+    )
 
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
@@ -621,14 +667,16 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 
       self.dismissFeedbackTriggered = false
 
-      UIView.animate(withDuration: 0.3,
-                     delay: 0.0,
-                     usingSpringWithDamping: 0.75,
-                     initialSpringVelocity: 1.5,
-                     options: .preferredFramesPerSecond60,
-                     animations: {
-        self.view?.transform = .identity
-      })
+      UIView.animate(
+        withDuration: 0.3,
+        delay: 0.0,
+        usingSpringWithDamping: 0.75,
+        initialSpringVelocity: 1.5,
+        options: .preferredFramesPerSecond60,
+        animations: {
+          self.view?.transform = .identity
+        }
+      )
 
     default: break
     }
@@ -637,9 +685,10 @@ extension PlayerViewController: UIGestureRecognizerDelegate {
 
 extension PlayerViewController: Themeable {
   func applyTheme(_ theme: SimpleTheme) {
-    self.themedStatusBarStyle = theme.useDarkVariant
-    ? .lightContent
-    : .default
+    self.themedStatusBarStyle =
+      theme.useDarkVariant
+      ? .lightContent
+      : .default
     setNeedsStatusBarAppearanceUpdate()
 
     self.view.backgroundColor = theme.systemBackgroundColor

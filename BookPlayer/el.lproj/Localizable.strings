@@ -34,7 +34,7 @@
 "delete_single_playlist_description" = "Η διαγραφή μόνο του φακέλου θα μεταφέρει όλα τα αρχεία του πίσω στη Βιβλιοθήκη.";
 "delete_shallow_button" = "Διαγραφή φακέλου μόνο";
 "delete_deep_button" = "Διαγραφή φακέλου και αρχείων";
-"create_playlist_button" = "ΔΗΜΙΟΥΡΓΩ φακελο";
+"create_playlist_button" = "Δημιουργία φακέλου";
 "create_button" = "Δημιουργώ";
 "import_button" = "Εισαγωγή αρχείων";
 "import_description" = "Μπορείτε επίσης να προσθέσετε αρχεία μέσω AirDrop. Στείλτε ένα αρχείο ήχου βιβλίου στη συσκευή σας και επιλέξτε BookPlayer από τη λίστα που εμφανίζεται.";
@@ -63,7 +63,7 @@
 "settings_playback_title" = "Ρυθμίσεις αναπαραγωγής";
 "settings_controls_title" = "Χειριστήρια αναπαραγωγού";
 "settings_power_connected_title" = "Μόνο όταν είναι συνδεδεμένο στο ρεύμα";
-"settings_tip_jar_title" = "Δοχείο φιλοδωρήματος";
+"settings_tip_jar_title" = "Στείλτε ένα φιλοδώρημα";
 "theme_system_title" = "Χρησιμοποιήστε τη λειτουργία συστήματος";
 "theme_switch_title" = "Εναλλαγή αυτόματα";
 "theme_dark_title" = "Χρησιμοποιείτε πάντα σκοτεινή παραλλαγή";
@@ -81,7 +81,7 @@
 "select_all_title" = "Επιλογή όλων";
 "deselect_all_title" = "Αποεπιλογή όλων";
 "move_title" = "Κίνηση";
-"jump_start_title" = "Μεταβείτε για να ξεκινήσετε";
+"jump_start_title" = "Μετάβαση στην αρχή";
 "mark_finished_title" = "Επισήμανση ως ολοκληρωμένου";
 "sort_files_title" = "Ταξινόμηση αρχείων κατά";
 "rename_title" = "Μετονομασία στοιχείου";
@@ -90,7 +90,7 @@
 "file_missing_title" = "Λείπει το αρχείο!";
 "file_missing_description" = "Το αρχείο αυτού του βιβλίου καταργήθηκε από τη συσκευή σας. Εισαγάγετε ξανά το αρχείο για αναπαραγωγή του βιβλίου";
 "empty_playlist_description" = "Μπορείτε επίσης να μετακινήσετε αρχεία εδώ σύροντάς τα σε αυτόν τον φάκελο στη Βιβλιοθήκη";
-"playlist_add_title" = "Πρόσθεσε αρχεία";
+"playlist_add_title" = "Προσθήκη αρχείων";
 "player_speed_title" = "Ρύθμιση ταχύτητας αναπαραγωγής";
 "player_sleep_title" = "Παύση αναπαραγωγής";
 "sleep_chapter_option_title" = "Τέλος τρέχοντος κεφαλαίου";
@@ -229,8 +229,8 @@
 "remove_downloaded_file_title" = "Αφαιρέστε από τη συσκευή";
 "download_from_url_title" = "Λήψη από τη διεύθυνση URL";
 "done_title" = "Εγινε";
-"select_title" = "Επιλέγω";
-"sort_button_title" = "Είδος";
+"select_title" = "Επιλογή";
+"sort_button_title" = "Ταξινόμηση";
 "search_title" = "Αναζήτηση";
 "books_title" = "Βιβλία";
 "folders_title" = "Φάκελοι";
@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Πίσω με μεσοδιάστημα";
 "Rewind ${interval}" = "Επαναφορά ${interval}";
 "settings_lock_orientation_title" = "Ο προσανατολισμός είναι κλειδωμένος";
+"more_title" = "Περισσότερο";

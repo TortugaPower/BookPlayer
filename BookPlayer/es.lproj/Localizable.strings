@@ -318,3 +318,4 @@
 "intent_custom_skiprewind_title" = "Rebobinar con intervalo";
 "Rewind ${interval}" = "Rebobinar ${interval}";
 "settings_lock_orientation_title" = "Orientación Bloqueada";
+"more_title" = "Más";
