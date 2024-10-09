@@ -68,7 +68,23 @@ class DataInitializerCoordinator: BPLogger {
         }
       }
     } else {
-      fatalError("Unresolved error \(error), \(error.userInfo)")
+      await MainActor.run {
+        let errorDescription = """
+          \(error.localizedDescription)
+
+          Error Domain
+          \(error.domain)
+
+          Additional Info
+          \(error.userInfo)
+          """
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: errorDescription
+        ) {
+          fatalError("Unresolved error \(error.localizedDescription)")
+        }
+      }
     }
   }
 
