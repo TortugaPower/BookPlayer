@@ -15,42 +15,57 @@ import WidgetKit
   import BookPlayerKit
 #endif
 
+@main
+struct BookPlayerBundle {
+  static func main() {
 #if os(iOS)
-  struct BookPlayerWidgetUI_Previews: PreviewProvider {
-    static var previews: some View {
-      Group {
-        LastPlayedWidgetView(
-          entry: .init(
-            date: Date(),
-            items: [
-              .init(relativePath: "path1", title: "Test Book Title")
-            ],
-            currentlyPlaying: nil
-          )
-        )
-        .previewContext(WidgetPreviewContext(family: .systemSmall))
-      }
+    if #available(iOSApplicationExtension 18.0, *) {
+      IOSWidgetsBundle18.main()
+    } else if #available(iOSApplicationExtension 16.1, *) {
+      IOSWidgetsBundle16.main()
+    } else {
+      IOSWidgetsBundle.main()
+    }
+#elseif os(watchOS)
+    WatchWidgetsBundle.main()
+#endif
+  }
+
+#if os(iOS)
+  struct IOSWidgetsBundle: WidgetBundle {
+    var body: some Widget {
+      LastPlayedWidget()
+      TimeListenedWidget()
+    }
+  }
+
+  @available(iOSApplicationExtension 16.1, *)
+  struct IOSWidgetsBundle16: WidgetBundle {
+    var body: some Widget {
+      LastPlayedWidget()
+      TimeListenedWidget()
+      SharedWidget()
+      SharedIconWidget()
+    }
+  }
+
+  @available(iOSApplicationExtension 18.0, *)
+  struct IOSWidgetsBundle18: WidgetBundle {
+    var body: some Widget {
+      LastPlayedWidget()
+      TimeListenedWidget()
+      SharedWidget()
+      SharedIconWidget()
+      PlayLastControlWidgetView()
+    }
+  }
+
+#elseif os(watchOS)
+  struct WatchWidgetsBundle: WidgetBundle {
+    var body: some Widget {
+      SharedWidget()
+      SharedIconWidget()
     }
   }
 #endif
-
-@main
-struct BookPlayerBundle: WidgetBundle {
-  @WidgetBundleBuilder
-  var body: some Widget {
-    #if os(iOS)
-      LastPlayedWidget()
-      TimeListenedWidget()
-      if #available(iOSApplicationExtension 16.1, *) {
-        SharedWidget()
-        SharedIconWidget()
-      }
-      if #available(iOSApplicationExtension 18.0, *) {
-        PlayLastControlWidgetView()
-      }
-    #elseif os(watchOS)
-      SharedWidget()
-      SharedIconWidget()
-    #endif
-  }
 }

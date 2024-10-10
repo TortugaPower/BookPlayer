@@ -232,7 +232,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       let libraryItem = libraryService.getLibraryLastItem()
     else { return }
 
-    Task {
+    Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(

@@ -50,7 +50,7 @@ class ListSyncRefreshService: BPLogger {
     let wasPlaying = playerManager.isPlaying
     playerManager.stop()
 
-    Task {
+    Task { @MainActor in
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
           relativePath,

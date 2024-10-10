@@ -104,14 +104,14 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func loadPlayer(_ relativePath: String) {
-    Task {
+    Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
           autoplay: true
         )
-        await self.showPlayer()
+        self.showPlayer()
       } catch BPPlayerError.fileMissing {
         alertPresenter.showAlert(
           "file_missing_title".localized,

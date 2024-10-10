@@ -11,6 +11,7 @@ import Combine
 import CoreData
 import Foundation
 
+@MainActor
 class DataInitializerCoordinator: BPLogger {
   let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
   let alertPresenter: AlertPresenter
@@ -28,10 +29,10 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func initializeLibrary(isRecoveryAttempt: Bool) async {
-    let appDelegate = await AppDelegate.shared!
+    let appDelegate = AppDelegate.shared!
     _ = await appDelegate.setupCoreServicesTask?.result
 
-    if let errorCoreServicesSetup = await appDelegate.errorCoreServicesSetup {
+    if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
       await handleError(errorCoreServicesSetup as NSError)
       return
     }
@@ -68,19 +69,35 @@ class DataInitializerCoordinator: BPLogger {
         }
       }
     } else {
-      fatalError("Unresolved error \(error), \(error.userInfo)")
+      await MainActor.run {
+        let errorDescription = """
+          \(error.localizedDescription)
+
+          Error Domain
+          \(error.domain)
+
+          Additional Info
+          \(error.userInfo)
+          """
+        alertPresenter.showAlert(
+          "error_title".localized,
+          message: errorDescription
+        ) {
+          fatalError("Unresolved error \(error.localizedDescription)")
+        }
+      }
     }
   }
 
   func recoverLibraryFromFailedMigration() {
     Task {
-      await AppDelegate.shared?.resetCoreServices()
+      AppDelegate.shared?.resetCoreServices()
       await initializeLibrary(isRecoveryAttempt: true)
     }
   }
 
   func finishLibrarySetup(fromRecovery: Bool) async {
-    let coreServices = await AppDelegate.shared!.coreServices!
+    let coreServices = AppDelegate.shared!.coreServices!
 
     setupDefaultState(
       libraryService: coreServices.libraryService,

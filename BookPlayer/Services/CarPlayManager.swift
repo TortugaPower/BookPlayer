@@ -263,7 +263,7 @@ class CarPlayManager: NSObject {
 
   /// Handle playing the selected item
   func playItem(with relativePath: String) {
-    Task {
+    Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
