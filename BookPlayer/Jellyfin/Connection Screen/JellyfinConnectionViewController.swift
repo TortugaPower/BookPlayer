@@ -8,13 +8,17 @@
 
 import BookPlayerKit
 import Combine
+import JellyfinAPI
 import SwiftUI
 import Themeable
 import UIKit
 
 class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: JellyfinConnectionViewModel!
+
   private var disposeBag = Set<AnyCancellable>()
+
+  private var apiClient: JellyfinClient?
 
   // MARK: - UI components
 
@@ -93,7 +97,27 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   @objc func didTapConnect() {
+    let mainBundleInfo = Bundle.main.infoDictionary
+    let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
+    let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
+    let deviceID = UIDevice.current.identifierForVendor
+    if let url = URL(string: viewModel.formViewModel.serverUrl), let clientName = clientName, let clientVersion = clientVersion, let deviceID = deviceID {
+      let configuration = JellyfinClient.Configuration(
+        url: url,
+        client: clientName,
+        deviceName: UIDevice.current.name,
+        deviceID: "\(deviceID.uuidString)-\(clientName)",
+        version: clientVersion
+      )
+      let apiClient = JellyfinClient(configuration: configuration)
 
+      Task {
+        let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
+        self.viewModel.connectionState = .foundServer
+        self.viewModel.formViewModel.serverName = publicSystemInfo.value.serverName
+        self.apiClient = apiClient
+      }
+    }
   }
 }
 
