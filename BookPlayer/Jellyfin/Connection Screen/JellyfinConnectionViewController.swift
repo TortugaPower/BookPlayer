@@ -17,8 +17,9 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   var viewModel: JellyfinConnectionViewModel!
 
   private var disposeBag = Set<AnyCancellable>()
+  private var navBarRightButtonEnabledWatcher: AnyCancellable?
 
-  private var apiClient: JellyfinClient?
+  @Published private var apiClient: JellyfinClient?
 
   // MARK: - UI components
 
@@ -61,12 +62,6 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       target: self,
       action: #selector(self.didTapCancel)
     )
-    self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      title: "jellyfin_connect_button".localized,
-      style: .done,
-      target: self,
-      action: #selector(self.didTapConnect)
-    )
     definesPresentationContext = true
   }
 
@@ -86,8 +81,34 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   private func bindConnectionObservers() {
-    viewModel.createCanConnectPublisher().sink { [weak self] canConnect in
-      self?.navigationItem.rightBarButtonItem?.isEnabled = canConnect
+    viewModel.$connectionState.sink { [weak self] state in
+      if let self = self {
+        switch state {
+        case .disconnected:
+          self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "jellyfin_connect_button".localized,
+            style: .done,
+            target: self,
+            action: #selector(self.didTapConnect)
+          )
+          navBarRightButtonEnabledWatcher = viewModel.form.$serverUrl.map { !$0.isEmpty }.sink { [weak self] canConnect in
+            self?.navigationItem.rightBarButtonItem?.isEnabled = canConnect
+          }
+        case .foundServer:
+          self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "jellyfin_login_button".localized,
+            style: .done,
+            target: self,
+            action: #selector(self.didTapLogin)
+          )
+          navBarRightButtonEnabledWatcher = Publishers.CombineLatest3(viewModel.form.$username, viewModel.form.$password, $apiClient).sink { [weak self] (username, password, apiClient) in
+            self?.navigationItem.rightBarButtonItem?.isEnabled = apiClient != nil && !username.isEmpty && !password.isEmpty
+          }
+        case .connected:
+          navBarRightButtonEnabledWatcher = nil
+          self.navigationItem.rightBarButtonItem?.isEnabled = false
+        }
+      }
     }
     .store(in: &disposeBag)
   }
@@ -118,6 +139,10 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
         self.apiClient = apiClient
       }
     }
+  }
+
+  @objc func didTapLogin() {
+    // TODO
   }
 }
 

@@ -60,8 +60,14 @@ struct JellyfinConnectionView: View {
         Text("jellyfin_section_server".localized)
       }
       Section {
-        ClearableTextField("jellyfin_username_placeholder".localized, text: username)
-        ClearableTextField("jellyfin_password_placeholder".localized, text: password)
+        ClearableTextField("jellyfin_username_placeholder".localized, text: username) {
+          $0.textContentType = .name
+          $0.autocapitalization = .none
+        }
+        ClearableTextField("jellyfin_password_placeholder".localized, text: password) {
+          $0.textContentType = .password
+          $0.autocapitalization = .none
+        }
       } header: {
         Text("jellyfin_section_login".localized)
       }
@@ -95,5 +101,6 @@ struct JellyfinConnectionView: View {
 }
 
 #Preview {
-  JellyfinConnectionView(viewModel: JellyfinConnectionViewModel())
+  var viewModel = JellyfinConnectionViewModel()
+  JellyfinConnectionView(viewModel: viewModel)
 }

@@ -30,7 +30,7 @@ struct ClearableTextField: View {
 
   var body: some View {
     HStack {
-      TextField(placeholder, text: $text)
+      textField
         .foregroundColor(themeViewModel.primaryColor)
         .keyboardType(keyboardType)
         .textContentType(textContentType)
@@ -42,6 +42,15 @@ struct ClearableTextField: View {
         }
         .accessibilityAddTraits(.isButton)
         .accessibilityRemoveTraits(.isImage)
+    }
+  }
+
+  @ViewBuilder
+  private var textField: some View {
+    if textContentType == .password {
+      SecureField(placeholder, text: $text)
+    } else {
+      TextField(placeholder, text: $text)
     }
   }
 }

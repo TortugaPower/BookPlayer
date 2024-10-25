@@ -28,10 +28,6 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
 
   @Published var connectionState: ConnectionState = .disconnected
 
-  func createCanConnectPublisher() -> AnyPublisher<Bool, Never> {
-    form.$serverUrl.map { !$0.isEmpty }.eraseToAnyPublisher()
-  }
-
 
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
