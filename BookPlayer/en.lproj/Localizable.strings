@@ -228,6 +228,7 @@
 "cancel_download_title" = "Cancel download";
 "remove_downloaded_file_title" = "Remove from device";
 "download_from_url_title" = "Download from URL";
+"download_from_jellyfin_title" = "Download from Jellyfin";
 "done_title" = "Done";
 "select_title" = "Select";
 "sort_button_title" = "Sort";
@@ -319,3 +320,4 @@ We're working hard on providing a seamless experience, if possible, please conta
 "Rewind ${interval}" = "Rewind ${interval}";
 "settings_lock_orientation_title" = "Orientation Locked";
 "more_title" = "More";
+"jellyfin_connection_title" = "Jellyfin";

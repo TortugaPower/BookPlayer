@@ -56,6 +56,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self.loadPlayer(relativePath)
       case .showDocumentPicker:
         self.showDocumentPicker()
+      case .showJellyfinDownloader:
+        self.showJellyfinDownloader()
       case .showSearchList(let relativePath, let placeholderTitle):
         self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):

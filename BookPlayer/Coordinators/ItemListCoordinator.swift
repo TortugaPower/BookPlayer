@@ -160,6 +160,24 @@ extension ItemListCoordinator {
     flow.navigationController.present(providerList, animated: true, completion: nil)
   }
 
+  func showJellyfinDownloader() {
+    let viewModel = JellyfinConnectionViewModel()
+    let vc = JellyfinConnectionViewController(viewModel: viewModel)
+
+    viewModel.onTransition = { [vc] route in
+      switch route {
+      case .cancel:
+        vc.dismiss(animated: true)
+        break
+      }
+    }
+
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+    flow.navigationController.present(nav, animated: true, completion: nil)
+  }
+
   func showExportController(for items: [SimpleLibraryItem]) {
     let providers = items.map { BookActivityItemProvider($0) }
 

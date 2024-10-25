@@ -18,6 +18,7 @@ class ItemListViewModel: ViewModelProtocol {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
     case showDocumentPicker
+    case showJellyfinDownloader
     case showSearchList(relativePath: String?, placeholderTitle: String)
     case showItemDetails(item: SimpleLibraryItem)
     case showExportController(items: [SimpleLibraryItem])
@@ -541,6 +542,12 @@ class ItemListViewModel: ViewModelProtocol {
             title: "download_from_url_title".localized,
             handler: { [weak self] in
               self?.showDownloadFromUrlAlert()
+            }
+          ),
+          BPActionItem(
+            title: "download_from_jellyfin_title".localized,
+            handler: { [weak self] in
+                self?.onTransition?(.showJellyfinDownloader)
             }
           ),
           BPActionItem(
