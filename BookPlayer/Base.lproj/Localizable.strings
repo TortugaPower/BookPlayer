@@ -325,3 +325,9 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_server_url_placeholder" = "http://jellyfin.example.com:8096";
 "jellyfin_section_server_url_footer" = "Connect to your Jellyfin server";
 "jellyfin_connect_button" = "Connect";
+"jellyfin_section_server" = "Server";
+"jellyfin_server_name_label" = "Name";
+"jellyfin_server_url_label" = "URL";
+"jellyfin_section_login" = "Log in";
+"jellyfin_username_placeholder" = "Username";
+"jellyfin_password_placeholder" = "Password";

@@ -24,12 +24,12 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
 
   weak var coordinator: ItemListCoordinator!
 
-  var formViewModel: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
+  var form: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
 
   @Published var connectionState: ConnectionState = .disconnected
 
   func createCanConnectPublisher() -> AnyPublisher<Bool, Never> {
-    formViewModel.$serverUrl.map { !$0.isEmpty }.eraseToAnyPublisher()
+    form.$serverUrl.map { !$0.isEmpty }.eraseToAnyPublisher()
   }
 
 

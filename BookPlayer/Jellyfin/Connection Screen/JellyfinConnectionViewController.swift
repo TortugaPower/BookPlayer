@@ -101,7 +101,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
     let deviceID = UIDevice.current.identifierForVendor
-    if let url = URL(string: viewModel.formViewModel.serverUrl), let clientName = clientName, let clientVersion = clientVersion, let deviceID = deviceID {
+    if let url = URL(string: viewModel.form.serverUrl), let clientName = clientName, let clientVersion = clientVersion, let deviceID = deviceID {
       let configuration = JellyfinClient.Configuration(
         url: url,
         client: clientName,
@@ -114,7 +114,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       Task {
         let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
         self.viewModel.connectionState = .foundServer
-        self.viewModel.formViewModel.serverName = publicSystemInfo.value.serverName
+        self.viewModel.form.serverName = publicSystemInfo.value.serverName
         self.apiClient = apiClient
       }
     }

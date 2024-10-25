@@ -11,4 +11,6 @@ import Foundation
 class JellyfinConnectionFormViewModel: ObservableObject {
   @Published var serverUrl: String = ""
   @Published var serverName: String?
+  @Published var username: String = ""
+  @Published var password: String = ""
 }
