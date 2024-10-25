@@ -7,12 +7,14 @@
 //
 
 import BookPlayerKit
+import Combine
 import SwiftUI
 import Themeable
 import UIKit
 
 class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: JellyfinConnectionViewModel!
+  private var disposeBag = Set<AnyCancellable>()
 
   // MARK: - UI components
 
@@ -45,24 +47,30 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
     addSubviews()
     addConstraints()
     setUpTheming()
+    bindConnectionObservers()
   }
 
-  func setupNavigationItem() {
+  private func setupNavigationItem() {
     self.navigationItem.title = "jellyfin_connection_title".localized
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .cancel,
       target: self,
       action: #selector(self.didTapCancel)
     )
-
+    self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+      title: "jellyfin_connect_button".localized,
+      style: .done,
+      target: self,
+      action: #selector(self.didTapConnect)
+    )
     definesPresentationContext = true
   }
 
-  func addSubviews() {
+  private func addSubviews() {
     view.addSubview(contentView)
   }
 
-  func addConstraints() {
+  private func addConstraints() {
     let safeLayoutGuide = view.safeAreaLayoutGuide
 
     NSLayoutConstraint.activate([
@@ -73,8 +81,19 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
     ])
   }
 
+  private func bindConnectionObservers() {
+    viewModel.createCanConnectPublisher().sink { [weak self] canConnect in
+      self?.navigationItem.rightBarButtonItem?.isEnabled = canConnect
+    }
+    .store(in: &disposeBag)
+  }
+
   @objc func didTapCancel() {
     viewModel.handleCancelAction()
+  }
+
+  @objc func didTapConnect() {
+
   }
 }
 

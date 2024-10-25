@@ -16,14 +16,18 @@ struct JellyfinConnectionForm: View {
 
   var body: some View {
     Form {
-      Section(header: Text("jellyfin_section_server_url".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
-      ) {
+      Section {
         ClearableTextField("jellyfin_server_url_placeholder".localized, text: $viewModel.serverUrl) {
           $0.keyboardType = .URL
           $0.textContentType = .URL
           $0.autocapitalization = .none
         }
+      } header: {
+        Text("jellyfin_section_server_url".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
+      } footer: {
+        Text("jellyfin_section_server_url_footer".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
       }
     }
     .environmentObject(themeViewModel)
