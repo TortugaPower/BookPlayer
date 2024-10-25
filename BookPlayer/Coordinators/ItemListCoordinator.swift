@@ -168,7 +168,10 @@ extension ItemListCoordinator {
       switch route {
       case .cancel:
         vc.dismiss(animated: true)
-        break
+      case .listServerContent(var client):
+        // TODO
+        print("client: \(client.accessToken ?? "none")")
+        vc.dismiss(animated: true)
       }
     }
 

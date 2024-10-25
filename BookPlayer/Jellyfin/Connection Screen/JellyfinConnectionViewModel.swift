@@ -8,11 +8,13 @@
 
 import SwiftUI
 import Combine
+import JellyfinAPI
 
 class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   /// Possible routes for the screen
   enum Routes {
     case cancel
+    case listServerContent(JellyfinClient)
   }
 
   enum ConnectionState {
@@ -34,5 +36,9 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
 
   func handleCancelAction() {
     onTransition?(.cancel)
+  }
+
+  func handleConnectedEvent(forClient client: JellyfinClient) {
+    onTransition?(.listServerContent(client))
   }
 }

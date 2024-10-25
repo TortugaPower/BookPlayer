@@ -20,6 +20,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   private var navBarRightButtonEnabledWatcher: AnyCancellable?
 
   @Published private var apiClient: JellyfinClient?
+  @Published private var apiTask: Task<(), any Error>?
 
   // MARK: - UI components
 
@@ -81,8 +82,11 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   private func bindConnectionObservers() {
-    viewModel.$connectionState.sink { [weak self] state in
-      if let self = self {
+    Publishers.CombineLatest(viewModel.$connectionState, $apiTask).sink { [weak self] (state, task) in
+      if let _ = task {
+        self?.navBarRightButtonEnabledWatcher = nil
+        self?.navigationItem.rightBarButtonItem?.isEnabled = false
+      } else if let self = self {
         switch state {
         case .disconnected:
           self.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -118,11 +122,15 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   @objc func didTapConnect() {
+    if let _ = apiTask {
+      return
+    }
+
     let mainBundleInfo = Bundle.main.infoDictionary
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
     let deviceID = UIDevice.current.identifierForVendor
-    if let url = URL(string: viewModel.form.serverUrl), let clientName = clientName, let clientVersion = clientVersion, let deviceID = deviceID {
+    if let url = URL(string: viewModel.form.serverUrl), let clientName, let clientVersion, let deviceID {
       let configuration = JellyfinClient.Configuration(
         url: url,
         client: clientName,
@@ -132,7 +140,8 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       )
       let apiClient = JellyfinClient(configuration: configuration)
 
-      Task {
+      apiTask = Task {
+        defer { self.apiTask = nil }
         let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
         self.viewModel.connectionState = .foundServer
         self.viewModel.form.serverName = publicSystemInfo.value.serverName
@@ -142,7 +151,22 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   @objc func didTapLogin() {
-    // TODO
+    if let _ = apiTask {
+      return
+    }
+    if let apiClient {
+      let username = viewModel.form.username
+      let password = viewModel.form.password
+      apiTask = Task {
+        defer { self.apiTask = nil }
+        let authResult = try await apiClient.signIn(username: username, password: password)
+        if let _ = authResult.accessToken {
+          self.viewModel.connectionState = .connected
+          self.viewModel.handleConnectedEvent(forClient: apiClient)
+        }
+        self.apiTask = nil
+      }
+    }
   }
 }
 
