@@ -14,18 +14,27 @@ struct ClearableTextField: View {
   var placeholder: String
   /// Input's text
   @Binding var text: String
+
+  public var keyboardType: UIKeyboardType = .default
+  public var textContentType: UITextContentType? = nil
+  public var autocapitalization: UITextAutocapitalizationType = .sentences
+
   /// Current theme
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
-  init(_ placeholder: String, text: Binding<String>) {
+  init(_ placeholder: String, text: Binding<String>, configure: ((inout ClearableTextField) -> ())? = nil) {
     self.placeholder = placeholder
     _text = text
+    configure?(&self)
   }
 
   var body: some View {
     HStack {
       TextField(placeholder, text: $text)
         .foregroundColor(themeViewModel.primaryColor)
+        .keyboardType(keyboardType)
+        .textContentType(textContentType)
+        .autocapitalization(autocapitalization)
       Image(systemName: "clear.fill")
         .foregroundColor(themeViewModel.secondaryColor)
         .onTapGesture {
