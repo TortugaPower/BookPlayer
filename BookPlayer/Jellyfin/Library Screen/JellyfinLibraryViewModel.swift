@@ -9,5 +9,5 @@
 import Foundation
 
 class JellyfinLibraryViewModel: ViewModelProtocol {
-  weak var coordinator: ItemListCoordinator!
+  weak var coordinator: JellyfinCoordinator!
 }

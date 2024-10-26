@@ -24,7 +24,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   }
 
 
-  weak var coordinator: ItemListCoordinator!
+  weak var coordinator: JellyfinCoordinator!
 
   var form: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
 

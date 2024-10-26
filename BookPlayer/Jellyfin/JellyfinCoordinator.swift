@@ -32,12 +32,13 @@ class JellyfinCoordinator: Coordinator {
 
   private func createJellyfinLoginScreen() -> UIViewController {
     let viewModel = JellyfinConnectionViewModel()
+    viewModel.coordinator = self
     let vc = JellyfinConnectionViewController(viewModel: viewModel)
 
-    viewModel.onTransition = { [vc] route in
+    viewModel.onTransition = { [viewModel] route in
       switch route {
       case .cancel:
-        vc.dismiss(animated: true)
+        viewModel.dismiss()
       case .loginFinished(let client):
         self.apiClient = client
         let libraryVC = self.createJellyfinLibraryScreen(withClient: client)
@@ -45,15 +46,13 @@ class JellyfinCoordinator: Coordinator {
       }
     }
 
-    vc.navigationItem.largeTitleDisplayMode = .never
     return vc
   }
 
-  private func createJellyfinLibraryScreen(withClient: JellyfinClient) -> UIViewController {
+  private func createJellyfinLibraryScreen(withClient client: JellyfinClient) -> UIViewController {
     let viewModel = JellyfinLibraryViewModel()
-    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: self.apiClient!)
-
-    vc.navigationItem.largeTitleDisplayMode = .never
+    viewModel.coordinator = self
+    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc
   }
 }
