@@ -8,6 +8,7 @@
 
 import Foundation
 import JellyfinAPI
+import UIKit
 
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
@@ -18,37 +19,41 @@ class JellyfinCoordinator: Coordinator {
     self.flow = flow
   }
 
+  private var isLogginIn: Bool { get { self.apiClient?.accessToken != nil } }
+
   func start() {
+    let vc = if isLogginIn {
+      createJellyfinLibraryScreen(withClient: self.apiClient!)
+    } else {
+      createJellyfinLoginScreen()
+    }
+    flow.startPresentation(vc, animated: true)
+  }
+
+  private func createJellyfinLoginScreen() -> UIViewController {
     let viewModel = JellyfinConnectionViewModel()
     let vc = JellyfinConnectionViewController(viewModel: viewModel)
 
     viewModel.onTransition = { [vc] route in
       switch route {
       case .cancel:
-        break
+        vc.dismiss(animated: true)
       case .loginFinished(let client):
         self.apiClient = client
-        self.showJellyfinLibrary()
+        let libraryVC = self.createJellyfinLibraryScreen(withClient: client)
+        self.flow.pushViewController(libraryVC, animated: true)
       }
-      vc.dismiss(animated: true)
     }
 
     vc.navigationItem.largeTitleDisplayMode = .never
-    flow.startPresentation(vc, animated: true)
+    return vc
   }
 
-  private func showJellyfinLibrary() {
-    guard let apiClient = self.apiClient else {
-      return
-    }
-    guard apiClient.accessToken != nil else {
-      return
-    }
-
+  private func createJellyfinLibraryScreen(withClient: JellyfinClient) -> UIViewController {
     let viewModel = JellyfinLibraryViewModel()
-    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: apiClient)
+    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: self.apiClient!)
 
     vc.navigationItem.largeTitleDisplayMode = .never
-    flow.pushViewController(vc, animated: true)
+    return vc
   }
 }

@@ -18,10 +18,13 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
-  var jellyfinCoordinator: JellyfinCoordinator?
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
+
+  lazy var jellyfinCoordinator: JellyfinCoordinator = {
+    JellyfinCoordinator(flow: .modalFlow(presentingController: flow.navigationController))
+  }()
 
   init(
     flow: BPCoordinatorPresentationFlow,
@@ -162,8 +165,7 @@ extension ItemListCoordinator {
   }
 
   func showJellyfinDownloader() {
-    jellyfinCoordinator = JellyfinCoordinator(flow: .modalFlow(presentingController: flow.navigationController))
-    jellyfinCoordinator!.start()
+    jellyfinCoordinator.start()
 
   }
 
