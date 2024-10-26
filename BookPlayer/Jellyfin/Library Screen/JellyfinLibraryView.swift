@@ -38,7 +38,7 @@ struct JellyfinLibraryView: View {
       GridItem(.adaptive(minimum: 100))
     ]
     LazyVGrid(columns: columns) {
-      ForEach(viewModel.userViews) { userView in
+      ForEach(viewModel.userViews, id: \.id) { userView in
         UserView(name: userView.name)
           .onTapGesture {
             self.viewModel.selectUserView(userView)
@@ -49,8 +49,11 @@ struct JellyfinLibraryView: View {
 
   @ViewBuilder
   private var itemsList: some View {
-    List(viewModel.items) {
-      Text($0.name)
+    List(viewModel.items) { item in
+      Text(item.name)
+        .onAppear {
+          self.viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+        }
     }
   }
 }

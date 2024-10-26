@@ -50,7 +50,7 @@ class JellyfinCoordinator: Coordinator {
   }
 
   private func createJellyfinLibraryScreen(withClient client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel()
+    let viewModel = JellyfinLibraryViewModel(apiClient: client)
     viewModel.coordinator = self
     let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc

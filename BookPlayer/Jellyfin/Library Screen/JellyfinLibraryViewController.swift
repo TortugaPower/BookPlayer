@@ -17,8 +17,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: JellyfinLibraryViewModel!
   var apiClient: JellyfinClient!
 
-  var selectedViewSubscriber: AnyCancellable?
-
   // MARK: - UI components
 
   private lazy var contentView: UIView = {
@@ -80,9 +78,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
     self.viewModel.selectedView = nil
     self.viewModel.items = []
 
-    self.selectedViewSubscriber?.cancel()
-    self.selectedViewSubscriber = nil
-
     let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
     Task {
       let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
@@ -91,36 +86,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
       }
       self.viewModel.userViews = userViews.map { userView in
         JellyfinLibraryViewModel.UserView(id: userView.id!, name: userView.name ?? userView.id!)
-      }
-
-      self.selectedViewSubscriber?.cancel()
-      self.selectedViewSubscriber = self.viewModel.$selectedView.sink { [weak self] selectedView in
-        guard let self else {
-          return
-        }
-        self.viewModel.items = []
-        guard let selectedView else {
-          return
-        }
-        self.loadItems(forUserView: selectedView)
-      }
-    }
-  }
-
-  private func loadItems(forUserView userView: JellyfinLibraryViewModel.UserView) {
-    let parameters = Paths.GetItemsParameters(
-      limit: 20,
-      isRecursive: true,
-      parentID: userView.id,
-      includeItemTypes: [.audioBook]
-    )
-    Task {
-      let response = try await apiClient.send(Paths.getItems(parameters: parameters))
-      let items = (response.value.items ?? []).filter { item in
-        return item.id != nil
-      }
-      self.viewModel.items = items.map { item in
-        JellyfinLibraryViewModel.Item(id: item.id!, name: item.name ?? item.id!)
       }
     }
   }
