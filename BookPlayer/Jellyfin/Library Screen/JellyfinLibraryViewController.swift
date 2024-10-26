@@ -81,12 +81,16 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
     let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
     Task {
       let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
-      let userViews = (response.value.items ?? []).filter { userView in
-        return userView.collectionType == .books && userView.id != nil
-      }
-      self.viewModel.userViews = userViews.map { userView in
-        JellyfinLibraryViewModel.UserView(id: userView.id!, name: userView.name ?? userView.id!)
-      }
+      let userViews = (response.value.items ?? [])
+        .filter { userView in
+          return userView.collectionType == .books && userView.id != nil
+        }
+        .map { userView in
+          JellyfinLibraryViewModel.UserView(id: userView.id!, name: userView.name ?? userView.id!)
+        }
+      { @MainActor in
+        self.viewModel.userViews = userViews
+      }()
     }
   }
 }
