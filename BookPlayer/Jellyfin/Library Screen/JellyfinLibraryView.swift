@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct JellyfinLibraryView: View {
-  @ObservedObject var viewModel: JellyfinLibraryViewModel
+struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
+  @ObservedObject var viewModel: Model
   @StateObject var themeViewModel = ThemeViewModel()
 
   struct UserView: View {
@@ -41,7 +41,7 @@ struct JellyfinLibraryView: View {
       ForEach(viewModel.userViews, id: \.id) { userView in
         UserView(name: userView.name)
           .onTapGesture {
-            self.viewModel.selectUserView(userView)
+            self.viewModel.selectedView = userView
           }
       }
     }
@@ -58,9 +58,17 @@ struct JellyfinLibraryView: View {
   }
 }
 
+class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
+  @Published var userViews: [UserView] = []
+  @Published var selectedView: UserView?
+  @Published var items: [Item] = []
+
+  func fetchMoreItemsIfNeeded(currentItem: Item) {}
+}
+
 #Preview("User Views") {
   let viewModel = {
-    let viewModel = JellyfinLibraryViewModel()
+    let viewModel = MockJellyfinLibraryViewModel()
     viewModel.userViews = [
       JellyfinLibraryViewModel.UserView(id: "0", name: "First View"),
       JellyfinLibraryViewModel.UserView(id: "1", name: "Second View"),
@@ -79,7 +87,7 @@ struct JellyfinLibraryView: View {
 
 #Preview("Items") {
   let viewModel = {
-    let viewModel = JellyfinLibraryViewModel()
+    let viewModel = MockJellyfinLibraryViewModel()
     viewModel.userViews = [
       JellyfinLibraryViewModel.UserView(id: "0", name: "First View"),
       JellyfinLibraryViewModel.UserView(id: "1", name: "Second View"),

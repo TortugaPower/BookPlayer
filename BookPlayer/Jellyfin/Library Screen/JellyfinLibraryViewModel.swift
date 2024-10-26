@@ -9,18 +9,32 @@
 import Foundation
 import JellyfinAPI
 
-class JellyfinLibraryViewModel: ViewModelProtocol, ObservableObject {
+struct JellyfinLibraryUserViewData: Identifiable, Hashable {
+  let id: String
+  let name: String
+}
+
+struct JellyfinLibraryItem: Identifiable, Hashable {
+  let id: String
+  let name: String
+}
+
+protocol JellyfinLibraryViewModelProtocol: ObservableObject {
+  typealias UserView = JellyfinLibraryUserViewData
+  typealias Item = JellyfinLibraryItem
+
+  var userViews: [UserView] { get set }
+  var selectedView: UserView? { get set }
+  var items: [Item] { get set }
+
+  func fetchMoreItemsIfNeeded(currentItem: Item)
+}
+
+class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
+  typealias UserView = JellyfinLibraryUserViewData
+  typealias Item = JellyfinLibraryItem
+
   weak var coordinator: JellyfinCoordinator!
-
-  struct UserView: Identifiable, Hashable {
-    let id: String
-    let name: String
-  }
-
-  struct Item: Identifiable, Hashable {
-    let id: String
-    let name: String
-  }
 
   @Published var userViews: [UserView] = []
   @Published var selectedView: UserView? {
@@ -56,10 +70,6 @@ class JellyfinLibraryViewModel: ViewModelProtocol, ObservableObject {
     self.apiClient = apiClient
 
     self.fetchMoreItems()
-  }
-
-  func selectUserView(_ view: UserView) {
-    selectedView = view
   }
 
   func fetchMoreItemsIfNeeded(currentItem: Item) {
