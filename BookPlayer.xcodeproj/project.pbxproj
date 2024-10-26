@@ -445,6 +445,7 @@
 		8A9D0D1C2CCCFA10007A924D /* JellyfinLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D1B2CCCFA10007A924D /* JellyfinLibraryViewController.swift */; };
 		8A9D0D1E2CCCFA1E007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D1D2CCCFA1E007A924D /* JellyfinLibraryView.swift */; };
 		8A9D0D202CCCFA28007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D1F2CCCFA28007A924D /* JellyfinLibraryViewModel.swift */; };
+		8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */; };
 		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
 		8AE4AAC72CCBA17B00BAA927 /* JellyfinConnectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC62CCBA17B00BAA927 /* JellyfinConnectionViewController.swift */; };
 		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
@@ -1217,6 +1218,7 @@
 		8A9D0D1B2CCCFA10007A924D /* JellyfinLibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewController.swift; sourceTree = "<group>"; };
 		8A9D0D1D2CCCFA1E007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
 		8A9D0D1F2CCCFA28007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
+		8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinator.swift; sourceTree = "<group>"; };
 		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
 		8AE4AAC62CCBA17B00BAA927 /* JellyfinConnectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewController.swift; sourceTree = "<group>"; };
 		8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionView.swift; sourceTree = "<group>"; };
@@ -2382,6 +2384,7 @@
 			children = (
 				8A9D0D1A2CCCF36D007A924D /* Library Screen */,
 				8AE4AAC92CCBA1D200BAA927 /* Connection Screen */,
+				8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */,
 			);
 			path = Jellyfin;
 			sourceTree = "<group>";
@@ -3741,6 +3744,7 @@
 				8A9D0D1E2CCCFA1E007A924D /* JellyfinLibraryView.swift in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
+				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,

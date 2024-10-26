@@ -8,7 +8,6 @@
 
 import BookPlayerKit
 import Combine
-import class JellyfinAPI.JellyfinClient
 import UIKit
 import UniformTypeIdentifiers
 
@@ -19,6 +18,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
+  var jellyfinCoordinator: JellyfinCoordinator?
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -162,29 +162,9 @@ extension ItemListCoordinator {
   }
 
   func showJellyfinDownloader() {
-    let viewModel = JellyfinConnectionViewModel()
-    let vc = JellyfinConnectionViewController(viewModel: viewModel)
+    jellyfinCoordinator = JellyfinCoordinator(flow: .modalFlow(presentingController: flow.navigationController))
+    jellyfinCoordinator!.start()
 
-    viewModel.onTransition = { [vc] route in
-      switch route {
-      case .cancel:
-        vc.dismiss(animated: true)
-      case .listServerContent(var client):
-        self.showJellyfinLibrary(in: vc.navigationController!, withClient: client)
-      }
-    }
-
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-    flow.navigationController.present(nav, animated: true, completion: nil)
-  }
-
-  func showJellyfinLibrary(in navController: UINavigationController, withClient client: JellyfinAPI.JellyfinClient) {
-    let viewModel = JellyfinLibraryViewModel()
-    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
-    vc.navigationItem.largeTitleDisplayMode = .never
-    navController.pushViewController(vc, animated: true)
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {
