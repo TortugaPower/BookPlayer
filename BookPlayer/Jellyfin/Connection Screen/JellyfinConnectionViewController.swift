@@ -116,7 +116,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       case .connected:
         self.navBarRightButtonEnabledWatcher?.cancel()
         self.navBarRightButtonEnabledWatcher = nil
-        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        self.navigationItem.rightBarButtonItem = nil
       }
     }
     .store(in: &disposeBag)

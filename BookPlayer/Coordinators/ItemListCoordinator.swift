@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import class JellyfinAPI.JellyfinClient
 import UIKit
 import UniformTypeIdentifiers
 
@@ -169,9 +170,7 @@ extension ItemListCoordinator {
       case .cancel:
         vc.dismiss(animated: true)
       case .listServerContent(var client):
-        // TODO
-        print("client: \(client.accessToken ?? "none")")
-        vc.dismiss(animated: true)
+        self.showJellyfinLibrary(in: vc.navigationController!, withClient: client)
       }
     }
 
@@ -179,6 +178,13 @@ extension ItemListCoordinator {
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
     flow.navigationController.present(nav, animated: true, completion: nil)
+  }
+
+  func showJellyfinLibrary(in navController: UINavigationController, withClient client: JellyfinAPI.JellyfinClient) {
+    let viewModel = JellyfinLibraryViewModel()
+    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    navController.pushViewController(vc, animated: true)
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {
