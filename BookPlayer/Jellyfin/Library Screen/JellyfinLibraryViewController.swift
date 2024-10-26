@@ -90,6 +90,9 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
         }
       { @MainActor in
         self.viewModel.userViews = userViews
+        if userViews.count == 1 {
+          self.viewModel.selectedView = userViews.first
+        }
       }()
     }
   }
