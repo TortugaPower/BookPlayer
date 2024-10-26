@@ -12,6 +12,8 @@ import JellyfinAPI
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
 
+  var apiClient: JellyfinClient?
+
   init(flow: BPCoordinatorPresentationFlow) {
     self.flow = flow
   }
@@ -23,19 +25,28 @@ class JellyfinCoordinator: Coordinator {
     viewModel.onTransition = { [vc] route in
       switch route {
       case .cancel:
-        vc.dismiss(animated: true)
-      case .listServerContent(let client):
-        self.showJellyfinLibrary(withClient: client)
+        break
+      case .loginFinished(let client):
+        self.apiClient = client
+        self.showJellyfinLibrary()
       }
+      vc.dismiss(animated: true)
     }
 
     vc.navigationItem.largeTitleDisplayMode = .never
     flow.startPresentation(vc, animated: true)
   }
 
-  private func showJellyfinLibrary(withClient client: JellyfinClient) {
+  private func showJellyfinLibrary() {
+    guard let apiClient = self.apiClient else {
+      return
+    }
+    guard apiClient.accessToken != nil else {
+      return
+    }
+
     let viewModel = JellyfinLibraryViewModel()
-    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
+    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: apiClient)
 
     vc.navigationItem.largeTitleDisplayMode = .never
     flow.pushViewController(vc, animated: true)
