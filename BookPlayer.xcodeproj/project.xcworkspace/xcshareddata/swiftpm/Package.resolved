@@ -1,5 +1,5 @@
 {
-  "originHash" : "a666f382d5a4884d3a9212a8e4b32eb8280bc2409cc22962bfa19e19731621ac",
+  "originHash" : "ac51a28f8927f1f439722175648f4ad5fe8f47b1036af26dc1d79fc70f1b86e0",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -20,12 +20,30 @@
       }
     },
     {
+      "identity" : "get",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Get",
+      "state" : {
+        "revision" : "31249885da1052872e0ac91a2943f62567c0d96d",
+        "version" : "2.2.1"
+      }
+    },
+    {
       "identity" : "idzswiftcommoncrypto",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/iosdevzone/IDZSwiftCommonCrypto.git",
       "state" : {
         "revision" : "47f9747d12137cd59d783ab376e3ccab7206319b",
         "version" : "0.16.1"
+      }
+    },
+    {
+      "identity" : "jellyfin-sdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jellyfin/jellyfin-sdk-swift.git",
+      "state" : {
+        "revision" : "a0e848a7aaec55991610818de6128b15cfcec725",
+        "version" : "0.4.0"
       }
     },
     {
@@ -89,6 +107,15 @@
       "state" : {
         "revision" : "28156cf724c6621be2b8916b0f04d43a763e830a",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "urlqueryencoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CreateAPI/URLQueryEncoder",
+      "state" : {
+        "revision" : "4ce950479707ea109f229d7230ec074a133b15d7",
+        "version" : "0.2.1"
       }
     },
     {
