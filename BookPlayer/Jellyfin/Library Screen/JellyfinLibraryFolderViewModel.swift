@@ -20,6 +20,8 @@ protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: Item)
+
+  func createItemImageURL(_ item: Item) -> URL?
 }
 
 class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
@@ -71,7 +73,8 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       parentID: data.id,
       fields: [.sortName],
       includeItemTypes: [.audioBook, .folder],
-      sortBy: [.isFolder, .sortName]
+      sortBy: [.isFolder, .sortName],
+      imageTypeLimit: 1
     )
 
     itemsLoadTask = Task {
@@ -107,5 +110,21 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
         self.items.append(contentsOf: items)
       }()
     }
+  }
+
+  func createItemImageURL(_ item: Item) -> URL? {
+    let request = Paths.getItemImage(itemID: item.id, imageType: "Primary")
+    guard let requestUrl = request.url else {
+      return nil
+    }
+    let requestAbsoluteUrl = requestUrl.scheme == nil ? apiClient.configuration.url.appendingPathComponent(requestUrl.absoluteString) : requestUrl
+
+    guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
+      return nil
+    }
+    if let query = request.query, !query.isEmpty {
+        components.queryItems = query.map(URLQueryItem.init)
+    }
+    return components.url
   }
 }

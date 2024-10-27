@@ -7,13 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
   var body: some View {
     List(viewModel.items) { item in
-      itemView(item)
+      itemLinkView(item)
         .onAppear {
           self.viewModel.fetchMoreItemsIfNeeded(currentItem: item)
         }
@@ -25,15 +26,30 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
   }
 
   @ViewBuilder
-  func itemView(_ item: JellyfinLibraryItem) -> some View {
+  private func itemLinkView(_ item: JellyfinLibraryItem) -> some View {
     switch item.kind {
     case .audiobook:
-      Text(item.name)
+      itemView(item)
     case .folder:
       let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
       NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
-        Text(item.name)
+        itemView(item)
       }
+    }
+  }
+
+  @ViewBuilder
+  private func itemView(_ item: JellyfinLibraryItem) -> some View {
+    VStack(alignment: .leading) {
+      KFImage
+        .url(viewModel.createItemImageURL(item))
+        .cacheMemoryOnly()
+        .resizable()
+        .placeholder { ProgressView() }
+        .frame(width: 100, height: 100)
+        .cornerRadius(3)
+
+      Text(item.name)
     }
   }
 }
@@ -51,8 +67,9 @@ class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol
   }
 
   func fetchInitialItems() {}
-
   func fetchMoreItemsIfNeeded(currentItem: Item) {}
+
+  func createItemImageURL(_ item: Item) -> URL? { nil }
 }
 
 #Preview {
