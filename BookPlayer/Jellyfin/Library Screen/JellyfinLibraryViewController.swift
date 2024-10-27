@@ -75,8 +75,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
 
   private func loadUserViews() {
     self.viewModel.userViews = []
-    self.viewModel.selectedView = nil
-    self.viewModel.items = []
 
     let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
     Task {
@@ -90,9 +88,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
         }
       { @MainActor in
         self.viewModel.userViews = userViews
-        if userViews.count == 1 {
-          self.viewModel.selectedView = userViews.first
-        }
       }()
     }
   }

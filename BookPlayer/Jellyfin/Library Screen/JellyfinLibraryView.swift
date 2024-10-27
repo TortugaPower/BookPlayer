@@ -25,48 +25,30 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   }
 
   var body: some View {
-    if viewModel.selectedView == nil {
-      userViewsList
-    } else {
-      itemsList
-    }
-  }
-
-  @ViewBuilder
-  private var userViewsList: some View {
     let columns = [
       GridItem(.adaptive(minimum: 100))
     ]
     LazyVGrid(columns: columns) {
       ForEach(viewModel.userViews, id: \.id) { userView in
-        UserView(name: userView.name)
-          .onTapGesture {
-            self.viewModel.selectedView = userView
-          }
-      }
-    }
-  }
-
-  @ViewBuilder
-  private var itemsList: some View {
-    List(viewModel.items) { item in
-      Text(item.name)
-        .onAppear {
-          self.viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+        let folderRepresentation = JellyfinLibraryItem(id: userView.id, name: userView.name, kind: .folder)
+        let childViewModel = viewModel.createFolderViewModelFor(item: folderRepresentation)
+        NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
+          UserView(name: userView.name)
         }
+      }
     }
   }
 }
 
 class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
   @Published var userViews: [UserView] = []
-  @Published var selectedView: UserView?
-  @Published var items: [Item] = []
 
-  func fetchMoreItemsIfNeeded(currentItem: Item) {}
+  func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
+    return MockJellyfinLibraryFolderViewModel(data: item)
+  }
 }
 
-#Preview("User Views") {
+#Preview {
   let viewModel = {
     let viewModel = MockJellyfinLibraryViewModel()
     viewModel.userViews = [
@@ -74,28 +56,6 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
       JellyfinLibraryViewModel.UserView(id: "1", name: "Second View"),
       JellyfinLibraryViewModel.UserView(id: "2", name: "Third View"),
       JellyfinLibraryViewModel.UserView(id: "3", name: "Fourth View"),
-    ]
-    viewModel.selectedView = nil
-    viewModel.items = [
-      JellyfinLibraryViewModel.Item(id: "0", name: "First Item"),
-      JellyfinLibraryViewModel.Item(id: "1", name: "Second Item"),
-    ]
-    return viewModel
-  }()
-  JellyfinLibraryView(viewModel: viewModel)
-}
-
-#Preview("Items") {
-  let viewModel = {
-    let viewModel = MockJellyfinLibraryViewModel()
-    viewModel.userViews = [
-      JellyfinLibraryViewModel.UserView(id: "0", name: "First View"),
-      JellyfinLibraryViewModel.UserView(id: "1", name: "Second View"),
-    ]
-    viewModel.selectedView = JellyfinLibraryViewModel.UserView(id: "0", name: "First View")
-    viewModel.items = [
-      JellyfinLibraryViewModel.Item(id: "0", name: "First Item"),
-      JellyfinLibraryViewModel.Item(id: "1", name: "Second Item"),
     ]
     return viewModel
   }()
