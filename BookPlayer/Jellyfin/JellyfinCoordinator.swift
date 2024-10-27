@@ -13,6 +13,7 @@ import UIKit
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
 
+  var libraryName: String?
   var apiClient: JellyfinClient?
 
   init(flow: BPCoordinatorPresentationFlow) {
@@ -23,7 +24,7 @@ class JellyfinCoordinator: Coordinator {
 
   func start() {
     let vc = if isLogginIn {
-      createJellyfinLibraryScreen(withClient: self.apiClient!)
+      createJellyfinLibraryScreen(withLibraryName: libraryName ?? "", client: self.apiClient!)
     } else {
       createJellyfinLoginScreen()
     }
@@ -39,9 +40,10 @@ class JellyfinCoordinator: Coordinator {
       switch route {
       case .cancel:
         viewModel.dismiss()
-      case .loginFinished(let client):
+      case .loginFinished(let libraryName, let client):
+        self.libraryName = libraryName
         self.apiClient = client
-        let libraryVC = self.createJellyfinLibraryScreen(withClient: client)
+        let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: libraryName, client: client)
         self.flow.pushViewController(libraryVC, animated: true)
       }
     }
@@ -49,8 +51,8 @@ class JellyfinCoordinator: Coordinator {
     return vc
   }
 
-  private func createJellyfinLibraryScreen(withClient client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel(apiClient: client)
+  private func createJellyfinLibraryScreen(withLibraryName libraryName: String, client: JellyfinClient) -> UIViewController {
+    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, apiClient: client)
     viewModel.coordinator = self
     let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc

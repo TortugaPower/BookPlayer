@@ -37,10 +37,12 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         }
       }
     }
+    .navigationTitle(viewModel.libraryName)
   }
 }
 
 class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
+  let libraryName: String = "Mock"
   @Published var userViews: [UserView] = []
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {

@@ -29,6 +29,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   typealias UserView = JellyfinLibraryUserViewData
   associatedtype FolderViewModel: JellyfinLibraryFolderViewModelProtocol
 
+  var libraryName: String { get }
   var userViews: [UserView] { get set }
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
 }
@@ -40,9 +41,11 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
 
   private var apiClient: JellyfinClient!
 
+  let libraryName: String
   @Published var userViews: [UserView] = []
 
-  init(apiClient: JellyfinClient) {
+  init(libraryName: String, apiClient: JellyfinClient) {
+    self.libraryName = libraryName
     self.apiClient = apiClient
   }
 
