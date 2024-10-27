@@ -88,8 +88,10 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
       startIndex: nextStartItemIndex,
       limit: JellyfinLibraryViewModel.itemBatchSize,
       isRecursive: true,
+      sortOrder: [.ascending],
       parentID: self.selectedView!.id,
-      includeItemTypes: [.audioBook]
+      includeItemTypes: [.audioBook],
+      sortBy: [.sortName],
     )
 
     itemsLoadTask = Task {
