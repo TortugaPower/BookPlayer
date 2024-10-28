@@ -58,15 +58,16 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
 
   @ViewBuilder
   private var folderBadge: some View {
+    let imageLength = min(imageSize.width, imageSize.height)
     ZStack {
       Circle().strokeBorder(.foreground, lineWidth: 1 * accessabilityScale)
         .background(Circle().fill(.background))
       Image(systemName: "folder.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(width: imageSize.width * 0.1, height: imageSize.height * 0.1)
+        .frame(width: imageLength * 0.1, height: imageLength * 0.1)
     }
-    .frame(width: imageSize.width * 0.2, height: imageSize.height * 0.2, alignment: .topTrailing)
+    .frame(width: imageLength * 0.2, height: imageLength * 0.2, alignment: .topTrailing)
     .padding(5)
     .opacity(0.8)
   }
