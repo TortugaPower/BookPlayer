@@ -19,13 +19,26 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()
-      .placeholder { ProgressView() }
+      .placeholder {
+        Image(systemName: placeholderImageName)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+      }
+      .fade(duration: 0.25)
+      .aspectRatio(contentMode: .fit)
       .frame(width: 100, height: 100)
       .cornerRadius(3)
+  }
+
+  private var placeholderImageName: String {
+    switch item.kind {
+    case .userView, .folder: "folder"
+    case .audiobook: "headphones"
+    }
   }
 }
 
 #Preview("audiobook") {
   JellyfinLibraryItemImageView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
-  .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
+    .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
 }
