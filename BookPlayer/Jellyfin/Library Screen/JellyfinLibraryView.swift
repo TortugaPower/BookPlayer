@@ -12,18 +12,6 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
   @StateObject var themeViewModel = ThemeViewModel()
 
-  struct UserView: View {
-    let name: String
-    var body: some View {
-      ZStack {
-        Text(name)
-          .font(.title)
-          .multilineTextAlignment(.center)
-      }
-      .frame(width: 100, height: 100)
-    }
-  }
-
   var body: some View {
     let columns = [
       GridItem(.adaptive(minimum: 100))
@@ -32,17 +20,14 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       ForEach(viewModel.userViews, id: \.id) { userView in
         let childViewModel = viewModel.createFolderViewModelFor(item: userView)
         NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
-          UserView(name: userView.name)
+          JellyfinLibraryItemView<Model.FolderViewModel>(item: userView)
+            .environmentObject(childViewModel)
         }
       }
     }
-    .onAppear {
-      viewModel.fetchUserViews()
-    }
-    .onDisappear {
-      viewModel.cancelFetchUserViews()
-    }
     .navigationTitle(viewModel.libraryName)
+    .onAppear { viewModel.fetchUserViews() }
+    .onDisappear { viewModel.cancelFetchUserViews() }
   }
 }
 

@@ -21,12 +21,8 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
     }
     .navigationTitle(viewModel.data.name)
     .environmentObject(viewModel)
-    .onAppear {
-      viewModel.fetchInitialItems()
-    }
-    .onDisappear {
-      viewModel.cancelFetchItems()
-    }
+    .onAppear { viewModel.fetchInitialItems() }
+    .onDisappear { viewModel.cancelFetchItems() }
   }
 }
 
