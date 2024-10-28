@@ -12,22 +12,29 @@ import Kingfisher
 struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
   @State var item: JellyfinLibraryItem
   @EnvironmentObject var viewModel: Model
+  @Environment(\.displayScale) private var displayScale
 
   var body: some View {
-    KFImage
-      .url(viewModel.createItemImageURL(item))
-      .cancelOnDisappear(true)
-      .cacheMemoryOnly()
-      .resizable()
-      .placeholder { placeholderImage }
-      .fade(duration: 0.25)
-      .aspectRatio(contentMode: .fit)
-      .frame(width: 100, height: 100)
-      .cornerRadius(3)
+    let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
+
+    GeometryReader { proxy in
+      let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
+
+      KFImage
+        .url(viewModel.createItemImageURL(item, size: imageSize))
+        .cancelOnDisappear(true)
+        .cacheMemoryOnly()
+        .resizable()
+        .placeholder { placeholderImage(aspectRatio: aspectRatio) }
+        .fade(duration: 0.25)
+    }
+    .aspectRatio(aspectRatio, contentMode: .fit)
+    .frame(width: 100, height: 100)
+    .cornerRadius(3)
   }
 
   @ViewBuilder
-  private var placeholderImage: some View {
+  private func placeholderImage(aspectRatio: CGFloat?) -> some View {
     let image = if let blurHashImage = blurhashImage {
       Image(uiImage: blurHashImage)
     } else {
@@ -36,7 +43,7 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
 
     image
       .resizable()
-      .aspectRatio(item.imageAspectRatio, contentMode: .fit)
+      .aspectRatio(aspectRatio, contentMode: .fit)
   }
 
   private var blurhashImage: UIImage? {

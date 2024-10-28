@@ -21,7 +21,7 @@ protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
   func cancelFetchItems()
 
-  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL?
+  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL?
 }
 
 class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
@@ -109,8 +109,14 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     }
   }
 
-  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL? {
-    let request = Paths.getItemImage(itemID: item.id, imageType: "Primary")
+  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? {
+    var parameters = Paths.GetItemImageParameters()
+    if let size {
+      parameters.fillWidth = Int(size.width)
+      parameters.fillHeight = Int(size.height)
+    }
+
+    let request = Paths.getItemImage(itemID: item.id, imageType: "Primary", parameters: parameters)
     guard let requestUrl = request.url else {
       return nil
     }

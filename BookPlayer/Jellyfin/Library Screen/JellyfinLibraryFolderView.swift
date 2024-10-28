@@ -42,7 +42,7 @@ class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
   func cancelFetchItems() {}
 
-  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL? { nil }
+  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? { nil }
 }
 
 #Preview {

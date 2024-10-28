@@ -21,12 +21,12 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
   let kind: Kind
 
   let blurHash: String?
-  let imageAspectRatio: Double
+  let imageAspectRatio: Double?
 }
 
 extension JellyfinLibraryItem {
   init(id: String, name: String, kind: Kind) {
-    self.init(id: id, name: name, kind: kind, blurHash: nil, imageAspectRatio: 1)
+    self.init(id: id, name: name, kind: kind, blurHash: nil, imageAspectRatio: nil)
   }
 }
 
@@ -44,9 +44,8 @@ extension JellyfinLibraryItem {
     }
     let name = apiItem.name ?? id
     let blurHash = apiItem.imageBlurHashes?.primary?.first?.value
-    let imageAspectRatio = apiItem.primaryImageAspectRatio ?? 1
 
-    self.init(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
+    self.init(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: apiItem.primaryImageAspectRatio)
   }
 }
 
