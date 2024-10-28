@@ -15,7 +15,7 @@ import UIKit
 
 class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
   var viewModel: JellyfinLibraryViewModel!
-  var apiClient: JellyfinClient!
+  let apiClient: JellyfinClient
 
   // MARK: - UI components
 
@@ -31,9 +31,9 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
   // MARK: - Initializer
 
   init(viewModel: JellyfinLibraryViewModel, apiClient: JellyfinClient) {
-    super.init(nibName: nil, bundle: nil)
     self.viewModel = viewModel
     self.apiClient = apiClient
+    super.init(nibName: nil, bundle: nil)
   }
 
   required init?(coder: NSCoder) {
