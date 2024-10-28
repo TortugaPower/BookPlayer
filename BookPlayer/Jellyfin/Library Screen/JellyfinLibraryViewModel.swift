@@ -28,6 +28,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var userViews: [JellyfinLibraryItem] { get set }
 
   func fetchUserViews()
+  func cancelFetchUserViews()
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
 }
@@ -40,16 +41,20 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
   let libraryName: String
   @Published var userViews: [JellyfinLibraryItem] = []
 
+  private var fetchTask: Task<(), any Error>?
+
   init(libraryName: String, apiClient: JellyfinClient) {
     self.libraryName = libraryName
     self.apiClient = apiClient
   }
 
   func fetchUserViews() {
-    self.userViews = []
+    userViews = []
 
     let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
-    Task {
+
+    fetchTask?.cancel()
+    fetchTask = Task {
       let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
       let userViews = (response.value.items ?? [])
         .compactMap { userView -> JellyfinLibraryItem? in
@@ -63,6 +68,11 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
         self.userViews = userViews
       }()
     }
+  }
+
+  func cancelFetchUserViews() {
+    fetchTask?.cancel()
+    fetchTask = nil
   }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {

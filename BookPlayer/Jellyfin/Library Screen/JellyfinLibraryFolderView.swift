@@ -16,12 +16,15 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
     List(viewModel.items) { item in
       itemLinkView(item)
         .onAppear {
-          self.viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+          viewModel.fetchMoreItemsIfNeeded(currentItem: item)
         }
     }
     .navigationTitle(viewModel.data.name)
     .onAppear {
-      self.viewModel.fetchInitialItems()
+      viewModel.fetchInitialItems()
+    }
+    .onDisappear {
+      viewModel.cancelFetchItems()
     }
   }
 
@@ -68,6 +71,7 @@ class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol
 
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
+  func cancelFetchItems() {}
 
   func createItemImageURL(_ item: JellyfinLibraryItem) -> URL? { nil }
 }

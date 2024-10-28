@@ -19,6 +19,7 @@ protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
+  func cancelFetchItems()
 
   func createItemImageURL(_ item: JellyfinLibraryItem) -> URL?
 }
@@ -28,14 +29,14 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
   @Published var items: [JellyfinLibraryItem] = []
 
   private var apiClient: JellyfinClient!
-  private var itemsLoadTask: Task<(), any Error>?
+  private var fetchTask: Task<(), any Error>?
   private var nextStartItemIndex = 0
   private var maxNumItems: Int?
 
   private static let itemBatchSize = 20
   private static let itemFetchMargin = 3
 
-  var canLoadMoreItems: Bool {
+  var canFetchMoreItems: Bool {
     return maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
@@ -59,8 +60,13 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     }
   }
 
+  func cancelFetchItems() {
+    fetchTask?.cancel()
+    fetchTask = nil
+  }
+
   private func fetchMoreItems() {
-    guard itemsLoadTask == nil && canLoadMoreItems else {
+    guard fetchTask == nil && canFetchMoreItems else {
       return
     }
 
@@ -76,8 +82,8 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       imageTypeLimit: 1
     )
 
-    itemsLoadTask = Task {
-      defer { self.itemsLoadTask = nil }
+    fetchTask = Task {
+      defer { self.fetchTask = nil }
 
       let response = try await apiClient.send(Paths.getItems(parameters: parameters))
 

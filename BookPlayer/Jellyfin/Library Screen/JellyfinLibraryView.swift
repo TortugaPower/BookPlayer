@@ -36,8 +36,11 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         }
       }
     }
-    .onAppear() {
+    .onAppear {
       viewModel.fetchUserViews()
+    }
+    .onDisappear {
+      viewModel.cancelFetchUserViews()
     }
     .navigationTitle(viewModel.libraryName)
   }
@@ -48,6 +51,7 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
   @Published var userViews: [JellyfinLibraryItem] = []
 
   func fetchUserViews() {}
+  func cancelFetchUserViews() {}
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
     return MockJellyfinLibraryFolderViewModel(data: item)
