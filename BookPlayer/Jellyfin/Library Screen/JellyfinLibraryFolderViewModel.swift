@@ -98,19 +98,7 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       let items = (response.value.items ?? [])
         .filter { item in item.id != nil }
         .compactMap { item -> JellyfinLibraryItem? in
-          let kind: JellyfinLibraryItem.Kind? = switch item.type {
-          case .audioBook: .audiobook
-          case .folder: .folder
-          default: nil
-          }
-
-          guard let id = item.id, let kind else {
-            return nil
-          }
-          let name = item.name ?? id
-          let blurHash = item.imageBlurHashes?.primary?.first?.value
-          let imageAspectRatio = item.primaryImageAspectRatio ?? 1
-          return JellyfinLibraryItem(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
+          return JellyfinLibraryItem(apiItem: item)
         }
 
       await { @MainActor in

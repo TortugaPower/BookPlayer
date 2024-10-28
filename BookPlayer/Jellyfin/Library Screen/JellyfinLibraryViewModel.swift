@@ -22,13 +22,31 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
 
   let blurHash: String?
   let imageAspectRatio: Double
+}
 
-  init(id: String, name: String, kind: Kind, blurHash: String? = nil, imageAspectRatio: Double = 1) {
-    self.id = id
-    self.name = name
-    self.kind = kind
-    self.blurHash = blurHash
-    self.imageAspectRatio = imageAspectRatio
+extension JellyfinLibraryItem {
+  init(id: String, name: String, kind: Kind) {
+    self.init(id: id, name: name, kind: kind, blurHash: nil, imageAspectRatio: 1)
+  }
+}
+
+extension JellyfinLibraryItem {
+  init?(apiItem: BaseItemDto) {
+    let kind: JellyfinLibraryItem.Kind? = switch apiItem.type {
+    case .userView, .collectionFolder: .userView
+    case .folder: .folder
+    case .audioBook: .audiobook
+    default: nil
+    }
+
+    guard let id = apiItem.id, let kind else {
+      return nil
+    }
+    let name = apiItem.name ?? id
+    let blurHash = apiItem.imageBlurHashes?.primary?.first?.value
+    let imageAspectRatio = apiItem.primaryImageAspectRatio ?? 1
+
+    self.init(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
   }
 }
 
@@ -72,13 +90,10 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
       try Task.checkCancellation()
       let userViews = (response.value.items ?? [])
         .compactMap { userView -> JellyfinLibraryItem? in
-          guard userView.collectionType == .books, let id = userView.id else {
+          guard userView.collectionType == .books else {
             return nil
           }
-          let name = userView.name ?? id
-          let blurHash = userView.imageBlurHashes?.primary?.first?.value
-          let imageAspectRatio = userView.primaryImageAspectRatio ?? 1
-          return JellyfinLibraryItem(id: id, name: name, kind: .userView, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
+          return JellyfinLibraryItem(apiItem: userView)
         }
       await { @MainActor in
         self.userViews = userViews
