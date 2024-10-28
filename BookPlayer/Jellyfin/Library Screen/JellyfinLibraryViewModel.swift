@@ -9,13 +9,9 @@
 import Foundation
 import JellyfinAPI
 
-struct JellyfinLibraryUserViewData: Identifiable, Hashable {
-  let id: String
-  let name: String
-}
-
 struct JellyfinLibraryItem: Identifiable, Hashable {
   enum Kind {
+    case userView
     case folder
     case audiobook
   }
@@ -26,23 +22,20 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
 }
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
-  typealias UserView = JellyfinLibraryUserViewData
   associatedtype FolderViewModel: JellyfinLibraryFolderViewModelProtocol
 
   var libraryName: String { get }
-  var userViews: [UserView] { get set }
+  var userViews: [JellyfinLibraryItem] { get set }
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
 }
 
 class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
-  typealias UserView = JellyfinLibraryUserViewData
-
   weak var coordinator: JellyfinCoordinator!
 
   private var apiClient: JellyfinClient!
 
   let libraryName: String
-  @Published var userViews: [UserView] = []
+  @Published var userViews: [JellyfinLibraryItem] = []
 
   init(libraryName: String, apiClient: JellyfinClient) {
     self.libraryName = libraryName

@@ -30,8 +30,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     ]
     LazyVGrid(columns: columns) {
       ForEach(viewModel.userViews, id: \.id) { userView in
-        let folderRepresentation = JellyfinLibraryItem(id: userView.id, name: userView.name, kind: .folder)
-        let childViewModel = viewModel.createFolderViewModelFor(item: folderRepresentation)
+        let childViewModel = viewModel.createFolderViewModelFor(item: userView)
         NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
           UserView(name: userView.name)
         }
@@ -43,7 +42,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
 
 class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
   let libraryName: String = "Mock"
-  @Published var userViews: [UserView] = []
+  @Published var userViews: [JellyfinLibraryItem] = []
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
     return MockJellyfinLibraryFolderViewModel(data: item)
@@ -54,10 +53,10 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
   let viewModel = {
     let viewModel = MockJellyfinLibraryViewModel()
     viewModel.userViews = [
-      JellyfinLibraryViewModel.UserView(id: "0", name: "First View"),
-      JellyfinLibraryViewModel.UserView(id: "1", name: "Second View"),
-      JellyfinLibraryViewModel.UserView(id: "2", name: "Third View"),
-      JellyfinLibraryViewModel.UserView(id: "3", name: "Fourth View"),
+      JellyfinLibraryItem(id: "0", name: "First View", kind: .userView),
+      JellyfinLibraryItem(id: "1", name: "Second View", kind: .userView),
+      JellyfinLibraryItem(id: "2", name: "Third View", kind: .userView),
+      JellyfinLibraryItem(id: "3", name: "Fourth View", kind: .userView),
     ]
     return viewModel
   }()

@@ -10,23 +10,22 @@ import Foundation
 import JellyfinAPI
 
 protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
-  typealias Item = JellyfinLibraryItem
   associatedtype FolderViewModel: JellyfinLibraryFolderViewModelProtocol
 
-  var data: Item { get }
-  var items: [Item] { get set }
+  var data: JellyfinLibraryItem { get }
+  var items: [JellyfinLibraryItem] { get set }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
 
   func fetchInitialItems()
-  func fetchMoreItemsIfNeeded(currentItem: Item)
+  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
 
-  func createItemImageURL(_ item: Item) -> URL?
+  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL?
 }
 
 class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
-  let data: Item
-  @Published var items: [Item] = []
+  let data: JellyfinLibraryItem
+  @Published var items: [JellyfinLibraryItem] = []
 
   private var apiClient: JellyfinClient!
   private var itemsLoadTask: Task<(), any Error>?
@@ -40,7 +39,7 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     return maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
-  init(data: Item, apiClient: JellyfinClient) {
+  init(data: JellyfinLibraryItem, apiClient: JellyfinClient) {
     self.data = data
     self.apiClient = apiClient
   }
@@ -53,7 +52,7 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     fetchMoreItems()
   }
 
-  func fetchMoreItemsIfNeeded(currentItem: Item) {
+  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
       fetchMoreItems()
@@ -91,8 +90,8 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
 
       let items = (response.value.items ?? [])
         .filter { item in item.id != nil }
-        .compactMap { item -> Item? in
-          let kind: Item.Kind? = switch item.type {
+        .compactMap { item -> JellyfinLibraryItem? in
+          let kind: JellyfinLibraryItem.Kind? = switch item.type {
           case .audioBook: .audiobook
           case .folder: .folder
           default: nil
@@ -112,7 +111,7 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     }
   }
 
-  func createItemImageURL(_ item: Item) -> URL? {
+  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL? {
     let request = Paths.getItemImage(itemID: item.id, imageType: "Primary")
     guard let requestUrl = request.url else {
       return nil

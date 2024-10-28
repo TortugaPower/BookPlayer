@@ -30,7 +30,7 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
     switch item.kind {
     case .audiobook:
       itemView(item)
-    case .folder:
+    case .userView, .folder:
       let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
       NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
         itemView(item)
@@ -55,10 +55,10 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
 }
 
 class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol, ObservableObject {
-  let data: Item
-  @Published var items: [Item] = []
+  let data: JellyfinLibraryItem
+  @Published var items: [JellyfinLibraryItem] = []
 
-  init(data: Item) {
+  init(data: JellyfinLibraryItem) {
     self.data = data
   }
 
@@ -67,9 +67,9 @@ class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol
   }
 
   func fetchInitialItems() {}
-  func fetchMoreItemsIfNeeded(currentItem: Item) {}
+  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
 
-  func createItemImageURL(_ item: Item) -> URL? { nil }
+  func createItemImageURL(_ item: JellyfinLibraryItem) -> URL? { nil }
 }
 
 #Preview {
