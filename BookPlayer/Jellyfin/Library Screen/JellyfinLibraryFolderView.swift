@@ -14,45 +14,18 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
 
   var body: some View {
     List(viewModel.items) { item in
-      itemLinkView(item)
+      JellyfinLibraryItemView<Model>(item: item)
         .onAppear {
           viewModel.fetchMoreItemsIfNeeded(currentItem: item)
         }
     }
     .navigationTitle(viewModel.data.name)
+    .environmentObject(viewModel)
     .onAppear {
       viewModel.fetchInitialItems()
     }
     .onDisappear {
       viewModel.cancelFetchItems()
-    }
-  }
-
-  @ViewBuilder
-  private func itemLinkView(_ item: JellyfinLibraryItem) -> some View {
-    switch item.kind {
-    case .audiobook:
-      itemView(item)
-    case .userView, .folder:
-      let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
-      NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
-        itemView(item)
-      }
-    }
-  }
-
-  @ViewBuilder
-  private func itemView(_ item: JellyfinLibraryItem) -> some View {
-    VStack(alignment: .leading) {
-      KFImage
-        .url(viewModel.createItemImageURL(item))
-        .cacheMemoryOnly()
-        .resizable()
-        .placeholder { ProgressView() }
-        .frame(width: 100, height: 100)
-        .cornerRadius(3)
-
-      Text(item.name)
     }
   }
 }
