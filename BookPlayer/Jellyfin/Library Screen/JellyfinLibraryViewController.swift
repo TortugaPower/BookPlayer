@@ -48,8 +48,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
     addSubviews()
     addConstraints()
     setUpTheming()
-
-    startLoadingContent()
   }
 
   private func addSubviews() {
@@ -64,33 +62,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
       contentView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
       contentView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
     ])
-  }
-
-  // MARK: - Network
-
-  private func startLoadingContent()
-  {
-    loadUserViews()
-  }
-
-  private func loadUserViews() {
-    self.viewModel.userViews = []
-
-    let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
-    Task {
-      let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
-      let userViews = (response.value.items ?? [])
-        .compactMap { userView -> JellyfinLibraryItem? in
-          guard userView.collectionType == .books, let id = userView.id else {
-            return nil
-          }
-          let name = userView.name ?? userView.id!
-          return JellyfinLibraryItem(id: id, name: name, kind: .userView)
-        }
-      { @MainActor in
-        self.viewModel.userViews = userViews
-      }()
-    }
   }
 }
 
