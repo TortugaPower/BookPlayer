@@ -21,7 +21,9 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       LazyVGrid(columns: columns, spacing: 20 * accessabilityScale) {
         ForEach(viewModel.userViews, id: \.id) { userView in
           let childViewModel = viewModel.createFolderViewModelFor(item: userView)
-          NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
+          NavigationLink {
+            NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))
+          } label: {
             JellyfinLibraryItemView<Model.FolderViewModel>(item: userView)
               .environmentObject(childViewModel)
           }
