@@ -13,6 +13,9 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
   @State var item: JellyfinLibraryItem
   @EnvironmentObject var viewModel: Model
 
+  @ScaledMetric var accessabilityScale: CGFloat = 1
+  @State private var imageSize: CGSize = CGSize.zero
+
   var body: some View {
     switch item.kind {
     case .audiobook:
@@ -29,14 +32,50 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
   @ViewBuilder
   private var itemView: some View {
     VStack {
-      JellyfinLibraryItemImageView<Model>(item: item)
+      ZStack(alignment: .topTrailing) {
+        JellyfinLibraryItemImageView<Model>(item: item)
+          .background(GeometryReader{ imageGeometry in
+            Color.clear.onAppear {
+              // we'd prever overlay to place the badge, but that's not available for us yet
+              imageSize = imageGeometry.size
+            }
+          })
+
+        switch item.kind {
+        case .userView, .folder:
+          folderBadge
+        case .audiobook:
+          EmptyView()
+        }
+      }
+
       Text(item.name)
         .lineLimit(1)
     }
+  }
+
+  @ViewBuilder
+  private var folderBadge: some View {
+    ZStack {
+      Circle().strokeBorder(.foreground, lineWidth: 1 * accessabilityScale)
+        .background(Circle().fill(.background))
+      Image(systemName: "folder.fill")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: imageSize.width * 0.1, height: imageSize.height * 0.1)
+    }
+    .frame(width: imageSize.width * 0.2, height: imageSize.height * 0.2, alignment: .topTrailing)
+    .padding(5)
+    .opacity(0.8)
   }
 }
 
 #Preview("audiobook") {
   JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook))
-  .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
+    .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
+}
+
+#Preview("folder") {
+  JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder))
+    .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
 }
