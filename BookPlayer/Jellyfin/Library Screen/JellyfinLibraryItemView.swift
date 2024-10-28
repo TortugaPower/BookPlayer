@@ -22,6 +22,7 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
       NavigationLink(destination: NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))) {
         itemView
       }
+      .buttonStyle(PlainButtonStyle())
     }
   }
 

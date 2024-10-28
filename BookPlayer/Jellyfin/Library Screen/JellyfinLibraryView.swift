@@ -25,6 +25,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
             JellyfinLibraryItemView<Model.FolderViewModel>(item: userView)
               .environmentObject(childViewModel)
           }
+          .buttonStyle(PlainButtonStyle())
         }
       }
       .padding(10)
