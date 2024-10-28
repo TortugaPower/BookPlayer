@@ -27,14 +27,15 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
 
   @ViewBuilder
   private var itemView: some View {
-    VStack(alignment: .leading) {
+    VStack {
       JellyfinLibraryItemImageView<Model>(item: item)
       Text(item.name)
+        .lineLimit(1)
     }
   }
 }
 
 #Preview("audiobook") {
-  JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
+  JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook))
   .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
 }

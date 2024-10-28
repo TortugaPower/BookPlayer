@@ -29,7 +29,6 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
         .fade(duration: 0.25)
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
-    .frame(width: 100, height: 100)
     .cornerRadius(3)
   }
 
