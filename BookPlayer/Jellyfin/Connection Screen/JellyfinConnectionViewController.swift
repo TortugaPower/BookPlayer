@@ -168,9 +168,9 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
     apiTask = Task {
       defer { self.apiTask = nil }
       let authResult = try await apiClient.signIn(username: username, password: password)
-      if let _ = authResult.accessToken {
+      if let _ = authResult.accessToken, let userID = authResult.user?.id {
         self.viewModel.connectionState = .connected
-        self.viewModel.handleConnectedEvent(forLibrary:viewModel.form.serverName ?? "", client: apiClient)
+        self.viewModel.handleConnectedEvent(forLibrary:viewModel.form.serverName ?? "", userID: userID, client: apiClient)
       }
     }
   }

@@ -36,22 +36,24 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
   weak var coordinator: JellyfinCoordinator!
 
-  private var apiClient: JellyfinClient!
+  private let apiClient: JellyfinClient
+  private let userID: String
 
   let libraryName: String
   @Published var userViews: [JellyfinLibraryItem] = []
 
   private var fetchTask: Task<(), any Error>?
 
-  init(libraryName: String, apiClient: JellyfinClient) {
-    self.libraryName = libraryName
+  init(libraryName: String, userID: String, apiClient: JellyfinClient) {
     self.apiClient = apiClient
+    self.userID = userID
+    self.libraryName = libraryName
   }
 
   func fetchUserViews() {
     userViews = []
 
-    let parameters = Paths.GetUserViewsParameters(presetViews: [.books])
+    let parameters = Paths.GetUserViewsParameters(userID: userID)
 
     fetchTask?.cancel()
     fetchTask = Task {

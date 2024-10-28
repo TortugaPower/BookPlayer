@@ -16,6 +16,7 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
   var body: some View {
     KFImage
       .url(viewModel.createItemImageURL(item))
+      .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()
       .placeholder { ProgressView() }

@@ -14,7 +14,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   /// Possible routes for the screen
   enum Routes {
     case cancel
-    case loginFinished(String, JellyfinClient)
+    case loginFinished(String, String, JellyfinClient)
   }
 
   enum ConnectionState {
@@ -38,7 +38,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
     onTransition?(.cancel)
   }
 
-  func handleConnectedEvent(forLibrary libraryName: String, client: JellyfinClient) {
-    onTransition?(.loginFinished(libraryName, client))
+  func handleConnectedEvent(forLibrary libraryName: String, userID: String, client: JellyfinClient) {
+    onTransition?(.loginFinished(libraryName, userID, client))
   }
 }

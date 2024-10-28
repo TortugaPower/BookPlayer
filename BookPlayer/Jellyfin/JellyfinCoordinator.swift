@@ -13,18 +13,21 @@ import UIKit
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
 
-  var libraryName: String?
   var apiClient: JellyfinClient?
+  var userID: String?
+  var libraryName: String?
 
   init(flow: BPCoordinatorPresentationFlow) {
     self.flow = flow
   }
 
-  private var isLogginIn: Bool { get { self.apiClient?.accessToken != nil } }
+  private var isLoggedIn: Bool {
+    apiClient?.accessToken != nil && userID != nil && !userID!.isEmpty
+  }
 
   func start() {
-    let vc = if isLogginIn {
-      createJellyfinLibraryScreen(withLibraryName: libraryName ?? "", client: self.apiClient!)
+    let vc = if isLoggedIn {
+      createJellyfinLibraryScreen(withLibraryName: libraryName ?? "", userID: userID ?? "", client: self.apiClient!)
     } else {
       createJellyfinLoginScreen()
     }
@@ -40,10 +43,11 @@ class JellyfinCoordinator: Coordinator {
       switch route {
       case .cancel:
         viewModel.dismiss()
-      case .loginFinished(let libraryName, let client):
-        self.libraryName = libraryName
+      case .loginFinished(let libraryName, let userID, let client):
         self.apiClient = client
-        let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: libraryName, client: client)
+        self.userID = userID
+        self.libraryName = libraryName
+        let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: libraryName, userID: userID, client: client)
         self.flow.pushViewController(libraryVC, animated: true)
       }
     }
@@ -51,8 +55,8 @@ class JellyfinCoordinator: Coordinator {
     return vc
   }
 
-  private func createJellyfinLibraryScreen(withLibraryName libraryName: String, client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, apiClient: client)
+  private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
+    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, userID: userID, apiClient: client)
     viewModel.coordinator = self
     let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc
