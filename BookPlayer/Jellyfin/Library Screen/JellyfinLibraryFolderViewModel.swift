@@ -86,6 +86,7 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       defer { self.fetchTask = nil }
 
       let response = try await apiClient.send(Paths.getItems(parameters: parameters))
+      try Task.checkCancellation()
 
       let nextStartItemIndex = if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
         startIndex + numItems

@@ -56,6 +56,7 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
     fetchTask?.cancel()
     fetchTask = Task {
       let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
+      try Task.checkCancellation()
       let userViews = (response.value.items ?? [])
         .compactMap { userView -> JellyfinLibraryItem? in
           guard userView.collectionType == .books, let id = userView.id else {
