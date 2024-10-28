@@ -19,6 +19,17 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
   let id: String
   let name: String
   let kind: Kind
+
+  let blurHash: String?
+  let imageAspectRatio: Double
+
+  init(id: String, name: String, kind: Kind, blurHash: String? = nil, imageAspectRatio: Double = 1) {
+    self.id = id
+    self.name = name
+    self.kind = kind
+    self.blurHash = blurHash
+    self.imageAspectRatio = imageAspectRatio
+  }
 }
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
@@ -64,8 +75,10 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
           guard userView.collectionType == .books, let id = userView.id else {
             return nil
           }
-          let name = userView.name ?? userView.id!
-          return JellyfinLibraryItem(id: id, name: name, kind: .userView)
+          let name = userView.name ?? id
+          let blurHash = userView.imageBlurHashes?.primary?.first?.value
+          let imageAspectRatio = userView.primaryImageAspectRatio ?? 1
+          return JellyfinLibraryItem(id: id, name: name, kind: .userView, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
         }
       await { @MainActor in
         self.userViews = userViews

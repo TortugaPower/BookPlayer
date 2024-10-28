@@ -107,7 +107,10 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
           guard let id = item.id, let kind else {
             return nil
           }
-          return JellyfinLibraryItem(id: id, name: item.name ?? id, kind: kind)
+          let name = item.name ?? id
+          let blurHash = item.imageBlurHashes?.primary?.first?.value
+          let imageAspectRatio = item.primaryImageAspectRatio ?? 1
+          return JellyfinLibraryItem(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: imageAspectRatio)
         }
 
       await { @MainActor in

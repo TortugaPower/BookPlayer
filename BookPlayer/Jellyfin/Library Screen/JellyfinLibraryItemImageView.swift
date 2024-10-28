@@ -19,15 +19,29 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()
-      .placeholder {
-        Image(systemName: placeholderImageName)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-      }
+      .placeholder { placeholderImage }
       .fade(duration: 0.25)
       .aspectRatio(contentMode: .fit)
       .frame(width: 100, height: 100)
       .cornerRadius(3)
+  }
+
+  @ViewBuilder
+  private var placeholderImage: some View {
+    let image = if let blurHashImage = blurhashImage {
+      Image(uiImage: blurHashImage)
+    } else {
+      Image(systemName: placeholderImageName)
+    }
+
+    image
+      .resizable()
+      .aspectRatio(item.imageAspectRatio, contentMode: .fit)
+  }
+
+  private var blurhashImage: UIImage? {
+    guard let blurHash = item.blurHash  else { return nil }
+    return UIImage(blurHash: blurHash, size: CGSize(width: 32, height: 32))
   }
 
   private var placeholderImageName: String {
