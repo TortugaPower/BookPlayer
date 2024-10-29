@@ -8,6 +8,7 @@
 
 import Foundation
 import JellyfinAPI
+import BookPlayerKit
 
 protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
   associatedtype FolderViewModel: JellyfinLibraryFolderViewModelProtocol
@@ -22,6 +23,8 @@ protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
   func cancelFetchItems()
 
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL?
+
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem)
 }
 
 class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
@@ -129,5 +132,21 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
         components.queryItems = query.map(URLQueryItem.init)
     }
     return components.url
+  }
+
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
+    Task {
+      let downloadResponse = try await apiClient.download(for: Paths.getDownload(itemID: item.id))
+
+      let localFileURL = downloadResponse.value
+      let filename = downloadResponse.task.response?.suggestedFilename
+      ?? downloadResponse.task.originalRequest?.url?.lastPathComponent
+      ?? localFileURL.lastPathComponent
+      
+      try FileManager.default.moveItem(
+        at: localFileURL,
+        to: DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
+      )
+    }
   }
 }

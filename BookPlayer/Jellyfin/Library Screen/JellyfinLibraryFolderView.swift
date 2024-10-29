@@ -38,20 +38,22 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
 class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol, ObservableObject {
   let data: JellyfinLibraryItem
   @Published var items: [JellyfinLibraryItem] = []
-
+  
   init(data: JellyfinLibraryItem) {
     self.data = data
   }
-
+  
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
     return MockJellyfinLibraryFolderViewModel(data: item)
   }
-
+  
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
   func cancelFetchItems() {}
-
+  
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? { nil }
+  
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
 }
 
 #Preview {

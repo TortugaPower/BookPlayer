@@ -19,10 +19,15 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
   var body: some View {
     switch item.kind {
     case .audiobook:
-      itemView
+      Button {
+        viewModel.beginDownloadAudiobook(item)
+      } label: {
+        itemView
+      }
+      .buttonStyle(PlainButtonStyle())
     case .userView, .folder:
-      let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
       NavigationLink {
+        let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
         NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))
       } label: {
         itemView
