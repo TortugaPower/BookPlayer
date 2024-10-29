@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Get
 import JellyfinAPI
 import BookPlayerKit
 
@@ -31,7 +32,8 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
   let data: JellyfinLibraryItem
   @Published var items: [JellyfinLibraryItem] = []
 
-  private var apiClient: JellyfinClient!
+  private var apiClient: JellyfinClient
+  private var singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var nextStartItemIndex = 0
   private var maxNumItems: Int?
@@ -43,13 +45,14 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     return maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
-  init(data: JellyfinLibraryItem, apiClient: JellyfinClient) {
+  init(data: JellyfinLibraryItem, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
     self.data = data
     self.apiClient = apiClient
+    self.singleFileDownloadService = singleFileDownloadService
   }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
-    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient)
+    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
   }
 
   func fetchInitialItems() {
@@ -120,6 +123,26 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     }
 
     let request = Paths.getItemImage(itemID: item.id, imageType: "Primary", parameters: parameters)
+    guard let components = createUrlComponentsForApiRequest(request) else {
+      return nil
+    }
+    return components.url
+  }
+
+  func createItemDownloadUrl(_ item: JellyfinLibraryItem) -> URL? {
+    let request = Paths.getDownload(itemID: item.id)
+    guard var components = createUrlComponentsForApiRequest(request) else {
+      return nil
+    }
+
+    var queryItems = components.queryItems ?? []
+    queryItems.append(URLQueryItem(name: "api_key", value: apiClient.accessToken))
+    components.queryItems = queryItems
+
+    return components.url
+  }
+
+  private func createUrlComponentsForApiRequest<Response>(_ request: Request<Response>) -> URLComponents? {
     guard let requestUrl = request.url else {
       return nil
     }
@@ -131,22 +154,13 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     if let query = request.query, !query.isEmpty {
         components.queryItems = query.map(URLQueryItem.init)
     }
-    return components.url
+    return components
   }
 
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
-    Task {
-      let downloadResponse = try await apiClient.download(for: Paths.getDownload(itemID: item.id))
-
-      let localFileURL = downloadResponse.value
-      let filename = downloadResponse.task.response?.suggestedFilename
-      ?? downloadResponse.task.originalRequest?.url?.lastPathComponent
-      ?? localFileURL.lastPathComponent
-      
-      try FileManager.default.moveItem(
-        at: localFileURL,
-        to: DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
-      )
+    guard let url = createItemDownloadUrl(item) else {
+      return
     }
+    singleFileDownloadService.handleDownload(url)
   }
 }

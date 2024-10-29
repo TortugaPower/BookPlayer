@@ -24,7 +24,10 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
 
   lazy var jellyfinCoordinator: JellyfinCoordinator = {
-    JellyfinCoordinator(flow: .modalFlow(presentingController: flow.navigationController))
+    JellyfinCoordinator(
+      flow: .modalFlow(presentingController: flow.navigationController),
+      singleFileDownloadService: singleFileDownloadService
+    )
   }()
 
   init(

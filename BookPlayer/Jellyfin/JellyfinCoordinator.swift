@@ -12,13 +12,15 @@ import UIKit
 
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
+  private let singleFileDownloadService: SingleFileDownloadService
 
-  var apiClient: JellyfinClient?
-  var userID: String?
-  var libraryName: String?
+  private var apiClient: JellyfinClient?
+  private var userID: String?
+  private var libraryName: String?
 
-  init(flow: BPCoordinatorPresentationFlow) {
+  init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService) {
     self.flow = flow
+    self.singleFileDownloadService = singleFileDownloadService
   }
 
   private var isLoggedIn: Bool {
@@ -56,7 +58,7 @@ class JellyfinCoordinator: Coordinator {
   }
 
   private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, userID: userID, apiClient: client)
+    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, userID: userID, apiClient: client, singleFileDownloadService: singleFileDownloadService)
     viewModel.coordinator = self
     let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc

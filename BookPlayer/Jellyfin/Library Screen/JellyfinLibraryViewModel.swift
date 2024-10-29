@@ -65,6 +65,7 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
   weak var coordinator: JellyfinCoordinator!
 
   private let apiClient: JellyfinClient
+  private var singleFileDownloadService: SingleFileDownloadService
   private let userID: String
 
   let libraryName: String
@@ -72,8 +73,9 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
 
   private var fetchTask: Task<(), any Error>?
 
-  init(libraryName: String, userID: String, apiClient: JellyfinClient) {
+  init(libraryName: String, userID: String, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
     self.apiClient = apiClient
+    self.singleFileDownloadService = singleFileDownloadService
     self.userID = userID
     self.libraryName = libraryName
   }
@@ -106,6 +108,6 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
   }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
-    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient)
+    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
   }
 }
