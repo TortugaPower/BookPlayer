@@ -16,6 +16,7 @@ class FolderListCoordinator: ItemListCoordinator {
     flow: BPCoordinatorPresentationFlow,
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
@@ -27,6 +28,7 @@ class FolderListCoordinator: ItemListCoordinator {
     super.init(
       flow: flow,
       playerManager: playerManager,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService, 
@@ -40,7 +42,7 @@ class FolderListCoordinator: ItemListCoordinator {
     let viewModel = ItemListViewModel(
       folderRelativePath: self.folderRelativePath,
       playerManager: self.playerManager,
-      networkClient: NetworkClient(),
+      singleFileDownloadService: self.singleFileDownloadService,
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService, 

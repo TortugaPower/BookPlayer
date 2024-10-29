@@ -23,12 +23,13 @@ class ItemListViewModelTests: XCTestCase {
     let libraryService = LibraryService(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
 
     self.sut = ItemListViewModel(
       folderRelativePath: nil,
       playerManager: playerManagerMock,
-      networkClient: NetworkClient(),
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: PlaybackServiceProtocolMock(),
       syncService: syncServiceMock, 

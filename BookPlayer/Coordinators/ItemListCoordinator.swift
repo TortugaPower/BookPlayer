@@ -13,6 +13,7 @@ import UniformTypeIdentifiers
 
 class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let playerManager: PlayerManagerProtocol
+  let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
@@ -29,6 +30,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   init(
     flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
@@ -37,6 +39,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   ) {
     self.flow = flow
     self.playerManager = playerManager
+    self.singleFileDownloadService = singleFileDownloadService
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
@@ -58,6 +61,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       flow: .pushFlow(navigationController: flow.navigationController),
       folderRelativePath: relativePath,
       playerManager: playerManager,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,

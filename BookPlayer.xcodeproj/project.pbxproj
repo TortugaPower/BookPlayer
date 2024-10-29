@@ -452,6 +452,7 @@
 		8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */; };
 		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
 		8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */; };
+		8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */; };
 		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
 		8AE4AAC72CCBA17B00BAA927 /* JellyfinConnectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC62CCBA17B00BAA927 /* JellyfinConnectionViewController.swift */; };
 		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
@@ -1231,6 +1232,7 @@
 		8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemView.swift; sourceTree = "<group>"; };
 		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
 		8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
+		8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleFileDownloadService.swift; sourceTree = "<group>"; };
 		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
 		8AE4AAC62CCBA17B00BAA927 /* JellyfinConnectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewController.swift; sourceTree = "<group>"; };
 		8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionView.swift; sourceTree = "<group>"; };
@@ -2365,6 +2367,7 @@
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
+				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3777,6 +3780,7 @@
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */,
+				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */,

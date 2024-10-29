@@ -16,6 +16,7 @@ class MainCoordinator: NSObject {
   var tabBarController: AppTabBarController?
 
   let playerManager: PlayerManagerProtocol
+  let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
@@ -36,6 +37,7 @@ class MainCoordinator: NSObject {
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
+    self.singleFileDownloadService = coreServices.singleFileDownloadService
     self.watchConnectivityService = coreServices.watchService
 
     ThemeManager.shared.libraryService = libraryService
@@ -84,6 +86,7 @@ class MainCoordinator: NSObject {
     let libraryCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       playerManager: self.playerManager,
+      singleFileDownloadService: self.singleFileDownloadService,
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: syncService,

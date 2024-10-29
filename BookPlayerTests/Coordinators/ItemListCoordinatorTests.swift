@@ -33,6 +33,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       playerManager: playerManagerMock,
+      singleFileDownloadService: coreServices.singleFileDownloadService,
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
       syncService: syncServiceMock,
@@ -84,12 +85,14 @@ class FolderListCoordinatorTests: XCTestCase {
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       folderRelativePath: folder.relativePath,
       playerManager: playerManagerMock,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService),
       syncService: syncServiceMock, 
