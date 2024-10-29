@@ -2,7 +2,7 @@
 //  JellyfinConnectionView.swift
 //  BookPlayer
 //
-//  Created by Lysann Schlegel on 2024-10-25.
+//  Created by Lysann Tranvouez on 2024-10-25.
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
