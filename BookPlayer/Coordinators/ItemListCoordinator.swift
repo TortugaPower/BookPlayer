@@ -173,7 +173,6 @@ extension ItemListCoordinator {
 
   func showJellyfinDownloader() {
     jellyfinCoordinator.start()
-
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {

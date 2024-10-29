@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import Combine
 import Foundation
 import JellyfinAPI
 import UIKit
@@ -13,6 +14,7 @@ import UIKit
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
   private let singleFileDownloadService: SingleFileDownloadService
+  private var disposeBag = Set<AnyCancellable>()
 
   private var apiClient: JellyfinClient?
   private var userID: String?
@@ -21,6 +23,20 @@ class JellyfinCoordinator: Coordinator {
   init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService) {
     self.flow = flow
     self.singleFileDownloadService = singleFileDownloadService
+
+    bindObservers()
+  }
+
+  func bindObservers() {
+    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
+      switch event {
+      case .starting(_), .error(_, _, _):
+        self?.flow.finishPresentation(animated: true)
+      default:
+        break
+      }
+    }
+    .store(in: &disposeBag)
   }
 
   private var isLoggedIn: Bool {
