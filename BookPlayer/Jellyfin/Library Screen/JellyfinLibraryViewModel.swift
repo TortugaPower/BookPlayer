@@ -63,7 +63,6 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 
 class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
   enum Routes {
-    case signOut
     case done
   }
 
@@ -116,10 +115,6 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
     return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
-  }
-
-  func handleSignOutAction() {
-    onTransition?(.signOut)
   }
 
   func handleDoneAction() {

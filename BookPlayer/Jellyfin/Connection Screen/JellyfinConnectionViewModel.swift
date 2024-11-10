@@ -11,10 +11,11 @@ import Combine
 import JellyfinAPI
 
 class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
-  /// Possible routes for the screen
   enum Routes {
     case cancel
-    case loginFinished(userID: String, client: JellyfinClient)
+    case signInFinished(userID: String, client: JellyfinClient)
+    case signOut
+    case showLibrary
   }
 
   enum ConnectionState {
@@ -29,15 +30,28 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   @Published var form: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
   @Published var connectionState: ConnectionState = .disconnected
 
-
-  /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
+
+
+  func reset() {
+    form = JellyfinConnectionFormViewModel()
+    connectionState = .disconnected
+  }
+
 
   func handleCancelAction() {
     onTransition?(.cancel)
   }
   
   func handleConnectedEvent(userID: String, client: JellyfinClient) {
-    onTransition?(.loginFinished(userID: userID, client: client))
+    onTransition?(.signInFinished(userID: userID, client: client))
+  }
+
+  func handleSignOutAction() {
+    onTransition?(.signOut)
+  }
+
+  func handleToToLibraryAction() {
+    onTransition?(.showLibrary)
   }
 }

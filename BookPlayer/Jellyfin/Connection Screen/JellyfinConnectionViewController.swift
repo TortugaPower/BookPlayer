@@ -82,6 +82,14 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
   }
 
   private func bindConnectionObservers() {
+    viewModel.$connectionState.sink { [weak self] state in
+      self?.navigationItem.title = switch state {
+      case .disconnected: "jellyfin_connection_title".localized
+      case .foundServer: "jellyfin_connection_title".localized
+      case .connected: "jellyfin_connection_details_title".localized
+      }
+    }.store(in: &disposeBag)
+
     Publishers.CombineLatest(viewModel.$connectionState, $apiTask).sink { [weak self] (state, task) in
       guard let self = self else {
         return
@@ -116,7 +124,12 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       case .connected:
         self.navBarRightButtonEnabledWatcher?.cancel()
         self.navBarRightButtonEnabledWatcher = nil
-        self.navigationItem.rightBarButtonItem = nil
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+          primaryAction: UIAction(title: "jellyfin_to_library_button".localized,
+                                  image: UIImage(systemName: "chevron.right")) { _ in
+            self.didTapGoToLibrary()
+          }
+        )
       }
     }
     .store(in: &disposeBag)
@@ -161,6 +174,10 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
         self.viewModel.handleConnectedEvent(userID: userID, client: apiClient)
       }
     }
+  }
+
+  @objc func didTapGoToLibrary() {
+    viewModel.handleToToLibraryAction()
   }
 }
 

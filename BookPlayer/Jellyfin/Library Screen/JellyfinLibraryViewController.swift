@@ -53,12 +53,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
 
   private func setupNavigationItem() {
     self.navigationItem.title = viewModel.libraryName
-    self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-      title: "jellyfin_sign_out_button".localized,
-      style: .plain,
-      target: self,
-      action: #selector(self.didTapSignOut)
-    )
     self.navigationItem.rightBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .done,
       target: self,
@@ -79,10 +73,6 @@ class JellyfinLibraryViewController: UIViewController, MVVMControllerProtocol {
       contentView.trailingAnchor.constraint(equalTo: safeLayoutGuide.trailingAnchor),
       contentView.bottomAnchor.constraint(equalTo: safeLayoutGuide.bottomAnchor),
     ])
-  }
-
-  @objc private func didTapSignOut() {
-    viewModel.handleSignOutAction()
   }
 
   @objc private func didTapDone() {

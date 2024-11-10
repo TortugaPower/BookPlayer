@@ -14,89 +14,117 @@ struct JellyfinConnectionView: View {
   /// Theme view model to update colors
   @StateObject var themeViewModel = ThemeViewModel()
 
-  struct DisconnectedView: View {
-    var serverUrl: Binding<String>
-    @EnvironmentObject var themeViewModel: ThemeViewModel
-
-    var body: some View {
-      Section {
-        ClearableTextField("jellyfin_server_url_placeholder".localized, text: serverUrl)
-          .keyboardType(.URL)
-          .textContentType(.URL)
-          .autocapitalization(.none)
-      } header: {
-        Text("jellyfin_section_server_url".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
-      } footer: {
-        Text("jellyfin_section_server_url_footer".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
-      }
-    }
-  }
-
-  struct FoundServerView: View {
-    var serverUrl: String
-    var serverName: String
-    var username: Binding<String>
-    var password: Binding<String>
-    var rememberMe: Binding<Bool>
-    @EnvironmentObject var themeViewModel: ThemeViewModel
-
-    var body: some View {
-      Section {
-        HStack {
-          Text("jellyfin_server_name_label".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-          Spacer()
-          Text(serverName)
-        }
-        HStack {
-          Text("jellyfin_server_url_label".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-          Spacer()
-          Text(serverUrl)
-        }
-      } header: {
-        Text("jellyfin_section_server".localized)
-      }
-      Section {
-        ClearableTextField("jellyfin_username_placeholder".localized, text: username)
-          .textContentType(.name)
-          .autocapitalization(.none)
-        SecureField("jellyfin_password_placeholder".localized, text: password)
-        Toggle(isOn: rememberMe) {
-          Text("jellyfin_password_remember_me_label".localized)
-        }
-      } header: {
-        Text("jellyfin_section_login".localized)
-      }
-    }
-  }
-
-  struct ConnectedView: View {
-    var body: some View {
-      EmptyView()
-    }
-  }
-
   var body: some View {
     Form {
       switch viewModel.connectionState {
-      case .disconnected:
-        DisconnectedView(serverUrl: $viewModel.form.serverUrl)
-      case .foundServer:
-        FoundServerView(
-          serverUrl: viewModel.form.serverUrl,
-          serverName: viewModel.form.serverName ?? "",
-          username: $viewModel.form.username,
-          password: $viewModel.form.password,
-          rememberMe: $viewModel.form.rememberMe
-        )
-      case .connected:
-        ConnectedView()
+      case .disconnected: disconnectedView
+      case .foundServer: foundServerView
+      case .connected: connectedView
       }
     }
+    .defaultFormBackground()
     .environmentObject(themeViewModel)
+  }
+
+  @ViewBuilder
+  private var disconnectedView: some View {
+    Section {
+      ClearableTextField("jellyfin_server_url_placeholder".localized, text: $viewModel.form.serverUrl)
+        .keyboardType(.URL)
+        .textContentType(.URL)
+        .autocapitalization(.none)
+    } header: {
+      Text("jellyfin_section_server_url".localized)
+        .foregroundColor(themeViewModel.secondaryColor)
+    } footer: {
+      Text("jellyfin_section_server_url_footer".localized)
+        .foregroundColor(themeViewModel.secondaryColor)
+    }
+    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private var foundServerView: some View {
+    serverInfoSection
+
+    Section {
+      ClearableTextField("jellyfin_username_placeholder".localized, text: $viewModel.form.username)
+        .textContentType(.name)
+        .autocapitalization(.none)
+      SecureField("jellyfin_password_placeholder".localized, text: $viewModel.form.password)
+      Toggle(isOn: $viewModel.form.rememberMe) {
+        Text("jellyfin_password_remember_me_label".localized)
+          .foregroundColor(themeViewModel.primaryColor)
+      }
+    } header: {
+      Text("jellyfin_section_login".localized)
+    }
+    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private var connectedView: some View {
+    serverInfoSection
+
+    Section {
+      HStack {
+        Text("jellyfin_username_placeholder".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
+        Spacer()
+        Text(viewModel.form.username)
+      }
+    } header: {
+      Text("jellyfin_section_login".localized)
+    }
+    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+
+    Section {
+      destructiveButton("jellyfin_sign_out_button".localized) {
+        viewModel.handleSignOutAction()
+      }
+      .frame(maxWidth: .infinity)
+    }
+    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private var serverInfoSection: some View {
+    Section {
+      HStack {
+        Text("jellyfin_server_name_label".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
+        Spacer()
+        Text(viewModel.form.serverName ?? "")
+      }
+      HStack {
+        Text("jellyfin_server_url_label".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
+        Spacer()
+        Text(viewModel.form.serverUrl)
+      }
+    } header: {
+      Text("jellyfin_section_server".localized)
+    }
+    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private func destructiveButton(_ title: String, action: @escaping @MainActor () -> Void) -> some View {
+    if #available(iOS 16.0, *) {
+      Button(title, role: .destructive, action: action)
+    } else {
+      Button(title, action: action)
+        .foregroundColor(destructiveRedColor)
+    }
+  }
+
+  private var destructiveRedColor: Color {
+    if UIColor.responds(to: Selector(("_systemDestructiveTintColor"))) {
+      if let systemRed = UIColor.perform(Selector(("_systemDestructiveTintColor")))?.takeUnretainedValue() as? UIColor {
+        return Color(systemRed)
+      }
+    }
+    return .red
   }
 }
 
@@ -104,6 +132,7 @@ struct JellyfinConnectionView: View {
   let viewModel = JellyfinConnectionViewModel()
   JellyfinConnectionView(viewModel: viewModel)
 }
+
 #Preview("found server") {
   let viewModel = {
     var viewModel = JellyfinConnectionViewModel()
@@ -114,6 +143,7 @@ struct JellyfinConnectionView: View {
   }()
   JellyfinConnectionView(viewModel: viewModel)
 }
+
 #Preview("connected") {
   let viewModel = {
     var viewModel = JellyfinConnectionViewModel()

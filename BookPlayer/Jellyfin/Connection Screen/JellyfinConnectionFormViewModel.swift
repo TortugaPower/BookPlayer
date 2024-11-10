@@ -13,5 +13,5 @@ class JellyfinConnectionFormViewModel: ObservableObject {
   @Published var serverName: String?
   @Published var username: String = ""
   @Published var password: String = ""
-  @Published var rememberMe: Bool = false
+  @Published var rememberMe: Bool = true
 }
