@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "${interval} geri sar";
 "settings_lock_orientation_title" = "Yönlendirme Kilitli";
 "more_title" = "Daha";
+"repeat_turn_on_title" = "Bu kitap için Tekrarı açın";
+"repeat_turn_off_title" = "Bu kitap için Tekrarı kapatın";

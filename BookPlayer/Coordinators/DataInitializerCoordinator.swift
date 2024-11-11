@@ -74,17 +74,31 @@ class DataInitializerCoordinator: BPLogger {
           \(error.localizedDescription)
 
           Error Domain
-          \(error.domain)
+          \(error.domain) (\(error.code)
 
           Additional Info
           \(error.userInfo)
           """
-        alertPresenter.showAlert(
-          "error_title".localized,
-          message: errorDescription
-        ) {
-          fatalError("Unresolved error \(error.localizedDescription)")
-        }
+        alertPresenter.showAlert(BPAlertContent(
+          title: "error_title".localized,
+          message: errorDescription,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "ok_button".localized,
+              handler: {
+                fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
+              }
+            ),
+            .init(
+              title: "Reset and recover database",
+              style: .destructive,
+              handler: {
+                self.recoverLibraryFromFailedMigration()
+              }
+            )
+          ]
+        ))
       }
     }
   }

@@ -565,6 +565,33 @@ extension CarPlayManager: AlertPresenter {
 
     self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
   }
+
+  public func showAlert(_ content: BPAlertContent) {
+    let actions = content.actionItems.map({ item in
+      return CPAlertAction(
+        title: item.title,
+        style: .default,
+        handler: { _ in
+          self.interfaceController?.dismissTemplate(animated: true, completion: nil)
+          item.handler()
+        }
+      )
+    })
+
+    var completeMessage = ""
+
+    if let title = content.title {
+      completeMessage += title
+    }
+
+    if let message = content.message {
+      completeMessage += ": \(message)"
+    }
+
+    let alertTemplate = CPAlertTemplate(titleVariants: [completeMessage], actions: actions)
+
+    self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
+  }
 }
 
 extension CarPlayManager: CPTabBarTemplateDelegate {

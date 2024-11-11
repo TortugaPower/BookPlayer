@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Rebobinar ${interval}";
 "settings_lock_orientation_title" = "Orientación Bloqueada";
 "more_title" = "Más";
+"repeat_turn_on_title" = "Activar repetición para este libro";
+"repeat_turn_off_title" = "Desactivar la repetición para este libro";

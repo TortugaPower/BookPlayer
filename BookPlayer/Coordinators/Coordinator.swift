@@ -20,6 +20,10 @@ extension AlertPresenter where Self: Coordinator {
     flow.navigationController.showAlert(title, message: message, completion: completion)
   }
 
+  func showAlert(_ content: BPAlertContent) {
+    flow.navigationController.showAlert(content)
+  }
+
   func showLoader() {
     LoadingUtils.loadAndBlock(in: flow.navigationController)
   }

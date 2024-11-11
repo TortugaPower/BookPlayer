@@ -20,6 +20,8 @@ class ItemDetailsFormViewModel: ObservableObject {
   @Published var author: String
   /// Artwork image
   @Published var selectedImage: UIImage?
+  /// Progress of the current item
+  let progress: Double
   /// Original item title
   var titlePlaceholder: String
   /// Original item author
@@ -37,6 +39,7 @@ class ItemDetailsFormViewModel: ObservableObject {
     self.titlePlaceholder = item.title
     self.author = item.details
     self.authorPlaceholder = item.details
+    self.progress = item.progress
     self.originalFileName = item.originalFileName
     self.showAuthor = item.type == .book
     self.originalImageDataProvider = ArtworkService.getArtworkProvider(for: item.relativePath)

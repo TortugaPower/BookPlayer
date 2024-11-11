@@ -1100,13 +1100,22 @@ extension PlayerManager {
     let endOfChapterActive = SleepTimer.shared.state == .endOfChapter
 
     if currentItem.chapters.last == currentItem.currentChapter {
-      self.libraryService.setLibraryLastBook(with: nil)
+      if UserDefaults.standard.bool(
+        forKey: currentItem.filename + Constants.UserDefaults.repeatEnabledSuffix
+      ) {
+        updatePlaybackTime(item: currentItem, time: 0)
+        let firstChapter = currentItem.chapters.first!
+        currentItem.currentChapter = firstChapter
+        loadChapterMetadata(firstChapter, autoplay: !endOfChapterActive)
+      } else {
+        self.libraryService.setLibraryLastBook(with: nil)
 
-      self.markAsCompleted(true)
+        self.markAsCompleted(true)
 
-      self.playNextItem(autoPlayed: true, shouldAutoplay: !endOfChapterActive)
+        self.playNextItem(autoPlayed: true, shouldAutoplay: !endOfChapterActive)
 
-      NotificationCenter.default.post(name: .bookEnd, object: nil)
+        NotificationCenter.default.post(name: .bookEnd, object: nil)
+      }
     } else if currentItem.isBoundBook {
       updatePlaybackTime(item: currentItem, time: currentItem.currentTime)
       /// Load next chapter

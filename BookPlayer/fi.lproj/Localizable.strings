@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Kelaa taaksepäin ${interval}";
 "settings_lock_orientation_title" = "Suunta lukittu";
 "more_title" = "Lisää";
+"repeat_turn_on_title" = "Ota Toista käyttöön tälle kirjalle";
+"repeat_turn_off_title" = "Poista Toista käytöstä tästä kirjasta";

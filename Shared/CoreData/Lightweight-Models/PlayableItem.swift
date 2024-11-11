@@ -38,6 +38,10 @@ public final class PlayableItem: NSObject, Identifiable {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
   }
 
+  public lazy var filename: String = {
+    fileURL.lastPathComponent
+  }()
+
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration,
       relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
