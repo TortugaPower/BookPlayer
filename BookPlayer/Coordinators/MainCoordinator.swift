@@ -238,6 +238,10 @@ extension MainCoordinator: AlertPresenter {
     navigationController.showAlert(title, message: message, completion: completion)
   }
 
+  func showAlert(_ content: BPAlertContent) {
+    navigationController.showAlert(content)
+  }
+
   func showLoader() {
     LoadingUtils.loadAndBlock(in: navigationController)
   }
