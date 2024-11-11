@@ -185,7 +185,7 @@
 "storage_duplicate_item_description" = "Το επιλεγμένο αρχείο ήταν διπλότυπο, το υπάρχον αρχείο βρίσκεται στη διεύθυνση: %@";
 "chapters_previous_title" = "Προηγούμενο Κεφάλαιο";
 "chapters_next_title" = "Επόμενο κεφάλαιο";
-"book_time_current_title" = "Τρέχουσα ώρα κράτησης: %@";
+"book_time_current_title" = "Τρέχουσα ώρα βιβλίου: %@";
 "storage_fix_files_description" = "Ο σύνδεσμος μεταξύ των αρχείων και των στοιχείων του ψηφιακού βιβλίου λείπει, εάν δεν μπορεί να βρεθεί το αντίστοιχο στοιχείο για κάθε αρχείο, θα δημιουργηθεί ένα νέο";
 "storage_fix_all_title" = "Διορθώστε όλα";
 "settings_backup_title" = "Αντίγραφα ασφαλείας iCloud";
@@ -318,6 +318,6 @@
 "intent_custom_skiprewind_title" = "Πίσω με μεσοδιάστημα";
 "Rewind ${interval}" = "Επαναφορά ${interval}";
 "settings_lock_orientation_title" = "Ο προσανατολισμός είναι κλειδωμένος";
-"more_title" = "Περισσότερο";
+"more_title" = "Περισσότερα";
 "repeat_turn_on_title" = "Ενεργοποιήστε το Repeat για αυτό το βιβλίο";
 "repeat_turn_off_title" = "Απενεργοποιήστε το Repeat για αυτό το βιβλίο";
