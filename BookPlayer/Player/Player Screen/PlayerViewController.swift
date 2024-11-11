@@ -604,6 +604,17 @@ extension PlayerViewController {
       )
     )
 
+    actionSheet.addAction(
+      UIAlertAction(
+        title: self.viewModel.isRepeatEnabled()
+          ? "repeat_turn_off_title".localized : "repeat_turn_on_title".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.viewModel.handleEnableRepeat()
+        }
+      )
+    )
+
     actionSheet.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
 
     if let popoverPresentationController = actionSheet.popoverPresentationController {

@@ -128,7 +128,8 @@ class PlayerViewModel: ViewModelProtocol {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
-       let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter) {
+      let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
+    {
       self.playerManager.jumpToChapter(previousChapter)
       sendEvent(.updateProgress(getCurrentProgressState()))
     } else {
@@ -140,7 +141,8 @@ class PlayerViewModel: ViewModelProtocol {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
     if let currentChapter = self.playerManager.currentItem?.currentChapter,
-       let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter) {
+      let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
+    {
       self.playerManager.jumpToChapter(nextChapter)
       sendEvent(.updateProgress(getCurrentProgressState()))
     } else {
@@ -152,26 +154,33 @@ class PlayerViewModel: ViewModelProtocol {
     return self.playerManager.currentItem?.isFinished ?? false
   }
 
+  func isRepeatEnabled() -> Bool {
+    guard let currentItem = self.playerManager.currentItem else { return false }
+    return UserDefaults.standard.bool(
+      forKey: currentItem.filename + Constants.UserDefaults.repeatEnabledSuffix
+    )
+  }
+
   func getBookCurrentTime() -> TimeInterval {
     return self.playerManager.currentItem?.currentTimeInContext(self.prefersChapterContext) ?? 0
   }
 
   func getCurrentTimeVoiceOverPrefix() -> String {
     return self.prefersChapterContext
-    ? "voiceover_chapter_time_title".localized
-    : "book_time_current_title".localized
+      ? "voiceover_chapter_time_title".localized
+      : "book_time_current_title".localized
   }
 
   func getMaxTimeVoiceOverPrefix() -> String {
     if self.prefersChapterContext {
       return self.prefersRemainingTime
-      ? "chapter_time_remaining_title".localized
-      : "chapter_duration_title".localized
+        ? "chapter_time_remaining_title".localized
+        : "chapter_duration_title".localized
     }
 
     return self.prefersRemainingTime
-    ? "book_time_remaining_title".localized
-    : "book_duration_title".localized
+      ? "book_time_remaining_title".localized
+      : "book_duration_title".localized
   }
 
   func handlePlayPauseAction() {
@@ -202,6 +211,14 @@ class PlayerViewModel: ViewModelProtocol {
     self.playerManager.markAsCompleted(!self.isBookFinished())
   }
 
+  func handleEnableRepeat() {
+    guard let filename = self.playerManager.currentItem?.filename else { return }
+    UserDefaults.standard.set(
+      !isRepeatEnabled(),
+      forKey: filename + Constants.UserDefaults.repeatEnabledSuffix
+    )
+  }
+
   func processToggleMaxTime() -> ProgressObject {
     self.prefersRemainingTime = !self.prefersRemainingTime
     sharedDefaults.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)
@@ -225,9 +242,14 @@ class PlayerViewModel: ViewModelProtocol {
     let currentItem = item ?? self.playerManager.currentItem
 
     if self.prefersChapterContext,
-       let currentItem = currentItem,
-       let currentChapter = currentItem.currentChapter {
-      progress = String.localizedStringWithFormat("player_chapter_description".localized, currentChapter.index, currentItem.chapters.count)
+      let currentItem = currentItem,
+      let currentChapter = currentItem.currentChapter
+    {
+      progress = String.localizedStringWithFormat(
+        "player_chapter_description".localized,
+        currentChapter.index,
+        currentItem.chapters.count
+      )
       sliderValue = Float((currentItem.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
       progress = "\(Int(round((currentItem?.progressPercentage ?? 0) * 100)))%"
@@ -237,12 +259,14 @@ class PlayerViewModel: ViewModelProtocol {
     // Update local chapter
     self.chapterBeforeSliderValueChange = currentItem?.currentChapter
 
-    let prevChapterImageName = self.hasChapter(before: currentItem?.currentChapter)
-    ? "chevron.left"
-    : "chevron.left.2"
-    let nextChapterImageName = self.hasChapter(after: currentItem?.currentChapter)
-    ? "chevron.right"
-    : "chevron.right.2"
+    let prevChapterImageName =
+      self.hasChapter(before: currentItem?.currentChapter)
+      ? "chevron.left"
+      : "chevron.left.2"
+    let nextChapterImageName =
+      self.hasChapter(after: currentItem?.currentChapter)
+      ? "chevron.right"
+      : "chevron.right.2"
 
     return ProgressObject(
       currentTime: currentTime,
@@ -252,8 +276,8 @@ class PlayerViewModel: ViewModelProtocol {
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
       chapterTitle: currentItem?.currentChapter?.title
-      ?? currentItem?.title
-      ?? ""
+        ?? currentItem?.title
+        ?? ""
     )
   }
 
@@ -273,7 +297,8 @@ class PlayerViewModel: ViewModelProtocol {
     var nextChapterImageName = "chevron.right.2"
     var newCurrentTime: TimeInterval
     if self.prefersChapterContext,
-       let currentChapter = self.chapterBeforeSliderValueChange {
+      let currentChapter = self.chapterBeforeSliderValueChange
+    {
       newCurrentTime = TimeInterval(value) * currentChapter.duration
       chapterTitle = currentChapter.title
 
@@ -317,8 +342,8 @@ class PlayerViewModel: ViewModelProtocol {
       prevChapterImageName: prevChapterImageName,
       nextChapterImageName: nextChapterImageName,
       chapterTitle: chapterTitle ?? self.chapterBeforeSliderValueChange?.title
-      ?? self.playerManager.currentItem?.title
-      ?? ""
+        ?? self.playerManager.currentItem?.title
+        ?? ""
     )
   }
 
@@ -334,7 +359,8 @@ class PlayerViewModel: ViewModelProtocol {
     var newTimeToDisplay = TimeInterval(value) * (self.playerManager.currentItem?.duration ?? 0)
 
     if self.prefersChapterContext,
-       let currentChapter = self.chapterBeforeSliderValueChange {
+      let currentChapter = self.chapterBeforeSliderValueChange
+    {
       newTimeToDisplay = currentChapter.start + TimeInterval(value) * currentChapter.duration
     }
 
@@ -348,9 +374,9 @@ class PlayerViewModel: ViewModelProtocol {
     // request for review if app is active
     guard UIApplication.shared.applicationState == .active else { return }
 
-#if RELEASE
-    AppDelegate.shared?.requestReview()
-#endif
+    #if RELEASE
+      AppDelegate.shared?.requestReview()
+    #endif
 
     UserDefaults.standard.set(false, forKey: "ask_review")
   }
@@ -417,14 +443,16 @@ class PlayerViewModel: ViewModelProtocol {
 
     actions.append(BPActionItem.cancelAction)
 
-    sendEvent(.sleepTimerAlert(
-      content: BPAlertContent(
-        title: nil,
-        message: getSleepTimerAlertMessage(),
-        style: .actionSheet,
-        actionItems: actions
+    sendEvent(
+      .sleepTimerAlert(
+        content: BPAlertContent(
+          title: nil,
+          message: getSleepTimerAlertMessage(),
+          style: .actionSheet,
+          actionItems: actions
+        )
       )
-    ))
+    )
   }
 
   func getSleepTimerAlertMessage() -> String {
@@ -514,23 +542,38 @@ extension PlayerViewModel {
   func showBookmarkSuccessAlert(vc: UIViewController, bookmark: SimpleBookmark, existed: Bool) {
     let formattedTime = TimeParser.formatTime(bookmark.time)
 
-    let titleKey = existed
-    ? "bookmark_exists_title"
-    : "bookmark_created_title"
+    let titleKey =
+      existed
+      ? "bookmark_exists_title"
+      : "bookmark_created_title"
 
-    let alert = UIAlertController(title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
-                                  message: nil,
-                                  preferredStyle: .alert)
+    let alert = UIAlertController(
+      title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
+      message: nil,
+      preferredStyle: .alert
+    )
 
     if !existed {
-      alert.addAction(UIAlertAction(title: "bookmark_note_action_title".localized, style: .default, handler: { [weak self] _ in
-        self?.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
-      }))
+      alert.addAction(
+        UIAlertAction(
+          title: "bookmark_note_action_title".localized,
+          style: .default,
+          handler: { [weak self] _ in
+            self?.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
+          }
+        )
+      )
     }
 
-    alert.addAction(UIAlertAction(title: "bookmarks_see_title".localized, style: .default, handler: { [weak self] _ in
-      self?.showBookmarks()
-    }))
+    alert.addAction(
+      UIAlertAction(
+        title: "bookmarks_see_title".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          self?.showBookmarks()
+        }
+      )
+    )
 
     alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
 
@@ -538,27 +581,35 @@ extension PlayerViewModel {
   }
 
   func showBookmarkNoteAlert(vc: UIViewController, bookmark: SimpleBookmark) {
-    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
-                                  message: nil,
-                                  preferredStyle: .alert)
+    let alert = UIAlertController(
+      title: "bookmark_note_action_title".localized,
+      message: nil,
+      preferredStyle: .alert
+    )
 
     alert.addTextField(configurationHandler: { textfield in
       textfield.text = ""
     })
 
     alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { [weak self] _ in
-      guard let note = alert.textFields?.first?.text else {
-        return
-      }
+    alert.addAction(
+      UIAlertAction(
+        title: "ok_button".localized,
+        style: .default,
+        handler: { [weak self] _ in
+          guard let note = alert.textFields?.first?.text else {
+            return
+          }
 
-      self?.libraryService.addNote(note, bookmark: bookmark)
-      self?.syncService.scheduleSetBookmark(
-        relativePath: bookmark.relativePath,
-        time: bookmark.time,
-        note: note
+          self?.libraryService.addNote(note, bookmark: bookmark)
+          self?.syncService.scheduleSetBookmark(
+            relativePath: bookmark.relativePath,
+            time: bookmark.time,
+            note: note
+          )
+        }
       )
-    }))
+    )
 
     vc.present(alert, animated: true, completion: nil)
   }

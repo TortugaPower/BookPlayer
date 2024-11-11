@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "后退 ${interval}";
 "settings_lock_orientation_title" = "方向已锁定";
 "more_title" = "更多的";
+"repeat_turn_on_title" = "为这本书开启重复";
+"repeat_turn_off_title" = "关闭此书的重复功能";

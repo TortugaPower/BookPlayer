@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Перемотати ${interval}";
 "settings_lock_orientation_title" = "Орієнтація заблокована";
 "more_title" = "більше";
+"repeat_turn_on_title" = "Увімкніть повтор для цієї книги";
+"repeat_turn_off_title" = "Вимкніть повтор для цієї книги";

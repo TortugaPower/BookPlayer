@@ -319,3 +319,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "Rewind ${interval}" = "Pretočiť ${interval}";
 "settings_lock_orientation_title" = "Orientácia uzamknutá";
 "more_title" = "Viac";
+"repeat_turn_on_title" = "Pre túto knihu zapnite možnosť Opakovať";
+"repeat_turn_off_title" = "Vypnúť Opakovať pre túto knihu";

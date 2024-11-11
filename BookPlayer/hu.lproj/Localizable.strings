@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Visszatekerés ${interval}";
 "settings_lock_orientation_title" = "Tájolás zárolva";
 "more_title" = "Több";
+"repeat_turn_on_title" = "Kapcsolja be az Ismétlés funkciót ennél a könyvnél";
+"repeat_turn_off_title" = "Kapcsolja ki az Ismétlés funkciót ennél a könyvnél";

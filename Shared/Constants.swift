@@ -40,6 +40,7 @@ public enum Constants {
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
     public static let lastEnabledTimer = "userSettingsLastEnabledTimer"
+    public static let repeatEnabledSuffix = "_repeatEnabled"
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"

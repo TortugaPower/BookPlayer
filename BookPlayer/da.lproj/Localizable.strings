@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Spol ${interval} tilbage";
 "settings_lock_orientation_title" = "Orientering låst";
 "more_title" = "Mere";
+"repeat_turn_on_title" = "Slå Gentag til for denne bog";
+"repeat_turn_off_title" = "Slå Gentag fra for denne bog";

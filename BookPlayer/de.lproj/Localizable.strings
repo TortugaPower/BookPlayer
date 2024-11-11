@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Zurückspulen ${interval}";
 "settings_lock_orientation_title" = "Ausrichtung gesperrt";
 "more_title" = "Mehr";
+"repeat_turn_on_title" = "Aktivieren Sie die Option „Wiederholen“ für dieses Buch";
+"repeat_turn_off_title" = "Deaktivieren Sie „Wiederholen“ für dieses Buch";
