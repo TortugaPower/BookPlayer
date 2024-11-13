@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "ترجيع ${interval}";
 "settings_lock_orientation_title" = "الاتجاه مغلق";
 "more_title" = "أكثر";
+"repeat_turn_on_title" = "قم بتشغيل التكرار لهذا الكتاب";
+"repeat_turn_off_title" = "إيقاف تكرار هذا الكتاب";

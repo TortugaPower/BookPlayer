@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Riavvolgi ${interval}";
 "settings_lock_orientation_title" = "Orientamento bloccato";
 "more_title" = "Di più";
+"repeat_turn_on_title" = "Attiva Ripeti per questo libro";
+"repeat_turn_off_title" = "Disattiva Ripeti per questo libro";

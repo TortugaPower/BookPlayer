@@ -66,9 +66,14 @@ struct ItemDetailsForm: View {
       Section {
         EmptyView()
       } footer: {
-        Text(viewModel.originalFileName)
-          .font(Font(Fonts.body))
-          .foregroundColor(themeViewModel.secondaryColor)
+        VStack(alignment: .leading) {
+          Text(viewModel.originalFileName)
+            .font(Font(Fonts.body))
+            .foregroundColor(themeViewModel.secondaryColor)
+          Text("\(Int(viewModel.progress * 100))%")
+            .font(Font(Fonts.body))
+            .foregroundColor(themeViewModel.secondaryColor)
+        }
       }
     }
     .onChange(of: viewModel.selectedImage, perform: { _ in
