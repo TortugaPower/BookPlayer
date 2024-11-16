@@ -29,11 +29,13 @@ class LibraryListCoordinatorTests: XCTestCase {
     playerManagerMock.currentSpeedPublisherReturnValue = Just(1.0).eraseToAnyPublisher()
     playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
     let syncServiceMock = SyncServiceProtocolMock()
+    let keychainServiceMock = KeychainServiceProtocolMock()
+    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient(keychain: keychainServiceMock))
 
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       playerManager: playerManagerMock,
-      singleFileDownloadService: coreServices.singleFileDownloadService,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
       syncService: syncServiceMock,

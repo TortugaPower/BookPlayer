@@ -16,7 +16,6 @@ struct CoreServices {
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
-  let singleFileDownloadService: SingleFileDownloadService
   let playerLoaderService: PlayerLoaderService
   let watchService: PhoneWatchConnectivityService
 }

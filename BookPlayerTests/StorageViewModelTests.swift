@@ -68,7 +68,6 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     let syncService = SyncServiceProtocolMock()
     let playbackService = PlaybackServiceProtocolMock()
     let playerManager = PlayerManagerProtocolMock()
-    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
 
     /// Avoid making the second onboarding network call
     AppDelegate.shared?.coreServices = CoreServices(
@@ -78,7 +77,6 @@ final class StorageViewModelMissingFileTests: XCTestCase {
       libraryService: libraryService,
       playbackService: playbackService,
       playerManager: playerManager,
-      singleFileDownloadService: singleFileDownloadService,
       playerLoaderService: PlayerLoaderService(
         syncService: syncService,
         libraryService: libraryService,

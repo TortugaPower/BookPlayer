@@ -135,9 +135,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let singleFileDownloadService = SingleFileDownloadService(
-        networkClient: NetworkClient()
-      )
       let coreServices = CoreServices(
         dataManager: dataManager,
         accountService: accountService,
@@ -145,7 +142,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
-        singleFileDownloadService: singleFileDownloadService,
         playerLoaderService: playerLoaderService,
         watchService: watchService
       )

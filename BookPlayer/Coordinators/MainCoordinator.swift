@@ -37,7 +37,7 @@ class MainCoordinator: NSObject {
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
-    self.singleFileDownloadService = coreServices.singleFileDownloadService
+    self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
 
     ThemeManager.shared.libraryService = libraryService
