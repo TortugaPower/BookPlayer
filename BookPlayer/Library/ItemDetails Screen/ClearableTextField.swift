@@ -15,26 +15,18 @@ struct ClearableTextField: View {
   /// Input's text
   @Binding var text: String
 
-  public var keyboardType: UIKeyboardType = .default
-  public var textContentType: UITextContentType? = nil
-  public var autocapitalization: UITextAutocapitalizationType = .sentences
-
   /// Current theme
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
-  init(_ placeholder: String, text: Binding<String>, configure: ((inout ClearableTextField) -> ())? = nil) {
+  init(_ placeholder: String, text: Binding<String>) {
     self.placeholder = placeholder
     _text = text
-    configure?(&self)
   }
 
   var body: some View {
     HStack {
-      textField
+      TextField(placeholder, text: $text)
         .foregroundColor(themeViewModel.primaryColor)
-        .keyboardType(keyboardType)
-        .textContentType(textContentType)
-        .autocapitalization(autocapitalization)
       Image(systemName: "clear.fill")
         .foregroundColor(themeViewModel.secondaryColor)
         .onTapGesture {
@@ -42,15 +34,6 @@ struct ClearableTextField: View {
         }
         .accessibilityAddTraits(.isButton)
         .accessibilityRemoveTraits(.isImage)
-    }
-  }
-
-  @ViewBuilder
-  private var textField: some View {
-    if textContentType == .password {
-      SecureField(placeholder, text: $text)
-    } else {
-      TextField(placeholder, text: $text)
     }
   }
 }

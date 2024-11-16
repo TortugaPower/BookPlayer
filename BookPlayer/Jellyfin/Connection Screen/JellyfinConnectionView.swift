@@ -20,11 +20,10 @@ struct JellyfinConnectionView: View {
 
     var body: some View {
       Section {
-        ClearableTextField("jellyfin_server_url_placeholder".localized, text: serverUrl) {
-          $0.keyboardType = .URL
-          $0.textContentType = .URL
-          $0.autocapitalization = .none
-        }
+        ClearableTextField("jellyfin_server_url_placeholder".localized, text: serverUrl)
+          .keyboardType(.URL)
+          .textContentType(.URL)
+          .autocapitalization(.none)
       } header: {
         Text("jellyfin_section_server_url".localized)
           .foregroundColor(themeViewModel.secondaryColor)
@@ -60,14 +59,10 @@ struct JellyfinConnectionView: View {
         Text("jellyfin_section_server".localized)
       }
       Section {
-        ClearableTextField("jellyfin_username_placeholder".localized, text: username) {
-          $0.textContentType = .name
-          $0.autocapitalization = .none
-        }
-        ClearableTextField("jellyfin_password_placeholder".localized, text: password) {
-          $0.textContentType = .password
-          $0.autocapitalization = .none
-        }
+        ClearableTextField("jellyfin_username_placeholder".localized, text: username)
+          .textContentType(.name)
+          .autocapitalization(.none)
+        SecureField("jellyfin_password_placeholder".localized, text: password)
       } header: {
         Text("jellyfin_section_login".localized)
       }
