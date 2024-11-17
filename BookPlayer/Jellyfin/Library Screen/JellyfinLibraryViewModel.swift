@@ -62,6 +62,11 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 }
 
 class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
+  enum Routes {
+    case signOut
+    case done
+  }
+
   weak var coordinator: JellyfinCoordinator!
 
   private let apiClient: JellyfinClient
@@ -72,6 +77,8 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
   @Published var userViews: [JellyfinLibraryItem] = []
 
   private var fetchTask: Task<(), any Error>?
+
+  public var onTransition: BPTransition<Routes>?
 
   init(libraryName: String, userID: String, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
     self.apiClient = apiClient
@@ -109,5 +116,13 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
     return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
+  }
+
+  func handleSignOutAction() {
+    onTransition?(.signOut)
+  }
+
+  func handleDoneAction() {
+    onTransition?(.done)
   }
 }

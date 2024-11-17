@@ -110,8 +110,6 @@ class JellyfinCoordinator: Coordinator {
   private func createJellyfinLoginScreen() -> UIViewController {
     let viewModel = JellyfinConnectionViewModel()
     viewModel.coordinator = self
-    let vc = JellyfinConnectionViewController(viewModel: viewModel)
-    
     viewModel.onTransition = { [viewModel] route in
       switch route {
       case .cancel:
@@ -139,12 +137,40 @@ class JellyfinCoordinator: Coordinator {
       }
     }
     
+    let vc = JellyfinConnectionViewController(viewModel: viewModel)
     return vc
   }
   
   private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
     let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, userID: userID, apiClient: client, singleFileDownloadService: singleFileDownloadService)
     viewModel.coordinator = self
+
+    viewModel.onTransition = { route in
+      switch route {
+      case .signOut:
+        if let apiClientForTask = self.apiClient {
+          Task {
+            try await apiClientForTask.signOut()
+            // we don't care if this throws
+          }
+        }
+        
+        do {
+          try self.keychainService.remove(.jellyfinConnection)
+        } catch {
+          // ignore
+        }
+        
+        self.apiClient = nil
+        self.userID = nil
+        self.libraryName = nil
+
+      case .done:
+        break
+      }
+      viewModel.dismiss()
+    }
+
     let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
     return vc
   }

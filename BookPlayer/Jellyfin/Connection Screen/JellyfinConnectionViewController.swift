@@ -105,7 +105,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
         }
       case .foundServer:
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-          title: "jellyfin_login_button".localized,
+          title: "jellyfin_sign_in_button".localized,
           style: .done,
           target: self,
           action: #selector(self.didTapLogin)
