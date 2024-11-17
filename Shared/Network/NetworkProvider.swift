@@ -8,7 +8,7 @@
 
 import Foundation
 
-class NetworkProvider<RawEndpoint: Endpoint> {
+public class NetworkProvider<RawEndpoint: Endpoint> {
   public let client: NetworkClientProtocol
 
   public init(client: NetworkClientProtocol = NetworkClient()) {

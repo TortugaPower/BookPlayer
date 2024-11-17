@@ -53,9 +53,9 @@ extension AccountAPI: Endpoint {
   }
 }
 
-struct LoginResponse: Decodable {
-  let email: String
-  let token: String
+public struct LoginResponse: Decodable {
+  public let email: String
+  public let token: String
 }
 
 struct DeleteResponse: Decodable {
