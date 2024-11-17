@@ -34,7 +34,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    accountService: AccountServiceProtocol
+    accountService: AccountServiceProtocol,
+    keychainService: KeychainServiceProtocol
   ) {
     self.accountService = accountService
 
@@ -46,7 +47,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: listRefreshService
+      listRefreshService: listRefreshService,
+      keychainService: keychainService
     )
   }
 

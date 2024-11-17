@@ -334,3 +334,4 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_section_login" = "Log in";
 "jellyfin_username_placeholder" = "Username";
 "jellyfin_password_placeholder" = "Password";
+"jellyfin_password_remember_me_label" = "Remember Me";

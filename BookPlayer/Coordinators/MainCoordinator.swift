@@ -95,7 +95,8 @@ class MainCoordinator: NSObject {
         playerManager: playerManager,
         syncService: syncService
       ),
-      accountService: self.accountService
+      accountService: self.accountService,
+      keychainService: KeychainService()
     )
     playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator

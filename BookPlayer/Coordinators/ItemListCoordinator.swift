@@ -19,16 +19,10 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
+  let keychainService: KeychainServiceProtocol
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
-
-  lazy var jellyfinCoordinator: JellyfinCoordinator = {
-    JellyfinCoordinator(
-      flow: .modalFlow(presentingController: flow.navigationController),
-      singleFileDownloadService: singleFileDownloadService
-    )
-  }()
 
   init(
     flow: BPCoordinatorPresentationFlow,
@@ -38,7 +32,8 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
-    listRefreshService: ListSyncRefreshService
+    listRefreshService: ListSyncRefreshService,
+    keychainService: KeychainServiceProtocol
   ) {
     self.flow = flow
     self.playerManager = playerManager
@@ -48,6 +43,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     self.syncService = syncService
     self.importManager = importManager
     self.listRefreshService = listRefreshService
+    self.keychainService = keychainService
   }
 
   func start() {
@@ -69,7 +65,8 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: listRefreshService
+      listRefreshService: listRefreshService,
+      keychainService: keychainService
     )
     child.start()
   }
@@ -172,7 +169,12 @@ extension ItemListCoordinator {
   }
 
   func showJellyfinDownloader() {
-    jellyfinCoordinator.start()
+    let child = JellyfinCoordinator(
+      flow: .modalFlow(presentingController: flow.navigationController),
+      singleFileDownloadService: singleFileDownloadService,
+      keychainService: keychainService
+    )
+    child.start()
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {

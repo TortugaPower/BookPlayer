@@ -131,21 +131,9 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       return
     }
 
-    let mainBundleInfo = Bundle.main.infoDictionary
-    let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
-    let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
-    let deviceID = UIDevice.current.identifierForVendor
-    guard let url = URL(string: viewModel.form.serverUrl), let clientName, let clientVersion, let deviceID else {
+    guard let apiClient = JellyfinCoordinator.createClient(serverUrlString: viewModel.form.serverUrl) else {
       return
     }
-    let configuration = JellyfinClient.Configuration(
-      url: url,
-      client: clientName,
-      deviceName: UIDevice.current.name,
-      deviceID: "\(deviceID.uuidString)-\(clientName)",
-      version: clientVersion
-    )
-    let apiClient = JellyfinClient(configuration: configuration)
 
     apiTask = Task {
       defer { self.apiTask = nil }
@@ -170,7 +158,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       let authResult = try await apiClient.signIn(username: username, password: password)
       if let _ = authResult.accessToken, let userID = authResult.user?.id {
         self.viewModel.connectionState = .connected
-        self.viewModel.handleConnectedEvent(forLibrary:viewModel.form.serverName ?? "", userID: userID, client: apiClient)
+        self.viewModel.handleConnectedEvent(userID: userID, client: apiClient)
       }
     }
   }
