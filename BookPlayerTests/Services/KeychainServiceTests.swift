@@ -18,17 +18,17 @@ class KeychainServiceTests: XCTestCase {
 
   override func setUp() {
     self.sut = KeychainService()
-    try? self.sut.removeAccessToken()
+    try? self.sut.remove(.token)
   }
 
   func testSettingAndGettingKey() throws {
-    let emptyToken = try! self.sut.getAccessToken()
+    let emptyToken = try! self.sut.get(.token)
     XCTAssert(emptyToken == nil)
-    try! self.sut.setAccessToken("test token")
-    let token = try! self.sut.getAccessToken()
+    try! self.sut.set("test token", key: .token)
+    let token = try! self.sut.get(.token)
     XCTAssert(token == "test token")
-    try! self.sut.setAccessToken("updated token")
-    let updatedToken = try! self.sut.getAccessToken()
+    try! self.sut.set("updated token", key: .token)
+    let updatedToken = try! self.sut.get(.token)
     XCTAssert(updatedToken == "updated token")
   }
 }

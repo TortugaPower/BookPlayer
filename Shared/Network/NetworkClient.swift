@@ -219,7 +219,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     if useKeychain,
-       let accessToken = try? keychain.getAccessToken() {
+       let accessToken: String = try? keychain.get(.token) {
       request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     }
 

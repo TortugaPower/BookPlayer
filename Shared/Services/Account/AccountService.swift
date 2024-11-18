@@ -270,7 +270,7 @@ public final class AccountService: AccountServiceProtocol {
       hasSubscription: true
     )
 
-    try self.keychain.setAccessToken(token)
+    try self.keychain.set(token, key: .token)
 
     _ = try await Purchases.shared.logIn(userId)
   }
@@ -281,7 +281,7 @@ public final class AccountService: AccountServiceProtocol {
   ) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
 
-    try self.keychain.setAccessToken(response.token)
+    try self.keychain.set(response.token, key: .token)
 
     let (customerInfo, _) = try await Purchases.shared.logIn(userId)
 
@@ -318,7 +318,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func logout() throws {
-    try self.keychain.removeAccessToken()
+    try self.keychain.remove(.token)
 
     self.updateAccount(
       id: "",
