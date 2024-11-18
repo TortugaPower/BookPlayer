@@ -15,7 +15,7 @@ class ProfileViewModel: ObservableObject {
   private let keychain = KeychainService()
 
   func handleLogOut() async throws {
-    try keychain.removeAccessToken()
+    try keychain.remove(.token)
     _ = try await Purchases.shared.logOut()
     UserDefaults.standard.removeObject(forKey: "userEmail")
     /// Delete downloaded files

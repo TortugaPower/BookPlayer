@@ -27,7 +27,7 @@ class LoginViewModel: ObservableObject {
       }
 
       let response: LoginResponse = try await provider.request(.login(token: token))
-      try self.keychain.setAccessToken(response.token)
+      try self.keychain.set(response.token, key: .token)
       _ = try await Purchases.shared.logIn(appleIDCredential.user)
       UserDefaults.standard.set(response.email, forKey: "userEmail")
     default:
