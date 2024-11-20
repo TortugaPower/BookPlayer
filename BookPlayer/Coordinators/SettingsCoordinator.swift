@@ -205,9 +205,51 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   private func showJellyfinConnectionManagement() {
     let viewModel = JellyfinConnectionViewModel()
     viewModel.loadConnectionData(from: keychainService)
-    let vc = JellyfinConnectionViewController(viewModel: viewModel)
-    let subflow = BPModalPresentationFlow(presentingController: flow.navigationController)
-    subflow.startPresentation(vc, animated: true)
+    
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .cancel:
+        self?.flow.navigationController.dismiss(animated: true)
+      case .signInFinished(userID: _, client: _):
+        break
+      case .signOut:
+        self?.handleJellyfinSignOut()
+        self?.flow.navigationController.dismiss(animated: true)
+      case .showLibrary:
+        break
+      }
+    }
+
+    let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
+  }
+  
+  private func handleJellyfinSignOut() {
+    // TODO reuse JellyfinCoordinator or move to new service
+    do {
+      if let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection),
+         data.isValid,
+         let apiClient = JellyfinCoordinator.createClient(serverUrlString: data.url.absoluteString, accessToken: data.accessToken)
+      {
+        Task {
+          try await apiClient.signOut()
+          // we don't care if this throws
+        }
+      }
+    } catch {
+      // ignore
+    }
+    
+    do {
+      try self.keychainService.remove(.jellyfinConnection)
+    } catch {
+      // ignore
+    }
+    
+    DispatchQueue.main.async {
+      NotificationCenter.default.post(name: .jellyfinConnectionUpdate, object: nil)
+    }
   }
 
   func showThemes() {

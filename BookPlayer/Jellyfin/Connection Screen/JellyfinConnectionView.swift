@@ -24,6 +24,19 @@ struct JellyfinConnectionView: View {
     }
     .defaultFormBackground()
     .environmentObject(themeViewModel)
+    .navigationTitle("jellyfin_connection_details_title".localized)
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .navigationBarLeading) {
+        Button(
+          action: viewModel.handleCancelAction,
+          label: {
+            Image(systemName: "xmark")
+              .foregroundColor(themeViewModel.linkColor)
+          }
+        )
+      }
+    }
   }
 
   @ViewBuilder
