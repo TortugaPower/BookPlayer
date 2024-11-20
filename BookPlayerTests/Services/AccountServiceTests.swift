@@ -15,12 +15,12 @@ import XCTest
 
 class AccountServiceTests: XCTestCase {
   var sut: AccountService!
-  var mockKeychain: KeychainServiceProtocolMock!
+  var mockKeychain: KeychainService!
 
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    self.mockKeychain = KeychainServiceProtocolMock()
+    self.mockKeychain = KeychainService()
     self.sut = AccountService(
       dataManager: dataManager,
       client: NetworkClientMock(mockedResponse: Empty()),
@@ -89,7 +89,7 @@ class AccountServiceTests: XCTestCase {
 
     try self.sut.logout()
 
-    XCTAssert(try mockKeychain.getAccessToken() == nil)
+    XCTAssert(try mockKeychain.get(.token) == nil)
     let account = self.sut.getAccount()
     XCTAssert(account?.donationMade == true)
     XCTAssert(account?.hasSubscription == false)
@@ -100,7 +100,7 @@ class AccountServiceTests: XCTestCase {
   func testDeleteAccoount() async throws {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mockResponse = DeleteResponse(message: "success")
-    let keychainMock = KeychainServiceProtocolMock()
+    let keychainMock = KeychainService()
 
     self.sut = AccountService(
       dataManager: dataManager,
@@ -115,6 +115,6 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(result == "success")
     XCTAssert(self.sut.hasAccount() == true)
     XCTAssert(self.sut.getAccount()?.hasSubscription == false)
-    XCTAssert(try mockKeychain.getAccessToken() == nil)
+    XCTAssert(try mockKeychain.get(.token) == nil)
   }
 }

@@ -10,6 +10,7 @@ import Foundation
 
 protocol AlertPresenter: AnyObject {
   func showAlert(_ title: String?, message: String?, completion: (() -> Void)?)
+  func showAlert(_ content: BPAlertContent)
   func showLoader()
   func stopLoader()
 }
@@ -19,6 +20,8 @@ protocol AlertPresenter: AnyObject {
 /// so we don't need to pass an `AlertPresenter` as a parameter
 class VoidAlertPresenter: AlertPresenter {
   func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {}
+
+  func showAlert(_ content: BPAlertContent) {}
 
   func showLoader() {}
 

@@ -1360,7 +1360,11 @@ extension ItemListViewModel: AlertPresenter {
       )
     ))
   }
-  
+
+  func showAlert(_ content: BPAlertContent) {
+    sendEvent(.showAlert(content: content))
+  }
+
   func showLoader() {
     sendEvent(.showLoader(flag: true))
   }

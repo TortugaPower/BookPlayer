@@ -319,3 +319,5 @@
 "Rewind ${interval}" = "Přetočit ${interval}";
 "settings_lock_orientation_title" = "Orientace uzamčena";
 "more_title" = "Více";
+"repeat_turn_on_title" = "Zapněte opakování pro tuto knihu";
+"repeat_turn_off_title" = "Vypnout opakování pro tuto knihu";

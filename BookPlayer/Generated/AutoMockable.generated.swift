@@ -12,62 +12,6 @@ import AppKit
 import Combine
 import BookPlayerKit
 @testable import BookPlayer
-class KeychainServiceProtocolMock: KeychainServiceProtocol {
-    //MARK: - setAccessToken
-
-    var setAccessTokenThrowableError: Error?
-    var setAccessTokenCallsCount = 0
-    var setAccessTokenCalled: Bool {
-        return setAccessTokenCallsCount > 0
-    }
-    var setAccessTokenReceivedToken: String?
-    var setAccessTokenReceivedInvocations: [String] = []
-    var setAccessTokenClosure: ((String) throws -> Void)?
-    func setAccessToken(_ token: String) throws {
-        if let error = setAccessTokenThrowableError {
-            throw error
-        }
-        setAccessTokenCallsCount += 1
-        setAccessTokenReceivedToken = token
-        setAccessTokenReceivedInvocations.append(token)
-        try setAccessTokenClosure?(token)
-    }
-    //MARK: - getAccessToken
-
-    var getAccessTokenThrowableError: Error?
-    var getAccessTokenCallsCount = 0
-    var getAccessTokenCalled: Bool {
-        return getAccessTokenCallsCount > 0
-    }
-    var getAccessTokenReturnValue: String?
-    var getAccessTokenClosure: (() throws -> String?)?
-    func getAccessToken() throws -> String? {
-        if let error = getAccessTokenThrowableError {
-            throw error
-        }
-        getAccessTokenCallsCount += 1
-        if let getAccessTokenClosure = getAccessTokenClosure {
-            return try getAccessTokenClosure()
-        } else {
-            return getAccessTokenReturnValue
-        }
-    }
-    //MARK: - removeAccessToken
-
-    var removeAccessTokenThrowableError: Error?
-    var removeAccessTokenCallsCount = 0
-    var removeAccessTokenCalled: Bool {
-        return removeAccessTokenCallsCount > 0
-    }
-    var removeAccessTokenClosure: (() throws -> Void)?
-    func removeAccessToken() throws {
-        if let error = removeAccessTokenThrowableError {
-            throw error
-        }
-        removeAccessTokenCallsCount += 1
-        try removeAccessTokenClosure?()
-    }
-}
 class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> {
         get { return underlyingMetadataUpdatePublisher }

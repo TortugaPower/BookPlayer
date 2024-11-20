@@ -13,9 +13,9 @@
 "Turn on the sleep timer in ${applicationName}" = "Zapnúť časovač spánku v ${applicationName}";
 "Enable the sleep timer in ${applicationName}" = "Povoliť časovač spánku v ${applicationName}";
 "Rewind in ${applicationName}" = "Pretočiť späť v ${applicationName}";
-"Jump back in ${applicationName}" = "Skočiť späť do ${applicationName}";
+"Jump back in ${applicationName}" = "Skočiť späť v ${applicationName}";
 "Skip back in ${applicationName}" = "Preskočiť späť v ${applicationName}";
-"Go back in ${applicationName}" = "Vráťte sa do ${applicationName}";
+"Go back in ${applicationName}" = "Vrátiť späť v ${applicationName}";
 "Fast forward in ${applicationName}" = "Rýchly posun dopredu v ${applicationName}";
 "Skip forward in ${applicationName}" = "Preskočiť vpred v ${applicationName}";
 "Jump forward in ${applicationName}" = "Skočiť vpred v ${applicationName}";

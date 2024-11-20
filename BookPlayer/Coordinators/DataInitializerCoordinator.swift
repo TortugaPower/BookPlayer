@@ -58,6 +58,7 @@ class DataInitializerCoordinator: BPLogger {
       || error.code == NSMigrationMissingMappingModelError || error.code == NSMigrationManagerSourceStoreError
       || error.code == NSMigrationManagerDestinationStoreError || error.code == NSEntityMigrationPolicyError
       || error.code == NSValidationMultipleErrorsError || error.code == NSValidationMissingMandatoryPropertyError
+      || error.code == NSPersistentStoreIncompatibleSchemaError
     {
       Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
       await MainActor.run {
@@ -74,17 +75,33 @@ class DataInitializerCoordinator: BPLogger {
           \(error.localizedDescription)
 
           Error Domain
-          \(error.domain)
+          \(error.domain) (\(error.code)
 
           Additional Info
           \(error.userInfo)
           """
         alertPresenter.showAlert(
-          "error_title".localized,
-          message: errorDescription
-        ) {
-          fatalError("Unresolved error \(error.localizedDescription)")
-        }
+          BPAlertContent(
+            title: "error_title".localized,
+            message: errorDescription,
+            style: .alert,
+            actionItems: [
+              BPActionItem(
+                title: "ok_button".localized,
+                handler: {
+                  fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
+                }
+              ),
+              .init(
+                title: "Reset and recover database",
+                style: .destructive,
+                handler: {
+                  self.recoverLibraryFromFailedMigration()
+                }
+              ),
+            ]
+          )
+        )
       }
     }
   }

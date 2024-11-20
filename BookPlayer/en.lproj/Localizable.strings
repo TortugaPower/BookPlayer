@@ -320,6 +320,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "Rewind ${interval}" = "Rewind ${interval}";
 "settings_lock_orientation_title" = "Orientation Locked";
 "more_title" = "More";
+"repeat_turn_on_title" = "Turn on Repeat for this book";
+"repeat_turn_off_title" = "Turn off Repeat for this book";
 "jellyfin_connection_title" = "Jellyfin";
 "jellyfin_connect_button" = "Connect";
 "jellyfin_login_button" = "Log in";
