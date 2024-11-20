@@ -26,6 +26,10 @@ public struct JellyfinConnectionData: Codable {
   public let userID: String
   public let userName: String
   public let accessToken: String
+  
+  public var isValid: Bool {
+    return !userID.isEmpty && !accessToken.isEmpty
+  }
 }
 
 class JellyfinCoordinator: Coordinator {
@@ -95,7 +99,9 @@ class JellyfinCoordinator: Coordinator {
 
   private func tryLoginWithSavedConnection(connectionViewModel: JellyfinConnectionViewModel) {
     do {
-      guard let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection) else {
+      guard let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection),
+            data.isValid
+      else {
         return
       }
 
@@ -113,6 +119,7 @@ class JellyfinCoordinator: Coordinator {
       // ignore issues retrieving the connection, we'll just have to prompt again and save the new data
     }
   }
+
   private func createJellyfinLoginScreen() -> JellyfinConnectionViewController {
     let viewModel = JellyfinConnectionViewModel()
     viewModel.coordinator = self
@@ -124,7 +131,7 @@ class JellyfinCoordinator: Coordinator {
         self.handleSignInFinished(userID: userID, client: client, connectionViewModel: viewModel)
       case .signOut:
         self.handleSignOut()
-        viewModel.reset()
+        viewModel.loadConnectionData(from: self.keychainService)
       case .showLibrary:
         self.showLibraryView()
       }
@@ -167,6 +174,7 @@ class JellyfinCoordinator: Coordinator {
     self.apiClient = client
     self.userID = userID
     self.libraryName = viewModel.form.serverName ?? ""
+    self.notifyConnectionUpdated()
 
     self.showLibraryView()
   }
@@ -198,5 +206,12 @@ class JellyfinCoordinator: Coordinator {
     self.apiClient = nil
     self.userID = nil
     self.libraryName = nil
+    self.notifyConnectionUpdated()
+  }
+  
+  private func notifyConnectionUpdated() {
+    DispatchQueue.main.async {
+      NotificationCenter.default.post(name: .jellyfinConnectionUpdate, object: nil)
+    }
   }
 }

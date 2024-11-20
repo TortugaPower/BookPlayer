@@ -338,3 +338,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_password_placeholder" = "Password";
 "jellyfin_password_remember_me_label" = "Remember Me";
 "jellyfin_sign_out_button" = "Sign Out";
+"settings_jellyfin_title" = "Jellyfin";
+"settings_jellyfin_manage_connection_title" = "Manage Connection";

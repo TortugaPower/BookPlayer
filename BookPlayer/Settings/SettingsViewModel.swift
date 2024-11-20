@@ -22,6 +22,7 @@ class SettingsViewModel: ViewModelProtocol {
     case storageManagement
     case deletedFilesManagement
     case tipJar
+    case jellyfinConnectionManagement
     case credits
     case shareDebugInformation(info: String)
   }
@@ -35,10 +36,12 @@ class SettingsViewModel: ViewModelProtocol {
   let accountService: AccountServiceProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
+  let keychainService: KeychainServiceProtocol
 
   var onTransition: BPTransition<Routes>?
 
   @Published var account: Account?
+  @Published var hasJellyfinConnection: Bool = false
 
   private var disposeBag = Set<AnyCancellable>()
   var eventsPublisher = InterfaceUpdater<SettingsViewModel.Events>()
@@ -46,12 +49,17 @@ class SettingsViewModel: ViewModelProtocol {
   init(
     accountService: AccountServiceProtocol,
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    keychainService: KeychainServiceProtocol
   ) {
     self.accountService = accountService
     self.libraryService = libraryService
     self.syncService = syncService
+    self.keychainService = keychainService
+    
     self.reloadAccount()
+    self.reloadHasJellyfinConnection()
+    
     self.bindObservers()
   }
 
@@ -60,6 +68,12 @@ class SettingsViewModel: ViewModelProtocol {
       .sink(receiveValue: { [weak self] _ in
         self?.reloadAccount()
       })
+      .store(in: &disposeBag)
+    
+    NotificationCenter.default.publisher(for: .jellyfinConnectionUpdate, object: nil)
+      .sink { [weak self] _ in
+        self?.reloadHasJellyfinConnection()
+      }
       .store(in: &disposeBag)
   }
 
@@ -77,6 +91,21 @@ class SettingsViewModel: ViewModelProtocol {
 
   func hasMadeDonation() -> Bool {
     return accountService.hasSyncEnabled()
+  }
+  
+  private func reloadHasJellyfinConnection() {
+    hasJellyfinConnection = calcHasJellyfinConnection()
+  }
+  
+  private func calcHasJellyfinConnection() -> Bool {
+    do {
+      guard let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection) else {
+        return false
+      }
+      return data.isValid
+    } catch {
+      return false
+    }
   }
 
   /// Handle registering the value in `UserDefaults`
@@ -151,6 +180,10 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showAutolock() {
     onTransition?(.autolock)
+  }
+  
+  func showJellyfinConnectionManagement() {
+    onTransition?(.jellyfinConnectionManagement)
   }
 
   func showCredits() {

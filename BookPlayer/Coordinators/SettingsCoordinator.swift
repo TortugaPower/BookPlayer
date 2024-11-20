@@ -17,24 +17,28 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
+  let keychainService: KeychainServiceProtocol
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
-    accountService: AccountServiceProtocol
+    accountService: AccountServiceProtocol,
+    keychainService: KeychainServiceProtocol
   ) {
     self.flow = flow
     self.libraryService = libraryService
     self.syncService = syncService
     self.accountService = accountService
+    self.keychainService = keychainService
   }
 
   func start() {
     let viewModel = SettingsViewModel(
       accountService: accountService,
       libraryService: libraryService,
-      syncService: syncService
+      syncService: syncService,
+      keychainService: keychainService
     )
 
     viewModel.onTransition = { route in
@@ -57,6 +61,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showCloudDeletedFiles()
       case .tipJar:
         self.showTipJar()
+      case .jellyfinConnectionManagement:
+        self.showJellyfinConnectionManagement()
       case .credits:
         self.showCredits()
       case .shareDebugInformation(let info):
@@ -194,6 +200,14 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     nav.viewControllers = [vc]
 
     flow.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
+  }
+  
+  private func showJellyfinConnectionManagement() {
+    let viewModel = JellyfinConnectionViewModel()
+    viewModel.loadConnectionData(from: keychainService)
+    let vc = JellyfinConnectionViewController(viewModel: viewModel)
+    let subflow = BPModalPresentationFlow(presentingController: flow.navigationController)
+    subflow.startPresentation(vc, animated: true)
   }
 
   func showThemes() {

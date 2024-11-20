@@ -121,7 +121,8 @@ class MainCoordinator: NSObject {
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
       libraryService: self.libraryService,
       syncService: self.syncService,
-      accountService: self.accountService
+      accountService: self.accountService,
+      keychainService: KeychainService()
     )
     settingsCoordinator.tabBarController = tabBarController
     settingsCoordinator.start()
