@@ -17,20 +17,20 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
-  let keychainService: KeychainServiceProtocol
+  let jellyfinConnectionService: JellyfinConnectionService
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
     accountService: AccountServiceProtocol,
-    keychainService: KeychainServiceProtocol
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.flow = flow
     self.libraryService = libraryService
     self.syncService = syncService
     self.accountService = accountService
-    self.keychainService = keychainService
+    self.jellyfinConnectionService = jellyfinConnectionService
   }
 
   func start() {
@@ -38,7 +38,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       accountService: accountService,
       libraryService: libraryService,
       syncService: syncService,
-      keychainService: keychainService
+      jellyfinConnectionService: jellyfinConnectionService
     )
 
     viewModel.onTransition = { route in
@@ -204,7 +204,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   
   private func showJellyfinConnectionManagement() {
     let viewModel = JellyfinConnectionViewModel()
-    viewModel.loadConnectionData(from: keychainService)
+    viewModel.loadConnectionData(from: jellyfinConnectionService.connection)
     
     viewModel.onTransition = { [weak self] route in
       switch route {
@@ -213,7 +213,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       case .signInFinished(userID: _, client: _):
         break
       case .signOut:
-        self?.handleJellyfinSignOut()
+        self?.jellyfinConnectionService.deleteConnection()
         self?.flow.navigationController.dismiss(animated: true)
       case .showLibrary:
         break
@@ -223,33 +223,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
-  }
-  
-  private func handleJellyfinSignOut() {
-    // TODO reuse JellyfinCoordinator or move to new service
-    do {
-      if let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection),
-         data.isValid,
-         let apiClient = JellyfinCoordinator.createClient(serverUrlString: data.url.absoluteString, accessToken: data.accessToken)
-      {
-        Task {
-          try await apiClient.signOut()
-          // we don't care if this throws
-        }
-      }
-    } catch {
-      // ignore
-    }
-    
-    do {
-      try self.keychainService.remove(.jellyfinConnection)
-    } catch {
-      // ignore
-    }
-    
-    DispatchQueue.main.async {
-      NotificationCenter.default.post(name: .jellyfinConnectionUpdate, object: nil)
-    }
   }
 
   func showThemes() {

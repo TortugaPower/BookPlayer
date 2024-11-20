@@ -12,40 +12,20 @@ import Foundation
 import JellyfinAPI
 import UIKit
 
-public struct JellyfinConnectionData: Codable {
-  public init(url: URL, serverName: String, userID: String, userName: String, accessToken: String) {
-    self.url = url
-    self.serverName = serverName
-    self.userID = userID
-    self.userName = userName
-    self.accessToken = accessToken
-  }
-  
-  public let url: URL
-  public let serverName: String
-  public let userID: String
-  public let userName: String
-  public let accessToken: String
-  
-  public var isValid: Bool {
-    return !userID.isEmpty && !accessToken.isEmpty
-  }
-}
-
 class JellyfinCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
   private let singleFileDownloadService: SingleFileDownloadService
-  private let keychainService: KeychainServiceProtocol
+  private let jellyfinConnectionService: JellyfinConnectionService
   private var disposeBag = Set<AnyCancellable>()
   
   private var apiClient: JellyfinClient?
   private var userID: String?
   private var libraryName: String?
   
-  init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService, keychainService: KeychainServiceProtocol) {
+  init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService, jellyfinConnectionService: JellyfinConnectionService) {
     self.flow = flow
     self.singleFileDownloadService = singleFileDownloadService
-    self.keychainService = keychainService
+    self.jellyfinConnectionService = jellyfinConnectionService
     
     bindObservers()
   }
@@ -79,45 +59,17 @@ class JellyfinCoordinator: Coordinator {
     }
   }
   
-  static func createClient(serverUrlString: String, accessToken: String? = nil) -> JellyfinClient? {
-    let mainBundleInfo = Bundle.main.infoDictionary
-    let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
-    let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
-    let deviceID = UIDevice.current.identifierForVendor
-    guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
-      return nil
-    }
-    let configuration = JellyfinClient.Configuration(
-      url: url,
-      client: clientName,
-      deviceName: UIDevice.current.name,
-      deviceID: "\(deviceID.uuidString)-\(clientName)",
-      version: clientVersion
-    )
-    return JellyfinClient(configuration: configuration, accessToken: accessToken)
-  }
-
   private func tryLoginWithSavedConnection(connectionViewModel: JellyfinConnectionViewModel) {
-    do {
-      guard let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection),
-            data.isValid
-      else {
-        return
-      }
-
-      if let apiClient = JellyfinCoordinator.createClient(serverUrlString: data.url.absoluteString, accessToken: data.accessToken) {
-        connectionViewModel.connectionState = .connected
-        connectionViewModel.form.username = data.userName
-        connectionViewModel.form.serverUrl = data.url.absoluteString
-        connectionViewModel.form.serverName = data.serverName
-
-        self.apiClient = apiClient
-        self.userID = data.userID
-        self.libraryName = data.serverName
-      }
-    } catch {
-      // ignore issues retrieving the connection, we'll just have to prompt again and save the new data
+    guard let connectionData = jellyfinConnectionService.connection,
+          let apiClient = jellyfinConnectionService.createClient() else {
+      return
     }
+    
+    connectionViewModel.loadConnectionData(from: connectionData)
+    
+    self.apiClient = apiClient
+    self.userID = connectionData.userID
+    self.libraryName = connectionData.serverName
   }
 
   private func createJellyfinLoginScreen() -> JellyfinConnectionViewController {
@@ -131,7 +83,7 @@ class JellyfinCoordinator: Coordinator {
         self.handleSignInFinished(userID: userID, client: client, connectionViewModel: viewModel)
       case .signOut:
         self.handleSignOut()
-        viewModel.loadConnectionData(from: self.keychainService)
+        viewModel.loadConnectionData(from: self.jellyfinConnectionService.connection)
       case .showLibrary:
         self.showLibraryView()
       }
@@ -158,23 +110,18 @@ class JellyfinCoordinator: Coordinator {
   }
 
   private func handleSignInFinished(userID: String, client: JellyfinClient, connectionViewModel viewModel: JellyfinConnectionViewModel) {
-    if viewModel.form.rememberMe, let accessToken = client.accessToken {
+    if let accessToken = client.accessToken {
       let connectionData = JellyfinConnectionData(url: client.configuration.url,
                                                   serverName: viewModel.form.serverName ?? "",
                                                   userID: userID,
                                                   userName: viewModel.form.username,
                                                   accessToken: accessToken)
-      do {
-        try self.keychainService.set(connectionData, key: .jellyfinConnection)
-      } catch {
-        // ignore issue saving the connection data, we'll just have to prompt again next time
-      }
+      jellyfinConnectionService.setConnection(connectionData, saveToKeychain: viewModel.form.rememberMe)
     }
     
     self.apiClient = client
     self.userID = userID
     self.libraryName = viewModel.form.serverName ?? ""
-    self.notifyConnectionUpdated()
 
     self.showLibraryView()
   }
@@ -190,28 +137,10 @@ class JellyfinCoordinator: Coordinator {
   }
 
   private func handleSignOut() {
-    if let apiClientForTask = self.apiClient {
-      Task {
-        try await apiClientForTask.signOut()
-        // we don't care if this throws
-      }
-    }
-    
-    do {
-      try self.keychainService.remove(.jellyfinConnection)
-    } catch {
-      // ignore
-    }
+    jellyfinConnectionService.deleteConnection()
     
     self.apiClient = nil
     self.userID = nil
     self.libraryName = nil
-    self.notifyConnectionUpdated()
-  }
-  
-  private func notifyConnectionUpdated() {
-    DispatchQueue.main.async {
-      NotificationCenter.default.post(name: .jellyfinConnectionUpdate, object: nil)
-    }
   }
 }

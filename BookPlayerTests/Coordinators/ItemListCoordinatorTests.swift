@@ -45,7 +45,7 @@ class LibraryListCoordinatorTests: XCTestCase {
         syncService: syncServiceMock
       ),
       accountService: coreServices.accountService,
-      keychainService: keychainServiceMock
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
     )
 
     self.libraryListCoordinator.start()
@@ -105,7 +105,7 @@ class FolderListCoordinatorTests: XCTestCase {
         playerManager: playerManagerMock,
         syncService: syncServiceMock
       ),
-      keychainService: keychainServiceMock
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
     )
 
     self.folderListCoordinator.start()

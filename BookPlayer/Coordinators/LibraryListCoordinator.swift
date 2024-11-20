@@ -35,7 +35,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     accountService: AccountServiceProtocol,
-    keychainService: KeychainServiceProtocol
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.accountService = accountService
 
@@ -48,7 +48,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       syncService: syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
-      keychainService: keychainService
+      jellyfinConnectionService: jellyfinConnectionService
     )
   }
 

@@ -19,7 +19,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
-  let keychainService: KeychainServiceProtocol
+  let jellyfinConnectionService: JellyfinConnectionService
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -33,7 +33,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    keychainService: KeychainServiceProtocol
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.flow = flow
     self.playerManager = playerManager
@@ -43,7 +43,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     self.syncService = syncService
     self.importManager = importManager
     self.listRefreshService = listRefreshService
-    self.keychainService = keychainService
+    self.jellyfinConnectionService = jellyfinConnectionService
   }
 
   func start() {
@@ -66,7 +66,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       syncService: syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
-      keychainService: keychainService
+      jellyfinConnectionService: jellyfinConnectionService
     )
     child.start()
   }
@@ -172,7 +172,7 @@ extension ItemListCoordinator {
     let child = JellyfinCoordinator(
       flow: .modalFlow(presentingController: flow.navigationController),
       singleFileDownloadService: singleFileDownloadService,
-      keychainService: keychainService
+      jellyfinConnectionService: jellyfinConnectionService
     )
     child.start()
   }

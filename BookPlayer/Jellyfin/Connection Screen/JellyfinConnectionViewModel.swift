@@ -34,22 +34,16 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   public var onTransition: BPTransition<Routes>?
 
 
-  func loadConnectionData(from keychainService: KeychainServiceProtocol) {
+  func loadConnectionData(from data: JellyfinConnectionData?) {
     reset()
     
-    do {
-      if let data: JellyfinConnectionData = try keychainService.get(.jellyfinConnection),
-         data.isValid
-      {
-        form.serverUrl = data.url.absoluteString
-        form.serverName = data.serverName
-        form.username = data.userName
-        //form.password is not saved (we have an access token instead). Leave the field blank.
-        form.rememberMe = true
-        connectionState = .connected
-      }
-    } catch {
-      // ignore
+    if let data {
+      form.serverUrl = data.url.absoluteString
+      form.serverName = data.serverName
+      form.username = data.userName
+      //form.password is not saved (we have an access token instead). Leave the field blank.
+      form.rememberMe = true
+      connectionState = .connected
     }
   }
   

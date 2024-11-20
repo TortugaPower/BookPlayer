@@ -144,7 +144,7 @@ class JellyfinConnectionViewController: UIViewController, MVVMControllerProtocol
       return
     }
 
-    guard let apiClient = JellyfinCoordinator.createClient(serverUrlString: viewModel.form.serverUrl) else {
+    guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: viewModel.form.serverUrl) else {
       return
     }
 

@@ -22,7 +22,7 @@ class FolderListCoordinator: ItemListCoordinator {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    keychainService: KeychainServiceProtocol
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -35,7 +35,7 @@ class FolderListCoordinator: ItemListCoordinator {
       syncService: syncService, 
       importManager: importManager,
       listRefreshService: listRefreshService,
-      keychainService: keychainService
+      jellyfinConnectionService: jellyfinConnectionService
     )
   }
 
