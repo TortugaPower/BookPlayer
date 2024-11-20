@@ -18,10 +18,6 @@ class JellyfinCoordinator: Coordinator {
   private let jellyfinConnectionService: JellyfinConnectionService
   private var disposeBag = Set<AnyCancellable>()
   
-  private var apiClient: JellyfinClient?
-  private var userID: String?
-  private var libraryName: String?
-  
   init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService, jellyfinConnectionService: JellyfinConnectionService) {
     self.flow = flow
     self.singleFileDownloadService = singleFileDownloadService
@@ -42,38 +38,17 @@ class JellyfinCoordinator: Coordinator {
     .store(in: &disposeBag)
   }
   
-  private var isLoggedIn: Bool {
-    apiClient?.accessToken != nil && userID != nil && !userID!.isEmpty
-  }
-  
   func start() {
     let connectionVC = createJellyfinLoginScreen()
     flow.startPresentation(connectionVC, animated: true)
-
-    if !isLoggedIn {
-      tryLoginWithSavedConnection(connectionViewModel: connectionVC.viewModel)
-    }
-
-    if isLoggedIn {
-      self.showLibraryView()
-    }
-  }
-  
-  private func tryLoginWithSavedConnection(connectionViewModel: JellyfinConnectionViewModel) {
-    guard let connectionData = jellyfinConnectionService.connection,
-          let apiClient = jellyfinConnectionService.createClient() else {
-      return
-    }
     
-    connectionViewModel.loadConnectionData(from: connectionData)
-    
-    self.apiClient = apiClient
-    self.userID = connectionData.userID
-    self.libraryName = connectionData.serverName
+    tryShowLibraryView()
   }
 
   private func createJellyfinLoginScreen() -> JellyfinConnectionViewController {
     let viewModel = JellyfinConnectionViewModel()
+    viewModel.loadConnectionData(from: jellyfinConnectionService.connection)
+    
     viewModel.coordinator = self
     viewModel.onTransition = { [viewModel] route in
       switch route {
@@ -82,10 +57,10 @@ class JellyfinCoordinator: Coordinator {
       case .signInFinished(let userID, let client):
         self.handleSignInFinished(userID: userID, client: client, connectionViewModel: viewModel)
       case .signOut:
-        self.handleSignOut()
+        self.jellyfinConnectionService.deleteConnection()
         viewModel.loadConnectionData(from: self.jellyfinConnectionService.connection)
       case .showLibrary:
-        self.showLibraryView()
+        self.tryShowLibraryView()
       }
     }
     
@@ -119,28 +94,18 @@ class JellyfinCoordinator: Coordinator {
       jellyfinConnectionService.setConnection(connectionData, saveToKeychain: viewModel.form.rememberMe)
     }
     
-    self.apiClient = client
-    self.userID = userID
-    self.libraryName = viewModel.form.serverName ?? ""
-
-    self.showLibraryView()
+    self.tryShowLibraryView()
   }
 
-  private func showLibraryView() {
-    guard let libraryName, let userID, let apiClient else {
+  private func tryShowLibraryView() {
+    guard let connectionData = jellyfinConnectionService.connection,
+          let apiClient = jellyfinConnectionService.createClient() else {
       return
     }
-    let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: libraryName,
-                                                     userID: userID,
+    
+    let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: connectionData.serverName,
+                                                     userID: connectionData.userID,
                                                      client: apiClient)
     self.flow.pushViewController(libraryVC, animated: true)
-  }
-
-  private func handleSignOut() {
-    jellyfinConnectionService.deleteConnection()
-    
-    self.apiClient = nil
-    self.userID = nil
-    self.libraryName = nil
   }
 }
