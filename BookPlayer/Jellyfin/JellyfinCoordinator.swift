@@ -46,8 +46,7 @@ class JellyfinCoordinator: Coordinator {
   }
 
   private func createJellyfinLoginScreen() -> JellyfinConnectionViewController {
-    let viewModel = JellyfinConnectionViewModel()
-    viewModel.loadConnectionData(from: jellyfinConnectionService.connection)
+    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
     
     viewModel.coordinator = self
     viewModel.onTransition = { [viewModel] route in
@@ -58,7 +57,6 @@ class JellyfinCoordinator: Coordinator {
         self.handleSignInFinished(userID: userID, client: client, connectionViewModel: viewModel)
       case .signOut:
         self.jellyfinConnectionService.deleteConnection()
-        viewModel.loadConnectionData(from: self.jellyfinConnectionService.connection)
       case .showLibrary:
         self.tryShowLibraryView()
       }

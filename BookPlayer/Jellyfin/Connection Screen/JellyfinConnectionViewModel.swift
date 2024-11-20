@@ -18,33 +18,50 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
     case signOut
     case showLibrary
   }
-
+  
   enum ConnectionState {
     case disconnected
     case foundServer
     case connected
   }
-
-
+  
+  
   weak var coordinator: JellyfinCoordinator!
-
+  
+  let jellyfinConnectionService: JellyfinConnectionService
+  
   @Published var form: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
   @Published var connectionState: ConnectionState = .disconnected
-
+  
   public var onTransition: BPTransition<Routes>?
-
-
-  func loadConnectionData(from data: JellyfinConnectionData?) {
-    reset()
-    
-    if let data {
-      form.serverUrl = data.url.absoluteString
-      form.serverName = data.serverName
-      form.username = data.userName
-      //form.password is not saved (we have an access token instead). Leave the field blank.
-      form.rememberMe = true
-      connectionState = .connected
-    }
+  
+  private var disposeBag = Set<AnyCancellable>()
+  
+  
+  init(jellyfinConnectionService: JellyfinConnectionService) {
+    self.jellyfinConnectionService = jellyfinConnectionService
+    bindObservers()
+  }
+  
+  private func bindObservers() {
+    jellyfinConnectionService.$connection
+      .sink { [weak self] data in
+        guard let self else {
+          return
+        }
+        
+        self.reset()
+        
+        if let data {
+          self.form.serverUrl = data.url.absoluteString
+          self.form.serverName = data.serverName
+          self.form.username = data.userName
+          //self.form.password is not saved (we have an access token instead). Leave the field blank.
+          self.form.rememberMe = true
+          self.connectionState = .connected
+        }
+      }
+      .store(in: &disposeBag)
   }
   
   private func reset() {

@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct JellyfinConnectionView: View {
@@ -142,13 +143,13 @@ struct JellyfinConnectionView: View {
 }
 
 #Preview("disconnected") {
-  let viewModel = JellyfinConnectionViewModel()
+  let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
   JellyfinConnectionView(viewModel: viewModel)
 }
 
 #Preview("found server") {
   let viewModel = {
-    var viewModel = JellyfinConnectionViewModel()
+    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
     viewModel.connectionState = .foundServer
     viewModel.form.serverName = "Mock Server"
     viewModel.form.serverUrl = "http://example.com"
@@ -159,7 +160,7 @@ struct JellyfinConnectionView: View {
 
 #Preview("connected") {
   let viewModel = {
-    var viewModel = JellyfinConnectionViewModel()
+    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
     viewModel.connectionState = .connected
     viewModel.form.serverName = "Mock Server"
     viewModel.form.serverUrl = "http://example.com"
