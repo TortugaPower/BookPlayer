@@ -10,28 +10,33 @@ import SwiftUI
 
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
-  @StateObject var themeViewModel = ThemeViewModel()
-  @ScaledMetric var accessabilityScale: CGFloat = 1
-
+  @StateObject private var themeViewModel = ThemeViewModel()
+  @ScaledMetric private var accessabilityScale: CGFloat = 1
+  
+  @State private var availableSize: CGSize = .zero
+  private let itemMinSizeBase = CGSize(width: 150, height: 150)
+  private let itemMaxSizeBase = CGSize(width: 250, height: 250)
+  private let itemSpacingBase = 20.0
+  
   var body: some View {
-    let columns = [
-      GridItem(.adaptive(minimum: 100 * accessabilityScale), spacing: 20 * accessabilityScale)
-    ]
-    ScrollView {
-      LazyVGrid(columns: columns, spacing: 20 * accessabilityScale) {
+    GeometryReader { geometry in
+      AdaptiveVGrid(
+        numItems: viewModel.userViews.count,
+        itemMinSize: adjustSize(itemMinSizeBase, availableSize: geometry.size),
+        itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
+        itemSpacing: itemSpacingBase * accessabilityScale
+      ) {
         ForEach(viewModel.userViews, id: \.id) { userView in
-          let childViewModel = viewModel.createFolderViewModelFor(item: userView)
-          NavigationLink {
-            NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))
-          } label: {
-            JellyfinLibraryItemView<Model.FolderViewModel>(item: userView)
-              .environmentObject(childViewModel)
-          }
-          .buttonStyle(PlainButtonStyle())
+          itemView(item: userView)
+            .frame(minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
+                   maxWidth: CGFloat.greatestFiniteMagnitude,
+                   minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
+                   maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
+            )
         }
       }
-      .padding(10)
     }
+    .padding()
     .navigationTitle(viewModel.libraryName)
     .environmentObject(viewModel)
     .onAppear { viewModel.fetchUserViews() }
@@ -49,15 +54,32 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       }
     }
   }
+  
+  @ViewBuilder
+  private func itemView(item: JellyfinLibraryItem) -> some View {
+    let childViewModel = viewModel.createFolderViewModelFor(item: item)
+    NavigationLink {
+      NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))
+    } label: {
+      JellyfinLibraryItemView<Model.FolderViewModel>(item: item)
+        .environmentObject(childViewModel)
+    }
+    .buttonStyle(PlainButtonStyle())
+  }
+  
+  private func adjustSize(_ size: CGSize, availableSize: CGSize) -> CGSize {
+    CGSize(width: min(size.width, availableSize.width),
+           height: min(size.height * accessabilityScale, availableSize.height))
+  }
 }
 
 class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
   let libraryName: String = "Mock"
   @Published var userViews: [JellyfinLibraryItem] = []
-
+  
   func fetchUserViews() {}
   func cancelFetchUserViews() {}
-
+  
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
     return MockJellyfinLibraryFolderViewModel(data: item)
   }
@@ -69,10 +91,16 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
   let viewModel = {
     let viewModel = MockJellyfinLibraryViewModel()
     viewModel.userViews = [
-      JellyfinLibraryItem(id: "0", name: "First View", kind: .userView),
-      JellyfinLibraryItem(id: "1", name: "Second View", kind: .userView),
-      JellyfinLibraryItem(id: "2", name: "Third View", kind: .userView),
-      JellyfinLibraryItem(id: "3", name: "Fourth View", kind: .userView),
+      JellyfinLibraryItem(id: "0", name: "View 0", kind: .userView),
+      JellyfinLibraryItem(id: "1", name: "View 1", kind: .userView),
+      //JellyfinLibraryItem(id: "2", name: "View 2", kind: .userView),
+      //JellyfinLibraryItem(id: "3", name: "View 3", kind: .userView),
+      //JellyfinLibraryItem(id: "4", name: "View 4", kind: .userView),
+      //JellyfinLibraryItem(id: "5", name: "View 5", kind: .userView),
+      //JellyfinLibraryItem(id: "6", name: "View 6", kind: .userView),
+      //JellyfinLibraryItem(id: "7", name: "View 7", kind: .userView),
+      //JellyfinLibraryItem(id: "8", name: "View 8", kind: .userView),
+      //JellyfinLibraryItem(id: "9", name: "View 9", kind: .userView),
     ]
     return viewModel
   }()

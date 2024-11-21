@@ -12,26 +12,48 @@ import Kingfisher
 struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
   @ScaledMetric var accessabilityScale: CGFloat = 1
+  
+  @State private var availableSize: CGSize = .zero
+  private let itemMinSizeBase = CGSize(width: 100, height: 100)
+  private let itemMaxSizeBase = CGSize(width: 250, height: 250)
+  private let itemSpacingBase = 20.0
 
   var body: some View {
-    let columns = [
-      GridItem(.adaptive(minimum: 100 * accessabilityScale), spacing: 20 * accessabilityScale)
-    ]
-    ScrollView {
-      LazyVGrid(columns: columns, spacing: 20 * accessabilityScale) {
-        ForEach(viewModel.items, id: \.id) { item in
-          JellyfinLibraryItemView<Model>(item: item)
-            .onAppear {
-              viewModel.fetchMoreItemsIfNeeded(currentItem: item)
-            }
+    GeometryReader { geometry in
+      AdaptiveVGrid(
+        numItems: viewModel.items.count,
+        itemMinSize: adjustSize(itemMinSizeBase, availableSize: geometry.size),
+        itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
+        itemSpacing: itemSpacingBase * accessabilityScale
+      ) {
+        ForEach(viewModel.items, id: \.id) { userView in
+          itemView(item: userView)
+            .frame(minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
+                   maxWidth: CGFloat.greatestFiniteMagnitude,
+                   minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
+                   maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
+            )
         }
       }
-      .padding(10)
     }
+    .padding()
     .navigationTitle(viewModel.data.name)
     .environmentObject(viewModel)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
+  }
+  
+  @ViewBuilder
+  private func itemView(item: JellyfinLibraryItem) -> some View {
+    JellyfinLibraryItemView<Model>(item: item)
+      .onAppear {
+        viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+      }
+  }
+  
+  private func adjustSize(_ size: CGSize, availableSize: CGSize) -> CGSize {
+    CGSize(width: min(size.width, availableSize.width),
+           height: min(size.height * accessabilityScale, availableSize.height))
   }
 }
 
