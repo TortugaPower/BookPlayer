@@ -46,7 +46,7 @@ class JellyfinCoordinator: Coordinator {
     tryShowLibraryView()
   }
 
-  private func createJellyfinLoginScreen() -> UIHostingController<JellyfinConnectionView> {
+  private func createJellyfinLoginScreen() -> UIViewController {
     let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
     
     viewModel.coordinator = self
@@ -79,7 +79,7 @@ class JellyfinCoordinator: Coordinator {
       viewModel.dismiss()
     }
 
-    let vc = JellyfinLibraryViewController(viewModel: viewModel, apiClient: client)
+    let vc = UIHostingController(rootView: JellyfinLibraryView(viewModel: viewModel))
     return vc
   }
 

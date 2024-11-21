@@ -36,6 +36,18 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     .environmentObject(viewModel)
     .onAppear { viewModel.fetchUserViews() }
     .onDisappear { viewModel.cancelFetchUserViews() }
+    .navigationTitle(viewModel.libraryName)
+    .toolbar {
+      ToolbarItemGroup(placement: .topBarTrailing) {
+        Button(
+          action: viewModel.handleDoneAction,
+          label: {
+            Image(systemName: "xmark")
+              .foregroundColor(themeViewModel.linkColor)
+          }
+        )
+      }
+    }
   }
 }
 
@@ -49,6 +61,8 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
     return MockJellyfinLibraryFolderViewModel(data: item)
   }
+  
+  func handleDoneAction() {}
 }
 
 #Preview {

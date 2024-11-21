@@ -59,6 +59,9 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func cancelFetchUserViews()
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
+  
+  @MainActor
+  func handleDoneAction()
 }
 
 class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProtocol {
@@ -117,6 +120,7 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
     return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
   }
 
+  @MainActor
   func handleDoneAction() {
     onTransition?(.done)
   }
