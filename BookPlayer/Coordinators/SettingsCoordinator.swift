@@ -204,6 +204,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   
   private func showJellyfinConnectionManagement() {
     let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
+    viewModel.viewMode = .viewDetails
     
     viewModel.onTransition = { [weak self] route in
       switch route {

@@ -19,6 +19,11 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
     case showLibrary
   }
   
+  enum ViewMode {
+    case regular // for the "Download from Jellyfin" flow
+    case viewDetails // for the connection details + sign out option from the Settings screen
+  }
+  
   enum ConnectionState {
     case disconnected
     case foundServer
@@ -31,7 +36,27 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   let jellyfinConnectionService: JellyfinConnectionService
   
   @Published var form: JellyfinConnectionFormViewModel = JellyfinConnectionFormViewModel()
+  @Published var viewMode: ViewMode = .regular
   @Published var connectionState: ConnectionState = .disconnected
+  @Published var apiTask: Task<(), any Error>?
+  var canConnect: Bool {
+    viewMode == .regular &&
+    apiTask == nil &&
+    connectionState == .disconnected &&
+    !form.serverUrl.isEmpty
+  }
+  var canSignIn: Bool {
+    viewMode == .regular &&
+    apiTask == nil &&
+    connectionState == .foundServer &&
+    !form.serverUrl.isEmpty &&
+    !form.username.isEmpty &&
+    !form.password.isEmpty
+  }
+  var canGoToLibrary: Bool {
+    viewMode == .regular &&
+    connectionState == .connected
+  }
   
   public var onTransition: BPTransition<Routes>?
   
@@ -70,19 +95,62 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   }
 
 
+  @MainActor
   func handleCancelAction() {
     onTransition?(.cancel)
   }
   
-  func handleConnectedEvent(userID: String, client: JellyfinClient) {
-    onTransition?(.signInFinished(userID: userID, client: client))
-  }
+  @MainActor
+  func handleConnectAction() {
+    guard canConnect else {
+      return
+    }
+    
+    guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
+      return
+    }
 
+    apiTask = Task {
+      defer { self.apiTask = nil }
+      let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
+        self.connectionState = .foundServer
+        self.form.serverName = publicSystemInfo.value.serverName
+    }
+  }
+  
+  @MainActor
+  func handleSignInAction() {
+    guard canSignIn else {
+      return
+    }
+    
+    guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
+      return
+    }
+    
+    let username = form.username
+    let password = form.password
+    apiTask = Task {
+      defer { self.apiTask = nil }
+      let authResult = try await apiClient.signIn(username: username, password: password)
+      if let _ = authResult.accessToken, let userID = authResult.user?.id {
+        self.connectionState = .connected
+        self.onTransition?(.signInFinished(userID: userID, client: apiClient))
+      }
+    }
+  }
+  
+  @MainActor
   func handleSignOutAction() {
     onTransition?(.signOut)
   }
-
-  func handleToToLibraryAction() {
+  
+  @MainActor
+  func handleGoToLibraryAction() {
+    guard canGoToLibrary else {
+      return
+    }
+    
     onTransition?(.showLibrary)
   }
 }

@@ -10,6 +10,7 @@ import BookPlayerKit
 import Combine
 import Foundation
 import JellyfinAPI
+import SwiftUI
 import UIKit
 
 class JellyfinCoordinator: Coordinator {
@@ -45,7 +46,7 @@ class JellyfinCoordinator: Coordinator {
     tryShowLibraryView()
   }
 
-  private func createJellyfinLoginScreen() -> JellyfinConnectionViewController {
+  private func createJellyfinLoginScreen() -> UIHostingController<JellyfinConnectionView> {
     let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
     
     viewModel.coordinator = self
@@ -62,7 +63,7 @@ class JellyfinCoordinator: Coordinator {
       }
     }
     
-    let vc = JellyfinConnectionViewController(viewModel: viewModel)
+    let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
     return vc
   }
   

@@ -25,20 +25,28 @@ struct JellyfinConnectionView: View {
     }
     .defaultFormBackground()
     .environmentObject(themeViewModel)
-    .navigationTitle("jellyfin_connection_details_title".localized)
+    .navigationTitle(localizedNavigationTitle)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
-        Button(
-          action: viewModel.handleCancelAction,
-          label: {
-            Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
+      ToolbarItemGroup(placement: .cancellationAction) {
+        cancelToolbarButton
+      }
+      ToolbarItemGroup(placement: .confirmationAction) {
+        if viewModel.viewMode == .regular {
+          switch viewModel.connectionState {
+          case .disconnected:
+            connectToolbarButton
+          case .foundServer:
+            signInToolbarButton
+          case .connected:
+            goToLibraryToolbarButton
           }
-        )
+        }
       }
     }
   }
+  
+  // MARK: - View
 
   @ViewBuilder
   private var disconnectedView: some View {
@@ -139,6 +147,54 @@ struct JellyfinConnectionView: View {
       }
     }
     return .red
+  }
+  
+  // MARK: - Navigation Title
+  
+  private var localizedNavigationTitle: String {
+    switch viewModel.connectionState {
+    case .disconnected: "jellyfin_connection_title".localized
+    case .foundServer: "jellyfin_connection_title".localized
+    case .connected: "jellyfin_connection_details_title".localized
+    }
+  }
+  
+  // MARK: - Navigation Buttons
+  
+  @ViewBuilder
+  private var cancelToolbarButton: some View {
+    Button(
+      action: viewModel.handleCancelAction,
+      label: {
+        Image(systemName: "xmark")
+          .foregroundColor(themeViewModel.linkColor)
+      }
+    )
+  }
+  
+  @ViewBuilder
+  private var connectToolbarButton: some View {
+    Button("jellyfin_connect_button".localized,
+           action: viewModel.handleConnectAction
+    )
+    .disabled(!viewModel.canConnect)
+  }
+  
+  @ViewBuilder
+  private var signInToolbarButton: some View {
+    Button("jellyfin_sign_in_button".localized,
+           action: viewModel.handleSignInAction
+    )
+    .disabled(!viewModel.canSignIn)
+  }
+  
+  @ViewBuilder
+  private var goToLibraryToolbarButton: some View {
+    Button("jellyfin_to_library_button".localized,
+           systemImage: "chevron.right",
+           action: viewModel.handleGoToLibraryAction
+    )
+    .disabled(!viewModel.canGoToLibrary)
   }
 }
 
