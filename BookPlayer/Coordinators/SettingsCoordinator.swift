@@ -217,6 +217,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self?.flow.navigationController.dismiss(animated: true)
       case .showLibrary:
         break
+      case .showAlert(let content):
+        self?.showAlert(content)
       }
     }
 

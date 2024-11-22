@@ -13,7 +13,7 @@ import JellyfinAPI
 import SwiftUI
 import UIKit
 
-class JellyfinCoordinator: Coordinator {
+class JellyfinCoordinator: Coordinator, AlertPresenter {
   let flow: BPCoordinatorPresentationFlow
   private let singleFileDownloadService: SingleFileDownloadService
   private let jellyfinConnectionService: JellyfinConnectionService
@@ -60,6 +60,8 @@ class JellyfinCoordinator: Coordinator {
         self.jellyfinConnectionService.deleteConnection()
       case .showLibrary:
         self.tryShowLibraryView()
+      case .showAlert(let content):
+        self.showAlert(content)
       }
     }
     
@@ -72,10 +74,12 @@ class JellyfinCoordinator: Coordinator {
                                                    apiClient: client,
                                                    singleFileDownloadService: singleFileDownloadService)
     
-    viewModel.onTransition = { [weak self] route in
+    viewModel.onTransition = { route in
       switch route {
       case .done:
-        self?.flow.navigationController.dismiss(animated: true)
+        self.flow.navigationController.dismiss(animated: true)
+      case .showAlert(let content):
+        self.showAlert(content)
       }
     }
 

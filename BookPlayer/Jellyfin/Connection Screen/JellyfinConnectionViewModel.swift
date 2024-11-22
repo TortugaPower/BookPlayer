@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import Get
 import JellyfinAPI
 import SwiftUI
 
@@ -17,6 +18,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     case signInFinished(userID: String, client: JellyfinClient)
     case signOut
     case showLibrary
+    case showAlert(content: BPAlertContent)
   }
   
   enum ViewMode {
@@ -108,15 +110,21 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     }
     
     guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
-      // TODO alert
+      self.showErrorAlert(message: JellyfinError.noClient.localizedDescription)
       return
     }
 
     apiTask = Task {
       defer { self.apiTask = nil }
-      let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
-        self.connectionState = .foundServer
-        self.form.serverName = publicSystemInfo.value.serverName
+      do {
+        let publicSystemInfo = try await apiClient.send(Paths.getPublicSystemInfo)
+        await MainActor.run {
+          self.connectionState = .foundServer
+          self.form.serverName = publicSystemInfo.value.serverName
+        }
+      } catch {
+        self.showErrorAlert(message: error.localizedDescription)
+      }
     }
   }
   
@@ -128,7 +136,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     }
     
     guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
-      // TODO alert
+      self.showErrorAlert(message: JellyfinError.noClient.localizedDescription)
       return
     }
     
@@ -136,10 +144,23 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     let password = form.password
     apiTask = Task {
       defer { self.apiTask = nil }
-      let authResult = try await apiClient.signIn(username: username, password: password)
-      if let _ = authResult.accessToken, let userID = authResult.user?.id {
-        self.connectionState = .connected
-        self.onTransition?(.signInFinished(userID: userID, client: apiClient))
+      do {
+        let authResult = try await apiClient.signIn(username: username, password: password)
+        if let _ = authResult.accessToken, let userID = authResult.user?.id {
+          self.connectionState = .connected
+          self.onTransition?(.signInFinished(userID: userID, client: apiClient))
+        } else {
+          self.showErrorAlert(message: JellyfinError.unexpectedResponse(code: nil).localizedDescription)
+        }
+      } catch APIError.unacceptableStatusCode(let statusCode) {
+        switch statusCode {
+        case 400...499:
+          self.showErrorAlert(message: JellyfinError.clientError(code: statusCode).localizedDescription)
+        default:
+          self.showErrorAlert(message: JellyfinError.unexpectedResponse(code: statusCode).localizedDescription)
+        }
+      } catch {
+        self.showErrorAlert(message: error.localizedDescription)
       }
     }
   }
@@ -157,5 +178,10 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     }
     
     onTransition?(.showLibrary)
+  }
+  
+  @MainActor
+  private func showErrorAlert(message: String) {
+    self.onTransition?(.showAlert(content: BPAlertContent.errorAlert(message: message)))
   }
 }

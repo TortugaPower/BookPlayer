@@ -49,7 +49,7 @@ class JellyfinConnectionService: BPLogger {
     do {
       try keychainService.remove(.jellyfinConnection)
     } catch {
-      // ignore
+      Self.logger.warning("failed to remove connection data from keychain: \(error)")
     }
     
     connection = nil
@@ -98,6 +98,7 @@ class JellyfinConnectionService: BPLogger {
         self.connection = connection
       }
     } catch {
+      Self.logger.warning("failed to load connection data from keychain: \(error)")
     }
   }
   
