@@ -81,7 +81,8 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
   func cancelFetchUserViews() {}
   
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
-    return MockJellyfinLibraryFolderViewModel(data: item)
+    let data = JellyfinLibraryLevelData.folder(data: item)
+    return MockJellyfinLibraryFolderViewModel(data: data)
   }
   
   func handleDoneAction() {}

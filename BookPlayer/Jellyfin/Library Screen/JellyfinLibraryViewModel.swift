@@ -117,7 +117,8 @@ class JellyfinLibraryViewModel: ViewModelProtocol, JellyfinLibraryViewModelProto
   }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
-    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
+    let data = JellyfinLibraryLevelData.folder(data: item)
+    return JellyfinLibraryFolderViewModel(data: data, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
   }
 
   @MainActor

@@ -68,18 +68,18 @@ class JellyfinCoordinator: Coordinator {
   }
   
   private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel(libraryName: libraryName, userID: userID, apiClient: client, singleFileDownloadService: singleFileDownloadService)
-    viewModel.coordinator = self
-
-    viewModel.onTransition = { route in
+    let viewModel = JellyfinLibraryFolderViewModel(data: .topLevel(libraryName: libraryName, userID: userID),
+                                                   apiClient: client,
+                                                   singleFileDownloadService: singleFileDownloadService)
+    
+    viewModel.onTransition = { [weak self] route in
       switch route {
       case .done:
-        break
+        self?.flow.navigationController.dismiss(animated: true)
       }
-      viewModel.dismiss()
     }
 
-    let vc = UIHostingController(rootView: JellyfinLibraryView(viewModel: viewModel))
+    let vc = UIHostingController(rootView: JellyfinLibraryFolderView(viewModel: viewModel))
     return vc
   }
 

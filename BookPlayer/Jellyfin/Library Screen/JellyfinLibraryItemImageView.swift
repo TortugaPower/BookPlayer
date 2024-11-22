@@ -59,6 +59,7 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
 }
 
 #Preview("audiobook") {
+  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
   JellyfinLibraryItemImageView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
-    .environmentObject(MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "Parent", kind: .folder)))
+    .environmentObject(MockJellyfinLibraryFolderViewModel(data: parentData))
 }

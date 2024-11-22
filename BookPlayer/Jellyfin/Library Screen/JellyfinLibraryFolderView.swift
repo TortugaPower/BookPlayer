@@ -11,12 +11,22 @@ import Kingfisher
 
 struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
+  @StateObject private var themeViewModel = ThemeViewModel()
   @ScaledMetric var accessabilityScale: CGFloat = 1
   
   @State private var availableSize: CGSize = .zero
   private let itemMinSizeBase = CGSize(width: 100, height: 100)
   private let itemMaxSizeBase = CGSize(width: 250, height: 250)
   private let itemSpacingBase = 20.0
+  
+  var navigationTitle: String {
+    switch viewModel.data {
+    case .topLevel(libraryName: let libraryName, userID: _):
+      libraryName
+    case .folder(data: let data):
+      data.name
+    }
+  }
 
   var body: some View {
     GeometryReader { geometry in
@@ -37,10 +47,21 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
       }
     }
     .padding()
-    .navigationTitle(viewModel.data.name)
     .environmentObject(viewModel)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
+    .navigationTitle(navigationTitle)
+    .toolbar {
+      ToolbarItemGroup(placement: .topBarTrailing) {
+        Button(
+          action: viewModel.handleDoneAction,
+          label: {
+            Image(systemName: "xmark")
+              .foregroundColor(themeViewModel.linkColor)
+          }
+        )
+      }
+    }
   }
   
   @ViewBuilder
@@ -58,15 +79,16 @@ struct JellyfinLibraryFolderView<Model: JellyfinLibraryFolderViewModelProtocol>:
 }
 
 class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol, ObservableObject {
-  let data: JellyfinLibraryItem
+  let data: JellyfinLibraryLevelData
   @Published var items: [JellyfinLibraryItem] = []
   
-  init(data: JellyfinLibraryItem) {
+  init(data: JellyfinLibraryLevelData) {
     self.data = data
   }
   
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryFolderViewModel {
-    return MockJellyfinLibraryFolderViewModel(data: item)
+    let data = JellyfinLibraryLevelData.folder(data: item)
+    return MockJellyfinLibraryFolderViewModel(data: data)
   }
   
   func fetchInitialItems() {}
@@ -76,11 +98,45 @@ class MockJellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? { nil }
   
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
+  
+  func handleDoneAction() {}
 }
 
-#Preview {
+#Preview("top level") {
   let model = {
-    var model = MockJellyfinLibraryFolderViewModel(data: JellyfinLibraryItem(id: "0", name: "some folder", kind: .folder))
+    var model = MockJellyfinLibraryFolderViewModel(data: .topLevel(libraryName: "Mock Library", userID: "42"))
+    model.items = [
+      JellyfinLibraryItem(id: "0.0", name: "subfolder", kind: .folder),
+      JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.2", name: "another book", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.3", name: "subfolder 2", kind: .folder),
+      JellyfinLibraryItem(id: "0.4", name: "book 2 with a very very long name\nmaybe even a line break?", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.5", name: "another book 2", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.6", name: "subfolder 3", kind: .folder),
+      JellyfinLibraryItem(id: "0.7", name: "book 3", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.8", name: "another book 3", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.9", name: "subfolder 2", kind: .folder),
+      JellyfinLibraryItem(id: "0.10", name: "book 2", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.11", name: "another book 2", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.12", name: "subfolder 3", kind: .folder),
+      JellyfinLibraryItem(id: "0.13", name: "book 3", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.14", name: "another book 3", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.15", name: "subfolder 2", kind: .folder),
+      JellyfinLibraryItem(id: "0.16", name: "book 2", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.17", name: "another book 2", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.18", name: "subfolder 3", kind: .folder),
+      JellyfinLibraryItem(id: "0.19", name: "book 3", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.20", name: "another book 3", kind: .audiobook),
+    ]
+    return model
+  }()
+  JellyfinLibraryFolderView(viewModel: model)
+}
+
+#Preview("folder") {
+  let model = {
+    let topLevelFolder = JellyfinLibraryItem(id: "0", name: "some folder", kind: .folder)
+    var model = MockJellyfinLibraryFolderViewModel(data: .folder(data: topLevelFolder))
     model.items = [
       JellyfinLibraryItem(id: "0.0", name: "subfolder", kind: .folder),
       JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),

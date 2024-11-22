@@ -11,10 +11,15 @@ import Get
 import JellyfinAPI
 import BookPlayerKit
 
+enum JellyfinLibraryLevelData {
+  case topLevel(libraryName: String, userID: String)
+  case folder(data: JellyfinLibraryItem)
+}
+
 protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
   associatedtype FolderViewModel: JellyfinLibraryFolderViewModelProtocol
 
-  var data: JellyfinLibraryItem { get }
+  var data: JellyfinLibraryLevelData { get }
   var items: [JellyfinLibraryItem] { get set }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
@@ -26,11 +31,20 @@ protocol JellyfinLibraryFolderViewModelProtocol: ObservableObject {
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL?
 
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem)
+  
+  @MainActor
+  func handleDoneAction()
 }
 
 class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
-  let data: JellyfinLibraryItem
+  enum Routes {
+    case done
+  }
+  
+  let data: JellyfinLibraryLevelData
   @Published var items: [JellyfinLibraryItem] = []
+
+  var onTransition: BPTransition<Routes>?
 
   private var apiClient: JellyfinClient
   private var singleFileDownloadService: SingleFileDownloadService
@@ -45,14 +59,21 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
     return maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
-  init(data: JellyfinLibraryItem, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
+  init(data: JellyfinLibraryLevelData, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
     self.data = data
     self.apiClient = apiClient
     self.singleFileDownloadService = singleFileDownloadService
   }
 
   func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryFolderViewModel {
-    return JellyfinLibraryFolderViewModel(data: item, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
+    let data = JellyfinLibraryLevelData.folder(data: item)
+    let vm = JellyfinLibraryFolderViewModel(data: data, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
+    vm.onTransition = { [weak self] route in
+      switch route {
+      case .done: self?.onTransition?(.done)
+      }
+    }
+    return vm
   }
 
   func fetchInitialItems() {
@@ -76,12 +97,43 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       return
     }
 
+    switch data {
+    case .topLevel(libraryName: _, userID: let userID):
+      fetchTopLevelItems(userID: userID)
+    case .folder(data: let data):
+      fetchFolderItems(folderID: data.id)
+    }
+  }
+  
+  private func fetchTopLevelItems(userID: String) {
+    items = []
+    
+    let parameters = Paths.GetUserViewsParameters(userID: userID)
+
+    fetchTask?.cancel()
+    fetchTask = Task {
+      let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
+      try Task.checkCancellation()
+      let userViews = (response.value.items ?? [])
+        .compactMap { userView -> JellyfinLibraryItem? in
+          guard userView.collectionType == .books else {
+            return nil
+          }
+          return JellyfinLibraryItem(apiItem: userView)
+        }
+      await { @MainActor in
+        self.items = userViews
+      }()
+    }
+  }
+  
+  private func fetchFolderItems(folderID: String) {
     let parameters = Paths.GetItemsParameters(
       startIndex: nextStartItemIndex,
       limit: Self.itemBatchSize,
       isRecursive: false,
       sortOrder: [.ascending],
-      parentID: data.id,
+      parentID: folderID,
       fields: [.sortName],
       includeItemTypes: [.audioBook, .folder],
       sortBy: [.isFolder, .sortName],
@@ -162,5 +214,10 @@ class JellyfinLibraryFolderViewModel: JellyfinLibraryFolderViewModelProtocol {
       return
     }
     singleFileDownloadService.handleDownload(url)
+  }
+  
+  @MainActor
+  func handleDoneAction() {
+    onTransition?(.done)
   }
 }
