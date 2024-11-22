@@ -68,7 +68,7 @@ class JellyfinCoordinator: Coordinator {
   }
   
   private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryFolderViewModel(data: .topLevel(libraryName: libraryName, userID: userID),
+    let viewModel = JellyfinLibraryViewModel(data: .topLevel(libraryName: libraryName, userID: userID),
                                                    apiClient: client,
                                                    singleFileDownloadService: singleFileDownloadService)
     
@@ -79,7 +79,7 @@ class JellyfinCoordinator: Coordinator {
       }
     }
 
-    let vc = UIHostingController(rootView: JellyfinLibraryFolderView(viewModel: viewModel))
+    let vc = UIHostingController(rootView: JellyfinLibraryView(viewModel: viewModel))
     return vc
   }
 

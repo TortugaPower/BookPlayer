@@ -443,11 +443,9 @@
 		8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */; };
 		8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 8A495CC52CC85D27001B4244 /* JellyfinAPI */; };
 		8A9D0D172CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */; };
-		8A9D0D1E2CCCFA1E007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D1D2CCCFA1E007A924D /* JellyfinLibraryView.swift */; };
-		8A9D0D202CCCFA28007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D1F2CCCFA28007A924D /* JellyfinLibraryViewModel.swift */; };
 		8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */; };
-		8A9D0D242CCED53C007A924D /* JellyfinLibraryFolderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryFolderViewModel.swift */; };
-		8A9D0D262CCED543007A924D /* JellyfinLibraryFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D252CCED543007A924D /* JellyfinLibraryFolderView.swift */; };
+		8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */; };
+		8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */; };
 		8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */; };
 		8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */; };
 		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
@@ -458,6 +456,7 @@
 		8AAD8A572CEE88E5000A4B4B /* JellyfinConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */; };
 		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
 		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
+		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */; };
@@ -1225,11 +1224,9 @@
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
 		8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveVGrid.swift; sourceTree = "<group>"; };
 		8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionFormViewModel.swift; sourceTree = "<group>"; };
-		8A9D0D1D2CCCFA1E007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
-		8A9D0D1F2CCCFA28007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
 		8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinator.swift; sourceTree = "<group>"; };
-		8A9D0D232CCED53C007A924D /* JellyfinLibraryFolderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryFolderViewModel.swift; sourceTree = "<group>"; };
-		8A9D0D252CCED543007A924D /* JellyfinLibraryFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryFolderView.swift; sourceTree = "<group>"; };
+		8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
+		8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
 		8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLazyView.swift; sourceTree = "<group>"; };
 		8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemView.swift; sourceTree = "<group>"; };
 		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
@@ -1240,6 +1237,7 @@
 		8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionData.swift; sourceTree = "<group>"; };
 		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
 		8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionView.swift; sourceTree = "<group>"; };
+		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsForm.swift; sourceTree = "<group>"; };
@@ -2391,10 +2389,9 @@
 		8A9D0D1A2CCCF36D007A924D /* Library Screen */ = {
 			isa = PBXGroup;
 			children = (
-				8A9D0D1F2CCCFA28007A924D /* JellyfinLibraryViewModel.swift */,
-				8A9D0D1D2CCCFA1E007A924D /* JellyfinLibraryView.swift */,
-				8A9D0D232CCED53C007A924D /* JellyfinLibraryFolderViewModel.swift */,
-				8A9D0D252CCED543007A924D /* JellyfinLibraryFolderView.swift */,
+				8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */,
+				8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */,
+				8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */,
 				8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */,
 				8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */,
 			);
@@ -3575,9 +3572,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				634BA58D2C14D5330015314D /* SecondOnboardingType.swift in Sources */,
+				8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */,
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
-				8A9D0D262CCED543007A924D /* JellyfinLibraryFolderView.swift in Sources */,
+				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
@@ -3667,7 +3665,6 @@
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
 				41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */,
-				8A9D0D202CCCFA28007A924D /* JellyfinLibraryViewModel.swift in Sources */,
 				634BA5A12C174F9D0015314D /* StoryViewerViewModel.swift in Sources */,
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
@@ -3749,7 +3746,7 @@
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
-				8A9D0D242CCED53C007A924D /* JellyfinLibraryFolderViewModel.swift in Sources */,
+				8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
@@ -3775,7 +3772,6 @@
 				9FF383D12A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				63B3B6902B1F625B007A367C /* StorageCloudDeletedView.swift in Sources */,
 				9F134605293D0A410089B1DE /* ThemeViewModel.swift in Sources */,
-				8A9D0D1E2CCCFA1E007A924D /* JellyfinLibraryView.swift in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,

@@ -9,7 +9,7 @@
 import SwiftUI
 import Kingfisher
 
-struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
+struct JellyfinLibraryItemView<Model: JellyfinLibraryViewModelProtocol>: View {
   @State var item: JellyfinLibraryItem
   @EnvironmentObject var viewModel: Model
 
@@ -28,7 +28,7 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
     case .userView, .folder:
       NavigationLink {
         let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
-        NavigationLazyView(JellyfinLibraryFolderView(viewModel: childViewModel))
+        NavigationLazyView(JellyfinLibraryView(viewModel: childViewModel))
       } label: {
         itemView
       }
@@ -80,12 +80,12 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryFolderViewModelProtocol>: V
 
 #Preview("audiobook") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook))
-    .environmentObject(MockJellyfinLibraryFolderViewModel(data: parentData))
+  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook))
+    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }
 
 #Preview("folder") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder))
-    .environmentObject(MockJellyfinLibraryFolderViewModel(data: parentData))
+  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder))
+    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }

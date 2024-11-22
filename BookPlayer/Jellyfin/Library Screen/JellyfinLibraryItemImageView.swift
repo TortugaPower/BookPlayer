@@ -9,7 +9,7 @@
 import SwiftUI
 import Kingfisher
 
-struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtocol>: View {
+struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: View {
   @State var item: JellyfinLibraryItem
   @EnvironmentObject var viewModel: Model
   @Environment(\.displayScale) private var displayScale
@@ -60,6 +60,6 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryFolderViewModelProtoco
 
 #Preview("audiobook") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemImageView<MockJellyfinLibraryFolderViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
-    .environmentObject(MockJellyfinLibraryFolderViewModel(data: parentData))
+  JellyfinLibraryItemImageView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
+    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }
