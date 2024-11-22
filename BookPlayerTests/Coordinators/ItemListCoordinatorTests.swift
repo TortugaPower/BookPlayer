@@ -29,7 +29,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     playerManagerMock.currentSpeedPublisherReturnValue = Just(1.0).eraseToAnyPublisher()
     playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
     let syncServiceMock = SyncServiceProtocolMock()
-    let keychainServiceMock = KeychainService()
+    let keychainServiceMock = KeychainServiceMock()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient(keychain: keychainServiceMock))
 
     self.libraryListCoordinator = LibraryListCoordinator(
@@ -90,7 +90,7 @@ class FolderListCoordinatorTests: XCTestCase {
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
-    let keychainServiceMock = KeychainService()
+    let keychainServiceMock = KeychainServiceMock()
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
