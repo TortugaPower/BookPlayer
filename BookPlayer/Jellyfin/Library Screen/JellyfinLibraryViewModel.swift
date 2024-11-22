@@ -11,7 +11,7 @@ import Get
 import JellyfinAPI
 import BookPlayerKit
 
-enum JellyfinLibraryLevelData {
+enum JellyfinLibraryLevelData: Equatable {
   case topLevel(libraryName: String, userID: String)
   case folder(data: JellyfinLibraryItem)
 }

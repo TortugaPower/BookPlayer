@@ -15,7 +15,7 @@ import SwiftUI
 class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger {
   enum Routes {
     case cancel
-    case signInFinished(userID: String, client: JellyfinClient)
+    case signInFinished(url: URL, userID: String, accessToken: String)
     case signOut
     case showLibrary
     case showAlert(content: BPAlertContent)
@@ -146,9 +146,9 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
       defer { self.apiTask = nil }
       do {
         let authResult = try await apiClient.signIn(username: username, password: password)
-        if let _ = authResult.accessToken, let userID = authResult.user?.id {
+        if let accessToken = authResult.accessToken, let userID = authResult.user?.id {
           self.connectionState = .connected
-          self.onTransition?(.signInFinished(userID: userID, client: apiClient))
+          self.onTransition?(.signInFinished(url: apiClient.configuration.url, userID: userID, accessToken: accessToken))
         } else {
           self.showErrorAlert(message: JellyfinError.unexpectedResponse(code: nil).localizedDescription)
         }

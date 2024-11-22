@@ -210,15 +210,13 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       switch route {
       case .cancel:
         self?.flow.navigationController.dismiss(animated: true)
-      case .signInFinished(userID: _, client: _):
-        break
       case .signOut:
         self?.jellyfinConnectionService.deleteConnection()
         self?.flow.navigationController.dismiss(animated: true)
-      case .showLibrary:
-        break
       case .showAlert(let content):
         self?.showAlert(content)
+      default:
+        break
       }
     }
 

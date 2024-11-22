@@ -54,8 +54,8 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
       switch route {
       case .cancel:
         viewModel.dismiss()
-      case .signInFinished(let userID, let client):
-        self.handleSignInFinished(userID: userID, client: client, connectionViewModel: viewModel)
+      case .signInFinished(let url, let userID, let accessToken):
+        self.handleSignInFinished(url: url, userID: userID, accessToken: accessToken, connectionViewModel: viewModel)
       case .signOut:
         self.jellyfinConnectionService.deleteConnection()
       case .showLibrary:
@@ -87,15 +87,13 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
     return vc
   }
 
-  private func handleSignInFinished(userID: String, client: JellyfinClient, connectionViewModel viewModel: JellyfinConnectionViewModel) {
-    if let accessToken = client.accessToken {
-      let connectionData = JellyfinConnectionData(url: client.configuration.url,
-                                                  serverName: viewModel.form.serverName ?? "",
-                                                  userID: userID,
-                                                  userName: viewModel.form.username,
-                                                  accessToken: accessToken)
-      jellyfinConnectionService.setConnection(connectionData, saveToKeychain: viewModel.form.rememberMe)
-    }
+  private func handleSignInFinished(url: URL, userID: String, accessToken: String, connectionViewModel viewModel: JellyfinConnectionViewModel) {
+    let connectionData = JellyfinConnectionData(url: url,
+                                                serverName: viewModel.form.serverName ?? "",
+                                                userID: userID,
+                                                userName: viewModel.form.username,
+                                                accessToken: accessToken)
+    jellyfinConnectionService.setConnection(connectionData, saveToKeychain: viewModel.form.rememberMe)
     
     self.tryShowLibraryView()
   }

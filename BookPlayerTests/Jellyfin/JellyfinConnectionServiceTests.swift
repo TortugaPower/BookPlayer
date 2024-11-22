@@ -20,7 +20,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
     sut = JellyfinConnectionService(keychainService: mockKeychain)
   }
   
-  func makeMockConnectionData(serverUrlString: String = "http://example.com", accessToken: String = "12345") -> JellyfinConnectionData {
+  static func makeMockConnectionData(serverUrlString: String = "http://example.com", accessToken: String = "12345") -> JellyfinConnectionData {
     return JellyfinConnectionData(url: URL(string: serverUrlString)!,
                                   serverName: "Mock Server",
                                   userID: "42",
@@ -35,7 +35,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
   
   func testNewInstanceLoadsSavedConnection() throws {
     do {
-      let connectionData = makeMockConnectionData()
+      let connectionData = Self.makeMockConnectionData()
       try mockKeychain.set(connectionData, key: .jellyfinConnection)
     }
     
@@ -52,19 +52,19 @@ class JellyfinConnectionServiceTests: XCTestCase {
   func testSetAndGetConnection() {
     XCTAssertNil(sut.connection)
     
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: false)
     
     XCTAssertNotNil(sut.connection)
     XCTAssertEqual(sut.connection?.url, URL(string: "http://example.com")!)
     
-    sut.setConnection(makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
     
     XCTAssertNotNil(sut.connection)
     XCTAssertEqual(sut.connection?.url, URL(string: "http://example.com:8096")!)
   }
   
   func testSaveInvalidConnection() {
-    sut.setConnection(makeMockConnectionData(accessToken: ""), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(accessToken: ""), saveToKeychain: false)
     XCTAssertNil(sut.connection)
   }
   
@@ -74,7 +74,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
       XCTAssertNil(dataInKeychain)
     }
     XCTAssertNil(sut.connection)
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: false)
     
     do {
       let dataInKeychain: JellyfinConnectionData? = try mockKeychain.get(.jellyfinConnection)
@@ -87,7 +87,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
   
   func testSaveToKeychainAndGetWithNewInstance() throws {
     XCTAssertNil(sut.connection)
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: true)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: true)
     
     do {
       let dataInKeychain: JellyfinConnectionData? = try mockKeychain.get(.jellyfinConnection)
@@ -100,7 +100,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
   }
   
   func testDeleteConnection() {
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: true)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: true)
     XCTAssertNotNil(sut.connection)
     var newInstance = JellyfinConnectionService(keychainService: mockKeychain)
     XCTAssertNotNil(newInstance.connection)
@@ -122,13 +122,13 @@ class JellyfinConnectionServiceTests: XCTestCase {
     }
     .store(in: &disposeBag)
     
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: false)
     
     XCTAssertEqual(eventsPublished, 1)
     XCTAssertNotNil(latestConnectionDataInEvent)
     XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com")!)
     
-    sut.setConnection(makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
     
     XCTAssertEqual(eventsPublished, 2)
     XCTAssertNotNil(latestConnectionDataInEvent)
@@ -139,7 +139,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
     XCTAssertEqual(eventsPublished, 3)
     XCTAssertNil(latestConnectionDataInEvent)
     
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: true)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: true)
     
     XCTAssertEqual(eventsPublished, 4)
     XCTAssertNotNil(latestConnectionDataInEvent)
@@ -160,7 +160,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
     client = JellyfinConnectionService.createClient(serverUrlString: "")
     XCTAssertNil(client)
     
-    client = JellyfinConnectionService.createClient(for: makeMockConnectionData())
+    client = JellyfinConnectionService.createClient(for: Self.makeMockConnectionData())
     XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
     XCTAssertEqual(client?.accessToken, "12345")
   }
@@ -168,7 +168,7 @@ class JellyfinConnectionServiceTests: XCTestCase {
   func testCreateClientFromSavedConnection() {
     XCTAssertNil(sut.createClient())
     
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    sut.setConnection(Self.makeMockConnectionData(), saveToKeychain: false)
     let client = sut.createClient()
     XCTAssertNotNil(client)
     XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
