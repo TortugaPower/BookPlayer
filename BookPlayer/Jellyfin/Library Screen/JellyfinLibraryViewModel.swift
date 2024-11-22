@@ -36,7 +36,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func handleDoneAction()
 }
 
-class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol {
+class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
   }
@@ -192,11 +192,13 @@ class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol {
 
   private func createUrlComponentsForApiRequest<Response>(_ request: Request<Response>) -> URLComponents? {
     guard let requestUrl = request.url else {
+      Self.logger.error("request is lacking url: \(String(reflecting: request))")
       return nil
     }
     let requestAbsoluteUrl = requestUrl.scheme == nil ? apiClient.configuration.url.appendingPathComponent(requestUrl.absoluteString) : requestUrl
 
     guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
+      Self.logger.error("request url is malformed: \(requestAbsoluteUrl) (original: \(requestUrl))")
       return nil
     }
     if let query = request.query, !query.isEmpty {
@@ -207,6 +209,7 @@ class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol {
 
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
     guard let url = createItemDownloadUrl(item) else {
+      // TODO alert
       return
     }
     singleFileDownloadService.handleDownload(url)

@@ -15,3 +15,10 @@ struct JellyfinConnectionData: Codable {
   let userName: String
   let accessToken: String
 }
+
+extension JellyfinConnectionData: CustomDebugStringConvertible {
+  var debugDescription: String {
+    let accessTokenDebugDesc = accessToken.isEmpty ? "<empty>" : "<redacted>"
+    return "JellyfinConnectionData(\(url), \(serverName), \(userID), \(userName), \(accessTokenDebugDesc))"
+  }
+}

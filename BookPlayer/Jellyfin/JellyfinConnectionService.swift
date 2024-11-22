@@ -9,7 +9,7 @@
 import BookPlayerKit
 import JellyfinAPI
 
-class JellyfinConnectionService {
+class JellyfinConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
   
   @Published var connection: JellyfinConnectionData?
@@ -22,6 +22,7 @@ class JellyfinConnectionService {
   
   func setConnection(_ data: JellyfinConnectionData, saveToKeychain: Bool) {
     guard Self.isConnectionValid(data) else {
+      Self.logger.error("failed to set connection data: \(String(reflecting: data))")
       return
     }
     
@@ -32,6 +33,7 @@ class JellyfinConnectionService {
         try keychainService.set(data, key: .jellyfinConnection)
       } catch {
         // ignore issue saving the connection data, we'll just have to prompt again next time
+        Self.logger.warning("failed to save connection data to keychain: \(error)")
       }
     }
   }
@@ -62,6 +64,7 @@ class JellyfinConnectionService {
   
   static func createClient(for connection: JellyfinConnectionData) -> JellyfinClient? {
     guard isConnectionValid(connection) else {
+      Self.logger.warning("Cannot create Jellyfin API client from invalid connection data: \(String(reflecting: connection))")
       return nil
     }
     return createClient(serverUrlString: connection.url.absoluteString, accessToken: connection.accessToken)
@@ -73,6 +76,7 @@ class JellyfinConnectionService {
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
     let deviceID = UIDevice.current.identifierForVendor
     guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
+      Self.logger.error("cannot build Jellyfin API client. \(serverUrlString), \(clientName), \(clientVersion), \(String(reflecting: deviceID))")
       return nil
     }
     let configuration = JellyfinClient.Configuration(

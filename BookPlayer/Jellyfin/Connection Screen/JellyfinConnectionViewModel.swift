@@ -11,7 +11,7 @@ import Combine
 import JellyfinAPI
 import SwiftUI
 
-class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
+class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger {
   enum Routes {
     case cancel
     case signInFinished(userID: String, client: JellyfinClient)
@@ -103,10 +103,12 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   @MainActor
   func handleConnectAction() {
     guard canConnect else {
+      Self.logger.error("handleConnectAction called while canConnect is false")
       return
     }
     
     guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
+      // TODO alert
       return
     }
 
@@ -121,10 +123,12 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   @MainActor
   func handleSignInAction() {
     guard canSignIn else {
+      Self.logger.error("handleSignInAction called while canSignIn is false")
       return
     }
     
     guard let apiClient = JellyfinConnectionService.createClient(serverUrlString: form.serverUrl) else {
+      // TODO alert
       return
     }
     
@@ -148,6 +152,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject {
   @MainActor
   func handleGoToLibraryAction() {
     guard canGoToLibrary else {
+      Self.logger.error("handleGoToLibraryAction called while canGoToLibrary is false")
       return
     }
     
