@@ -20,12 +20,12 @@ class JellyfinConnectionServiceTests: XCTestCase {
     sut = JellyfinConnectionService(keychainService: mockKeychain)
   }
   
-  func makeMockConnectionData(serverUrlString: String = "http://example.com") -> JellyfinConnectionData {
+  func makeMockConnectionData(serverUrlString: String = "http://example.com", accessToken: String = "12345") -> JellyfinConnectionData {
     return JellyfinConnectionData(url: URL(string: serverUrlString)!,
                                   serverName: "Mock Server",
                                   userID: "42",
                                   userName: "Mock User",
-                                  accessToken: "12345")
+                                  accessToken: accessToken)
   }
   
   func testNoConnectionByDefault() throws {
@@ -61,6 +61,11 @@ class JellyfinConnectionServiceTests: XCTestCase {
     
     XCTAssertNotNil(sut.connection)
     XCTAssertEqual(sut.connection?.url, URL(string: "http://example.com:8096")!)
+  }
+  
+  func testSaveInvalidConnection() {
+    sut.setConnection(makeMockConnectionData(accessToken: ""), saveToKeychain: false)
+    XCTAssertNil(sut.connection)
   }
   
   func testDontSaveToKeychain() throws {
@@ -139,5 +144,37 @@ class JellyfinConnectionServiceTests: XCTestCase {
     XCTAssertEqual(eventsPublished, 4)
     XCTAssertNotNil(latestConnectionDataInEvent)
     XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com")!)
+  }
+  
+  func testCreateClientStatic() {
+    var client = JellyfinConnectionService.createClient(serverUrlString: "http://example.com")
+    XCTAssertNotNil(client)
+    XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
+    XCTAssertNil(client?.accessToken)
+    
+    client = JellyfinConnectionService.createClient(serverUrlString: "http://example.com", accessToken: "12345")
+    XCTAssertNotNil(client)
+    XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
+    XCTAssertEqual(client?.accessToken, "12345")
+    
+    client = JellyfinConnectionService.createClient(serverUrlString: "")
+    XCTAssertNil(client)
+    
+    client = JellyfinConnectionService.createClient(for: makeMockConnectionData())
+    XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
+    XCTAssertEqual(client?.accessToken, "12345")
+  }
+  
+  func testCreateClientFromSavedConnection() {
+    XCTAssertNil(sut.createClient())
+    
+    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    let client = sut.createClient()
+    XCTAssertNotNil(client)
+    XCTAssertEqual(client?.configuration.url, URL(string: "http://example.com")!)
+    XCTAssertEqual(client?.accessToken, "12345")
+    
+    sut.deleteConnection()
+    XCTAssertNil(sut.createClient())
   }
 }
