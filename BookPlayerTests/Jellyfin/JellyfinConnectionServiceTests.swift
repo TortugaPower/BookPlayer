@@ -63,30 +63,6 @@ class JellyfinConnectionServiceTests: XCTestCase {
     XCTAssertEqual(sut.connection?.url, URL(string: "http://example.com:8096")!)
   }
   
-  func testSetConnectionPublishesChanges() throws {
-    var eventsPublished = 0
-    var latestConnectionDataInEvent: JellyfinConnectionData?
-    
-    var disposeBag = Set<AnyCancellable>()
-    sut.$connection.dropFirst().sink { newConnection in
-      eventsPublished += 1
-      latestConnectionDataInEvent = newConnection
-    }
-    .store(in: &disposeBag)
-    
-    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
-    
-    XCTAssertEqual(eventsPublished, 1)
-    XCTAssertNotNil(latestConnectionDataInEvent)
-    XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com")!)
-    
-    sut.setConnection(makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
-    
-    XCTAssertEqual(eventsPublished, 2)
-    XCTAssertNotNil(latestConnectionDataInEvent)
-    XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com:8096")!)
-  }
-  
   func testDontSaveToKeychain() throws {
     do {
       let dataInKeychain: JellyfinConnectionData? = try mockKeychain.get(.jellyfinConnection)
@@ -116,5 +92,52 @@ class JellyfinConnectionServiceTests: XCTestCase {
     let newInstance = JellyfinConnectionService(keychainService: mockKeychain)
     XCTAssertNotNil(newInstance.connection)
     XCTAssertEqual(newInstance.connection?.url, URL(string: "http://example.com")!)
+  }
+  
+  func testDeleteConnection() {
+    sut.setConnection(makeMockConnectionData(), saveToKeychain: true)
+    XCTAssertNotNil(sut.connection)
+    var newInstance = JellyfinConnectionService(keychainService: mockKeychain)
+    XCTAssertNotNil(newInstance.connection)
+    
+    sut.deleteConnection()
+    XCTAssertNil(sut.connection)
+    newInstance = JellyfinConnectionService(keychainService: mockKeychain)
+    XCTAssertNil(newInstance.connection)
+  }
+  
+  func testConnectionPublishesChanges() throws {
+    var eventsPublished = 0
+    var latestConnectionDataInEvent: JellyfinConnectionData?
+    
+    var disposeBag = Set<AnyCancellable>()
+    sut.$connection.dropFirst().sink { newConnection in
+      eventsPublished += 1
+      latestConnectionDataInEvent = newConnection
+    }
+    .store(in: &disposeBag)
+    
+    sut.setConnection(makeMockConnectionData(), saveToKeychain: false)
+    
+    XCTAssertEqual(eventsPublished, 1)
+    XCTAssertNotNil(latestConnectionDataInEvent)
+    XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com")!)
+    
+    sut.setConnection(makeMockConnectionData(serverUrlString: "http://example.com:8096"), saveToKeychain: false)
+    
+    XCTAssertEqual(eventsPublished, 2)
+    XCTAssertNotNil(latestConnectionDataInEvent)
+    XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com:8096")!)
+    
+    sut.deleteConnection()
+    
+    XCTAssertEqual(eventsPublished, 3)
+    XCTAssertNil(latestConnectionDataInEvent)
+    
+    sut.setConnection(makeMockConnectionData(), saveToKeychain: true)
+    
+    XCTAssertEqual(eventsPublished, 4)
+    XCTAssertNotNil(latestConnectionDataInEvent)
+    XCTAssertEqual(latestConnectionDataInEvent?.url, URL(string: "http://example.com")!)
   }
 }
