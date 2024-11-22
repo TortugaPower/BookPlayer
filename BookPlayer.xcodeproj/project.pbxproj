@@ -459,6 +459,7 @@
 		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
 		8AF18A382CF0E6AE00238F8D /* JellyfinConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */; };
+		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
 		9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */; };
@@ -1242,6 +1243,7 @@
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A342CF0C42C00238F8D /* JellyfinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinError.swift; sourceTree = "<group>"; };
 		8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionServiceTests.swift; sourceTree = "<group>"; };
+		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
 		9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsForm.swift; sourceTree = "<group>"; };
@@ -2136,6 +2138,7 @@
 		62AAE22827492D6E001EB9FF /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */,
 				9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */,
 				9FC1E4622814F80000522FA8 /* AccountServiceMock.swift */,
 				9FC1E46828150ECC00522FA8 /* NetworkClientMock.swift */,
@@ -3832,6 +3835,7 @@
 				9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */,
 				416A9D4B2743D51E00463621 /* StorageViewModelTests.swift in Sources */,
 				4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */,
+				8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */,
 				9F7C47532A2C15D300F9A500 /* AutoMockable.generated.swift in Sources */,
 				62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
