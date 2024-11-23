@@ -26,7 +26,7 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: Vi
         .cacheMemoryOnly()
         .resizable()
         .placeholder { placeholderImage(aspectRatio: aspectRatio) }
-        .fade(duration: 0.25)
+        .fade(duration: 0.5)
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
     .cornerRadius(3)
