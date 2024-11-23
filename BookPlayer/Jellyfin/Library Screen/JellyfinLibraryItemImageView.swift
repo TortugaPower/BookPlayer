@@ -47,7 +47,7 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: Vi
 
   private var blurhashImage: UIImage? {
     guard let blurHash = item.blurHash  else { return nil }
-    return UIImage(blurHash: blurHash, size: CGSize(width: 32, height: 32))
+    return UIImage(blurHash: blurHash, size: CGSize(width: 16, height: 16))
   }
 
   private var placeholderImageName: String {
