@@ -451,6 +451,7 @@
 		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
 		8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */; };
 		8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */; };
+		8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */; };
 		8AAD8A4F2CEE3650000A4B4B /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */; };
 		8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
 		8AAD8A572CEE88E5000A4B4B /* JellyfinConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */; };
@@ -1236,6 +1237,7 @@
 		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
 		8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
 		8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleFileDownloadService.swift; sourceTree = "<group>"; };
+		8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
 		8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionService.swift; sourceTree = "<group>"; };
 		8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionData.swift; sourceTree = "<group>"; };
@@ -2361,6 +2363,7 @@
 			children = (
 				4163E314214ACB4300072AA2 /* DataTestUtils.swift */,
 				63432B582AC1E6F7002619D0 /* MockNavigationController.swift */,
+				8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */,
 				6906A552217211C600A9E0B2 /* StubFactory.swift */,
 			);
 			path = Support;
@@ -3831,6 +3834,7 @@
 			files = (
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
+				8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */,
 				9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */,
 				62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */,
 				41C2340C27324AB7006BC7B8 /* ItemListViewModelTests.swift in Sources */,

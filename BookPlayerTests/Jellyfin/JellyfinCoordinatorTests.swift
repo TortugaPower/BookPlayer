@@ -13,18 +13,21 @@ import SwiftUI
 import XCTest
 
 class JellyfinCoordinatorInitialStateTests: XCTestCase {
-  var presentingController: MockNavigationController!
+  var mockFlow: MockCoordinatorPresentationFlow!
+  var mockSingleFileDownloadService: SingleFileDownloadService!
   var mockKeychainService: KeychainServiceMock!
   var mockJellyfinConnectionService: JellyfinConnectionService!
   var sut: JellyfinCoordinator!
   
   override func setUp() {
-    presentingController = MockNavigationController()
+    mockFlow = MockCoordinatorPresentationFlow()
     
-    let mockSingleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClientMock(mockedResponse: Empty.value))
+    mockSingleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClientMock(mockedResponse: Empty.value))
+    
     mockKeychainService = KeychainServiceMock()
     mockJellyfinConnectionService = JellyfinConnectionService(keychainService: mockKeychainService)
-    sut = JellyfinCoordinator(flow: .pushFlow(navigationController: presentingController),
+    
+    sut = JellyfinCoordinator(flow: mockFlow,
                               singleFileDownloadService: mockSingleFileDownloadService,
                               jellyfinConnectionService: mockJellyfinConnectionService)
   }
@@ -32,13 +35,13 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
   func testInitialStateShowsConnectionViewWhenLoggedOut() {
     XCTAssertNil(mockJellyfinConnectionService.connection)
     sut.start()
-    XCTAssertEqual(presentingController.horizontalStack, ["UIHostingController<JellyfinConnectionView>"])
+    XCTAssertEqual(mockFlow.horizontalStack, ["UIHostingController<JellyfinConnectionView>"])
   }
   
   func testInitialStateShowsConnectionAndLibraryViewWhenLoggedIn() {
     mockJellyfinConnectionService.setConnection(JellyfinConnectionServiceTests.makeMockConnectionData(), saveToKeychain: false)
     sut.start()
-    XCTAssertEqual(presentingController.horizontalStack, [
+    XCTAssertEqual(mockFlow.horizontalStack, [
       "UIHostingController<JellyfinConnectionView>",
       "UIHostingController<JellyfinLibraryView<JellyfinLibraryViewModel>>",
     ])
@@ -47,8 +50,8 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
   @MainActor
   func testShowLibraryWhenSignInFinishes() throws {
     sut.start()
-    XCTAssertEqual(presentingController.horizontalStack, ["UIHostingController<JellyfinConnectionView>"])
-    guard let connectionVC = presentingController.viewControllers.first as? UIHostingController<JellyfinConnectionView> else {
+    XCTAssertEqual(mockFlow.horizontalStack, ["UIHostingController<JellyfinConnectionView>"])
+    guard let connectionVC = mockFlow.navigationController.viewControllers.first as? UIHostingController<JellyfinConnectionView> else {
       XCTAssert(false, "Requires connection VC to proceed")
       return
     }
@@ -69,17 +72,29 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
       XCTAssertEqual(savedConnectionData?.url, URL(string: "http://example.com")!)
     }
     
-    XCTAssertEqual(presentingController.horizontalStack, [
+    XCTAssertEqual(mockFlow.horizontalStack, [
       "UIHostingController<JellyfinConnectionView>",
       "UIHostingController<JellyfinLibraryView<JellyfinLibraryViewModel>>",
     ])
     
-    guard let libraryVC = presentingController.viewControllers.last as? UIHostingController<JellyfinLibraryView<JellyfinLibraryViewModel>> else {
+    guard let libraryVC = mockFlow.navigationController.viewControllers.last as? UIHostingController<JellyfinLibraryView<JellyfinLibraryViewModel>> else {
       XCTAssert(false, "Requires library VC to proceed")
       return
     }
     let libraryViewModel = libraryVC.rootView.viewModel
     
     XCTAssertEqual(libraryViewModel.data, .topLevel(libraryName: "Mock Server", userID: "42"))
+  }
+  
+  @MainActor
+  func testHideJellyfinViewsOnDownloadProgress() {
+    mockJellyfinConnectionService.setConnection(JellyfinConnectionServiceTests.makeMockConnectionData(), saveToKeychain: false)
+    sut.start()
+    
+    XCTAssertGreaterThan(mockFlow.horizontalStack.count, 0)
+    
+    mockSingleFileDownloadService.handleDownload(URL(string: "http://example.com/foo.mp4")!)
+    
+    XCTAssertEqual(mockFlow.horizontalStack.count, 0)
   }
 }

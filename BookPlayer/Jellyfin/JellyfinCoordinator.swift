@@ -31,6 +31,8 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
     singleFileDownloadService.eventsPublisher.sink { [weak self] event in
       switch event {
       case .starting(_), .error(_, _, _):
+        // Currently we only show the download issues or progress in the main view
+        // So we hide the jellyfin views when download starts of has an error
         self?.flow.finishPresentation(animated: true)
       default:
         break
