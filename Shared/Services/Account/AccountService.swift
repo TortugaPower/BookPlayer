@@ -273,6 +273,7 @@ public final class AccountService: AccountServiceProtocol {
     try self.keychain.set(token, key: .token)
 
     _ = try await Purchases.shared.logIn(userId)
+    UserDefaults.standard.set(userId, forKey: "rcUserId")
   }
 
   public func login(
@@ -284,6 +285,7 @@ public final class AccountService: AccountServiceProtocol {
     try self.keychain.set(response.token, key: .token)
 
     let (customerInfo, _) = try await Purchases.shared.logIn(userId)
+    UserDefaults.standard.set(userId, forKey: "rcUserId")
 
     if let existingAccount = self.getAccount() {
       // Preserve donation made flag from stored account
@@ -327,6 +329,7 @@ public final class AccountService: AccountServiceProtocol {
     )
 
     Purchases.shared.logOut { _, _ in }
+    UserDefaults.standard.removeObject(forKey: "rcUserId")
 
     NotificationCenter.default.post(name: .logout, object: self)
   }

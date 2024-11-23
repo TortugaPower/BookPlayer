@@ -1,5 +1,5 @@
 //
-//  ContainerItemListView.swift
+//  RootView.swift
 //  BookPlayerWatch Extension
 //
 //  Created by gianni.carlo on 22/2/22.
@@ -9,33 +9,39 @@
 import BookPlayerWatchKit
 import SwiftUI
 
-struct ContainerItemListView: View {
+struct RootView: View {
+  @ObservedObject var coreServices: CoreServices
   @ObservedObject var contextManager = ExtensionDelegate.contextManager
-  @State var showPlayer = false
   @State var showSettings = false
 
   var body: some View {
     VStack {
-      if contextManager.items.isEmpty,
-        contextManager.isConnecting
-      {
+      if coreServices.hasSyncEnabled {
+        RemoteItemListView(coreServices: coreServices)
+      } else if contextManager.items.isEmpty && contextManager.isConnecting {
         ProgressView()
       } else {
         itemList
-          .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-              Button {
-                print("Settings")
-                showSettings = true
-              } label: {
-                Image(systemName: "gear")
-              }
-            }
-          }
-          .fullScreenCover(isPresented: $showSettings) {
-            SettingsView()
-          }
       }
+    }
+    .toolbar {
+      ToolbarItem(placement: .cancellationAction) {
+        Button {
+          showSettings = true
+        } label: {
+          Image(systemName: "gear")
+        }
+      }
+    }
+    .fullScreenCover(isPresented: $showSettings) {
+      let account = coreServices.accountService.getAccount()
+      SettingsView(
+        account:
+          account?.hasId == true
+          ? account
+          : nil
+      )
+      .environment(\.coreServices, coreServices)
     }
   }
 
@@ -52,11 +58,5 @@ struct ContainerItemListView: View {
           .environmentObject(contextManager)
       }
     }
-  }
-}
-
-struct ContainerItemListView_Previews: PreviewProvider {
-  static var previews: some View {
-    ContainerItemListView()
   }
 }

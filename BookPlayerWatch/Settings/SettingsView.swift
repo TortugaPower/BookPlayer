@@ -11,17 +11,19 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct SettingsView: View {
-  @AppStorage("userEmail")
-  var email: String?
+  @ForcedEnvironment(\.coreServices) var coreServices
+  @State var account: Account?
 
   var body: some View {
     GeometryReader { geometry in
       ScrollView {
         Group {
-          if email != nil {
-            ProfileView()
+          if account?.id != nil,
+            account?.id.isEmpty == false
+          {
+            ProfileView(account: $account)
           } else {
-            LoginView()
+            LoginView(account: $account)
               .fixedSize(horizontal: false, vertical: true)
           }
         }

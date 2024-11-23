@@ -14,6 +14,8 @@
   <string>$(BP_REVENUECAT_KEY)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
+  <key>BP_MOCKED_BEARER_TOKEN</key>
+  <string>$(BP_MOCKED_BEARER_TOKEN)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

@@ -6,14 +6,14 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerWatchKit
 import SwiftUI
 
 struct ProfileView: View {
-  @StateObject var model = ProfileViewModel()
+  @ForcedEnvironment(\.coreServices) var coreServices
+  @Binding var account: Account?
   @State private var isLoading = false
   @State private var error: Error?
-  @AppStorage("userEmail")
-  var email: String?
 
   var body: some View {
     VStack {
@@ -21,16 +21,18 @@ struct ProfileView: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 45, height: 45)
-      if let email {
+      if let email = coreServices.accountService.getAccount()?.email {
         Text(verbatim: email)
       }
       Spacer()
-      Button("Log Out") {
+      Button("logout_title".localized) {
         Task {
           do {
             isLoading = true
-            try await model.handleLogOut()
+            try coreServices.accountService.logout()
             isLoading = false
+            account = nil
+            coreServices.hasSyncEnabled = false
           } catch {
             isLoading = false
             self.error = error
@@ -56,8 +58,4 @@ struct ProfileView: View {
       }
     }
   }
-}
-
-#Preview {
-  ProfileView()
 }
