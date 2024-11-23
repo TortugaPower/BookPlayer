@@ -9,12 +9,19 @@
 import BookPlayerKit
 import SwiftUI
 
+enum JellyfinConnectionViewField: Focusable {
+  case none
+  case serverUrl, username, password
+}
+
 struct JellyfinConnectionView: View {
   /// View model for the form
   @ObservedObject var viewModel: JellyfinConnectionViewModel
   /// Theme view model to update colors
   @StateObject var themeViewModel = ThemeViewModel()
-
+  
+  @State var focusedField: JellyfinConnectionViewField = .none
+  
   var body: some View {
     Form {
       switch viewModel.connectionState {
@@ -51,10 +58,15 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var disconnectedView: some View {
     Section {
-      ClearableTextField("jellyfin_server_url_placeholder".localized, text: $viewModel.form.serverUrl)
-        .keyboardType(.URL)
-        .textContentType(.URL)
-        .autocapitalization(.none)
+      ClearableTextField("jellyfin_server_url_placeholder".localized, text: $viewModel.form.serverUrl, onCommit: {
+        if viewModel.canConnect {
+          viewModel.handleConnectAction()
+        }
+      })
+      .keyboardType(.URL)
+      .textContentType(.URL)
+      .autocapitalization(.none)
+      .focused($focusedField, selfKey: .serverUrl)
     } header: {
       Text("jellyfin_section_server_url".localized)
         .foregroundColor(themeViewModel.secondaryColor)
@@ -63,6 +75,11 @@ struct JellyfinConnectionView: View {
         .foregroundColor(themeViewModel.secondaryColor)
     }
     .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .onAppear {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        focusedField = .serverUrl
+      }
+    }
   }
 
   @ViewBuilder
@@ -70,10 +87,20 @@ struct JellyfinConnectionView: View {
     serverInfoSection
 
     Section {
-      ClearableTextField("jellyfin_username_placeholder".localized, text: $viewModel.form.username)
-        .textContentType(.name)
-        .autocapitalization(.none)
-      SecureField("jellyfin_password_placeholder".localized, text: $viewModel.form.password)
+      ClearableTextField("jellyfin_username_placeholder".localized, text: $viewModel.form.username, onCommit: {
+        focusedField = .password
+      })
+      .textContentType(.name)
+      .autocapitalization(.none)
+      .focused($focusedField, selfKey: .username)
+      
+      SecureField("jellyfin_password_placeholder".localized, text: $viewModel.form.password, onCommit: {
+        if viewModel.canSignIn {
+          viewModel.handleSignInAction()
+        }
+      })
+      .focused($focusedField, selfKey: .password)
+      
       Toggle(isOn: $viewModel.form.rememberMe) {
         Text("jellyfin_password_remember_me_label".localized)
           .foregroundColor(themeViewModel.primaryColor)
@@ -82,6 +109,11 @@ struct JellyfinConnectionView: View {
       Text("jellyfin_section_login".localized)
     }
     .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .onAppear {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        focusedField = .username
+      }
+    }
   }
 
   @ViewBuilder
@@ -129,6 +161,8 @@ struct JellyfinConnectionView: View {
     }
     .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
   }
+  
+  // MARK: Utils
 
   @ViewBuilder
   private func destructiveButton(_ title: String, action: @escaping @MainActor () -> Void) -> some View {

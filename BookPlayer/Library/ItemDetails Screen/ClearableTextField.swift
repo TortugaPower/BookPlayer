@@ -14,18 +14,21 @@ struct ClearableTextField: View {
   var placeholder: String
   /// Input's text
   @Binding var text: String
+  /// An action to perform when the user performs an action (for example, when the user presses the Return key) while the text field has focus.
+  var onCommit: () -> Void
 
   /// Current theme
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
-  init(_ placeholder: String, text: Binding<String>) {
+  init(_ placeholder: String, text: Binding<String>, onCommit: @escaping () -> Void = {}) {
     self.placeholder = placeholder
     _text = text
+    self.onCommit = onCommit
   }
 
   var body: some View {
     HStack {
-      TextField(placeholder, text: $text)
+      TextField(placeholder, text: $text, onCommit: onCommit)
         .foregroundColor(themeViewModel.primaryColor)
       Image(systemName: "clear.fill")
         .foregroundColor(themeViewModel.secondaryColor)
