@@ -10,26 +10,45 @@ import SwiftUI
 import Kingfisher
 
 struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: View {
-  @State var item: JellyfinLibraryItem
+  let item: JellyfinLibraryItem
   @EnvironmentObject var viewModel: Model
   @Environment(\.displayScale) private var displayScale
 
   var body: some View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
-
+    
     GeometryReader { proxy in
       let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
-
-      KFImage
-        .url(viewModel.createItemImageURL(item, size: imageSize))
-        .cancelOnDisappear(true)
-        .cacheMemoryOnly()
-        .resizable()
-        .placeholder { placeholderImage(aspectRatio: aspectRatio) }
-        .fade(duration: 0.5)
+      JellyfinLibraryItemImageViewWrapper<Model>(item: item,
+                                                 imageSize: imageSize,
+                                                 aspectRatio: aspectRatio)
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
     .cornerRadius(3)
+  }
+}
+
+/// Utility for JellyfinLibraryItemImageView to avoid reloading the image when the size changes
+fileprivate struct JellyfinLibraryItemImageViewWrapper<Model: JellyfinLibraryViewModelProtocol>: View, Equatable {
+  let item: JellyfinLibraryItem
+  let imageSize: CGSize
+  let aspectRatio: CGFloat?
+  @EnvironmentObject var viewModel: Model
+  
+  var body: some View {
+    let _ = print(imageSize)
+    
+    KFImage
+      .url(viewModel.createItemImageURL(item, size: imageSize))
+      .cancelOnDisappear(true)
+      .cacheMemoryOnly()
+      .resizable()
+      .placeholder { placeholderImage(aspectRatio: aspectRatio) }
+      .fade(duration: 0.5)
+  }
+  
+  static func ==(lhs: Self, rhs: Self) -> Bool {
+    return lhs.item.kind == rhs.item.kind && lhs.item.id == rhs.item.id
   }
 
   @ViewBuilder
