@@ -2,20 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>BP_API_DOMAIN</key>
-  <string>$(BP_API_DOMAIN)</string>
-  <key>BP_API_PORT</key>
-  <string>$(BP_API_PORT)</string>
-  <key>BP_API_SCHEME</key>
-  <string>$(BP_API_SCHEME)</string>
-  <key>BP_BUNDLE_IDENTIFIER</key>
-  <string>$(BP_BUNDLE_IDENTIFIER)</string>
-  <key>BP_REVENUECAT_KEY</key>
-  <string>$(BP_REVENUECAT_KEY)</string>
+	<key>BP_API_DOMAIN</key>
+	<string>$(BP_API_DOMAIN)</string>
+	<key>BP_API_PORT</key>
+	<string>$(BP_API_PORT)</string>
+	<key>BP_API_SCHEME</key>
+	<string>$(BP_API_SCHEME)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
-  <key>BP_MOCKED_BEARER_TOKEN</key>
-  <string>$(BP_MOCKED_BEARER_TOKEN)</string>
+	<key>BP_MOCKED_BEARER_TOKEN</key>
+	<string>$(BP_MOCKED_BEARER_TOKEN)</string>
+	<key>BP_REVENUECAT_KEY</key>
+	<string>$(BP_REVENUECAT_KEY)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -36,6 +34,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CLKComplicationPrincipalClass</key>
 	<string>$(PRODUCT_MODULE_NAME).ComplicationController</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

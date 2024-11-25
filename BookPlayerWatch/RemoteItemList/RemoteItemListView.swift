@@ -81,6 +81,16 @@ struct RemoteItemListView: View {
         Section {
           if let lastPlayedItem {
             RemoteItemListCellView(item: lastPlayedItem)
+              .onTapGesture {
+                Task {
+                  do {
+                    try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
+                  } catch {
+                    print("=== loading player failed: \(error)")
+                  }
+                }
+//                coreServices.playerManager.load(<#T##item: PlayableItem##PlayableItem#>, autoplay: <#T##Bool#>)
+              }
           }
         } header: {
           Text(verbatim: "watchapp_last_played_title".localized)
@@ -103,6 +113,15 @@ struct RemoteItemListView: View {
           } else {
             RemoteItemListCellView(item: item)
               .foregroundColor(getForegroundColor(for: item))
+              .onTapGesture {
+                Task {
+                  do {
+                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  } catch {
+                    print("=== loading player failed: \(error)")
+                  }
+                }
+              }
           }
         }
       } header: {

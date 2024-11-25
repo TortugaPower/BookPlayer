@@ -15,6 +15,8 @@ class CoreServices: ObservableObject {
   let syncService: SyncServiceProtocol
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
+  let playerManager: PlayerManagerProtocol
+  let playerLoaderService: PlayerLoaderService
 
   @Published var hasSyncEnabled = false
 
@@ -23,7 +25,9 @@ class CoreServices: ObservableObject {
     accountService: AccountServiceProtocol,
     syncService: SyncServiceProtocol,
     libraryService: LibraryService,
-    playbackService: PlaybackServiceProtocol
+    playbackService: PlaybackServiceProtocol,
+    playerManager: PlayerManagerProtocol,
+    playerLoaderService: PlayerLoaderService
   ) {
     self.dataManager = dataManager
     self.accountService = accountService
@@ -31,6 +35,8 @@ class CoreServices: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.hasSyncEnabled = accountService.hasSyncEnabled()
+    self.playerManager = playerManager
+    self.playerLoaderService = playerLoaderService
   }
 
   func checkAndReloadIfSyncIsEnabled() {
