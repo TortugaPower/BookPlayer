@@ -21,9 +21,9 @@ struct JellyfinLibraryItemImageView<LibraryVM: JellyfinLibraryViewModelProtocol>
       JellyfinLibraryItemImageViewWrapper<LibraryVM>(item: item,
                                                      imageSize: imageSize,
                                                      aspectRatio: aspectRatio)
+      .cornerRadius(max(3, min(proxy.size.width, proxy.size.height) * 0.02))
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
-    .cornerRadius(3)
   }
 }
 
