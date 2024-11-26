@@ -170,7 +170,7 @@ extension ItemListCoordinator {
 
   func showJellyfinDownloader() {
     let child = JellyfinCoordinator(
-      flow: .modalFlow(presentingController: flow.navigationController),
+      flow: .modalFlow(presentingController: flow.navigationController, modalPresentationStyle: .pageSheet),
       singleFileDownloadService: singleFileDownloadService,
       jellyfinConnectionService: jellyfinConnectionService
     )

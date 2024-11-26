@@ -44,9 +44,9 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
                    maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
             )
         }
-        .padding()
       }
     }
+    .padding()
     .environmentObject(viewModel)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
