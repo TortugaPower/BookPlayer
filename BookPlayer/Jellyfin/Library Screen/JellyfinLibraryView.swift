@@ -92,6 +92,11 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
     return JellyfinLibraryView(viewModel: vm)
   }
   
+  func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<MockJellyfinAudiobookDetailsViewModel, MockJellyfinLibraryViewModel> {
+    let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: nil)
+    return JellyfinAudiobookDetailsView(viewModel: vm)
+  }
+  
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
   func cancelFetchItems() {}

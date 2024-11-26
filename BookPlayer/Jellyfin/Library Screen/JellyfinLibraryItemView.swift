@@ -20,8 +20,7 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
     switch item.kind {
     case .audiobook:
       NavigationLink {
-        let vm = JellyfinAudiobookDetailsViewModel(item: item)
-        NavigationLazyView(JellyfinAudiobookDetailsView<LibraryVM>(viewModel: vm))
+        NavigationLazyView(libraryVM.createAudiobookDetailsViewFor(item: item))
         .environmentObject(libraryVM)
       } label: {
         itemView

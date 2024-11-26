@@ -17,10 +17,13 @@ enum JellyfinLibraryLevelData: Equatable {
 }
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
+  associatedtype DetailsVM: JellyfinAudiobookDetailsViewModelProtocol
+  
   var data: JellyfinLibraryLevelData { get }
   var items: [JellyfinLibraryItem] { get set }
 
   func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<Self>
+  func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<DetailsVM, Self>
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
@@ -69,6 +72,11 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     let vm = JellyfinLibraryViewModel(data: data, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
     vm.onTransition = self.onTransition
     return JellyfinLibraryView(viewModel: vm)
+  }
+  
+  func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<JellyfinAudiobookDetailsViewModel, JellyfinLibraryViewModel> {
+    let vm = JellyfinAudiobookDetailsViewModel(item: item, apiClient: apiClient)
+    return JellyfinAudiobookDetailsView(viewModel: vm)
   }
 
   func fetchInitialItems() {
