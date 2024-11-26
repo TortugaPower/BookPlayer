@@ -6,10 +6,10 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerKit
 import Foundation
 import Get
 import JellyfinAPI
-import BookPlayerKit
 
 enum JellyfinLibraryLevelData: Equatable {
   case topLevel(libraryName: String, userID: String)
@@ -17,12 +17,10 @@ enum JellyfinLibraryLevelData: Equatable {
 }
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
-  associatedtype FolderViewModel: JellyfinLibraryViewModelProtocol
-
   var data: JellyfinLibraryLevelData { get }
   var items: [JellyfinLibraryItem] { get set }
 
-  func createFolderViewModelFor(item: JellyfinLibraryItem) -> FolderViewModel
+  func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<Self>
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
@@ -36,7 +34,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func handleDoneAction()
 }
 
-class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
     case showAlert(content: BPAlertContent)
@@ -66,11 +64,11 @@ class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
     self.singleFileDownloadService = singleFileDownloadService
   }
 
-  func createFolderViewModelFor(item: JellyfinLibraryItem) -> JellyfinLibraryViewModel {
+  func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<JellyfinLibraryViewModel> {
     let data = JellyfinLibraryLevelData.folder(data: item)
     let vm = JellyfinLibraryViewModel(data: data, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
     vm.onTransition = self.onTransition
-    return vm
+    return JellyfinLibraryView(viewModel: vm)
   }
 
   func fetchInitialItems() {

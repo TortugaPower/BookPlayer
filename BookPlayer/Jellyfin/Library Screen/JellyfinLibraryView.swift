@@ -78,7 +78,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   }
 }
 
-class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
+final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
   let data: JellyfinLibraryLevelData
   @Published var items: [JellyfinLibraryItem] = []
   
@@ -86,9 +86,10 @@ class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Observable
     self.data = data
   }
   
-  func createFolderViewModelFor(item: JellyfinLibraryItem) -> MockJellyfinLibraryViewModel {
+  func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<MockJellyfinLibraryViewModel> {
     let data = JellyfinLibraryLevelData.folder(data: item)
-    return MockJellyfinLibraryViewModel(data: data)
+    let vm = MockJellyfinLibraryViewModel(data: data)
+    return JellyfinLibraryView(viewModel: vm)
   }
   
   func fetchInitialItems() {}

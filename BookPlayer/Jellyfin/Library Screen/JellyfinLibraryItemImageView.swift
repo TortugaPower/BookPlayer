@@ -9,19 +9,18 @@
 import SwiftUI
 import Kingfisher
 
-struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: View {
+struct JellyfinLibraryItemImageView<LibraryVM: JellyfinLibraryViewModelProtocol>: View {
   let item: JellyfinLibraryItem
-  @EnvironmentObject var viewModel: Model
   @Environment(\.displayScale) private var displayScale
-
+  
   var body: some View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
     
     GeometryReader { proxy in
       let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
-      JellyfinLibraryItemImageViewWrapper<Model>(item: item,
-                                                 imageSize: imageSize,
-                                                 aspectRatio: aspectRatio)
+      JellyfinLibraryItemImageViewWrapper<LibraryVM>(item: item,
+                                                     imageSize: imageSize,
+                                                     aspectRatio: aspectRatio)
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
     .cornerRadius(3)
@@ -29,46 +28,46 @@ struct JellyfinLibraryItemImageView<Model: JellyfinLibraryViewModelProtocol>: Vi
 }
 
 /// Utility for JellyfinLibraryItemImageView to avoid reloading the image when the size changes
-fileprivate struct JellyfinLibraryItemImageViewWrapper<Model: JellyfinLibraryViewModelProtocol>: View, Equatable {
+fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibraryViewModelProtocol>: View, Equatable {
   let item: JellyfinLibraryItem
   let imageSize: CGSize
   let aspectRatio: CGFloat?
-  @EnvironmentObject var viewModel: Model
+  @EnvironmentObject var libraryVM: LibraryVM
   
   var body: some View {
     let _ = print(imageSize)
     
     KFImage
-      .url(viewModel.createItemImageURL(item, size: imageSize))
+      .url(libraryVM.createItemImageURL(item, size: imageSize))
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()
-      .placeholder { placeholderImage(aspectRatio: aspectRatio) }
+      .placeholder { placeholderImageView(aspectRatio: aspectRatio) }
       .fade(duration: 0.5)
   }
   
   static func ==(lhs: Self, rhs: Self) -> Bool {
     return lhs.item.kind == rhs.item.kind && lhs.item.id == rhs.item.id
   }
-
+  
   @ViewBuilder
-  private func placeholderImage(aspectRatio: CGFloat?) -> some View {
-    let image = if let blurHashImage = blurhashImage {
+  private func placeholderImageView(aspectRatio: CGFloat?) -> some View {
+    let image = if let blurHashImage = blurhashImageView {
       Image(uiImage: blurHashImage)
     } else {
       Image(systemName: placeholderImageName)
     }
-
+    
     image
       .resizable()
       .aspectRatio(aspectRatio, contentMode: .fit)
   }
-
-  private var blurhashImage: UIImage? {
+  
+  private var blurhashImageView: UIImage? {
     guard let blurHash = item.blurHash  else { return nil }
     return UIImage(blurHash: blurHash, size: CGSize(width: 16, height: 16))
   }
-
+  
   private var placeholderImageName: String {
     switch item.kind {
     case .userView, .folder: "folder"

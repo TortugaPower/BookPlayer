@@ -9,45 +9,44 @@
 import SwiftUI
 import Kingfisher
 
-struct JellyfinLibraryItemView<Model: JellyfinLibraryViewModelProtocol>: View {
+struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: View {
   @State var item: JellyfinLibraryItem
-  @EnvironmentObject var viewModel: Model
-
+  @EnvironmentObject var libraryVM: LibraryVM
+  
   @ScaledMetric var accessabilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
-
+  
   var body: some View {
     switch item.kind {
     case .audiobook:
       Button {
-        viewModel.beginDownloadAudiobook(item)
+        libraryVM.beginDownloadAudiobook(item)
       } label: {
         itemView
       }
       .buttonStyle(PlainButtonStyle())
     case .userView, .folder:
       NavigationLink {
-        let childViewModel = viewModel.createFolderViewModelFor(item: item) as! Model
-        NavigationLazyView(JellyfinLibraryView(viewModel: childViewModel))
+        NavigationLazyView(libraryVM.createFolderViewFor(item: item))
       } label: {
         itemView
       }
       .buttonStyle(PlainButtonStyle())
     }
   }
-
+  
   @ViewBuilder
   private var itemView: some View {
     VStack {
       ZStack(alignment: .topTrailing) {
-        JellyfinLibraryItemImageView<Model>(item: item)
+        JellyfinLibraryItemImageView<LibraryVM>(item: item)
           .background(GeometryReader{ imageGeometry in
             Color.clear.onAppear {
               // we'd prever overlay to place the badge, but that's not available for us yet
               imageSize = imageGeometry.size
             }
           })
-
+        
         switch item.kind {
         case .userView, .folder:
           folderBadge
@@ -55,12 +54,12 @@ struct JellyfinLibraryItemView<Model: JellyfinLibraryViewModelProtocol>: View {
           EmptyView()
         }
       }
-
+      
       Text(item.name)
         .lineLimit(1)
     }
   }
-
+  
   @ViewBuilder
   private var folderBadge: some View {
     let imageLength = min(imageSize.width, imageSize.height)
