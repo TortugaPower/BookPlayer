@@ -35,8 +35,6 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibrar
   @EnvironmentObject var libraryVM: LibraryVM
   
   var body: some View {
-    let _ = print(imageSize)
-    
     KFImage
       .url(libraryVM.createItemImageURL(item, size: imageSize))
       .cancelOnDisappear(true)
