@@ -87,7 +87,7 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
   }
   
   @MainActor
-  func testHideJellyfinViewsOnDownloadProgress() {
+  func testHideJellyfinViewsOnDownloadProgress() async {
     mockJellyfinConnectionService.setConnection(JellyfinConnectionServiceTests.makeMockConnectionData(), saveToKeychain: false)
     sut.start()
     
@@ -95,6 +95,8 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     
     mockSingleFileDownloadService.handleDownload(URL(string: "http://example.com/foo.mp4")!)
     
-    XCTAssertEqual(mockFlow.horizontalStack.count, 0)
+    let _ = await Task { @MainActor in
+      XCTAssertEqual(self.mockFlow.horizontalStack.count, 0)
+    }.result
   }
 }

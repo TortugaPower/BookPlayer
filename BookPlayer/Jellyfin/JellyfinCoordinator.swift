@@ -32,8 +32,10 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
       switch event {
       case .starting(_), .error(_, _, _):
         // Currently we only show the download issues or progress in the main view
-        // So we hide the jellyfin views when download starts of has an error
-        self?.flow.finishPresentation(animated: true)
+        // So we hide the jellyfin views when download starts or has an error
+        Task { @MainActor [weak self] in
+          self?.flow.finishPresentation(animated: true)
+        }
       default:
         break
       }
