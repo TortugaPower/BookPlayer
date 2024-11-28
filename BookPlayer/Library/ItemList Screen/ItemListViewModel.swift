@@ -239,7 +239,7 @@ class ItemListViewModel: ViewModelProtocol {
     singleFileDownloadService.eventsPublisher.sink { [weak self] event in
       guard let self else { return }
       switch event {
-      case .starting(url: _):
+      case .starting:
         self.sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
       case .progress(task: _, progress: let progress):
         let percentage = String(format: "%.2f", progress * 100)
@@ -248,7 +248,7 @@ class ItemListViewModel: ViewModelProtocol {
           title: "downloading_file_title".localized,
           subtitle: "\("progress_title".localized) \(percentage)%"
         ))
-      case .finished(task: _):
+      case .finished:
         self.sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
       case .error(let errorKind, task: let task, underlyingError: let underlyingError):
         self.handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)

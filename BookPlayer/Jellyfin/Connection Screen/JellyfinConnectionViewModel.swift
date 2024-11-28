@@ -32,7 +32,6 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     case connected
   }
   
-  
   weak var coordinator: JellyfinCoordinator!
   
   let jellyfinConnectionService: JellyfinConnectionService
@@ -64,7 +63,6 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
   
   private var disposeBag = Set<AnyCancellable>()
   
-  
   init(jellyfinConnectionService: JellyfinConnectionService) {
     self.jellyfinConnectionService = jellyfinConnectionService
     bindObservers()
@@ -83,7 +81,7 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
           self.form.serverUrl = data.url.absoluteString
           self.form.serverName = data.serverName
           self.form.username = data.userName
-          //self.form.password is not saved (we have an access token instead). Leave the field blank.
+          // self.form.password is not saved (we have an access token instead). Leave the field blank.
           self.form.rememberMe = true
           self.connectionState = .connected
         }
@@ -95,7 +93,6 @@ class JellyfinConnectionViewModel: ViewModelProtocol, ObservableObject, BPLogger
     form = JellyfinConnectionFormViewModel()
     connectionState = .disconnected
   }
-
 
   @MainActor
   func handleCancelAction() {

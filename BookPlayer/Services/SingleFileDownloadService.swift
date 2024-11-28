@@ -11,7 +11,7 @@ import BookPlayerKit
 
 class SingleFileDownloadService
 {
-  public enum ErrorKind : Error {
+  public enum ErrorKind: Error {
     case general
     case network
   }

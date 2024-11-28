@@ -49,7 +49,7 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
 
 class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
   let item: JellyfinLibraryItem
-  @Published var details: JellyfinAudiobookDetailsData? = nil
+  @Published var details: JellyfinAudiobookDetailsData?
   
   private var apiClient: JellyfinClient
   private var fetchTask: Task<(), any Error>?
@@ -69,7 +69,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
       defer { fetchTask = nil }
       
       do {
-        let response = try await apiClient.send(Paths.getItem(itemID:item.id))
+        let response = try await apiClient.send(Paths.getItem(itemID: item.id))
         try Task.checkCancellation()
         
         let itemInfo = response.value

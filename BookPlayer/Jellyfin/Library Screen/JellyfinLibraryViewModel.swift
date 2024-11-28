@@ -190,7 +190,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     do {
       return try createItemImageURLInternal(item, size: size)
     } catch {
-      Self.logger.error("Failed to create item image URL (item ID: \(item.id), kind: \(String(reflecting: item.kind)), error: \(error))");
+      Self.logger.error("Failed to create item image URL (item ID: \(item.id), kind: \(String(reflecting: item.kind)), error: \(error))")
       return nil
     }
   }

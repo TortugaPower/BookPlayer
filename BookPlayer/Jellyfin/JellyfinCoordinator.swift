@@ -30,7 +30,7 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
   func bindObservers() {
     singleFileDownloadService.eventsPublisher.sink { [weak self] event in
       switch event {
-      case .starting(_), .error(_, _, _):
+      case .starting, .error:
         // Currently we only show the download issues or progress in the main view
         // So we hide the jellyfin views when download starts or has an error
         Task { @MainActor [weak self] in

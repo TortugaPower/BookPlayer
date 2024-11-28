@@ -44,7 +44,7 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibrar
       .fade(duration: 0.5)
   }
   
-  static func ==(lhs: Self, rhs: Self) -> Bool {
+  static func == (lhs: Self, rhs: Self) -> Bool {
     return lhs.item.kind == rhs.item.kind && lhs.item.id == rhs.item.id
   }
   
