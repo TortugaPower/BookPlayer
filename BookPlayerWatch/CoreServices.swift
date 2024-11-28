@@ -12,10 +12,10 @@ import Foundation
 class CoreServices: ObservableObject {
   let dataManager: DataManager
   let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
+  var syncService: SyncServiceProtocol
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
+  let playerManager: PlayerManager
   let playerLoaderService: PlayerLoaderService
 
   @Published var hasSyncEnabled = false
@@ -26,7 +26,7 @@ class CoreServices: ObservableObject {
     syncService: SyncServiceProtocol,
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
-    playerManager: PlayerManagerProtocol,
+    playerManager: PlayerManager,
     playerLoaderService: PlayerLoaderService
   ) {
     self.dataManager = dataManager
@@ -41,5 +41,10 @@ class CoreServices: ObservableObject {
 
   func checkAndReloadIfSyncIsEnabled() {
     self.hasSyncEnabled = accountService.hasSyncEnabled()
+  }
+
+  func updateSyncEnabled(_ enabled: Bool) {
+    hasSyncEnabled = enabled
+    syncService.isActive = enabled
   }
 }

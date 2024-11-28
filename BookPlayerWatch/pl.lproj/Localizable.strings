@@ -16,4 +16,8 @@
 "chapters_title" = "Rozdziały";
 "settings_controls_title" = "Elementy sterujące odtwarzacza";
 "settings_boostvolume_title" = "Zwiększ głośność";
+"settings_skip_title" = "POMIJANIE INTERWAŁÓW";
+"settings_skip_rewind_title" = "Cofnij";
+"settings_skip_forward_title" = "Do przodu";
+"speed_title" = "prędkość";
 "logout_title" = "Wyloguj";

@@ -16,4 +16,8 @@
 "chapters_title" = "Розділи";
 "settings_controls_title" = "Керування програвачем";
 "settings_boostvolume_title" = "Збільшення гучності";
+"settings_skip_title" = "Інтервали перемотування";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперед";
+"speed_title" = "швидкість";
 "logout_title" = "Вийти";

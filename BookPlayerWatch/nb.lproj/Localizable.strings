@@ -16,4 +16,8 @@
 "chapters_title" = "Kapitler";
 "settings_controls_title" = "Avspillingskontroller";
 "settings_boostvolume_title" = "Boost volumet";
+"settings_skip_title" = "HOPP OVER INTERVALLER";
+"settings_skip_rewind_title" = "Spol tilbake";
+"settings_skip_forward_title" = "Spol fremover";
+"speed_title" = "hastighet";
 "logout_title" = "Logg ut";

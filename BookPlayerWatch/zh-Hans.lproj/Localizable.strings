@@ -16,4 +16,8 @@
 "chapters_title" = "章节";
 "settings_controls_title" = "播放器控制";
 "settings_boostvolume_title" = "提高音量";
+"settings_skip_title" = "跳过间隔";
+"settings_skip_rewind_title" = "倒带";
+"settings_skip_forward_title" = "快进";
+"speed_title" = "速度";
 "logout_title" = "登出";

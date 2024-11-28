@@ -16,4 +16,8 @@
 "chapters_title" = "Главы";
 "settings_controls_title" = "Управление плеером";
 "settings_boostvolume_title" = "Увеличить громкость";
+"settings_skip_title" = "ШАГ ПЕРЕМОТКИ";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперёд";
+"speed_title" = "скорость";
 "logout_title" = "Выйти";

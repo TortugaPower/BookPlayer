@@ -16,4 +16,8 @@
 "chapters_title" = "Capitole";
 "settings_controls_title" = "Controlul Playerului";
 "settings_boostvolume_title" = "Creșterea volumului";
+"settings_skip_title" = "SĂRIȚI INTERVALURILE";
+"settings_skip_rewind_title" = "Derulare înapoi";
+"settings_skip_forward_title" = "Înainte";
+"speed_title" = "Viteza";
 "logout_title" = "Deconectați-vă";

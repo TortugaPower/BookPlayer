@@ -16,4 +16,8 @@
 "chapters_title" = "Kapitoly";
 "settings_controls_title" = "Ovládacie prvky Prehrávača";
 "settings_boostvolume_title" = "Zvýšenie hlasitosti";
+"settings_skip_title" = "PRETÁČANIE";
+"settings_skip_rewind_title" = "Dozadu";
+"settings_skip_forward_title" = "Dopredu";
+"speed_title" = "rýchlosť";
 "logout_title" = "Odhlásiť sa";

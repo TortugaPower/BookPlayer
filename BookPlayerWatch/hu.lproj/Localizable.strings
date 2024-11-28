@@ -16,4 +16,8 @@
 "chapters_title" = "Fejezetek";
 "settings_controls_title" = "Lejátszóvezérlők";
 "settings_boostvolume_title" = "Hangerő növelése";
+"settings_skip_title" = "UGRÁSOK IDŐTARTAMA";
+"settings_skip_rewind_title" = "Visszatekerés";
+"settings_skip_forward_title" = "Előretekerés";
+"speed_title" = "sebesség";
 "logout_title" = "Kijelentkezés";

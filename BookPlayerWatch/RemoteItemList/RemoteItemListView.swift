@@ -14,7 +14,9 @@ struct RemoteItemListView: View {
   @State var items: [SimpleLibraryItem]
   @State var lastPlayedItem: SimpleLibraryItem?
   @State var playingItemParentPath: String?
-  @State var error: Error?
+  @State private var isLoading = false
+  @State private var error: Error?
+  @State var showPlayer = false
 
   let folderRelativePath: String?
 
@@ -80,17 +82,25 @@ struct RemoteItemListView: View {
       if folderRelativePath == nil {
         Section {
           if let lastPlayedItem {
-            RemoteItemListCellView(item: lastPlayedItem)
-              .onTapGesture {
-                Task {
-                  do {
-                    try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
-                  } catch {
-                    print("=== loading player failed: \(error)")
+            ZStack {
+              NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
+                EmptyView()
+              }
+              RemoteItemListCellView(item: lastPlayedItem)
+                .onTapGesture {
+                  Task {
+                    do {
+                      isLoading = true
+                      try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
+                      isLoading = false
+                      showPlayer = true
+                    } catch {
+                      isLoading = false
+                      self.error = error
+                    }
                   }
                 }
-//                coreServices.playerManager.load(<#T##item: PlayableItem##PlayableItem#>, autoplay: <#T##Bool#>)
-              }
+            }
           }
         } header: {
           Text(verbatim: "watchapp_last_played_title".localized)
@@ -111,17 +121,25 @@ struct RemoteItemListView: View {
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            RemoteItemListCellView(item: item)
-              .foregroundColor(getForegroundColor(for: item))
-              .onTapGesture {
-                Task {
-                  do {
-                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                  } catch {
-                    print("=== loading player failed: \(error)")
+            ZStack {
+              NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
+                EmptyView()
+              }
+              RemoteItemListCellView(item: item)
+                .onTapGesture {
+                  Task {
+                    do {
+                      isLoading = true
+                      try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                      isLoading = false
+                      showPlayer = true
+                    } catch {
+                      isLoading = false
+                      self.error = error
+                    }
                   }
                 }
-              }
+            }
           }
         }
       } header: {
@@ -130,6 +148,21 @@ struct RemoteItemListView: View {
       }
     }
     .errorAlert(error: $error)
+    .overlay {
+      Group {
+        if isLoading {
+          ProgressView()
+            .tint(.white)
+            .padding()
+            .background(
+              Color.black
+                .opacity(0.9)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            )
+            .ignoresSafeArea(.all)
+        }
+      }
+    }
     .onAppear {
       Task {
         guard

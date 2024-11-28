@@ -219,6 +219,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 #if os(watchOS)
     request.setValue("watch.bookplayer.app", forHTTPHeaderField: "origin")
+    request.setValue("2022-12-12", forHTTPHeaderField: "accept-version")
 #endif
 
     if useKeychain,

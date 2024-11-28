@@ -16,4 +16,8 @@
 "chapters_title" = "Hoofdstukken";
 "settings_controls_title" = "Spelerbediening";
 "settings_boostvolume_title" = "Boost volume";
+"settings_skip_title" = "INTERVAL OVERSLAAN";
+"settings_skip_rewind_title" = "Terugspoelen";
+"settings_skip_forward_title" = "Naar voren";
+"speed_title" = "snelheid";
 "logout_title" = "Uitloggen";

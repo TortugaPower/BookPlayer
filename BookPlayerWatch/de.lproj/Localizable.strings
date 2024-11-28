@@ -16,4 +16,8 @@
 "chapters_title" = "Kapitel";
 "settings_controls_title" = "Steuerung";
 "settings_boostvolume_title" = "Lautstärke erhöhen";
+"settings_skip_title" = "Tasten „Überspringen“";
+"settings_skip_rewind_title" = "Rückwärts";
+"settings_skip_forward_title" = "Vorwärts";
+"speed_title" = "Wiedergabegeschwindigkeit";
 "logout_title" = "Ausloggen";

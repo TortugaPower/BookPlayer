@@ -16,4 +16,8 @@
 "chapters_title" = "Capítulos";
 "settings_controls_title" = "Controles do Reprodutor";
 "settings_boostvolume_title" = "Aumentar volume";
+"settings_skip_title" = "SALTAR INTERVALOS";
+"settings_skip_rewind_title" = "Rebobinar";
+"settings_skip_forward_title" = "Avançar";
+"speed_title" = "velocidade";
 "logout_title" = "Sair";

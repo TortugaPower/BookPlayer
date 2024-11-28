@@ -16,4 +16,8 @@
 "chapters_title" = "Kapitel";
 "settings_controls_title" = "Spelarkontroller";
 "settings_boostvolume_title" = "Öka volymen";
+"settings_skip_title" = "SNABBSPOLNING";
+"settings_skip_rewind_title" = "Tillbaka";
+"settings_skip_forward_title" = "Framåt";
+"speed_title" = "hastighet";
 "logout_title" = "Logga ut";

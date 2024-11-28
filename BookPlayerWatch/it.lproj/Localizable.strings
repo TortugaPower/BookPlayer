@@ -16,4 +16,8 @@
 "chapters_title" = "Capitoli";
 "settings_controls_title" = "Controlli della Riproduzione";
 "settings_boostvolume_title" = "Aumenta il volume massimo";
+"settings_skip_title" = "SALTA INTERVALLI";
+"settings_skip_rewind_title" = "Riavvolgi";
+"settings_skip_forward_title" = "Avanti";
+"speed_title" = "velocità";
 "logout_title" = "Disconnettersi";

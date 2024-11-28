@@ -14,7 +14,7 @@ import MediaPlayer
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   private let syncService: SyncServiceProtocol
@@ -169,6 +169,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
+  @MainActor
   func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
 
@@ -217,7 +218,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
 
       if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath) {
-        currentItem = try playbackService.getPlayableItem(from: libraryItem)
+        try await MainActor.run {
+          currentItem = try playbackService.getPlayableItem(from: libraryItem)
+        }
       }
     }
 
@@ -347,13 +350,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self.audioPlayer.replaceCurrentItem(with: nil)
       self.observeStatus = true
-      self.isFetchingRemoteURL = nil
-      self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
+        self.isFetchingRemoteURL = nil
+        self.audioPlayer.replaceCurrentItem(with: playerItem)
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
         // Set book metadata for lockscreen and control center
         self.nowPlayingInfo = [
@@ -517,7 +520,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  static var rewindInterval: TimeInterval {
+  public static var rewindInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval) == nil {
         return 30.0
@@ -533,7 +536,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
-  static var forwardInterval: TimeInterval {
+  public static var forwardInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval) == nil {
         return 30.0
@@ -709,8 +712,11 @@ extension PlayerManager {
       return false
     }
 
-    /// Update nowPlaying state so the UI displays correctly
-    playbackQueued = true
+    await MainActor.run {
+      /// Update nowPlaying state so the UI displays correctly
+      playbackQueued = true
+    }
+
     await syncProgressDelegate?.waitForSyncInProgress()
 
     return true

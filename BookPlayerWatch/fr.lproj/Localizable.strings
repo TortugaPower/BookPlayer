@@ -16,4 +16,8 @@
 "chapters_title" = "Chapitres";
 "settings_controls_title" = "Contrôles de lecture";
 "settings_boostvolume_title" = "Augmenter le volume";
+"settings_skip_title" = "INTERVALLES DE SAUT";
+"settings_skip_rewind_title" = "Rembobiner";
+"settings_skip_forward_title" = "Avancer";
+"speed_title" = "vitesse";
 "logout_title" = "Se déconnecter";

@@ -16,4 +16,8 @@
 "chapters_title" = "Κεφάλαια";
 "settings_controls_title" = "Χειριστήρια αναπαραγωγού";
 "settings_boostvolume_title" = "Ενίσχυση όγκου";
+"settings_skip_title" = "ΔΙΑΣΤΗΜΑΤΑ ΠΑΡΑΛΕΙΨΗΣ";
+"settings_skip_rewind_title" = "Πίσω";
+"settings_skip_forward_title" = "Προς τα εμπρός";
+"speed_title" = "Ταχύτητα";
 "logout_title" = "Αποσύνδεση";

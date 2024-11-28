@@ -27,7 +27,7 @@ struct NowPlayingPlaybackControlsView: View {
 
       Spacer()
 
-      VolumeView()
+      VolumeView(type: .companion)
 
       Spacer()
 

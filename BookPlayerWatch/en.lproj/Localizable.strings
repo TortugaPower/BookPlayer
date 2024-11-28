@@ -16,4 +16,8 @@
 "chapters_title" = "Chapters";
 "settings_controls_title" = "Player Controls";
 "settings_boostvolume_title" = "Boost Volume";
+"settings_skip_title" = "SKIP INTERVALS";
+"settings_skip_rewind_title" = "Rewind";
+"settings_skip_forward_title" = "Forward";
+"speed_title" = "speed";
 "logout_title" = "Log out";

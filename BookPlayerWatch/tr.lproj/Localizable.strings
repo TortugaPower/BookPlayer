@@ -16,4 +16,8 @@
 "chapters_title" = "Bölümler";
 "settings_controls_title" = "Oynatıcı Kontrolleri";
 "settings_boostvolume_title" = "Sesi Güçlendir";
+"settings_skip_title" = "ATLAMA ARALIKLARI";
+"settings_skip_rewind_title" = "Geri Sarma";
+"settings_skip_forward_title" = "İleri Sarma";
+"speed_title" = "hız";
 "logout_title" = "Çıkış Yap";

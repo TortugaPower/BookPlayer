@@ -16,4 +16,8 @@
 "chapters_title" = "Kappaleet";
 "settings_controls_title" = "Soitinsäätimet";
 "settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
+"settings_skip_title" = "Skippaus intervallit";
+"settings_skip_rewind_title" = "Kelaa taaksepäin";
+"settings_skip_forward_title" = "Eteenpäin";
+"speed_title" = "nopeus";
 "logout_title" = "Kirjautua ulos";
