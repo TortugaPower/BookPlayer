@@ -48,8 +48,14 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
 }
 
 class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
+  enum Routes {
+    case showAlert(content: BPAlertContent)
+  }
+  
   let item: JellyfinLibraryItem
   @Published var details: JellyfinAudiobookDetailsData?
+  
+  var onTransition: BPTransition<Routes>?
   
   private var apiClient: JellyfinClient
   private var fetchTask: Task<(), any Error>?
@@ -88,8 +94,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
         // ignore
       } catch {
         Task { @MainActor in
-          // TODO
-          //self.showErrorAlert(message: error.localizedDescription)
+          self.showErrorAlert(message: error.localizedDescription)
         }
       }
     }
@@ -99,5 +104,10 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   func cancelFetchData() {
     fetchTask?.cancel()
     fetchTask = nil
+  }
+  
+  @MainActor
+  private func showErrorAlert(message: String) {
+    self.onTransition?(.showAlert(content: BPAlertContent.errorAlert(message: message)))
   }
 }

@@ -76,6 +76,11 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   
   func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<JellyfinAudiobookDetailsViewModel, JellyfinLibraryViewModel> {
     let vm = JellyfinAudiobookDetailsViewModel(item: item, apiClient: apiClient)
+    vm.onTransition = { [weak self] route in
+      switch route {
+      case .showAlert(let content): self?.onTransition?(.showAlert(content: content))
+      }
+    }
     return JellyfinAudiobookDetailsView(viewModel: vm)
   }
 
