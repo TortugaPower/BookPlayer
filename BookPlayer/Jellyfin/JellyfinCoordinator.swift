@@ -18,6 +18,7 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
   private let singleFileDownloadService: SingleFileDownloadService
   private let jellyfinConnectionService: JellyfinConnectionService
   private var disposeBag = Set<AnyCancellable>()
+  private var dismissing = false
   
   init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService, jellyfinConnectionService: JellyfinConnectionService) {
     self.flow = flow
@@ -34,7 +35,10 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
         // Currently we only show the download issues or progress in the main view
         // So we hide the jellyfin views when download starts or has an error
         Task { @MainActor [weak self] in
-          self?.flow.finishPresentation(animated: true)
+          if let self, !self.dismissing {
+            self.dismissing = true
+            self.flow.finishPresentation(animated: true)
+          }
         }
       default:
         break
