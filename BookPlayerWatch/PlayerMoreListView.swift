@@ -6,9 +6,13 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
+import BookPlayerWatchKit
 import SwiftUI
 
 struct PlayerMoreListView: View {
+  @ObservedObject var playerManager: PlayerManager
+  @Binding var isShowingView: Bool
+
   var body: some View {
     List {
       Button {
@@ -16,11 +20,19 @@ struct PlayerMoreListView: View {
       } label: {
         Text("Download Book")
       }
+
+      NavigationLink(
+        destination: ChapterListView(
+          currentItem: $playerManager.currentItem,
+          didSelectChapter: { chapter in
+            playerManager.jumpToChapter(chapter)
+            isShowingView = false
+          }
+        )
+      ) {
+        Text("chapters_title")
+      }
     }
     .environment(\.defaultMinListRowHeight, 40)
   }
-}
-
-#Preview {
-  PlayerMoreListView()
 }

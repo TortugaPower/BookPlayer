@@ -10,17 +10,16 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct ChapterListView: View {
-  @Environment(\.presentationMode) var presentationMode
-  @EnvironmentObject var contextManager: ContextManager
+  @Binding var currentItem: PlayableItem?
+  var didSelectChapter: (PlayableChapter) -> Void
 
   var body: some View {
     ScrollViewReader { proxy in
       List {
-        if let currentItem = contextManager.applicationContext.currentItem {
+        if let currentItem {
           ForEach(currentItem.chapters) { chapter in
             Button {
-              contextManager.handleChapterSelected(chapter)
-              presentationMode.wrappedValue.dismiss()
+              didSelectChapter(chapter)
             } label: {
               HStack {
                 Text(chapter.title)
@@ -34,8 +33,9 @@ struct ChapterListView: View {
           }
         }
       }
+      .environment(\.defaultMinListRowHeight, 40)
       .onAppear {
-        if let currentChapter = contextManager.applicationContext.currentItem?.currentChapter {
+        if let currentChapter = currentItem?.currentChapter {
           proxy.scrollTo(currentChapter.index)
         }
       }

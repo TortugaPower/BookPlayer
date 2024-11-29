@@ -11,6 +11,7 @@ import SwiftUI
 
 struct NowPlayingPlaybackControlsView: View {
   @EnvironmentObject var contextManager: ContextManager
+  @State var isShowingChapterList: Bool = false
 
   var body: some View {
     HStack {
@@ -31,15 +32,25 @@ struct NowPlayingPlaybackControlsView: View {
 
       Spacer()
 
-      NavigationLink(
-        destination: ChapterListView()
-          .environmentObject(contextManager)
-      ) {
+      ZStack {
+        NavigationLink(
+          destination: ChapterListView(
+            currentItem: $contextManager.applicationContext.currentItem
+          ) { chapter in
+            contextManager.handleChapterSelected(chapter)
+            isShowingChapterList = false
+          },
+          isActive: $isShowingChapterList
+        ) {
+          EmptyView()
+        }
+        .buttonStyle(PlainButtonStyle())
         ResizeableImageView(name: "list.bullet")
           .padding(14)
+          .onTapGesture {
+            isShowingChapterList = true
+          }
       }
-      .buttonStyle(PlainButtonStyle())
-
       Spacer()
     }
     .fixedSize(horizontal: false, vertical: true)

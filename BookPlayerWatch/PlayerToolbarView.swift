@@ -57,6 +57,7 @@ final class PlaybackFullControlsViewModel: ObservableObject {
 
 struct PlayerToolbarView: View {
   @ObservedObject var playerManager: PlayerManager
+  @State var isShowingMoreList: Bool = false
 
   var body: some View {
     HStack {
@@ -76,13 +77,23 @@ struct PlayerToolbarView: View {
 
       Spacer()
 
-      NavigationLink(
-        destination: PlayerMoreListView()
-      ) {
+      ZStack {
+        NavigationLink(
+          destination: PlayerMoreListView(
+            playerManager: playerManager,
+            isShowingView: $isShowingMoreList
+          ),
+          isActive: $isShowingMoreList
+        ) {
+          EmptyView()
+        }
+        .buttonStyle(PlainButtonStyle())
         ResizeableImageView(name: "ellipsis.circle")
           .padding(14)
+          .onTapGesture {
+            isShowingMoreList = true
+          }
       }
-      .buttonStyle(PlainButtonStyle())
 
       Spacer()
     }
