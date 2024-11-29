@@ -22,6 +22,7 @@ class SettingsViewModel: ViewModelProtocol {
     case storageManagement
     case deletedFilesManagement
     case tipJar
+    case jellyfinConnectionManagement
     case credits
     case shareDebugInformation(info: String)
   }
@@ -35,10 +36,12 @@ class SettingsViewModel: ViewModelProtocol {
   let accountService: AccountServiceProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
+  let jellyfinConnectionService: JellyfinConnectionService
 
   var onTransition: BPTransition<Routes>?
 
   @Published var account: Account?
+  @Published var hasJellyfinConnection: Bool = false
 
   private var disposeBag = Set<AnyCancellable>()
   var eventsPublisher = InterfaceUpdater<SettingsViewModel.Events>()
@@ -46,12 +49,16 @@ class SettingsViewModel: ViewModelProtocol {
   init(
     accountService: AccountServiceProtocol,
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.accountService = accountService
     self.libraryService = libraryService
     self.syncService = syncService
+    self.jellyfinConnectionService = jellyfinConnectionService
+    
     self.reloadAccount()
+    
     self.bindObservers()
   }
 
@@ -60,6 +67,12 @@ class SettingsViewModel: ViewModelProtocol {
       .sink(receiveValue: { [weak self] _ in
         self?.reloadAccount()
       })
+      .store(in: &disposeBag)
+    
+    jellyfinConnectionService.$connection
+      .sink { [weak self] connection in
+        self?.hasJellyfinConnection = connection != nil
+      }
       .store(in: &disposeBag)
   }
 
@@ -151,6 +164,10 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showAutolock() {
     onTransition?(.autolock)
+  }
+  
+  func showJellyfinConnectionManagement() {
+    onTransition?(.jellyfinConnectionManagement)
   }
 
   func showCredits() {

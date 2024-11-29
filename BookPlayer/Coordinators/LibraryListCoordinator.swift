@@ -28,23 +28,27 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   init(
     flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    accountService: AccountServiceProtocol
+    accountService: AccountServiceProtocol,
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.accountService = accountService
 
     super.init(
       flow: flow,
       playerManager: playerManager,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: listRefreshService
+      listRefreshService: listRefreshService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
   }
 
@@ -54,7 +58,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     let viewModel = ItemListViewModel(
       folderRelativePath: nil,
       playerManager: self.playerManager,
-      networkClient: NetworkClient(),
+      singleFileDownloadService: self.singleFileDownloadService,
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService,
@@ -70,6 +74,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.loadPlayer(relativePath)
       case .showDocumentPicker:
         self.showDocumentPicker()
+      case .showJellyfinDownloader:
+        self.showJellyfinDownloader()
       case .showSearchList(let relativePath, let placeholderTitle):
         self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
@@ -309,15 +315,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     else { return }
 
     lastItemListViewController.viewModel.viewDidAppear()
-  }
-
-  func handleDownloadAction(url: URL) {
-    guard
-      let libraryListViewController = flow.navigationController.viewControllers.first as? ItemListViewController
-    else { return }
-
-    libraryListViewController.setEditing(false, animated: false)
-    libraryListViewController.viewModel.handleDownload(url)
   }
 
   override func syncList() {

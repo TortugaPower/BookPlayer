@@ -18,6 +18,7 @@ class ItemListViewModel: ViewModelProtocol {
     case showFolder(relativePath: String)
     case loadPlayer(relativePath: String)
     case showDocumentPicker
+    case showJellyfinDownloader
     case showSearchList(relativePath: String?, placeholderTitle: String)
     case showItemDetails(item: SimpleLibraryItem)
     case showExportController(items: [SimpleLibraryItem])
@@ -44,8 +45,7 @@ class ItemListViewModel: ViewModelProtocol {
 
   let folderRelativePath: String?
   let playerManager: PlayerManagerProtocol
-  /// Used to handle single URL downloads
-  private let networkClient: NetworkClientProtocol
+  let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   private let listRefreshService: ListSyncRefreshService
@@ -59,8 +59,6 @@ class ItemListViewModel: ViewModelProtocol {
   var eventsPublisher = InterfaceUpdater<ItemListViewModel.Events>()
 
   private var bookProgressSubscription: AnyCancellable?
-  /// Delegate for progress updates of single downloads by URL
-  private var singleDownloadProgressDelegateInterface = BPTaskDownloadDelegate()
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
 
@@ -76,7 +74,7 @@ class ItemListViewModel: ViewModelProtocol {
   init(
     folderRelativePath: String?,
     playerManager: PlayerManagerProtocol,
-    networkClient: NetworkClientProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
@@ -86,7 +84,7 @@ class ItemListViewModel: ViewModelProtocol {
   ) {
     self.folderRelativePath = folderRelativePath
     self.playerManager = playerManager
-    self.networkClient = networkClient
+    self.singleFileDownloadService = singleFileDownloadService
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
@@ -168,6 +166,42 @@ class ItemListViewModel: ViewModelProtocol {
       }.store(in: &disposeBag)
   }
 
+  private func handleSingleFileDownloadError(_ errorKind: SingleFileDownloadService.ErrorKind, task: URLSessionTask, underlyingError: Error?) {
+    switch errorKind {
+
+    case .general:
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(
+          title: "error_title".localized,
+          message: underlyingError?.localizedDescription ?? ""
+        )
+      ))
+
+    case .network:
+      if let underlyingError {
+        sendEvent(.showAlert(
+          content: BPAlertContent.errorAlert(
+            title: "network_error_title".localized,
+            message: underlyingError.localizedDescription
+          )
+        ))
+        return
+      }
+      
+      guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode,
+            statusCode >= 400 else {
+        return
+      }
+      
+      sendEvent(.showAlert(
+        content: BPAlertContent.errorAlert(
+          title: "network_error_title".localized,
+          message: "Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))"
+        )
+      ))
+    }
+  }
+  
   func bindDownloadObservers() {
     syncService.downloadCompletedPublisher
       .filter({ [weak self] in
@@ -202,22 +236,24 @@ class ItemListViewModel: ViewModelProtocol {
         )
       }.store(in: &disposeBag)
 
-    singleDownloadProgressDelegateInterface.downloadProgressUpdated = { [weak self] (_, progress) in
-      let percentage = String(format: "%.2f", progress * 100)
-      self?.sendEvent(.showProcessingView(
-        true,
-        title: "downloading_file_title".localized,
-        subtitle: "\("progress_title".localized) \(percentage)%"
-      ))
-    }
-
-    singleDownloadProgressDelegateInterface.didFinishDownloadingTask = { [weak self] (task, fileURL, error) in
-      if let error {
-        self?.handleSingleDownloadTaskFinishedWithError(task, error: error)
-      } else if let fileURL {
-        self?.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
+    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
+      guard let self else { return }
+      switch event {
+      case .starting:
+        self.sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
+      case .progress(task: _, progress: let progress):
+        let percentage = String(format: "%.2f", progress * 100)
+        self.sendEvent(.showProcessingView(
+          true,
+          title: "downloading_file_title".localized,
+          subtitle: "\("progress_title".localized) \(percentage)%"
+        ))
+      case .finished:
+        self.sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
+      case .error(let errorKind, task: let task, underlyingError: let underlyingError):
+        self.handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)
       }
-    }
+    }.store(in: &disposeBag)
   }
 
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
@@ -541,6 +577,12 @@ class ItemListViewModel: ViewModelProtocol {
             title: "download_from_url_title".localized,
             handler: { [weak self] in
               self?.showDownloadFromUrlAlert()
+            }
+          ),
+          BPActionItem(
+            title: "download_from_jellyfin_title".localized,
+            handler: { [weak self] in
+                self?.onTransition?(.showJellyfinDownloader)
             }
           ),
           BPActionItem(
@@ -929,7 +971,7 @@ class ItemListViewModel: ViewModelProtocol {
 
               do {
                 let bookUrl = try self.getDownloadURL(for: url)
-                self.handleDownload(bookUrl)
+                singleFileDownloadService.handleDownload(bookUrl)
               } catch {
                 self.sendEvent(.showAlert(
                   content: BPAlertContent.errorAlert(message: error.localizedDescription)
@@ -1257,60 +1299,6 @@ extension ItemListViewModel {
           ),
           BPActionItem.cancelAction
         ]
-      )
-    ))
-  }
-
-  /// Used to handle downloads via URL scheme
-  func handleDownload(_ url: URL) {
-    sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
-
-    _ = networkClient.download(url: url, delegate: singleDownloadProgressDelegateInterface)
-  }
-
-  // TODO: Move functionality related to single-donwload into a separate service, and listen to publisher for events
-  func handleSingleDownloadTaskFinished(_ task: URLSessionTask, fileURL: URL) {
-    sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
-    let filename = task.response?.suggestedFilename
-    ?? task.originalRequest?.url?.lastPathComponent
-    ?? fileURL.lastPathComponent
-
-    do {
-      try FileManager.default.moveItem(
-        at: fileURL,
-        to: DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
-      )
-    } catch {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(
-          title: "error_title".localized,
-          message: error.localizedDescription
-        )
-      ))
-    }
-  }
-
-  func handleSingleDownloadTaskFinishedWithError(_ task: URLSessionTask, error: Error?) {
-    sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
-    if let error {
-      sendEvent(.showAlert(
-        content: BPAlertContent.errorAlert(
-          title: "network_error_title".localized,
-          message: error.localizedDescription
-        )
-      ))
-      return
-    }
-
-    guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode,
-          statusCode >= 400 else {
-      return
-    }
-
-    sendEvent(.showAlert(
-      content: BPAlertContent.errorAlert(
-        title: "network_error_title".localized,
-        message: "Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))"
       )
     ))
   }

@@ -1,6 +1,7 @@
 excluded:
   - BookPlayer/Generated/AutoMockable.generated.swift
   - BookPlayerTests
+  - BookPlayer/Utils/Extensions/BlurHashDecode.swift
 cyclomatic_complexity:
   ignores_case_statements: true
 # line_length: 120

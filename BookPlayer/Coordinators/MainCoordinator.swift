@@ -16,11 +16,13 @@ class MainCoordinator: NSObject {
   var tabBarController: AppTabBarController?
 
   let playerManager: PlayerManagerProtocol
+  let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountServiceProtocol
   var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
+  let jellyfinConnectionService: JellyfinConnectionService
 
   let navigationController: UINavigationController
   var libraryCoordinator: LibraryListCoordinator?
@@ -36,7 +38,9 @@ class MainCoordinator: NSObject {
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
+    self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
+    self.jellyfinConnectionService = JellyfinConnectionService(keychainService: KeychainService())
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -84,6 +88,7 @@ class MainCoordinator: NSObject {
     let libraryCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
       playerManager: self.playerManager,
+      singleFileDownloadService: self.singleFileDownloadService,
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: syncService,
@@ -92,7 +97,8 @@ class MainCoordinator: NSObject {
         playerManager: playerManager,
         syncService: syncService
       ),
-      accountService: self.accountService
+      accountService: self.accountService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
     playerManager.syncProgressDelegate = libraryCoordinator
     self.libraryCoordinator = libraryCoordinator
@@ -117,7 +123,8 @@ class MainCoordinator: NSObject {
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
       libraryService: self.libraryService,
       syncService: self.syncService,
-      accountService: self.accountService
+      accountService: self.accountService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
     settingsCoordinator.tabBarController = tabBarController
     settingsCoordinator.start()

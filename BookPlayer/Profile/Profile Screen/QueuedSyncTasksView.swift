@@ -67,14 +67,9 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
   }
 
   var body: some View {
-    if #available(iOS 16.0, *) {
-      listView
-        .scrollContentBackground(.hidden)
-        .environmentObject(themeViewModel)
-    } else {
-      listView
-        .environmentObject(themeViewModel)
-    }
+    listView
+      .defaultFormBackground()
+      .environmentObject(themeViewModel)
   }
 }
 

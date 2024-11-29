@@ -13,12 +13,8 @@ struct ItemDetailsView: View {
   @ObservedObject var viewModel: ItemDetailsFormViewModel
 
   var body: some View {
-    if #available(iOS 16.0, *) {
-      ItemDetailsForm(viewModel: viewModel)
-        .scrollContentBackground(.hidden)
-    } else {
-      ItemDetailsForm(viewModel: viewModel)
-    }
+    ItemDetailsForm(viewModel: viewModel)
+      .defaultFormBackground()
   }
 }
 

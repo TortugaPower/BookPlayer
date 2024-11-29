@@ -15,12 +15,8 @@ struct SettingsAutolockView<Model: SettingsAutolockViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
   var body: some View {
-    if #available(iOS 16.0, *) {
-      formView
-        .scrollContentBackground(.hidden)
-    } else {
-      formView
-    }
+    formView
+      .defaultFormBackground()
   }
 
   var formView: some View {

@@ -17,24 +17,28 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
+  let jellyfinConnectionService: JellyfinConnectionService
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
-    accountService: AccountServiceProtocol
+    accountService: AccountServiceProtocol,
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.flow = flow
     self.libraryService = libraryService
     self.syncService = syncService
     self.accountService = accountService
+    self.jellyfinConnectionService = jellyfinConnectionService
   }
 
   func start() {
     let viewModel = SettingsViewModel(
       accountService: accountService,
       libraryService: libraryService,
-      syncService: syncService
+      syncService: syncService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
 
     viewModel.onTransition = { route in
@@ -57,6 +61,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showCloudDeletedFiles()
       case .tipJar:
         self.showTipJar()
+      case .jellyfinConnectionManagement:
+        self.showJellyfinConnectionManagement()
       case .credits:
         self.showCredits()
       case .shareDebugInformation(let info):
@@ -194,6 +200,29 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     nav.viewControllers = [vc]
 
     flow.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
+  }
+  
+  private func showJellyfinConnectionManagement() {
+    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
+    viewModel.viewMode = .viewDetails
+    
+    viewModel.onTransition = { [weak self] route in
+      switch route {
+      case .cancel:
+        self?.flow.navigationController.dismiss(animated: true)
+      case .signOut:
+        self?.jellyfinConnectionService.deleteConnection()
+        self?.flow.navigationController.dismiss(animated: true)
+      case .showAlert(let content):
+        self?.showAlert(content)
+      default:
+        break
+      }
+    }
+
+    let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
+    let nav = AppNavigationController(rootViewController: vc)
+    flow.navigationController.present(nav, animated: true)
   }
 
   func showThemes() {

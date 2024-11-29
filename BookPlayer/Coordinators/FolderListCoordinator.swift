@@ -16,22 +16,26 @@ class FolderListCoordinator: ItemListCoordinator {
     flow: BPCoordinatorPresentationFlow,
     folderRelativePath: String,
     playerManager: PlayerManagerProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
-    listRefreshService: ListSyncRefreshService
+    listRefreshService: ListSyncRefreshService,
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.folderRelativePath = folderRelativePath
 
     super.init(
       flow: flow,
       playerManager: playerManager,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService, 
       importManager: importManager,
-      listRefreshService: listRefreshService
+      listRefreshService: listRefreshService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
   }
 
@@ -40,7 +44,7 @@ class FolderListCoordinator: ItemListCoordinator {
     let viewModel = ItemListViewModel(
       folderRelativePath: self.folderRelativePath,
       playerManager: self.playerManager,
-      networkClient: NetworkClient(),
+      singleFileDownloadService: self.singleFileDownloadService,
       libraryService: self.libraryService,
       playbackService: self.playbackService,
       syncService: self.syncService, 
@@ -56,6 +60,8 @@ class FolderListCoordinator: ItemListCoordinator {
         self.loadPlayer(relativePath)
       case .showDocumentPicker:
         self.showDocumentPicker()
+      case .showJellyfinDownloader:
+        self.showJellyfinDownloader()
       case .showSearchList(let relativePath, let placeholderTitle):
         self.showSearchList(at: relativePath, placeholderTitle: placeholderTitle)
       case .showItemDetails(let item):
