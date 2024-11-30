@@ -36,7 +36,7 @@ struct ChapterListView: View {
       .environment(\.defaultMinListRowHeight, 40)
       .onAppear {
         if let currentChapter = currentItem?.currentChapter {
-          proxy.scrollTo(currentChapter.index)
+          proxy.scrollTo(currentChapter.index, anchor: .center)
         }
       }
     }

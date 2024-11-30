@@ -77,25 +77,29 @@ struct PlayerToolbarView: View {
 
       Spacer()
 
-      ZStack {
-        NavigationLink(
-          destination: PlayerMoreListView(
-            playerManager: playerManager,
-            isShowingView: $isShowingMoreList
-          ),
-          isActive: $isShowingMoreList
-        ) {
-          EmptyView()
+      ResizeableImageView(name: "ellipsis.circle")
+        .padding(14)
+        .onTapGesture {
+          isShowingMoreList = true
         }
-        .buttonStyle(PlainButtonStyle())
-        ResizeableImageView(name: "ellipsis.circle")
-          .padding(14)
-          .onTapGesture {
-            isShowingMoreList = true
-          }
-      }
 
       Spacer()
+    }
+    .background {
+      NavigationLink(
+        destination: ChapterListView(
+          currentItem: $playerManager.currentItem,
+          didSelectChapter: { chapter in
+            playerManager.jumpToChapter(chapter)
+            isShowingMoreList = false
+          }
+        ),
+        isActive: $isShowingMoreList
+      ) {
+        EmptyView()
+      }
+      .buttonStyle(PlainButtonStyle())
+      .opacity(0)
     }
     .fixedSize(horizontal: false, vertical: true)
   }

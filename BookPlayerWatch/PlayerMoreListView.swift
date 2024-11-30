@@ -9,18 +9,18 @@
 import BookPlayerWatchKit
 import SwiftUI
 
+/// To be used later in the player view
 struct PlayerMoreListView: View {
   @ObservedObject var playerManager: PlayerManager
   @Binding var isShowingView: Bool
 
+  init(playerManager: PlayerManager, isShowingView: Binding<Bool>) {
+    self.playerManager = playerManager
+    self._isShowingView = isShowingView
+  }
+
   var body: some View {
     List {
-      Button {
-        print("Downloading Book")
-      } label: {
-        Text("Download Book")
-      }
-
       NavigationLink(
         destination: ChapterListView(
           currentItem: $playerManager.currentItem,

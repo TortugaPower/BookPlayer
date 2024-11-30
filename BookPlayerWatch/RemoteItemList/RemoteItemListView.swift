@@ -82,25 +82,20 @@ struct RemoteItemListView: View {
       if folderRelativePath == nil {
         Section {
           if let lastPlayedItem {
-            ZStack {
-              NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
-                EmptyView()
-              }
-              RemoteItemListCellView(item: lastPlayedItem)
-                .onTapGesture {
-                  Task {
-                    do {
-                      isLoading = true
-                      try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
-                      isLoading = false
-                      showPlayer = true
-                    } catch {
-                      isLoading = false
-                      self.error = error
-                    }
+            RemoteItemListCellView(item: lastPlayedItem, coreServices: coreServices)
+              .onTapGesture {
+                Task {
+                  do {
+                    isLoading = true
+                    try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
+                    isLoading = false
+                    showPlayer = true
+                  } catch {
+                    isLoading = false
+                    self.error = error
                   }
                 }
-            }
+              }
           }
         } header: {
           Text(verbatim: "watchapp_last_played_title".localized)
@@ -117,29 +112,24 @@ struct RemoteItemListView: View {
                 folderRelativePath: item.relativePath
               )
             } label: {
-              RemoteItemListCellView(item: item)
+              RemoteItemListCellView(item: item, coreServices: coreServices)
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            ZStack {
-              NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
-                EmptyView()
-              }
-              RemoteItemListCellView(item: item)
-                .onTapGesture {
-                  Task {
-                    do {
-                      isLoading = true
-                      try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                      isLoading = false
-                      showPlayer = true
-                    } catch {
-                      isLoading = false
-                      self.error = error
-                    }
+            RemoteItemListCellView(item: item, coreServices: coreServices)
+              .onTapGesture {
+                Task {
+                  do {
+                    isLoading = true
+                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                    isLoading = false
+                    showPlayer = true
+                  } catch {
+                    isLoading = false
+                    self.error = error
                   }
                 }
-            }
+              }
           }
         }
       } header: {
@@ -147,6 +137,12 @@ struct RemoteItemListView: View {
           .foregroundStyle(Color.accentColor)
       }
     }
+    .background(
+      NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
+        EmptyView()
+      }
+      .opacity(0)
+    )
     .errorAlert(error: $error)
     .overlay {
       Group {

@@ -10,35 +10,93 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct RemoteItemListCellView: View {
-  let item: SimpleLibraryItem
+  @StateObject var model: RemoteItemCellViewModel
+  @State private var error: Error?
+
+  init(item: SimpleLibraryItem, coreServices: CoreServices) {
+    self._model = .init(wrappedValue: .init(item: item, coreServices: coreServices))
+  }
 
   var percentCompleted: String {
-    guard item.progress > 0 else { return "" }
+    guard model.item.progress > 0 else { return "" }
 
-    if item.isFinished {
+    if model.item.isFinished {
       return "100% - "
     } else {
-      return "\(Int(item.percentCompleted))% - "
+      return "\(Int(model.item.percentCompleted))% - "
     }
   }
 
   var body: some View {
     HStack {
       VStack(alignment: .leading) {
-        Text(item.title)
+        Text(model.item.title)
           .lineLimit(2)
-        Text(item.details)
+        Text(model.item.details)
           .font(.footnote)
           .foregroundColor(Color.secondary)
           .lineLimit(1)
-        Text("\(percentCompleted)\(item.durationFormatted)")
-          .font(.footnote)
-          .foregroundColor(Color.secondary)
-          .lineLimit(1)
+        switch model.downloadState {
+        case .downloading(let progress):
+          LinearProgressView(value: progress)
+            .frame(maxWidth: 100, maxHeight: 10)
+        case .downloaded:
+          Text(Image(systemName: "applewatch"))
+            .font(.caption2)
+            + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
+            .font(.footnote)
+            .foregroundColor(Color.secondary)
+        case .notDownloaded:
+          Text(Image(systemName: "icloud.fill"))
+            .font(.caption2)
+            + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
+            .font(.footnote)
+            .foregroundColor(Color.secondary)
+        }
       }
       Spacer()
-      if item.type == .folder {
+      if model.item.type == .folder {
         Image(systemName: "chevron.forward")
+      }
+    }
+    .errorAlert(error: $error)
+    .swipeActions {
+      switch model.downloadState {
+      case .downloading:
+        Button {
+          do {
+            try model.cancelDownload()
+          } catch {
+            self.error = error
+          }
+        } label: {
+          Image(systemName: "xmark.circle")
+            .imageScale(.large)
+        }
+      case .downloaded:
+        Button {
+          do {
+            try model.offloadItem()
+          } catch {
+            self.error = error
+          }
+        } label: {
+          Image(systemName: "applewatch.slash")
+            .imageScale(.large)
+        }
+      case .notDownloaded:
+        Button {
+          Task {
+            do {
+              try await model.startDownload()
+            } catch {
+              self.error = error
+            }
+          }
+        } label: {
+          Image(systemName: "icloud.and.arrow.down.fill")
+            .imageScale(.large)
+        }
       }
     }
   }
