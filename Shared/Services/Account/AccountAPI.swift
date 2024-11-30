@@ -47,15 +47,15 @@ extension AccountAPI: Endpoint {
       return [
         "rc_id": anonymousId,
         "first_seen": firstSeen,
-        "region": region
+        "region": region,
       ]
     }
   }
 }
 
-public struct LoginResponse: Decodable {
-  public let email: String
-  public let token: String
+struct LoginResponse: Decodable {
+  let email: String
+  let token: String
 }
 
 struct DeleteResponse: Decodable {
