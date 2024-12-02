@@ -106,11 +106,15 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
   }
 
   func getWatchLastPlayedItem() async throws -> PlayableItem {
-    let keychainService = KeychainService()
+    if UserDefaults.sharedDefaults.object(forKey: "rcUserId") != nil {
+      guard
+        let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
+        let item = (try decoder.decode([PlayableItem].self, from: itemsData)).first
+      else {
+        throw BookPlayerError.emptyResponse
+      }
 
-    if try keychainService.get(.token) != nil {
-      /// User is signed in, pull data from DB
-      return try await getPhoneLastPlayedItem()
+      return item
     } else {
       guard
         let watchContextFileURL = FileManager.default.containerURL(

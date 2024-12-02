@@ -14,14 +14,17 @@ struct RectangularView: View {
   let chapterTitle: String
   let bookTitle: String
   let details: String
+  let includeLogo: Bool
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(spacing: 4) {
-        Image("Graphic Circular")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 24)
+        if includeLogo {
+          Image("Graphic Circular")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 24)
+        }
         Text(chapterTitle)
           .font(.headline)
         Spacer()

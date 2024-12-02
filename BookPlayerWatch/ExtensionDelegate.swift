@@ -32,7 +32,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       for: .revenueCat
     )
     Purchases.logLevel = .error
-    let rcUserId = UserDefaults.standard.string(forKey: "rcUserId")
+    let rcUserId = UserDefaults.sharedDefaults.string(forKey: "rcUserId")
     Purchases.configure(withAPIKey: revenueCatApiKey, appUserID: rcUserId)
     Purchases.shared.delegate = self
   }
