@@ -10,12 +10,8 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct RemoteItemListCellView: View {
-  @StateObject var model: RemoteItemCellViewModel
+  @ObservedObject var model: RemoteItemCellViewModel
   @State private var error: Error?
-
-  init(item: SimpleLibraryItem, coreServices: CoreServices) {
-    self._model = .init(wrappedValue: .init(item: item, coreServices: coreServices))
-  }
 
   var percentCompleted: String {
     guard model.item.progress > 0 else { return "" }

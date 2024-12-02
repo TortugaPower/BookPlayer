@@ -82,14 +82,14 @@ struct RemoteItemListView: View {
       if folderRelativePath == nil {
         Section {
           if let lastPlayedItem {
-            RemoteItemListCellView(item: lastPlayedItem, coreServices: coreServices)
+            RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
               .onTapGesture {
                 Task {
                   do {
                     isLoading = true
                     try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
-                    isLoading = false
                     showPlayer = true
+                    isLoading = false
                   } catch {
                     isLoading = false
                     self.error = error
@@ -112,18 +112,19 @@ struct RemoteItemListView: View {
                 folderRelativePath: item.relativePath
               )
             } label: {
-              RemoteItemListCellView(item: item, coreServices: coreServices)
+              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            RemoteItemListCellView(item: item, coreServices: coreServices)
+            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
               .onTapGesture {
                 Task {
                   do {
                     isLoading = true
                     try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                    isLoading = false
                     showPlayer = true
+                    isLoading = false
+                    lastPlayedItem = item
                   } catch {
                     isLoading = false
                     self.error = error

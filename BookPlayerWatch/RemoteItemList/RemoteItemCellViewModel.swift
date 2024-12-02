@@ -11,9 +11,9 @@ import Combine
 import Foundation
 
 class RemoteItemCellViewModel: ObservableObject {
-  let item: SimpleLibraryItem
-  let coreServices: CoreServices
+  @Published var item: SimpleLibraryItem
   @Published var downloadState: DownloadState
+  let coreServices: CoreServices
 
   private var disposeBag = Set<AnyCancellable>()
 
