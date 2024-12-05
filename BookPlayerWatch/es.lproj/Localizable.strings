@@ -19,5 +19,6 @@
 "settings_skip_title" = "INTERVALOS DE SALTO";
 "settings_skip_rewind_title" = "Retroceder";
 "settings_skip_forward_title" = "Adelante";
+"settings_autoplay_section_title" = "AUTO-REPRODUCCIÓN";
 "speed_title" = "velocidad";
 "logout_title" = "Cerrar sesión";

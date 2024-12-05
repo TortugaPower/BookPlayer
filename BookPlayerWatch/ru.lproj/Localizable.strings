@@ -19,5 +19,6 @@
 "settings_skip_title" = "ШАГ ПЕРЕМОТКИ";
 "settings_skip_rewind_title" = "Назад";
 "settings_skip_forward_title" = "Вперёд";
+"settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "speed_title" = "скорость";
 "logout_title" = "Выйти";

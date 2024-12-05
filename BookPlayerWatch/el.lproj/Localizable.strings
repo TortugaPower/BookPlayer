@@ -19,5 +19,6 @@
 "settings_skip_title" = "ΔΙΑΣΤΗΜΑΤΑ ΠΑΡΑΛΕΙΨΗΣ";
 "settings_skip_rewind_title" = "Πίσω";
 "settings_skip_forward_title" = "Προς τα εμπρός";
+"settings_autoplay_section_title" = "ΑΥΤΟΜΑΤΗ ΑΝΑΠΑΡΑΓΩΓΗ";
 "speed_title" = "Ταχύτητα";
 "logout_title" = "Αποσύνδεση";

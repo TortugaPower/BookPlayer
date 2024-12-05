@@ -19,5 +19,6 @@
 "settings_skip_title" = "Intervaly přetáčení";
 "settings_skip_rewind_title" = "Vrátit";
 "settings_skip_forward_title" = "Přetočit";
+"settings_autoplay_section_title" = "AUTOMATICKÉ PŘEHRÁVÁNÍ";
 "speed_title" = "Rychlost";
 "logout_title" = "Odhlásit se";

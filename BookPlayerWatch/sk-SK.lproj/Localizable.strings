@@ -19,5 +19,6 @@
 "settings_skip_title" = "PRETÁČANIE";
 "settings_skip_rewind_title" = "Dozadu";
 "settings_skip_forward_title" = "Dopredu";
+"settings_autoplay_section_title" = "AUTOMATICKÉ PREHRÁVANIE";
 "speed_title" = "rýchlosť";
 "logout_title" = "Odhlásiť sa";

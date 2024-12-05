@@ -19,5 +19,6 @@
 "settings_skip_title" = "INTERVALLES DE SAUT";
 "settings_skip_rewind_title" = "Rembobiner";
 "settings_skip_forward_title" = "Avancer";
+"settings_autoplay_section_title" = "LECTURE AUTOMATIQUE";
 "speed_title" = "vitesse";
 "logout_title" = "Se déconnecter";

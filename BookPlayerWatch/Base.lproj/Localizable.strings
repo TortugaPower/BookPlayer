@@ -19,5 +19,6 @@
 "settings_skip_title" = "SKIP INTERVALS";
 "settings_skip_rewind_title" = "Rewind";
 "settings_skip_forward_title" = "Forward";
+"settings_autoplay_section_title" = "AUTOPLAY";
 "speed_title" = "speed";
 "logout_title" = "Log out";

@@ -19,5 +19,6 @@
 "settings_skip_title" = "POMIJANIE INTERWAŁÓW";
 "settings_skip_rewind_title" = "Cofnij";
 "settings_skip_forward_title" = "Do przodu";
+"settings_autoplay_section_title" = "AUTOMATYCZNE ODTWARZANIE";
 "speed_title" = "prędkość";
 "logout_title" = "Wyloguj";

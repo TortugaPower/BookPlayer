@@ -19,5 +19,6 @@
 "settings_skip_title" = "SĂRIȚI INTERVALURILE";
 "settings_skip_rewind_title" = "Derulare înapoi";
 "settings_skip_forward_title" = "Înainte";
+"settings_autoplay_section_title" = "REDARE AUTOMATA";
 "speed_title" = "Viteza";
 "logout_title" = "Deconectați-vă";

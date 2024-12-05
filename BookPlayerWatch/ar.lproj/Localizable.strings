@@ -19,5 +19,6 @@
 "settings_skip_title" = "القفزات الزمنية";
 "settings_skip_rewind_title" = "التأخير";
 "settings_skip_forward_title" = "التقديم";
+"settings_autoplay_section_title" = "التشغيل التلقائي";
 "speed_title" = "السرعة";
 "logout_title" = "تسجيل خروج";

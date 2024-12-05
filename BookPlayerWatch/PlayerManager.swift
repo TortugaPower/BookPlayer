@@ -1002,14 +1002,16 @@ extension PlayerManager {
   }
 
   func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
-    /// If it's autoplayed, check if setting is enabled (disabled on watch app for the time being)
-    //    if autoPlayed,
-    //       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
-    //    {
-    //      return
-    //    }
+    /// If it's autoplayed, check if setting is enabled
+    if autoPlayed,
+      UserDefaults.standard.object(forKey: Constants.UserDefaults.autoplayEnabled) != nil,
+      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
+    {
+      return
+    }
 
-    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
+    /// Always true for watch app for the moment
+    let restartFinished = true  // UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
 
     guard
       let currentItem = self.currentItem,

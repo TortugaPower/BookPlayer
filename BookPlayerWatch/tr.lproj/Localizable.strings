@@ -19,5 +19,6 @@
 "settings_skip_title" = "ATLAMA ARALIKLARI";
 "settings_skip_rewind_title" = "Geri Sarma";
 "settings_skip_forward_title" = "İleri Sarma";
+"settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "speed_title" = "hız";
 "logout_title" = "Çıkış Yap";

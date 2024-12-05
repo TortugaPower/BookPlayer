@@ -11,24 +11,13 @@ import SwiftUI
 
 struct PlaybackFullControlsView: View {
   @ObservedObject var model: PlaybackFullControlsViewModel
+  @AppStorage(Constants.UserDefaults.autoplayEnabled) var autoplayEnabled: Bool = true
   @AppStorage(Constants.UserDefaults.rewindInterval) var rewindInterval: TimeInterval = 30
   @AppStorage(Constants.UserDefaults.forwardInterval) var forwardInterval: TimeInterval = 30
 
   var body: some View {
     GeometryReader { metrics in
       List {
-        Section {
-          Toggle(
-            "settings_boostvolume_title",
-            isOn: .init(
-              get: { model.boostVolume },
-              set: { _ in
-                model.handleBoostVolumeToggle()
-              }
-            )
-          )
-        }
-
         Section("speed".localized.uppercased()) {
           VStack {
             HStack {
@@ -68,6 +57,22 @@ struct PlaybackFullControlsView: View {
           }
         }
         .listRowBackground(Color.clear)
+
+        Section {
+          Toggle(
+            "settings_boostvolume_title",
+            isOn: .init(
+              get: { model.boostVolume },
+              set: { _ in
+                model.handleBoostVolumeToggle()
+              }
+            )
+          )
+          Toggle(
+            "settings_autoplay_section_title".localized.capitalized,
+            isOn: $autoplayEnabled
+          )
+        }
 
         Section("settings_skip_title") {
           NavigationLink {

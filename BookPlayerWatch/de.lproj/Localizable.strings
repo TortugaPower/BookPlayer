@@ -19,5 +19,6 @@
 "settings_skip_title" = "Tasten „Überspringen“";
 "settings_skip_rewind_title" = "Rückwärts";
 "settings_skip_forward_title" = "Vorwärts";
+"settings_autoplay_section_title" = "AUTOMATISCHES ABSPIELEN";
 "speed_title" = "Wiedergabegeschwindigkeit";
 "logout_title" = "Ausloggen";

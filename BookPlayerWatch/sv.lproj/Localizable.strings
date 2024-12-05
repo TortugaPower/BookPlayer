@@ -19,5 +19,6 @@
 "settings_skip_title" = "SNABBSPOLNING";
 "settings_skip_rewind_title" = "Tillbaka";
 "settings_skip_forward_title" = "Framåt";
+"settings_autoplay_section_title" = "AUTOSPELA";
 "speed_title" = "hastighet";
 "logout_title" = "Logga ut";

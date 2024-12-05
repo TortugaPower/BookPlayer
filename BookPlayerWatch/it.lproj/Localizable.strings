@@ -19,5 +19,6 @@
 "settings_skip_title" = "SALTA INTERVALLI";
 "settings_skip_rewind_title" = "Riavvolgi";
 "settings_skip_forward_title" = "Avanti";
+"settings_autoplay_section_title" = "RIPRODUZIONE AUTOMATICA";
 "speed_title" = "velocità";
 "logout_title" = "Disconnettersi";

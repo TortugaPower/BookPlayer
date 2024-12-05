@@ -19,5 +19,6 @@
 "settings_skip_title" = "Інтервали перемотування";
 "settings_skip_rewind_title" = "Назад";
 "settings_skip_forward_title" = "Вперед";
+"settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
 "speed_title" = "швидкість";
 "logout_title" = "Вийти";

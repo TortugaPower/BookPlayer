@@ -19,5 +19,6 @@
 "settings_skip_title" = "Skippaus intervallit";
 "settings_skip_rewind_title" = "Kelaa taaksepäin";
 "settings_skip_forward_title" = "Eteenpäin";
+"settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "speed_title" = "nopeus";
 "logout_title" = "Kirjautua ulos";

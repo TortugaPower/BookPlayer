@@ -19,5 +19,6 @@
 "settings_skip_title" = "INTERVAL OVERSLAAN";
 "settings_skip_rewind_title" = "Terugspoelen";
 "settings_skip_forward_title" = "Naar voren";
+"settings_autoplay_section_title" = "AUTOMATISCH AFSPELEN";
 "speed_title" = "snelheid";
 "logout_title" = "Uitloggen";

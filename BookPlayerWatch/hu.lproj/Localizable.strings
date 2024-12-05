@@ -19,5 +19,6 @@
 "settings_skip_title" = "UGRÁSOK IDŐTARTAMA";
 "settings_skip_rewind_title" = "Visszatekerés";
 "settings_skip_forward_title" = "Előretekerés";
+"settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
 "speed_title" = "sebesség";
 "logout_title" = "Kijelentkezés";

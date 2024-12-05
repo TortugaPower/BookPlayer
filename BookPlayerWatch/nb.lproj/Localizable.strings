@@ -19,5 +19,6 @@
 "settings_skip_title" = "HOPP OVER INTERVALLER";
 "settings_skip_rewind_title" = "Spol tilbake";
 "settings_skip_forward_title" = "Spol fremover";
+"settings_autoplay_section_title" = "AUTOPLAY";
 "speed_title" = "hastighet";
 "logout_title" = "Logg ut";

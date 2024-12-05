@@ -19,5 +19,6 @@
 "settings_skip_title" = "SPRING OVER-INTERVALLER";
 "settings_skip_rewind_title" = "Spol tilbage";
 "settings_skip_forward_title" = "Spol frem";
+"settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
 "speed_title" = "Hastighed";
 "logout_title" = "Log ud";
