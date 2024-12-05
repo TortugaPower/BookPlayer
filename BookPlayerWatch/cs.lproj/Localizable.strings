@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Knihovna";
+"delete_button" = "Odstranit";
 "ok_button" = "OK";
 "recent_title" = "Nedávné";
+"storage_total_title" = "Celkový využitý prostor";
 "watchapp_last_played_title" = "Naposledy přehráno";
 "watchapp_refresh_data_title" = "Obnovit data";
 "watchapp_connect_error_title" = "Chyba připojení";

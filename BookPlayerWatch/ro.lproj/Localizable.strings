@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Bibliotecă";
+"delete_button" = "Ștergere";
 "ok_button" = "OK";
 "recent_title" = "Recent";
+"storage_total_title" = "Spațiul total folosit";
 "watchapp_last_played_title" = "Ultimul redat";
 "watchapp_refresh_data_title" = "Actualizați datele";
 "watchapp_connect_error_title" = "Eroare de conectivitate";

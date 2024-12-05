@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Βιβλιοθήκη";
+"delete_button" = "Διαγράφω";
 "ok_button" = "Εντάξει";
 "recent_title" = "Πρόσφατος";
+"storage_total_title" = "Συνολικός χώρος που χρησιμοποιείται";
 "watchapp_last_played_title" = "Τελευταία αναπαραγωγή";
 "watchapp_refresh_data_title" = "Ανανέωση δεδομένων";
 "watchapp_connect_error_title" = "Σφάλμα συνδεσιμότητας";

@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Könyvtár";
+"delete_button" = "Törlés";
 "ok_button" = "OK";
 "recent_title" = "Friss";
+"storage_total_title" = "Teljes felhasznált terület";
 "watchapp_last_played_title" = "Utoljára lejátszott";
 "watchapp_refresh_data_title" = "Adatok frissítése";
 "watchapp_connect_error_title" = "Kapcsolódási hiba";

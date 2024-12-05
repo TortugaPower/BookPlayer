@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Biblioteca";
+"delete_button" = "Excluir";
 "ok_button" = "OK";
 "recent_title" = "Mais recente";
+"storage_total_title" = "Espaço total utilizado";
 "watchapp_last_played_title" = "Último Reproduzido";
 "watchapp_refresh_data_title" = "Atualizar dados";
 "watchapp_connect_error_title" = "Erro de conexão";

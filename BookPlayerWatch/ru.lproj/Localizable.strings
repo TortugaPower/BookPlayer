@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Библиотека";
+"delete_button" = "Удалить";
 "ok_button" = "OK";
 "recent_title" = "Последние";
+"storage_total_title" = "Использовано памяти";
 "watchapp_last_played_title" = "Последняя воспроизведенная книга";
 "watchapp_refresh_data_title" = "Обновить данные";
 "watchapp_connect_error_title" = "Ошибка подключения";

@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Kirjasto";
+"delete_button" = "Poista";
 "ok_button" = "OK";
 "recent_title" = "Viimeisin";
+"storage_total_title" = "Käytetty tila yhteensä";
 "watchapp_last_played_title" = "Viimeksi soitettu";
 "watchapp_refresh_data_title" = "Päivitä tiedot";
 "watchapp_connect_error_title" = "Yhteysvirhe";

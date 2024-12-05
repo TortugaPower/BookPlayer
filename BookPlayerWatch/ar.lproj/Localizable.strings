@@ -7,8 +7,10 @@
 */
 
 "library_title" = "المكتبة";
+"delete_button" = "حذف";
 "ok_button" = "موافق";
 "recent_title" = "مؤخراً";
+"storage_total_title" = "المساحة الإجمالية المُستَخدَمة";
 "watchapp_last_played_title" = "التشغيل الاخير";
 "watchapp_refresh_data_title" = "تحديث البيانات";
 "watchapp_connect_error_title" = "خطأ في الاتصال";
