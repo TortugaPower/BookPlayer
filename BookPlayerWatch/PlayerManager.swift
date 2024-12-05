@@ -62,6 +62,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let decoder = JSONDecoder()
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
+  @Published var error: Error?
 
   var nowPlayingInfo = [String: Any]()
 
@@ -251,9 +252,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   }
 
   func load(_ item: PlayableItem, autoplay: Bool) {
-    load(item, autoplay: autoplay, forceRefreshURL: false)
+    Task { @MainActor in
+      load(item, autoplay: autoplay, forceRefreshURL: false)
+    }
   }
 
+  @MainActor
   private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task
     playTask?.cancel()
@@ -311,7 +315,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       playbackQueued = autoplay
     }
 
-    loadChapterTask = Task { [unowned self] in
+    loadChapterTask = Task { @MainActor [unowned self] in
       do {
         try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
         self.loadChapterOperation(chapter)
@@ -321,7 +325,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription)
+        self.showError(error)
         return
       }
     }
@@ -744,7 +748,7 @@ extension PlayerManager {
         )
         try await audioSession.activate()
       } catch {
-        showErrorAlert(title: "error_title".localized, error.localizedDescription)
+        showError(error)
       }
 
       createOrUpdateAutomaticBookmark(
@@ -879,9 +883,9 @@ extension PlayerManager {
               Additional Info
               \(nsError.userInfo)
               """
-            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
-          } else {
-            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
+            showError(nsError)
+          } else if let itemError = item.error {
+            showError(itemError)
           }
         }
 
@@ -1144,7 +1148,9 @@ extension PlayerManager {
   }
 
   private func loadAndRefreshURL(item: PlayableItem) {
-    load(item, autoplay: playbackQueued == true, forceRefreshURL: true)
+    Task { @MainActor in
+      load(item, autoplay: playbackQueued == true, forceRefreshURL: true)
+    }
   }
 
   @objc
@@ -1208,14 +1214,8 @@ extension PlayerManager {
 }
 
 extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?) {
-    print("=== error: \(message)")
-//    DispatchQueue.main.async {
-//      AppDelegate.shared?.activeSceneDelegate?
-//        .startingNavigationController
-//        .getTopVisibleViewController()?
-//        .showAlert(title, message: message)
-//    }
+  func showError(_ error: Error) {
+    self.error = error
   }
 }
 

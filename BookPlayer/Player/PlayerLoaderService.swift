@@ -72,9 +72,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     playerManager.load(item, autoplay: autoplay)
 
     if recordAsLastBook {
-      await MainActor.run {
-        libraryService.setLibraryLastBook(with: item.relativePath)
-      }
+      libraryService.setLibraryLastBook(with: item.relativePath)
     }
   }
 }

@@ -29,11 +29,11 @@ struct RemoteItemListView: View {
   ) {
     self.coreServices = coreServices
     let fetchedItems =
-      coreServices.libraryService.fetchContents(
-        at: folderRelativePath,
-        limit: nil,
-        offset: nil
-      ) ?? []
+    coreServices.libraryService.fetchContents(
+      at: folderRelativePath,
+      limit: nil,
+      offset: nil
+    ) ?? []
     self._items = .init(initialValue: fetchedItems)
     let lastItem = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
     self._lastPlayedItem = .init(initialValue: lastItem)

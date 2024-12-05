@@ -38,5 +38,6 @@ struct RemotePlayerView: View {
     .fixedSize(horizontal: false, vertical: false)
     .ignoresSafeArea(edges: .bottom)
     .navigationTitle(TimeParser.formatTotalDuration(playerManager.currentItem?.maxTimeInContext(prefersChapterContext: false, prefersRemainingTime: true, at: 1.0) ?? 0))
+    .errorAlert(error: $playerManager.error)
   }
 }
