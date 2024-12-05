@@ -22,3 +22,4 @@
 "settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "speed_title" = "nopeus";
 "logout_title" = "Kirjautua ulos";
+"watchapp_login_description" = "Suoratoista viimeisimmät kirjasi Apple Watchiin tai lataa ne kuunnellaksesi offline-tilassa liikkeellä ollessasi.";

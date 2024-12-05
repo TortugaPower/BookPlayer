@@ -22,3 +22,4 @@
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "speed_title" = "скорость";
 "logout_title" = "Выйти";
+"watchapp_login_description" = "Транслируйте недавно прочитанные книги на Apple Watch или загружайте их, чтобы слушать их офлайн в дороге.";

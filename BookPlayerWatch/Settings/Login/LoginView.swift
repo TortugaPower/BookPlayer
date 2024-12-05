@@ -20,7 +20,7 @@ struct LoginView: View {
     VStack(spacing: Spacing.S1) {
       Text("BookPlayer Pro")
         .font(Font(Fonts.titleLarge))
-      Text("Stream your recent books to your Apple Watch, or download them to listen offline on the go.")
+      Text("watchapp_login_description".localized)
         .font(Font(Fonts.body))
         .multilineTextAlignment(.center)
       #if targetEnvironment(simulator)
