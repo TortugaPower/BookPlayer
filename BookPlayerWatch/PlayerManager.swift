@@ -453,6 +453,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
 
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
+    objectWillChange.send()
   }
 
   // MARK: - Player states

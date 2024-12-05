@@ -10,6 +10,7 @@ import BookPlayerWatchKit
 import SwiftUI
 
 struct RemoteItemListView: View {
+  @Environment(\.scenePhase) var scenePhase
   @ObservedObject var coreServices: CoreServices
   @State var items: [SimpleLibraryItem]
   @State var lastPlayedItem: SimpleLibraryItem?
@@ -209,6 +210,14 @@ struct RemoteItemListView: View {
         await syncListContents(ignoreLastTimestamp: true)
         isRefreshing = false
       }
+    }
+    .onChange(of: scenePhase) { newPhase in
+      guard
+        newPhase == .active,
+        coreServices.playerManager.isPlaying
+      else { return }
+
+      showPlayer = true
     }
     .onAppear {
       guard isFirstLoad else { return }

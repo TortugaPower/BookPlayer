@@ -77,11 +77,13 @@ struct PlayerToolbarView: View {
 
       Spacer()
 
-      ResizeableImageView(name: "ellipsis.circle")
-        .padding(14)
-        .onTapGesture {
-          isShowingMoreList = true
-        }
+      Button {
+        isShowingMoreList = true
+      } label: {
+        ResizeableImageView(name: "list.bullet")
+          .padding(14)
+      }
+      .buttonStyle(PlainButtonStyle())
 
       Spacer()
     }

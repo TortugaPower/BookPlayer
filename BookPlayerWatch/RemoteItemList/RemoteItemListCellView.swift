@@ -34,7 +34,7 @@ struct RemoteItemListCellView: View {
           .lineLimit(1)
         switch model.downloadState {
         case .downloading(let progress):
-          LinearProgressView(value: progress)
+          LinearProgressView(value: progress, fillColor: .white)
             .frame(maxWidth: 100, maxHeight: 10)
         case .downloaded:
           Text(Image(systemName: "applewatch"))
@@ -101,12 +101,13 @@ struct RemoteItemListCellView: View {
 struct LinearProgressView<Shape: SwiftUI.Shape>: View {
   var value: Double
   var shape: Shape
+  var fillColor: Color
 
   var body: some View {
     shape.fill(.secondary)
       .overlay(alignment: .leading) {
         GeometryReader { proxy in
-          shape.fill(.white)
+          shape.fill(fillColor)
             .frame(width: proxy.size.width * value)
         }
       }
@@ -115,8 +116,9 @@ struct LinearProgressView<Shape: SwiftUI.Shape>: View {
 }
 
 extension LinearProgressView where Shape == Capsule {
-  init(value: Double, shape: Shape = Capsule()) {
+  init(value: Double, fillColor: Color, shape: Shape = Capsule()) {
     self.value = value
     self.shape = shape
+    self.fillColor = fillColor
   }
 }
