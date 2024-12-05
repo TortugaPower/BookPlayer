@@ -20,7 +20,7 @@ struct LoginView: View {
     VStack(spacing: Spacing.S1) {
       Text("BookPlayer Pro")
         .font(Font(Fonts.titleLarge))
-      Text("watchapp_login_description".localized)
+      Text("benefits_watchapp_description".localized)
         .font(Font(Fonts.body))
         .multilineTextAlignment(.center)
       #if targetEnvironment(simulator)
