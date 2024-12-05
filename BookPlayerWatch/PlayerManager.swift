@@ -755,7 +755,17 @@ extension PlayerManager {
 
       // If book is completed, stop
       let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
-      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
+      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) {
+        /// if it was manually selected, restart book
+        if !autoPlayed {
+          updatePlaybackTime(item: currentItem, time: 0)
+          let firstChapter = currentItem.chapters.first!
+          currentItem.currentChapter = firstChapter
+          loadChapterMetadata(firstChapter, autoplay: true)
+        } else {
+          return
+        }
+      }
 
       handleSmartRewind(currentItem)
 
@@ -988,12 +998,12 @@ extension PlayerManager {
   }
 
   func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
-    /// If it's autoplayed, check if setting is enabled
-    if autoPlayed,
-      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
-    {
-      return
-    }
+    /// If it's autoplayed, check if setting is enabled (disabled on watch app for the time being)
+    //    if autoPlayed,
+    //       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
+    //    {
+    //      return
+    //    }
 
     let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
 
