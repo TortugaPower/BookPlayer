@@ -874,15 +874,6 @@ extension PlayerManager {
         /// where we preload the player with the last played item
         if playbackQueued == true {
           if let nsError = item.error as? NSError {
-            let errorDescription = """
-              \(nsError.localizedDescription)
-
-              Error Domain
-              \(nsError.domain)
-
-              Additional Info
-              \(nsError.userInfo)
-              """
             showError(nsError)
           } else if let itemError = item.error {
             showError(itemError)

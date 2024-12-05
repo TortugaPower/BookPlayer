@@ -12,8 +12,8 @@ import SwiftUI
 struct RemoteItemListView: View {
   @Environment(\.scenePhase) var scenePhase
   @ObservedObject var coreServices: CoreServices
+  @ObservedObject var playerManager: PlayerManager
   @State var items: [SimpleLibraryItem]
-  @State var lastPlayedItem: SimpleLibraryItem?
   @State var playingItemParentPath: String?
   @State private var isLoading = false
   @State private var error: Error?
@@ -28,6 +28,7 @@ struct RemoteItemListView: View {
     folderRelativePath: String? = nil
   ) {
     self.coreServices = coreServices
+    self.playerManager = coreServices.playerManager
     let fetchedItems =
     coreServices.libraryService.fetchContents(
       at: folderRelativePath,
@@ -36,7 +37,6 @@ struct RemoteItemListView: View {
     ) ?? []
     self._items = .init(initialValue: fetchedItems)
     let lastItem = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
-    self._lastPlayedItem = .init(initialValue: lastItem)
     self.folderRelativePath = folderRelativePath
 
     if let lastItem {
@@ -71,7 +71,6 @@ struct RemoteItemListView: View {
         offset: nil
       ) ?? []
 
-    lastPlayedItem = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
     if let lastPlayedItem {
       playingItemParentPath = getPathForParentOfItem(currentPlayingPath: lastPlayedItem.relativePath)
     } else {
@@ -109,6 +108,17 @@ struct RemoteItemListView: View {
     }
 
     return parentFolders[elementIndex]
+  }
+
+  var lastPlayedItem: SimpleLibraryItem? {
+    guard
+      let currentItem = playerManager.currentItem,
+      let lastPlayedItem = coreServices.libraryService.getSimpleItem(with: currentItem.relativePath)
+    else {
+      return coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
+    }
+
+    return lastPlayedItem
   }
 
   var body: some View {
@@ -163,7 +173,6 @@ struct RemoteItemListView: View {
                         try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
                         showPlayer = true
                         isLoading = false
-                        lastPlayedItem = item
                       } catch {
                         isLoading = false
                         self.error = error
