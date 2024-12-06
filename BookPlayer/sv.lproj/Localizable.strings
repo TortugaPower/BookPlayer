@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-genvägar är tillgängliga på iOS 12 och högre";
 "support_bookplayer_title" = "Stöd BookPlayer";
-"support_bookplayer_description" = "Skaffa BookPlayer Pro för att stödja framtida utveckling och få extra teman, appikoner och molnsynkronisering";
+"support_bookplayer_description" = "Stöd framtida utveckling och få extra teman, appikoner, molnsynkronisering och fristående uppspelning på Apple Watch";
 "learn_more_title" = "LÄS MER";
 "settings_appearance_title" = "Utseende";
 "settings_theme_title" = "Tema";
@@ -321,4 +321,4 @@
 "more_title" = "Mer";
 "repeat_turn_on_title" = "Aktivera Upprepa för den här boken";
 "repeat_turn_off_title" = "Stäng av Upprepa för den här boken";
-"benefits_watchapp_description" = "Strömma dina senaste böcker till din Apple Watch eller ladda ner dem för att lyssna offline när du är på språng.";
+"benefits_watchapp_description" = "Streama eller ladda ner dina böcker och lyssna på språng utan din telefon.";

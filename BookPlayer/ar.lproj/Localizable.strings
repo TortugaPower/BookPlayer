@@ -55,7 +55,7 @@
 "ok_button" = "موافق";
 "siri_alert_description" = "تتوفر اختصارات Siri في iOS 12 والإصدارات الأحدث";
 "support_bookplayer_title" = "دعم bookplayer";
-"support_bookplayer_description" = "احصل على BookPlayer Pro، لدعم التطوير المستقبلي، والحصول على أشكال وأيقونات إضافية للتطبيق، وخاصية المزامنة السحابية";
+"support_bookplayer_description" = "ادعم التطوير المستقبلي واحصل على سمات إضافية وأيقونات تطبيقات ومزامنة سحابية وتشغيل مستقل على Apple Watch";
 "learn_more_title" = "التعرف على المزيد";
 "settings_appearance_title" = "المظهر";
 "settings_theme_title" = "المظهر";
@@ -321,4 +321,4 @@
 "more_title" = "أكثر";
 "repeat_turn_on_title" = "قم بتشغيل التكرار لهذا الكتاب";
 "repeat_turn_off_title" = "إيقاف تكرار هذا الكتاب";
-"benefits_watchapp_description" = "قم ببث كتبك الأخيرة إلى Apple Watch، أو قم بتنزيلها للاستماع إليها أثناء التنقل دون الاتصال بالإنترنت.";
+"benefits_watchapp_description" = "قم ببث كتبك أو تنزيلها واستمع إليها أثناء التنقل دون الحاجة إلى هاتفك.";

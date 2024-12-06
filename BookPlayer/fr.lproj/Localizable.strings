@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Les raccourcis Siri sont disponibles sur iOS 12 et supérieur";
 "support_bookplayer_title" = "Soutenir BookPlayer";
-"support_bookplayer_description" = "Obtenez BookPlayer Pro pour soutenir le développement futur et obtenir des thèmes, des icônes d'application supplémentaires et une synchronisation dans le cloud";
+"support_bookplayer_description" = "Soutenez le développement futur et obtenez des thèmes supplémentaires, des icônes d'application, la synchronisation dans le cloud et la lecture autonome sur l'Apple Watch";
 "learn_more_title" = "EN SAVOIR PLUS";
 "settings_appearance_title" = "Apparence";
 "settings_theme_title" = "Thème";
@@ -321,4 +321,4 @@
 "more_title" = "Plus";
 "repeat_turn_on_title" = "Activer la répétition pour ce livre";
 "repeat_turn_off_title" = "Désactiver la répétition pour ce livre";
-"benefits_watchapp_description" = "Diffusez vos livres récents sur votre Apple Watch ou téléchargez-les pour les écouter hors ligne lors de vos déplacements.";
+"benefits_watchapp_description" = "Diffusez ou téléchargez vos livres et écoutez-les en déplacement sans votre téléphone.";

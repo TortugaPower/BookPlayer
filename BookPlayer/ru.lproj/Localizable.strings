@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Быстрые команды Siri доступны на iOS 12 и выше";
 "support_bookplayer_title" = "Поддержите BookPlayer";
-"support_bookplayer_description" = "Получите BookPlayer Pro для поддержки будущих разработок и получения дополнительных тем, значков приложений и облачной синхронизации.";
+"support_bookplayer_description" = "Поддержите будущую разработку и получите дополнительные темы, значки приложений, облачную синхронизацию и автономное воспроизведение на Apple Watch";
 "learn_more_title" = "ПОДРОБНЕЕ";
 "settings_appearance_title" = "Внешний вид";
 "settings_theme_title" = "Тема";
@@ -321,4 +321,4 @@
 "more_title" = "Более";
 "repeat_turn_on_title" = "Включить повтор для этой книги";
 "repeat_turn_off_title" = "Отключить повтор для этой книги";
-"benefits_watchapp_description" = "Транслируйте недавно прочитанные книги на Apple Watch или загружайте их, чтобы слушать их офлайн в дороге.";
+"benefits_watchapp_description" = "Слушайте книги онлайн или скачивайте их, где бы вы ни находились, без телефона.";
