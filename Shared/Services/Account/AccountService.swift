@@ -345,15 +345,15 @@ public final class AccountService: AccountServiceProtocol {
   public func getSecondOnboarding<T: Decodable>() async throws -> T {
     guard
       let customerInfo = Purchases.shared.cachedCustomerInfo,
-      customerInfo.activeSubscriptions.isEmpty,
-      let countryCode = await Storefront.currentStorefront?.countryCode
+      let countryCode = await Storefront.currentStorefront?.countryCode,
+      customerInfo.entitlements.all.isEmpty || customerInfo.entitlements.all["pro"]?.isActive == false
     else {
       throw SecondOnboardingError.notApplicable
     }
 
     return try await provider.request(.secondOnboarding(
       anonymousId: customerInfo.id,
-      firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
+      firstSeen: Date.distantPast.timeIntervalSince1970,
       region: countryCode
     ))
   }
