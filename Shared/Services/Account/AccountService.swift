@@ -353,7 +353,7 @@ public final class AccountService: AccountServiceProtocol {
 
     return try await provider.request(.secondOnboarding(
       anonymousId: customerInfo.id,
-      firstSeen: Date.distantPast.timeIntervalSince1970,
+      firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
       region: countryCode
     ))
   }
