@@ -60,6 +60,12 @@ struct ProfileView: View {
   var body: some View {
     List {
       Section {
+        if !coreServices.hasSyncEnabled {
+          Text("subscription_required_title".localized)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+
         Button {
           do {
             isLoading = true
