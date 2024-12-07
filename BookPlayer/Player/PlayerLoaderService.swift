@@ -6,7 +6,11 @@
 //  Copyright © 2024 Tortuga Power. All rights reserved.
 //
 
-import BookPlayerKit
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+#endif
 import Foundation
 
 final class PlayerLoaderService: @unchecked Sendable {
@@ -68,9 +72,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     playerManager.load(item, autoplay: autoplay)
 
     if recordAsLastBook {
-      await MainActor.run {
-        libraryService.setLibraryLastBook(with: item.relativePath)
-      }
+      libraryService.setLibraryLastBook(with: item.relativePath)
     }
   }
 }

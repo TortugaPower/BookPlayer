@@ -15,8 +15,7 @@ struct NowPlayingView: View {
   var body: some View {
     VStack {
       NowPlayingTitleView(
-        author: contextManager.applicationContext.currentItem?.author ?? "",
-        title: contextManager.applicationContext.currentItem?.title ?? ""
+        item: .constant(contextManager.applicationContext.currentItem)
       )
 
       Spacer()

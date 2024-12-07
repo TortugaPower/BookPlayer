@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Könyvtár";
+"delete_button" = "Törlés";
 "ok_button" = "OK";
 "recent_title" = "Friss";
+"storage_total_title" = "Teljes felhasznált terület";
 "watchapp_last_played_title" = "Utoljára lejátszott";
 "watchapp_refresh_data_title" = "Adatok frissítése";
 "watchapp_connect_error_title" = "Kapcsolódási hiba";
@@ -16,3 +18,11 @@
 "chapters_title" = "Fejezetek";
 "settings_controls_title" = "Lejátszóvezérlők";
 "settings_boostvolume_title" = "Hangerő növelése";
+"settings_skip_title" = "UGRÁSOK IDŐTARTAMA";
+"settings_skip_rewind_title" = "Visszatekerés";
+"settings_skip_forward_title" = "Előretekerés";
+"settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
+"speed_title" = "sebesség";
+"logout_title" = "Kijelentkezés";
+"benefits_watchapp_description" = "Streamelje vagy töltse le könyveit, és telefonja nélkül hallgassa útközben.";
+"subscription_required_title" = "Előfizetés szükséges";

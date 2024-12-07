@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Bibliotecă";
+"delete_button" = "Ștergere";
 "ok_button" = "OK";
 "recent_title" = "Recent";
+"storage_total_title" = "Spațiul total folosit";
 "watchapp_last_played_title" = "Ultimul redat";
 "watchapp_refresh_data_title" = "Actualizați datele";
 "watchapp_connect_error_title" = "Eroare de conectivitate";
@@ -16,3 +18,11 @@
 "chapters_title" = "Capitole";
 "settings_controls_title" = "Controlul Playerului";
 "settings_boostvolume_title" = "Creșterea volumului";
+"settings_skip_title" = "SĂRIȚI INTERVALURILE";
+"settings_skip_rewind_title" = "Derulare înapoi";
+"settings_skip_forward_title" = "Înainte";
+"settings_autoplay_section_title" = "REDARE AUTOMATA";
+"speed_title" = "Viteza";
+"logout_title" = "Deconectați-vă";
+"benefits_watchapp_description" = "Transmiteți în flux sau descărcați cărțile și ascultați din mers fără telefon.";
+"subscription_required_title" = "Este necesar un abonament";

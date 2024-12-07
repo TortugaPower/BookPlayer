@@ -7,8 +7,10 @@
 */
 
 "library_title" = "有声书库";
+"delete_button" = "删除";
 "ok_button" = "确定";
 "recent_title" = "最近";
+"storage_total_title" = "总使用空间";
 "watchapp_last_played_title" = "上次播放";
 "watchapp_refresh_data_title" = "刷新数据";
 "watchapp_connect_error_title" = "连接错误";
@@ -16,3 +18,11 @@
 "chapters_title" = "章节";
 "settings_controls_title" = "播放器控制";
 "settings_boostvolume_title" = "提高音量";
+"settings_skip_title" = "跳过间隔";
+"settings_skip_rewind_title" = "倒带";
+"settings_skip_forward_title" = "快进";
+"settings_autoplay_section_title" = "自动播放";
+"speed_title" = "速度";
+"logout_title" = "登出";
+"benefits_watchapp_description" = "流式传输或下载您的书籍并随时随地收听，无需使用手机。";
+"subscription_required_title" = "需要订阅";

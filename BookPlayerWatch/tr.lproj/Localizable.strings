@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Kitaplık";
+"delete_button" = "Sil";
 "ok_button" = "Tamam";
 "recent_title" = "Son";
+"storage_total_title" = "Kullanılan toplam alan";
 "watchapp_last_played_title" = "Son Oynatılan";
 "watchapp_refresh_data_title" = "Verileri yenile";
 "watchapp_connect_error_title" = "Bağlantı Hatası";
@@ -16,3 +18,11 @@
 "chapters_title" = "Bölümler";
 "settings_controls_title" = "Oynatıcı Kontrolleri";
 "settings_boostvolume_title" = "Sesi Güçlendir";
+"settings_skip_title" = "ATLAMA ARALIKLARI";
+"settings_skip_rewind_title" = "Geri Sarma";
+"settings_skip_forward_title" = "İleri Sarma";
+"settings_autoplay_section_title" = "OTOMATİK OYNATMA";
+"speed_title" = "hız";
+"logout_title" = "Çıkış Yap";
+"benefits_watchapp_description" = "Kitaplarınızı yayınlayın veya indirin ve telefonunuz olmadan hareket halindeyken dinleyin.";
+"subscription_required_title" = "Abonelik gerekli";

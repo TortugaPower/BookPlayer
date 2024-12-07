@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -21,27 +21,24 @@
             <rect key="frame" x="0.0" y="0.0" width="391" height="149"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icloud.and.arrow.up.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="q8b-g4-bTO">
-                    <rect key="frame" x="16" y="48.5" width="70" height="50"/>
+                <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="applewatch.radiowaves.left.and.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="q8b-g4-bTO">
+                    <rect key="frame" x="16" y="68" width="70" height="50"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="50" id="a71-tI-vwv"/>
                         <constraint firstAttribute="width" constant="70" id="zuh-0P-o2j"/>
                     </constraints>
                 </imageView>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Support BookPlayer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpT-kz-YBF" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="102" y="24" width="265" height="21"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BookPlayer Pro" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rpT-kz-YBF">
+                    <rect key="frame" x="102" y="44" width="265" height="21"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="21" id="7qM-If-ztF"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.13728347420692444" green="0.13718283176422119" blue="0.14117720723152161" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     <nil key="highlightedColor"/>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="support_bookplayer_title"/>
-                    </userDefinedRuntimeAttributes>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Get BookPlayer Pro to support future development and get extra themes, app icons and cloud sync" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="FWO-08-PTC" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                    <rect key="frame" x="102" y="48" width="265" height="47"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Support future development and get extra themes, app icons, cloud sync and stand-alone playback on the Apple Watch" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="FWO-08-PTC" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
+                    <rect key="frame" x="102" y="68" width="265" height="27"/>
                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                     <color key="textColor" red="0.60795658826828003" green="0.61154496669769287" blue="0.6235319972038269" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     <nil key="highlightedColor"/>
@@ -91,6 +88,6 @@
         </view>
     </objects>
     <resources>
-        <image name="icloud.and.arrow.up.fill" catalog="system" width="128" height="108"/>
+        <image name="applewatch.radiowaves.left.and.right" catalog="system" width="128" height="87"/>
     </resources>
 </document>

@@ -78,7 +78,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
   func getEntryForTimeline(context: Context) async throws -> SharedWidgetEntry {
     let currentItem: PlayableItem
 #if os(watchOS)
-    currentItem = try getWatchLastPlayedItem()
+    currentItem = try await getWatchLastPlayedItem()
 #else
     currentItem = try await getPhoneLastPlayedItem()
 #endif
@@ -105,17 +105,28 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
     )
   }
 
-  func getWatchLastPlayedItem() throws -> PlayableItem {
-    guard
-      let watchContextFileURL = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
-      )?.appendingPathComponent("WatchContextLastPlayed.data")
-    else {
-      throw BookPlayerError.emptyResponse
-    }
+  func getWatchLastPlayedItem() async throws -> PlayableItem {
+    if UserDefaults.sharedDefaults.object(forKey: "rcUserId") != nil {
+      guard
+        let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
+        let item = (try decoder.decode([PlayableItem].self, from: itemsData)).first
+      else {
+        throw BookPlayerError.emptyResponse
+      }
 
-    let data = try Data(contentsOf: watchContextFileURL)
-    return try decoder.decode(PlayableItem.self, from: data)
+      return item
+    } else {
+      guard
+        let watchContextFileURL = FileManager.default.containerURL(
+          forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
+        )?.appendingPathComponent("WatchContextLastPlayed.data")
+      else {
+        throw BookPlayerError.emptyResponse
+      }
+
+      let data = try Data(contentsOf: watchContextFileURL)
+      return try decoder.decode(PlayableItem.self, from: data)
+    }
   }
 
   func getPhoneLastPlayedItem() async throws -> PlayableItem {
