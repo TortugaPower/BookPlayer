@@ -128,8 +128,8 @@ struct RemoteItemListView: View {
           if folderRelativePath == nil {
             Section {
               if let lastPlayedItem {
-                RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
-                  .onTapGesture {
+                if #available(watchOS 11.0, *) {
+                  Button {
                     Task {
                       do {
                         isLoading = true
@@ -144,7 +144,30 @@ struct RemoteItemListView: View {
                         self.error = error
                       }
                     }
+                  } label: {
+                    RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
                   }
+                  .handGestureShortcut(.primaryAction)
+                } else {
+                  Button {
+                    Task {
+                      do {
+                        isLoading = true
+                        try await coreServices.playerLoaderService.loadPlayer(
+                          lastPlayedItem.relativePath,
+                          autoplay: true
+                        )
+                        showPlayer = true
+                        isLoading = false
+                      } catch {
+                        isLoading = false
+                        self.error = error
+                      }
+                    }
+                  } label: {
+                    RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
+                  }
+                }
               }
             } header: {
               Text(verbatim: "watchapp_last_played_title".localized)
@@ -185,6 +208,9 @@ struct RemoteItemListView: View {
             Text(verbatim: folderRelativePath?.components(separatedBy: "/").last ?? "library_title".localized)
               .foregroundStyle(Color.accentColor)
           }
+
+          Spacer().frame(height: 0)
+            .listRowBackground(Color.clear)
         }
         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height)
       }
