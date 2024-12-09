@@ -13,6 +13,16 @@ struct RemoteItemListCellView: View {
   @ObservedObject var model: RemoteItemCellViewModel
   @State private var error: Error?
 
+  let numberFormatter: NumberFormatter
+
+  init(model: RemoteItemCellViewModel) {
+    self.model = model
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .percent
+    formatter.maximumFractionDigits = 2
+    self.numberFormatter = formatter
+  }
+
   var percentCompleted: String {
     guard model.item.progress > 0 else { return "" }
 
@@ -21,6 +31,10 @@ struct RemoteItemListCellView: View {
     } else {
       return "\(Int(model.item.percentCompleted))% - "
     }
+  }
+
+  func formattedProgress(_ progress: Double) -> String {
+    numberFormatter.string(from: NSNumber(value: progress)) ?? ""
   }
 
   var body: some View {
@@ -34,8 +48,20 @@ struct RemoteItemListCellView: View {
           .lineLimit(1)
         switch model.downloadState {
         case .downloading(let progress):
-          LinearProgressView(value: progress, fillColor: .white)
-            .frame(maxWidth: 100, maxHeight: 10)
+          HStack {
+            if #available(watchOS 10.0, *) {
+              Image(systemName: "icloud.and.arrow.down.fill")
+                .font(.caption2)
+                .symbolEffect(.pulse)
+            } else {
+              Image(systemName: "icloud.and.arrow.down.fill")
+                .font(.caption2)
+            }
+            LinearProgressView(value: progress, fillColor: .white)
+              .frame(maxWidth: 70, maxHeight: 10)
+            Text(formattedProgress(progress))
+              .font(.footnote)
+          }
         case .downloaded:
           Text(Image(systemName: "applewatch"))
             .font(.caption2)
