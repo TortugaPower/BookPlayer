@@ -69,6 +69,7 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
     hasher.combine(title)
     hasher.combine(details)
     hasher.combine(percentCompleted)
+    hasher.combine(type.rawValue)
   }
 
   public init(

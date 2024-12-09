@@ -16,8 +16,12 @@ struct BookPlayerApp: App {
   @SceneBuilder var body: some Scene {
     WindowGroup {
       NavigationView {
-        ContainerItemListView()
+        LoadingView()
       }
     }
   }
+}
+
+extension EnvironmentValues {
+  @Entry var coreServices: CoreServices?
 }

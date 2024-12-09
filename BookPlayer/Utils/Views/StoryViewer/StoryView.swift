@@ -28,6 +28,17 @@ struct StoryView: View {
       .accessibilityHidden(true)
       VStack {
         VStack {
+          if model.image == "apple-watch" {
+            Image(systemName: "applewatch.radiowaves.left.and.right")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(maxWidth: 150)
+              .cornerRadius(9)
+              .allowsHitTesting(false)
+              .padding(.top, Spacing.L1 * 2)
+              .padding(.bottom, Spacing.L1)
+              .accessibilityHidden(true)
+          }
           Text(model.title)
             .shadow(radius: 2, y: 3)
             .font(Font(Fonts.titleStory))

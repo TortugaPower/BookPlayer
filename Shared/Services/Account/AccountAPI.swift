@@ -47,7 +47,7 @@ extension AccountAPI: Endpoint {
       return [
         "rc_id": anonymousId,
         "first_seen": firstSeen,
-        "region": region
+        "region": region,
       ]
     }
   }

@@ -47,6 +47,7 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 ### BookPlayer Pro
 
 - Cloud sync
+- Stand-alone playback on your Apple Watch
 - Support Open Source development
 - Additional color themes
 - Select from alternative App Icons

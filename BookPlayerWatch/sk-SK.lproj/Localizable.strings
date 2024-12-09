@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Knižnica";
+"delete_button" = "Odstrániť";
 "ok_button" = "OK";
 "recent_title" = "Nedávne";
+"storage_total_title" = "Celkový využitý priestor";
 "watchapp_last_played_title" = "Naposledy prehraté";
 "watchapp_refresh_data_title" = "Obnoviť dáta";
 "watchapp_connect_error_title" = "Chyba pripojenia";
@@ -16,3 +18,11 @@
 "chapters_title" = "Kapitoly";
 "settings_controls_title" = "Ovládacie prvky Prehrávača";
 "settings_boostvolume_title" = "Zvýšenie hlasitosti";
+"settings_skip_title" = "PRETÁČANIE";
+"settings_skip_rewind_title" = "Dozadu";
+"settings_skip_forward_title" = "Dopredu";
+"settings_autoplay_section_title" = "AUTOMATICKÉ PREHRÁVANIE";
+"speed_title" = "rýchlosť";
+"logout_title" = "Odhlásiť sa";
+"benefits_watchapp_description" = "Streamujte alebo sťahujte svoje knihy a počúvajte na cestách bez telefónu.";
+"subscription_required_title" = "Vyžaduje sa predplatné";

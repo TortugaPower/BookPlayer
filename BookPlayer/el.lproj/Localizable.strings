@@ -55,7 +55,7 @@
 "ok_button" = "Εντάξει";
 "siri_alert_description" = "Οι συντομεύσεις Siri είναι διαθέσιμες σε iOS 12 και νεότερη έκδοση";
 "support_bookplayer_title" = "Υποστήριξη BookPlayer";
-"support_bookplayer_description" = "Αποκτήστε το BookPlayer Pro για υποστήριξη μελλοντικής ανάπτυξης και λήψη επιπλέον θεμάτων, εικονιδίων εφαρμογών και συγχρονισμού στο cloud";
+"support_bookplayer_description" = "Υποστήριξη μελλοντικής ανάπτυξης και λήψη επιπλέον θεμάτων, εικονιδίων εφαρμογών, συγχρονισμού cloud και αυτόνομης αναπαραγωγής στο Apple Watch";
 "learn_more_title" = "ΜΑΘΕ ΠΕΡΙΣΣΟΤΕΡΑ";
 "settings_appearance_title" = "Εμφάνιση";
 "settings_theme_title" = "Θέμα";
@@ -321,3 +321,4 @@
 "more_title" = "Περισσότερα";
 "repeat_turn_on_title" = "Ενεργοποιήστε το Repeat για αυτό το βιβλίο";
 "repeat_turn_off_title" = "Απενεργοποιήστε το Repeat για αυτό το βιβλίο";
+"benefits_watchapp_description" = "Μεταδώστε ροή ή κατεβάστε τα βιβλία σας και ακούστε τα εν κινήσει χωρίς το τηλέφωνό σας.";

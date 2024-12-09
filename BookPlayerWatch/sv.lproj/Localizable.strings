@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Bibliotek";
+"delete_button" = "Radera";
 "ok_button" = "OK";
 "recent_title" = "Senaste";
+"storage_total_title" = "Totalt använt utrymme";
 "watchapp_last_played_title" = "Senast spelad";
 "watchapp_refresh_data_title" = "Uppdatera data";
 "watchapp_connect_error_title" = "Anslutningsfel";
@@ -16,3 +18,11 @@
 "chapters_title" = "Kapitel";
 "settings_controls_title" = "Spelarkontroller";
 "settings_boostvolume_title" = "Öka volymen";
+"settings_skip_title" = "SNABBSPOLNING";
+"settings_skip_rewind_title" = "Tillbaka";
+"settings_skip_forward_title" = "Framåt";
+"settings_autoplay_section_title" = "AUTOSPELA";
+"speed_title" = "hastighet";
+"logout_title" = "Logga ut";
+"benefits_watchapp_description" = "Streama eller ladda ner dina böcker och lyssna på språng utan din telefon.";
+"subscription_required_title" = "Prenumeration krävs";

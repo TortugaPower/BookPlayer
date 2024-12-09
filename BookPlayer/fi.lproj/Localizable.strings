@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-pikakuvakkeet ovat saatavilla iOS 12:ssa ja uudemmissa";
 "support_bookplayer_title" = "Tue BookPlayeriä";
-"support_bookplayer_description" = "Hanki BookPlayer Pro tukemaan tulevaa kehitystä ja hankkimaan lisäteemoja, sovelluskuvakkeita ja pilvisynkronointia";
+"support_bookplayer_description" = "Tue tulevaa kehitystä ja hanki lisäteemoja, sovelluskuvakkeita, pilvisynkronointia ja erillistä toistoa Apple Watchissa";
 "learn_more_title" = "LUE LISÄÄ";
 "settings_appearance_title" = "Ulkonäkö";
 "settings_theme_title" = "Teema";
@@ -321,3 +321,4 @@
 "more_title" = "Lisää";
 "repeat_turn_on_title" = "Ota Toista käyttöön tälle kirjalle";
 "repeat_turn_off_title" = "Poista Toista käytöstä tästä kirjasta";
+"benefits_watchapp_description" = "Suoratoista tai lataa kirjojasi ja kuuntele tien päällä ilman puhelinta.";

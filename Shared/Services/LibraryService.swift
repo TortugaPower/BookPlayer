@@ -1089,7 +1089,10 @@ extension LibraryService {
       context.perform { [unowned self, context] in
         guard
           let book = getItem(with: relativePath, context: context) as? Book
-        else { return }
+        else {
+          continuation.resume()
+          return
+        }
 
         let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
 

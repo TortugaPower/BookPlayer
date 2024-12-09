@@ -28,18 +28,28 @@ struct SharedWidgetContainerView: View {
         fillFraction: entry.percentCompleted
       )
       .widgetBackground(backgroundView: Color.clear)
-    case .accessoryRectangular, .accessoryInline:
+    case .accessoryRectangular:
       RectangularView(
         chapterTitle: entry.chapterTitle,
         bookTitle: entry.bookTitle,
-        details: entry.details
+        details: entry.details,
+        includeLogo: true
+      )
+      .widgetBackground(backgroundView: Color.clear)
+    case .accessoryInline:
+      RectangularView(
+        chapterTitle: entry.chapterTitle,
+        bookTitle: entry.bookTitle,
+        details: entry.details,
+        includeLogo: false
       )
       .widgetBackground(backgroundView: Color.clear)
     default:
       RectangularView(
         chapterTitle: entry.chapterTitle,
         bookTitle: entry.bookTitle,
-        details: entry.details
+        details: entry.details,
+        includeLogo: true
       )
       .widgetBackground(backgroundView: Color.clear)
     }
