@@ -1,5 +1,5 @@
 //
-//  RefreshableScrollView.swift
+//  RefreshableListView.swift
 //  BookPlayerWatch
 //
 //  Created by Gianni Carlo on 2/12/24.
@@ -11,9 +11,10 @@ import SwiftUI
 /// Pull to refresh does not work natively on WatchOS
 /// This implementation is inspired from this code:
 /// https://gist.github.com/swiftui-lab/3de557a513fbdb2d8fced41e40347e01
-struct RefreshableScrollView<Content: View>: View {
+struct RefreshableListView<Content: View>: View {
   @State private var previousScrollOffset: CGFloat = 0
   @State private var scrollOffset: CGFloat = 0
+  @State private var rotation: Angle = .degrees(0)
   @Binding var refreshing: Bool
 
   let threshold: CGFloat = 40
@@ -22,25 +23,33 @@ struct RefreshableScrollView<Content: View>: View {
   init(refreshing: Binding<Bool>, @ViewBuilder content: () -> Content) {
     self._refreshing = refreshing
     self.content = content()
-
   }
 
   var body: some View {
-    ScrollView {
-      ZStack(alignment: .top) {
-        MovingView()
-
-        content
-          .safeAreaInset(edge: .top) {
-            if refreshing {
-              ProgressView()
-                .tint(.white)
-                .background(Color.black.opacity(0.8))
-                .frame(height: 10)
+    List {
+      Section {
+        if refreshing {
+          ProgressView()
+            .tint(.white)
+            .frame(height: 10)
+            .listRowBackground(Color.clear)
+        } else {
+          ZStack {
+            MovingView()
+            HStack {
+              Spacer()
+              Image(systemName: "arrow.down")
+                .rotationEffect(rotation)
+              Spacer()
             }
           }
+          .listRowBackground(Color.clear)
+        }
       }
+      content
     }
+    .customListSectionSpacing(0)
+    .environment(\.defaultMinListRowHeight, 1)
     .background(FixedView())
     .onPreferenceChange(RefreshableKeyTypes.PrefKey.self) { values in
       refreshLogic(values: values)
@@ -54,6 +63,7 @@ struct RefreshableScrollView<Content: View>: View {
     let fixedBounds = values.first { $0.vType == .fixedView }?.bounds ?? .zero
 
     self.scrollOffset = movingBounds.minY - fixedBounds.minY
+    self.rotation = self.symbolRotation(self.scrollOffset)
 
     // Crossing the threshold on the way down, we start the refresh process
     if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
@@ -62,6 +72,20 @@ struct RefreshableScrollView<Content: View>: View {
 
     // Update last scroll offset
     self.previousScrollOffset = self.scrollOffset
+  }
+
+  func symbolRotation(_ scrollOffset: CGFloat) -> Angle {
+    // We will begin rotation, only after we have passed
+    // 60% of the way of reaching the threshold.
+    if scrollOffset < self.threshold * 0.60 {
+      return .degrees(0)
+    } else {
+      // Calculate rotation, based on the amount of scroll offset
+      let h = Double(self.threshold)
+      let d = Double(scrollOffset)
+      let v = max(min(d - (h * 0.6), h * 0.4), 0)
+      return .degrees(180 * v / (h * 0.4))
+    }
   }
 
   struct MovingView: View {

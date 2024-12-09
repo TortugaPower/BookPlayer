@@ -30,11 +30,11 @@ struct RemoteItemListView: View {
     self.coreServices = coreServices
     self.playerManager = coreServices.playerManager
     let fetchedItems =
-    coreServices.libraryService.fetchContents(
-      at: folderRelativePath,
-      limit: nil,
-      offset: nil
-    ) ?? []
+      coreServices.libraryService.fetchContents(
+        at: folderRelativePath,
+        limit: nil,
+        offset: nil
+      ) ?? []
     self._items = .init(initialValue: fetchedItems)
     let lastItem = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
     self.folderRelativePath = folderRelativePath
@@ -122,98 +122,73 @@ struct RemoteItemListView: View {
   }
 
   var body: some View {
-    GeometryReader { geometry in
-      RefreshableScrollView(refreshing: $isRefreshing) {
-        List {
-          if folderRelativePath == nil {
-            Section {
-              if let lastPlayedItem {
-                if #available(watchOS 11.0, *) {
-                  Button {
-                    Task {
-                      do {
-                        isLoading = true
-                        try await coreServices.playerLoaderService.loadPlayer(
-                          lastPlayedItem.relativePath,
-                          autoplay: true
-                        )
-                        showPlayer = true
-                        isLoading = false
-                      } catch {
-                        isLoading = false
-                        self.error = error
-                      }
-                    }
-                  } label: {
-                    RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
-                  }
-                  .handGestureShortcut(.primaryAction)
-                } else {
-                  Button {
-                    Task {
-                      do {
-                        isLoading = true
-                        try await coreServices.playerLoaderService.loadPlayer(
-                          lastPlayedItem.relativePath,
-                          autoplay: true
-                        )
-                        showPlayer = true
-                        isLoading = false
-                      } catch {
-                        isLoading = false
-                        self.error = error
-                      }
-                    }
-                  } label: {
-                    RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
-                  }
-                }
-              }
-            } header: {
-              Text(verbatim: "watchapp_last_played_title".localized)
-                .foregroundStyle(Color.accentColor)
-            }
-          }
-
-          Section {
-            ForEach(items) { item in
-              if item.type == .folder {
-                NavigationLink {
-                  RemoteItemListView(
-                    coreServices: coreServices,
-                    folderRelativePath: item.relativePath
+    RefreshableListView(refreshing: $isRefreshing) {
+      if folderRelativePath == nil {
+        Section {
+          if let lastPlayedItem {
+            Button {
+              Task {
+                do {
+                  isLoading = true
+                  try await coreServices.playerLoaderService.loadPlayer(
+                    lastPlayedItem.relativePath,
+                    autoplay: true
                   )
-                } label: {
-                  RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
-                    .foregroundColor(getForegroundColor(for: item))
+                  showPlayer = true
+                  isLoading = false
+                } catch {
+                  isLoading = false
+                  self.error = error
                 }
-              } else {
-                RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
-                  .onTapGesture {
-                    Task {
-                      do {
-                        isLoading = true
-                        try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                        showPlayer = true
-                        isLoading = false
-                      } catch {
-                        isLoading = false
-                        self.error = error
-                      }
-                    }
-                  }
               }
+            } label: {
+              RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
             }
-          } header: {
-            Text(verbatim: folderRelativePath?.components(separatedBy: "/").last ?? "library_title".localized)
-              .foregroundStyle(Color.accentColor)
+            .applyPrimaryHandGesture()
           }
-
-          Spacer().frame(height: 0)
-            .listRowBackground(Color.clear)
+        } header: {
+          Text(verbatim: "watchapp_last_played_title".localized)
+            .foregroundStyle(Color.accentColor)
         }
-        .frame(minWidth: geometry.size.width, minHeight: geometry.size.height)
       }
+
+      Section {
+        ForEach(items) { item in
+          if item.type == .folder {
+            NavigationLink {
+              RemoteItemListView(
+                coreServices: coreServices,
+                folderRelativePath: item.relativePath
+              )
+            } label: {
+              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
+                .foregroundColor(getForegroundColor(for: item))
+            }
+          } else {
+            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
+              .onTapGesture {
+                Task {
+                  do {
+                    isLoading = true
+                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                    showPlayer = true
+                    isLoading = false
+                  } catch {
+                    isLoading = false
+                    self.error = error
+                  }
+                }
+              }
+          }
+        }
+      } header: {
+        Text(verbatim: folderRelativePath?.components(separatedBy: "/").last ?? "library_title".localized)
+          .foregroundStyle(Color.accentColor)
+          .padding(.top, folderRelativePath == nil ? 10 : 0)
+      }
+
+      Spacer().frame(height: 0)
+        .listRowBackground(Color.clear)
     }
     .ignoresSafeArea(edges: [.bottom])
     .background(
@@ -242,6 +217,8 @@ struct RemoteItemListView: View {
       guard newValue else { return }
 
       Task {
+        // Delay the task by 1 second to avoid jumping animations
+        try await Task.sleep(nanoseconds: 1_000_000_000)
         await syncListContents(ignoreLastTimestamp: true)
         isRefreshing = false
       }

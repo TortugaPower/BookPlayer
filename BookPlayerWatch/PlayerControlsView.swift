@@ -30,34 +30,19 @@ struct PlayerControlsView: View {
         .buttonStyle(PlainButtonStyle())
         .frame(width: geometry.size.width * 0.28)
         Spacer()
-        if #available(watchOS 11.0, *) {
-          Button {
-            playerManager.playPause()
-          } label: {
-            ResizeableImageView(
-              name: playerManager.isPlaying
+        Button {
+          playerManager.playPause()
+        } label: {
+          ResizeableImageView(
+            name: playerManager.isPlaying
               ? "pause.fill"
               : "play.fill"
-            )
-            .padding(8)
-          }
-          .buttonStyle(PlainButtonStyle())
-          .frame(width: geometry.size.width * 0.28)
-          .handGestureShortcut(.primaryAction)
-        } else {
-          Button {
-            playerManager.playPause()
-          } label: {
-            ResizeableImageView(
-              name: playerManager.isPlaying
-              ? "pause.fill"
-              : "play.fill"
-            )
-            .padding(8)
-          }
-          .buttonStyle(PlainButtonStyle())
-          .frame(width: geometry.size.width * 0.28)
+          )
+          .padding(8)
         }
+        .buttonStyle(PlainButtonStyle())
+        .frame(width: geometry.size.width * 0.28)
+        .applyPrimaryHandGesture()
         Spacer()
         Button {
           playerManager.forward()
