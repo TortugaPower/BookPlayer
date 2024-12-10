@@ -187,8 +187,13 @@ struct RemoteItemListView: View {
           .padding(.top, folderRelativePath == nil ? 10 : 0)
       }
 
-      Spacer().frame(height: 0)
-        .listRowBackground(Color.clear)
+      /// Create padding at the bottom
+      Section {
+        Spacer().frame(height: 10)
+          .listRowBackground(Color.clear)
+      } header: {
+        Text("")
+      }
     }
     .ignoresSafeArea(edges: [.bottom])
     .background(
