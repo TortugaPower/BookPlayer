@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Библиотека";
+"delete_button" = "Удалить";
 "ok_button" = "OK";
 "recent_title" = "Последние";
+"storage_total_title" = "Использовано памяти";
 "watchapp_last_played_title" = "Последняя воспроизведенная книга";
 "watchapp_refresh_data_title" = "Обновить данные";
 "watchapp_connect_error_title" = "Ошибка подключения";
@@ -16,3 +18,11 @@
 "chapters_title" = "Главы";
 "settings_controls_title" = "Управление плеером";
 "settings_boostvolume_title" = "Увеличить громкость";
+"settings_skip_title" = "ШАГ ПЕРЕМОТКИ";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперёд";
+"settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
+"speed_title" = "скорость";
+"logout_title" = "Выйти";
+"benefits_watchapp_description" = "Слушайте книги онлайн или скачивайте их, где бы вы ни находились, без телефона.";
+"subscription_required_title" = "Требуется подписка";

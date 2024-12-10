@@ -45,7 +45,8 @@ struct StoryActionView: View {
   var body: some View {
     VStack {
       if showSlider,
-         let sliderOptions = action.sliderOptions {
+        let sliderOptions = action.sliderOptions
+      {
         VStack {
           Text(String(format: "$%.0f/mo", sliderValue))
             .font(Font(Fonts.pricingTitle))
@@ -79,59 +80,71 @@ struct StoryActionView: View {
         .padding([.bottom], Spacing.L1)
 
       } else {
-        HStack(spacing: Spacing.S1) {
-          Spacer()
-          ForEach(action.options) { option in
-            PricingBoxView(
-              title: .constant(option.title),
-              isSelected: .constant(selected == option)
-            )
-            .onTapGesture {
-              selected = option
+        VStack {
+          HStack(spacing: Spacing.S1) {
+            Spacer()
+            ForEach(action.options) { option in
+              PricingBoxView(
+                title: .constant(option.title),
+                isSelected: .constant(selected == option)
+              )
+              .onTapGesture {
+                selected = option
+              }
             }
+            Spacer()
           }
-          Spacer()
+          if action.sliderOptions != nil {
+            Button(
+              action: {
+                showSlider.toggle()
+              },
+              label: {
+                Text("Choose custom amount")
+                  .font(Font(Fonts.title))
+                  .foregroundColor(.white)
+                  .underline()
+                  .padding([.top], Spacing.S4)
+              }
+            )
+          }
         }
-        if action.sliderOptions != nil {
-          Button(action: {
-            showSlider.toggle()
-          }, label: {
-            Text("Choose custom amount")
-              .font(Font(Fonts.title))
-              .foregroundColor(.white)
-              .underline()
-              .padding([.top], Spacing.S4)
-          })
-        }
-        }
+        .padding([.bottom], Spacing.L1)
+      }
 
-      Button(action: {
-        if showSlider,
-            let option = sliderSelectedOption {
-          onSubscription(option)
-        } else {
-          onSubscription(selected)
+      Button(
+        action: {
+          if showSlider,
+            let option = sliderSelectedOption
+          {
+            onSubscription(option)
+          } else {
+            onSubscription(selected)
+          }
+        },
+        label: {
+          Text(action.button)
+            .contentShape(Rectangle())
+            .font(Font(Fonts.headline))
+            .frame(height: 45)
+            .frame(maxWidth: .infinity)
+            .foregroundColor(Color(UIColor(hex: "334046")))
+            .background(Color.white)
+            .cornerRadius(6)
         }
-      }, label: {
-        Text(action.button)
-          .contentShape(Rectangle())
-          .font(Font(Fonts.headline))
-          .frame(height: 45)
-          .frame(maxWidth: .infinity)
-          .foregroundColor(Color(UIColor(hex: "334046")))
-          .background(Color.white)
-          .cornerRadius(6)
-      })
-      .padding([.top], Spacing.L1)
+      )
       if let dismiss = action.dismiss {
-        Button(action: {
-          onDismiss()
-        }, label: {
-          Text(dismiss)
-            .underline()
-            .font(Font(Fonts.body))
-            .foregroundColor(.white)
-        })
+        Button(
+          action: {
+            onDismiss()
+          },
+          label: {
+            Text(dismiss)
+              .underline()
+              .font(Font(Fonts.body))
+              .foregroundColor(.white)
+          }
+        )
         .padding([.top], Spacing.S5)
       }
     }
@@ -142,16 +155,18 @@ struct StoryActionView: View {
   ZStack {
     StoryBackgroundView()
     StoryActionView(
-      action: .constant(.init(
-        options: [
-          .init(id: "supportTier4", title: "$3.99", price: 3.99),
-          .init(id: "proMonthly", title: "$4.99", price: 4.99),
-          .init(id: "supportTier10", title: "$9.99", price: 9.99)
-        ],
-        defaultOption: .init(id: "proMonthly", title: "$4.99", price: 4.99),
-        sliderOptions: .init(min: 3.99, max: 9.99),
-        button: "Continue"
-      )),
+      action: .constant(
+        .init(
+          options: [
+            .init(id: "supportTier4", title: "$3.99", price: 3.99),
+            .init(id: "proMonthly", title: "$4.99", price: 4.99),
+            .init(id: "supportTier10", title: "$9.99", price: 9.99),
+          ],
+          defaultOption: .init(id: "proMonthly", title: "$4.99", price: 4.99),
+          sliderOptions: .init(min: 3.99, max: 9.99),
+          button: "Continue"
+        )
+      ),
       onSubscription: { option in print(option.title) },
       onDismiss: {}
     )

@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Kirjasto";
+"delete_button" = "Poista";
 "ok_button" = "OK";
 "recent_title" = "Viimeisin";
+"storage_total_title" = "Käytetty tila yhteensä";
 "watchapp_last_played_title" = "Viimeksi soitettu";
 "watchapp_refresh_data_title" = "Päivitä tiedot";
 "watchapp_connect_error_title" = "Yhteysvirhe";
@@ -16,3 +18,11 @@
 "chapters_title" = "Kappaleet";
 "settings_controls_title" = "Soitinsäätimet";
 "settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
+"settings_skip_title" = "Skippaus intervallit";
+"settings_skip_rewind_title" = "Kelaa taaksepäin";
+"settings_skip_forward_title" = "Eteenpäin";
+"settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
+"speed_title" = "nopeus";
+"logout_title" = "Kirjautua ulos";
+"benefits_watchapp_description" = "Suoratoista tai lataa kirjojasi ja kuuntele tien päällä ilman puhelinta.";
+"subscription_required_title" = "Tilaus vaaditaan";

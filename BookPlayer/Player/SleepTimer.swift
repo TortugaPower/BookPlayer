@@ -6,11 +6,16 @@
 //  Copyright © 2018 Florian Pichler.
 //
 
-import BookPlayerKit
 import Combine
 import Foundation
-import IntentsUI
 import UIKit
+
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+  import IntentsUI
+#endif
 
 /// Available sleep timer states
 enum SleepTimerState: Equatable {
@@ -53,7 +58,7 @@ final class SleepTimer {
     600.0,
     900.0,
     1800.0,
-    3600.0
+    3600.0,
   ]
 
   /// Publisher when the countdown timer reaches the defined threshold
@@ -88,8 +93,10 @@ final class SleepTimer {
     let intent = SleepTimerIntent()
     intent.option = option
 
-    let interaction = INInteraction(intent: intent, response: nil)
-    interaction.donate(completion: nil)
+    #if os(iOS)
+      let interaction = INInteraction(intent: intent, response: nil)
+      interaction.donate(completion: nil)
+    #endif
   }
 
   /// Periodic function used for the `countdown` case of ``SleepTimerState``
@@ -116,7 +123,7 @@ final class SleepTimer {
   }
 
   // MARK: Public methods
-  
+
   public func setTimer(_ newState: SleepTimerState) {
     /// Always cancel any ongoing timer
     reset()

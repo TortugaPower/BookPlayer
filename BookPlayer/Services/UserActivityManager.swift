@@ -6,7 +6,11 @@
 //  Copyright © 2018 Tortuga Power. All rights reserved.
 //
 
-import BookPlayerKit
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+#endif
 import Foundation
 import Intents
 

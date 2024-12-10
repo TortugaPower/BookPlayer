@@ -10,4 +10,6 @@ import Foundation
 import CoreData
 
 @objc(Account)
-public class Account: NSManagedObject {}
+public class Account: NSManagedObject {
+  public var hasId: Bool { id.isEmpty == false }
+}

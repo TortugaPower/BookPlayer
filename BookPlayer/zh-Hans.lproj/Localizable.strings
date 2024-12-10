@@ -55,7 +55,7 @@
 "ok_button" = "确定";
 "siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";
 "support_bookplayer_title" = "支持我们";
-"support_bookplayer_description" = "获取 BookPlayer Pro 以支持未来的开发并获得额外的主题、应用程序图标和云同步";
+"support_bookplayer_description" = "支持未来开发并在 Apple Watch 上获得额外的主题、应用程序图标、云同步和独立播放";
 "learn_more_title" = "了解更多";
 "settings_appearance_title" = "外观";
 "settings_theme_title" = "主题";
@@ -321,3 +321,4 @@
 "more_title" = "更多的";
 "repeat_turn_on_title" = "为这本书开启重复";
 "repeat_turn_off_title" = "关闭此书的重复功能";
+"benefits_watchapp_description" = "流式传输或下载您的书籍并随时随地收听，无需使用手机。";

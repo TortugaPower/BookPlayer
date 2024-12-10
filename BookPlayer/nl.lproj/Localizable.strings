@@ -55,7 +55,7 @@
 "ok_button" = "Oké";
 "siri_alert_description" = "Siri-snelkoppelingen zijn beschikbaar op iOS 12 en hoger";
 "support_bookplayer_title" = "Ondersteuning BookPlayer";
-"support_bookplayer_description" = "Koop BookPlayer Pro om toekomstige ontwikkeling te ondersteunen en ontvang extra thema's, app-pictogrammen en cloudsynchronisatie";
+"support_bookplayer_description" = "Ondersteun toekomstige ontwikkelingen en ontvang extra thema's, app-pictogrammen, cloudsynchronisatie en zelfstandige weergave op de Apple Watch";
 "learn_more_title" = "LEER MEER";
 "settings_appearance_title" = "Uiterlijk";
 "settings_theme_title" = "Thema";
@@ -321,3 +321,4 @@
 "more_title" = "Meer";
 "repeat_turn_on_title" = "Schakel Herhalen in voor dit boek";
 "repeat_turn_off_title" = "Herhalen voor dit boek uitschakelen";
+"benefits_watchapp_description" = "Stream of download uw boeken en luister er onderweg naar, zonder uw telefoon.";

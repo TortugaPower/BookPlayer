@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Libreria";
+"delete_button" = "Elimina";
 "ok_button" = "OK";
 "recent_title" = "Recente";
+"storage_total_title" = "Spazio totale utilizzato";
 "watchapp_last_played_title" = "Ultimo Riprodotto";
 "watchapp_refresh_data_title" = "Aggiorna i dati";
 "watchapp_connect_error_title" = "Errore di connettività";
@@ -16,3 +18,11 @@
 "chapters_title" = "Capitoli";
 "settings_controls_title" = "Controlli della Riproduzione";
 "settings_boostvolume_title" = "Aumenta il volume massimo";
+"settings_skip_title" = "SALTA INTERVALLI";
+"settings_skip_rewind_title" = "Riavvolgi";
+"settings_skip_forward_title" = "Avanti";
+"settings_autoplay_section_title" = "RIPRODUZIONE AUTOMATICA";
+"speed_title" = "velocità";
+"logout_title" = "Disconnettersi";
+"benefits_watchapp_description" = "Ascolta in streaming o scarica i tuoi libri e ascoltali ovunque tu sia, senza usare il telefono.";
+"subscription_required_title" = "Abbonamento richiesto";

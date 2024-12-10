@@ -38,6 +38,17 @@ class LoginViewController: UIViewController {
     return stackView
   }()
 
+  private lazy var watchAppBenefitStackView: UIStackView = {
+    let stackView = LoginBenefitView(
+      title: "Apple Watch (Beta)",
+      description: "benefits_watchapp_description".localized,
+      systemName: "applewatch.radiowaves.left.and.right",
+      imageAlpha: 0.5
+    )
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    return stackView
+  }()
+
   private lazy var cosmeticBenefitStackView: UIStackView = {
     let stackView = LoginBenefitView(
       title: "benefits_themesicons_title".localized,
@@ -66,7 +77,6 @@ class LoginViewController: UIViewController {
       disclaimers: [
         "benefits_disclaimer_account_description".localized,
         "benefits_disclaimer_subscription_description".localized,
-        "benefits_disclaimer_watch_description".localized
       ]
     )
     stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -115,8 +125,8 @@ class LoginViewController: UIViewController {
     view.addSubview(scrollView)
     scrollView.addSubview(contentView)
     contentView.addSubview(cloudBenefitStackView)
+    contentView.addSubview(watchAppBenefitStackView)
     contentView.addSubview(cosmeticBenefitStackView)
-    contentView.addSubview(supportBenefitStackView)
     contentView.addSubview(disclaimerStackView)
   }
 
@@ -145,19 +155,21 @@ class LoginViewController: UIViewController {
       cloudBenefitStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.M),
       cloudBenefitStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
       cloudBenefitStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.M),
-      cosmeticBenefitStackView.topAnchor.constraint(equalTo: cloudBenefitStackView.bottomAnchor, constant: 30),
-      cosmeticBenefitStackView.leadingAnchor.constraint(equalTo: cloudBenefitStackView.leadingAnchor),
-      cosmeticBenefitStackView.trailingAnchor.constraint(equalTo: cloudBenefitStackView.trailingAnchor),
-      supportBenefitStackView.topAnchor.constraint(equalTo: cosmeticBenefitStackView.bottomAnchor, constant: 30),
-      supportBenefitStackView.leadingAnchor.constraint(equalTo: cosmeticBenefitStackView.leadingAnchor),
-      supportBenefitStackView.trailingAnchor.constraint(equalTo: cosmeticBenefitStackView.trailingAnchor),
+      watchAppBenefitStackView.topAnchor.constraint(equalTo: cloudBenefitStackView.bottomAnchor, constant: 30),
+      watchAppBenefitStackView.leadingAnchor.constraint(equalTo: cloudBenefitStackView.leadingAnchor),
+      watchAppBenefitStackView.trailingAnchor.constraint(equalTo: cloudBenefitStackView.trailingAnchor),
+
+      cosmeticBenefitStackView.topAnchor.constraint(equalTo: watchAppBenefitStackView.bottomAnchor, constant: 30),
+      cosmeticBenefitStackView.leadingAnchor.constraint(equalTo: watchAppBenefitStackView.leadingAnchor),
+      cosmeticBenefitStackView.trailingAnchor.constraint(equalTo: watchAppBenefitStackView.trailingAnchor),
+
       // setup disclaimer
       disclaimerStackView.topAnchor.constraint(
-        greaterThanOrEqualTo: supportBenefitStackView.bottomAnchor,
+        greaterThanOrEqualTo: cosmeticBenefitStackView.bottomAnchor,
         constant: 45
       ),
-      disclaimerStackView.leadingAnchor.constraint(equalTo: supportBenefitStackView.leadingAnchor, constant: Spacing.M),
-      disclaimerStackView.trailingAnchor.constraint(equalTo: supportBenefitStackView.trailingAnchor),
+      disclaimerStackView.leadingAnchor.constraint(equalTo: cosmeticBenefitStackView.leadingAnchor, constant: Spacing.M),
+      disclaimerStackView.trailingAnchor.constraint(equalTo: cosmeticBenefitStackView.trailingAnchor),
       disclaimerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.L),
     ])
   }
