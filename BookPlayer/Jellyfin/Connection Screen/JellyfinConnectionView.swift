@@ -90,7 +90,7 @@ struct JellyfinConnectionView: View {
       ClearableTextField("jellyfin_username_placeholder".localized, text: $viewModel.form.username, onCommit: {
         focusedField = .password
       })
-      .textContentType(.name)
+      .textContentType(.username)
       .autocapitalization(.none)
       .focused($focusedField, selfKey: .username)
       
@@ -99,6 +99,7 @@ struct JellyfinConnectionView: View {
           viewModel.handleSignInAction()
         }
       })
+      .textContentType(.password)
       .focused($focusedField, selfKey: .password)
       
       Toggle(isOn: $viewModel.form.rememberMe) {
