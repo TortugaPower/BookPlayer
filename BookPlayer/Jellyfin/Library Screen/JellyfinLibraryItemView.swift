@@ -58,6 +58,7 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
       
       Text(item.name)
         .lineLimit(1)
+        .truncationMode(.middle)
     }
   }
   

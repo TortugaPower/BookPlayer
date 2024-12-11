@@ -116,7 +116,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
       JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),
       JellyfinLibraryItem(id: "0.2", name: "another book", kind: .audiobook),
       JellyfinLibraryItem(id: "0.3", name: "subfolder 2", kind: .folder),
-      JellyfinLibraryItem(id: "0.4", name: "book 2 with a very very long name\nmaybe even a line break?", kind: .audiobook),
+      JellyfinLibraryItem(id: "0.4", name: "book 2 with a very very very very very long name\nmaybe even a line break?", kind: .audiobook),
       JellyfinLibraryItem(id: "0.5", name: "another book 2", kind: .audiobook),
       JellyfinLibraryItem(id: "0.6", name: "subfolder 3", kind: .folder),
       JellyfinLibraryItem(id: "0.7", name: "book 3", kind: .audiobook),
