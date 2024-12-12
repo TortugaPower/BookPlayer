@@ -19,15 +19,19 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
   private let jellyfinConnectionService: JellyfinConnectionService
   private var disposeBag = Set<AnyCancellable>()
   private var dismissing = false
-  
-  init(flow: BPCoordinatorPresentationFlow, singleFileDownloadService: SingleFileDownloadService, jellyfinConnectionService: JellyfinConnectionService) {
+
+  init(
+    flow: BPCoordinatorPresentationFlow,
+    singleFileDownloadService: SingleFileDownloadService,
+    jellyfinConnectionService: JellyfinConnectionService
+  ) {
     self.flow = flow
     self.singleFileDownloadService = singleFileDownloadService
     self.jellyfinConnectionService = jellyfinConnectionService
-    
+
     bindObservers()
   }
-  
+
   func bindObservers() {
     singleFileDownloadService.eventsPublisher.sink { [weak self] event in
       switch event {
@@ -46,24 +50,31 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
     }
     .store(in: &disposeBag)
   }
-  
+
   func start() {
     let connectionVC = createJellyfinLoginScreen()
     flow.startPresentation(connectionVC, animated: true)
-    
+
     tryShowLibraryView()
   }
 
   private func createJellyfinLoginScreen() -> UIViewController {
     let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
-    
+
     viewModel.coordinator = self
-    viewModel.onTransition = { [viewModel] route in
+    viewModel.onTransition = { route in
       switch route {
       case .cancel:
-        viewModel.dismiss()
-      case .signInFinished(let url, let userID, let accessToken):
-        self.handleSignInFinished(url: url, userID: userID, accessToken: accessToken, connectionViewModel: viewModel)
+        self.flow.finishPresentation(animated: true)
+      case .signInFinished(let url, let userID, let userName, let accessToken, let serverName, let saveToKeychain):
+        self.handleSignInFinished(
+          url: url,
+          userID: userID,
+          userName: userName,
+          accessToken: accessToken,
+          serverName: serverName,
+          saveToKeychain: saveToKeychain
+        )
       case .signOut:
         self.jellyfinConnectionService.deleteConnection()
       case .showLibrary:
@@ -72,16 +83,22 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
         self.showAlert(content)
       }
     }
-    
+
     let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
     return vc
   }
-  
-  private func createJellyfinLibraryScreen(withLibraryName libraryName: String, userID: String, client: JellyfinClient) -> UIViewController {
-    let viewModel = JellyfinLibraryViewModel(data: .topLevel(libraryName: libraryName, userID: userID),
-                                                   apiClient: client,
-                                                   singleFileDownloadService: singleFileDownloadService)
-    
+
+  private func createJellyfinLibraryScreen(
+    withLibraryName libraryName: String,
+    userID: String,
+    client: JellyfinClient
+  ) -> UIViewController {
+    let viewModel = JellyfinLibraryViewModel(
+      data: .topLevel(libraryName: libraryName, userID: userID),
+      apiClient: client,
+      singleFileDownloadService: singleFileDownloadService
+    )
+
     viewModel.onTransition = { route in
       switch route {
       case .done:
@@ -95,26 +112,38 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
     return vc
   }
 
-  private func handleSignInFinished(url: URL, userID: String, accessToken: String, connectionViewModel viewModel: JellyfinConnectionViewModel) {
-    let connectionData = JellyfinConnectionData(url: url,
-                                                serverName: viewModel.form.serverName ?? "",
-                                                userID: userID,
-                                                userName: viewModel.form.username,
-                                                accessToken: accessToken)
-    jellyfinConnectionService.setConnection(connectionData, saveToKeychain: viewModel.form.rememberMe)
-    
+  private func handleSignInFinished(
+    url: URL,
+    userID: String,
+    userName: String,
+    accessToken: String,
+    serverName: String,
+    saveToKeychain: Bool
+  ) {
+    let connectionData = JellyfinConnectionData(
+      url: url,
+      serverName: serverName,
+      userID: userID,
+      userName: userName,
+      accessToken: accessToken
+    )
+    jellyfinConnectionService.setConnection(connectionData, saveToKeychain: saveToKeychain)
+
     self.tryShowLibraryView()
   }
 
   private func tryShowLibraryView() {
     guard let connectionData = jellyfinConnectionService.connection,
-          let apiClient = jellyfinConnectionService.createClient() else {
+      let apiClient = jellyfinConnectionService.createClient()
+    else {
       return
     }
-    
-    let libraryVC = self.createJellyfinLibraryScreen(withLibraryName: connectionData.serverName,
-                                                     userID: connectionData.userID,
-                                                     client: apiClient)
+
+    let libraryVC = self.createJellyfinLibraryScreen(
+      withLibraryName: connectionData.serverName,
+      userID: connectionData.userID,
+      client: apiClient
+    )
     self.flow.pushViewController(libraryVC, animated: true)
   }
 }
