@@ -37,6 +37,8 @@ public protocol LibrarySyncProtocol {
 
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
+  /// Get max items count inside the specified path
+  func getMaxItemsCount(at relativePath: String?) -> Int
 
   /// Get all stored bookmarks of the specified type for a book
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?

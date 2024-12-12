@@ -393,12 +393,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, type: item.type)
 
+    let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
     /// Handle throwable items first
     if !folderURLs.isEmpty {
-      let processedFolderURL = DataManager.getProcessedFolderURL()
-
       for remoteURL in folderURLs {
         let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
         try DataManager.createBackingFolderIfNeeded(fileURL)
@@ -410,6 +409,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     var tasks = [URLSessionTask]()
 
     for remoteURL in bookURLs {
+      let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+
+      guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
+
       let task = await provider.client.download(
         url: remoteURL.url,
         taskDescription: remoteURL.relativePath,
@@ -712,21 +715,20 @@ extension SyncService {
 
     let fileURL = item.fileURL
 
-    if item.type == .bound || item.type == .folder,
-      let enumerator = FileManager.default.enumerator(
-        at: fileURL,
-        includingPropertiesForKeys: nil,
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-      ),
-      enumerator.nextObject() == nil
-    {
-      return .notDownloaded
-    }
+    switch item.type {
+    case .book:
+      return FileManager.default.fileExists(atPath: fileURL.path) ? .downloaded : .notDownloaded
+    case .folder, .bound:
+      guard
+        let enumerator = FileManager.default.enumerator(
+          at: fileURL,
+          includingPropertiesForKeys: nil,
+          options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        )
+      else { return .notDownloaded }
 
-    if FileManager.default.fileExists(atPath: fileURL.path) {
-      return .downloaded
+      return libraryService.getMaxItemsCount(at: item.relativePath) == enumerator.allObjects.count
+        ? .downloaded : .notDownloaded
     }
-
-    return .notDownloaded
   }
 }
