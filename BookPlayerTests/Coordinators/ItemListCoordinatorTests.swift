@@ -29,10 +29,13 @@ class LibraryListCoordinatorTests: XCTestCase {
     playerManagerMock.currentSpeedPublisherReturnValue = Just(1.0).eraseToAnyPublisher()
     playerManagerMock.isPlayingPublisherReturnValue = Just(false).eraseToAnyPublisher()
     let syncServiceMock = SyncServiceProtocolMock()
+    let keychainServiceMock = KeychainServiceMock()
+    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient(keychain: keychainServiceMock))
 
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       playerManager: playerManagerMock,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: coreServices.playbackService,
       syncService: syncServiceMock,
@@ -41,7 +44,8 @@ class LibraryListCoordinatorTests: XCTestCase {
         playerManager: playerManagerMock,
         syncService: syncServiceMock
       ),
-      accountService: coreServices.accountService
+      accountService: coreServices.accountService,
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
     )
 
     self.libraryListCoordinator.start()
@@ -84,12 +88,15 @@ class FolderListCoordinatorTests: XCTestCase {
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
+    let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
+    let keychainServiceMock = KeychainServiceMock()
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
       folderRelativePath: folder.relativePath,
       playerManager: playerManagerMock,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: PlaybackService(libraryService: libraryService),
       syncService: syncServiceMock, 
@@ -97,7 +104,8 @@ class FolderListCoordinatorTests: XCTestCase {
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
         syncService: syncServiceMock
-      )
+      ),
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
     )
 
     self.folderListCoordinator.start()

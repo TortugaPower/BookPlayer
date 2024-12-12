@@ -687,6 +687,10 @@ extension ItemListViewController {
       return
     }
 
+    if show {
+      self.setEditing(false, animated: true)
+    }
+
     self.loadingHeightConstraintView.constant = show
     ? 65
     : 0

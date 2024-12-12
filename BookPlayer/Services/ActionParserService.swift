@@ -262,7 +262,8 @@ class ActionParserService {
 
   private class func handleDownloadAction(_ action: Action) {
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
+      let mainCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator,
+      let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
     else {
       return
@@ -277,7 +278,7 @@ class ActionParserService {
     }
 
     self.removeAction(action)
-    libraryCoordinator.handleDownloadAction(url: url)
+    mainCoordinator.singleFileDownloadService.handleDownload(url)
   }
 
   private class func handleWidgetAction(_ action: Action) {

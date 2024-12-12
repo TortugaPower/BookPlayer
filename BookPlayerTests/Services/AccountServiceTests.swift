@@ -15,12 +15,12 @@ import XCTest
 
 class AccountServiceTests: XCTestCase {
   var sut: AccountService!
-  var mockKeychain: KeychainService!
+  var mockKeychain: KeychainServiceProtocol!
 
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    self.mockKeychain = KeychainService()
+    self.mockKeychain = KeychainServiceMock()
     self.sut = AccountService(
       dataManager: dataManager,
       client: NetworkClientMock(mockedResponse: Empty()),
@@ -100,7 +100,7 @@ class AccountServiceTests: XCTestCase {
   func testDeleteAccoount() async throws {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     let mockResponse = DeleteResponse(message: "success")
-    let keychainMock = KeychainService()
+    let keychainMock = KeychainServiceMock()
 
     self.sut = AccountService(
       dataManager: dataManager,
@@ -115,6 +115,6 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(result == "success")
     XCTAssert(self.sut.hasAccount() == true)
     XCTAssert(self.sut.getAccount()?.hasSubscription == false)
-    XCTAssert(try mockKeychain.get(.token) == nil)
+    XCTAssert(try keychainMock.get(.token) == nil)
   }
 }

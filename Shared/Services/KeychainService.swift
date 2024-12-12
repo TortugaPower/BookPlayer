@@ -21,6 +21,8 @@ public protocol KeychainServiceProtocol {
 public enum KeychainKeys: String {
   /// Stores BookPlayer's API access token
   case token = "access_token"
+  /// Stores the Jellyfin connection information (JellyfinConnectionData)
+  case jellyfinConnection = "jellyfin_connection"
 }
 
 public class KeychainService: KeychainServiceProtocol {
