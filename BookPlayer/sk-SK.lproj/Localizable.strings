@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Skratky pre Siri sú k dispozícii v iOS 12 a vyššom";
 "support_bookplayer_title" = "Podporte BookPlayer";
-"support_bookplayer_description" = "Získajte BookPlayer Pro na podporu budúceho vývoja a získajte ďalšie témy, ikony aplikácií a synchronizáciu s cloudom";
+"support_bookplayer_description" = "Podporte budúci vývoj a získajte ďalšie motívy, ikony aplikácií, synchronizáciu s cloudom a samostatné prehrávanie na hodinkách Apple Watch";
 "learn_more_title" = "ZISTIŤ VIAC";
 "settings_appearance_title" = "Vzhľad";
 "settings_theme_title" = "Téma";
@@ -321,3 +321,4 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "more_title" = "Viac";
 "repeat_turn_on_title" = "Zapnúť Opakovať pre túto knihu";
 "repeat_turn_off_title" = "Vypnúť Opakovať pre túto knihu";
+"benefits_watchapp_description" = "Streamujte alebo sťahujte svoje knihy a počúvajte na cestách bez telefónu.";

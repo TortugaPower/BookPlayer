@@ -291,8 +291,8 @@ public class TimeParser {
   /// Truncates the time to the specified number of decimal places
   public class func truncateTime(_ time: TimeInterval, places: Int = 5) -> TimeInterval {
     let multiplier = (pow(10, places) as NSNumber).doubleValue
-
-    return (Double(Int(time * multiplier)) / multiplier)
+    let fraction = (Double(Int(time.truncatingRemainder(dividingBy: 1) * multiplier)) / multiplier)
+    return Double(Int(time)) + fraction
   }
 
   /// Get duration in seconds from a string with the format HH:mm:ss or mm:ss

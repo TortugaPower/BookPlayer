@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "A Siri-parancsok iOS 12-es vagy újabb verziókon érhetőek el";
 "support_bookplayer_title" = "A BookPlayer támogatása";
-"support_bookplayer_description" = "Szerezd be a BookPlayer Pro-t, hogy támogassa a jövőbeni fejlesztést, és további témákat, alkalmazásikonokat és felhőszinkronizálást kapjon";
+"support_bookplayer_description" = "Támogassa a jövőbeli fejlesztéseket, és szerezzen be további témákat, alkalmazásikonokat, felhőszinkronizálást és önálló lejátszást az Apple Watchon";
 "learn_more_title" = "RÉSZLETEK";
 "settings_appearance_title" = "Megjelenés";
 "settings_theme_title" = "Téma";
@@ -321,3 +321,4 @@
 "more_title" = "Több";
 "repeat_turn_on_title" = "Kapcsolja be az Ismétlés funkciót ennél a könyvnél";
 "repeat_turn_off_title" = "Kapcsolja ki az Ismétlés funkciót ennél a könyvnél";
+"benefits_watchapp_description" = "Streamelje vagy töltse le könyveit, és telefonja nélkül hallgassa útközben.";

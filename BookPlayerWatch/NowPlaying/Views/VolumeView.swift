@@ -10,9 +10,10 @@ import SwiftUI
 
 struct VolumeView: WKInterfaceObjectRepresentable {
   typealias WKInterfaceObjectType = WKInterfaceVolumeControl
+  let type: WKInterfaceVolumeControl.Origin
 
   func makeWKInterfaceObject(context: Self.Context) -> WKInterfaceVolumeControl {
-    return WKInterfaceVolumeControl(origin: .companion)
+    return WKInterfaceVolumeControl(origin: type)
   }
 
   func updateWKInterfaceObject(_ wkInterfaceObject: WKInterfaceVolumeControl, context: WKInterfaceObjectRepresentableContext<VolumeView>) {
@@ -21,6 +22,6 @@ struct VolumeView: WKInterfaceObjectRepresentable {
 
 struct VolumeView_Previews: PreviewProvider {
   static var previews: some View {
-    VolumeView()
+    VolumeView(type: .companion)
   }
 }

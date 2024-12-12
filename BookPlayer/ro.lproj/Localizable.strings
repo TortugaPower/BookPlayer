@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";
 "support_bookplayer_title" = "Sprijiniți BookPlayer";
-"support_bookplayer_description" = "Obțineți BookPlayer Pro pentru a sprijini dezvoltarea viitoare și pentru a obține teme suplimentare, pictograme pentru aplicații și sincronizare în cloud";
+"support_bookplayer_description" = "Sprijină dezvoltarea viitoare și obține teme suplimentare, pictograme pentru aplicații, sincronizare în cloud și redare autonomă pe Apple Watch";
 "learn_more_title" = "AFLAȚI MAI MULTE";
 "settings_appearance_title" = "Aspect";
 "settings_theme_title" = "Tema";
@@ -321,3 +321,4 @@
 "more_title" = "Mai mult";
 "repeat_turn_on_title" = "Activați Repetare pentru această carte";
 "repeat_turn_off_title" = "Dezactivează Repetarea pentru această carte";
+"benefits_watchapp_description" = "Transmiteți în flux sau descărcați cărțile și ascultați din mers fără telefon.";

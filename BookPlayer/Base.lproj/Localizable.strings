@@ -55,7 +55,7 @@
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Shortcuts are available on iOS 12 and above";
 "support_bookplayer_title" = "Support BookPlayer";
-"support_bookplayer_description" = "Get BookPlayer Pro to support future development and get extra themes, app icons and cloud sync";
+"support_bookplayer_description" = "Support future development and get extra themes, app icons, cloud sync and stand-alone playback on the Apple Watch";
 "learn_more_title" = "LEARN MORE";
 "settings_appearance_title" = "Appearance";
 "settings_theme_title" = "Theme";
@@ -322,6 +322,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "more_title" = "More";
 "repeat_turn_on_title" = "Turn on Repeat for this book";
 "repeat_turn_off_title" = "Turn off Repeat for this book";
+"benefits_watchapp_description" = "Stream or download your books and listen on the go without your phone.";
 "jellyfin_connection_title" = "Jellyfin";
 "jellyfin_connection_details_title" = "Connection Details";
 "jellyfin_connect_button" = "Connect";

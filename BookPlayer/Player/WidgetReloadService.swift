@@ -7,8 +7,13 @@
 //
 
 import Foundation
-import BookPlayerKit
 import WidgetKit
+
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+#endif
 
 protocol WidgetReloadServiceProtocol {
   /// Reload all the registered widgets
@@ -31,7 +36,9 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
       $0.cancel()
     })
     referenceWorkItems = [:]
-    WidgetCenter.shared.reloadAllTimelines()
+    if #available(watchOS 9.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
   }
 
   func reloadWidget(_ type: Constants.Widgets) {
@@ -39,7 +46,9 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
 
     referenceWorkItem?.cancel()
 
-    WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
+    if #available(watchOS 9.0, *) {
+      WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
+    }
   }
 
   func scheduleWidgetReload(of type: Constants.Widgets) {
@@ -48,9 +57,11 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
     referenceWorkItem?.cancel()
 
     let workItem = DispatchWorkItem {
-      WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
+      if #available(watchOS 9.0, *) {
+        WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
+      }
     }
-    
+
     referenceWorkItems[type] = workItem
 
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5), execute: workItem)
