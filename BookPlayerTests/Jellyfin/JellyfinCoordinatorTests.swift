@@ -64,7 +64,7 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     connectionViewModel.form.rememberMe = true
     connectionViewModel.connectionState = .connected
 
-    connectionViewModel.onTransition?(.signInFinished(url: URL(string: "http://example.com")!, userID: "42", accessToken: "super secret"))
+    connectionViewModel.onTransition?(.signInFinished(url: URL(string: "http://example.com")!, userID: "42", userName: "test", accessToken: "super secret", serverName: "Mock Server", saveToKeychain: true))
     
     XCTAssertNotNil(mockJellyfinConnectionService.connection)
     do {
