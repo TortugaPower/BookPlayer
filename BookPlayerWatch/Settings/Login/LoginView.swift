@@ -23,24 +23,6 @@ struct LoginView: View {
       Text("benefits_watchapp_description".localized)
         .font(Font(Fonts.body))
         .multilineTextAlignment(.center)
-      #if targetEnvironment(simulator)
-        Button("Test Login") {
-          Task {
-            let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
-            print(token)
-            do {
-              isLoading = true
-              try await coreServices.accountService.loginTestAccount(token: token)
-              isLoading = false
-              account = coreServices.accountService.getAccount()
-              coreServices.checkAndReloadIfSyncIsEnabled()
-            } catch {
-              isLoading = false
-              self.error = error
-            }
-          }
-        }
-      #endif
       SignInWithAppleButton(.signIn) { request in
         request.requestedScopes = [.email]
       } onCompletion: { result in
