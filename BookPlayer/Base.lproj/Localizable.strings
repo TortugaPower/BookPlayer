@@ -228,7 +228,6 @@
 "cancel_download_title" = "Cancel download";
 "remove_downloaded_file_title" = "Remove from device";
 "download_from_url_title" = "Download from URL";
-"download_from_jellyfin_title" = "Download from Jellyfin";
 "done_title" = "Done";
 "select_title" = "Select";
 "sort_button_title" = "Sort";
@@ -323,13 +322,11 @@ We're working hard on providing a seamless experience, if possible, please conta
 "repeat_turn_on_title" = "Turn on Repeat for this book";
 "repeat_turn_off_title" = "Turn off Repeat for this book";
 "benefits_watchapp_description" = "Stream or download your books and listen on the go without your phone.";
-"jellyfin_connection_title" = "Jellyfin";
+"download_from_jellyfin_title" = "Download from Jellyfin";
 "jellyfin_connection_details_title" = "Connection Details";
 "jellyfin_connect_button" = "Connect";
 "jellyfin_sign_in_button" = "Sign In";
-"jellyfin_to_library_button" = "Library";
 "jellyfin_section_server_url" = "Server URL";
-"jellyfin_server_url_placeholder" = "http://jellyfin.example.com:8096";
 "jellyfin_section_server_url_footer" = "Connect to your Jellyfin server";
 "jellyfin_section_server" = "Server";
 "jellyfin_server_name_label" = "Name";
@@ -338,8 +335,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_username_placeholder" = "Username";
 "jellyfin_password_placeholder" = "Password";
 "jellyfin_password_remember_me_label" = "Remember Me";
-"jellyfin_sign_out_button" = "Sign Out";
-"settings_jellyfin_title" = "Jellyfin";
 "settings_jellyfin_manage_connection_title" = "Manage Connection";
 "jellyfin_internal_error_invalid_url" = "Internal error: Request URL is invalid: %@";
 "jellyfin_internal_error_build_url" = "Internal error: Failed to build request URL";
@@ -348,4 +343,4 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "jellyfin_error_unauthorized" = "Sign In failed. Check your username and password.";
 "file_size_unknown" = "Unknown size";
-"runtime_unknown" = "Unknown runtime";
+"runtime_unknown" = "Unknown duration";

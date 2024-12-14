@@ -58,7 +58,7 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var disconnectedView: some View {
     Section {
-      ClearableTextField("jellyfin_server_url_placeholder".localized, text: $viewModel.form.serverUrl, onCommit: {
+      ClearableTextField("http://jellyfin.example.com:8096", text: $viewModel.form.serverUrl, onCommit: {
         if viewModel.canConnect {
           viewModel.handleConnectAction()
         }
@@ -134,7 +134,7 @@ struct JellyfinConnectionView: View {
     .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
 
     Section {
-      destructiveButton("jellyfin_sign_out_button".localized) {
+      destructiveButton("logout_title".localized) {
         viewModel.handleSignOutAction()
       }
       .frame(maxWidth: .infinity)
@@ -188,8 +188,7 @@ struct JellyfinConnectionView: View {
   
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
-    case .disconnected: "jellyfin_connection_title".localized
-    case .foundServer: "jellyfin_connection_title".localized
+    case .disconnected, .foundServer: "Jellyfin"
     case .connected: "jellyfin_connection_details_title".localized
     }
   }
@@ -225,7 +224,7 @@ struct JellyfinConnectionView: View {
   
   @ViewBuilder
   private var goToLibraryToolbarButton: some View {
-    Button("jellyfin_to_library_button".localized,
+    Button("library_title".localized,
            systemImage: "chevron.right",
            action: viewModel.handleGoToLibraryAction
     )

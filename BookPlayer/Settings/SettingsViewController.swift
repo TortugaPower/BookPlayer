@@ -348,7 +348,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_backup_title".localized
     case .jellyfin:
       if viewModel.hasJellyfinConnection {
-        return "settings_jellyfin_title".localized
+        return "Jellyfin"
       } else {
         return nil
       }
