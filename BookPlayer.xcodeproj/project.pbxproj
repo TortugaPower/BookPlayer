@@ -1191,6 +1191,10 @@
 		6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsView.swift; sourceTree = "<group>"; };
 		6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerToolbarView.swift; sourceTree = "<group>"; };
 		6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFullControlsView.swift; sourceTree = "<group>"; };
+		635390BC2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		635390BD2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		635390BE2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		635390BF2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationActivityItemSource.swift; sourceTree = "<group>"; };
 		6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSkipForwardIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -3309,6 +3313,7 @@
 				nb,
 				"pt-PT",
 				el,
+				ja,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -4238,6 +4243,7 @@
 				9F5011F32A62027C0075FEBA /* nb */,
 				630584E32ADEB88500FBFA6F /* pt-PT */,
 				636086022C5B589900341D78 /* el */,
+				635390BC2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -4309,6 +4315,7 @@
 				9F5011F42A62027C0075FEBA /* nb */,
 				630584E42ADEB88500FBFA6F /* pt-PT */,
 				636086032C5B589900341D78 /* el */,
+				635390BD2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4340,6 +4347,7 @@
 				9F5011F52A62027C0075FEBA /* nb */,
 				630584E22ADEB88500FBFA6F /* pt-PT */,
 				636086052C5B589900341D78 /* el */,
+				635390BF2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4378,6 +4386,7 @@
 				6376092F2ADCD83D00A01D5D /* uk */,
 				633BE3E12AE43D1300F983AC /* pt-PT */,
 				636086042C5B589900341D78 /* el */,
+				635390BE2D0DEB1500FE6E45 /* ja */,
 			);
 			name = AppShortcuts.strings;
 			sourceTree = "<group>";
