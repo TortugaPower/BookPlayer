@@ -7,8 +7,10 @@
 */
 
 "library_title" = "Бібліотека";
+"delete_button" = "Видалити";
 "ok_button" = "Гаразд";
 "recent_title" = "Останні";
+"storage_total_title" = "Загальний використаний простір";
 "watchapp_last_played_title" = "Остання відтворена";
 "watchapp_refresh_data_title" = "Оновити дані";
 "watchapp_connect_error_title" = "Помилка з'єднання";
@@ -16,3 +18,11 @@
 "chapters_title" = "Розділи";
 "settings_controls_title" = "Керування програвачем";
 "settings_boostvolume_title" = "Збільшення гучності";
+"settings_skip_title" = "Інтервали перемотування";
+"settings_skip_rewind_title" = "Назад";
+"settings_skip_forward_title" = "Вперед";
+"settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
+"speed_title" = "швидкість";
+"logout_title" = "Вийти";
+"benefits_watchapp_description" = "Транслюйте або завантажуйте свої книги та слухайте їх у дорозі без телефону.";
+"subscription_required_title" = "Потрібна підписка";

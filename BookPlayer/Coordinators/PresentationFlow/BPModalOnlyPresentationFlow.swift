@@ -9,9 +9,9 @@
 import UIKit
 
 /// Handle a modal presentation without a root navigation
-class BPModalOnlyPresentationFlow: BPCoordinatorPresentationFlow {
+public class BPModalOnlyPresentationFlow: BPCoordinatorPresentationFlow {
   /// Not available in this flow
-  var navigationController: UINavigationController {
+  public var navigationController: UINavigationController {
     fatalError("Navigation not available on this type of coordinator flow")
   }
 

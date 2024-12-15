@@ -110,20 +110,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Error publisher for ongoing-download tasks
   public var downloadErrorPublisher = PassthroughSubject<(String, Error), Never>()
   /// Background URL session to handle downloading synced items
-  private lazy var downloadURLSession: BPDownloadURLSession = {
-    BPDownloadURLSession { task, progress in
-      self.handleDownloadProgressUpdated(
-        task: task,
-        individualProgress: progress
-      )
-    } didFinishDownloadingTask: { task, location, error in
-      self.handleFinishedDownload(
-        task: task,
-        location: location,
-        error: error
-      )
-    }
-  }()
+  private var downloadURLSession: BPDownloadURLSession!
 
   private let provider: NetworkProvider<LibraryAPI>
 
@@ -144,6 +131,41 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.provider = NetworkProvider(client: client)
 
     bindObservers()
+    setupBackgroundDownloadSession()
+  }
+
+  func setupBackgroundDownloadSession() {
+    self.downloadURLSession = BPDownloadURLSession { task, progress in
+      self.handleDownloadProgressUpdated(
+        task: task,
+        individualProgress: progress
+      )
+    } didFinishDownloadingTask: { task, location, error in
+      self.handleFinishedDownload(
+        task: task,
+        location: location,
+        error: error
+      )
+    }
+
+    self.downloadURLSession.backgroundSession.getTasksWithCompletionHandler { _, _, downloadTasks in
+      for task in downloadTasks {
+        guard let relativePath = task.taskDescription else { continue }
+
+        let paths: [String] = relativePath.allRanges(of: "/")
+          .map { String(relativePath.prefix(upTo: $0.lowerBound)) }
+          .reversed()
+        let parentFolder = paths.last
+
+        let initiatingPath = parentFolder ?? relativePath
+
+        var tasksArray = self.downloadTasksDictionary[initiatingPath] ?? []
+        tasksArray.append(task)
+        self.downloadTasksDictionary[initiatingPath] = tasksArray
+        self.ongoingTasksParentReference[relativePath] = initiatingPath
+        self.initiatingFolderReference[relativePath] = paths.count > 1 ? parentFolder : nil
+      }
+    }
   }
 
   func bindObservers() {
@@ -230,7 +252,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     let fetchedIdentifiers = try await fetchSyncedIdentifiers()
 
     if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
-       !itemsToUpload.isEmpty {
+      !itemsToUpload.isEmpty
+    {
       Self.logger.trace("Scheduling upload tasks")
       await handleItemsToUpload(itemsToUpload)
     }
@@ -270,7 +293,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     /// Only handle if the last item played is stored in the local library
     /// Note: we cannot just store the item, because we lack the info of the possible parent folders
     if let lastItemPlayed = response.lastItemPlayed,
-       await libraryService.itemExists(for: lastItemPlayed.relativePath) {
+      await libraryService.itemExists(for: lastItemPlayed.relativePath)
+    {
       try await handleSyncedLastPlayed(item: lastItemPlayed)
     }
   }
@@ -292,7 +316,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Only update the time if the remote last played timestamp is greater than the local timestamp
     if let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp,
-       remoteLastPlayDateTimestamp > localLastPlayDateTimestamp {
+      remoteLastPlayDateTimestamp > localLastPlayDateTimestamp
+    {
       await libraryService.updateInfo(for: item)
       throw BPSyncError.reloadLastBook(item.relativePath)
     }
@@ -368,12 +393,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, type: item.type)
 
+    let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
     /// Handle throwable items first
     if !folderURLs.isEmpty {
-      let processedFolderURL = DataManager.getProcessedFolderURL()
-
       for remoteURL in folderURLs {
         let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
         try DataManager.createBackingFolderIfNeeded(fileURL)
@@ -385,6 +409,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     var tasks = [URLSessionTask]()
 
     for remoteURL in bookURLs {
+      let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+
+      guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
+
       let task = await provider.client.download(
         url: remoteURL.url,
         taskDescription: remoteURL.relativePath,
@@ -396,7 +424,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     downloadTasksDictionary[item.relativePath] = tasks
     ongoingTasksParentReference = tasks.reduce(
-      into: ongoingTasksParentReference, {
+      into: ongoingTasksParentReference,
+      {
         $0[$1.taskDescription!] = item.relativePath
       }
     )
@@ -485,7 +514,8 @@ extension SyncService {
 
     for folder in folders {
       if let contents = self.libraryService.getAllNestedItems(inside: folder.relativePath),
-         !contents.isEmpty {
+        !contents.isEmpty
+      {
         itemsToUpload.append(contentsOf: contents)
       }
     }
@@ -559,7 +589,8 @@ extension SyncService {
 
     do {
       if error == nil,
-         let location {
+        let location
+      {
         let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
         /// If there's already something there, replace with new finished download
@@ -593,7 +624,8 @@ extension SyncService {
     /// cleanup individual reference
     if downloadTasksDictionary[startingItemPath]?
       .filter({ $0 != task })
-      .allSatisfy({ $0.state == .completed }) == true {
+      .allSatisfy({ $0.state == .completed }) == true
+    {
       downloadTasksDictionary[startingItemPath] = nil
     }
     ongoingTasksParentReference[relativePath] = nil
@@ -625,7 +657,8 @@ extension SyncService {
 
     /// Clean up bound downloads if at least one was finished
     if item.type == .bound,
-       hasCompletedTasks {
+      hasCompletedTasks
+    {
       let fileURL = item.fileURL
       try FileManager.default.removeItem(at: fileURL)
       try FileManager.default.createDirectory(
@@ -682,20 +715,20 @@ extension SyncService {
 
     let fileURL = item.fileURL
 
-    if (item.type == .bound || item.type == .folder),
-       let enumerator = FileManager.default.enumerator(
-        at: fileURL,
-        includingPropertiesForKeys: nil,
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-       ),
-       enumerator.nextObject() == nil {
-      return .notDownloaded
-    }
+    switch item.type {
+    case .book:
+      return FileManager.default.fileExists(atPath: fileURL.path) ? .downloaded : .notDownloaded
+    case .folder, .bound:
+      guard
+        let enumerator = FileManager.default.enumerator(
+          at: fileURL,
+          includingPropertiesForKeys: nil,
+          options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        )
+      else { return .notDownloaded }
 
-    if FileManager.default.fileExists(atPath: fileURL.path) {
-      return .downloaded
+      return libraryService.getMaxItemsCount(at: item.relativePath) == enumerator.allObjects.count
+        ? .downloaded : .notDownloaded
     }
-
-    return .notDownloaded
   }
 }

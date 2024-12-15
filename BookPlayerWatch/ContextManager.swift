@@ -134,47 +134,6 @@ class ContextManager: ObservableObject, BPLogger {
     ])
   }
 
-  func handleNewSpeed(_ rate: Float) {
-    let roundedValue = round(rate * 100) / 100.0
-
-    guard roundedValue >= 0.5 && roundedValue <= 4.0 else { return }
-
-    self.watchConnectivityService.sendMessage(message: [
-      "command": Command.speed.rawValue as AnyObject,
-      "rate": "\(rate)" as AnyObject
-    ])
-
-    self.applicationContext.rate = roundedValue
-  }
-
-  func handleNewSpeedJump() {
-    let rate: Float
-
-    if self.applicationContext.rate == 4.0 {
-      rate = 0.5
-    } else {
-      rate = min(self.applicationContext.rate + 0.5, 4.0)
-    }
-
-    let roundedValue = round(rate * 100) / 100.0
-
-    self.watchConnectivityService.sendMessage(message: [
-      "command": Command.speed.rawValue as AnyObject,
-      "rate": "\(rate)" as AnyObject
-    ])
-
-    self.applicationContext.rate = roundedValue
-  }
-
-  func handleBoostVolumeToggle() {
-    self.applicationContext.boostVolume = !self.applicationContext.boostVolume
-
-    self.watchConnectivityService.sendMessage(message: [
-      "command": Command.boostVolume.rawValue as AnyObject,
-      "isOn": "\(self.applicationContext.boostVolume)" as AnyObject
-    ])
-  }
-
   func handleSkip(_ direction: SkipDirection) {
     let payload: [String: AnyObject]
 
@@ -257,5 +216,57 @@ class ContextManager: ObservableObject, BPLogger {
       forwardInterval: forwardInterval,
       boostVolume: boostVolume
     )
+  }
+}
+
+/// Playback controls (companion version)
+extension ContextManager {
+  var rate: Float {
+    applicationContext.rate
+  }
+  
+  var boostVolume: Bool {
+    applicationContext.boostVolume
+  }
+
+  func handleBoostVolumeToggle() {
+    self.applicationContext.boostVolume = !self.applicationContext.boostVolume
+
+    self.watchConnectivityService.sendMessage(message: [
+      "command": Command.boostVolume.rawValue as AnyObject,
+      "isOn": "\(self.applicationContext.boostVolume)" as AnyObject
+    ])
+  }
+
+  func handleNewSpeed(_ rate: Float) {
+    let roundedValue = round(rate * 100) / 100.0
+
+    guard roundedValue >= 0.5 && roundedValue <= 4.0 else { return }
+
+    self.watchConnectivityService.sendMessage(message: [
+      "command": Command.speed.rawValue as AnyObject,
+      "rate": "\(rate)" as AnyObject
+    ])
+
+    self.applicationContext.rate = roundedValue
+  }
+
+  func handleNewSpeedJump() {
+    let rate: Float
+
+    if self.applicationContext.rate == 4.0 {
+      rate = 0.5
+    } else {
+      rate = min(self.applicationContext.rate + 0.5, 4.0)
+    }
+
+    let roundedValue = round(rate * 100) / 100.0
+
+    self.watchConnectivityService.sendMessage(message: [
+      "command": Command.speed.rawValue as AnyObject,
+      "rate": "\(rate)" as AnyObject
+    ])
+
+    self.applicationContext.rate = roundedValue
   }
 }

@@ -13,11 +13,13 @@ import UniformTypeIdentifiers
 
 class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let playerManager: PlayerManagerProtocol
+  let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
+  let jellyfinConnectionService: JellyfinConnectionService
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -25,19 +27,23 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   init(
     flow: BPCoordinatorPresentationFlow,
     playerManager: PlayerManagerProtocol,
+    singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
-    listRefreshService: ListSyncRefreshService
+    listRefreshService: ListSyncRefreshService,
+    jellyfinConnectionService: JellyfinConnectionService
   ) {
     self.flow = flow
     self.playerManager = playerManager
+    self.singleFileDownloadService = singleFileDownloadService
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.importManager = importManager
     self.listRefreshService = listRefreshService
+    self.jellyfinConnectionService = jellyfinConnectionService
   }
 
   func start() {
@@ -54,11 +60,13 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       flow: .pushFlow(navigationController: flow.navigationController),
       folderRelativePath: relativePath,
       playerManager: playerManager,
+      singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,
       importManager: importManager,
-      listRefreshService: listRefreshService
+      listRefreshService: listRefreshService,
+      jellyfinConnectionService: jellyfinConnectionService
     )
     child.start()
   }
@@ -158,6 +166,15 @@ extension ItemListCoordinator {
     UIApplication.shared.isIdleTimerDisabled = true
 
     flow.navigationController.present(providerList, animated: true, completion: nil)
+  }
+
+  func showJellyfinDownloader() {
+    let child = JellyfinCoordinator(
+      flow: .modalFlow(presentingController: flow.navigationController, modalPresentationStyle: .pageSheet),
+      singleFileDownloadService: singleFileDownloadService,
+      jellyfinConnectionService: jellyfinConnectionService
+    )
+    child.start()
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {

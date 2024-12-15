@@ -326,6 +326,7 @@
 		630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
 		6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */; };
 		6309F1272B0CF658002B86A4 /* BookPlaybackToggleIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */; };
+		630EC82F2CEF9F0700C19411 /* ForcedEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */; };
 		630F115E2AE7EEBA000A997A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375B23B8D6DB00128A8F /* Localizable.strings */; };
 		630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4140EA34227288EF0009F794 /* Assets.xcassets */; };
 		63125D0E2C36D84E00D35533 /* EventsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D0D2C36D84E00D35533 /* EventsAPI.swift */; };
@@ -339,6 +340,10 @@
 		6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		632941402AEEE739000AD2EE /* CircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6329413F2AEEE739000AD2EE /* CircularView.swift */; };
+		6334CF1B2CF8D87500F1FA17 /* SkipDurationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */; };
+		6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */; };
+		6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */; };
+		6334CF212CFE330300F1FA17 /* RefreshableListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF202CFE330300F1FA17 /* RefreshableListView.swift */; };
 		633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */; };
 		6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D5682AF12D48003D0B09 /* SharedWidget.swift */; };
 		6340D56E2AF13E4C003D0B09 /* RectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D56D2AF13E4C003D0B09 /* RectangularView.swift */; };
@@ -358,6 +363,20 @@
 		634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A42C176B5A0015314D /* StoryActionView.swift */; };
 		634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A62C1777BA0015314D /* PricingBoxView.swift */; };
 		634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5AC2C180F5E0015314D /* StoryViewModel.swift */; };
+		6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4632CF004160077CDC1 /* LoadingView.swift */; };
+		6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4652CF423030077CDC1 /* PlayerManager.swift */; };
+		6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
+		6350E4682CF4248A0077CDC1 /* SpeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedService.swift */; };
+		6350E4692CF425500077CDC1 /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
+		6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
+		6350E46B2CF42B500077CDC1 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		6350E46C2CF42FE10077CDC1 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
+		6350E46D2CF4315B0077CDC1 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
+		6350E46E2CF4316E0077CDC1 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
+		6350E4702CF498160077CDC1 /* RemotePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */; };
+		6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */; };
+		6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */; };
+		6350E4762CF4F6E90077CDC1 /* PlaybackFullControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */; };
 		6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */; };
 		6356D48C2C584EFD00994B71 /* CustomSkipForwardIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
@@ -387,6 +406,9 @@
 		639720752CAAFB010045A4DB /* WidgetLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */; };
 		639720832CAB0C380045A4DB /* LastPlayedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720822CAB0C380045A4DB /* LastPlayedView.swift */; };
 		6397208A2CAC5C870045A4DB /* LastPlayedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720892CAC5C870045A4DB /* LastPlayedModel.swift */; };
+		6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399D06F2CEBA35D00A2E278 /* RemoteItemListView.swift */; };
+		6399D0722CEBA37C00A2E278 /* RemoteItemListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399D0712CEBA37C00A2E278 /* RemoteItemListCellView.swift */; };
+		6399D0762CECFFA900A2E278 /* CoreServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399D0752CECFFA900A2E278 /* CoreServices.swift */; };
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
@@ -423,6 +445,13 @@
 		63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */; };
 		63C6C3192B5E102200FFE0D8 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */; };
 		63C6C31A2B5E102200FFE0D8 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */; };
+		63CD851D2CE2964900EDBEA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD851C2CE2964900EDBEA8 /* SettingsView.swift */; };
+		63CD851E2CE2EEBC00EDBEA8 /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
+		63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
+		63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85222CE302D200EDBEA8 /* LoginView.swift */; };
+		63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
+		63CD85432CE3105300EDBEA8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85422CE3105300EDBEA8 /* ProfileView.swift */; };
+		63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */; };
 		63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
 		63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
 		63E893952CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
@@ -440,6 +469,31 @@
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
+		8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */; };
+		8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 8A495CC52CC85D27001B4244 /* JellyfinAPI */; };
+		8A9D0D172CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */; };
+		8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */; };
+		8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */; };
+		8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */; };
+		8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */; };
+		8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */; };
+		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
+		8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */; };
+		8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */; };
+		8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */; };
+		8AAD8A4F2CEE3650000A4B4B /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */; };
+		8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
+		8AAD8A572CEE88E5000A4B4B /* JellyfinConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */; };
+		8ADD46222CF29A02002E9C50 /* TextFieldFocused.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46212CF29A02002E9C50 /* TextFieldFocused.swift */; };
+		8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */; };
+		8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */; };
+		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
+		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
+		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
+		8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
+		8AF18A382CF0E6AE00238F8D /* JellyfinConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */; };
+		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
+		8AF18A3D2CF126B800238F8D /* JellyfinCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */; };
 		9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */; };
@@ -605,7 +659,7 @@
 		9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */; };
 		9FDDD2E1289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
 		9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */; };
-		9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */; };
+		9FE07E1B27C522DE007591F7 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE07E1A27C522DE007591F7 /* RootView.swift */; };
 		9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */; };
 		9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */; };
 		9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC87AF27FA9F0F006C71D5 /* LoginViewController.swift */; };
@@ -1099,6 +1153,7 @@
 		6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidget.swift; sourceTree = "<group>"; };
 		630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIconWidgetEntry.swift; sourceTree = "<group>"; };
 		6309F1252B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookPlaybackToggleIntent.swift; sourceTree = "<group>"; };
+		630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForcedEnvironment.swift; sourceTree = "<group>"; };
 		63125D0D2C36D84E00D35533 /* EventsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsAPI.swift; sourceTree = "<group>"; };
 		63125D112C36D97400D35533 /* EventsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsService.swift; sourceTree = "<group>"; };
 		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1106,6 +1161,10 @@
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalPresentationFlow.swift; sourceTree = "<group>"; };
 		6329413F2AEEE739000AD2EE /* CircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularView.swift; sourceTree = "<group>"; };
+		6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDurationListView.swift; sourceTree = "<group>"; };
+		6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMoreListView.swift; sourceTree = "<group>"; };
+		6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemCellViewModel.swift; sourceTree = "<group>"; };
+		6334CF202CFE330300F1FA17 /* RefreshableListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableListView.swift; sourceTree = "<group>"; };
 		633BE3E12AE43D1300F983AC /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/AppShortcuts.strings"; sourceTree = "<group>"; };
 		633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPShortcutsLink.swift; sourceTree = "<group>"; };
 		6340D5682AF12D48003D0B09 /* SharedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidget.swift; sourceTree = "<group>"; };
@@ -1126,6 +1185,16 @@
 		634BA5A42C176B5A0015314D /* StoryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryActionView.swift; sourceTree = "<group>"; };
 		634BA5A62C1777BA0015314D /* PricingBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingBoxView.swift; sourceTree = "<group>"; };
 		634BA5AC2C180F5E0015314D /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		6350E4632CF004160077CDC1 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		6350E4652CF423030077CDC1 /* PlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
+		6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayerView.swift; sourceTree = "<group>"; };
+		6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsView.swift; sourceTree = "<group>"; };
+		6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerToolbarView.swift; sourceTree = "<group>"; };
+		6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFullControlsView.swift; sourceTree = "<group>"; };
+		635390BC2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		635390BD2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		635390BE2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		635390BF2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationActivityItemSource.swift; sourceTree = "<group>"; };
 		6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSkipForwardIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -1175,6 +1244,9 @@
 		639720732CAAFB010045A4DB /* WidgetLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLibraryItem.swift; sourceTree = "<group>"; };
 		639720822CAB0C380045A4DB /* LastPlayedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedView.swift; sourceTree = "<group>"; };
 		639720892CAC5C870045A4DB /* LastPlayedModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedModel.swift; sourceTree = "<group>"; };
+		6399D06F2CEBA35D00A2E278 /* RemoteItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListView.swift; sourceTree = "<group>"; };
+		6399D0712CEBA37C00A2E278 /* RemoteItemListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListCellView.swift; sourceTree = "<group>"; };
+		6399D0752CECFFA900A2E278 /* CoreServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreServices.swift; sourceTree = "<group>"; };
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
@@ -1194,6 +1266,11 @@
 		63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksStorage.swift; sourceTree = "<group>"; };
 		63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemSyncOperation.swift; sourceTree = "<group>"; };
 		63C6C3172B5E0FE700FFE0D8 /* SyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
+		63CD851C2CE2964900EDBEA8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		63CD85222CE302D200EDBEA8 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BP+ErrorAlerts.swift"; sourceTree = "<group>"; };
+		63CD85422CE3105300EDBEA8 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
 		63E893912CAFA89000946CD4 /* BPPlayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPlayerError.swift; sourceTree = "<group>"; };
 		63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerLoaderService.swift; sourceTree = "<group>"; };
 		63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerProtocol.swift; sourceTree = "<group>"; };
@@ -1205,6 +1282,30 @@
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
+		8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveVGrid.swift; sourceTree = "<group>"; };
+		8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionFormViewModel.swift; sourceTree = "<group>"; };
+		8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinator.swift; sourceTree = "<group>"; };
+		8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
+		8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
+		8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLazyView.swift; sourceTree = "<group>"; };
+		8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemView.swift; sourceTree = "<group>"; };
+		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
+		8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
+		8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleFileDownloadService.swift; sourceTree = "<group>"; };
+		8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
+		8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
+		8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionService.swift; sourceTree = "<group>"; };
+		8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionData.swift; sourceTree = "<group>"; };
+		8ADD46212CF29A02002E9C50 /* TextFieldFocused.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldFocused.swift; sourceTree = "<group>"; };
+		8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAudiobookDetailsView.swift; sourceTree = "<group>"; };
+		8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAudiobookDetailsViewModel.swift; sourceTree = "<group>"; };
+		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
+		8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionView.swift; sourceTree = "<group>"; };
+		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
+		8AF18A342CF0C42C00238F8D /* JellyfinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinError.swift; sourceTree = "<group>"; };
+		8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionServiceTests.swift; sourceTree = "<group>"; };
+		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
+		8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinatorTests.swift; sourceTree = "<group>"; };
 		9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsForm.swift; sourceTree = "<group>"; };
@@ -1354,7 +1455,7 @@
 		9FDDD2D7289B64440020C428 /* SyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatus.swift; sourceTree = "<group>"; };
 		9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobScheduler.swift; sourceTree = "<group>"; };
 		9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryService+Sync.swift"; sourceTree = "<group>"; };
-		9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerItemListView.swift; sourceTree = "<group>"; };
+		9FE07E1A27C522DE007591F7 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerShareExtension.entitlements; sourceTree = "<group>"; };
 		9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+BookPlayer.swift"; sourceTree = "<group>"; };
 		9FEC87AD27FA9E98006C71D5 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
@@ -1447,6 +1548,7 @@
 				41F1A1E0254B08A10043FCF3 /* DeviceKit in Frameworks */,
 				41F1A1FB254B09360043FCF3 /* DirectoryWatcher in Frameworks */,
 				41F1A1D7254B07E80043FCF3 /* MarqueeLabel in Frameworks */,
+				8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */,
 				41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1584,6 +1686,22 @@
 				4140EA46227288EF0009F794 /* ComplicationController.swift */,
 				9F82DF7027DF8203001B0EA8 /* WatchConnectivityService.swift */,
 				9FA334AE27C05EBB0064E8EA /* ContextManager.swift */,
+				63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */,
+				6399D0752CECFFA900A2E278 /* CoreServices.swift */,
+				6350E4632CF004160077CDC1 /* LoadingView.swift */,
+				9FE07E1A27C522DE007591F7 /* RootView.swift */,
+				630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */,
+				6350E4652CF423030077CDC1 /* PlayerManager.swift */,
+				6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */,
+				6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */,
+				6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */,
+				6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */,
+				6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */,
+				6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */,
+				6334CF202CFE330300F1FA17 /* RefreshableListView.swift */,
+				63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */,
+				63CD851B2CE2963600EDBEA8 /* Settings */,
+				6399D06E2CEBA1F900A2E278 /* RemoteItemList */,
 				9FA334B427C156DB0064E8EA /* ItemList */,
 				9FA334B727C163510064E8EA /* NowPlaying */,
 				9F197EFC27C325150029C989 /* ChapterList */,
@@ -1716,6 +1834,7 @@
 				C3A479112094C8A800D92122 /* Utils */,
 				62793618272CCEA20097837D /* Loading */,
 				41C8ABCF26836F03003B67D1 /* Import */,
+				8AE4AAC32CCB9E3A00BAA927 /* Jellyfin */,
 				C35E04F1207E8D0F007D3370 /* Library */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				C35E04F2207E8D4C007D3370 /* Settings */,
@@ -1761,6 +1880,7 @@
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
+				8AF18A362CF0E69A00238F8D /* Jellyfin */,
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
 			path = BookPlayerTests;
@@ -2096,6 +2216,7 @@
 		62AAE22827492D6E001EB9FF /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */,
 				9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */,
 				9FC1E4622814F80000522FA8 /* AccountServiceMock.swift */,
 				9FC1E46828150ECC00522FA8 /* NetworkClientMock.swift */,
@@ -2259,6 +2380,16 @@
 			path = RecentBooks;
 			sourceTree = "<group>";
 		};
+		6399D06E2CEBA1F900A2E278 /* RemoteItemList */ = {
+			isa = PBXGroup;
+			children = (
+				6399D06F2CEBA35D00A2E278 /* RemoteItemListView.swift */,
+				6399D0712CEBA37C00A2E278 /* RemoteItemListCellView.swift */,
+				6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */,
+			);
+			path = RemoteItemList;
+			sourceTree = "<group>";
+		};
 		63B2303B2B8CCDDB00AEECED /* Realm */ = {
 			isa = PBXGroup;
 			children = (
@@ -2297,6 +2428,32 @@
 			path = Autolock;
 			sourceTree = "<group>";
 		};
+		63CD851B2CE2963600EDBEA8 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				63CD851C2CE2964900EDBEA8 /* SettingsView.swift */,
+				63CD85412CE3102500EDBEA8 /* Profile */,
+				63CD85402CE3101C00EDBEA8 /* Login */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		63CD85402CE3101C00EDBEA8 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				63CD85222CE302D200EDBEA8 /* LoginView.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		63CD85412CE3102500EDBEA8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				63CD85422CE3105300EDBEA8 /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
 			isa = PBXGroup;
 			children = (
@@ -2316,6 +2473,7 @@
 			children = (
 				4163E314214ACB4300072AA2 /* DataTestUtils.swift */,
 				63432B582AC1E6F7002619D0 /* MockNavigationController.swift */,
+				8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */,
 				6906A552217211C600A9E0B2 /* StubFactory.swift */,
 			);
 			path = Support;
@@ -2334,6 +2492,7 @@
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
+				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2348,6 +2507,52 @@
 				9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		8A9D0D1A2CCCF36D007A924D /* Library Screen */ = {
+			isa = PBXGroup;
+			children = (
+				8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */,
+				8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */,
+				8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */,
+				8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */,
+				8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */,
+				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
+				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
+			);
+			path = "Library Screen";
+			sourceTree = "<group>";
+		};
+		8AE4AAC32CCB9E3A00BAA927 /* Jellyfin */ = {
+			isa = PBXGroup;
+			children = (
+				8A9D0D1A2CCCF36D007A924D /* Library Screen */,
+				8AE4AAC92CCBA1D200BAA927 /* Connection Screen */,
+				8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */,
+				8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */,
+				8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */,
+				8AF18A342CF0C42C00238F8D /* JellyfinError.swift */,
+			);
+			path = Jellyfin;
+			sourceTree = "<group>";
+		};
+		8AE4AAC92CCBA1D200BAA927 /* Connection Screen */ = {
+			isa = PBXGroup;
+			children = (
+				8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */,
+				8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */,
+				8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */,
+			);
+			path = "Connection Screen";
+			sourceTree = "<group>";
+		};
+		8AF18A362CF0E69A00238F8D /* Jellyfin */ = {
+			isa = PBXGroup;
+			children = (
+				8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */,
+				8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */,
+			);
+			path = Jellyfin;
 			sourceTree = "<group>";
 		};
 		9F00A6222951DEE6005EA316 /* Views */ = {
@@ -2520,7 +2725,6 @@
 		9FA334B427C156DB0064E8EA /* ItemList */ = {
 			isa = PBXGroup;
 			children = (
-				9FE07E1A27C522DE007591F7 /* ContainerItemListView.swift */,
 				9FA334AA27C058210064E8EA /* ItemListView.swift */,
 				9FA334B027C1499A0064E8EA /* ItemCellView.swift */,
 			);
@@ -2673,6 +2877,7 @@
 				9FD8D95729DC53750074C2D8 /* CoreServices.swift */,
 				6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */,
 				63717EA92B792E350006291E /* RefreshTaskOperation.swift */,
+				8ADD46212CF29A02002E9C50 /* TextFieldFocused.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -2708,6 +2913,7 @@
 		C3D3852D20C1F0CA00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */,
 				4151A6B226E491A800E49DBE /* NibLoadableView.swift */,
 				4160A0A023F304530039166B /* LocalizableLabel.swift */,
 				41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */,
@@ -2718,6 +2924,7 @@
 				9F22DE3F288D8BC800056FCD /* BaseLabel.swift */,
 				9FB20EB629A423410021663B /* InterfaceUpdater.swift */,
 				634BA5912C160B720015314D /* StoryViewer */,
+				8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2773,6 +2980,8 @@
 				9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */,
 				9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */,
 				9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */,
+				8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */,
+				8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2924,6 +3133,7 @@
 				41F1A203254B09C00043FCF3 /* Themeable */,
 				41F1A20C254B0A0C0043FCF3 /* Sentry */,
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
+				8A495CC52CC85D27001B4244 /* JellyfinAPI */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -3103,6 +3313,7 @@
 				nb,
 				"pt-PT",
 				el,
+				ja,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -3116,6 +3327,7 @@
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -3318,30 +3530,57 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F82DF6927DE93A2001B0EA8 /* SkipIntervalView.swift in Sources */,
+				6399D0722CEBA37C00A2E278 /* RemoteItemListCellView.swift in Sources */,
+				6334CF212CFE330300F1FA17 /* RefreshableListView.swift in Sources */,
 				9FA334B627C15DE30064E8EA /* VolumeView.swift in Sources */,
+				6350E46D2CF4315B0077CDC1 /* PlayerLoaderService.swift in Sources */,
+				6350E46B2CF42B500077CDC1 /* UserActivityManager.swift in Sources */,
+				63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */,
+				6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */,
 				9FA334B927C1B8450064E8EA /* NowPlayingTitleView.swift in Sources */,
+				6350E4692CF425500077CDC1 /* WidgetReloadService.swift in Sources */,
 				9FA334B327C156CB0064E8EA /* NowPlayingView.swift in Sources */,
 				9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */,
+				6399D0762CECFFA900A2E278 /* CoreServices.swift in Sources */,
 				4140EA47227288EF0009F794 /* ComplicationController.swift in Sources */,
+				6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */,
 				9FA334B127C1499A0064E8EA /* ItemCellView.swift in Sources */,
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
 				41A359C4276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				418CABB325EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F82DF7127DF8203001B0EA8 /* WatchConnectivityService.swift in Sources */,
+				6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */,
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
+				6350E4762CF4F6E90077CDC1 /* PlaybackFullControlsView.swift in Sources */,
+				6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */,
+				630EC82F2CEF9F0700C19411 /* ForcedEnvironment.swift in Sources */,
+				6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */,
 				41D20DB125D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				9F82DF6D27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift in Sources */,
+				6334CF1B2CF8D87500F1FA17 /* SkipDurationListView.swift in Sources */,
 				9FF383D22A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
+				6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */,
+				6350E46E2CF4316E0077CDC1 /* BPPlayerError.swift in Sources */,
 				9FA334C327C2833B0064E8EA /* ResizeableImageView.swift in Sources */,
 				9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */,
 				9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */,
+				63CD85432CE3105300EDBEA8 /* ProfileView.swift in Sources */,
+				6350E4702CF498160077CDC1 /* RemotePlayerView.swift in Sources */,
 				9FA334AF27C05EBB0064E8EA /* ContextManager.swift in Sources */,
-				9FE07E1B27C522DE007591F7 /* ContainerItemListView.swift in Sources */,
+				9FE07E1B27C522DE007591F7 /* RootView.swift in Sources */,
 				9F82DF6B27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift in Sources */,
 				9FA334A927C0577E0064E8EA /* BookPlayerApp.swift in Sources */,
+				6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */,
+				63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */,
+				6350E46C2CF42FE10077CDC1 /* AVPlayer+BookPlayer.swift in Sources */,
+				6350E4682CF4248A0077CDC1 /* SpeedService.swift in Sources */,
+				63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */,
+				6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */,
 				41C3396225E04103003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
+				6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */,
 				9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */,
 				4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */,
+				63CD851D2CE2964900EDBEA8 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3366,6 +3605,7 @@
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
+				63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
@@ -3379,6 +3619,7 @@
 				9FDDD2DF289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				41A359C6276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
+				63CD851E2CE2EEBC00EDBEA8 /* UIFont+BookPlayer.swift in Sources */,
 				62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				412AB71627017ABE00969618 /* DBVersion.swift in Sources */,
 				9FC1E45A2814E0B000522FA8 /* NetworkUtils.swift in Sources */,
@@ -3496,8 +3737,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				634BA58D2C14D5330015314D /* SecondOnboardingType.swift in Sources */,
+				8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */,
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
+				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
+				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */,
@@ -3515,8 +3759,11 @@
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
 				9F17D5CB29159289004F4929 /* SearchListViewController.swift in Sources */,
+				8AAD8A4F2CEE3650000A4B4B /* View+BookPlayer.swift in Sources */,
 				41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */,
+				8A9D0D172CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift in Sources */,
 				9FBDDBA227DD13FA005FB447 /* ProfileCoordinator.swift in Sources */,
+				8ADD46222CF29A02002E9C50 /* TextFieldFocused.swift in Sources */,
 				9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */,
 				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
 				9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */,
@@ -3525,6 +3772,7 @@
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
+				8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */,
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
@@ -3604,7 +3852,9 @@
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
 				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,
+				8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */,
 				9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */,
+				8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
 				63E893952CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */,
 				634BA5972C161FBE0015314D /* StoryView.swift in Sources */,
@@ -3623,6 +3873,7 @@
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */,
+				8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */,
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
 				63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
@@ -3632,9 +3883,12 @@
 				9FEC87AE27FA9E98006C71D5 /* LoginCoordinator.swift in Sources */,
 				9F22DE44288E22FC00056FCD /* AccountRowContainerView.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
+				8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */,
 				633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */,
+				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
+				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
 				9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */,
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
@@ -3653,11 +3907,13 @@
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				6304CF6A2B4C2AE800055285 /* SettingsAutoplayView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
+				8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
+				8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
@@ -3685,14 +3941,18 @@
 				9F134605293D0A410089B1DE /* ThemeViewModel.swift in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
+				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,
+				8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
+				8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */,
+				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */,
@@ -3708,6 +3968,7 @@
 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
+				8AAD8A572CEE88E5000A4B4B /* JellyfinConnectionData.swift in Sources */,
 				9F22DE42288DD20100056FCD /* AccountCardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3718,6 +3979,7 @@
 			files = (
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
+				8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */,
 				9F646006283AD6B700710D3C /* PlayerSettingsViewModelTests.swift in Sources */,
 				62AAE2252749283F001EB9FF /* MiniPlayerViewModelTests.swift in Sources */,
 				41C2340C27324AB7006BC7B8 /* ItemListViewModelTests.swift in Sources */,
@@ -3725,12 +3987,14 @@
 				9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */,
 				416A9D4B2743D51E00463621 /* StorageViewModelTests.swift in Sources */,
 				4137BBD2272DED79009ED9FE /* ItemListCoordinatorTests.swift in Sources */,
+				8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */,
 				9F7C47532A2C15D300F9A500 /* AutoMockable.generated.swift in Sources */,
 				62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
 				9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
+				8AF18A3D2CF126B800238F8D /* JellyfinCoordinatorTests.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
 				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
@@ -3740,6 +4004,7 @@
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
+				8AF18A382CF0E6AE00238F8D /* JellyfinConnectionServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3978,6 +4243,7 @@
 				9F5011F32A62027C0075FEBA /* nb */,
 				630584E32ADEB88500FBFA6F /* pt-PT */,
 				636086022C5B589900341D78 /* el */,
+				635390BC2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -4049,6 +4315,7 @@
 				9F5011F42A62027C0075FEBA /* nb */,
 				630584E42ADEB88500FBFA6F /* pt-PT */,
 				636086032C5B589900341D78 /* el */,
+				635390BD2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4080,6 +4347,7 @@
 				9F5011F52A62027C0075FEBA /* nb */,
 				630584E22ADEB88500FBFA6F /* pt-PT */,
 				636086052C5B589900341D78 /* el */,
+				635390BF2D0DEB1500FE6E45 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4118,6 +4386,7 @@
 				6376092F2ADCD83D00A01D5D /* uk */,
 				633BE3E12AE43D1300F983AC /* pt-PT */,
 				636086042C5B589900341D78 /* el */,
+				635390BE2D0DEB1500FE6E45 /* ja */,
 			);
 			name = AppShortcuts.strings;
 			sourceTree = "<group>";
@@ -4154,7 +4423,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4188,7 +4457,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4220,7 +4489,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4256,7 +4525,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4268,7 +4537,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -4297,7 +4566,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4306,7 +4575,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Release;
 		};
@@ -4335,7 +4604,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4344,7 +4613,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Beta;
 		};
@@ -4389,7 +4658,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -4432,7 +4701,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Release;
 		};
@@ -4475,7 +4744,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Beta;
 		};
@@ -4504,7 +4773,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4542,7 +4811,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4578,7 +4847,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4731,7 +5000,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4769,7 +5038,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -4991,7 +5260,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5029,7 +5298,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5065,7 +5334,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5104,7 +5373,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5144,7 +5413,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5182,7 +5451,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5274,7 +5543,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4.2;
+				MARKETING_VERSION = 5.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5492,6 +5761,14 @@
 				minimumVersion = 10.47.0;
 			};
 		};
+		8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jellyfin/jellyfin-sdk-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
 		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -5567,6 +5844,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		8A495CC52CC85D27001B4244 /* JellyfinAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */;
+			productName = JellyfinAPI;
 		};
 		9F00F6E72807B5CB00996BBB /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

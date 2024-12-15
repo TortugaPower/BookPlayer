@@ -9,32 +9,58 @@
 import Foundation
 import Security
 
-/// sourcery: AutoMockable
 public protocol KeychainServiceProtocol {
-  func setAccessToken(_ token: String) throws
-  func getAccessToken() throws -> String?
-  func removeAccessToken() throws
+  func set(_ value: String, key: KeychainKeys) throws
+  func set<T: Encodable>(_ value: T, key: KeychainKeys) throws
+
+  func get(_ key: KeychainKeys) throws -> String?
+  func get<T: Decodable>(_ key: KeychainKeys) throws -> T?
+  func remove(_ key: KeychainKeys) throws
+}
+
+public enum KeychainKeys: String {
+  /// Stores BookPlayer's API access token
+  case token = "access_token"
+  /// Stores the Jellyfin connection information (JellyfinConnectionData)
+  case jellyfinConnection = "jellyfin_connection"
 }
 
 public class KeychainService: KeychainServiceProtocol {
   let service = Bundle.main.configurationString(for: .bundleIdentifier)
-  let tokenKey = "access_token"
+
+  private let encoder: JSONEncoder = JSONEncoder()
+  private let decoder: JSONDecoder = JSONDecoder()
 
   public init() {}
 
-  public func setAccessToken(_ token: String) throws {
-    try self.set(token, key: tokenKey)
+  public func get<T: Decodable>(_ key: KeychainKeys) throws -> T? {
+    guard
+      let data = try getData(key.rawValue)
+    else {
+      return nil
+    }
+
+    return try decoder.decode(T.self, from: data)
   }
 
-  public func getAccessToken() throws -> String? {
-    return try self.get(tokenKey)
+  public func get(_ key: KeychainKeys) throws -> String? {
+    guard
+      let data = try getData(key.rawValue)
+    else {
+      return nil
+    }
+
+    guard
+      let string = String(data: data, encoding: .utf8)
+    else {
+      // unexpectedError
+      throw NSError(domain: NSOSStatusErrorDomain, code: -99999)
+    }
+
+    return string
   }
 
-  public func removeAccessToken() throws {
-    try self.remove(tokenKey)
-  }
-
-  private func get(_ key: String) throws -> String? {
+  private func getData(_ key: String) throws -> Data? {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
@@ -49,13 +75,12 @@ public class KeychainService: KeychainServiceProtocol {
     switch status {
     case errSecSuccess:
       guard
-        let data = result as? Data,
-        let string = String(data: data, encoding: .utf8)
+        let data = result as? Data
       else {
         // unexpectedError
         throw NSError(domain: NSOSStatusErrorDomain, code: -99999)
       }
-      return string
+      return data
     case errSecItemNotFound:
       return nil
     default:
@@ -63,12 +88,21 @@ public class KeychainService: KeychainServiceProtocol {
     }
   }
 
-  private func set(_ value: String, key: String) throws {
+  public func set<T: Encodable>(_ value: T, key: KeychainKeys) throws {
+    let data = try encoder.encode(value)
+    try setData(data, key: key.rawValue)
+  }
+
+  public func set(_ value: String, key: KeychainKeys) throws {
     guard let data = value.data(using: .utf8, allowLossyConversion: false) else {
       // conversionError
       throw NSError(domain: NSOSStatusErrorDomain, code: -67594)
     }
 
+    try setData(data, key: key.rawValue)
+  }
+
+  private func setData(_ data: Data, key: String) throws {
     let searchQuery: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
@@ -93,7 +127,7 @@ public class KeychainService: KeychainServiceProtocol {
 #if os(iOS)
       if status == errSecInteractionNotAllowed && floor(NSFoundationVersionNumber) <= floor(NSFoundationVersionNumber_iOS_8_0) {
         try remove(key)
-        try set(value, key: key)
+        try setData(data, key: key)
       } else {
         status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         if status != errSecSuccess {
@@ -126,6 +160,10 @@ public class KeychainService: KeychainServiceProtocol {
     if status != errSecSuccess {
       throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
     }
+  }
+
+  public func remove(_ key: KeychainKeys) throws {
+    try remove(key.rawValue)
   }
 
   private func remove(_ key: String) throws {

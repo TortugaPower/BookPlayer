@@ -270,9 +270,10 @@ public final class AccountService: AccountServiceProtocol {
       hasSubscription: true
     )
 
-    try self.keychain.setAccessToken(token)
+    try self.keychain.set(token, key: .token)
 
     _ = try await Purchases.shared.logIn(userId)
+    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
   }
 
   public func login(
@@ -281,9 +282,10 @@ public final class AccountService: AccountServiceProtocol {
   ) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
 
-    try self.keychain.setAccessToken(response.token)
+    try self.keychain.set(response.token, key: .token)
 
     let (customerInfo, _) = try await Purchases.shared.logIn(userId)
+    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
 
     if let existingAccount = self.getAccount() {
       // Preserve donation made flag from stored account
@@ -318,7 +320,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func logout() throws {
-    try self.keychain.removeAccessToken()
+    try self.keychain.remove(.token)
 
     self.updateAccount(
       id: "",
@@ -327,6 +329,7 @@ public final class AccountService: AccountServiceProtocol {
     )
 
     Purchases.shared.logOut { _, _ in }
+    UserDefaults.sharedDefaults.removeObject(forKey: "rcUserId")
 
     NotificationCenter.default.post(name: .logout, object: self)
   }
@@ -342,8 +345,8 @@ public final class AccountService: AccountServiceProtocol {
   public func getSecondOnboarding<T: Decodable>() async throws -> T {
     guard
       let customerInfo = Purchases.shared.cachedCustomerInfo,
-      customerInfo.activeSubscriptions.isEmpty,
-      let countryCode = await Storefront.currentStorefront?.countryCode
+      let countryCode = await Storefront.currentStorefront?.countryCode,
+      customerInfo.entitlements.all.isEmpty || customerInfo.entitlements.all["pro"]?.isActive == false
     else {
       throw SecondOnboardingError.notApplicable
     }
