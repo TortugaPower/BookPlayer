@@ -42,7 +42,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     if syncService.isActive == false,
       !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      throw BPPlayerError.fileMissing
+      throw BPPlayerError.fileMissing(relativePath: relativePath)
     }
 
     // Only load if loaded book is a different one
