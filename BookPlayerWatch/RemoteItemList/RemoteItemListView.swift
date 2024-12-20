@@ -49,7 +49,7 @@ struct RemoteItemListView: View {
     }
   }
 
-  func syncListContents(ignoreLastTimestamp: Bool) async {
+  private func syncListContents(ignoreLastTimestamp: Bool) async {
     guard
       await coreServices.syncService.canSyncListContents(
         at: folderRelativePath,
@@ -59,8 +59,10 @@ struct RemoteItemListView: View {
 
     do {
       try await coreServices.syncService.syncListContents(at: folderRelativePath)
-    } catch BPSyncError.differentLastBook(let relativePath), BPSyncError.reloadLastBook(let relativePath) {
-      await coreServices.syncService.setLibraryLastBook(with: relativePath)
+    } catch BPSyncError.reloadLastBook(let relativePath) {
+      reloadLastBook(relativePath: relativePath)
+    } catch BPSyncError.differentLastBook(let relativePath) {
+      await setSyncedLastPlayedItem(relativePath: relativePath)
     } catch {
       self.error = error
     }
@@ -76,6 +78,40 @@ struct RemoteItemListView: View {
       playingItemParentPath = getPathForParentOfItem(currentPlayingPath: lastPlayedItem.relativePath)
     } else {
       playingItemParentPath = nil
+    }
+  }
+
+  @MainActor
+  private func reloadLastBook(relativePath: String) {
+    let wasPlaying = playerManager.isPlaying
+    playerManager.stop()
+
+    Task { @MainActor in
+      do {
+        try await coreServices.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: wasPlaying
+        )
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
+  @MainActor
+  private func setSyncedLastPlayedItem(relativePath: String) async {
+    /// Only continue overriding local book if it's not currently playing
+    guard playerManager.isPlaying == false else { return }
+
+    await coreServices.syncService.setLibraryLastBook(with: relativePath)
+
+    do {
+      try await coreServices.playerLoaderService.loadPlayer(
+        relativePath,
+        autoplay: false
+      )
+    } catch {
+      self.error = error
     }
   }
 
