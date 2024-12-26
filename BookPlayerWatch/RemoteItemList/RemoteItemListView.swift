@@ -126,14 +126,11 @@ struct RemoteItemListView: View {
       if folderRelativePath == nil {
         Section {
           if let lastPlayedItem {
-            Button {
+            RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices)) {
               Task {
                 do {
                   isLoading = true
-                  try await coreServices.playerLoaderService.loadPlayer(
-                    lastPlayedItem.relativePath,
-                    autoplay: true
-                  )
+                  try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
                   showPlayer = true
                   isLoading = false
                 } catch {
@@ -141,8 +138,6 @@ struct RemoteItemListView: View {
                   self.error = error
                 }
               }
-            } label: {
-              RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
             }
             .applyPrimaryHandGesture()
           }
@@ -161,24 +156,24 @@ struct RemoteItemListView: View {
                 folderRelativePath: item.relativePath
               )
             } label: {
-              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
+              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {}
+                .allowsHitTesting(false)
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
-              .onTapGesture {
-                Task {
-                  do {
-                    isLoading = true
-                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                    showPlayer = true
-                    isLoading = false
-                  } catch {
-                    isLoading = false
-                    self.error = error
-                  }
+            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {
+              Task {
+                do {
+                  isLoading = true
+                  try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  showPlayer = true
+                  isLoading = false
+                } catch {
+                  isLoading = false
+                  self.error = error
                 }
               }
+            }
           }
         }
       } header: {
