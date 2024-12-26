@@ -5,6 +5,12 @@ class VoiceOverService {
   // MARK: - BookCellView
 
   public static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+    let remainingTime = item.duration - item.currentTime
+    var remainingTimeLabel = "book_time_remaining_title".localized
+    if remainingTime > 0 && remainingTime.isFinite {
+      let parsedDuration = VoiceOverService.secondsToMinutes(remainingTime)
+      remainingTimeLabel += !parsedDuration.isEmpty ? " \(parsedDuration)" : " 0"
+    }
     switch item.type {
     case .book:
       return String.localizedStringWithFormat(
@@ -13,7 +19,7 @@ class VoiceOverService {
         item.details,
         item.percentCompleted,
         item.durationFormatted
-      )
+      ) + ", \(remainingTimeLabel)"
     case .folder:
       return String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
@@ -26,7 +32,7 @@ class VoiceOverService {
         item.title,
         item.percentCompleted,
         item.durationFormatted
-      )
+      ) + ", \(remainingTimeLabel)"
     }
   }
 
@@ -42,11 +48,21 @@ class VoiceOverService {
   // MARK: - ArtworkControl
 
   public static func rewindText() -> String {
-    return String(describing: String.localizedStringWithFormat("voiceover_rewind_time".localized, self.secondsToMinutes(PlayerManager.rewindInterval.rounded())))
+    return String(
+      describing: String.localizedStringWithFormat(
+        "voiceover_rewind_time".localized,
+        self.secondsToMinutes(PlayerManager.rewindInterval.rounded())
+      )
+    )
   }
 
   public static func fastForwardText() -> String {
-    return String(describing: String.localizedStringWithFormat("voiceover_forward_time".localized, self.secondsToMinutes(PlayerManager.forwardInterval.rounded())))
+    return String(
+      describing: String.localizedStringWithFormat(
+        "voiceover_forward_time".localized,
+        self.secondsToMinutes(PlayerManager.forwardInterval.rounded())
+      )
+    )
   }
 
   public static func secondsToMinutes(_ interval: TimeInterval) -> String {
