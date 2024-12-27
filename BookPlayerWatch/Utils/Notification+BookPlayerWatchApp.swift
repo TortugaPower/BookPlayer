@@ -3,7 +3,7 @@
 //  BookPlayerWatch Extension
 //
 //  Created by Gianni Carlo on 5/4/19.
-//  Copyright © 2019 Tortuga Power. All rights reserved.
+//  Copyright © 2019 BookPlayer LLC. All rights reserved.
 //
 
 import Foundation

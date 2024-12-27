@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 15/8/23.
-//  Copyright © 2023 Tortuga Power. All rights reserved.
+//  Copyright © 2023 BookPlayer LLC. All rights reserved.
 //
 
 import Combine

@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Lysann Schlegel on 2024-11-10.
-//  Copyright © 2024 Tortuga Power. All rights reserved.
+//  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
 import SwiftUI

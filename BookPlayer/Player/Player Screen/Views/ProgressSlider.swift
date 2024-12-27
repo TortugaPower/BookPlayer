@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Florian Pichler on 22.06.18.
-//  Copyright © 2018 Tortuga Power. All rights reserved.
+//  Copyright © 2018 BookPlayer LLC. All rights reserved.
 //
 
 import UIKit
