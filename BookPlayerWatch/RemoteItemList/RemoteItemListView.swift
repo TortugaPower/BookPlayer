@@ -8,6 +8,7 @@
 
 import BookPlayerWatchKit
 import SwiftUI
+import TipKit
 
 struct RemoteItemListView: View {
   @Environment(\.scenePhase) var scenePhase
@@ -148,6 +149,14 @@ struct RemoteItemListView: View {
       }
 
       Section {
+        if #available(watchOS 10.0, *),
+          folderRelativePath == nil,
+           !items.isEmpty
+        {
+          TipView(SwipeInlineTip())
+            .listRowBackground(Color.clear)
+        }
+
         ForEach(items) { item in
           if item.type == .folder {
             NavigationLink {
