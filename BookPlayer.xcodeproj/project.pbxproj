@@ -3231,7 +3231,7 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1400;
 				LastUpgradeCheck = 1500;
-				ORGANIZATIONNAME = "Tortuga Power";
+				ORGANIZATIONNAME = "BookPlayer LLC";
 				TargetAttributes = {
 					41342CFD24435D9900F0905B = {
 						CreatedOnToolsVersion = 11.4;
