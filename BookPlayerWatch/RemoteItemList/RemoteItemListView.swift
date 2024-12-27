@@ -8,6 +8,7 @@
 
 import BookPlayerWatchKit
 import SwiftUI
+import TipKit
 
 struct RemoteItemListView: View {
   @Environment(\.scenePhase) var scenePhase
@@ -48,7 +49,7 @@ struct RemoteItemListView: View {
     }
   }
 
-  func syncListContents(ignoreLastTimestamp: Bool) async {
+  private func syncListContents(ignoreLastTimestamp: Bool) async {
     guard
       await coreServices.syncService.canSyncListContents(
         at: folderRelativePath,
@@ -58,8 +59,10 @@ struct RemoteItemListView: View {
 
     do {
       try await coreServices.syncService.syncListContents(at: folderRelativePath)
-    } catch BPSyncError.differentLastBook(let relativePath), BPSyncError.reloadLastBook(let relativePath) {
-      await coreServices.syncService.setLibraryLastBook(with: relativePath)
+    } catch BPSyncError.reloadLastBook(let relativePath) {
+      reloadLastBook(relativePath: relativePath)
+    } catch BPSyncError.differentLastBook(let relativePath) {
+      await setSyncedLastPlayedItem(relativePath: relativePath)
     } catch {
       self.error = error
     }
@@ -75,6 +78,40 @@ struct RemoteItemListView: View {
       playingItemParentPath = getPathForParentOfItem(currentPlayingPath: lastPlayedItem.relativePath)
     } else {
       playingItemParentPath = nil
+    }
+  }
+
+  @MainActor
+  private func reloadLastBook(relativePath: String) {
+    let wasPlaying = playerManager.isPlaying
+    playerManager.stop()
+
+    Task { @MainActor in
+      do {
+        try await coreServices.playerLoaderService.loadPlayer(
+          relativePath,
+          autoplay: wasPlaying
+        )
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
+  @MainActor
+  private func setSyncedLastPlayedItem(relativePath: String) async {
+    /// Only continue overriding local book if it's not currently playing
+    guard playerManager.isPlaying == false else { return }
+
+    await coreServices.syncService.setLibraryLastBook(with: relativePath)
+
+    do {
+      try await coreServices.playerLoaderService.loadPlayer(
+        relativePath,
+        autoplay: false
+      )
+    } catch {
+      self.error = error
     }
   }
 
@@ -126,14 +163,11 @@ struct RemoteItemListView: View {
       if folderRelativePath == nil {
         Section {
           if let lastPlayedItem {
-            Button {
+            RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices)) {
               Task {
                 do {
                   isLoading = true
-                  try await coreServices.playerLoaderService.loadPlayer(
-                    lastPlayedItem.relativePath,
-                    autoplay: true
-                  )
+                  try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
                   showPlayer = true
                   isLoading = false
                 } catch {
@@ -141,8 +175,6 @@ struct RemoteItemListView: View {
                   self.error = error
                 }
               }
-            } label: {
-              RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices))
             }
             .applyPrimaryHandGesture()
           }
@@ -153,6 +185,14 @@ struct RemoteItemListView: View {
       }
 
       Section {
+        if #available(watchOS 10.0, *),
+          folderRelativePath == nil,
+           !items.isEmpty
+        {
+          TipView(SwipeInlineTip())
+            .listRowBackground(Color.clear)
+        }
+
         ForEach(items) { item in
           if item.type == .folder {
             NavigationLink {
@@ -161,24 +201,24 @@ struct RemoteItemListView: View {
                 folderRelativePath: item.relativePath
               )
             } label: {
-              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
+              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {}
+                .allowsHitTesting(false)
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices))
-              .onTapGesture {
-                Task {
-                  do {
-                    isLoading = true
-                    try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                    showPlayer = true
-                    isLoading = false
-                  } catch {
-                    isLoading = false
-                    self.error = error
-                  }
+            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {
+              Task {
+                do {
+                  isLoading = true
+                  try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  showPlayer = true
+                  isLoading = false
+                } catch {
+                  isLoading = false
+                  self.error = error
                 }
               }
+            }
           }
         }
       } header: {

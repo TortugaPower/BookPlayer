@@ -9,6 +9,7 @@
 import BookPlayerWatchKit
 import RevenueCat
 import SwiftUI
+import TipKit
 import WatchKit
 import MediaPlayer
 
@@ -25,6 +26,13 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
     setupRevenueCat()
     setupCoreServices()
     setupMPRemoteCommands()
+    setupTips()
+  }
+  
+  func setupTips() {
+    if #available(watchOS 10.0, *) {
+      try? Tips.configure()
+    }
   }
 
   func setupRevenueCat() {

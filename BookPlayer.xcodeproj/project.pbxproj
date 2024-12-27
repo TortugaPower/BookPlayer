@@ -278,6 +278,7 @@
 		41F1A204254B09C00043FCF3 /* Themeable in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A203254B09C00043FCF3 /* Themeable */; };
 		41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A20C254B0A0C0043FCF3 /* Sentry */; };
 		41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A227254B0C6C0043FCF3 /* ZipArchive */; };
+		4645F9FD2D1E46AC00A04257 /* SwipeInlineTip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */; };
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
@@ -1127,6 +1128,7 @@
 		41EB071A2752FA6B00EFEE13 /* PlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackService.swift; sourceTree = "<group>"; };
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
+		4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeInlineTip.swift; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		620C73C7275DA00300D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -1700,6 +1702,7 @@
 				6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */,
 				6334CF202CFE330300F1FA17 /* RefreshableListView.swift */,
 				63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */,
+				4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */,
 				63CD851B2CE2963600EDBEA8 /* Settings */,
 				6399D06E2CEBA1F900A2E278 /* RemoteItemList */,
 				9FA334B427C156DB0064E8EA /* ItemList */,
@@ -3538,6 +3541,7 @@
 				63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */,
 				6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */,
 				9FA334B927C1B8450064E8EA /* NowPlayingTitleView.swift in Sources */,
+				4645F9FD2D1E46AC00A04257 /* SwipeInlineTip.swift in Sources */,
 				6350E4692CF425500077CDC1 /* WidgetReloadService.swift in Sources */,
 				9FA334B327C156CB0064E8EA /* NowPlayingView.swift in Sources */,
 				9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */,
