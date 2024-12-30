@@ -18,7 +18,7 @@ struct PlaybackFullControlsView: View {
   var body: some View {
     GeometryReader { metrics in
       List {
-        Section("speed".localized.uppercased()) {
+        Section("speed_title".localized.uppercased()) {
           VStack {
             HStack {
               Spacer()
