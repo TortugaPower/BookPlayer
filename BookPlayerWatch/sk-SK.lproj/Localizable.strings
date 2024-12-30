@@ -16,7 +16,7 @@
 "watchapp_connect_error_title" = "Chyba pripojenia";
 "watchapp_connect_error_description" = "Pri pripojení k telefónu došlo k problémom, vyskúšajte to prosím neskôr";
 "chapters_title" = "Kapitoly";
-"settings_controls_title" = "Ovládacie prvky Prehrávača";
+"settings_controls_title" = "Ovládanie Prehrávača";
 "settings_boostvolume_title" = "Zvýšenie hlasitosti";
 "settings_skip_title" = "PRETÁČANIE";
 "settings_skip_rewind_title" = "Dozadu";
