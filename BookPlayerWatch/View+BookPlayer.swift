@@ -3,7 +3,7 @@
 //  BookPlayerWatch
 //
 //  Created by Gianni Carlo on 9/12/24.
-//  Copyright © 2024 Tortuga Power. All rights reserved.
+//  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
 import SwiftUI

@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 10/29/18.
-//  Copyright © 2018 Tortuga Power. All rights reserved.
+//  Copyright © 2018 BookPlayer LLC. All rights reserved.
 //
 
 #if os(watchOS)

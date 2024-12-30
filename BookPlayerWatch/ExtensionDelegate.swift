@@ -3,12 +3,13 @@
 //  BookPlayerWatch Extension
 //
 //  Created by Gianni Carlo on 4/25/19.
-//  Copyright © 2019 Tortuga Power. All rights reserved.
+//  Copyright © 2019 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerWatchKit
 import RevenueCat
 import SwiftUI
+import TipKit
 import WatchKit
 import MediaPlayer
 
@@ -25,6 +26,13 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
     setupRevenueCat()
     setupCoreServices()
     setupMPRemoteCommands()
+    setupTips()
+  }
+  
+  func setupTips() {
+    if #available(watchOS 10.0, *) {
+      try? Tips.configure()
+    }
   }
 
   func setupRevenueCat() {

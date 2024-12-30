@@ -3,7 +3,7 @@
   BookPlayer
 
   Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
+  Copyright © 2019 BookPlayer LLC. All rights reserved.
 */
 
 "library_title" = "Kitaplık";
@@ -26,3 +26,4 @@
 "logout_title" = "Çıkış Yap";
 "benefits_watchapp_description" = "Kitaplarınızı yayınlayın veya indirin ve telefonunuz olmadan hareket halindeyken dinleyin.";
 "subscription_required_title" = "Abonelik gerekli";
+"Swipe rows to see download options" = "İndirme seçeneklerini görmek için satırları kaydırın";

@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Dmitrij Hojkolov on 29.06.2023.
-//  Copyright © 2023 Tortuga Power. All rights reserved.
+//  Copyright © 2023 BookPlayer LLC. All rights reserved.
 //
 
 import SwiftUI

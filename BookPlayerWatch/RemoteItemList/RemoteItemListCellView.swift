@@ -3,7 +3,7 @@
 //  BookPlayerWatch
 //
 //  Created by Gianni Carlo on 18/11/24.
-//  Copyright © 2024 Tortuga Power. All rights reserved.
+//  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerWatchKit
@@ -12,15 +12,17 @@ import SwiftUI
 struct RemoteItemListCellView: View {
   @ObservedObject var model: RemoteItemCellViewModel
   @State private var error: Error?
+  var onTap: () -> Void
 
   let numberFormatter: NumberFormatter
 
-  init(model: RemoteItemCellViewModel) {
+  init(model: RemoteItemCellViewModel, onTap: @escaping () -> Void) {
     self.model = model
     let formatter = NumberFormatter()
     formatter.numberStyle = .percent
     formatter.maximumFractionDigits = 2
     self.numberFormatter = formatter
+    self.onTap = onTap
   }
 
   var percentCompleted: String {
@@ -38,47 +40,49 @@ struct RemoteItemListCellView: View {
   }
 
   var body: some View {
-    HStack {
-      VStack(alignment: .leading) {
-        Text(model.item.title)
-          .lineLimit(2)
-        Text(model.item.details)
-          .font(.footnote)
-          .foregroundColor(Color.secondary)
-          .lineLimit(1)
-        switch model.downloadState {
-        case .downloading(let progress):
-          HStack {
-            if #available(watchOS 10.0, *) {
-              Image(systemName: "icloud.and.arrow.down.fill")
-                .font(.caption2)
-                .symbolEffect(.pulse)
-            } else {
-              Image(systemName: "icloud.and.arrow.down.fill")
-                .font(.caption2)
+    Button(action: onTap) {
+      HStack {
+        VStack(alignment: .leading) {
+          Text(model.item.title)
+            .lineLimit(2)
+          Text(model.item.details)
+            .font(.footnote)
+            .foregroundColor(Color.secondary)
+            .lineLimit(1)
+          switch model.downloadState {
+          case .downloading(let progress):
+            HStack {
+              if #available(watchOS 10.0, *) {
+                Image(systemName: "icloud.and.arrow.down.fill")
+                  .font(.caption2)
+                  .symbolEffect(.pulse)
+              } else {
+                Image(systemName: "icloud.and.arrow.down.fill")
+                  .font(.caption2)
+              }
+              LinearProgressView(value: progress, fillColor: .white)
+                .frame(maxWidth: 70, maxHeight: 10)
+              Text(formattedProgress(progress))
+                .font(.footnote)
             }
-            LinearProgressView(value: progress, fillColor: .white)
-              .frame(maxWidth: 70, maxHeight: 10)
-            Text(formattedProgress(progress))
+          case .downloaded:
+            Text(Image(systemName: "applewatch"))
+              .font(.caption2)
+              + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
               .font(.footnote)
+              .foregroundColor(Color.secondary)
+          case .notDownloaded:
+            Text(Image(systemName: "icloud.fill"))
+              .font(.caption2)
+              + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
+              .font(.footnote)
+              .foregroundColor(Color.secondary)
           }
-        case .downloaded:
-          Text(Image(systemName: "applewatch"))
-            .font(.caption2)
-            + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
-            .font(.footnote)
-            .foregroundColor(Color.secondary)
-        case .notDownloaded:
-          Text(Image(systemName: "icloud.fill"))
-            .font(.caption2)
-            + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
-            .font(.footnote)
-            .foregroundColor(Color.secondary)
         }
-      }
-      Spacer()
-      if model.item.type == .folder {
-        Image(systemName: "chevron.forward")
+        Spacer()
+        if model.item.type == .folder {
+          Image(systemName: "chevron.forward")
+        }
       }
     }
     .errorAlert(error: $error)

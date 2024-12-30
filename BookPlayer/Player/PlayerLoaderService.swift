@@ -3,7 +3,7 @@
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 3/10/24.
-//  Copyright © 2024 Tortuga Power. All rights reserved.
+//  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
 #if os(watchOS)
@@ -42,7 +42,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     if syncService.isActive == false,
       !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      throw BPPlayerError.fileMissing
+      throw BPPlayerError.fileMissing(relativePath: relativePath)
     }
 
     // Only load if loaded book is a different one

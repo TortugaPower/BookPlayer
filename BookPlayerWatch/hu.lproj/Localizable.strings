@@ -3,7 +3,7 @@
   BookPlayer
 
   Created by Gianni Carlo on 12/29/19.
-  Copyright © 2019 Tortuga Power. All rights reserved.
+  Copyright © 2019 BookPlayer LLC. All rights reserved.
 */
 
 "library_title" = "Könyvtár";
@@ -26,3 +26,4 @@
 "logout_title" = "Kijelentkezés";
 "benefits_watchapp_description" = "Streamelje vagy töltse le könyveit, és telefonja nélkül hallgassa útközben.";
 "subscription_required_title" = "Előfizetés szükséges";
+"Swipe rows to see download options" = "Csúsztassa el a sorokat a letöltési lehetőségek megtekintéséhez";
