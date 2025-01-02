@@ -29,7 +29,7 @@ struct RefreshableListView<Content: View>: View {
     List {
       Section {
         if refreshing {
-          ProgressView()
+          ProgressView().id(UUID())
             .tint(.white)
             .frame(height: 10)
             .listRowBackground(Color.clear)
@@ -44,6 +44,11 @@ struct RefreshableListView<Content: View>: View {
             }
           }
           .listRowBackground(Color.clear)
+          .accessibilityRemoveTraits(.isImage)
+          .accessibilityLabel("watchapp_refresh_data_title".localized)
+          .accessibilityAction {
+            self.refreshing = true
+          }
         }
       }
       content
@@ -52,7 +57,9 @@ struct RefreshableListView<Content: View>: View {
     .environment(\.defaultMinListRowHeight, 1)
     .background(FixedView())
     .onPreferenceChange(RefreshableKeyTypes.PrefKey.self) { values in
-      refreshLogic(values: values)
+      Task { @MainActor in
+        refreshLogic(values: values)
+      }
     }
   }
 
