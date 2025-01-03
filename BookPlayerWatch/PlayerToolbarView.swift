@@ -19,25 +19,13 @@ final class PlaybackFullControlsViewModel: ObservableObject {
   var boostVolume: Bool {
     UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
   }
-  
-  var globalSpeed: Bool {
-    UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled)
-  }
 
   init(playerManager: PlayerManager) {
     self.playerManager = playerManager
   }
 
-  func handleBoostVolumeToggle() {
-    let flag = !boostVolume
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled)
-
+  func handleBoostVolumeToggle(_ flag: Bool) {
     self.playerManager.setBoostVolume(flag)
-  }
-  
-  func handleGlobalSpeedToggle() {
-    let flag = !globalSpeed
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.globalSpeedEnabled)
   }
 
   func handleNewSpeed(_ rate: Float) {
