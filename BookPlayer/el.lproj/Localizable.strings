@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";
+"subscription_required_title" = "Απαιτείται συνδρομή";
+"Swipe rows to see download options" = "Σύρετε σειρές για να δείτε τις επιλογές λήψης";

@@ -42,6 +42,7 @@ struct RootView: View {
           : nil
       )
       .environment(\.coreServices, coreServices)
+      .ignoresSafeArea(edges: .bottom)
     }
   }
 

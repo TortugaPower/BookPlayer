@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Inloggning misslyckades. Kontrollera ditt användarnamn och lösenord.";
 "file_size_unknown" = "Okänd storlek";
 "runtime_unknown" = "Okänd varaktighet";
+"subscription_required_title" = "Prenumeration krävs";
+"Swipe rows to see download options" = "Svep rader för att se nedladdningsalternativ";

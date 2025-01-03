@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Kirjautuminen epäonnistui. Tarkista käyttäjätunnuksesi ja salasanasi.";
 "file_size_unknown" = "Tuntematon koko";
 "runtime_unknown" = "Tuntematon kesto";
+"subscription_required_title" = "Tilaus vaaditaan";
+"Swipe rows to see download options" = "Pyyhkäise rivejä nähdäksesi latausvaihtoehdot";

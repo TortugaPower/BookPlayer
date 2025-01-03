@@ -344,3 +344,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "jellyfin_error_unauthorized" = "Prihlásenie zlyhalo. Skontrolujte svoje používateľské meno a heslo.";
 "file_size_unknown" = "Neznáma veľkosť";
 "runtime_unknown" = "Neznáme trvanie";
+"subscription_required_title" = "Vyžaduje sa predplatné";
+"Swipe rows to see download options" = "Potiahnutím riadkov zobrazíte možnosti sťahovania";
