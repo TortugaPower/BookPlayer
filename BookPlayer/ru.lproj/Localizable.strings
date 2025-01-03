@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Войти не удалось. Проверьте имя пользователя и пароль.";
 "file_size_unknown" = "Неизвестный размер";
 "runtime_unknown" = "Неизвестная продолжительность";
+"subscription_required_title" = "Требуется подписка";
+"Swipe rows to see download options" = "Проведите пальцем по строкам, чтобы увидеть варианты загрузки";

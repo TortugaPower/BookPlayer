@@ -28,6 +28,7 @@ struct PlayerControlsView: View {
           .padding(10)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(VoiceOverService.rewindText())
         .frame(width: geometry.size.width * 0.28)
         Spacer()
         Button {
@@ -54,6 +55,7 @@ struct PlayerControlsView: View {
           .padding(10)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(VoiceOverService.fastForwardText())
         .frame(width: geometry.size.width * 0.28)
         Spacer()
       }

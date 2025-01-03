@@ -34,6 +34,17 @@ struct RemoteItemListCellView: View {
       return "\(Int(model.item.percentCompleted))% - "
     }
   }
+  
+  var accessibilityDownloadStateLabel: String {
+    switch model.downloadState {
+    case .notDownloaded:
+      return ". ☁️"
+    case .downloading(let progress):
+      return ""
+    case .downloaded:
+      return ". ⌚️"
+    }
+  }
 
   func formattedProgress(_ progress: Double) -> String {
     numberFormatter.string(from: NSNumber(value: progress)) ?? ""
@@ -125,6 +136,7 @@ struct RemoteItemListCellView: View {
         }
       }
     }
+    .accessibilityLabel(VoiceOverService.getAccessibilityLabel(for: model.item) + accessibilityDownloadStateLabel)
   }
 }
 

@@ -344,3 +344,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_error_unauthorized" = "Sign In failed. Check your username and password.";
 "file_size_unknown" = "Unknown size";
 "runtime_unknown" = "Unknown duration";
+"subscription_required_title" = "Subscription required";
+"Swipe rows to see download options" = "Swipe rows to see download options";

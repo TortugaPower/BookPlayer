@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Error al iniciar sesión. Verifique su nombre de usuario y contraseña.";
 "file_size_unknown" = "Tamaño desconocido";
 "runtime_unknown" = "Duración desconocida";
+"subscription_required_title" = "Se requiere suscripción";
+"Swipe rows to see download options" = "Desliza las filas para ver las opciones de descarga";

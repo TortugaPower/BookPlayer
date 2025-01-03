@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Anmeldung fehlgeschlagen. Überprüfen Sie Ihren Benutzernamen und Ihr Passwort.";
 "file_size_unknown" = "Unbekannte Größe";
 "runtime_unknown" = "Unbekannte Dauer";
+"subscription_required_title" = "Abonnement erforderlich";
+"Swipe rows to see download options" = "Wischen Sie durch die Zeilen, um die Download-Optionen anzuzeigen";

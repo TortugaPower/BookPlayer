@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Помилка входу. Перевірте своє ім'я користувача та пароль.";
 "file_size_unknown" = "Невідомий розмір";
 "runtime_unknown" = "Невідома тривалість";
+"subscription_required_title" = "Потрібна підписка";
+"Swipe rows to see download options" = "Гортайте рядки, щоб переглянути параметри завантаження";

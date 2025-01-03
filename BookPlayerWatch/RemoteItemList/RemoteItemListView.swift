@@ -234,6 +234,7 @@ struct RemoteItemListView: View {
       } header: {
         Text("")
       }
+      .accessibilityHidden(true)
     }
     .ignoresSafeArea(edges: [.bottom])
     .background(

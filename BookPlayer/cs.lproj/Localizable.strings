@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Přihlášení se nezdařilo. Zkontrolujte své uživatelské jméno a heslo.";
 "file_size_unknown" = "Neznámá velikost";
 "runtime_unknown" = "Neznámá doba trvání";
+"subscription_required_title" = "Je vyžadováno předplatné";
+"Swipe rows to see download options" = "Přejetím po řádcích zobrazíte možnosti stahování";

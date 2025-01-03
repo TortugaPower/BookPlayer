@@ -20,6 +20,7 @@ struct RemotePlayerView: View {
           value: currentItem.currentTime / currentItem.duration,
           fillColor: .accentColor
         )
+        .accessibilityHidden(true)
         .frame(maxHeight: 3)
       }
 
@@ -37,7 +38,9 @@ struct RemotePlayerView: View {
     }
     .fixedSize(horizontal: false, vertical: false)
     .ignoresSafeArea(edges: .bottom)
-    .navigationTitle(TimeParser.formatTotalDuration(playerManager.currentItem?.maxTimeInContext(prefersChapterContext: false, prefersRemainingTime: true, at: 1.0) ?? 0))
+    .navigationTitle(
+      TimeParser.formatTotalDuration(playerManager.currentItem?.maxTimeInContext(prefersChapterContext: false, prefersRemainingTime: true, at: playerManager.currentSpeed) ?? 0)
+    )
     .errorAlert(error: $playerManager.error)
   }
 }

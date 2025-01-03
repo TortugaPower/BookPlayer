@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Conectarea a eșuat. Verificați-vă numele de utilizator și parola.";
 "file_size_unknown" = "Dimensiune necunoscută";
 "runtime_unknown" = "Durată necunoscută";
+"subscription_required_title" = "Este necesar un abonament";
+"Swipe rows to see download options" = "Glisați rândurile pentru a vedea opțiunile de descărcare";

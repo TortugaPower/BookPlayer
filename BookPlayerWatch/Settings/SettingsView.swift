@@ -24,7 +24,6 @@ struct SettingsView: View {
             ProfileView(account: $account)
           } else {
             LoginView(account: $account)
-              .fixedSize(horizontal: false, vertical: true)
           }
         }
         .padding(.horizontal, Spacing.S3)
