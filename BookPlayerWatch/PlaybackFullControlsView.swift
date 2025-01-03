@@ -60,6 +60,15 @@ struct PlaybackFullControlsView: View {
 
         Section {
           Toggle(
+            "settings_globalspeed_title",
+            isOn: .init(
+              get: { model.globalSpeed },
+              set: { _ in
+                model.handleGlobalSpeedToggle()
+              }
+            )
+          )
+          Toggle(
             "settings_boostvolume_title",
             isOn: .init(
               get: { model.boostVolume },

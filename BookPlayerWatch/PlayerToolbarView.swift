@@ -19,6 +19,10 @@ final class PlaybackFullControlsViewModel: ObservableObject {
   var boostVolume: Bool {
     UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
   }
+  
+  var globalSpeed: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled)
+  }
 
   init(playerManager: PlayerManager) {
     self.playerManager = playerManager
@@ -29,6 +33,11 @@ final class PlaybackFullControlsViewModel: ObservableObject {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
     self.playerManager.setBoostVolume(flag)
+  }
+  
+  func handleGlobalSpeedToggle() {
+    let flag = !globalSpeed
+    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.globalSpeedEnabled)
   }
 
   func handleNewSpeed(_ rate: Float) {
@@ -67,6 +76,7 @@ struct PlayerToolbarView: View {
         destination: PlaybackFullControlsView(model: PlaybackFullControlsViewModel(playerManager: playerManager))
       ) {
         ResizeableImageView(name: "dial.max")
+          .accessibilityLabel("settings_controls_title".localized)
           .padding(11)
       }
       .buttonStyle(PlainButtonStyle())
@@ -74,6 +84,7 @@ struct PlayerToolbarView: View {
       Spacer()
 
       VolumeView(type: .local)
+        .accessibilityHidden(true)
 
       Spacer()
 
@@ -81,6 +92,7 @@ struct PlayerToolbarView: View {
         isShowingMoreList = true
       } label: {
         ResizeableImageView(name: "list.bullet")
+          .accessibilityLabel("chapters_title".localized)
           .padding(14)
       }
       .buttonStyle(PlainButtonStyle())
