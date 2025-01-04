@@ -24,10 +24,7 @@ final class PlaybackFullControlsViewModel: ObservableObject {
     self.playerManager = playerManager
   }
 
-  func handleBoostVolumeToggle() {
-    let flag = !boostVolume
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled)
-
+  func handleBoostVolumeToggle(_ flag: Bool) {
     self.playerManager.setBoostVolume(flag)
   }
 
@@ -67,6 +64,7 @@ struct PlayerToolbarView: View {
         destination: PlaybackFullControlsView(model: PlaybackFullControlsViewModel(playerManager: playerManager))
       ) {
         ResizeableImageView(name: "dial.max")
+          .accessibilityLabel("settings_controls_title".localized)
           .padding(11)
       }
       .buttonStyle(PlainButtonStyle())
@@ -74,6 +72,7 @@ struct PlayerToolbarView: View {
       Spacer()
 
       VolumeView(type: .local)
+        .accessibilityHidden(true)
 
       Spacer()
 
@@ -81,6 +80,7 @@ struct PlayerToolbarView: View {
         isShowingMoreList = true
       } label: {
         ResizeableImageView(name: "list.bullet")
+          .accessibilityLabel("chapters_title".localized)
           .padding(14)
       }
       .buttonStyle(PlainButtonStyle())

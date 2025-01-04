@@ -15,14 +15,20 @@ struct LoginView: View {
   @Binding var account: Account?
   @State private var isLoading = false
   @State private var error: Error?
-
+  
   var body: some View {
-    VStack(spacing: Spacing.S1) {
+    List {
       Text("BookPlayer Pro")
         .font(Font(Fonts.titleLarge))
+        .frame(maxWidth: .infinity)
+        .multilineTextAlignment(.center)
+        .listRowBackground(Color.clear)
       Text("benefits_watchapp_description".localized)
         .font(Font(Fonts.body))
         .multilineTextAlignment(.center)
+        .listRowBackground(Color.clear)
+      Spacer(minLength: Spacing.S2)
+        .listRowBackground(Color.clear)
       SignInWithAppleButton(.signIn) { request in
         request.requestedScopes = [.email]
       } onCompletion: { result in
@@ -58,7 +64,11 @@ struct LoginView: View {
         }
       }
       .frame(maxHeight: 45)
+      .listRowBackground(Color.clear)
+      Spacer(minLength: Spacing.M)
+        .listRowBackground(Color.clear)
     }
+    .environment(\.defaultMinListRowHeight, 1)
     .errorAlert(error: $error)
     .overlay {
       Group {

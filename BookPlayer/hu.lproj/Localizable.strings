@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";
 "file_size_unknown" = "Ismeretlen méret";
 "runtime_unknown" = "Ismeretlen időtartam";
+"subscription_required_title" = "Előfizetés szükséges";
+"Swipe rows to see download options" = "Csúsztassa el a sorokat a letöltési lehetőségek megtekintéséhez";

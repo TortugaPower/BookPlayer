@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";
 "file_size_unknown" = "Ukendt størrelse";
 "runtime_unknown" = "Ukendt varighed";
+"subscription_required_title" = "Kræver abonnement";
+"Swipe rows to see download options" = "Stryg rækkerne for at se downloadmuligheder";

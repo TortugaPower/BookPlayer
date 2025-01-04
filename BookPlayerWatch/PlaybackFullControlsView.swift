@@ -11,6 +11,8 @@ import SwiftUI
 
 struct PlaybackFullControlsView: View {
   @ObservedObject var model: PlaybackFullControlsViewModel
+  @AppStorage(Constants.UserDefaults.globalSpeedEnabled) var globalSpeedEnabled: Bool = false
+  @AppStorage(Constants.UserDefaults.boostVolumeEnabled) var boostVolumeEnabled: Bool = false
   @AppStorage(Constants.UserDefaults.autoplayEnabled) var autoplayEnabled: Bool = true
   @AppStorage(Constants.UserDefaults.rewindInterval) var rewindInterval: TimeInterval = 30
   @AppStorage(Constants.UserDefaults.forwardInterval) var forwardInterval: TimeInterval = 30
@@ -18,7 +20,7 @@ struct PlaybackFullControlsView: View {
   var body: some View {
     GeometryReader { metrics in
       List {
-        Section("speed".localized.uppercased()) {
+        Section("speed_title".localized.uppercased()) {
           VStack {
             HStack {
               Spacer()
@@ -28,6 +30,7 @@ struct PlaybackFullControlsView: View {
                 ResizeableImageView(name: "minus.circle")
               }
               .buttonStyle(PlainButtonStyle())
+              .accessibilityLabel("➖")
               .frame(width: metrics.size.width * 0.15)
               Spacer()
                 .padding([.leading], 5)
@@ -51,6 +54,7 @@ struct PlaybackFullControlsView: View {
                 ResizeableImageView(name: "plus.circle")
               }
               .buttonStyle(PlainButtonStyle())
+              .accessibilityLabel("➕")
               .frame(width: metrics.size.width * 0.15)
               Spacer()
             }
@@ -60,13 +64,12 @@ struct PlaybackFullControlsView: View {
 
         Section {
           Toggle(
+            "settings_globalspeed_title",
+            isOn: $globalSpeedEnabled
+          )
+          Toggle(
             "settings_boostvolume_title",
-            isOn: .init(
-              get: { model.boostVolume },
-              set: { _ in
-                model.handleBoostVolumeToggle()
-              }
-            )
+            isOn: $boostVolumeEnabled
           )
           Toggle(
             "settings_autoplay_section_title".localized.capitalized,
@@ -99,6 +102,9 @@ struct PlaybackFullControlsView: View {
         }
       }
       .environment(\.defaultMinListRowHeight, 40)
+      .onChange(of: boostVolumeEnabled) { boostVolume in
+        model.handleBoostVolumeToggle(boostVolume)
+      }
     }
     .navigationTitle("settings_controls_title")
   }

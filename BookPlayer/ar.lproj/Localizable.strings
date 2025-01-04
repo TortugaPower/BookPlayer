@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
 "file_size_unknown" = "حجم غير معروف";
 "runtime_unknown" = "مدة غير معروفة";
+"subscription_required_title" = "الاشتراك مطلوب";
+"Swipe rows to see download options" = "مرر الصفوف لرؤية خيارات التنزيل";

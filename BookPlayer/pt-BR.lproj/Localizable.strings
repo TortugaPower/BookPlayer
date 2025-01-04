@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Falha ao entrar. Verifique seu nome de usuário e senha.";
 "file_size_unknown" = "Tamanho desconhecido";
 "runtime_unknown" = "Duração desconhecida";
+"subscription_required_title" = "Assinatura necessária";
+"Swipe rows to see download options" = "Deslize as linhas para ver as opções de download";
