@@ -1,4 +1,8 @@
-import BookPlayerKit
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+#endif
 import Foundation
 
 class VoiceOverService {

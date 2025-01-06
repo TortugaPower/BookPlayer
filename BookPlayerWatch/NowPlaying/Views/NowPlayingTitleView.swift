@@ -26,5 +26,10 @@ struct NowPlayingTitleView: View {
         .lineLimit(2)
         .fixedSize(horizontal: false, vertical: true)
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(VoiceOverService.playerMetaText(
+      title: item?.title ?? "",
+      author: item?.author ?? ""
+    ))
   }
 }

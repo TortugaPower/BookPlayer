@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "Giriş başarısız. Kullanıcı adınızı ve şifrenizi kontrol edin.";
 "file_size_unknown" = "Bilinmeyen boyut";
 "runtime_unknown" = "Bilinmeyen süre";
+"subscription_required_title" = "Abonelik gerekli";
+"Swipe rows to see download options" = "İndirme seçeneklerini görmek için satırları kaydırın";

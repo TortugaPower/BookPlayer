@@ -344,3 +344,5 @@
 "jellyfin_error_unauthorized" = "登录失败。请检查您的用户名和密码。";
 "file_size_unknown" = "未知尺寸";
 "runtime_unknown" = "持续时间未知";
+"subscription_required_title" = "需要订阅";
+"Swipe rows to see download options" = "滑动行查看下载选项";
