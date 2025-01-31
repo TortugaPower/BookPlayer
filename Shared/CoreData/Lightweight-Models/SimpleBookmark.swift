@@ -8,7 +8,10 @@
 
 import Foundation
 
-public struct SimpleBookmark: Decodable {
+public struct SimpleBookmark: Decodable, Identifiable {
+  public var id: String {
+    return UUID().uuidString
+  }
   public let time: Double
   public let note: String?
   let type: BookmarkType

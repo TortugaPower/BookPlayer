@@ -135,10 +135,10 @@
 "voiceover_unknown_author" = "Nieznany autor";
 "voiceover_book_info" = "%@ - %@";
 "voiceover_book_chapter" = "%@ - %@, rozdział %@";
-"voiceover_rewind_time" = "Przewiń wstecz %@";
+"voiceover_rewind_time" = "Przewiń do tyłu %@";
 "voiceover_forward_time" = "Przewiń do przodu %@";
 "watchapp_last_played_title" = "Ostatnio odtwarzane";
-"watchapp_refresh_data_title" = "Odśwież dane";
+"watchapp_refresh_data_title" = "Odśwież";
 "recent_title" = "Ostatnie";
 "carplay_library_error" = "Nie można załadować książek";
 "siri_invocation_phrase" = "Kontynuuj moją książkę";
@@ -158,7 +158,7 @@
 "voiceover_currently_playing_title" = "Aktualnie odtwarzam %@ - %@";
 "voiceover_miniplayer_hint" = "Miniodtwarzacz. Dotknij, aby wyświetlić odtwarzacz";
 "voiceover_chapter_time_title" = "Bieżący czas rozdziału: %@";
-"voiceover_dismiss_player_title" = "Wyłącz Odtwarzacz";
+"voiceover_dismiss_player_title" = "Zamknij odtwarzacz";
 "sort_most_recent_button" = "Najczęściej Odtwarzane";
 "sort_reversed_button" = "Odwróć kolejność";
 "voiceover_continue_playback_title" = "Kontynuuj odtwarzanie";

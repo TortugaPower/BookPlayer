@@ -17,7 +17,7 @@ struct RootView: View {
   var body: some View {
     VStack {
       if coreServices.hasSyncEnabled {
-        RemoteItemListView(coreServices: coreServices)
+        RemoteItemListView(model: .init(coreServices: coreServices))
       } else if contextManager.items.isEmpty && contextManager.isConnecting {
         ProgressView()
       } else {

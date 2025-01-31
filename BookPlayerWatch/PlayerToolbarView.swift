@@ -53,8 +53,16 @@ final class PlaybackFullControlsViewModel: ObservableObject {
 }
 
 struct PlayerToolbarView: View {
+  /// PlayerManager needs to be an ObservedObject, otherwise the Published property do not reload properly
   @ObservedObject var playerManager: PlayerManager
   @State var isShowingMoreList: Bool = false
+
+  let coreServices: CoreServices
+
+  init(coreServices: CoreServices) {
+    self.coreServices = coreServices
+    self.playerManager = coreServices.playerManager
+  }
 
   var body: some View {
     HStack {
@@ -71,8 +79,14 @@ struct PlayerToolbarView: View {
 
       Spacer()
 
-      VolumeView(type: .local)
-        .accessibilityHidden(true)
+      NavigationLink(
+        destination: BookmarksView(model: .init(coreServices: coreServices))
+      ) {
+        ResizeableImageView(name: "bookmark.fill")
+          .accessibilityLabel("bookmarks_title".localized)
+          .padding(20)
+      }
+      .buttonStyle(PlainButtonStyle())
 
       Spacer()
 
