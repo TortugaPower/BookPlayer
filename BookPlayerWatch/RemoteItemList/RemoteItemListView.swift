@@ -12,162 +12,33 @@ import TipKit
 
 struct RemoteItemListView: View {
   @Environment(\.scenePhase) var scenePhase
-  @ObservedObject var coreServices: CoreServices
-  @ObservedObject var playerManager: PlayerManager
-  @State var items: [SimpleLibraryItem]
-  @State var playingItemParentPath: String?
+  @StateObject var model: RemoteItemListViewModel
   @State private var isLoading = false
   @State private var error: Error?
   @State var showPlayer = false
   @State var isRefreshing: Bool = false
   @State var isFirstLoad = true
 
-  let folderRelativePath: String?
-
-  init(
-    coreServices: CoreServices,
-    folderRelativePath: String? = nil
-  ) {
-    self.coreServices = coreServices
-    self.playerManager = coreServices.playerManager
-    let fetchedItems =
-      coreServices.libraryService.fetchContents(
-        at: folderRelativePath,
-        limit: nil,
-        offset: nil
-      ) ?? []
-    self._items = .init(initialValue: fetchedItems)
-    let lastItem = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
-    self.folderRelativePath = folderRelativePath
-
-    if let lastItem {
-      self._playingItemParentPath = .init(
-        initialValue: getPathForParentOfItem(currentPlayingPath: lastItem.relativePath)
-      )
-    } else {
-      self._playingItemParentPath = .init(initialValue: nil)
-    }
-  }
-
-  private func syncListContents(ignoreLastTimestamp: Bool) async {
-    guard
-      await coreServices.syncService.canSyncListContents(
-        at: folderRelativePath,
-        ignoreLastTimestamp: ignoreLastTimestamp
-      )
-    else { return }
-
-    do {
-      try await coreServices.syncService.syncListContents(at: folderRelativePath)
-    } catch BPSyncError.reloadLastBook(let relativePath) {
-      reloadLastBook(relativePath: relativePath)
-    } catch BPSyncError.differentLastBook(let relativePath) {
-      await setSyncedLastPlayedItem(relativePath: relativePath)
-    } catch {
-      self.error = error
-    }
-
-    items =
-      coreServices.libraryService.fetchContents(
-        at: folderRelativePath,
-        limit: nil,
-        offset: nil
-      ) ?? []
-
-    if let lastPlayedItem {
-      playingItemParentPath = getPathForParentOfItem(currentPlayingPath: lastPlayedItem.relativePath)
-    } else {
-      playingItemParentPath = nil
-    }
-  }
-
-  @MainActor
-  private func reloadLastBook(relativePath: String) {
-    let wasPlaying = playerManager.isPlaying
-    playerManager.stop()
-
-    Task { @MainActor in
-      do {
-        try await coreServices.playerLoaderService.loadPlayer(
-          relativePath,
-          autoplay: wasPlaying
-        )
-      } catch {
-        self.error = error
-      }
-    }
-  }
-
-  @MainActor
-  private func setSyncedLastPlayedItem(relativePath: String) async {
-    /// Only continue overriding local book if it's not currently playing
-    guard playerManager.isPlaying == false else { return }
-
-    await coreServices.syncService.setLibraryLastBook(with: relativePath)
-
-    do {
-      try await coreServices.playerLoaderService.loadPlayer(
-        relativePath,
-        autoplay: false
-      )
-    } catch {
-      self.error = error
-    }
-  }
-
   func getForegroundColor(for item: SimpleLibraryItem) -> Color {
-    guard let lastPlayedItem else { return .primary }
+    guard let lastPlayedItem = model.lastPlayedItem else { return .primary }
 
     if item.relativePath == lastPlayedItem.relativePath {
       return .accentColor
     }
 
-    return item.relativePath == playingItemParentPath ? .accentColor : .primary
-  }
-
-  func getPathForParentOfItem(currentPlayingPath: String) -> String? {
-    let parentFolders: [String] = currentPlayingPath.allRanges(of: "/")
-      .map { String(currentPlayingPath.prefix(upTo: $0.lowerBound)) }
-      .reversed()
-
-    guard let folderRelativePath = self.folderRelativePath else {
-      return parentFolders.last
-    }
-
-    guard let index = parentFolders.firstIndex(of: folderRelativePath) else {
-      return nil
-    }
-
-    let elementIndex = index - 1
-
-    guard elementIndex >= 0 else {
-      return nil
-    }
-
-    return parentFolders[elementIndex]
-  }
-
-  var lastPlayedItem: SimpleLibraryItem? {
-    guard
-      let currentItem = playerManager.currentItem,
-      let lastPlayedItem = coreServices.libraryService.getSimpleItem(with: currentItem.relativePath)
-    else {
-      return coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
-    }
-
-    return lastPlayedItem
+    return item.relativePath == model.playingItemParentPath ? .accentColor : .primary
   }
 
   var body: some View {
     RefreshableListView(refreshing: $isRefreshing) {
-      if folderRelativePath == nil {
+      if model.folderRelativePath == nil {
         Section {
-          if let lastPlayedItem {
-            RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: coreServices)) {
+          if let lastPlayedItem = model.lastPlayedItem {
+            RemoteItemListCellView(model: .init(item: lastPlayedItem, coreServices: model.coreServices)) {
               Task {
                 do {
                   isLoading = true
-                  try await coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
+                  try await model.coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
                   showPlayer = true
                   isLoading = false
                 } catch {
@@ -186,31 +57,31 @@ struct RemoteItemListView: View {
 
       Section {
         if #available(watchOS 10.0, *),
-          folderRelativePath == nil,
-           !items.isEmpty
+           model.folderRelativePath == nil,
+           !model.items.isEmpty
         {
           TipView(SwipeInlineTip())
             .listRowBackground(Color.clear)
         }
 
-        ForEach(items) { item in
+        ForEach(model.items) { item in
           if item.type == .folder {
             NavigationLink {
-              RemoteItemListView(
-                coreServices: coreServices,
+              RemoteItemListView(model: .init(
+                coreServices: model.coreServices,
                 folderRelativePath: item.relativePath
-              )
+              ))
             } label: {
-              RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {}
+              RemoteItemListCellView(model: .init(item: item, coreServices: model.coreServices)) {}
                 .allowsHitTesting(false)
                 .foregroundColor(getForegroundColor(for: item))
             }
           } else {
-            RemoteItemListCellView(model: .init(item: item, coreServices: coreServices)) {
+            RemoteItemListCellView(model: .init(item: item, coreServices: model.coreServices)) {
               Task {
                 do {
                   isLoading = true
-                  try await coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  try await model.coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
                   showPlayer = true
                   isLoading = false
                 } catch {
@@ -222,9 +93,9 @@ struct RemoteItemListView: View {
           }
         }
       } header: {
-        Text(verbatim: folderRelativePath?.components(separatedBy: "/").last ?? "library_title".localized)
+        Text(verbatim: model.folderRelativePath?.components(separatedBy: "/").last ?? "library_title".localized)
           .foregroundStyle(Color.accentColor)
-          .padding(.top, folderRelativePath == nil ? 10 : 0)
+          .padding(.top, model.folderRelativePath == nil ? 10 : 0)
       }
 
       /// Create padding at the bottom
@@ -238,7 +109,7 @@ struct RemoteItemListView: View {
     }
     .ignoresSafeArea(edges: [.bottom])
     .background(
-      NavigationLink(destination: RemotePlayerView(playerManager: coreServices.playerManager), isActive: $showPlayer) {
+      NavigationLink(destination: RemotePlayerView(coreServices: model.coreServices), isActive: $showPlayer) {
         EmptyView()
       }
       .opacity(0)
@@ -265,14 +136,18 @@ struct RemoteItemListView: View {
       Task {
         // Delay the task by 1 second to avoid jumping animations
         try await Task.sleep(nanoseconds: 1_000_000_000)
-        await syncListContents(ignoreLastTimestamp: true)
+        do {
+          try await model.syncListContents(ignoreLastTimestamp: true)
+        } catch {
+          self.error = error
+        }
         isRefreshing = false
       }
     }
     .onChange(of: scenePhase) { newPhase in
       guard
         newPhase == .active,
-        coreServices.playerManager.isPlaying
+        model.playerManager.isPlaying
       else { return }
 
       showPlayer = true
@@ -281,8 +156,12 @@ struct RemoteItemListView: View {
       guard isFirstLoad else { return }
       isFirstLoad = false
 
-      Task {
-        await syncListContents(ignoreLastTimestamp: false)
+      Task { @MainActor in
+        do {
+          try await model.syncListContents(ignoreLastTimestamp: false)
+        } catch {
+          self.error = error
+        }
       }
     }
   }
