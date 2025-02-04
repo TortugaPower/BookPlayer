@@ -80,7 +80,9 @@ class SecondOnboardingCoordinator: Coordinator {
           ),
           sliderOptions: action.sliderOptions,
           button: action.button,
-          dismiss: action.dismiss
+          dismiss: action.dismiss,
+          tipJar: action.tipJar,
+          tipJarDisclaimer: action.tipJarDisclaimer
         )
       }
 

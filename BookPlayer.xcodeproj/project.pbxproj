@@ -395,6 +395,8 @@
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */; };
 		636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636086002C5B3EB400341D78 /* CustomRewindIntent.swift */; };
+		636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E42D51254E00BFF3FD /* TipOption.swift */; };
+		636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */; };
 		63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63717EA92B792E350006291E /* RefreshTaskOperation.swift */; };
 		637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6376091B2ADCD81400A01D5D /* AppShortcuts.strings */; };
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
@@ -456,6 +458,8 @@
 		63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
 		63CD85432CE3105300EDBEA8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85422CE3105300EDBEA8 /* ProfileView.swift */; };
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
+		63E54C342D50576C0040355D /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C332D50576C0040355D /* TipJarView.swift */; };
+		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
 		63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */; };
 		63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
 		63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
@@ -1197,6 +1201,8 @@
 		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		636ED1E42D51254E00BFF3FD /* TipOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOption.swift; sourceTree = "<group>"; };
+		636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarViewModel.swift; sourceTree = "<group>"; };
 		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
 		6376091A2ADCD81400A01D5D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		6376091C2ADCD82100A01D5D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
@@ -1257,6 +1263,8 @@
 		63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BP+ErrorAlerts.swift"; sourceTree = "<group>"; };
 		63CD85422CE3105300EDBEA8 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
+		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
+		63E54C352D50626A0040355D /* TipOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOptionView.swift; sourceTree = "<group>"; };
 		63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
 		63E893912CAFA89000946CD4 /* BPPlayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPlayerError.swift; sourceTree = "<group>"; };
 		63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerLoaderService.swift; sourceTree = "<group>"; };
@@ -2309,6 +2317,7 @@
 		634BA58E2C14FB010015314D /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				636ED1E32D51254400BFF3FD /* Tips */,
 				63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */,
 				63B760FB2C33B77F00AA98C7 /* SupportProfileView.swift */,
 			);
@@ -2345,6 +2354,17 @@
 				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
 			);
 			path = AppIntents;
+			sourceTree = "<group>";
+		};
+		636ED1E32D51254400BFF3FD /* Tips */ = {
+			isa = PBXGroup;
+			children = (
+				63E54C332D50576C0040355D /* TipJarView.swift */,
+				636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */,
+				63E54C352D50626A0040355D /* TipOptionView.swift */,
+				636ED1E42D51254E00BFF3FD /* TipOption.swift */,
+			);
+			path = Tips;
 			sourceTree = "<group>";
 		};
 		63833DF82AAC134600496246 /* PerformanceTests */ = {
@@ -3755,6 +3775,7 @@
 				631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */,
 				9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
+				636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */,
 				63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
 				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
@@ -3897,6 +3918,7 @@
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
+				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
@@ -3914,6 +3936,7 @@
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
 				8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */,
+				636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
@@ -3942,6 +3965,7 @@
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
 				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,
+				63E54C362D50626A0040355D /* TipOptionView.swift in Sources */,
 				8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,

@@ -17,6 +17,7 @@ struct StoryView: View {
   var onResume: () -> Void
   var onSubscription: (PricingModel) -> Void
   var onDismiss: () -> Void
+  var onTipJar: (String?) -> Void
 
   var body: some View {
     ZStack {
@@ -108,7 +109,8 @@ struct StoryView: View {
           StoryActionView(
             action: action,
             onSubscription: onSubscription,
-            onDismiss: onDismiss
+            onDismiss: onDismiss,
+            onTipJar: onTipJar
           )
           .padding([.leading, .trailing])
           .padding([.top], Spacing.L1)
@@ -160,6 +162,8 @@ struct StoryView: View {
         print(option.title)
       }, onDismiss: {
         print("Dismiss")
+      }, onTipJar: { _ in
+        print("Tip Jar")
       })
     .foregroundColor(.white)
   }
