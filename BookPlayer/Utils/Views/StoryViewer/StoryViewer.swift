@@ -17,12 +17,14 @@ struct StoryViewer: View {
     ZStack(alignment: .top) {
       StoryBackgroundView()
         .accessibilityHidden(true)
-      StoryProgress(
-        storiesCount: .constant(viewModel.storiesCount),
-        progress: $viewModel.progress
-      )
-      .padding([.trailing, .leading, .bottom])
-      .accessibilityHidden(true)
+      if viewModel.storiesCount > 1 {
+        StoryProgress(
+          storiesCount: .constant(viewModel.storiesCount),
+          progress: $viewModel.progress
+        )
+        .padding([.trailing, .leading, .bottom])
+        .accessibilityHidden(true)
+      }
       StoryView(
         model: $viewModel.currentModel,
         onPrevious: viewModel.previous,
@@ -30,7 +32,8 @@ struct StoryViewer: View {
         onPause: viewModel.pause,
         onResume: viewModel.start,
         onSubscription: viewModel.handleSubscription(option:),
-        onDismiss: viewModel.handleDismiss
+        onDismiss: viewModel.handleDismiss,
+        onTipJar: viewModel.handleTipJar
       )
       .foregroundColor(Color.white)
       .padding()

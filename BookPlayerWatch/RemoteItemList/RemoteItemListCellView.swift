@@ -40,7 +40,7 @@ struct RemoteItemListCellView: View {
     case .notDownloaded:
       return ". ☁️"
     case .downloading(let progress):
-      return ""
+      return "\(Int(progress * 100))%"
     case .downloaded:
       return ". ⌚️"
     }
@@ -110,6 +110,7 @@ struct RemoteItemListCellView: View {
           Image(systemName: "xmark.circle")
             .imageScale(.large)
         }
+        .accessibilityLabel("cancel_download_title".localized)
       case .downloaded:
         Button {
           do {
@@ -121,6 +122,7 @@ struct RemoteItemListCellView: View {
           Image(systemName: "applewatch.slash")
             .imageScale(.large)
         }
+        .accessibilityLabel("remove_downloaded_file_title".localized)
       case .notDownloaded:
         Button {
           Task {
@@ -134,6 +136,7 @@ struct RemoteItemListCellView: View {
           Image(systemName: "icloud.and.arrow.down.fill")
             .imageScale(.large)
         }
+        .accessibilityLabel("download_title".localized)
       }
     }
     .accessibilityLabel(VoiceOverService.getAccessibilityLabel(for: model.item) + accessibilityDownloadStateLabel)

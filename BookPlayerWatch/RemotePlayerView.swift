@@ -11,6 +11,12 @@ import SwiftUI
 
 struct RemotePlayerView: View {
   @ObservedObject var playerManager: PlayerManager
+  let coreServices: CoreServices
+
+  init(coreServices: CoreServices) {
+    self.coreServices = coreServices
+    self.playerManager = coreServices.playerManager
+  }
 
   var body: some View {
     VStack {
@@ -34,7 +40,12 @@ struct RemotePlayerView: View {
 
       Spacer()
 
-      PlayerToolbarView(playerManager: playerManager)
+      PlayerToolbarView(coreServices: coreServices)
+    }
+    .background {
+      VolumeView(type: .local)
+        .accessibilityHidden(true)
+        .opacity(0)
     }
     .fixedSize(horizontal: false, vertical: false)
     .ignoresSafeArea(edges: .bottom)

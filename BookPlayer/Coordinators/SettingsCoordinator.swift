@@ -192,7 +192,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
   func showTipJar() {
     let viewModel = PlusViewModel(accountService: self.accountService)
-    viewModel.coordinator = self
     let vc = PlusViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
