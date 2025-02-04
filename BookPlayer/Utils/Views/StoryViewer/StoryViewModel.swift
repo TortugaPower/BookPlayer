@@ -15,9 +15,13 @@ struct StoryActionType: Codable {
   var sliderOptions: SliderOptions?
   var button: String
   var dismiss: String?
-  
+  var tipJar: String?
+  var tipJarDisclaimer: String?
+
   enum CodingKeys: String, CodingKey {
     case options, button, dismiss
+    case tipJar = "tip_jar"
+    case tipJarDisclaimer = "tip_jar_disclaimer"
     case defaultOption = "default_option"
     case sliderOptions = "slider_options"
   }

@@ -57,18 +57,7 @@ struct LastPlayedProvider: TimelineProvider {
   func getEntryForTimeline(
     context: Context
   ) async throws -> RecentlyPlayedEntry {
-    let items: [WidgetLibraryItem]
-    let theme: SimpleTheme
-
-    /// Attempt to fetch from shared defaults, otherwise default to database
-    if let (widgetItems, widgetTheme) = getItemsFromDefaults() {
-      items = widgetItems
-      theme = widgetTheme
-    } else {
-      let (widgetItems, widgetTheme) = try await getDataFromDatabase()
-      items = widgetItems
-      theme = widgetTheme
-    }
+    let (items, theme) = try getItemsFromDefaults()
 
     let currentlyPlaying = UserDefaults.sharedDefaults.string(
       forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
@@ -82,37 +71,12 @@ struct LastPlayedProvider: TimelineProvider {
     )
   }
 
-  func getDataFromDatabase() async throws -> ([WidgetLibraryItem], SimpleTheme) {
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
-    let dataManager = DataManager(coreDataStack: stack)
-    let libraryService = LibraryService(dataManager: dataManager)
-
-    guard
-      let lastPlayedItems = libraryService.getLastPlayedItems(limit: 4)
-    else {
-      throw BookPlayerError.emptyResponse
-    }
-
-    let items = lastPlayedItems.map({
-      WidgetLibraryItem(
-        relativePath: $0.relativePath,
-        title: $0.title,
-        details: $0.details
-      )
-    })
-
-    return (
-      items,
-      libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
-    )
-  }
-
-  func getItemsFromDefaults() -> ([WidgetLibraryItem], SimpleTheme)? {
+  func getItemsFromDefaults() throws -> ([WidgetLibraryItem], SimpleTheme) {
     guard
       let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
       let items = try? decoder.decode([WidgetLibraryItem].self, from: itemsData)
     else {
-      return nil
+      throw BookPlayerError.emptyResponse
     }
 
     let theme: SimpleTheme

@@ -10,7 +10,6 @@ import BookPlayerKit
 import Combine
 
 final class PlusViewModel {
-  weak var coordinator: SettingsCoordinator!
   let accountService: AccountServiceProtocol
 
   @Published var account: Account?
