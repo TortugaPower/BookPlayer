@@ -22,4 +22,8 @@ public extension UserDefaults {
   @objc dynamic var userSettingsAllowCellularData: Bool {
     return bool(forKey: Constants.UserDefaults.allowCellularData)
   }
+
+  @objc dynamic var userSettingsBoostVolume: Bool {
+    return bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+  }
 }

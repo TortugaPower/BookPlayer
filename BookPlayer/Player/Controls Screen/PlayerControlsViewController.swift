@@ -32,6 +32,8 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
   @IBOutlet weak var boostSwitchControl: UISwitch!
   @IBOutlet weak var moreButton: UIButton!
 
+  private var boostVolumeObserver: NSKeyValueObservation?
+
   private var disposeBag = Set<AnyCancellable>()
 
   override func viewDidLoad() {
@@ -118,6 +120,14 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
         self?.viewModel.handleBoostVolumeToggle(flag: switchControl.isOn)
       }
       .store(in: &disposeBag)
+
+    boostVolumeObserver = UserDefaults.standard.observe(
+      \.userSettingsBoostVolume,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+      self?.boostSwitchControl.setOn(newValue, animated: false)
+    }
   }
 
   func bindSpeedObservers() {
