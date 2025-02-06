@@ -346,3 +346,5 @@
 "runtime_unknown" = "Unbekannte Dauer";
 "subscription_required_title" = "Abonnement erforderlich";
 "Swipe rows to see download options" = "Wischen Sie durch die Zeilen, um die Download-Optionen anzuzeigen";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

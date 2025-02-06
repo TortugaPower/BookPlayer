@@ -96,6 +96,8 @@ extension PlayerJumpIcon: Themeable {
 }
 
 class PlayerJumpIconForward: PlayerJumpIcon {
+  private var intervalObserver: NSKeyValueObservation?
+
   override var backgroundImage: UIImage {
     get {
       return #imageLiteral(resourceName: "playerIconForward")
@@ -110,10 +112,25 @@ class PlayerJumpIconForward: PlayerJumpIcon {
 
     self.title = "+\(Int(PlayerManager.forwardInterval.rounded())) "
     self.actionButton.accessibilityLabel = VoiceOverService.fastForwardText()
+
+    self.bindObserver()
+  }
+
+  func bindObserver() {
+    intervalObserver = UserDefaults.standard.observe(
+      \.userSettingsForwardInterval,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+      self?.title = "+\(Int(newValue.rounded())) "
+      self?.actionButton.accessibilityLabel = VoiceOverService.fastForwardText()
+    }
   }
 }
 
 class PlayerJumpIconRewind: PlayerJumpIcon {
+  private var intervalObserver: NSKeyValueObservation?
+
   override var backgroundImage: UIImage {
     get {
       return #imageLiteral(resourceName: "playerIconRewind")
@@ -128,5 +145,18 @@ class PlayerJumpIconRewind: PlayerJumpIcon {
 
     self.title = "−\(Int(PlayerManager.rewindInterval.rounded())) "
     self.actionButton.accessibilityLabel = VoiceOverService.rewindText()
+
+    self.bindObserver()
+  }
+
+  func bindObserver() {
+    intervalObserver = UserDefaults.standard.observe(
+      \.userSettingsRewindInterval,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+      self?.title = "-\(Int(newValue.rounded())) "
+      self?.actionButton.accessibilityLabel = VoiceOverService.rewindText()
+    }
   }
 }

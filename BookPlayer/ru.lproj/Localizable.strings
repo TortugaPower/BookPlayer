@@ -346,3 +346,5 @@
 "runtime_unknown" = "Неизвестная продолжительность";
 "subscription_required_title" = "Требуется подписка";
 "Swipe rows to see download options" = "Проведите пальцем по строкам, чтобы увидеть варианты загрузки";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

@@ -27,10 +27,21 @@ class PlayerControlsCoordinator: Coordinator {
       switch routes {
       case .dismiss:
         self.flow.finishPresentation(animated: true)
+      case .more:
+        self.showMoreControls()
       }
     }
     let vc = PlayerControlsViewController.instantiate(from: .Player)
     vc.viewModel = viewModel
     flow.startPresentation(vc, animated: true)
+  }
+
+  func showMoreControls() {
+    let vc = PlayerSettingsViewController.instantiate(from: .Settings)
+    vc.navigationItem.largeTitleDisplayMode = .never
+    let nav = AppNavigationController.instantiate(from: .Main)
+    nav.viewControllers = [vc]
+
+    flow.navigationController.present(nav, animated: true)
   }
 }

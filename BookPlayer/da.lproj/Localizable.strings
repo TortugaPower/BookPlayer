@@ -346,3 +346,5 @@
 "runtime_unknown" = "Ukendt varighed";
 "subscription_required_title" = "Kræver abonnement";
 "Swipe rows to see download options" = "Stryg rækkerne for at se downloadmuligheder";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

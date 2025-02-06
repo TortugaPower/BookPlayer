@@ -12,6 +12,7 @@ import Foundation
 
 class PlayerControlsViewModel {
   enum Routes {
+    case more
     case dismiss
   }
 
@@ -64,5 +65,9 @@ class PlayerControlsViewModel {
 
   func dismiss() {
     onTransition?(.dismiss)
+  }
+
+  func showMoreControls() {
+    onTransition?(.more)
   }
 }

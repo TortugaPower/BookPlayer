@@ -219,6 +219,13 @@ class PlayerViewModel: ViewModelProtocol {
     )
   }
 
+  func reloadSharedFlags() {
+    /// Flags are not a getter to avoid reading too often from defaults, as progress objects can be
+    /// triggered multiple times in a second
+    self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+    self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+  }
+
   func processToggleMaxTime() -> ProgressObject {
     self.prefersRemainingTime = !self.prefersRemainingTime
     sharedDefaults.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)

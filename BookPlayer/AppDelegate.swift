@@ -240,7 +240,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       return .success
     }
 
-    center.changePlaybackPositionCommand.isEnabled = true
+    setupChangePlaybackPositionCommand()
+  }
+
+  func setupChangePlaybackPositionCommand() {
+    let center = MPRemoteCommandCenter.shared()
+    center.changePlaybackPositionCommand.isEnabled  = UserDefaults.standard.bool(forKey: Constants.UserDefaults.seekProgressBarEnabled)
     center.changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
       guard
         let playerManager = self?.coreServices?.playerManager,

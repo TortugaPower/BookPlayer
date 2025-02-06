@@ -346,3 +346,5 @@
 "runtime_unknown" = "Neznámá doba trvání";
 "subscription_required_title" = "Je vyžadováno předplatné";
 "Swipe rows to see download options" = "Přejetím po řádcích zobrazíte možnosti stahování";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

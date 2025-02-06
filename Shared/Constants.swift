@@ -26,6 +26,7 @@ public enum Constants {
     public static let smartRewindEnabled = "userSettingsSmartRewind"
     public static let boostVolumeEnabled = "userSettingsBoostVolume"
     public static let globalSpeedEnabled = "userSettingsGlobalSpeed"
+    public static let seekProgressBarEnabled = "userSettingsSeekProgressBar"
     public static let autoplayEnabled = "userSettingsAutoplay"
     public static let autoplayRestartEnabled = "userSettingsAutoplayRestart"
     public static let allowCellularData = "userSettingsAllowCellularData"
@@ -44,6 +45,8 @@ public enum Constants {
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"
+
+    public static let updateProgress = "userSettingsUpdateProgress"
 
     /// Key to store an array of identifiers that need their progress recalculated
     public static let staleProgressIdentifiers = "staleProgressIdentifiers"
