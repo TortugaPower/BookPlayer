@@ -346,3 +346,5 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "runtime_unknown" = "Ukjent varighet";
 "subscription_required_title" = "Abonnement kreves";
 "Swipe rows to see download options" = "Sveip rader for å se nedlastingsalternativer";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

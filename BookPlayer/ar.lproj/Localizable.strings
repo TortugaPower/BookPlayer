@@ -346,3 +346,5 @@
 "runtime_unknown" = "مدة غير معروفة";
 "subscription_required_title" = "الاشتراك مطلوب";
 "Swipe rows to see download options" = "مرر الصفوف لرؤية خيارات التنزيل";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

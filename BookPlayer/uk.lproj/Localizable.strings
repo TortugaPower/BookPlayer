@@ -346,3 +346,5 @@
 "runtime_unknown" = "Невідома тривалість";
 "subscription_required_title" = "Потрібна підписка";
 "Swipe rows to see download options" = "Гортайте рядки, щоб переглянути параметри завантаження";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

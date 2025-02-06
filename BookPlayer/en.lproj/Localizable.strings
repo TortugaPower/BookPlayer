@@ -346,3 +346,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "runtime_unknown" = "Unknown duration";
 "subscription_required_title" = "Subscription required";
 "Swipe rows to see download options" = "Swipe rows to see download options";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

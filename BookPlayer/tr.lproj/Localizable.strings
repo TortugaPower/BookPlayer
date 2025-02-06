@@ -346,3 +346,5 @@
 "runtime_unknown" = "Bilinmeyen süre";
 "subscription_required_title" = "Abonelik gerekli";
 "Swipe rows to see download options" = "İndirme seçeneklerini görmek için satırları kaydırın";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

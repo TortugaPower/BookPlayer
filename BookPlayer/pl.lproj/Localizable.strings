@@ -346,3 +346,5 @@
 "runtime_unknown" = "Nieznany czas trwania";
 "subscription_required_title" = "Wymagana subskrypcja";
 "Swipe rows to see download options" = "Przesuń wiersze, aby zobaczyć opcje pobierania";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

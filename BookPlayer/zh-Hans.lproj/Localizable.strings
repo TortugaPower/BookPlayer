@@ -346,3 +346,5 @@
 "runtime_unknown" = "持续时间未知";
 "subscription_required_title" = "需要订阅";
 "Swipe rows to see download options" = "滑动行查看下载选项";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";
