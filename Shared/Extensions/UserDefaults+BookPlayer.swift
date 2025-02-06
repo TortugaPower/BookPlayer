@@ -26,4 +26,16 @@ public extension UserDefaults {
   @objc dynamic var userSettingsBoostVolume: Bool {
     return bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
   }
+
+  @objc dynamic var userSettingsUpdateProgress: Bool {
+    return bool(forKey: Constants.UserDefaults.updateProgress)
+  }
+
+  @objc dynamic var userSettingsRewindInterval: TimeInterval {
+    return double(forKey: Constants.UserDefaults.rewindInterval)
+  }
+
+  @objc dynamic var userSettingsForwardInterval: TimeInterval {
+    return double(forKey: Constants.UserDefaults.forwardInterval)
+  }
 }

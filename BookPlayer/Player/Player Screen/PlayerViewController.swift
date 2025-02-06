@@ -51,6 +51,7 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
+  private var updateProgressObserver: NSKeyValueObservation?
 
   /// Reference to displayed alert, to update the message label with the ongoing timer
   weak var sleepTimerAlert: UIAlertController?
@@ -278,6 +279,22 @@ extension PlayerViewController {
 
         self.updateView(with: progressObject)
       }.store(in: &disposeBag)
+
+    updateProgressObserver = UserDefaults.standard.observe(
+      \.userSettingsUpdateProgress,
+       options: [.new]
+    ) { [weak self] object, change in
+      guard
+        let self,
+        let newValue = change.newValue,
+        newValue == true
+      else { return }
+      self.viewModel.reloadSharedFlags()
+      let progressObject = self.viewModel.getCurrentProgressState()
+      self.updateView(with: progressObject)
+
+      object.set(false, forKey: Constants.UserDefaults.updateProgress)
+    }
 
     self.progressButton.publisher(for: .touchUpInside)
       .merge(with: self.chapterTitleButton.publisher(for: .touchUpInside))

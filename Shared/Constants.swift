@@ -46,6 +46,8 @@ public enum Constants {
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"
 
+    public static let updateProgress = "userSettingsUpdateProgress"
+
     /// Key to store an array of identifiers that need their progress recalculated
     public static let staleProgressIdentifiers = "staleProgressIdentifiers"
 
