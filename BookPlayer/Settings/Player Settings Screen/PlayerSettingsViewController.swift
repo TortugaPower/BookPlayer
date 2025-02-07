@@ -71,7 +71,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       animated: false
     )
     seekProgressBarSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.seekProgressBarEnabled),
+      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.seekProgressBarDisabled),
       animated: false
     )
     chapterTimeSwitch.setOn(
@@ -241,7 +241,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
   }
 
   @objc func seekProgressBarToggleDidChange() {
-    UserDefaults.standard.set(self.seekProgressBarSwitch.isOn, forKey: Constants.UserDefaults.seekProgressBarEnabled)
+    UserDefaults.standard.set(!self.seekProgressBarSwitch.isOn, forKey: Constants.UserDefaults.seekProgressBarDisabled)
     MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = seekProgressBarSwitch.isOn
   }
 }

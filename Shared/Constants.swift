@@ -26,7 +26,7 @@ public enum Constants {
     public static let smartRewindEnabled = "userSettingsSmartRewind"
     public static let boostVolumeEnabled = "userSettingsBoostVolume"
     public static let globalSpeedEnabled = "userSettingsGlobalSpeed"
-    public static let seekProgressBarEnabled = "userSettingsSeekProgressBar"
+    public static let seekProgressBarDisabled = "userSettingsSeekProgressBar"
     public static let autoplayEnabled = "userSettingsAutoplay"
     public static let autoplayRestartEnabled = "userSettingsAutoplayRestart"
     public static let allowCellularData = "userSettingsAllowCellularData"
