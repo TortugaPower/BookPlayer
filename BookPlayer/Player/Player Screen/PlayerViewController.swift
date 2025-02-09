@@ -141,7 +141,9 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
     self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
-    self.chapterTitleButton.isAccessibilityElement = false
+    /// Disabling traits here, as toggling the chapter context with this button does not have the same feedback
+    /// like with the `progressButton` action
+    self.chapterTitleButton.accessibilityTraits = []
 
     // Based on Apple books, the player controls are kept the same for right-to-left languages
     self.progressSlider.semanticContentAttribute = .forceLeftToRight
@@ -191,6 +193,7 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     }
 
     self.chapterTitleButton.setTitle(progressObject.chapterTitle, for: .normal)
+    self.chapterTitleButton.accessibilityLabel = progressObject.chapterTitle
 
     if shouldSetSliderValue {
       self.progressSlider.setProgress(progressObject.sliderValue)
