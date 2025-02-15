@@ -43,9 +43,11 @@ final class PlayerSettingsViewModel {
 
   func handlePrefersChapterContext(_ flag: Bool) {
     UserDefaults.sharedDefaults.set(flag, forKey: Constants.UserDefaults.chapterContextEnabled)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.updateProgress)
   }
 
   func handlePrefersRemainingTime(_ flag: Bool) {
     UserDefaults.sharedDefaults.set(flag, forKey: Constants.UserDefaults.remainingTimeEnabled)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.updateProgress)
   }
 }

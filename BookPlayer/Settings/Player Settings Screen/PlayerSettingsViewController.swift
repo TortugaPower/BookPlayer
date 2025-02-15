@@ -10,12 +10,14 @@ import BookPlayerKit
 import Combine
 import Themeable
 import UIKit
+import MediaPlayer
 
 class PlayerSettingsViewController: UITableViewController, Storyboarded {
   @IBOutlet weak var autoSleepTimerSwitch: UISwitch!
   @IBOutlet weak var smartRewindSwitch: UISwitch!
   @IBOutlet weak var boostVolumeSwitch: UISwitch!
   @IBOutlet weak var globalSpeedSwitch: UISwitch!
+  @IBOutlet weak var seekProgressBarSwitch: UISwitch!
   @IBOutlet weak var rewindIntervalLabel: UILabel!
   @IBOutlet weak var forwardIntervalLabel: UILabel!
   @IBOutlet weak var playerListPreferenceLabel: UILabel!
@@ -28,7 +30,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
 
   enum SettingsSection: Int {
     case intervals = 0
-    case rewind, sleepTimer, volume, speed, playerList, progressLabels
+    case rewind, sleepTimer, volume, speed, seek, playerList, progressLabels
   }
 
   let playerListPreferencePath = IndexPath(row: 0, section: SettingsSection.playerList.rawValue)
@@ -49,6 +51,7 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     autoSleepTimerSwitch.addTarget(self, action: #selector(autoSleepTimerToggleDidChange), for: .valueChanged)
     boostVolumeSwitch.addTarget(self, action: #selector(boostVolumeToggleDidChange), for: .valueChanged)
     globalSpeedSwitch.addTarget(self, action: #selector(globalSpeedToggleDidChange), for: .valueChanged)
+    seekProgressBarSwitch.addTarget(self, action: #selector(seekProgressBarToggleDidChange), for: .valueChanged)
 
     // Set initial switch positions
     smartRewindSwitch.setOn(
@@ -65,6 +68,10 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
     )
     globalSpeedSwitch.setOn(
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.globalSpeedEnabled),
+      animated: false
+    )
+    seekProgressBarSwitch.setOn(
+      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.seekProgressBarDisabled),
       animated: false
     )
     chapterTimeSwitch.setOn(
@@ -204,6 +211,8 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
       return "settings_boostvolume_description".localized
     case .speed:
       return "settings_globalspeed_description".localized
+    case .seek:
+      return "settings_seekprogressbar_description".localized
     case .progressLabels:
       return "settings_progresslabels_description".localized
     case .playerList:
@@ -229,6 +238,11 @@ class PlayerSettingsViewController: UITableViewController, Storyboarded {
 
   @objc func globalSpeedToggleDidChange() {
     UserDefaults.standard.set(self.globalSpeedSwitch.isOn, forKey: Constants.UserDefaults.globalSpeedEnabled)
+  }
+
+  @objc func seekProgressBarToggleDidChange() {
+    UserDefaults.standard.set(!self.seekProgressBarSwitch.isOn, forKey: Constants.UserDefaults.seekProgressBarDisabled)
+    MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = seekProgressBarSwitch.isOn
   }
 }
 

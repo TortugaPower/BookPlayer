@@ -346,3 +346,5 @@
 "runtime_unknown" = "Durată necunoscută";
 "subscription_required_title" = "Este necesar un abonament";
 "Swipe rows to see download options" = "Glisați rândurile pentru a vedea opțiunile de descărcare";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

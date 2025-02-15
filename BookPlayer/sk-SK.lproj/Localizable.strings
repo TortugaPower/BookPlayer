@@ -346,3 +346,5 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "runtime_unknown" = "Neznáme trvanie";
 "subscription_required_title" = "Vyžaduje sa predplatné";
 "Swipe rows to see download options" = "Potiahnutím riadkov zobrazíte možnosti sťahovania";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

@@ -346,3 +346,5 @@
 "runtime_unknown" = "Άγνωστη διάρκεια";
 "subscription_required_title" = "Απαιτείται συνδρομή";
 "Swipe rows to see download options" = "Σύρετε σειρές για να δείτε τις επιλογές λήψης";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";

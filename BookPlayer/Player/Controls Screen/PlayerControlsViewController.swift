@@ -30,6 +30,9 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
   @IBOutlet weak var boostLabel: UILabel!
   @IBOutlet weak var boostWarningLabel: UILabel!
   @IBOutlet weak var boostSwitchControl: UISwitch!
+  @IBOutlet weak var moreButton: UIButton!
+
+  private var boostVolumeObserver: NSKeyValueObservation?
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -49,6 +52,7 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
     self.playbackLabel.text = "player_speed_title".localized
     self.boostLabel.text = "settings_boostvolume_title".localized
     self.boostWarningLabel.text = "settings_boostvolume_description".localized
+    self.moreButton.setTitle("more_title".localized, for: .normal)
 
     self.speedFirstQuickActionButton.layer.masksToBounds = true
     self.speedFirstQuickActionButton.layer.cornerRadius = 5
@@ -91,14 +95,20 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
 
   func setupAccessibility() {
     self.boostLabel.accessibilityHint = "settings_boostvolume_description".localized
+    self.decrementSpeedButton.accessibilityLabel = "➖"
     self.currentSpeedSlider.accessibilityValue = "\(self.viewModel.getCurrentSpeed())"
+    self.incrementSpeedButton.accessibilityLabel = "➕"
     self.boostWarningLabel.isAccessibilityElement = false
     self.currentSpeedLabel.isAccessibilityElement = false
 
     self.mainContainterStackView.accessibilityElements = [
+      self.playbackLabel!,
+      self.decrementSpeedButton!,
       self.currentSpeedSlider!,
+      self.incrementSpeedButton!,
       self.boostLabel!,
-      self.boostSwitchControl!
+      self.boostSwitchControl!,
+      self.moreButton!
     ]
   }
 
@@ -110,6 +120,14 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
         self?.viewModel.handleBoostVolumeToggle(flag: switchControl.isOn)
       }
       .store(in: &disposeBag)
+
+    boostVolumeObserver = UserDefaults.standard.observe(
+      \.userSettingsBoostVolume,
+       options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+      self?.boostSwitchControl.setOn(newValue, animated: false)
+    }
   }
 
   func bindSpeedObservers() {
@@ -168,12 +186,17 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
   }
 
   private func setSliderSpeed(_ value: Float) {
+    self.currentSpeedSlider.accessibilityValue = "\(value)"
     self.currentSpeedSlider.value = value
     self.viewModel.handleSpeedChange(newValue: value)
   }
 
   @IBAction func done(_ sender: UIBarButtonItem?) {
     self.viewModel.dismiss()
+  }
+
+  @IBAction func handleMoreAction(_ sender: UIButton) {
+    viewModel.showMoreControls()
   }
 }
 
@@ -202,6 +225,8 @@ extension PlayerControlsViewController: Themeable {
       self.decrementSpeedButton.tintColor = theme.linkColor
       self.incrementSpeedButton.tintColor = theme.linkColor
     }
+
+    self.moreButton.tintColor = theme.linkColor
 
     self.overrideUserInterfaceStyle = theme.useDarkVariant
     ? UIUserInterfaceStyle.dark

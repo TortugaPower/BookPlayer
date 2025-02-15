@@ -51,6 +51,7 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
+  private var updateProgressObserver: NSKeyValueObservation?
 
   /// Reference to displayed alert, to update the message label with the ongoing timer
   weak var sleepTimerAlert: UIAlertController?
@@ -140,7 +141,9 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     self.chapterTitleButton.titleLabel?.numberOfLines = 2
     self.chapterTitleButton.titleLabel?.textAlignment = .center
     self.chapterTitleButton.titleLabel?.lineBreakMode = .byWordWrapping
-    self.chapterTitleButton.isAccessibilityElement = false
+    /// Disabling traits here, as toggling the chapter context with this button does not have the same feedback
+    /// like with the `progressButton` action
+    self.chapterTitleButton.accessibilityTraits = []
 
     // Based on Apple books, the player controls are kept the same for right-to-left languages
     self.progressSlider.semanticContentAttribute = .forceLeftToRight
@@ -190,6 +193,7 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     }
 
     self.chapterTitleButton.setTitle(progressObject.chapterTitle, for: .normal)
+    self.chapterTitleButton.accessibilityLabel = progressObject.chapterTitle
 
     if shouldSetSliderValue {
       self.progressSlider.setProgress(progressObject.sliderValue)
@@ -278,6 +282,22 @@ extension PlayerViewController {
 
         self.updateView(with: progressObject)
       }.store(in: &disposeBag)
+
+    updateProgressObserver = UserDefaults.standard.observe(
+      \.userSettingsUpdateProgress,
+       options: [.new]
+    ) { [weak self] object, change in
+      guard
+        let self,
+        let newValue = change.newValue,
+        newValue == true
+      else { return }
+      self.viewModel.reloadSharedFlags()
+      let progressObject = self.viewModel.getCurrentProgressState()
+      self.updateView(with: progressObject)
+
+      object.set(false, forKey: Constants.UserDefaults.updateProgress)
+    }
 
     self.progressButton.publisher(for: .touchUpInside)
       .merge(with: self.chapterTitleButton.publisher(for: .touchUpInside))

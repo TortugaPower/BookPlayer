@@ -346,3 +346,5 @@
 "runtime_unknown" = "Okänd varaktighet";
 "subscription_required_title" = "Prenumeration krävs";
 "Swipe rows to see download options" = "Svep rader för att se nedladdningsalternativ";
+"settings_seekprogressbar_title" = "Progress Bar Seeking";
+"settings_seekprogressbar_description" = "Enable seeking on the lock screen";
