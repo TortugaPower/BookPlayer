@@ -11,7 +11,7 @@ import SwiftUI
 import WidgetKit
 
 struct BookView: View {
-  var item: WidgetLibraryItem
+  var item: PlayableItem
   var titleColor: Color
   var theme: SimpleTheme
   var isPlaying: Bool

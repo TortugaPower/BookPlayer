@@ -292,16 +292,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
   }
 
   func storeWidgetItem(_ item: PlayableItem) {
-    var widgetItems: [WidgetLibraryItem] = [
-      WidgetLibraryItem(
-        relativePath: item.relativePath,
-        title: item.title,
-        details: item.author
-      )
-    ]
+    var widgetItems: [PlayableItem] = [item]
 
     if let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
-      let items = try? decoder.decode([WidgetLibraryItem].self, from: itemsData)
+      let items = try? decoder.decode([PlayableItem].self, from: itemsData)
     {
       widgetItems.append(contentsOf: items.filter({ $0.relativePath != item.relativePath }))
       widgetItems = Array(widgetItems.prefix(10))
