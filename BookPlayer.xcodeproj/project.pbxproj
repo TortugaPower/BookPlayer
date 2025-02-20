@@ -1157,6 +1157,9 @@
 		6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMoreListView.swift; sourceTree = "<group>"; };
 		6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemCellViewModel.swift; sourceTree = "<group>"; };
 		6334CF202CFE330300F1FA17 /* RefreshableListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableListView.swift; sourceTree = "<group>"; };
+		63398E392D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ca; path = ca.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		63398E3A2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
+		63398E3B2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		633BE3E12AE43D1300F983AC /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/AppShortcuts.strings"; sourceTree = "<group>"; };
 		633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPShortcutsLink.swift; sourceTree = "<group>"; };
 		6340D5682AF12D48003D0B09 /* SharedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidget.swift; sourceTree = "<group>"; };
@@ -3329,6 +3332,7 @@
 				"pt-PT",
 				el,
 				ja,
+				ca,
 			);
 			mainGroup = 418B6CEF1D2707F700F974FB;
 			packageReferences = (
@@ -4268,6 +4272,7 @@
 				630584E32ADEB88500FBFA6F /* pt-PT */,
 				636086022C5B589900341D78 /* el */,
 				635390BC2D0DEB1500FE6E45 /* ja */,
+				63398E392D654F6D00A6934E /* ca */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -4340,6 +4345,7 @@
 				630584E42ADEB88500FBFA6F /* pt-PT */,
 				636086032C5B589900341D78 /* el */,
 				635390BD2D0DEB1500FE6E45 /* ja */,
+				63398E3A2D654F6D00A6934E /* ca */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4379,6 +4385,7 @@
 				633BE3E12AE43D1300F983AC /* pt-PT */,
 				636086042C5B589900341D78 /* el */,
 				635390BE2D0DEB1500FE6E45 /* ja */,
+				63398E3B2D654F6D00A6934E /* ca */,
 			);
 			name = AppShortcuts.strings;
 			sourceTree = "<group>";
