@@ -108,7 +108,7 @@
 "sleep_alert_description" = "Uspat po dokončení kapitoly";
 "sleep_time_description" = "Uspání za %@";
 "sleep_off_title" = "Vypnout";
-"sleep_interval_title" = "V %@";
+"sleep_interval_title" = "Za %@";
 "chapter_number_title" = "Kapitola %d";
 "progress_complete_description" = "%d procent Dokončeno";
 "chapter_duration_title" = "Délka kapitoly:";

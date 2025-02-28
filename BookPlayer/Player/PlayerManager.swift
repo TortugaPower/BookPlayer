@@ -921,6 +921,7 @@ extension PlayerManager {
         object: nil
       )
     }
+    widgetReloadService.reloadWidget(.timeListenedWidget)
   }
 
   // Toggle play/pause of book

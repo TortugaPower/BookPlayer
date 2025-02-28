@@ -182,6 +182,30 @@ class DataInitializerCoordinator: BPLogger {
     setupBlankAccount(dataManager: dataManager)
   }
 
+  func setupPlaybackRecordsDefaults(libraryService: LibraryService) {
+    guard UserDefaults.sharedDefaults.object(forKey: Constants.UserDefaults.sharedWidgetPlaybackRecords) == nil else {
+      return
+    }
+
+    let calendar = Calendar.current
+    let now = Date()
+    let startToday = calendar.startOfDay(for: now)
+    let endDate = calendar.date(byAdding: .day, value: 1, to: startToday)!
+    let startFirstDay = calendar.date(byAdding: .day, value: -7, to: endDate)!
+
+    let records = libraryService.getPlaybackRecords(from: startFirstDay, to: endDate) ?? []
+
+    let simpleRecords = records.map {
+      SimplePlaybackRecord(time: $0.time, date: $0.date)
+    }
+
+    guard let data = try? JSONEncoder().encode(simpleRecords) else {
+      return
+    }
+
+    UserDefaults.sharedDefaults.set(data, forKey: Constants.UserDefaults.sharedWidgetPlaybackRecords)
+  }
+
   private func migratePlayerPreferences(sharedDefaults: UserDefaults) {
     let chapterContextEnabledKey = Constants.UserDefaults.chapterContextEnabled
 
