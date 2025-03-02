@@ -22,6 +22,7 @@ class UserActivityManager {
   private var referenceWorkItem: DispatchWorkItem?
   let encoder = JSONEncoder()
   let decoder = JSONDecoder()
+  let widgetReloadService = WidgetReloadService()
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -61,10 +62,16 @@ class UserActivityManager {
 
     self.libraryService.recordTime(record)
 
-    referenceWorkItem?.cancel()
+    scheduleStoreRecordInDefaults()
+  }
+
+  func scheduleStoreRecordInDefaults() {
+    guard referenceWorkItem == nil else { return }
 
     let workItem = DispatchWorkItem {
-      self.storeRecordInDefaults(record)
+      self.storeRecordInDefaults()
+      self.widgetReloadService.reloadWidget(.timeListenedWidget)
+      self.referenceWorkItem = nil
     }
 
     referenceWorkItem = workItem
@@ -72,7 +79,9 @@ class UserActivityManager {
     DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5), execute: workItem)
   }
 
-  func storeRecordInDefaults(_ record: PlaybackRecord) {
+  func storeRecordInDefaults() {
+    guard let record = playbackRecord else { return }
+
     var widgetItems: [SimplePlaybackRecord] = [
       .init(from: record)
     ]

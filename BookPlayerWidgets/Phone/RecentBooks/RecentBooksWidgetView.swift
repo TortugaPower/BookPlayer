@@ -25,14 +25,23 @@ struct BookView: View {
 
     return VStack(spacing: 5) {
       ZStack {
-        Image(
-          uiImage: UIImage(contentsOfFile: cachedImageURL.path)
-            ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)!
-        )
-        .resizable()
-        .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
-        .aspectRatio(1.0, contentMode: .fit)
-        .cornerRadius(8.0)
+        var uiImage =
+          UIImage(contentsOfFile: cachedImageURL.path)
+          ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
+
+        if let uiImage {
+          Image(uiImage: uiImage)
+            .resizable()
+            .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
+            .aspectRatio(1.0, contentMode: .fit)
+            .cornerRadius(8.0)
+        } else {
+          Rectangle()
+            .frame(width: 60, height: 60)
+            .foregroundColor(Color.gray.opacity(0.2))
+            .cornerRadius(8.0)
+        }
+
         if let pauseImage {
           Circle()
             .foregroundColor(.white)
