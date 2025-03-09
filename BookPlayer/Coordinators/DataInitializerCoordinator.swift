@@ -180,6 +180,8 @@ class DataInitializerCoordinator: BPLogger {
     setupDefaultTheme(libraryService: libraryService)
 
     setupBlankAccount(dataManager: dataManager)
+
+    setupPlaybackRecordsDefaults(libraryService: libraryService)
   }
 
   func setupPlaybackRecordsDefaults(libraryService: LibraryService) {
