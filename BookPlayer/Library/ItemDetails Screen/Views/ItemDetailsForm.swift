@@ -7,8 +7,8 @@
 //
 
 import BookPlayerKit
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 struct ItemDetailsForm: View {
   /// View model for the form
@@ -24,16 +24,18 @@ struct ItemDetailsForm: View {
 
   var body: some View {
     Form {
-      Section(header: Text("section_item_title".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
+      Section(
+        header: Text("section_item_title".localized)
+          .foregroundColor(themeViewModel.secondaryColor)
       ) {
         ClearableTextField(viewModel.titlePlaceholder, text: $viewModel.title)
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
 
       if viewModel.showAuthor {
-        Section(header: Text("section_item_author".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+        Section(
+          header: Text("section_item_author".localized)
+            .foregroundColor(themeViewModel.secondaryColor)
         ) {
           ClearableTextField(viewModel.authorPlaceholder, text: $viewModel.author)
         }
@@ -68,17 +70,22 @@ struct ItemDetailsForm: View {
       } footer: {
         VStack(alignment: .leading) {
           Text(viewModel.originalFileName)
-            .font(Font(Fonts.body))
-            .foregroundColor(themeViewModel.secondaryColor)
-          Text("\(Int(viewModel.progress * 100))%")
-            .font(Font(Fonts.body))
-            .foregroundColor(themeViewModel.secondaryColor)
+          Text("\(Int(viewModel.progress * 100))% " + "progress_title".localized.lowercased())
+          if let lastPlayedDate = viewModel.lastPlayedDate {
+            Text("watchapp_last_played_title".localized)
+              + Text(": " + lastPlayedDate)
+          }
         }
+        .font(Font(Fonts.body))
+        .foregroundColor(themeViewModel.secondaryColor)
       }
     }
-    .onChange(of: viewModel.selectedImage, perform: { _ in
-      viewModel.artworkIsUpdated = true
-    })
+    .onChange(
+      of: viewModel.selectedImage,
+      perform: { _ in
+        viewModel.artworkIsUpdated = true
+      }
+    )
     .sheet(isPresented: $showingImagePicker) {
       ImagePicker(image: $viewModel.selectedImage)
     }
@@ -112,7 +119,8 @@ struct ItemDetailsForm_Previews: PreviewProvider {
           originalFileName: "this is a test filename.mp3",
           lastPlayDate: nil,
           type: .book
-        )
+        ),
+        lastPlayedDate: nil
       )
     )
   }

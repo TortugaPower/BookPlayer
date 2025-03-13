@@ -22,6 +22,8 @@ class ItemDetailsFormViewModel: ObservableObject {
   @Published var selectedImage: UIImage?
   /// Progress of the current item
   let progress: Double
+  /// Last played date
+  let lastPlayedDate: String?
   /// Original item title
   var titlePlaceholder: String
   /// Original item author
@@ -34,7 +36,7 @@ class ItemDetailsFormViewModel: ObservableObject {
   let originalImageDataProvider: AVAudioAssetImageDataProvider
 
   /// Initializer
-  init(item: SimpleLibraryItem) {
+  init(item: SimpleLibraryItem, lastPlayedDate: Date?) {
     self.title = item.title
     self.titlePlaceholder = item.title
     self.author = item.details
@@ -45,5 +47,13 @@ class ItemDetailsFormViewModel: ObservableObject {
     self.originalImageDataProvider = ArtworkService.getArtworkProvider(for: item.relativePath)
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
     self.selectedImage = UIImage(contentsOfFile: cachedImageURL.path)
+    if let lastPlayedDate {
+      let formatter = DateFormatter()
+      formatter.timeStyle = .short
+      formatter.dateStyle = .medium
+      self.lastPlayedDate = formatter.string(from: lastPlayedDate)
+    } else {
+      self.lastPlayedDate = nil
+    }
   }
 }

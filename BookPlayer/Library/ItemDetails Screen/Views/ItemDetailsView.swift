@@ -38,7 +38,8 @@ struct ItemDetailsView_Previews: PreviewProvider {
           originalFileName: "",
           lastPlayDate: nil,
           type: .book
-        )
+        ),
+        lastPlayedDate: nil
       )
     )
   }
