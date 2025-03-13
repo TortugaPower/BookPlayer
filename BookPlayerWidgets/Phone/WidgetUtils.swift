@@ -6,14 +6,15 @@
 //  Copyright © 2020 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-import BookPlayerWatchKit
-#else
-import BookPlayerKit
-#endif
 import Foundation
 import SwiftUI
 import WidgetKit
+
+#if os(watchOS)
+  import BookPlayerWatchKit
+#else
+  import BookPlayerKit
+#endif
 
 struct WidgetColors {
   let primaryColor: Color
@@ -27,7 +28,7 @@ struct PlaybackRecordViewer: Hashable, Codable {
 }
 
 extension PlaybackRecordViewer {
-  init(record: PlaybackRecord?, date: Date) {
+  init(record: SimplePlaybackRecord?, date: Date) {
     self.date = date
     self.time = 0
 
@@ -76,12 +77,23 @@ class WidgetUtils {
     )
   }
 
-  class func getPlaybackRecord(with libraryService: LibraryService) -> PlaybackRecordViewer {
-    let record = libraryService.getCurrentPlaybackRecord()
+  class func getLastPlaybackRecord() -> PlaybackRecordViewer {
+    let record = Self.getRecordsFromDefaults().first
     return PlaybackRecordViewer(record: record, date: Date())
   }
 
-  class func getPlaybackRecords(with libraryService: LibraryService) -> [PlaybackRecordViewer] {
+  class func getRecordsFromDefaults() -> [SimplePlaybackRecord] {
+    guard
+      let recordsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetPlaybackRecords),
+      let records = try? JSONDecoder().decode([SimplePlaybackRecord].self, from: recordsData)
+    else {
+      return []
+    }
+
+    return records
+  }
+
+  class func getPlaybackRecords() -> [PlaybackRecordViewer] {
     let (
       startFirstDay,
       startSecondDay,
@@ -90,22 +102,24 @@ class WidgetUtils {
       startFifthDay,
       startSixthDay,
       startSeventhDay,
-      endDate
+      _
     ) = Self.getDateRangesForListenedTime()
 
-    let firstRecord = (libraryService.getPlaybackRecords(from: startFirstDay, to: startSecondDay) ?? []).first
+    let records = Self.getRecordsFromDefaults()
+
+    let firstRecord = records.first(where: { $0.date >= startFirstDay && $0.date < startSecondDay })
     let firstRecordViewer = PlaybackRecordViewer(record: firstRecord, date: startFirstDay)
-    let secondRecord = (libraryService.getPlaybackRecords(from: startSecondDay, to: startThirdDay) ?? []).first
+    let secondRecord = records.first(where: { $0.date >= startSecondDay && $0.date < startThirdDay })
     let secondRecordViewer = PlaybackRecordViewer(record: secondRecord, date: startSecondDay)
-    let thirdRecord = (libraryService.getPlaybackRecords(from: startThirdDay, to: startFourthDay) ?? []).first
+    let thirdRecord = records.first(where: { $0.date >= startThirdDay && $0.date < startFourthDay })
     let thirdRecordViewer = PlaybackRecordViewer(record: thirdRecord, date: startThirdDay)
-    let fourthRecord = (libraryService.getPlaybackRecords(from: startFourthDay, to: startFifthDay) ?? []).first
+    let fourthRecord = records.first(where: { $0.date >= startFourthDay && $0.date < startFifthDay })
     let fourthRecordViewer = PlaybackRecordViewer(record: fourthRecord, date: startFourthDay)
-    let fifthRecord = (libraryService.getPlaybackRecords(from: startFifthDay, to: startSixthDay) ?? []).first
+    let fifthRecord = records.first(where: { $0.date >= startFifthDay && $0.date < startSixthDay })
     let fifthRecordViewer = PlaybackRecordViewer(record: fifthRecord, date: startFifthDay)
-    let sixthRecord = (libraryService.getPlaybackRecords(from: startSixthDay, to: startSeventhDay) ?? []).first
+    let sixthRecord = records.first(where: { $0.date >= startSixthDay && $0.date < startSeventhDay })
     let sixthRecordViewer = PlaybackRecordViewer(record: sixthRecord, date: startSixthDay)
-    let seventhRecord = (libraryService.getPlaybackRecords(from: startSeventhDay, to: endDate) ?? []).first
+    let seventhRecord = records.first(where: { $0.date >= startSeventhDay })
     let seventhRecordViewer = PlaybackRecordViewer(record: seventhRecord, date: startSeventhDay)
 
     return [
@@ -148,7 +162,8 @@ class WidgetUtils {
   }
 
   class func getAppIconName() -> String {
-    return UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
+    return UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)?.string(forKey: Constants.UserDefaults.appIcon)
+      ?? "Default"
   }
 
   class func getWidgetActionURL(with bookIdentifier: String?, autoplay: Bool, timerSeconds: Double?) -> URL {
@@ -172,15 +187,18 @@ class WidgetUtils {
   }
 
   class func getColors(from theme: SimpleTheme, with colorScheme: ColorScheme) -> WidgetColors {
-    let hexPrimary: String = colorScheme == .dark
-    ? theme.darkPrimaryHex
-    : theme.lightPrimaryHex
-    let hexAccent: String = colorScheme == .dark
-    ? theme.darkAccentHex
-    : theme.lightAccentHex
-    let hexBackground: String = colorScheme == .dark
-    ? theme.darkSystemBackgroundHex
-    : theme.lightSystemBackgroundHex
+    let hexPrimary: String =
+      colorScheme == .dark
+      ? theme.darkPrimaryHex
+      : theme.lightPrimaryHex
+    let hexAccent: String =
+      colorScheme == .dark
+      ? theme.darkAccentHex
+      : theme.lightAccentHex
+    let hexBackground: String =
+      colorScheme == .dark
+      ? theme.darkSystemBackgroundHex
+      : theme.lightSystemBackgroundHex
 
     let primaryColor = UIColor(hex: hexPrimary)
     let accentColor = UIColor(hex: hexAccent)
@@ -217,34 +235,37 @@ extension WidgetConfiguration {
 }
 
 #if os(iOS)
-extension WidgetUtils {
-  class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
-    guard family == .systemMedium else {
-      return [PlaybackRecordViewer(time: 20, date: Date())]
+  extension WidgetUtils {
+    class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
+      guard family == .systemMedium else {
+        return [PlaybackRecordViewer(time: 20, date: Date())]
+      }
+
+      let calendar = Calendar.current
+      let now = Date()
+      let startToday = calendar.startOfDay(for: now)
+      let endDate = calendar.date(byAdding: .day, value: 1, to: startToday)!
+
+      let startFirstDay = calendar.date(byAdding: .day, value: -8, to: endDate)!
+      let startSecondDay = calendar.date(byAdding: .day, value: 1, to: startFirstDay)!
+      let startThirdDay = calendar.date(byAdding: .day, value: 1, to: startSecondDay)!
+      let startFourthDay = calendar.date(byAdding: .day, value: 1, to: startThirdDay)!
+      let startFifthDay = calendar.date(byAdding: .day, value: 1, to: startFourthDay)!
+      let startSixthDay = calendar.date(byAdding: .day, value: 1, to: startFifthDay)!
+      let startSeventhDay = calendar.date(byAdding: .day, value: 1, to: startSixthDay)!
+
+      let firstRecordViewer = PlaybackRecordViewer(time: 20, date: startFirstDay)
+      let secondRecordViewer = PlaybackRecordViewer(time: 60, date: startSecondDay)
+      let thirdRecordViewer = PlaybackRecordViewer(time: 0, date: startThirdDay)
+      let fourthRecordViewer = PlaybackRecordViewer(time: 20, date: startFourthDay)
+      let fifthRecordViewer = PlaybackRecordViewer(time: 120, date: startFifthDay)
+      let sixthRecordViewer = PlaybackRecordViewer(time: 3600, date: startSixthDay)
+      let seventhRecordViewer = PlaybackRecordViewer(time: 80, date: startSeventhDay)
+
+      return [
+        firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer,
+        sixthRecordViewer, seventhRecordViewer,
+      ]
     }
-
-    let calendar = Calendar.current
-    let now = Date()
-    let startToday = calendar.startOfDay(for: now)
-    let endDate = calendar.date(byAdding: .day, value: 1, to: startToday)!
-
-    let startFirstDay = calendar.date(byAdding: .day, value: -8, to: endDate)!
-    let startSecondDay = calendar.date(byAdding: .day, value: 1, to: startFirstDay)!
-    let startThirdDay = calendar.date(byAdding: .day, value: 1, to: startSecondDay)!
-    let startFourthDay = calendar.date(byAdding: .day, value: 1, to: startThirdDay)!
-    let startFifthDay = calendar.date(byAdding: .day, value: 1, to: startFourthDay)!
-    let startSixthDay = calendar.date(byAdding: .day, value: 1, to: startFifthDay)!
-    let startSeventhDay = calendar.date(byAdding: .day, value: 1, to: startSixthDay)!
-
-    let firstRecordViewer = PlaybackRecordViewer(time: 20, date: startFirstDay)
-    let secondRecordViewer = PlaybackRecordViewer(time: 60, date: startSecondDay)
-    let thirdRecordViewer = PlaybackRecordViewer(time: 0, date: startThirdDay)
-    let fourthRecordViewer = PlaybackRecordViewer(time: 20, date: startFourthDay)
-    let fifthRecordViewer = PlaybackRecordViewer(time: 120, date: startFifthDay)
-    let sixthRecordViewer = PlaybackRecordViewer(time: 3600, date: startSixthDay)
-    let seventhRecordViewer = PlaybackRecordViewer(time: 80, date: startSeventhDay)
-
-    return [firstRecordViewer, secondRecordViewer, thirdRecordViewer, fourthRecordViewer, fifthRecordViewer, sixthRecordViewer, seventhRecordViewer]
   }
-}
 #endif

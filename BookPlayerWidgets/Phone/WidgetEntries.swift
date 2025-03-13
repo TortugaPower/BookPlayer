@@ -71,13 +71,13 @@ struct LibraryEntry: TimelineEntry {
 
 struct RecentlyPlayedEntry: TimelineEntry {
   let date: Date
-  let items: [WidgetLibraryItem]
+  let items: [PlayableItem]
   let currentlyPlaying: String?
   let theme: SimpleTheme
 
   init(
     date: Date,
-    items: [WidgetLibraryItem],
+    items: [PlayableItem],
     currentlyPlaying: String?,
     theme: SimpleTheme
   ) {
@@ -89,7 +89,7 @@ struct RecentlyPlayedEntry: TimelineEntry {
 
   init(
     date: Date,
-    items: [WidgetLibraryItem],
+    items: [PlayableItem],
     currentlyPlaying: String?
   ) {
     self.date = date

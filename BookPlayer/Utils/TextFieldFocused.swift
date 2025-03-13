@@ -24,49 +24,49 @@
 //  Modified by Lysann Tranvouez on 2024-11-24.
 //
 
-
 import SwiftUI
-
 
 protocol Focusable: Hashable {
 }
 
 @available(iOS 15.0, *)
-private struct TextFieldFocused<FocusableType:Equatable & Focusable>: ViewModifier {
-    
-    @FocusState private var focused: Bool
-    @Binding private var externalFocused: FocusableType
-    private var selfkey:FocusableType
-    
-    init(externalFocused: Binding<FocusableType>, selfKey:FocusableType) {
-        self._externalFocused = externalFocused
-        self.selfkey = selfKey
-        self.focused = false
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .onChange(of: externalFocused) { newValue in
-              focused = (newValue.hashValue == selfkey.hashValue)
-            }
-            .focused($focused)
-            .onChange(of: focused) { isFocused in
-                if isFocused {
-                    externalFocused = selfkey
-                }
-            }
-    }
+private struct TextFieldFocused<FocusableType: Equatable & Focusable>: ViewModifier {
+
+  @FocusState private var focused: Bool
+  @Binding private var externalFocused: FocusableType
+  private var selfkey: FocusableType
+
+  init(externalFocused: Binding<FocusableType>, selfKey: FocusableType) {
+    self._externalFocused = externalFocused
+    self.selfkey = selfKey
+    self.focused = false
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .onChange(of: externalFocused) { newValue in
+        focused = (newValue.hashValue == selfkey.hashValue)
+      }
+      .focused($focused)
+      .onChange(of: focused) { isFocused in
+        if isFocused {
+          externalFocused = selfkey
+        }
+      }
+  }
 }
 
-
 extension View {
-    
-    @ViewBuilder
-    func focused<FocusableType:Equatable & Focusable>(_ externalFocused: Binding<FocusableType>, selfKey:FocusableType) -> some View {
-        if #available(iOS 15.0, *) {
-            self.modifier(TextFieldFocused(externalFocused: externalFocused, selfKey: selfKey))
-        } else {
-            self
-        }
+
+  @ViewBuilder
+  func focused<FocusableType: Equatable & Focusable>(
+    _ externalFocused: Binding<FocusableType>,
+    selfKey: FocusableType
+  ) -> some View {
+    if #available(iOS 15.0, *) {
+      self.modifier(TextFieldFocused(externalFocused: externalFocused, selfKey: selfKey))
+    } else {
+      self
     }
+  }
 }

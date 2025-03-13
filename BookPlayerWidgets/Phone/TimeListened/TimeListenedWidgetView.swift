@@ -13,6 +13,8 @@ import WidgetKit
 struct TimeListenedProvider: IntentTimelineProvider {
   typealias Entry = TimeListenedEntry
 
+  let decoder = JSONDecoder()
+
   func placeholder(in context: Context) -> TimeListenedEntry {
     return TimeListenedEntry(
       date: Date(),
@@ -55,17 +57,11 @@ struct TimeListenedProvider: IntentTimelineProvider {
     in context: Context,
     completion: @escaping (TimeListenedEntry) -> Void
   ) {
-    Task {
-      do {
-        let entry = try await getEntryForTimeline(
-          for: configuration,
-          context: context
-        )
-        completion(entry)
-      } catch {
-        completion(placeholder(in: context))
-      }
-    }
+    let entry = getEntryForTimeline(
+      for: configuration,
+      context: context
+    )
+    completion(entry)
   }
 
   func getTimeline(
@@ -73,45 +69,65 @@ struct TimeListenedProvider: IntentTimelineProvider {
     in context: Context,
     completion: @escaping (Timeline<TimeListenedEntry>) -> Void
   ) {
-    Task {
-      do {
-        let entry = try await getEntryForTimeline(for: configuration, context: context)
+    let entry = getEntryForTimeline(for: configuration, context: context)
 
-        completion(
-          Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate()))
-        )
-      } catch {
-        completion(
-          Timeline(entries: [], policy: .after(WidgetUtils.getNextDayDate()))
-        )
-      }
+    completion(
+      Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate()))
+    )
+  }
+
+  func getRecordsFromDefaults() -> [SimplePlaybackRecord] {
+    guard
+      let recordsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetPlaybackRecords),
+      let records = try? decoder.decode([SimplePlaybackRecord].self, from: recordsData)
+    else {
+      return []
+    }
+
+    return records
+  }
+
+  func getLastPlayedFromDefaults() -> PlayableItem? {
+    guard
+      let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
+      let items = try? decoder.decode([PlayableItem].self, from: itemsData)
+    else {
+      return nil
+    }
+
+    return items.first
+  }
+
+  func getThemeFromDefaults() -> SimpleTheme {
+    if let themeData = UserDefaults.sharedDefaults.data(
+      forKey: Constants.UserDefaults.sharedWidgetTheme
+    ), let widgetTheme = try? decoder.decode(SimpleTheme.self, from: themeData) {
+      return widgetTheme
+    } else {
+      return SimpleTheme.getDefaultTheme()
     }
   }
 
   func getEntryForTimeline(
     for configuration: PlayAndSleepActionIntent,
     context: Context
-  ) async throws -> TimeListenedEntry {
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
-    let dataManager = DataManager(coreDataStack: stack)
-    let libraryService = LibraryService(dataManager: dataManager)
-
+  ) -> TimeListenedEntry {
+    let lastPlayed = getLastPlayedFromDefaults()
+    let theme = getThemeFromDefaults()
     let records: [PlaybackRecordViewer]
 
     if context.family == .systemMedium {
-      records = WidgetUtils.getPlaybackRecords(with: libraryService)
+      records = WidgetUtils.getPlaybackRecords()
     } else {
-      records = [WidgetUtils.getPlaybackRecord(with: libraryService)]
+      records = [WidgetUtils.getLastPlaybackRecord()]
     }
 
-    let lastPlayedTitle = libraryService.getLastPlayedItems(limit: 1)?.first?.title
-    let theme = libraryService.getLibraryCurrentTheme() ?? SimpleTheme.getDefaultTheme()
     let autoplay = configuration.autoplay?.boolValue ?? true
     let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
 
     return TimeListenedEntry(
       date: Date(),
-      title: lastPlayedTitle,
+      title: lastPlayed?.title,
       theme: theme,
       timerSeconds: seconds,
       autoplay: autoplay,
