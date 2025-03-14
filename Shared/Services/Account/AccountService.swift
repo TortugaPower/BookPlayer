@@ -284,7 +284,23 @@ public final class AccountService: AccountServiceProtocol {
 
     try self.keychain.set(response.token, key: .token)
 
-    let (customerInfo, _) = try await Purchases.shared.logIn(userId)
+    guard let (customerInfo, _) = try? await Purchases.shared.logIn(userId) else {
+      UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
+
+#if os(watchOS)
+      if let existingAccount = self.getAccount() {
+        /// patch
+        self.updateAccount(
+          id: userId,
+          email: response.email,
+          donationMade: true,
+          hasSubscription: true
+        )
+      }
+#endif
+
+      return self.getAccount()
+    }
     UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
 
     if let existingAccount = self.getAccount() {
