@@ -40,6 +40,10 @@ class CoreServices: ObservableObject {
   }
 
   func checkAndReloadIfSyncIsEnabled() {
+#if os(watchOS)
+    self.hasSyncEnabled = true
+    return
+#endif
     self.hasSyncEnabled = accountService.hasSyncEnabled()
   }
 
