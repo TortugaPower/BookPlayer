@@ -136,6 +136,9 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func hasSyncEnabled() -> Bool {
+#if os(watchOS)
+    return true
+#endif
     return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true
   }
 
