@@ -16,14 +16,26 @@ struct LastPlayedView: View {
 
   func getArtworkView(for relativePath: String) -> some View {
     ZStack {
-      Image(
-        uiImage: UIImage(contentsOfFile: ArtworkService.getCachedImageURL(for: relativePath).path)
-          ?? ArtworkService.generateDefaultArtwork(from: model.theme.linkColor)!
-      )
-      .resizable()
-      .frame(width: 90, height: 90)
-      .aspectRatio(1.0, contentMode: .fit)
-      .cornerRadius(8.0)
+      var uiImage =
+        UIImage(
+          contentsOfFile:
+            ArtworkService.getCachedImageURL(for: relativePath).path
+        )
+        ?? ArtworkService.generateDefaultArtwork(from: model.theme.linkColor)
+      if let uiImage {
+        Image(
+          uiImage: uiImage
+        )
+        .resizable()
+        .frame(width: 90, height: 90)
+        .aspectRatio(1.0, contentMode: .fit)
+        .cornerRadius(8.0)
+      } else {
+        Rectangle()
+          .frame(width: 90, height: 90)
+          .foregroundColor(Color.gray.opacity(0.2))
+          .cornerRadius(8.0)
+      }
     }
   }
 

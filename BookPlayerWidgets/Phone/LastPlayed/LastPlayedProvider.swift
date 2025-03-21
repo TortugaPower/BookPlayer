@@ -71,10 +71,10 @@ struct LastPlayedProvider: TimelineProvider {
     )
   }
 
-  func getItemsFromDefaults() throws -> ([WidgetLibraryItem], SimpleTheme) {
+  func getItemsFromDefaults() throws -> ([PlayableItem], SimpleTheme) {
     guard
       let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
-      let items = try? decoder.decode([WidgetLibraryItem].self, from: itemsData)
+      let items = try? decoder.decode([PlayableItem].self, from: itemsData)
     else {
       throw BookPlayerError.emptyResponse
     }

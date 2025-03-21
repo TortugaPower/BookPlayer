@@ -48,7 +48,14 @@ class ItemDetailsViewModel: ViewModelProtocol {
     self.item = item
     self.libraryService = libraryService
     self.syncService = syncService
-    self.formViewModel = ItemDetailsFormViewModel(item: item)
+    let lastPlayedDate = libraryService.getItemProperty(
+      #keyPath(BookPlayerKit.LibraryItem.lastPlayDate),
+      relativePath: item.relativePath
+    ) as? Date
+    self.formViewModel = ItemDetailsFormViewModel(
+      item: item,
+      lastPlayedDate: lastPlayedDate
+    )
   }
 
   func observeEvents() -> AnyPublisher<ItemDetailsViewModel.Events, Never> {

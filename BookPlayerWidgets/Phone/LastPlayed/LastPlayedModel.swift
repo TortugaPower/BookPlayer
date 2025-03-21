@@ -15,7 +15,7 @@ struct LastPlayedModel {
   let isPlaying: Bool
   let theme: SimpleTheme
 
-  init(item: WidgetLibraryItem?, isPlaying: Bool, theme: SimpleTheme) {
+  init(item: PlayableItem?, isPlaying: Bool, theme: SimpleTheme) {
     self.relativePath = item?.relativePath
     self.title = item?.title
     self.isPlaying = isPlaying

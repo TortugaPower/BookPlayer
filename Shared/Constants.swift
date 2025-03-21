@@ -60,6 +60,9 @@ public enum Constants {
     /// Key to store the last played items
     public static let sharedWidgetLastPlayedItems = "sharedWidgetLastPlayedItems"
 
+    /// Key to store the playback records
+    public static let sharedWidgetPlaybackRecords = "sharedWidgetPlaybackRecords"
+
     /// Key to store the current theme
     public static let sharedWidgetTheme = "sharedWidgetTheme"
   }
@@ -81,5 +84,6 @@ public enum Constants {
     case sharedNowPlayingWidget = "com.bookplayer.shared.widget"
     case sharedIconWidget = "com.bookplayer.shared.icon.widget"
     case lastPlayedWidget = "com.bookplayer.widget.small.lastPlayed"
+    case timeListenedWidget = "com.bookplayer.widget.small.timeListened"
   }
 }

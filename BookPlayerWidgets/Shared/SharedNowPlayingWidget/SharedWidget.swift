@@ -80,7 +80,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
 #if os(watchOS)
     currentItem = try await getWatchLastPlayedItem()
 #else
-    currentItem = try await getPhoneLastPlayedItem()
+    currentItem = try getItemsFromDefaults()
 #endif
     let chapterTitle: String
 
@@ -129,30 +129,24 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
     }
   }
 
-  func getPhoneLastPlayedItem() async throws -> PlayableItem {
-    let stack = try await DatabaseInitializer().loadCoreDataStack()
-    let dataManager = DataManager(coreDataStack: stack)
-    let libraryService = LibraryService(dataManager: dataManager)
-
+  func getItemsFromDefaults() throws -> PlayableItem {
     guard
-      let lastPlayedItem = libraryService.getLastPlayedItems(limit: 1)?.first
+      let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
+      let item = try? decoder.decode([PlayableItem].self, from: itemsData).first
     else {
       throw BookPlayerError.emptyResponse
     }
 
-    let playbackService = PlaybackService(libraryService: libraryService)
-
     let prefersChapterContext = UserDefaults.sharedDefaults.bool(
       forKey: Constants.UserDefaults.chapterContextEnabled
     )
-    let currentItem = try playbackService.getPlayableItem(from: lastPlayedItem)
 
     if prefersChapterContext,
-       let currentChapter = currentItem.currentChapter {
-      currentItem.percentCompleted = ((currentItem.currentTime - currentChapter.start) / currentChapter.duration) * 100
+       let currentChapter = item.currentChapter {
+      item.percentCompleted = ((item.currentTime - currentChapter.start) / currentChapter.duration) * 100
     }
 
-    return currentItem
+    return item
   }
 }
 

@@ -28,7 +28,7 @@
 "settings_support_compose_copy" = "Αντιγραφή πληροφοριών στο πρόχειρο";
 "library_add_button" = "Προσθήκη";
 "export_button" = "Κυνή χρήση";
-"delete_button" = "Διαγράφω";
+"delete_button" = "Διαγραφή";
 "rename_button" = "Μετονομάζω";
 "delete_single_item_title" = "Θέλετε να διαγράψετε το \"%@\";";
 "delete_single_playlist_description" = "Η διαγραφή μόνο του φακέλου θα μεταφέρει όλα τα αρχεία του πίσω στη Βιβλιοθήκη.";
@@ -322,6 +322,7 @@
 "repeat_turn_on_title" = "Ενεργοποιήστε το Repeat για αυτό το βιβλίο";
 "repeat_turn_off_title" = "Απενεργοποιήστε το Repeat για αυτό το βιβλίο";
 "benefits_watchapp_description" = "Μεταδώστε ροή ή κατεβάστε τα βιβλία σας και ακούστε τα εν κινήσει χωρίς το τηλέφωνό σας.";
+"subscription_required_title" = "Απαιτείται συνδρομή";
 "download_from_jellyfin_title" = "Λήψη από το Jellyfin";
 "jellyfin_connection_details_title" = "Στοιχεία σύνδεσης";
 "jellyfin_connect_button" = "Συνδέω";
@@ -344,7 +345,6 @@
 "jellyfin_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";
-"subscription_required_title" = "Απαιτείται συνδρομή";
 "Swipe rows to see download options" = "Σύρετε σειρές για να δείτε τις επιλογές λήψης";
-"settings_seekprogressbar_title" = "Progress Bar Seeking";
-"settings_seekprogressbar_description" = "Enable seeking on the lock screen";
+"settings_seekprogressbar_title" = "Αναζήτηση προόδου";
+"settings_seekprogressbar_description" = "Ενεργοποιήστε την αναζήτηση στην οθόνη κλειδώματος";
