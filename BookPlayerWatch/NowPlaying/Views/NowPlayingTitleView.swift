@@ -23,7 +23,7 @@ struct NowPlayingTitleView: View {
       Text(item?.title ?? "")
         .font(.headline)
         .foregroundColor(Color.primary)
-        .lineLimit(2)
+        .lineLimit(1)
         .fixedSize(horizontal: false, vertical: true)
     }
     .accessibilityElement(children: .ignore)
