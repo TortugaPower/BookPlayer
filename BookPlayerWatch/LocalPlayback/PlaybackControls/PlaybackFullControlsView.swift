@@ -49,18 +49,6 @@ struct PlaybackFullControlsView: View {
   var body: some View {
     GeometryReader { metrics in
       List {
-        Section("settings_siri_sleeptimer_title".localized.uppercased()) {
-          NavigationLink {
-            SleepTimerView()
-          } label: {
-            HStack {
-              Text(timerState)
-              Spacer()
-              Image(systemName: "chevron.forward")
-            }
-          }
-        }
-
         Section("speed_title".localized.uppercased()) {
           VStack {
             HStack {
@@ -100,14 +88,27 @@ struct PlaybackFullControlsView: View {
               Spacer()
             }
           }
-        }
-        .listRowBackground(Color.clear)
+          .listRowBackground(Color.clear)
 
-        Section {
           Toggle(
             "settings_globalspeed_title",
             isOn: $globalSpeedEnabled
           )
+        }
+
+        Section("settings_siri_sleeptimer_title".localized.uppercased()) {
+          NavigationLink {
+            SleepTimerView()
+          } label: {
+            HStack {
+              Text(timerState)
+              Spacer()
+              Image(systemName: "chevron.forward")
+            }
+          }
+        }
+
+        Section("settings_playback_title".localized.uppercased()) {
           Toggle(
             "settings_boostvolume_title",
             isOn: $boostVolumeEnabled
