@@ -89,7 +89,7 @@ class SettingsViewModel: ViewModelProtocol {
   }
 
   func hasMadeDonation() -> Bool {
-    return accountService.hasSyncEnabled()
+    return accountService.hasPlusAccess()
   }
 
   /// Handle registering the value in `UserDefaults`

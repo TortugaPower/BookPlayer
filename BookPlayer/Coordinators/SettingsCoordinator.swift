@@ -162,12 +162,12 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
     if self.accountService.getAccountId() != nil {
       child = CompleteAccountCoordinator(
-        flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+        flow: .modalFlow(presentingController: flow.navigationController.getTopVisibleViewController()!, prefersMediumDetent: true),
         accountService: self.accountService
       )
     } else {
       let loginCoordinator = LoginCoordinator(
-        flow: .modalFlow(presentingController: flow.navigationController),
+        flow: .modalFlow(presentingController: flow.navigationController.getTopVisibleViewController()!),
         accountService: self.accountService
       )
       loginCoordinator.onFinish = { [unowned self] routes in

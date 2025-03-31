@@ -53,8 +53,7 @@ class LoginViewController: UIViewController {
     let stackView = LoginBenefitView(
       title: "benefits_themesicons_title".localized,
       description: "benefits_themesicons_description".localized,
-      shouldAddOverlay: true,
-      imageName: "BookPlayerPlus",
+      systemName: "paintpalette.fill",
       imageAlpha: 0.5
     )
     stackView.translatesAutoresizingMaskIntoConstraints = false
