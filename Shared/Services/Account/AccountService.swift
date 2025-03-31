@@ -343,10 +343,11 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func getSecondOnboarding<T: Decodable>() async throws -> T {
+    /// TODO: Update RC SDK to have access to refund date
     guard
       let customerInfo = Purchases.shared.cachedCustomerInfo,
       let countryCode = await Storefront.currentStorefront?.countryCode,
-      customerInfo.entitlements.all.isEmpty || customerInfo.entitlements.all["pro"]?.isActive == false
+      customerInfo.entitlements.all.isEmpty
     else {
       throw SecondOnboardingError.notApplicable
     }
