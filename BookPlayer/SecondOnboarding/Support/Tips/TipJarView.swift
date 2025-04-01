@@ -27,14 +27,19 @@ struct TipJarView: View {
 
         HStack(spacing: Spacing.S1) {
           Spacer()
-          ForEach(TipOption.allCases) { option in
-            TipOptionView(
-              title: .constant(option.title),
-              price: .constant(option.price),
-              isSelected: .constant(selected == option)
-            )
-            .onTapGesture {
-              selected = option
+          if viewModel.isLoading {
+            ProgressView()
+                .scaleEffect(1.74)
+          } else {
+            ForEach(TipOption.allCases) { option in
+              TipOptionView(
+                title: .constant(option.title),
+                price: .constant(viewModel.localizedPrices[option.rawValue] ?? option.price),
+                isSelected: .constant(selected == option)
+              )
+              .onTapGesture {
+                selected = option
+              }
             }
           }
           Spacer()
@@ -44,7 +49,7 @@ struct TipJarView: View {
             await viewModel.donate(selected)
           }
         }) {
-          Text("Donate")
+          Text("donate_title".localized)
             .contentShape(Rectangle())
             .font(Font(Fonts.headline))
             .frame(height: 45)
@@ -54,6 +59,7 @@ struct TipJarView: View {
             .cornerRadius(6)
             .padding(.top, Spacing.S1)
         }
+        .disabled(viewModel.isLoading)
         Spacer()
       }
       .padding(.horizontal, Spacing.M)
@@ -68,14 +74,14 @@ struct TipJarView: View {
         }
 
         ToolbarItem(placement: .confirmationAction) {
-          Button("Restore") {
+          Button("restore_title".localized) {
             Task { @MainActor in
               await viewModel.restorePurchases()
             }
           }
         }
       }
-      .navigationTitle("Tip Jar")
+      .navigationTitle("settings_tip_jar_title".localized)
       .navigationBarTitleDisplayMode(.inline)
     }
   }
