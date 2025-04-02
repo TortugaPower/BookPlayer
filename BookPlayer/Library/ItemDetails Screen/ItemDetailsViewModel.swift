@@ -48,8 +48,9 @@ class ItemDetailsViewModel: ViewModelProtocol {
     self.item = item
     self.libraryService = libraryService
     self.syncService = syncService
+    /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.lastPlayDate)
     let lastPlayedDate = libraryService.getItemProperty(
-      #keyPath(BookPlayerKit.LibraryItem.lastPlayDate),
+      "lastPlayDate",
       relativePath: item.relativePath
     ) as? Date
     self.formViewModel = ItemDetailsFormViewModel(

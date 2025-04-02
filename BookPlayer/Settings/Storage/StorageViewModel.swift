@@ -273,8 +273,9 @@ final class StorageViewModel: StorageViewModelProtocol {
               let fileAttributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path) else { continue }
 
         let currentRelativePath = self.getRelativePath(of: fileURL, baseURL: processedFolder)
+        /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
         let fetchedTitle = self.libraryService.getItemProperty(
-          #keyPath(BookPlayerKit.LibraryItem.title),
+          "title",
           relativePath: currentRelativePath
         ) as? String
 
