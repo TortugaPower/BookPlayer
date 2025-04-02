@@ -10,7 +10,6 @@ import BookPlayerKit
 import Foundation
 import RevenueCat
 
-@MainActor
 public final class TipJarViewModel: ObservableObject {
   enum Routes {
     case showLoader(Bool)
@@ -19,6 +18,12 @@ public final class TipJarViewModel: ObservableObject {
     case dismiss
   }
 
+  @Published var isLoading: Bool = true
+  @Published var localizedPrices: [String: String] = [
+    TipOption.kind.rawValue: TipOption.kind.price,
+    TipOption.excellent.rawValue: TipOption.excellent.price,
+    TipOption.incredible.rawValue: TipOption.incredible.price
+  ]
   let disclaimer: String?
   let accountService: AccountServiceProtocol
   /// Callback to handle actions on this screen
@@ -30,8 +35,10 @@ public final class TipJarViewModel: ObservableObject {
   ) {
     self.disclaimer = disclaimer
     self.accountService = accountService
+    self.loadPrices()
   }
 
+  @MainActor
   func donate(_ tip: TipOption) async {
     onTransition?(.showLoader(true))
     do {
@@ -57,6 +64,7 @@ public final class TipJarViewModel: ObservableObject {
     }
   }
 
+  @MainActor
   func restorePurchases() async {
     onTransition?(.showLoader(true))
     do {
@@ -87,7 +95,24 @@ public final class TipJarViewModel: ObservableObject {
     }
   }
 
+  @MainActor
   func dismiss() {
     onTransition?(.dismiss)
+  }
+
+  func loadPrices() {
+    Task { @MainActor in
+      let products = await Purchases.shared.products([
+        TipOption.kind.rawValue,
+        TipOption.excellent.rawValue,
+        TipOption.incredible.rawValue
+      ])
+
+      products.forEach {
+        self.localizedPrices[$0.productIdentifier] = $0.localizedPriceString
+      }
+
+      self.isLoading = false
+    }
   }
 }

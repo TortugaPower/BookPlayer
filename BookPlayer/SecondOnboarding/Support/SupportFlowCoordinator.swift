@@ -18,6 +18,7 @@ class SupportFlowCoordinator: Coordinator, AlertPresenter {
   let flow: BPCoordinatorPresentationFlow
   let anonymousId: String
   let onboardingId: String
+  let onlyTipJar: Bool
   unowned var presentedController: UIViewController?
 
   init(
@@ -25,6 +26,7 @@ class SupportFlowCoordinator: Coordinator, AlertPresenter {
     anonymousId: String,
     onboardingId: String,
     stories: [StoryViewModel],
+    onlyTipJar: Bool,
     accountService: AccountServiceProtocol,
     eventsService: EventsServiceProtocol
   ) {
@@ -32,11 +34,20 @@ class SupportFlowCoordinator: Coordinator, AlertPresenter {
     self.anonymousId = anonymousId
     self.onboardingId = onboardingId
     self.stories = stories
+    self.onlyTipJar = onlyTipJar
     self.accountService = accountService
     self.eventsService = eventsService
   }
 
   func start() {
+    if onlyTipJar {
+      self.startTipJar(disclaimer: stories.first?.action?.tipJarDisclaimer)
+    } else {
+      self.startStories()
+    }
+  }
+
+  func startStories() {
     let subscriptionService = StoryAccountSubscriptionService(accountService: accountService)
     let viewModel = StoryViewerViewModel(
       subscriptionService: subscriptionService,
@@ -103,7 +114,41 @@ class SupportFlowCoordinator: Coordinator, AlertPresenter {
     }
   }
 
-  @MainActor
+  func startTipJar(disclaimer: String?) {
+    let viewModel = TipJarViewModel(
+      disclaimer: disclaimer,
+      accountService: accountService
+    )
+
+    viewModel.onTransition = { route in
+      switch route {
+      case .showLoader(let flag):
+        if flag {
+          self.showLoader()
+        } else {
+          self.stopLoader()
+        }
+      case .showAlert(let model):
+        self.presentedController?.getTopVisibleViewController()?.showAlert(model)
+      case .success(let message):
+        self.showCongratsTip(message)
+      case .dismiss:
+        self.flow.finishPresentation(animated: true)
+      }
+    }
+
+    let vc = UIHostingController(rootView: TipJarView(viewModel: viewModel))
+    presentedController = vc
+    flow.startPresentation(vc, animated: true)
+    eventsService.sendEvent(
+      "second_onboarding_start",
+      payload: [
+        "rc_id": anonymousId,
+        "onboarding_id": onboardingId,
+      ]
+    )
+  }
+
   func showTipJar(disclaimer: String?) {
     let viewModel = TipJarViewModel(
       disclaimer: disclaimer,

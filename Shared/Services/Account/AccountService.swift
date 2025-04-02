@@ -142,8 +142,10 @@ public final class AccountService: AccountServiceProtocol {
   public func hasPlusAccess() -> Bool {
     let entitlements = Purchases.shared.cachedCustomerInfo?.entitlements.all
 
+    // TODO: replace pro.isActive == false for check of refund == nil
     return entitlements?["plus"]?.isActive == true ||
     entitlements?["pro"]?.isActive == true ||
+    entitlements?["pro"]?.isActive == false ||
     getAccount()?.donationMade == true
   }
 

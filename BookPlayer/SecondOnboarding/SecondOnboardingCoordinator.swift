@@ -50,6 +50,20 @@ class SecondOnboardingCoordinator: Coordinator {
         anonymousId: anonymousId,
         onboardingId: data.onboardingId,
         stories: stories,
+        onlyTipJar: false,
+        accountService: accountService,
+        eventsService: eventsService
+      )
+      coordinator.start()
+    case .tips:
+      let stories = await parseStoryData(data.support)
+
+      let coordinator = SupportFlowCoordinator(
+        flow: flow,
+        anonymousId: anonymousId,
+        onboardingId: data.onboardingId,
+        stories: stories,
+        onlyTipJar: true,
         accountService: accountService,
         eventsService: eventsService
       )
