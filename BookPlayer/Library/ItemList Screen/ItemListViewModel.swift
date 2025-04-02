@@ -104,8 +104,9 @@ class ItemListViewModel: ViewModelProtocol {
       return "library_title".localized
     }
 
+    /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
     return libraryService.getItemProperty(
-      #keyPath(BookPlayerKit.LibraryItem.title),
+      "title",
       relativePath: folderRelativePath
     ) as? String
     ?? ""
@@ -1117,8 +1118,9 @@ extension ItemListViewModel {
     if let suggestedFolderName {
       firstTitle = suggestedFolderName
     } else if let relativePath = itemIdentifiers.first {
+      /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
       firstTitle = libraryService.getItemProperty(
-        #keyPath(BookPlayerKit.LibraryItem.title), relativePath: relativePath
+        "title", relativePath: relativePath
       ) as? String
     }
 
