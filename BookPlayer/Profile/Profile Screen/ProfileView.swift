@@ -39,7 +39,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
           }
         )
         .padding([.trailing, .leading], Spacing.M)
-      } else if viewModel.account?.hasSubscription == false, viewModel.account?.id.isEmpty == true {
+      } else if viewModel.account?.hasSubscription == false {
         VStack {
           Text("BookPlayer Pro")
             .font(Font(Fonts.title))
