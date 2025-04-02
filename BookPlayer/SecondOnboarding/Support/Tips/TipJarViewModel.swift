@@ -10,7 +10,6 @@ import BookPlayerKit
 import Foundation
 import RevenueCat
 
-@MainActor
 public final class TipJarViewModel: ObservableObject {
   enum Routes {
     case showLoader(Bool)
@@ -39,6 +38,7 @@ public final class TipJarViewModel: ObservableObject {
     self.loadPrices()
   }
 
+  @MainActor
   func donate(_ tip: TipOption) async {
     onTransition?(.showLoader(true))
     do {
@@ -64,6 +64,7 @@ public final class TipJarViewModel: ObservableObject {
     }
   }
 
+  @MainActor
   func restorePurchases() async {
     onTransition?(.showLoader(true))
     do {
@@ -94,6 +95,7 @@ public final class TipJarViewModel: ObservableObject {
     }
   }
 
+  @MainActor
   func dismiss() {
     onTransition?(.dismiss)
   }
