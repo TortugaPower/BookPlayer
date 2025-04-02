@@ -11,7 +11,12 @@ import Foundation
 public enum AccountAPI {
   case login(token: String)
   case delete
-  case secondOnboarding(anonymousId: String, firstSeen: Double, region: String)
+  case secondOnboarding(
+    anonymousId: String,
+    firstSeen: Double,
+    region: String,
+    version: String
+  )
 }
 
 extension AccountAPI: Endpoint {
@@ -43,11 +48,12 @@ extension AccountAPI: Endpoint {
       return ["token_id": token]
     case .delete:
       return nil
-    case .secondOnboarding(let anonymousId, let firstSeen, let region):
+    case .secondOnboarding(let anonymousId, let firstSeen, let region, let version):
       return [
         "rc_id": anonymousId,
         "first_seen": firstSeen,
         "region": region,
+        "app_version": version
       ]
     }
   }

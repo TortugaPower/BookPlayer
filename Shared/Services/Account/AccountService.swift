@@ -357,7 +357,8 @@ public final class AccountService: AccountServiceProtocol {
     return try await provider.request(.secondOnboarding(
       anonymousId: customerInfo.id,
       firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
-      region: countryCode
+      region: countryCode,
+      version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     ))
   }
 }
