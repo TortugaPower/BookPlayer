@@ -32,19 +32,17 @@ class AccountProBenefitsView: UIStackView {
     )
   }()
 
-  private lazy var cosmeticBenefitView: UIView = {
+  private lazy var watchBenefitView: UIView = {
     return AccountRowContainerView(
-      title: "benefits_themesicons_title".localized,
-      shouldAddOverlay: true,
-      imageName: "BookPlayerPlus",
-      imageAlpha: 0.5
+      title: "Apple Watch (Beta)",
+      systemImageName: "applewatch.radiowaves.left.and.right"
     )
   }()
 
-  private lazy var supportBenefitView: UIView = {
+  private lazy var cosmeticBenefitView: UIView = {
     return AccountRowContainerView(
-      title: "benefits_supportus_title".localized,
-      imageName: "plusImageSupport"
+      title: "benefits_themesicons_title".localized,
+      systemImageName: "paintpalette.fill"
     )
   }()
 
@@ -73,8 +71,8 @@ class AccountProBenefitsView: UIStackView {
   func addSubviews() {
     addArrangedSubview(titleStackView)
     addArrangedSubview(cloudBenefitView)
+    addArrangedSubview(watchBenefitView)
     addArrangedSubview(cosmeticBenefitView)
-    addArrangedSubview(supportBenefitView)
     addArrangedSubview(completeButton)
   }
 

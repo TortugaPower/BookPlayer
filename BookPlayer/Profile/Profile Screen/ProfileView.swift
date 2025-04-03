@@ -14,38 +14,53 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
   var body: some View {
-    GeometryReader { geometryProxy in
-      ScrollView {
-        VStack(spacing: Spacing.M) {
-          ProfileCardView(account: $viewModel.account)
-            .onTapGesture {
-              viewModel.showAccount()
-            }
-            .padding([.top, .trailing, .leading], Spacing.S)
-
-          ProfileListenedTimeView(
-            formattedListeningTime: $viewModel.totalListeningTimeFormatted
-          )
-
-          Spacer()
-
-          if viewModel.account?.hasSubscription == true,
-             viewModel.account?.id.isEmpty == false {
-            ProfileSyncTasksStatusView(
-              buttonText: $viewModel.tasksButtonText,
-              statusMessage: $viewModel.refreshStatusMessage,
-              themeViewModel: themeViewModel,
-              showTasksAction: {
-                viewModel.showTasks()
-              }
-            )
-            .padding([.trailing, .leading], Spacing.M)
-            .padding([.bottom], viewModel.bottomOffset)
-          }
+    VStack(spacing: Spacing.M) {
+      ProfileCardView(account: $viewModel.account)
+        .onTapGesture {
+          viewModel.showAccount()
         }
-        .frame(maxWidth: .infinity, minHeight: geometryProxy.size.height)
+        .padding([.top, .trailing, .leading], Spacing.S)
+
+      ProfileListenedTimeView(
+        formattedListeningTime: $viewModel.totalListeningTimeFormatted
+      )
+
+      Spacer()
+
+      if viewModel.account?.hasSubscription == true,
+        viewModel.account?.id.isEmpty == false
+      {
+        ProfileSyncTasksStatusView(
+          buttonText: $viewModel.tasksButtonText,
+          statusMessage: $viewModel.refreshStatusMessage,
+          themeViewModel: themeViewModel,
+          showTasksAction: {
+            viewModel.showTasks()
+          }
+        )
+        .padding([.trailing, .leading], Spacing.M)
+      } else if viewModel.account?.hasSubscription == false {
+        VStack {
+          Text("BookPlayer Pro")
+            .font(Font(Fonts.title))
+            .foregroundColor(themeViewModel.primaryColor)
+          Button(
+            action: {
+              viewModel.showAccount()
+            },
+            label: {
+              Text("learn_more_title".localized)
+                .font(.system(size: 11, weight: .bold))
+                .frame(minWidth: 92, minHeight: 22)
+                .background(themeViewModel.linkColor)
+                .foregroundColor(.white)
+                .clipShape(Capsule())
+            }
+          )
+        }
       }
     }
+    .padding([.bottom], viewModel.bottomOffset)
     .environmentObject(themeViewModel)
   }
 }

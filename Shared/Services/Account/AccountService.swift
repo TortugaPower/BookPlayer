@@ -142,8 +142,10 @@ public final class AccountService: AccountServiceProtocol {
   public func hasPlusAccess() -> Bool {
     let entitlements = Purchases.shared.cachedCustomerInfo?.entitlements.all
 
+    // TODO: replace pro.isActive == false for check of refund == nil
     return entitlements?["plus"]?.isActive == true ||
     entitlements?["pro"]?.isActive == true ||
+    entitlements?["pro"]?.isActive == false ||
     getAccount()?.donationMade == true
   }
 
@@ -343,10 +345,11 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func getSecondOnboarding<T: Decodable>() async throws -> T {
+    /// TODO: Update RC SDK to have access to refund date
     guard
       let customerInfo = Purchases.shared.cachedCustomerInfo,
       let countryCode = await Storefront.currentStorefront?.countryCode,
-      customerInfo.entitlements.all.isEmpty || customerInfo.entitlements.all["pro"]?.isActive == false
+      customerInfo.entitlements.all.isEmpty
     else {
       throw SecondOnboardingError.notApplicable
     }
@@ -354,7 +357,8 @@ public final class AccountService: AccountServiceProtocol {
     return try await provider.request(.secondOnboarding(
       anonymousId: customerInfo.id,
       firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
-      region: countryCode
+      region: countryCode,
+      version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     ))
   }
 }

@@ -457,6 +457,10 @@
 		63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85222CE302D200EDBEA8 /* LoginView.swift */; };
 		63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
 		63CD85432CE3105300EDBEA8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85422CE3105300EDBEA8 /* ProfileView.swift */; };
+		63E15D972D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15D962D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift */; };
+		63E15D9A2D8F1461005B42E5 /* SleepTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15D992D8F1461005B42E5 /* SleepTimerView.swift */; };
+		63E15DA22D91C934005B42E5 /* CountDownPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */; };
+		63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */; };
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
 		63E54C342D50576C0040355D /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C332D50576C0040355D /* TipJarView.swift */; };
 		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
@@ -1265,6 +1269,10 @@
 		63CD85222CE302D200EDBEA8 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BP+ErrorAlerts.swift"; sourceTree = "<group>"; };
 		63CD85422CE3105300EDBEA8 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		63E15D962D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFullControlsViewModel.swift; sourceTree = "<group>"; };
+		63E15D992D8F1461005B42E5 /* SleepTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerView.swift; sourceTree = "<group>"; };
+		63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountDownPickerView.swift; sourceTree = "<group>"; };
+		63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerCommandsView.swift; sourceTree = "<group>"; };
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
 		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
 		63E54C352D50626A0040355D /* TipOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOptionView.swift; sourceTree = "<group>"; };
@@ -1686,19 +1694,10 @@
 				6350E4632CF004160077CDC1 /* LoadingView.swift */,
 				9FE07E1A27C522DE007591F7 /* RootView.swift */,
 				630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */,
-				6350E4652CF423030077CDC1 /* PlayerManager.swift */,
-				6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */,
-				6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */,
-				6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */,
-				6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */,
-				6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */,
 				6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */,
-				6334CF202CFE330300F1FA17 /* RefreshableListView.swift */,
 				63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */,
-				4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */,
-				465D87502D3195B600A4AA47 /* Bookmarks */,
+				63E15D932D8F0A4E005B42E5 /* LocalPlayback */,
 				63CD851B2CE2963600EDBEA8 /* Settings */,
-				6399D06E2CEBA1F900A2E278 /* RemoteItemList */,
 				9FA334B427C156DB0064E8EA /* ItemList */,
 				9FA334B727C163510064E8EA /* NowPlaying */,
 				9F197EFC27C325150029C989 /* ChapterList */,
@@ -2400,6 +2399,8 @@
 		6399D06E2CEBA1F900A2E278 /* RemoteItemList */ = {
 			isa = PBXGroup;
 			children = (
+				4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */,
+				6334CF202CFE330300F1FA17 /* RefreshableListView.swift */,
 				6399D06F2CEBA35D00A2E278 /* RemoteItemListView.swift */,
 				63E54C312D494E110040355D /* RemoteItemListViewModel.swift */,
 				6399D0712CEBA37C00A2E278 /* RemoteItemListCellView.swift */,
@@ -2470,6 +2471,40 @@
 				63CD85422CE3105300EDBEA8 /* ProfileView.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		63E15D932D8F0A4E005B42E5 /* LocalPlayback */ = {
+			isa = PBXGroup;
+			children = (
+				63E15D942D8F1053005B42E5 /* Player */,
+				6399D06E2CEBA1F900A2E278 /* RemoteItemList */,
+				63E15D982D8F1234005B42E5 /* PlaybackControls */,
+				465D87502D3195B600A4AA47 /* Bookmarks */,
+			);
+			path = LocalPlayback;
+			sourceTree = "<group>";
+		};
+		63E15D942D8F1053005B42E5 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				6350E4652CF423030077CDC1 /* PlayerManager.swift */,
+				6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */,
+				6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */,
+				6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		63E15D982D8F1234005B42E5 /* PlaybackControls */ = {
+			isa = PBXGroup;
+			children = (
+				63E15D962D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift */,
+				6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */,
+				63E15D992D8F1461005B42E5 /* SleepTimerView.swift */,
+				63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */,
+				6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */,
+			);
+			path = PlaybackControls;
 			sourceTree = "<group>";
 		};
 		63E5D6A92AECB8AB00A67B32 /* Phone */ = {
@@ -2596,6 +2631,7 @@
 			isa = PBXGroup;
 			children = (
 				9FA334C627C28D650064E8EA /* PlaybackControlsView.swift */,
+				63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */,
 			);
 			path = PlaybackControls;
 			sourceTree = "<group>";
@@ -3553,6 +3589,7 @@
 				6399D0722CEBA37C00A2E278 /* RemoteItemListCellView.swift in Sources */,
 				6334CF212CFE330300F1FA17 /* RefreshableListView.swift in Sources */,
 				63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */,
+				63E15D9A2D8F1461005B42E5 /* SleepTimerView.swift in Sources */,
 				9FA334B627C15DE30064E8EA /* VolumeView.swift in Sources */,
 				46EEDDC92D23154C0063811F /* VoiceOverService.swift in Sources */,
 				6350E46D2CF4315B0077CDC1 /* PlayerLoaderService.swift in Sources */,
@@ -3576,6 +3613,7 @@
 				465D87522D3195D600A4AA47 /* BookmarksView.swift in Sources */,
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
 				6350E4762CF4F6E90077CDC1 /* PlaybackFullControlsView.swift in Sources */,
+				63E15D972D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift in Sources */,
 				6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */,
 				630EC82F2CEF9F0700C19411 /* ForcedEnvironment.swift in Sources */,
 				6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */,
@@ -3584,6 +3622,7 @@
 				6334CF1B2CF8D87500F1FA17 /* SkipDurationListView.swift in Sources */,
 				9FF383D22A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
 				6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */,
+				63E15DA22D91C934005B42E5 /* CountDownPickerView.swift in Sources */,
 				6350E46E2CF4316E0077CDC1 /* BPPlayerError.swift in Sources */,
 				9FA334C327C2833B0064E8EA /* ResizeableImageView.swift in Sources */,
 				9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */,
@@ -3597,6 +3636,7 @@
 				6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */,
 				63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */,
 				6350E46C2CF42FE10077CDC1 /* AVPlayer+BookPlayer.swift in Sources */,
+				63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */,
 				6350E4682CF4248A0077CDC1 /* SpeedService.swift in Sources */,
 				63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */,
 				6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */,
@@ -4422,7 +4462,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4456,7 +4496,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4488,7 +4528,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4524,7 +4564,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4565,7 +4605,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4603,7 +4643,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4772,7 +4812,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4810,7 +4850,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4846,7 +4886,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4999,7 +5039,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5037,7 +5077,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5259,7 +5299,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5297,7 +5337,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5333,7 +5373,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5372,7 +5412,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5412,7 +5452,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5450,7 +5490,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5542,7 +5582,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.5.5;
+				MARKETING_VERSION = 5.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

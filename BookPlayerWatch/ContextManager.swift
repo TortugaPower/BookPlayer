@@ -165,6 +165,22 @@ class ContextManager: ObservableObject, BPLogger {
     self.isPlaying = !self.isPlaying
   }
 
+  func handleSleepTimer(_ state: SleepTimerState) throws {
+    var payload = [String: AnyObject]()
+    payload["command"] = Command.sleep.rawValue as AnyObject
+
+    switch state {
+    case .off:
+      payload["seconds"] = "-1" as AnyObject
+    case .endOfChapter:
+      payload["seconds"] = "-2" as AnyObject
+    case .countdown(let timeInterval):
+      payload["seconds"] = "\(timeInterval)" as AnyObject
+    }
+
+    try self.watchConnectivityService.send(message: payload)
+  }
+
   func requestData() {
     let encoder = JSONEncoder()
     let data = try! encoder.encode(["command": Command.refresh.rawValue])

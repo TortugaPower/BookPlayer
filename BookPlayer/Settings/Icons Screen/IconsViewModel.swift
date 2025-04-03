@@ -27,7 +27,7 @@ final class IconsViewModel {
   @Published var account: Account?
 
   var hasSubscription: Bool {
-    return accountService.hasSyncEnabled()
+    return accountService.hasPlusAccess()
   }
 
   /// Callback to handle actions on this screen

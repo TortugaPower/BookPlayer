@@ -138,7 +138,7 @@ class ProfileViewModel: ProfileViewModelProtocol {
     let timeDifference = Date().timeIntervalSince(storedDate)
 
     guard
-      let formattedTime = formatTime(timeDifference, units: [.minute, .second])
+      let formattedTime = formatTime(timeDifference, units: [.day, .hour, .minute, .second])
     else { return }
 
     refreshStatusMessage = String(format: "last_sync_title".localized, formattedTime)

@@ -9,6 +9,17 @@
 import BookPlayerWatchKit
 import WatchConnectivity
 
+public enum WatchConnectivityError: LocalizedError {
+  case notReachable
+
+  public var errorDescription: String? {
+    switch self {
+    case .notReachable:
+      return "watchapp_connect_error_description".localized
+    }
+  }
+}
+
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
   public var didReceiveData: ((Data) -> Void)?
   public var didReceiveContext: (([String: Any]) -> Void)?
@@ -63,6 +74,17 @@ extension WatchConnectivityService {
                           replyHandler: (([String: Any]) -> Void)? = nil,
                           errorHandler: ((Error) -> Void)? = nil) {
     self.validReachableSession?.sendMessage(message, replyHandler: replyHandler, errorHandler: errorHandler)
+  }
+
+  public func send(message: [String: AnyObject]) throws {
+    guard
+      let session = self.validReachableSession,
+      session.activationState == .activated
+    else {
+      throw WatchConnectivityError.notReachable
+    }
+
+    session.sendMessage(message, replyHandler: nil)
   }
 
   public func sendMessageData(data: Data,
