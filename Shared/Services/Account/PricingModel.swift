@@ -20,7 +20,7 @@ public struct PricingModel: Identifiable, Equatable, Codable {
   }
 }
 
-public enum PricingOption: String, Identifiable, Codable {
+public enum PricingOption: String, Identifiable, Codable, CaseIterable {
   public var id: Self { self }
 
   public static func parseValue(_ value: Int) -> Self? {
