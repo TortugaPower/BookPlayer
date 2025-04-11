@@ -88,8 +88,16 @@ class SettingsViewModel: ViewModelProtocol {
     self.account = self.accountService.getAccount()
   }
 
+  func hasActiveSubscription() -> Bool {
+    return accountService.hasSyncEnabled()
+  }
+
   func hasMadeDonation() -> Bool {
     return accountService.hasPlusAccess()
+  }
+
+  func getAnonymousId() -> String {
+    return accountService.getAnonymousId() ?? ""
   }
 
   /// Handle registering the value in `UserDefaults`
