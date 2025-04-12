@@ -467,22 +467,30 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @IBAction func sendSupportEmail() {
     let device = Device.current
+    let appVersion = self.appVersion
+    let versionSuffix = viewModel.hasActiveSubscription()
+    ? "c"
+    : viewModel.hasMadeDonation()
+    ? "p"
+    : "r"
 
     if MFMailComposeViewController.canSendMail() {
       let mail = MFMailComposeViewController()
 
       mail.mailComposeDelegate = self
       mail.setToRecipients([self.supportEmail])
-      /// Note: c for cloud enabled
-      let subject: String = viewModel.hasMadeDonation()
-      ? "I need help with BookPlayer \(self.version)-\(self.build)c"
-      : "I need help with BookPlayer \(self.version)-\(self.build)"
+      let subject: String = "I need help with BookPlayer \(appVersion)\(versionSuffix)"
       mail.setSubject(subject)
-      mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue concerning BookPlayer \(self.appVersion) on my \(device) running \(self.systemVersion)</p><p>When I try to…</p>", isHTML: true)
+      if let attachmentData = "\(viewModel.getAnonymousId())\nApp version: \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)".data(using: .utf8) {
+        mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/>", isHTML: true)
+        mail.addAttachmentData(attachmentData, mimeType: "text/plain", fileName: "build-info.txt")
+      } else {
+        mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/><br/> <p>Debug info:<br/>\(viewModel.getAnonymousId())<br/>App version: \(appVersion)\(versionSuffix)<br/>\(device) - \(self.systemVersion)</p>", isHTML: true)
+      }
 
       self.present(mail, animated: true)
     } else {
-      let debugInfo = "BookPlayer \(self.appVersion)\n\(device) - \(self.systemVersion)"
+      let debugInfo = "BookPlayer \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)\n\n\(viewModel.getAnonymousId())"
       let message = "settings_support_compose_description".localized
 
       let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)

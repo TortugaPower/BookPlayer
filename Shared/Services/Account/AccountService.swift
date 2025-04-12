@@ -140,13 +140,39 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func hasPlusAccess() -> Bool {
-    let entitlements = Purchases.shared.cachedCustomerInfo?.entitlements.all
+    guard let cachedInfo = Purchases.shared.cachedCustomerInfo else {
+      return getAccount()?.donationMade == true
+    }
 
-    // TODO: replace pro.isActive == false for check of refund == nil
-    return entitlements?["plus"]?.isActive == true ||
-    entitlements?["pro"]?.isActive == true ||
-    entitlements?["pro"]?.isActive == false ||
-    getAccount()?.donationMade == true
+    let entitlements = cachedInfo.entitlements.all
+
+    if entitlements["plus"]?.isActive == true
+      || entitlements["pro"]?.isActive == true
+    {
+      return true
+    }
+
+    if entitlements["pro"]?.isActive == false,
+      let subscriptionInfo = getSubscriptionInfo(from: cachedInfo),
+      subscriptionInfo.refundedAt != nil
+    {
+      return false
+    }
+
+    return getAccount()?.donationMade == true
+  }
+
+  private func getSubscriptionInfo(from customerInfo: CustomerInfo) -> SubscriptionInfo? {
+    var currentSubscription: SubscriptionInfo?
+
+    for option in PricingOption.allCases {
+      if let subscription = customerInfo.subscriptionsByProductIdentifier[option.rawValue] {
+        currentSubscription = subscription
+        break
+      }
+    }
+
+    return currentSubscription
   }
 
   public func createAccount(donationMade: Bool) {
@@ -207,7 +233,7 @@ public final class AccountService: AccountServiceProtocol {
         id: monthlySubscriptionId,
         title: "4.99 USD \("monthly_title".localized)",
         price: 4.99
-      )
+      ),
     ]
   }
 
@@ -345,20 +371,35 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func getSecondOnboarding<T: Decodable>() async throws -> T {
-    /// TODO: Update RC SDK to have access to refund date
     guard
       let customerInfo = Purchases.shared.cachedCustomerInfo,
-      let countryCode = await Storefront.currentStorefront?.countryCode,
-      customerInfo.entitlements.all.isEmpty
+      let countryCode = await Storefront.currentStorefront?.countryCode
     else {
       throw SecondOnboardingError.notApplicable
     }
 
-    return try await provider.request(.secondOnboarding(
-      anonymousId: customerInfo.id,
-      firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
-      region: countryCode,
-      version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
-    ))
+    let entitlements = customerInfo.entitlements.all
+
+    if entitlements["plus"]?.isActive == true
+      || entitlements["pro"]?.isActive == true {
+      throw SecondOnboardingError.notApplicable
+    }
+
+    /// Verify that it wasn't refunded
+    if entitlements["pro"]?.isActive == false,
+      let subscriptionInfo = getSubscriptionInfo(from: customerInfo),
+      subscriptionInfo.refundedAt == nil
+    {
+      throw SecondOnboardingError.notApplicable
+    }
+
+    return try await provider.request(
+      .secondOnboarding(
+        anonymousId: customerInfo.id,
+        firstSeen: customerInfo.firstSeen.timeIntervalSince1970,
+        region: countryCode,
+        version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
+      )
+    )
   }
 }
