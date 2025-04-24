@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "在${applicationName}中快进";
 "Skip forward in ${applicationName}" = "在${applicationName}中向前跳";
 "Jump forward in ${applicationName}" = "在${applicationName}中向前跳转";
+"Create Bookmark in ${applicationName}" = "在${applicationName}创建书签";

@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "Γρήγορη προώθηση σε ${applicationName}";
 "Skip forward in ${applicationName}" = "Μετάβαση προς τα εμπρός στο ${applicationName}";
 "Jump forward in ${applicationName}" = "Μετάβαση προς τα εμπρός στο ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Δημιουργία σελιδοδείκτη στο ${applicationName}";

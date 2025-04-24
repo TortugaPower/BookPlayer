@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "${applicationName} uygulamasında hızlı ileri sar";
 "Skip forward in ${applicationName}" = "${applicationName} uygulamasında ileri atla";
 "Jump forward in ${applicationName}" = "${applicationName} içinde ileri atlayın";
+"Create Bookmark in ${applicationName}" = "${application_name} uygulamasında Yer İmi Oluştur";
