@@ -76,6 +76,13 @@ struct BPAppShortcuts: AppShortcutsProvider {
         ],
         systemImageName: "arrow.clockwise"
       ),
+      AppShortcut(
+        intent: CreateBookmarkIntent(),
+        phrases: [
+          "Create Bookmark in \(.applicationName)"
+        ],
+        systemImageName: "bookmark.fill"
+      )
     ]
   }
 

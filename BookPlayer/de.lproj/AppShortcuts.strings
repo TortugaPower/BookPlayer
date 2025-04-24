@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "Schneller Vorlauf in ${applicationName}";
 "Skip forward in ${applicationName}" = "Vorwärts springen in ${applicationName}";
 "Jump forward in ${applicationName}" = "Vorwärts springen in ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Lesezeichen anlegen in ${applicationName}";

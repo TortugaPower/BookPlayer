@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "Kelaa eteenpäin kohteessa ${applicationName}";
 "Skip forward in ${applicationName}" = "Siirry eteenpäin kohteessa ${applicationName}";
 "Jump forward in ${applicationName}" = "Siirry eteenpäin kohteessa ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Luo kirjanmerkki kohteessa ${applicationName}";
