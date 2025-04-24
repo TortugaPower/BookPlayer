@@ -38,15 +38,22 @@ struct JellyfinAudiobookDetailsView<Model: JellyfinAudiobookDetailsViewModelProt
               .onTapGesture {
                 filePathLineLimit = (filePathLineLimit == nil) ? 1 : nil
               }
-              .padding([.bottom])
+              .padding(.bottom, 8)
           }
           HStack {
             Text(details.runtimeString)
             Spacer()
             Text(details.fileSizeString)
           }
+
+          if let overview = details.overview {
+            Text(overview)
+              .lineLimit(nil)
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(.top, 8)
+          }
         }
-        .padding()
+        .padding([.horizontal, .bottom])
         .foregroundColor(themeViewModel.secondaryColor)
       }
       
@@ -110,6 +117,7 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
     artist: "The Author's Name",
     filePath: "/path/to/file/which/might/be/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/actually.m4a",
     fileSize: 18967839,
+    overview: "Overview",
     runtimeInSeconds: 580.1737409)
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
   let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: details)

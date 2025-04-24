@@ -14,8 +14,9 @@ struct JellyfinAudiobookDetailsData {
   let artist: String?
   let filePath: String?
   let fileSize: Int?
+  let overview: String?
   let runtimeInSeconds: TimeInterval?
-  
+
   var fileSizeString: String {
     if let fileSize {
       ByteCountFormatter.string(
@@ -83,12 +84,15 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
         let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
         let fileSize: Int? = itemInfo.mediaSources?.first?.size
         let runtimeInSeconds: TimeInterval? = (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
-        
+
         await MainActor.run {
-          self.details = JellyfinAudiobookDetailsData(artist: artist,
-                                                      filePath: filePath,
-                                                      fileSize: fileSize,
-                                                      runtimeInSeconds: runtimeInSeconds)
+          self.details = JellyfinAudiobookDetailsData(
+            artist: artist,
+            filePath: filePath,
+            fileSize: fileSize,
+            overview: itemInfo.overview,
+            runtimeInSeconds: runtimeInSeconds
+          )
         }
       } catch is CancellationError {
         // ignore
