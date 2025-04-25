@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "Spol frem i ${applicationName}";
 "Skip forward in ${applicationName}" = "Hopp fremover i ${applicationName}";
 "Jump forward in ${applicationName}" = "Hopp fremover i ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Opprett bokmerke i ${applicationName}";

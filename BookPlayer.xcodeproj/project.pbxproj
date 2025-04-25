@@ -348,6 +348,7 @@
 		6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */; };
 		6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */; };
 		6334CF212CFE330300F1FA17 /* RefreshableListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF202CFE330300F1FA17 /* RefreshableListView.swift */; };
+		63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63388BE12DB6D7D00042C103 /* CreateBookmarkIntent.swift */; };
 		63398E3D2D68254000A6934E /* SimplePlaybackRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */; };
 		63398E3E2D68254000A6934E /* SimplePlaybackRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */; };
 		633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */; };
@@ -1161,6 +1162,7 @@
 		6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMoreListView.swift; sourceTree = "<group>"; };
 		6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemCellViewModel.swift; sourceTree = "<group>"; };
 		6334CF202CFE330300F1FA17 /* RefreshableListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableListView.swift; sourceTree = "<group>"; };
+		63388BE12DB6D7D00042C103 /* CreateBookmarkIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateBookmarkIntent.swift; sourceTree = "<group>"; };
 		63398E392D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ca; path = ca.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		63398E3A2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		63398E3B2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
@@ -2353,6 +2355,7 @@
 				6356F9BC2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift */,
 				6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */,
 				636086002C5B3EB400341D78 /* CustomRewindIntent.swift */,
+				63388BE12DB6D7D00042C103 /* CreateBookmarkIntent.swift */,
 				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
 			);
 			path = AppIntents;
@@ -3805,6 +3808,7 @@
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
+				63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
@@ -4462,7 +4466,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4496,7 +4500,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4528,7 +4532,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4564,7 +4568,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4605,7 +4609,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4643,7 +4647,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4812,7 +4816,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4850,7 +4854,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4886,7 +4890,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5039,7 +5043,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5077,7 +5081,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5299,7 +5303,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5337,7 +5341,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5373,7 +5377,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5412,7 +5416,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5452,7 +5456,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5490,7 +5494,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5582,7 +5586,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.6.1;
+				MARKETING_VERSION = 5.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

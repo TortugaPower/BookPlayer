@@ -19,3 +19,4 @@
 "Fast forward in ${applicationName}" = "Fast forward in ${applicationName}";
 "Skip forward in ${applicationName}" = "Skip forward in ${applicationName}";
 "Jump forward in ${applicationName}" = "Jump forward in ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Create Bookmark in ${applicationName}";
