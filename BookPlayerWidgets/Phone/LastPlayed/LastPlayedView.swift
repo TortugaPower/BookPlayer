@@ -16,13 +16,10 @@ struct LastPlayedView: View {
 
   func getArtworkView(for relativePath: String) -> some View {
     ZStack {
-      var uiImage =
-        UIImage(
-          contentsOfFile:
-            ArtworkService.getCachedImageURL(for: relativePath).path
-        )
-        ?? ArtworkService.generateDefaultArtwork(from: model.theme.linkColor)
-      if let uiImage {
+      if let uiImage = WidgetUtils.getArtworkImage(
+        for: relativePath,
+        theme: model.theme
+      ) {
         Image(
           uiImage: uiImage
         )
