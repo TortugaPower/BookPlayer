@@ -103,6 +103,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
     completionHandler(response)
   }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        BPProcessingTask.scheduleDatabaseSyncIfNeeded()
+    }
 
   func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
     if let coreServices = self.coreServices {
