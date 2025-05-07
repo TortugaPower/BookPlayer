@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import SwiftUI
+import UIKit
 import WidgetKit
 
 struct BookView: View {
@@ -25,20 +26,23 @@ struct BookView: View {
 
     return VStack(spacing: 5) {
       ZStack {
-        var uiImage =
+        let uiImage =
           UIImage(contentsOfFile: cachedImageURL.path)
           ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
 
-        if let uiImage {
+        if let uiImage,
+          WidgetUtils.isValidSize(image: uiImage)
+        {
           Image(uiImage: uiImage)
             .resizable()
             .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
             .aspectRatio(1.0, contentMode: .fit)
             .cornerRadius(8.0)
         } else {
-          Rectangle()
+          Image(systemName: "photo.badge.exclamationmark.fill")
             .frame(width: 60, height: 60)
-            .foregroundColor(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.2))
+            .foregroundColor(Color.white)
             .cornerRadius(8.0)
         }
 

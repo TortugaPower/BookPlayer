@@ -14,6 +14,7 @@ import WidgetKit
   import BookPlayerWatchKit
 #else
   import BookPlayerKit
+  import UIKit
 #endif
 
 struct WidgetColors {
@@ -129,7 +130,7 @@ class WidgetUtils {
       fourthRecordViewer,
       fifthRecordViewer,
       sixthRecordViewer,
-      seventhRecordViewer
+      seventhRecordViewer,
     ]
   }
 
@@ -236,6 +237,62 @@ extension WidgetConfiguration {
 
 #if os(iOS)
   extension WidgetUtils {
+    class func isValidSize(image: UIImage) -> Bool {
+      let maxArea: CGFloat = 718_080.0
+
+      let originalWidth = image.size.width
+      let originalHeight = image.size.height
+      let originalArea = originalWidth * originalHeight
+
+      return originalArea <= maxArea
+    }
+
+    class func getArtworkImage(for relativePath: String, theme: SimpleTheme) -> UIImage? {
+      let path = ArtworkService.getCachedImageURL(for: relativePath).path
+
+      guard
+        let image = UIImage(contentsOfFile: path)
+          ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
+      else {
+        return nil
+      }
+
+      return Self.resizedForWidget(image)
+    }
+
+    /// Base logic taken from: https://stackoverflow.com/q/79409995
+    /// Resize the image to strictly fit within WidgetKit’s max allowed pixel area (718,080 pixels)
+    class func resizedForWidget(_ image: UIImage) -> UIImage? {
+      if Self.isValidSize(image: image) {
+        return image
+      }
+
+      let maxArea: CGFloat = 718_080.0
+      let originalWidth = image.size.width
+      let originalHeight = image.size.height
+      let originalArea = originalWidth * originalHeight
+
+      /// Calculate the exact scale factor to fit within maxArea
+      let scaleFactor = sqrt(maxArea / originalArea)
+      /// Use `floor` to ensure area is always within limits
+      let newWidth = floor(originalWidth * scaleFactor)
+      let newHeight = floor(originalHeight * scaleFactor)
+      let newSize = CGSize(width: newWidth, height: newHeight)
+
+      /// Force bitmap rendering to ensure the resized image is properly stored
+      let format = UIGraphicsImageRendererFormat()
+      format.opaque = true
+      /// Ensures we are not letting UIKit auto-scale it back up
+      format.scale = 1
+
+      let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+      let resizedImage = renderer.image { _ in
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+      }
+
+      return resizedImage
+    }
+
     class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {
       guard family == .systemMedium else {
         return [PlaybackRecordViewer(time: 20, date: Date())]
