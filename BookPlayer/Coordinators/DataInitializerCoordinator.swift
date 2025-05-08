@@ -65,8 +65,8 @@ class DataInitializerCoordinator: BPLogger {
         alertPresenter.showAlert(
           "error_title".localized,
           message: "coredata_error_migration_description".localized
-        ) { [unowned self] in
-          recoverLibraryFromFailedMigration()
+        ) {
+          self.recoverLibraryFromFailedMigration()
         }
       }
     } else {
