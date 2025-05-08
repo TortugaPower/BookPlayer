@@ -48,6 +48,7 @@ public class DatabaseInitializer: BPLogger {
       stack.loadStore { _, error in
         if let error = error {
           Self.logger.error("Failed to load store")
+            // TODO: Sync from CloudKit
 
           continuation.resume(throwing: error)
         } else {
