@@ -223,6 +223,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           currentItem = try playbackService.getPlayableItem(from: libraryItem)
         }
       }
+    } else if currentItem?.isBoundBook == true, chapter.relativePath.hasSuffix(".m4b") {
+      /// recently synced m4b files do not have their chapters loaded outright
+      await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
     }
 
     return asset
