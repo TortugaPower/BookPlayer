@@ -20,6 +20,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Play the last book in \(.applicationName)",
           "Continue the last played book in \(.applicationName)"
         ],
+        shortTitle: "intent_lastbook_play_title",
         systemImageName: "play.fill"
       ),
       AppShortcut(
@@ -30,6 +31,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Stop \(.applicationName)",
           "Stop playback in \(.applicationName)"
         ],
+        shortTitle: "intent_playback_pause_title",
         systemImageName: "pause.fill"
       ),
       AppShortcut(
@@ -38,6 +40,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Set the sleep timer to the End of Chapter in \(.applicationName)",
           "Set the sleep timer to the End of the current Chapter in \(.applicationName)"
         ],
+        shortTitle: "sleep_chapter_option_title",
         systemImageName: "moon.fill"
       ),
       AppShortcut(
@@ -46,7 +49,8 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Cancel the sleep timer in \(.applicationName)",
           "Turn off the sleep timer in \(.applicationName)"
         ],
-        systemImageName: "moon.fill"
+        shortTitle: "intent_sleeptimer_cancel",
+        systemImageName: "moon"
       ),
       AppShortcut(
         intent: CustomSleepTimerIntent(),
@@ -55,6 +59,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Turn on the sleep timer in \(.applicationName)",
           "Enable the sleep timer in \(.applicationName)",
         ],
+        shortTitle: "intent_sleeptimer_set_duration",
         systemImageName: "moon.fill"
       ),
       AppShortcut(
@@ -65,6 +70,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Skip back in \(.applicationName)",
           "Go back in \(.applicationName)",
         ],
+        shortTitle: "settings_skip_rewind_title",
         systemImageName: "arrow.counterclockwise"
       ),
       AppShortcut(
@@ -74,6 +80,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
           "Skip forward in \(.applicationName)",
           "Jump forward in \(.applicationName)",
         ],
+        shortTitle: "settings_skip_forward_title",
         systemImageName: "arrow.clockwise"
       ),
       AppShortcut(
@@ -81,6 +88,7 @@ struct BPAppShortcuts: AppShortcutsProvider {
         phrases: [
           "Create Bookmark in \(.applicationName)"
         ],
+        shortTitle: "bookmark_create_title",
         systemImageName: "bookmark.fill"
       )
     ]
