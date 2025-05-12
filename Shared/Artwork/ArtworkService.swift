@@ -6,6 +6,7 @@
 //  Copyright © 2021 BookPlayer LLC. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Kingfisher
 import UIKit
@@ -26,6 +27,9 @@ public class ArtworkService {
   static private var manager: KingfisherManager {
     return KingfisherManager(downloader: .default, cache: ArtworkService.cache)
   }
+
+  /// Passthrough publisher for emitting artwork update events
+  static public private(set) var artworkUpdatePublisher = PassthroughSubject<String, Never>()
 
   /// Background dispatch queue to handle moving cached artwork
   static private let artworkQueue = DispatchQueue(label: "com.bookplayer.artworkservices", target: .global())
@@ -71,6 +75,7 @@ public class ArtworkService {
 
   public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
     self.cache.storeToDisk(data, forKey: relativePath) { _ in
+      artworkUpdatePublisher.send(relativePath)
       completionHandler?()
     }
   }
@@ -78,6 +83,7 @@ public class ArtworkService {
   public class func storeInCache(_ data: Data, for relativePath: String) async {
     await withCheckedContinuation { continuation in
       cache.storeToDisk(data, forKey: relativePath) { _ in
+        artworkUpdatePublisher.send(relativePath)
         continuation.resume()
       }
     }

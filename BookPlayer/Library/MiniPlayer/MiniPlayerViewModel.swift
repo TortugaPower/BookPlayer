@@ -52,6 +52,16 @@ class MiniPlayerViewModel {
         )
       }
       .store(in: &disposeBag)
+
+    ArtworkService.artworkUpdatePublisher.sink { [weak self] relativePath in
+      guard
+        let self,
+        self.currentItemInfo.value?.relativePath == relativePath
+      else { return }
+
+      self.currentItemInfo.send(self.currentItemInfo.value)
+    }
+    .store(in: &disposeBag)
   }
 
   func isPlayingObserver() -> AnyPublisher<Bool, Never> {
