@@ -23,23 +23,23 @@ class BPProcessingTask {
     }
     
     static func scheduleDatabaseSyncIfNeeded(){
-        let now = Date()
-        let nigthDateComponents = DateComponents(calendar: .current, hour: 23)
-        let nextNightDate = Calendar.current.nextDate(after: now,
-                                                      matching: nigthDateComponents,
-                                                      matchingPolicy: .nextTime,
-                                                      direction: .first)!
-        
-        let nextSyncDate = Calendar.current.date(byAdding: .minute, value: 1, to: nextNightDate)!
-        let request = BGProcessingTaskRequest(identifier: BPProcessingTask.syncTaskIdentifier)
-        request.requiresNetworkConnectivity = true
-        request.requiresExternalPower = false
-         
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            print("error on sync: \(error)")
-        }
+//        let now = Date()
+//        let nigthDateComponents = DateComponents(calendar: .current, hour: 23)
+//        let nextNightDate = Calendar.current.nextDate(after: now,
+//                                                      matching: nigthDateComponents,
+//                                                      matchingPolicy: .nextTime,
+//                                                      direction: .first)!
+//        
+//        let nextSyncDate = Calendar.current.date(byAdding: .minute, value: 1, to: nextNightDate)!
+//        let request = BGProcessingTaskRequest(identifier: BPProcessingTask.syncTaskIdentifier)
+//        request.requiresNetworkConnectivity = true
+//        request.requiresExternalPower = false
+//         
+//        do {
+//            try BGTaskScheduler.shared.submit(request)
+//        } catch {
+//            print("error on sync: \(error)")
+//        }
     }
     
     func handleDbSync(task: BGProcessingTask) {
