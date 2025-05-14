@@ -57,12 +57,10 @@ enum RecordFields: String {
 class CloudController {
     private let modelName: String = "BookPlayer"
     let container: CKContainer
-    let databasePublic: CKDatabase
     let databasePrivate: CKDatabase
     
     init(){
-        self.container = CKContainer.default()
-        self.databasePublic = container.publicCloudDatabase
+        self.container = CKContainer(identifier: "BPCloudKit")
         self.databasePrivate = container.privateCloudDatabase
     }
     
