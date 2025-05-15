@@ -283,6 +283,8 @@
 		465D87542D31965100A4AA47 /* BookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465D87532D31965100A4AA47 /* BookmarksViewModel.swift */; };
 		4689C06D2D270A7100D6C169 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
 		46EEDDC92D23154C0063811F /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
+		4B77B4C02DC967460006C174 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B77B4BF2DC967460006C174 /* CloudSyncService.swift */; };
+		4B81215C2DCC546600431921 /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B81215B2DCC546600431921 /* CloudKitService.swift */; };
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
@@ -1126,6 +1128,8 @@
 		4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeInlineTip.swift; sourceTree = "<group>"; };
 		465D87512D3195D600A4AA47 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
 		465D87532D31965100A4AA47 /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
+		4B77B4BF2DC967460006C174 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
+		4B81215B2DCC546600431921 /* CloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitService.swift; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
 		620C73C7275DA00300D495AA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -2549,6 +2553,8 @@
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
+				4B77B4BF2DC967460006C174 /* CloudSyncService.swift */,
+				4B81215B2DCC546600431921 /* CloudKitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3307,9 +3313,7 @@
 					};
 					418B6CF71D2707F800F974FB = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = S7TJSJXWUZ;
 						LastSwiftMigration = 1020;
-						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -3809,6 +3813,7 @@
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
 				63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */,
+				4B77B4C02DC967460006C174 /* CloudSyncService.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
@@ -3890,6 +3895,7 @@
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,
 				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
+				4B81215C2DCC546600431921 /* CloudKitService.swift in Sources */,
 				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
@@ -4559,9 +4565,11 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = S7TJSJXWUZ;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4573,7 +4581,8 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Dev XC BookPlayer Watch App";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -4599,10 +4608,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4613,7 +4622,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -4637,10 +4646,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BookPlayerWatch/BookPlayerWatch.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWatch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -4651,7 +4660,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_WATCH)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -5027,11 +5036,12 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = S7TJSJXWUZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -5046,7 +5056,8 @@
 				MARKETING_VERSION = 5.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Dev BookPlayer 3 with CarPlay";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
@@ -5065,11 +5076,10 @@
 				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
-				CODE_SIGN_IDENTITY = "Apple Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -5084,7 +5094,7 @@
 				MARKETING_VERSION = 5.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
@@ -5570,11 +5580,10 @@
 				BUNDLE_ID_SUFFIX = .beta;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
-				CODE_SIGN_IDENTITY = "Apple Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -5589,7 +5598,7 @@
 				MARKETING_VERSION = 5.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
