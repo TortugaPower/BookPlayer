@@ -35,10 +35,10 @@ class DataInitializerCoordinator: BPLogger {
 //                                       data: newDataIntoData)
 //      }
       
-      if let recordData = await CloudKitService().get(recordName: "5542ED5D-B861-4F48-A7D2-B5EE15DDC9D5")?.data,
-         let str = String(data: recordData, encoding: .utf8) {
-          print(str)
-      }
+//      if let recordData = await CloudKitService().get(recordName: "5542ED5D-B861-4F48-A7D2-B5EE15DDC9D5")?.data,
+//         let str = String(data: recordData, encoding: .utf8) {
+//          print(str)
+//      }
       
       
       
