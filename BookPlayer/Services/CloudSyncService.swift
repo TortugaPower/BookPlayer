@@ -14,13 +14,13 @@ class BPProcessingTask {
     private static var syncTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.db_sync"
     
-    func sync(){
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: BPProcessingTask.syncTaskIdentifier,
-                                        using: nil) { task in
-            guard let syncTask = task as? BGProcessingTask else { return }
-            self.handleDbSync(task: syncTask)
-        }
-    }
+//    func sync() async {
+//        BGTaskScheduler.shared.register(forTaskWithIdentifier: BPProcessingTask.syncTaskIdentifier,
+//                                        using: nil) { task in
+//            guard let asyncTask = task as? BGProcessingTask else { return }
+//            await self.handleDbSync(task: asyncTask)
+//        }
+//    }
     
     static func scheduleDatabaseSyncIfNeeded(){
 //        let now = Date()
@@ -42,11 +42,24 @@ class BPProcessingTask {
 //        }
     }
     
-    func handleDbSync(task: BGProcessingTask) {
+    func handleDbSync(task: BGProcessingTask) async {
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
         
         /// Sync Data base, update to iCloud
+        
+//            let newData = "newDataExtra"
+//            if let newDataIntoData = newData.data(using: .utf8) {
+//                let record = await CloudKitService().saveOnPrivateDB(item: newData,
+//                                             data: newDataIntoData)
+//                print(record?.recordID)
+//            }
+            
+//            if let recordData = await CloudKitService().get(recordName: "5542ED5D-B861-4F48-A7D2-B5EE15DDC9D5")?.data,
+//               let str = String(data: recordData, encoding: .utf8) {
+//                print(str)
+//            }
+        
         
         task.expirationHandler = {
             queue.cancelAllOperations()
@@ -58,6 +71,8 @@ class BPProcessingTask {
          
          task.setTaskCompleted(success: true)
          */
+        
+//        let lastOperation = op
 
 //        syncOperation
 //        queue.addOperation(syncOperation)

@@ -29,19 +29,6 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func initializeLibrary(isRecoveryAttempt: Bool) async {
-      let newData = "newDataExtra"
-//      if let newDataIntoData = newData.data(using: .utf8) {
-//          await CloudKitService().save(item: newData,
-//                                       data: newDataIntoData)
-//      }
-      
-//      if let recordData = await CloudKitService().get(recordName: "5542ED5D-B861-4F48-A7D2-B5EE15DDC9D5")?.data,
-//         let str = String(data: recordData, encoding: .utf8) {
-//          print(str)
-//      }
-      
-      
-      
     let appDelegate = AppDelegate.shared!
     _ = await appDelegate.setupCoreServicesTask?.result
 
