@@ -11,25 +11,25 @@ import Foundation
 import UIKit
 
 public final class DataMigrationManager: BPLogger {
-  private let modelName: String = "BookPlayer"
+  public static let modelName: String = "BookPlayer"
   private let currentModel: NSManagedObjectModel
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
 
   public init() {
-    self.currentModel = .model(named: self.modelName)
+    self.currentModel = .model(named: DataMigrationManager.modelName)
     let storeURL =  FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-      .appendingPathComponent("\(self.modelName).sqlite")
+      .appendingPathComponent("\(DataMigrationManager.modelName).sqlite")
     self.storeURL = storeURL
-    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
+    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: DataMigrationManager.modelName)
       .filter {
         self.store(at: storeURL, isCompatibleWithModel: $0)
       }.first
   }
 
   public func getCoreDataStack() -> CoreDataStack {
-    return CoreDataStack(modelName: self.modelName)
+    return CoreDataStack(modelName: DataMigrationManager.modelName)
   }
 
   private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {

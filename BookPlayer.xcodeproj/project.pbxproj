@@ -279,9 +279,14 @@
 		41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A20C254B0A0C0043FCF3 /* Sentry */; };
 		41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A227254B0C6C0043FCF3 /* ZipArchive */; };
 		4645F9FD2D1E46AC00A04257 /* SwipeInlineTip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */; };
+		4651E2062DD8DED2008587D3 /* TimeListened.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4651E2052DD8DECE008587D3 /* TimeListened.swift */; };
 		465D87522D3195D600A4AA47 /* BookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465D87512D3195D600A4AA47 /* BookmarksView.swift */; };
 		465D87542D31965100A4AA47 /* BookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465D87532D31965100A4AA47 /* BookmarksViewModel.swift */; };
 		4689C06D2D270A7100D6C169 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
+		46D27E4F2DD6459400EB6DA7 /* BackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E4E2DD6459400EB6DA7 /* BackupService.swift */; };
+		46D27E512DD6463D00EB6DA7 /* TimeListenedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E502DD6463D00EB6DA7 /* TimeListenedService.swift */; };
+		46D27E562DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E552DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift */; };
+		46D27E592DD64B6700EB6DA7 /* BackupObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E582DD64B6300EB6DA7 /* BackupObj.swift */; };
 		46EEDDC92D23154C0063811F /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		4B77B4C02DC967460006C174 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B77B4BF2DC967460006C174 /* CloudSyncService.swift */; };
 		4B81215C2DCC546600431921 /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B81215B2DCC546600431921 /* CloudKitService.swift */; };
@@ -1126,8 +1131,13 @@
 		41F898AE2402080C00F58B8A /* ZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZipArchive.framework; path = Carthage/Build/iOS/ZipArchive.framework; sourceTree = "<group>"; };
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeInlineTip.swift; sourceTree = "<group>"; };
+		4651E2052DD8DECE008587D3 /* TimeListened.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListened.swift; sourceTree = "<group>"; };
 		465D87512D3195D600A4AA47 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
 		465D87532D31965100A4AA47 /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
+		46D27E4E2DD6459400EB6DA7 /* BackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupService.swift; sourceTree = "<group>"; };
+		46D27E502DD6463D00EB6DA7 /* TimeListenedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedService.swift; sourceTree = "<group>"; };
+		46D27E552DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitRecordProtocol.swift; sourceTree = "<group>"; };
+		46D27E582DD64B6300EB6DA7 /* BackupObj.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupObj.swift; sourceTree = "<group>"; };
 		4B77B4BF2DC967460006C174 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
 		4B81215B2DCC546600431921 /* CloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitService.swift; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -1829,6 +1839,7 @@
 		418B6CFA1D2707F800F974FB /* BookPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				46D27E4C2DD6453300EB6DA7 /* CloudKit */,
 				634BA58B2C14D5100015314D /* SecondOnboarding */,
 				4151A6DE26E4A13E00E49DBE /* Coordinators */,
 				69343D3121338440000C425E /* Services */,
@@ -2097,6 +2108,43 @@
 				465D87532D31965100A4AA47 /* BookmarksViewModel.swift */,
 			);
 			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+		46D27E4C2DD6453300EB6DA7 /* CloudKit */ = {
+			isa = PBXGroup;
+			children = (
+				46D27E4D2DD6453F00EB6DA7 /* Services */,
+				46D27E552DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift */,
+				4B81215B2DCC546600431921 /* CloudKitService.swift */,
+			);
+			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		46D27E4D2DD6453F00EB6DA7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				46D27E5A2DD6503D00EB6DA7 /* Timelistened */,
+				46D27E572DD64B5400EB6DA7 /* Backup */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		46D27E572DD64B5400EB6DA7 /* Backup */ = {
+			isa = PBXGroup;
+			children = (
+				46D27E582DD64B6300EB6DA7 /* BackupObj.swift */,
+				46D27E4E2DD6459400EB6DA7 /* BackupService.swift */,
+			);
+			path = Backup;
+			sourceTree = "<group>";
+		};
+		46D27E5A2DD6503D00EB6DA7 /* Timelistened */ = {
+			isa = PBXGroup;
+			children = (
+				4651E2052DD8DECE008587D3 /* TimeListened.swift */,
+				46D27E502DD6463D00EB6DA7 /* TimeListenedService.swift */,
+			);
+			path = Timelistened;
 			sourceTree = "<group>";
 		};
 		62793612272CC19E0097837D /* Models */ = {
@@ -2554,7 +2602,6 @@
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 				4B77B4BF2DC967460006C174 /* CloudSyncService.swift */,
-				4B81215B2DCC546600431921 /* CloudKitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3824,10 +3871,12 @@
 				9F588DBF2902C798000DA799 /* ComposedButton.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
+				46D27E4F2DD6459400EB6DA7 /* BackupService.swift in Sources */,
 				631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */,
 				631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */,
 				9FF710AC2A212221006490E0 /* QueuedSyncTasksViewController.swift in Sources */,
 				9FEC87B227FA9F1C006C71D5 /* LoginViewModel.swift in Sources */,
+				46D27E592DD64B6700EB6DA7 /* BackupObj.swift in Sources */,
 				636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */,
 				63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
@@ -3846,6 +3895,7 @@
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
 				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
+				46D27E512DD6463D00EB6DA7 /* TimeListenedService.swift in Sources */,
 				8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */,
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
@@ -3903,6 +3953,7 @@
 				634BA5952C1611230015314D /* StoryProgress.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				9FF710BB2A215558006490E0 /* QueuedSyncTasksViewModel.swift in Sources */,
+				46D27E562DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
@@ -3967,6 +4018,7 @@
 				9F4691F52800F84800A8F0E8 /* AccountViewController.swift in Sources */,
 				9FEC87B027FA9F0F006C71D5 /* LoginViewController.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
+				4651E2062DD8DED2008587D3 /* TimeListened.swift in Sources */,
 				9F5FBB08293EDCD8009F4B0E /* ItemDetailsViewController.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
@@ -5048,7 +5100,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5086,7 +5138,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5590,7 +5642,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
