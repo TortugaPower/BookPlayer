@@ -7,7 +7,7 @@
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.cellular</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.refresh</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.db_sync</string>
+		<string>$(BP_BUNDLE_IDENTIFIER).background.db_backup</string>
 	</array>
 	<key>BP_API_DOMAIN</key>
 	<string>$(BP_API_DOMAIN)</string>
@@ -177,13 +177,13 @@
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>
-      <key>NSAppIconActionTintColorName</key>
-      <string>ShortcutsForegroundColor</string>
-      <key>NSAppIconComplementingColorNames</key>
-      <array>
-        <string>ShortcutsBackgroundColor1</string>
-        <string>ShortcutsBackgroundColor2</string>
-      </array>
+			<key>NSAppIconActionTintColorName</key>
+			<string>ShortcutsForegroundColor</string>
+			<key>NSAppIconComplementingColorNames</key>
+			<array>
+				<string>ShortcutsBackgroundColor1</string>
+				<string>ShortcutsBackgroundColor2</string>
+			</array>
 		</dict>
 	</dict>
 	<key>CFBundleIcons~ipad</key>

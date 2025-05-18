@@ -47,7 +47,7 @@ class TimeListened: CloudKitRecordProtocol {
         
     }
     
-    func getCKRecord() -> CKRecord {
+    func getCKRecord() ->CKRecord{
         var recordID_: CKRecord.ID
         if let recordID = recordID  {
             recordID_ = recordID
@@ -65,5 +65,4 @@ class TimeListened: CloudKitRecordProtocol {
                         forKey: TimeListenedFields.timeListenedInMiliSeconds.rawValue)
         return record
     }
-    
 }

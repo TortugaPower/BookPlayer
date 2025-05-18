@@ -288,7 +288,7 @@
 		46D27E562DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E552DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift */; };
 		46D27E592DD64B6700EB6DA7 /* BackupObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D27E582DD64B6300EB6DA7 /* BackupObj.swift */; };
 		46EEDDC92D23154C0063811F /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
-		4B77B4C02DC967460006C174 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B77B4BF2DC967460006C174 /* CloudSyncService.swift */; };
+		4B77B4C02DC967460006C174 /* BackgroundProcessingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B77B4BF2DC967460006C174 /* BackgroundProcessingService.swift */; };
 		4B81215C2DCC546600431921 /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B81215B2DCC546600431921 /* CloudKitService.swift */; };
 		5126F121258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
 		5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
@@ -1138,7 +1138,7 @@
 		46D27E502DD6463D00EB6DA7 /* TimeListenedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedService.swift; sourceTree = "<group>"; };
 		46D27E552DD6470D00EB6DA7 /* CloudKitRecordProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitRecordProtocol.swift; sourceTree = "<group>"; };
 		46D27E582DD64B6300EB6DA7 /* BackupObj.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupObj.swift; sourceTree = "<group>"; };
-		4B77B4BF2DC967460006C174 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
+		4B77B4BF2DC967460006C174 /* BackgroundProcessingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundProcessingService.swift; sourceTree = "<group>"; };
 		4B81215B2DCC546600431921 /* CloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitService.swift; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
 		5CBB29522163A17F00E3A9FF /* ZIPFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZIPFoundation.framework; path = Carthage/Build/iOS/ZIPFoundation.framework; sourceTree = "<group>"; };
@@ -2601,7 +2601,7 @@
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
-				4B77B4BF2DC967460006C174 /* CloudSyncService.swift */,
+				4B77B4BF2DC967460006C174 /* BackgroundProcessingService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3860,7 +3860,7 @@
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
 				63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */,
-				4B77B4C02DC967460006C174 /* CloudSyncService.swift in Sources */,
+				4B77B4C02DC967460006C174 /* BackgroundProcessingService.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
