@@ -28,22 +28,38 @@ class BackupService {
     
     private var cloudKitService: CloudKitService
     
+    lazy var newData: Data? = {
+        let storeURL =  FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
+            .appendingPathComponent("\(DataMigrationManager.modelName).sqlite")
+        return FileManager.default.contents(atPath: storeURL.path)
+    }()
+    
     init(){
         self.cloudKitService = CloudKitService()
     }
     
+    func saveAndUpdateIfNeeded() async {
+        do {
+            let backupItem = await get()
+            if let backupItem_ = backupItem {
+                
+                try await update(model: backupItem_)
+            } else {
+                let _ = try await save()
+            }
+        } catch {
+            
+        }
+    }
+    
     func save() async throws -> CKRecord {
-        let storeURL =  FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-            .appendingPathComponent("\(DataMigrationManager.modelName).sqlite")
-        guard let newData = FileManager.default.contents(atPath: storeURL.path) else {
+        guard let newData_ = newData else {
             fatalError()
         }
-        
-        let backup = BackupObj(data: newData)
+        let backup = BackupObj(data: newData_)
         let backupCKRecord = backup.getCKRecord()
         return try await cloudKitService.saveOnPrivateDB(itemToSave: backupCKRecord)
-        
     }
     
     // Trae toda una lista de CKRecords
@@ -51,12 +67,16 @@ class BackupService {
         try await cloudKitService.fetchOnPrivate(recordType: recordType)
     }
     
-    func get() async throws -> BackupObj {
-        let record = try await cloudKitService.get(by: BackupObj.RECORD_NAME)
-        guard let backupObj = BackupObj(record) else {
-            fatalError()
+    func get() async -> BackupObj? {
+        do {
+            let record = try await cloudKitService.get(by: BackupObj.RECORD_NAME)
+            guard let backupObj = BackupObj(record) else {
+                return nil
+            }
+            return backupObj
+        } catch {
+            return nil
         }
-        return backupObj
     }
     
     func delete(backup: BackupObj) async throws {
@@ -64,14 +84,18 @@ class BackupService {
         try await cloudKitService.deleteOfPrivateDB(record: backupCKRecord)
     }
     
-    func update(backup: BackupObj, newData: Data) async throws {
-        guard let newRecord = try await cloudKitService.fetchOnPrivate(recordType: backup.recordType).first else {
+    func update(model: BackupObj) async throws {
+        guard let newData_ = newData else {
+            fatalError()
+        }
+        
+        guard let newRecord = try await cloudKitService.fetchOnPrivate(recordType: model.recordType).first else {
             return
         }
         
-        newRecord.setValue(newData, forKey: BackupObjFields.data.rawValue)
+        newRecord.setValue(newData_, forKey: BackupObjFields.data.rawValue)
          _ = try await cloudKitService.saveOnPrivateDB(itemToSave: newRecord)
-        backup.update(newData: newData)
+        model.update(newData: newData_)
     }
     
 }
