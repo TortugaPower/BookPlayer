@@ -27,6 +27,10 @@ public final class DataMigrationManager: BPLogger {
         self.store(at: storeURL, isCompatibleWithModel: $0)
       }.first
   }
+    
+    public func getStoreURL() -> URL {
+        return self.storeURL
+    }
 
   public func getCoreDataStack() -> CoreDataStack {
     return CoreDataStack(modelName: DataMigrationManager.modelName)
