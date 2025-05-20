@@ -37,6 +37,10 @@ class BackupObj: CloudKitRecordProtocol {
         self.data = newData
     }
     
+    func getData() -> Data {
+        return data
+    }
+    
     func getCKRecord() -> CKRecord {
         var recordID_: CKRecord.ID
         

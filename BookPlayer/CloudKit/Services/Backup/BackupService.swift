@@ -10,20 +10,6 @@ import Foundation
 import CloudKit
 import BookPlayerKit
 
-//      let newData = "newDataExtra"
-//      let storeURL =  FileManager.default.containerURL(
-//        forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-//        .appendingPathComponent("BookPlayer.sqlite")
-//      if let newDataIntoData = FileManager.default.contents(atPath: storeURL.path) {
-//          await CloudKitService().saveOnPrivateDB(item: newData,
-//                                       data: newDataIntoData)
-//      }
-//      // matar el archivo, y tb el wal y otra cosa
-//
-//      if let recordData = await CloudKitService().getOfPrivateDB(by: "5542ED5D-B861-4F48-A7D2-B5EE15DDC9D5")?.data {
-//          try? recordData.write(to: storeURL)
-//      }
-
 class BackupService {
     
     private var cloudKitService: CloudKitService
