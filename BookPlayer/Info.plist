@@ -198,6 +198,13 @@
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>
+      <key>NSAppIconActionTintColorName</key>
+      <string>ShortcutsForegroundColor</string>
+      <key>NSAppIconComplementingColorNames</key>
+      <array>
+        <string>ShortcutsBackgroundColor1</string>
+        <string>ShortcutsBackgroundColor2</string>
+      </array>
 		</dict>
 	</dict>
 	<key>CFBundleIcons~ipad</key>
