@@ -46,7 +46,10 @@ final class BookmarksActivityItemProvider: UIActivityItemProvider {
     for bookmark in bookmarks {
       guard let chapter = currentItem.getChapter(at: bookmark.time) else { continue }
       let chapterTime = currentItem.getChapterTime(in: chapter, for: bookmark.time)
-      let formattedTime = TimeParser.formatTime(chapterTime)
+      let formattedTime = TimeParser.formatTime(
+        chapterTime,
+        units: [.hour, .minute, .second]
+      )
 
       var chapterTitle = String.localizedStringWithFormat("chapter_number_title".localized, chapter.index)
       /// Add title if it's different from the numeric title (do not consider volumes as titles would be numeric)
