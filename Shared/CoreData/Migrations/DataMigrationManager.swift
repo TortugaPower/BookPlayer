@@ -11,29 +11,25 @@ import Foundation
 import UIKit
 
 public final class DataMigrationManager: BPLogger {
-  public static let modelName: String = "BookPlayer"
+  public let modelName: String = "BookPlayer"
   private let currentModel: NSManagedObjectModel
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
 
   public init() {
-    self.currentModel = .model(named: DataMigrationManager.modelName)
+    self.currentModel = .model(named: self.modelName)
     let storeURL =  FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-      .appendingPathComponent("\(DataMigrationManager.modelName).sqlite")
+      .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
-    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: DataMigrationManager.modelName)
+    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
       .filter {
         self.store(at: storeURL, isCompatibleWithModel: $0)
       }.first
   }
-    
-    public func getStoreURL() -> URL {
-        return self.storeURL
-    }
 
   public func getCoreDataStack() -> CoreDataStack {
-    return CoreDataStack(modelName: DataMigrationManager.modelName)
+    return CoreDataStack(modelName: self.modelName)
   }
 
   private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
@@ -98,16 +94,18 @@ public final class DataMigrationManager: BPLogger {
     try fileManager.moveItem(at: destinationURL, to: storeURL)
   }
 
-  public func cleanupStoreFile() {
-    let storeURL = self.storeURL
-    let fileManager = FileManager.default
-    let wal = storeURL.appendingPathComponent("-wal")
-    let shm = storeURL.appendingPathComponent("-shm")
-    // cleanup in case
-    try? fileManager.removeItem(at: wal)
-    try? fileManager.removeItem(at: shm)
-    try? fileManager.removeItem(at: storeURL)
-  }
+    
+    @discardableResult public func cleanupStoreFile() -> URL {
+        let storeURL = self.storeURL
+        let fileManager = FileManager.default
+        let wal = storeURL.appendingPathComponent("-wal")
+        let shm = storeURL.appendingPathComponent("-shm")
+        // cleanup in case
+        try? fileManager.removeItem(at: wal)
+        try? fileManager.removeItem(at: shm)
+        try? fileManager.removeItem(at: storeURL)
+        return storeURL
+    }
 
   public func canPeformMigration() -> Bool {
     return self.storeModel != nil

@@ -108,9 +108,9 @@ class DataInitializerCoordinator: BPLogger {
 
     func recoverLibraryFromFailedMigration() {
         Task {
-            let recoverData = await BackupService().get()?.getData()
-            let storeURL = DataMigrationManager().getStoreURL()
             do {
+                let storeURL = DataMigrationManager().cleanupStoreFile()
+                let recoverData = await BackupService().get()?.getData()
                 try recoverData?.write(to: storeURL)
             } catch {
                 AppDelegate.shared?.resetCoreServices()
