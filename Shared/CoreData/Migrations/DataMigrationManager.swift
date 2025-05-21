@@ -93,9 +93,13 @@ public final class DataMigrationManager: BPLogger {
     Self.logger.trace("Moving into place the newly-migrated Core Data store")
     try fileManager.moveItem(at: destinationURL, to: storeURL)
   }
-
     
-    @discardableResult public func cleanupStoreFile() -> URL {
+    public func getStoreURL() -> URL {
+        return self.storeURL
+    }
+
+    @discardableResult
+    public func cleanupStoreFile() -> URL {
         let storeURL = self.storeURL
         let fileManager = FileManager.default
         let wal = storeURL.appendingPathComponent("-wal")

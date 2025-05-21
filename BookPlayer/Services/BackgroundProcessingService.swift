@@ -44,8 +44,5 @@ class BackgroundProcessingService {
             await BackupService().saveAndUpdateIfNeeded()
             task.setTaskCompleted(success: true)
         }
-        task.expirationHandler = {
-            //
-        }
     }
 }

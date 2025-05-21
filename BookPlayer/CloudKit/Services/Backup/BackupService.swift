@@ -15,9 +15,7 @@ class BackupService {
     private var cloudKitService: CloudKitService
     
     lazy var newData: Data? = {
-        let storeURL =  FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-            .appendingPathComponent("\(DataMigrationManager.modelName).sqlite")
+        let storeURL = DataMigrationManager().getStoreURL()
         return FileManager.default.contents(atPath: storeURL.path)
     }()
     
@@ -29,17 +27,17 @@ class BackupService {
         do {
             let backupItem = await get()
             if let backupItem_ = backupItem {
-                
                 try await update(model: backupItem_)
+                return
             } else {
-                let _ = try await save()
+                try await save()
             }
         } catch {
             
         }
     }
     
-    func save() async throws -> CKRecord {
+    @discardableResult func save() async throws -> CKRecord {
         guard let newData_ = newData else {
             fatalError()
         }
