@@ -1,14 +1,4 @@
 {
-  "appPolicies" : {
-    "eula" : "",
-    "policies" : [
-      {
-        "locale" : "en_US",
-        "policyText" : "",
-        "policyURL" : ""
-      }
-    ]
-  },
   "identifier" : "B145B4D1",
   "nonRenewingSubscriptions" : [
 
@@ -192,10 +182,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "pro.subscription",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -220,10 +207,7 @@
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "pro.subscription.yearly",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -248,10 +232,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.1",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -276,10 +257,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.2",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -304,10 +282,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.3",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -332,10 +307,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.4",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -360,10 +332,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.6",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -388,10 +357,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.7",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -416,10 +382,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.8",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -444,10 +407,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.9",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -472,16 +432,13 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.10",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
+          "type" : "RecurringSubscription"
         }
       ]
     }
   ],
   "version" : {
-    "major" : 4,
+    "major" : 3,
     "minor" : 0
   }
 }
