@@ -106,12 +106,18 @@ class DataInitializerCoordinator: BPLogger {
     }
   }
 
-  func recoverLibraryFromFailedMigration() {
-    Task {
-      AppDelegate.shared?.resetCoreServices()
-      await initializeLibrary(isRecoveryAttempt: true)
+    func recoverLibraryFromFailedMigration() {
+        Task {
+            do {
+                let storeURL = DataMigrationManager().cleanupStoreFile()
+                let recoverData = await BackupService().get()?.getData()
+                try recoverData?.write(to: storeURL)
+            } catch {
+                AppDelegate.shared?.resetCoreServices()
+                await initializeLibrary(isRecoveryAttempt: true)
+            }
+        }
     }
-  }
 
   func finishLibrarySetup(fromRecovery: Bool) async {
     let coreServices = AppDelegate.shared!.coreServices!

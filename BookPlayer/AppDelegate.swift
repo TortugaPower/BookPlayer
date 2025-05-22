@@ -85,6 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupRealm()
     // Setup core services
     self.setupCoreServices()
+    // Setup background Processing Task
+      self.setupBackgroundProcessingTasks()
 
     return true
   }
@@ -495,6 +497,10 @@ extension AppDelegate {
       self.handleAppRefresh(task: refreshTask)
     }
   }
+    
+    func setupBackgroundProcessingTasks(){
+        BackgroundProcessingService.backupDB()
+    }
 
   func scheduleAppRefresh() {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
