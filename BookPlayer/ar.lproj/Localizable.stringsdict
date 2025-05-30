@@ -13,17 +13,17 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>zero</key>
-        <string>%d صفر</string>
+        <string>لا توجد ملفات</string>
         <key>one</key>
-        <string>%d واحد</string>
+        <string>%d ملف</string>
         <key>two</key>
-        <string>%d اثنان</string>
+        <string>%d ملفان</string>
         <key>few</key>
-        <string>%d القليل من</string>
+        <string>%d ملفات</string>
         <key>many</key>
-        <string>%d الكثير من</string>
+        <string>%d ملفاً</string>
         <key>other</key>
-        <string>%d أخرى</string>
+        <string>ملف</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -37,17 +37,17 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>zero</key>
-        <string>صفر</string>
+        <string>لا توجد عناصر لحذفها</string>
         <key>one</key>
-        <string>واحد</string>
+        <string>هل تريد حذف عنصر واحد؟</string>
         <key>two</key>
-        <string>اثنان</string>
+        <string>هل تريد حذف عنصرين؟</string>
         <key>few</key>
-        <string>القليل من</string>
+        <string>هل تريد حذف %d عناصر؟</string>
         <key>many</key>
-        <string>الكثير من</string>
+        <string>هل تريد حذف %d عنصراً؟</string>
         <key>other</key>
-        <string>أخرى</string>
+        <string>هل تريد حذف العناصر؟</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -61,17 +61,17 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>zero</key>
-        <string>صفر</string>
+        <string>لا توجد ملفات للاستيراد</string>
         <key>one</key>
-        <string>واحد</string>
+        <string>استيراد ملف واحد إلى</string>
         <key>two</key>
-        <string>اثنان</string>
+        <string>استيراد ملفين إلى</string>
         <key>few</key>
-        <string>القليل من</string>
+        <string>استيراد %d ملفات</string>
         <key>many</key>
-        <string>الكثير من</string>
+        <string>استيراد %d ملفاً إلى</string>
         <key>other</key>
-        <string>أخرى</string>
+        <string>استيراد %d ملف إلى</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -85,17 +85,17 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>zero</key>
-        <string>صفر</string>
+        <string>لا تتم معالجة أي ملفات</string>
         <key>one</key>
-        <string>واحد</string>
+        <string>تتم معالجة ملف واحد</string>
         <key>two</key>
-        <string>اثنان</string>
+        <string>تتم معالجة ملفان</string>
         <key>few</key>
-        <string>القليل من</string>
+        <string>تتم معالجة %d ملفات</string>
         <key>many</key>
-        <string>الكثير من</string>
+        <string>تتم معالجة %d ملفاً</string>
         <key>other</key>
-        <string>أخرى</string>
+        <string>تتم معالجة %d ملف</string>
       </dict>
     </dict>
   </dict>
