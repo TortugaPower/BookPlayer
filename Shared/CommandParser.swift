@@ -246,17 +246,24 @@ public class TimeParser {
 
   // utility function to transform seconds to format MM:SS or HH:MM:SS
   public class func formatTime(_ time: TimeInterval) -> String {
+    return Self.formatTime(
+      time,
+      units: abs(time) < 3600
+        ? [.minute, .second]
+        : [.hour, .minute, .second]
+    )
+  }
+
+  public class func formatTime(
+    _ time: TimeInterval,
+    units: NSCalendar.Unit
+  ) -> String {
     let durationFormatter = DateComponentsFormatter()
 
     durationFormatter.unitsStyle = .positional
     durationFormatter.zeroFormattingBehavior = .pad
     durationFormatter.collapsesLargestUnit = false
-
-    if abs(time) < 3600 {
-      durationFormatter.allowedUnits = [.minute, .second]
-    } else {
-      durationFormatter.allowedUnits = [.hour, .minute, .second]
-    }
+    durationFormatter.allowedUnits = units
 
     return durationFormatter.string(from: time)!
   }
