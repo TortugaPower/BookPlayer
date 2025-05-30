@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string>%d File</string>
         <key>other</key>
-        <string>%d Files</string>
+        <string>%d個のファイル</string>
       </dict>
     </dict>
     <key>delete_multiple_items_title</key>
@@ -28,10 +26,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
-        <string>Do you want to delete %d items?</string>
+        <string>%d項目を削除しますか?</string>
       </dict>
     </dict>
     <key>import_alert_title</key>
@@ -44,10 +40,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string>Import %d file into</string>
         <key>other</key>
-        <string>Import %d files into</string>
+        <string>%d個のファイルを読み込み</string>
       </dict>
     </dict>
     <key>import_processing_description</key>
@@ -60,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
-        <key>one</key>
-        <string>Processing 1 file</string>
         <key>other</key>
-        <string>Processing %d files</string>
+        <string>%d個のファイルの読み込み処理中</string>
       </dict>
     </dict>
   </dict>
