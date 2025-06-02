@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Framåt";
 "settings_skip_description" = "Justera tiden som hoppas över när du drar albumbilden eller använder knapparna i kontrollpanelen.";
 "settings_support_title" = "HJÄLP";
-"settings_siri_title" = "SIRI GENVÄG";
+"settings_shortcuts_title" = "GENVÄGAR";
 "settings_support_project_title" = "Visa projektet på GitHub";
 "settings_support_project_description" = "Registrera önskemål eller felrapport";
 "settings_support_email_title" = "Skicka e-post";

@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Avançar";
 "settings_skip_description" = "Ajustar a quantidade saltada ao utilizar os botões no Player ou no Centro de Controle.";
 "settings_support_title" = "AJUDA";
-"settings_siri_title" = "ATALHOS SIRI";
+"settings_shortcuts_title" = "ATALHOS";
 "settings_support_project_title" = "Ver o projecto no Github";
 "settings_support_project_description" = "Abrir novos problemas para os seus pedidos de funcionalidades e erros";
 "settings_support_email_title" = "Enviar-nos um e-mail";

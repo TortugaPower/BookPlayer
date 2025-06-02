@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Do przodu";
 "settings_skip_description" = "Dostosuj ilość pomijaną podczas używania przycisków w odtwarzaczu lub centrum sterowania.";
 "settings_support_title" = "WSPARCIE";
-"settings_siri_title" = "SKRÓTY SIRI";
+"settings_shortcuts_title" = "SKRÓTY";
 "settings_support_project_title" = "Zobacz projekt na Github'ie";
 "settings_support_project_description" = "Otwórz nowe zgłoszenia dotyczące żądań nowych funkcji i błędów";
 "settings_support_email_title" = "Wyślij nam wiadomość e-mail";

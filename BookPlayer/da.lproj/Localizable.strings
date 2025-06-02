@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Spol frem";
 "settings_skip_description" = "Justér mængden der springes over, når du bruger knapperne i afspilleren eller i kontrolcenteret.";
 "settings_support_title" = "SUPPORT";
-"settings_siri_title" = "GENVEJE I SIRI";
+"settings_shortcuts_title" = "GENVEJE";
 "settings_support_project_title" = "Se projektet på GitHub";
 "settings_support_project_description" = "Opret sag for dine funktionsanmodninger og fejl";
 "settings_support_email_title" = "Send os en e-mail";

@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Spol fremover";
 "settings_skip_description" = "Juster hvor mye som hoppes over når du bruker knappene i spilleren eller kontrollsenteret.";
 "settings_support_title" = "STØTTE";
-"settings_siri_title" = "SIRI SNARVEIER";
+"settings_shortcuts_title" = "SNARVEIER";
 "settings_support_project_title" = "Se prosjektet på Github";
 "settings_support_project_description" = "Åpne ny ticket å foreslå nye funksjoner eller rapportere feil";
 "settings_support_email_title" = "Send oss en e-post";

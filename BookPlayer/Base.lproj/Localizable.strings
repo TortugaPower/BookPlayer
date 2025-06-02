@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Forward";
 "settings_skip_description" = "Adjust the amount skipped when using the buttons in the Player or Control Center.";
 "settings_support_title" = "SUPPORT";
-"settings_siri_title" = "SIRI SHORTCUTS";
+"settings_shortcuts_title" = "SHORTCUTS";
 "settings_support_project_title" = "View project on Github";
 "settings_support_project_description" = "Open new issues for your feature requests and errors";
 "settings_support_email_title" = "Send us an email";
