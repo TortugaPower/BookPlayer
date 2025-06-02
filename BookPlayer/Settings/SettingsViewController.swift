@@ -343,7 +343,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
         return nil
       }
     case .siri:
-      return "settings_siri_title".localized
+      return "settings_shortcuts_title".localized
     case .backups:
       return "settings_backup_title".localized
     case .jellyfin:

@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Endavant";
 "settings_skip_description" = "Ajusteu la quantitat que s'omet quan utilitzeu els botons del reproductor o del centre de control.";
 "settings_support_title" = "SUPORT";
-"settings_siri_title" = "Dreceres SIRI";
+"settings_shortcuts_title" = "DRECERES";
 "settings_support_project_title" = "Veure el projecte a Github";
 "settings_support_project_description" = "Obriu una incidència per a les vostres sol·licituds de noves funcions i errors";
 "settings_support_email_title" = "Envieu-nos un correu electrònic";

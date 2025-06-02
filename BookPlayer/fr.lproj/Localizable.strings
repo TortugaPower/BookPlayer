@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Avancer";
 "settings_skip_description" = "Ajuste le temps sauté lorsque sont utilisés les boutons dans le Lecteur ou le Centre de contrôle.";
 "settings_support_title" = "SUPPORT";
-"settings_siri_title" = "RACCOURCI SIRI";
+"settings_shortcuts_title" = "RACCOURCIS";
 "settings_support_project_title" = "Voir le projet sur Github";
 "settings_support_project_description" = "Ouvrez des tickets pour vos demandes de fonctionnalité et erreurs";
 "settings_support_email_title" = "Envoyez-nous un courrier électronique";

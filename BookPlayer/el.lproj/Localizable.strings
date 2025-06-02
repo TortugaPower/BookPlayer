@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Προς τα εμπρός";
 "settings_skip_description" = "Προσαρμόστε το ποσό που παραλείπεται όταν χρησιμοποιείτε τα κουμπιά στο πρόγραμμα αναπαραγωγής ή στο Κέντρο ελέγχου.";
 "settings_support_title" = "ΥΠΟΣΤΗΡΙΞΗ";
-"settings_siri_title" = "ΣΥΝΤΟΜΕΥΣεις ΓΙΑ ΤΗ SIRI";
+"settings_shortcuts_title" = "ΣΥΝΤΟΜΕΥΣΕΙΣ";
 "settings_support_project_title" = "Δείτε το έργο στο Github";
 "settings_support_project_description" = "Ανοίξτε νέα θέματα για τα αιτήματα και τα λάθη σας για δυνατότητες";
 "settings_support_email_title" = "Στείλτε μας ένα email";

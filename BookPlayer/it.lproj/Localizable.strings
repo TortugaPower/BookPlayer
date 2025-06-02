@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Avanti";
 "settings_skip_description" = "Regola l'importo saltato quando usi i pulsanti nel Lettore o nel Centro di Controllo.";
 "settings_support_title" = "SUPPORTO";
-"settings_siri_title" = "SCORCIATOIA SIRI";
+"settings_shortcuts_title" = "SCORCIATOIE";
 "settings_support_project_title" = "Visualizza il progetto su Github";
 "settings_support_project_description" = "Apri una nuova issue per richiedere funzionalità o segnalare errori";
 "settings_support_email_title" = "Inviaci una e-mail";
