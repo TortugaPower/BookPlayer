@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Setup core services
     self.setupCoreServices()
     // Setup background Processing Task
-      self.setupBackgroundProcessingTasks()
+    self.setupBackgroundProcessingTasks()
 
     return true
   }
@@ -369,9 +369,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
   }
 
+    var test = true
   func setupCoreServices() {
     setupCoreServicesTask = Task {
       do {
+          if test {
+              test = false
+              throw NSError(domain: "", code: NSMigrationError)
+          }
+          
         let stack = try await databaseInitializer.loadCoreDataStack()
         let coreServices = createCoreServicesIfNeeded(from: stack)
         if #available(iOS 16.0, *) {
