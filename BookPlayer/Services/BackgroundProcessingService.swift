@@ -31,9 +31,19 @@ class BackgroundProcessingService {
             let task = BGProcessingTaskRequest(identifier: BackgroundProcessingService.backupTaskIdentifier)
             task.requiresExternalPower = false
             task.requiresNetworkConnectivity = true
-//            task.earliestBeginDate = Date()
+            
+            // Schedule for every Friday at 23:00
+            let calendar = Calendar.current
+            var dateComponents = DateComponents()
+            dateComponents.weekday = 6 // Friday
+            dateComponents.hour = 23
+            dateComponents.minute = 0
+            
+            let nextFriday = calendar.nextDate(after: Date(), matching: dateComponents, matchingPolicy: .nextTime)!
+            task.earliestBeginDate = nextFriday
+            
             try BGTaskScheduler.shared.submit(task)
-            print("Task Scheduled")
+            print("Task Scheduled for next Friday at 23:00")
         } catch {
             print("Error on submit: \(error)")
         }
