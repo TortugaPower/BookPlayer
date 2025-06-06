@@ -369,7 +369,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
   }
 
-    var test = true
+    
   func setupCoreServices() {
     setupCoreServicesTask = Task {
       do {
