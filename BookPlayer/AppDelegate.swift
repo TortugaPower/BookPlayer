@@ -85,6 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupRealm()
     // Setup core services
     self.setupCoreServices()
+    // Setup background Processing Task
+    self.setupBackgroundProcessingTasks()
 
     return true
   }
@@ -367,15 +369,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
   }
 
+    
   func setupCoreServices() {
     setupCoreServicesTask = Task {
-      do {
-        let stack = try await databaseInitializer.loadCoreDataStack()
-        let coreServices = createCoreServicesIfNeeded(from: stack)
-        if #available(iOS 16.0, *) {
-          AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
-          AppDependencyManager.shared.add(dependency: coreServices.libraryService)
-        }
+        do {
+            if testCloudKit {
+                print("inside test throw error")
+                throw NSError(domain: "", code: NSMigrationError)
+            }
+            
+            let stack = try await databaseInitializer.loadCoreDataStack()
+            let coreServices = createCoreServicesIfNeeded(from: stack)
+            if #available(iOS 16.0, *) {
+                AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
+                AppDependencyManager.shared.add(dependency: coreServices.libraryService)
+            }
       } catch {
         errorCoreServicesSetup = error
       }
@@ -495,6 +503,10 @@ extension AppDelegate {
       self.handleAppRefresh(task: refreshTask)
     }
   }
+    
+    func setupBackgroundProcessingTasks(){
+        BackgroundProcessingService.backupDB()
+    }
 
   func scheduleAppRefresh() {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
