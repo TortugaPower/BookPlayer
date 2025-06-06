@@ -11,6 +11,7 @@ import BookPlayerKit
 import Combine
 import Foundation
 import MediaPlayer
+import Sentry
 
 // swiftlint:disable:next file_length
 
@@ -749,7 +750,7 @@ extension PlayerManager {
                     )
                     try audioSession.setActive(true)
                 } catch {
-                    fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+                    SentrySDK.capture(error: error)
                 }
             }.value
             
