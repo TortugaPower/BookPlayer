@@ -727,61 +727,75 @@ extension PlayerManager {
     play(autoPlayed: false)
   }
 
-  func play(autoPlayed: Bool) {
-    playTask?.cancel()
-    playTask = Task { @MainActor in
-      /// Ignore play commands if there's no item loaded,
-      /// and only continue if the item is loaded and ready
-      guard
-        let currentItem,
-        await prepareForPlayback(currentItem),
-        !Task.isCancelled
-      else { return }
-
-      userActivityManager.resumePlaybackActivity()
-
-      do {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(
-          AVAudioSession.Category.playback,
-          mode: .spokenAudio,
-          options: []
-        )
-        try audioSession.setActive(true)
-      } catch {
-        fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-      }
-
-      createOrUpdateAutomaticBookmark(
-        at: currentItem.currentTime,
-        relativePath: currentItem.relativePath,
-        type: .play
-      )
-
-      // If book is completed, stop
-      let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
-      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
-
-      handleSmartRewind(currentItem)
-
-      if !autoPlayed {
-        handleAutoTimer()
-      }
-
-      fadeTimer?.invalidate()
-      shakeMotionService.stopMotionUpdates()
-      boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
-      bindInterruptObserver()
-      // Set play state on player and control center
-      audioPlayer.playImmediately(atRate: currentSpeed)
-      /// Clean up flag after player starts playing
-      playbackQueued = nil
-
-      setNowPlayingBookTitle(chapter: currentItem.currentChapter)
-
-      NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+    func play(autoPlayed: Bool) {
+        playTask?.cancel()
+        playTask = Task { @MainActor in
+            /// Ignore play commands if there's no item loaded,
+            /// and only continue if the item is loaded and ready
+            guard
+                let currentItem,
+                await prepareForPlayback(currentItem),
+                !Task.isCancelled
+            else { return }
+            
+            // Move audio session setup off main thread
+            await Task.detached {
+                do {
+                    let audioSession = AVAudioSession.sharedInstance()
+                    try audioSession.setCategory(
+                        AVAudioSession.Category.playback,
+                        mode: .spokenAudio,
+                        options: []
+                    )
+                    try audioSession.setActive(true)
+                } catch {
+                    fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+                }
+            }.value
+            
+            // Move user activity to background
+            Task.detached {
+                self.userActivityManager.resumePlaybackActivity()
+            }
+            
+            createOrUpdateAutomaticBookmark(
+                at: currentItem.currentTime,
+                relativePath: currentItem.relativePath,
+                type: .play
+            )
+            
+            // If book is completed, stop
+            let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
+            if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
+            
+            handleSmartRewind(currentItem)
+            
+            if !autoPlayed {
+                handleAutoTimer()
+            }
+            
+            fadeTimer?.invalidate()
+            shakeMotionService.stopMotionUpdates()
+            
+            // Move UserDefaults access to background
+            Task.detached {
+                self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+            }
+            
+            bindInterruptObserver()
+            // Set play state on player and control center
+            audioPlayer.playImmediately(atRate: currentSpeed)
+            /// Clean up flag after player starts playing
+            playbackQueued = nil
+            
+            // Move notification posting to background
+            Task.detached {
+                NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+            }
+            
+            setNowPlayingBookTitle(chapter: currentItem.currentChapter)
+        }
     }
-  }
 
   func handleSmartRewind(_ item: PlayableItem) {
     let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
