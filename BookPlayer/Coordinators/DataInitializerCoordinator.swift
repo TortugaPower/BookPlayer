@@ -11,6 +11,8 @@ import Combine
 import CoreData
 import Foundation
 
+var testCloudKit = true
+
 @MainActor
 class DataInitializerCoordinator: BPLogger {
   let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
@@ -27,18 +29,21 @@ class DataInitializerCoordinator: BPLogger {
       await initializeLibrary(isRecoveryAttempt: false)
     }
   }
-
+    
     func initializeLibrary(isRecoveryAttempt: Bool, comesFromCloudKit: Bool? = nil) async {
-    let appDelegate = AppDelegate.shared!
-    _ = await appDelegate.setupCoreServicesTask?.result
+        let appDelegate = AppDelegate.shared!
+        _ = await appDelegate.setupCoreServicesTask?.result
         
-    if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
-      await handleError(errorCoreServicesSetup as NSError)
-      return
+        if testCloudKit == true {
+            if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
+                testCloudKit = false
+                await handleError(errorCoreServicesSetup as NSError)
+                return
+            }
+        }
+        
+        await finishLibrarySetup(fromRecovery: isRecoveryAttempt, comesFromCloudKit: comesFromCloudKit)
     }
-
-    await finishLibrarySetup(fromRecovery: isRecoveryAttempt, comesFromCloudKit: comesFromCloudKit)
-  }
 
     func handleError(_ error: NSError) async {
         if isOutOfSpaceError(error) {
@@ -128,6 +133,8 @@ class DataInitializerCoordinator: BPLogger {
                 let storeURL = DataMigrationManager().cleanupStoreFile()
                 let recoverData = await BackupService().get()?.getData()
                 try recoverData?.write(to: storeURL)
+                let appDelegate = AppDelegate.shared!
+                _ = appDelegate.setupCoreServices()
                 await initializeLibrary(isRecoveryAttempt: false,
                                         comesFromCloudKit: true)
             } catch {

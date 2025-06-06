@@ -369,21 +369,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
   }
 
-    var test = true
+    
   func setupCoreServices() {
     setupCoreServicesTask = Task {
-      do {
-          if test {
-              test = false
-              throw NSError(domain: "", code: NSMigrationError)
-          }
-          
-        let stack = try await databaseInitializer.loadCoreDataStack()
-        let coreServices = createCoreServicesIfNeeded(from: stack)
-        if #available(iOS 16.0, *) {
-          AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
-          AppDependencyManager.shared.add(dependency: coreServices.libraryService)
-        }
+        do {
+            if testCloudKit {
+                print("inside test throw error")
+                throw NSError(domain: "", code: NSMigrationError)
+            }
+            
+            let stack = try await databaseInitializer.loadCoreDataStack()
+            let coreServices = createCoreServicesIfNeeded(from: stack)
+            if #available(iOS 16.0, *) {
+                AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
+                AppDependencyManager.shared.add(dependency: coreServices.libraryService)
+            }
       } catch {
         errorCoreServicesSetup = error
       }
