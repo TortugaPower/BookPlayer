@@ -16,18 +16,18 @@ import UIKit
 class JellyfinCoordinator: Coordinator, AlertPresenter {
   let flow: BPCoordinatorPresentationFlow
   private let singleFileDownloadService: SingleFileDownloadService
-  private let jellyfinConnectionService: JellyfinConnectionService
+  private let connectionService: JellyfinConnectionService
   private var disposeBag = Set<AnyCancellable>()
   private var dismissing = false
 
   init(
     flow: BPCoordinatorPresentationFlow,
     singleFileDownloadService: SingleFileDownloadService,
-    jellyfinConnectionService: JellyfinConnectionService
+    connectionService: JellyfinConnectionService
   ) {
     self.flow = flow
     self.singleFileDownloadService = singleFileDownloadService
-    self.jellyfinConnectionService = jellyfinConnectionService
+    self.connectionService = connectionService
 
     bindObservers()
   }
@@ -59,43 +59,35 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
   }
 
   private func createJellyfinLoginScreen() -> UIViewController {
-    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
+    let viewModel = JellyfinConnectionViewModel(connectionService: connectionService)
 
-    viewModel.coordinator = self
     viewModel.onTransition = { route in
       switch route {
       case .cancel:
         self.flow.finishPresentation(animated: true)
-      case .signInFinished(let url, let userID, let userName, let accessToken, let serverName, let saveToKeychain):
-        self.handleSignInFinished(
-          url: url,
-          userID: userID,
-          userName: userName,
-          accessToken: accessToken,
-          serverName: serverName,
-          saveToKeychain: saveToKeychain
-        )
       case .signOut:
-        self.jellyfinConnectionService.deleteConnection()
+        break
       case .showLibrary:
         self.tryShowLibraryView()
-      case .showAlert(let content):
-        self.showAlert(content)
       }
     }
 
-    let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
-    return vc
+    return UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
   }
 
-  private func createJellyfinLibraryScreen(
-    withLibraryName libraryName: String,
-    userID: String,
-    client: JellyfinClient
-  ) -> UIViewController {
+  private func tryShowLibraryView() {
+    guard
+      let connectionData = connectionService.connection
+    else {
+      return
+    }
+
     let viewModel = JellyfinLibraryViewModel(
-      data: .topLevel(libraryName: libraryName, userID: userID),
-      apiClient: client,
+      data: .topLevel(
+        libraryName: connectionData.serverName,
+        userID: connectionData.userID
+      ),
+      connectionService: connectionService,
       singleFileDownloadService: singleFileDownloadService
     )
 
@@ -109,41 +101,7 @@ class JellyfinCoordinator: Coordinator, AlertPresenter {
     }
 
     let vc = UIHostingController(rootView: JellyfinLibraryView(viewModel: viewModel))
-    return vc
-  }
 
-  private func handleSignInFinished(
-    url: URL,
-    userID: String,
-    userName: String,
-    accessToken: String,
-    serverName: String,
-    saveToKeychain: Bool
-  ) {
-    let connectionData = JellyfinConnectionData(
-      url: url,
-      serverName: serverName,
-      userID: userID,
-      userName: userName,
-      accessToken: accessToken
-    )
-    jellyfinConnectionService.setConnection(connectionData, saveToKeychain: saveToKeychain)
-
-    self.tryShowLibraryView()
-  }
-
-  private func tryShowLibraryView() {
-    guard let connectionData = jellyfinConnectionService.connection,
-      let apiClient = jellyfinConnectionService.createClient()
-    else {
-      return
-    }
-
-    let libraryVC = self.createJellyfinLibraryScreen(
-      withLibraryName: connectionData.serverName,
-      userID: connectionData.userID,
-      client: apiClient
-    )
-    self.flow.pushViewController(libraryVC, animated: true)
+    flow.pushViewController(vc, animated: true)
   }
 }

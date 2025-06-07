@@ -27,7 +27,7 @@ struct JellyfinAudiobookDetailsData {
       "file_size_unknown".localized
     }
   }
-  
+
   var runtimeString: String {
     if let runtimeInSeconds {
       return TimeParser.formatTotalDuration(runtimeInSeconds)
@@ -40,50 +40,60 @@ struct JellyfinAudiobookDetailsData {
 protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   var item: JellyfinLibraryItem { get }
   var details: JellyfinAudiobookDetailsData? { get }
-  
+
   @MainActor
   func fetchData()
-  
+
   @MainActor
   func cancelFetchData()
+
+  @MainActor
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem)
 }
 
 class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
   enum Routes {
     case showAlert(content: BPAlertContent)
   }
-  
+
   let item: JellyfinLibraryItem
   @Published var details: JellyfinAudiobookDetailsData?
-  
+  private var singleFileDownloadService: SingleFileDownloadService
+
   var onTransition: BPTransition<Routes>?
-  
-  private var apiClient: JellyfinClient
+
+  private var connectionService: JellyfinConnectionService
   private var fetchTask: Task<(), any Error>?
-  
-  init(item: JellyfinLibraryItem, apiClient: JellyfinClient) {
+
+  init(
+    item: JellyfinLibraryItem,
+    connectionService: JellyfinConnectionService,
+    singleFileDownloadService: SingleFileDownloadService
+  ) {
     self.item = item
-    self.apiClient = apiClient
+    self.connectionService = connectionService
+    self.singleFileDownloadService = singleFileDownloadService
   }
-  
+
   @MainActor
   func fetchData() {
     guard fetchTask == nil else {
       return
     }
-    
+
     fetchTask = Task {
       defer { fetchTask = nil }
-      
+
       do {
-        let response = try await apiClient.send(Paths.getItem(itemID: item.id))
+        let response = try await connectionService.send(Paths.getItem(itemID: item.id))
         try Task.checkCancellation()
-        
+
         let itemInfo = response.value
         let artist: String? = itemInfo.albumArtist
         let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
         let fileSize: Int? = itemInfo.mediaSources?.first?.size
-        let runtimeInSeconds: TimeInterval? = (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+        let runtimeInSeconds: TimeInterval? =
+          (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
 
         await MainActor.run {
           self.details = JellyfinAudiobookDetailsData(
@@ -103,13 +113,23 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
       }
     }
   }
-  
+
   @MainActor
   func cancelFetchData() {
     fetchTask?.cancel()
     fetchTask = nil
   }
-  
+
+  @MainActor
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
+    do {
+      let url = try connectionService.createItemDownloadUrl(item)
+      singleFileDownloadService.handleDownload(url)
+    } catch {
+      showErrorAlert(message: error.localizedDescription)
+    }
+  }
+
   @MainActor
   private func showErrorAlert(message: String) {
     self.onTransition?(.showAlert(content: BPAlertContent.errorAlert(message: message)))

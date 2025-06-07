@@ -65,6 +65,9 @@ public enum Constants {
 
     /// Key to store the current theme
     public static let sharedWidgetTheme = "sharedWidgetTheme"
+
+    /// Jellyfin
+    public static let jellyfinLibraryLayout = "jellyfinLibraryLayout"
   }
 
   public enum SmartRewind {

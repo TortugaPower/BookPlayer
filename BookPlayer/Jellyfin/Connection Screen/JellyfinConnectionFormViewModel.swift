@@ -10,8 +10,13 @@ import Foundation
 
 class JellyfinConnectionFormViewModel: ObservableObject {
   @Published var serverUrl: String = ""
-  @Published var serverName: String?
+  @Published var serverName: String = ""
   @Published var username: String = ""
   @Published var password: String = ""
-  @Published var rememberMe: Bool = true
+
+  func setValues(from connection: JellyfinConnectionData) {
+    serverUrl = connection.url.absoluteString
+    serverName = connection.serverName
+    username = connection.userName
+  }
 }

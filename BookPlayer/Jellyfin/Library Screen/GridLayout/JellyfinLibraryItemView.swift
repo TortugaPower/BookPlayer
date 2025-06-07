@@ -6,22 +6,22 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import SwiftUI
 import Kingfisher
+import SwiftUI
 
 struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: View {
   @State var item: JellyfinLibraryItem
   @EnvironmentObject var libraryVM: LibraryVM
-  
+
   @ScaledMetric var accessabilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
-  
+
   var body: some View {
     switch item.kind {
     case .audiobook:
       NavigationLink {
         NavigationLazyView(libraryVM.createAudiobookDetailsViewFor(item: item))
-        .environmentObject(libraryVM)
+          .environmentObject(libraryVM)
       } label: {
         itemView
       }
@@ -35,19 +35,21 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
       .buttonStyle(PlainButtonStyle())
     }
   }
-  
+
   @ViewBuilder
   private var itemView: some View {
     VStack {
       ZStack(alignment: .topTrailing) {
         JellyfinLibraryItemImageView<LibraryVM>(item: item)
-          .background(GeometryReader{ imageGeometry in
-            Color.clear.onAppear {
-              // we'd prever overlay to place the badge, but that's not available for us yet
-              imageSize = imageGeometry.size
+          .background(
+            GeometryReader { imageGeometry in
+              Color.clear.onAppear {
+                // we'd prever overlay to place the badge, but that's not available for us yet
+                imageSize = imageGeometry.size
+              }
             }
-          })
-        
+          )
+
         switch item.kind {
         case .userView, .folder:
           folderBadge
@@ -55,13 +57,13 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
           EmptyView()
         }
       }
-      
+
       Text(item.name)
         .lineLimit(1)
         .truncationMode(.middle)
     }
   }
-  
+
   @ViewBuilder
   private var folderBadge: some View {
     let imageLength = min(imageSize.width, imageSize.height)
@@ -81,12 +83,16 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
 
 #Preview("audiobook") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook))
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
+  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(
+    item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook)
+  )
+  .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }
 
 #Preview("folder") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder))
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
+  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(
+    item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder)
+  )
+  .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }

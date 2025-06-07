@@ -1,5 +1,5 @@
 //
-//  JellyfinLibraryItemView.swift
+//  JellyfinLibraryItemImageView.swift
 //  BookPlayer
 //
 //  Created by Lysann Tranvouez on 2024-10-28.

@@ -18,9 +18,10 @@ enum JellyfinLibraryLevelData: Equatable {
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   associatedtype DetailsVM: JellyfinAudiobookDetailsViewModelProtocol
-  
+
   var data: JellyfinLibraryLevelData { get }
   var items: [JellyfinLibraryItem] { get set }
+  var layoutStyle: JellyfinLayoutOptions { get set }
 
   func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<Self>
   func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<DetailsVM, Self>
@@ -30,11 +31,13 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func cancelFetchItems()
 
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL?
-  @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem)
-  
+
   @MainActor
   func handleDoneAction()
+}
+
+enum JellyfinLayoutOptions: String {
+  case grid, list
 }
 
 final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
@@ -42,13 +45,14 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     case done
     case showAlert(content: BPAlertContent)
   }
-  
+
   let data: JellyfinLibraryLevelData
+  @Published var layoutStyle = JellyfinLayoutOptions.grid
   @Published var items: [JellyfinLibraryItem] = []
 
   var onTransition: BPTransition<Routes>?
 
-  private var apiClient: JellyfinClient
+  private var connectionService: JellyfinConnectionService
   private var singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var nextStartItemIndex = 0
@@ -61,21 +65,35 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     return maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
-  init(data: JellyfinLibraryLevelData, apiClient: JellyfinClient, singleFileDownloadService: SingleFileDownloadService) {
+  init(
+    data: JellyfinLibraryLevelData,
+    connectionService: JellyfinConnectionService,
+    singleFileDownloadService: SingleFileDownloadService
+  ) {
     self.data = data
-    self.apiClient = apiClient
+    self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
   }
 
   func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<JellyfinLibraryViewModel> {
     let data = JellyfinLibraryLevelData.folder(data: item)
-    let vm = JellyfinLibraryViewModel(data: data, apiClient: apiClient, singleFileDownloadService: singleFileDownloadService)
+    let vm = JellyfinLibraryViewModel(
+      data: data,
+      connectionService: connectionService,
+      singleFileDownloadService: singleFileDownloadService
+    )
     vm.onTransition = self.onTransition
     return JellyfinLibraryView(viewModel: vm)
   }
-  
-  func createAudiobookDetailsViewFor(item: JellyfinLibraryItem) -> JellyfinAudiobookDetailsView<JellyfinAudiobookDetailsViewModel, JellyfinLibraryViewModel> {
-    let vm = JellyfinAudiobookDetailsViewModel(item: item, apiClient: apiClient)
+
+  func createAudiobookDetailsViewFor(
+    item: JellyfinLibraryItem
+  ) -> JellyfinAudiobookDetailsView<JellyfinAudiobookDetailsViewModel, JellyfinLibraryViewModel> {
+    let vm = JellyfinAudiobookDetailsViewModel(
+      item: item,
+      connectionService: connectionService,
+      singleFileDownloadService: singleFileDownloadService
+    )
     vm.onTransition = { [weak self] route in
       switch route {
       case .showAlert(let content): self?.onTransition?(.showAlert(content: content))
@@ -106,22 +124,22 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
 
     switch data {
-    case .topLevel(libraryName: _, userID: let userID):
+    case .topLevel(libraryName: _, let userID):
       fetchTopLevelItems(userID: userID)
-    case .folder(data: let data):
+    case .folder(let data):
       fetchFolderItems(folderID: data.id)
     }
   }
-  
+
   private func fetchTopLevelItems(userID: String) {
     items = []
-    
+
     let parameters = Paths.GetUserViewsParameters(userID: userID)
 
     fetchTask?.cancel()
     fetchTask = Task {
       do {
-        let response = try await apiClient.send(Paths.getUserViews(parameters: parameters))
+        let response = try await connectionService.send(Paths.getUserViews(parameters: parameters))
         try Task.checkCancellation()
         let userViews = (response.value.items ?? [])
           .compactMap { userView -> JellyfinLibraryItem? in
@@ -142,7 +160,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       }
     }
   }
-  
+
   private func fetchFolderItems(folderID: String) {
     let parameters = Paths.GetItemsParameters(
       startIndex: nextStartItemIndex,
@@ -158,24 +176,25 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
     fetchTask = Task {
       defer { self.fetchTask = nil }
-      
+
       do {
-        let response = try await apiClient.send(Paths.getItems(parameters: parameters))
+        let response = try await connectionService.send(Paths.getItems(parameters: parameters))
         try Task.checkCancellation()
-        
-        let nextStartItemIndex = if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
-          startIndex + numItems
-        } else {
-          -1
-        }
+
+        let nextStartItemIndex =
+          if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
+            startIndex + numItems
+          } else {
+            -1
+          }
         let maxNumItems = response.value.totalRecordCount ?? 0
-        
+
         let items = (response.value.items ?? [])
           .filter { item in item.id != nil }
           .compactMap { item -> JellyfinLibraryItem? in
             return JellyfinLibraryItem(apiItem: item)
           }
-        
+
         await { @MainActor in
           self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
           self.maxNumItems = maxNumItems
@@ -190,78 +209,16 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       }
     }
   }
-  
+
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? {
-    do {
-      return try createItemImageURLInternal(item, size: size)
-    } catch {
-      Self.logger.error("Failed to create item image URL (item ID: \(item.id), kind: \(String(reflecting: item.kind)), error: \(error))")
-      return nil
-    }
+    return try? connectionService.createItemImageURL(item, size: size)
   }
 
-  private func createItemImageURLInternal(_ item: JellyfinLibraryItem, size: CGSize?) throws(JellyfinError) -> URL {
-    var parameters = Paths.GetItemImageParameters()
-    if let size {
-      parameters.fillWidth = Int(size.width)
-      parameters.fillHeight = Int(size.height)
-    }
-
-    let request = Paths.getItemImage(itemID: item.id, imageType: "Primary", parameters: parameters)
-    let components = try createUrlComponentsForApiRequest(request)
-
-    guard let url = components.url else {
-      throw .urlFromComponents(components)
-    }
-    return url
-  }
-
-  func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws(JellyfinError) -> URL {
-    let request = Paths.getDownload(itemID: item.id)
-    var components = try createUrlComponentsForApiRequest(request)
-
-    var queryItems = components.queryItems ?? []
-    queryItems.append(URLQueryItem(name: "api_key", value: apiClient.accessToken))
-    components.queryItems = queryItems
-
-    guard let url = components.url else {
-      let error = JellyfinError.urlFromComponents(components)
-      Self.logger.error("Failed to build URL from components: \(components)")
-      throw error
-    }
-    return url
-  }
-
-  private func createUrlComponentsForApiRequest<Response>(_ request: Request<Response>) throws(JellyfinError) -> URLComponents {
-    guard let requestUrl = request.url else {
-      throw .urlMalformed(nil)
-    }
-    let requestAbsoluteUrl = requestUrl.scheme == nil ? apiClient.configuration.url.appendingPathComponent(requestUrl.absoluteString) : requestUrl
-
-    guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
-      throw .urlMalformed(requestUrl)
-    }
-    if let query = request.query, !query.isEmpty {
-        components.queryItems = query.map(URLQueryItem.init)
-    }
-    return components
-  }
-
-  @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
-    do {
-      let url = try createItemDownloadUrl(item)
-      singleFileDownloadService.handleDownload(url)
-    } catch {
-      showErrorAlert(message: error.localizedDescription)
-    }
-  }
-  
   @MainActor
   func handleDoneAction() {
     onTransition?(.done)
   }
-  
+
   @MainActor
   private func showErrorAlert(message: String) {
     self.onTransition?(.showAlert(content: BPAlertContent.errorAlert(message: message)))

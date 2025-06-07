@@ -202,7 +202,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   }
   
   private func showJellyfinConnectionManagement() {
-    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
+    let viewModel = JellyfinConnectionViewModel(connectionService: jellyfinConnectionService)
     viewModel.viewMode = .viewDetails
     
     viewModel.onTransition = { [weak self] route in
@@ -212,8 +212,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       case .signOut:
         self?.jellyfinConnectionService.deleteConnection()
         self?.flow.navigationController.dismiss(animated: true)
-      case .showAlert(let content):
-        self?.showAlert(content)
       default:
         break
       }

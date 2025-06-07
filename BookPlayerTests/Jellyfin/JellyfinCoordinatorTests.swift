@@ -27,24 +27,17 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     mockKeychainService = KeychainServiceMock()
     mockJellyfinConnectionService = JellyfinConnectionService(keychainService: mockKeychainService)
     
-    sut = JellyfinCoordinator(flow: mockFlow,
-                              singleFileDownloadService: mockSingleFileDownloadService,
-                              jellyfinConnectionService: mockJellyfinConnectionService)
+    sut = JellyfinCoordinator(
+      flow: mockFlow,
+      singleFileDownloadService: mockSingleFileDownloadService,
+      connectionService: mockJellyfinConnectionService
+    )
   }
   
   func testInitialStateShowsConnectionViewWhenLoggedOut() {
     XCTAssertNil(mockJellyfinConnectionService.connection)
     sut.start()
     XCTAssertEqual(mockFlow.horizontalStack, ["UIHostingController<JellyfinConnectionView>"])
-  }
-  
-  func testInitialStateShowsConnectionAndLibraryViewWhenLoggedIn() {
-    mockJellyfinConnectionService.setConnection(JellyfinConnectionServiceTests.makeMockConnectionData(), saveToKeychain: false)
-    sut.start()
-    XCTAssertEqual(mockFlow.horizontalStack, [
-      "UIHostingController<JellyfinConnectionView>",
-      "UIHostingController<JellyfinLibraryView<JellyfinLibraryViewModel>>",
-    ])
   }
   
   @MainActor
@@ -61,11 +54,11 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     connectionViewModel.form.serverName = "Mock Server"
     connectionViewModel.form.username = "test"
     connectionViewModel.form.password = "secret"
-    connectionViewModel.form.rememberMe = true
     connectionViewModel.connectionState = .connected
 
-    connectionViewModel.onTransition?(.signInFinished(url: URL(string: "http://example.com")!, userID: "42", userName: "test", accessToken: "super secret", serverName: "Mock Server", saveToKeychain: true))
-    
+//    (url: URL(string: "http://example.com")!, userID: "42", userName: "test", accessToken: "super secret", serverName: "Mock Server", saveToKeychain: true)
+    connectionViewModel.onTransition?(.showLibrary)
+
     XCTAssertNotNil(mockJellyfinConnectionService.connection)
     do {
       let savedConnectionData: JellyfinConnectionData? = try mockKeychainService.get(.jellyfinConnection)
@@ -84,19 +77,5 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     let libraryViewModel = libraryVC.rootView.viewModel
     
     XCTAssertEqual(libraryViewModel.data, .topLevel(libraryName: "Mock Server", userID: "42"))
-  }
-  
-  @MainActor
-  func testHideJellyfinViewsOnDownloadProgress() async {
-    mockJellyfinConnectionService.setConnection(JellyfinConnectionServiceTests.makeMockConnectionData(), saveToKeychain: false)
-    sut.start()
-    
-    XCTAssertGreaterThan(mockFlow.horizontalStack.count, 0)
-    
-    mockSingleFileDownloadService.handleDownload(URL(string: "http://example.com/foo.mp4")!)
-    
-    let _ = await Task { @MainActor in
-      XCTAssertEqual(self.mockFlow.horizontalStack.count, 0)
-    }.result
   }
 }

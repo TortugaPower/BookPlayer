@@ -172,7 +172,7 @@ extension ItemListCoordinator {
     let child = JellyfinCoordinator(
       flow: .modalFlow(presentingController: flow.navigationController, modalPresentationStyle: .pageSheet),
       singleFileDownloadService: singleFileDownloadService,
-      jellyfinConnectionService: jellyfinConnectionService
+      connectionService: jellyfinConnectionService
     )
     child.start()
   }
