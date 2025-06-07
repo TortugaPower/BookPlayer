@@ -77,15 +77,6 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
       self.playbackLabel.adjustsFontForContentSizeCategory = true
       self.boostLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
       self.boostLabel.adjustsFontForContentSizeCategory = true
-
-      let configuration = UIButton.Configuration.gray()
-      var container = AttributeContainer()
-      container.font = UIFont(descriptor: titleDescriptor, size: 0.0)
-
-      container.font = UIFont.boldSystemFont(ofSize: 20)
-      self.speedFirstQuickActionButton.configuration = configuration
-      self.speedSecondQuickActionButton.configuration = configuration
-      self.speedThirdQuickActionButton.configuration = configuration
     }
 
     self.boostSwitchControl.setOn(self.viewModel.getBoostVolumeFlag(), animated: false)
