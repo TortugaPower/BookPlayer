@@ -10,7 +10,7 @@ import AppIntents
 import BookPlayerKit
 import Foundation
 
-@available(iOS 16.0, macOS 14.0, watchOS 10.0, tvOS 16.0, *)
+@available(macOS 14.0, watchOS 10.0, tvOS 16.0, *)
 struct CreateBookmarkIntent: AppIntent {
   static var title: LocalizedStringResource = "bookmark_create_title"
 

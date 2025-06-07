@@ -9,7 +9,7 @@
 import SwiftUI
 import WidgetKit
 
-@available(iOSApplicationExtension 16.1, watchOS 9.0, *)
+@available(iOSApplicationExtension 16.1, *)
 struct CornerView: View {
   let title: String
   let fillFraction: Double

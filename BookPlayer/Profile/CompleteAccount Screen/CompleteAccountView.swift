@@ -14,23 +14,9 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
   var disclaimerView: some View {
-    if #available(iOS 15, *) {
-      return Text("\("agreement_prefix_title".localized) [\("privacy_policy_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md) \("and_title".localized) [\("terms_conditions_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md)")
-        .fixedSize(horizontal: false, vertical: true)
-        .multilineTextAlignment(.center)
-    } else {
-      return VStack {
-        Text("\("agreement_prefix_title".localized):")
-        Link(
-          "privacy_policy_title".localized,
-          destination: URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md")!
-        )
-        Link(
-          "terms_conditions_title".localized,
-          destination: URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md")!
-        )
-      }
-    }
+    return Text("\("agreement_prefix_title".localized) [\("privacy_policy_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md) \("and_title".localized) [\("terms_conditions_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md)")
+      .fixedSize(horizontal: false, vertical: true)
+      .multilineTextAlignment(.center)
   }
 
   var body: some View {

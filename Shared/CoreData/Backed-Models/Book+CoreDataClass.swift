@@ -66,7 +66,7 @@ extension Book {
   public func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
     if !asset.availableChapterLocales.isEmpty {
       setStandardChapters(from: asset, context: context)
-    } else if #available(iOS 16.0, watchOS 9.0, *) {
+    } else {
       setOverdriveChapters(from: asset, context: context)
     }
   }
@@ -98,7 +98,6 @@ extension Book {
   /// Try to store chapters info from the TXXX tag for mp3s (used by Overdrive)
   /// Note: `XMLParser` does not have an async/await API, so I would rather use regex with
   /// what was introduced in iOS 16 to parse the info
-  @available(iOS 16.0, watchOS 9.0, *)
   private func setOverdriveChapters(from asset: AVAsset, context: NSManagedObjectContext) {
     guard
       let fileURL,

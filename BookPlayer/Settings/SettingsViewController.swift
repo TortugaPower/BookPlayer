@@ -175,11 +175,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func orientationLockDidChange() {
     viewModel.toggleOrientationLockPreference(lockOrientationSwitch.isOn)
-    if #available(iOS 16.0, *) {
-      setNeedsUpdateOfSupportedInterfaceOrientations()
-    } else {
-      Self.attemptRotationToDeviceOrientation()
-    }
+    setNeedsUpdateOfSupportedInterfaceOrientations()
   }
 
   func bindDataItems() {

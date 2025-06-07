@@ -36,9 +36,7 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
       $0.cancel()
     })
     referenceWorkItems = [:]
-    if #available(watchOS 9.0, *) {
-      WidgetCenter.shared.reloadAllTimelines()
-    }
+    WidgetCenter.shared.reloadAllTimelines()
   }
 
   func reloadWidget(_ type: Constants.Widgets) {
@@ -46,9 +44,7 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
 
     referenceWorkItem?.cancel()
 
-    if #available(watchOS 9.0, *) {
-      WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
-    }
+    WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
   }
 
   func scheduleWidgetReload(of type: Constants.Widgets) {
@@ -57,9 +53,7 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
     referenceWorkItem?.cancel()
 
     let workItem = DispatchWorkItem {
-      if #available(watchOS 9.0, *) {
-        WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
-      }
+      WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
     }
 
     referenceWorkItems[type] = workItem
