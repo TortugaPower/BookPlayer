@@ -103,6 +103,16 @@ final class ThemeManager: ThemeProvider {
     }
 
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
+
+    // Moved from scene delegate
+    UINavigationBar.appearance().titleTextAttributes = [
+      NSAttributedString.Key.foregroundColor: newTheme.primaryColor
+    ]
+
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      NSAttributedString.Key.foregroundColor: newTheme.primaryColor
+    ]
+
     UIView.transition(
       with: window,
       duration: 0.3,

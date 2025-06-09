@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
@@ -16,14 +17,6 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   private let itemMinSizeBase = CGSize(width: 100, height: 100)
   private let itemMaxSizeBase = CGSize(width: 250, height: 250)
   private let itemSpacingBase = 20.0
-
-  @ViewBuilder
-  private func itemView(item: JellyfinLibraryItem) -> some View {
-    JellyfinLibraryItemView<Model>(item: item)
-      .onAppear {
-        viewModel.fetchMoreItemsIfNeeded(currentItem: item)
-      }
-  }
 
   private func adjustSize(_ size: CGSize, availableSize: CGSize) -> CGSize {
     CGSize(
@@ -40,14 +33,32 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
         itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
         itemSpacing: itemSpacingBase * accessabilityScale
       ) {
-        ForEach(viewModel.items, id: \.id) { userView in
-          itemView(item: userView)
-            .frame(
-              minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
-              maxWidth: CGFloat.greatestFiniteMagnitude,
-              minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
-              maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
-            )
+        ForEach(viewModel.items, id: \.id) { item in
+          JellyfinLibraryItemView(
+            item: item,
+            connectionService: viewModel.connectionService
+          )
+          .onTapGesture {
+            switch item.kind {
+            case .audiobook:
+              viewModel.navigation.path.append(
+                JellyfinLibraryLevelData.details(data: item)
+              )
+            case .userView, .folder:
+              viewModel.navigation.path.append(
+                JellyfinLibraryLevelData.folder(data: item)
+              )
+            }
+          }
+          .onAppear {
+            viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+          }
+          .frame(
+            minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
+            maxWidth: CGFloat.greatestFiniteMagnitude,
+            minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
+            maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
+          )
         }
       }
     }
@@ -55,6 +66,10 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
 }
 
 final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
+  var error: Error?
+  var navigationTitle: String = ""
+  var navigation = BPNavigation()
+  var connectionService = JellyfinConnectionService(keychainService: KeychainService())
   var layoutStyle = JellyfinLayoutOptions.grid
 
   let data: JellyfinLibraryLevelData
@@ -64,31 +79,16 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
     self.data = data
   }
 
-  func createFolderViewFor(item: JellyfinLibraryItem) -> JellyfinLibraryView<MockJellyfinLibraryViewModel> {
-    let data = JellyfinLibraryLevelData.folder(data: item)
-    let vm = MockJellyfinLibraryViewModel(data: data)
-    return JellyfinLibraryView(viewModel: vm)
-  }
-
-  func createAudiobookDetailsViewFor(
-    item: JellyfinLibraryItem
-  ) -> JellyfinAudiobookDetailsView<MockJellyfinAudiobookDetailsViewModel, MockJellyfinLibraryViewModel> {
-    let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: nil)
-    return JellyfinAudiobookDetailsView(viewModel: vm)
-  }
-
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
   func cancelFetchItems() {}
-
-  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) -> URL? { nil }
 
   func handleDoneAction() {}
 }
 
 #Preview("top level") {
   let model = {
-    var model = MockJellyfinLibraryViewModel(data: .topLevel(libraryName: "Mock Library", userID: "42"))
+    var model = MockJellyfinLibraryViewModel(data: .topLevel(libraryName: "Mock Library"))
     model.items = [
       JellyfinLibraryItem(id: "0.0", name: "subfolder", kind: .folder),
       JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),

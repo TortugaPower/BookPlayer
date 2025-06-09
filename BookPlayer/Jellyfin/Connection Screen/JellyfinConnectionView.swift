@@ -24,6 +24,8 @@ struct JellyfinConnectionView: View {
   /// Theme view model to update colors
   @StateObject var themeViewModel = ThemeViewModel()
 
+  @Environment(\.dismiss) var dismiss
+
   var body: some View {
     Form {
       switch viewModel.connectionState {
@@ -57,8 +59,6 @@ struct JellyfinConnectionView: View {
     }
     .defaultFormBackground()
     .environmentObject(themeViewModel)
-    .navigationTitle(localizedNavigationTitle)
-    .navigationBarTitleDisplayMode(.inline)
     .errorAlert(error: $error)
     .overlay {
       Group {
@@ -76,6 +76,11 @@ struct JellyfinConnectionView: View {
       }
     }
     .toolbar {
+      ToolbarItem(placement: .principal) {
+        Text(localizedNavigationTitle)
+          .font(.headline)
+          .foregroundColor(themeViewModel.primaryColor)
+      }
       ToolbarItemGroup(placement: .cancellationAction) {
         cancelToolbarButton
       }
@@ -136,7 +141,9 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var cancelToolbarButton: some View {
     Button(
-      action: viewModel.handleCancelAction,
+      action: {
+        dismiss()
+      },
       label: {
         Image(systemName: "xmark")
           .foregroundColor(themeViewModel.linkColor)
@@ -178,7 +185,8 @@ struct JellyfinConnectionView: View {
 
 #Preview("disconnected") {
   let viewModel = JellyfinConnectionViewModel(
-    connectionService: JellyfinConnectionService(keychainService: KeychainService())
+    connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+    navigation: BPNavigation()
   )
   JellyfinConnectionView(viewModel: viewModel)
 }
@@ -186,7 +194,8 @@ struct JellyfinConnectionView: View {
 #Preview("found server") {
   let viewModel = {
     let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(keychainService: KeychainService())
+      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      navigation: BPNavigation()
     )
     viewModel.connectionState = .foundServer
     viewModel.form.serverName = "Mock Server"
@@ -199,7 +208,8 @@ struct JellyfinConnectionView: View {
 #Preview("connected") {
   let viewModel = {
     let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(keychainService: KeychainService())
+      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      navigation: BPNavigation()
     )
     viewModel.connectionState = .connected
     viewModel.form.serverName = "Mock Server"

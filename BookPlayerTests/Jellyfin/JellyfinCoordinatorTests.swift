@@ -76,6 +76,6 @@ class JellyfinCoordinatorInitialStateTests: XCTestCase {
     }
     let libraryViewModel = libraryVC.rootView.viewModel
     
-    XCTAssertEqual(libraryViewModel.data, .topLevel(libraryName: "Mock Server", userID: "42"))
+    XCTAssertEqual(libraryViewModel.data, .topLevel(libraryName: "Mock Server"))
   }
 }

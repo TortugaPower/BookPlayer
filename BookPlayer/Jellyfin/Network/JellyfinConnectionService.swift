@@ -90,7 +90,89 @@ class JellyfinConnectionService: BPLogger {
     client = nil
   }
 
-  public func send<T>(
+  public func fetchTopLevelItems() async throws -> [JellyfinLibraryItem] {
+    guard
+      let client,
+      let connection
+    else {
+      throw JellyfinError.noClient
+    }
+
+    let parameters = Paths.GetUserViewsParameters(userID: connection.userID)
+
+    let response = try await send(Paths.getUserViews(parameters: parameters))
+
+    try Task.checkCancellation()
+
+    let userViews = (response.value.items ?? [])
+      .compactMap { userView -> JellyfinLibraryItem? in
+        guard userView.collectionType == .books else {
+          return nil
+        }
+        return JellyfinLibraryItem(apiItem: userView)
+      }
+
+    return userViews
+  }
+
+  public func fetchItems(
+    in folderID: String,
+    startIndex: Int?,
+    limit: Int?
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: false,
+      sortOrder: [.ascending],
+      parentID: folderID,
+      fields: [.sortName],
+      includeItemTypes: [.audioBook, .folder],
+      sortBy: [.isFolder, .sortName],
+      imageTypeLimit: 1
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let nextStartItemIndex =
+      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
+        startIndex + numItems
+      } else {
+        -1
+      }
+    let maxNumItems = response.value.totalRecordCount ?? 0
+
+    let items = (response.value.items ?? [])
+      .filter { item in item.id != nil }
+      .compactMap { item -> JellyfinLibraryItem? in
+        return JellyfinLibraryItem(apiItem: item)
+      }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  public func fetchItemDetails(for id: String) async throws -> JellyfinAudiobookDetailsData {
+    let response = try await send(Paths.getItem(itemID: id))
+    try Task.checkCancellation()
+
+    let itemInfo = response.value
+    let artist: String? = itemInfo.albumArtist
+    let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
+    let fileSize: Int? = itemInfo.mediaSources?.first?.size
+    let runtimeInSeconds: TimeInterval? =
+      (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+
+    return JellyfinAudiobookDetailsData(
+      artist: artist,
+      filePath: filePath,
+      fileSize: fileSize,
+      overview: itemInfo.overview,
+      runtimeInSeconds: runtimeInSeconds
+    )
+  }
+
+  private func send<T>(
     _ request: Request<T>
   ) async throws -> Response<T> where T: Decodable {
     guard let client else {

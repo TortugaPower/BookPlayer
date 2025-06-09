@@ -40,6 +40,8 @@ struct JellyfinAudiobookDetailsData {
 protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   var item: JellyfinLibraryItem { get }
   var details: JellyfinAudiobookDetailsData? { get }
+  var connectionService: JellyfinConnectionService { get }
+  var error: Error? { get set }
 
   @MainActor
   func fetchData()
@@ -48,21 +50,17 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   func cancelFetchData()
 
   @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem)
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) throws
 }
 
 class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
-  enum Routes {
-    case showAlert(content: BPAlertContent)
-  }
 
   let item: JellyfinLibraryItem
+  let connectionService: JellyfinConnectionService
   @Published var details: JellyfinAudiobookDetailsData?
+  @Published var error: Error?
   private var singleFileDownloadService: SingleFileDownloadService
 
-  var onTransition: BPTransition<Routes>?
-
-  private var connectionService: JellyfinConnectionService
   private var fetchTask: Task<(), any Error>?
 
   init(
@@ -85,30 +83,16 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
       defer { fetchTask = nil }
 
       do {
-        let response = try await connectionService.send(Paths.getItem(itemID: item.id))
-        try Task.checkCancellation()
-
-        let itemInfo = response.value
-        let artist: String? = itemInfo.albumArtist
-        let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
-        let fileSize: Int? = itemInfo.mediaSources?.first?.size
-        let runtimeInSeconds: TimeInterval? =
-          (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+        let details = try await connectionService.fetchItemDetails(for: item.id)
 
         await MainActor.run {
-          self.details = JellyfinAudiobookDetailsData(
-            artist: artist,
-            filePath: filePath,
-            fileSize: fileSize,
-            overview: itemInfo.overview,
-            runtimeInSeconds: runtimeInSeconds
-          )
+          self.details = details
         }
       } catch is CancellationError {
         // ignore
       } catch {
         Task { @MainActor in
-          self.showErrorAlert(message: error.localizedDescription)
+          self.error = error
         }
       }
     }
@@ -121,17 +105,8 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   }
 
   @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {
-    do {
-      let url = try connectionService.createItemDownloadUrl(item)
-      singleFileDownloadService.handleDownload(url)
-    } catch {
-      showErrorAlert(message: error.localizedDescription)
-    }
-  }
-
-  @MainActor
-  private func showErrorAlert(message: String) {
-    self.onTransition?(.showAlert(content: BPAlertContent.errorAlert(message: message)))
+  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) throws {
+    let url = try connectionService.createItemDownloadUrl(item)
+    singleFileDownloadService.handleDownload(url)
   }
 }

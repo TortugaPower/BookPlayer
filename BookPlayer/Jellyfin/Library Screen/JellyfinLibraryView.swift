@@ -11,17 +11,12 @@ import Kingfisher
 import SwiftUI
 
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
-  @ObservedObject var viewModel: Model
+  @StateObject var viewModel: Model
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout) var libraryLayout: JellyfinLayoutOptions = .grid
   @StateObject private var themeViewModel = ThemeViewModel()
 
   var navigationTitle: String {
-    switch viewModel.data {
-    case .topLevel(let libraryName, userID: _):
-      libraryName
-    case .folder(let data):
-      data.name
-    }
+    viewModel.navigationTitle
   }
 
   var body: some View {
@@ -29,25 +24,14 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       if libraryLayout == .grid {
         JellyfinLibraryGridView(viewModel: viewModel)
       } else {
-        List {
-          ForEach(viewModel.items, id: \.id) { userView in
-            NavigationLink {
-              NavigationLazyView(viewModel.createFolderViewFor(item: userView))
-            } label: {
-              VStack {
-                Text(userView.name)
-              }
-            }
-            .buttonStyle(PlainButtonStyle())
-          }
-        }
+        EmptyView()
       }
     }
     .padding()
-    .environmentObject(viewModel)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .navigationTitle(navigationTitle)
+    .errorAlert(error: $viewModel.error)
     .toolbar {
       ToolbarItemGroup(placement: .topBarTrailing) {
         Menu {

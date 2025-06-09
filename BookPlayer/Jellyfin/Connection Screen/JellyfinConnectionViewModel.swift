@@ -12,13 +12,8 @@ import Get
 import JellyfinAPI
 import SwiftUI
 
+@MainActor
 class JellyfinConnectionViewModel: ObservableObject, BPLogger {
-  enum Routes {
-    case cancel
-    case signOut
-    case showLibrary
-  }
-
   enum ViewMode {
     case regular  // for the "Download from Jellyfin" flow
     case viewDetails  // for the connection details + sign out option from the Settings screen
@@ -32,31 +27,35 @@ class JellyfinConnectionViewModel: ObservableObject, BPLogger {
 
   let connectionService: JellyfinConnectionService
 
+  var navigation: BPNavigation
   @Published var form: JellyfinConnectionFormViewModel
   @Published var viewMode: ViewMode = .regular
   @Published var connectionState: ConnectionState
 
-  public var onTransition: BPTransition<Routes>?
-
   private var disposeBag = Set<AnyCancellable>()
 
-  init(connectionService: JellyfinConnectionService) {
+  init(
+    connectionService: JellyfinConnectionService,
+    navigation: BPNavigation,
+    mode: ViewMode = .regular
+  ) {
     self.connectionService = connectionService
+    self._viewMode = .init(initialValue: mode)
     let form = JellyfinConnectionFormViewModel()
+
+    self.navigation = navigation
 
     if let data = connectionService.connection {
       form.setValues(from: data)
       self._connectionState = .init(initialValue: .connected)
+      navigation.path.append(
+        JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
+      )
     } else {
       self._connectionState = .init(initialValue: .disconnected)
     }
 
     self._form = .init(initialValue: form)
-  }
-
-  @MainActor
-  func handleCancelAction() {
-    onTransition?(.cancel)
   }
 
   @MainActor
@@ -75,8 +74,10 @@ class JellyfinConnectionViewModel: ObservableObject, BPLogger {
         serverName: form.serverName
       )
 
-      self.connectionState = .connected
-      self.onTransition?(.showLibrary)
+      connectionState = .connected
+      navigation.path.append(
+        JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
+      )
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
       case 400...499:
@@ -94,11 +95,12 @@ class JellyfinConnectionViewModel: ObservableObject, BPLogger {
     connectionService.deleteConnection()
     form = JellyfinConnectionFormViewModel()
     connectionState = .disconnected
-    onTransition?(.signOut)
   }
 
   @MainActor
   func handleGoToLibraryAction() {
-    onTransition?(.showLibrary)
+    navigation.path.append(
+      JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
+    )
   }
 }

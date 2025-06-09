@@ -8,16 +8,17 @@
 
 import Kingfisher
 import SwiftUI
+import BookPlayerKit
 
 struct JellyfinAudiobookDetailsView<
-  Model: JellyfinAudiobookDetailsViewModelProtocol,
-  LibraryVM: JellyfinLibraryViewModelProtocol
+  Model: JellyfinAudiobookDetailsViewModelProtocol
 >: View {
 
-  @ObservedObject var viewModel: Model
-  @EnvironmentObject var libraryVM: LibraryVM
+  @StateObject var viewModel: Model
   @StateObject private var themeViewModel = ThemeViewModel()
   @State var filePathLineLimit: Int? = 1
+
+  var onDownloadTap: (() -> Void)
 
   var body: some View {
     VStack {
@@ -31,7 +32,10 @@ struct JellyfinAudiobookDetailsView<
       Text(viewModel.item.name)
         .font(.title)
 
-      JellyfinLibraryItemImageView<LibraryVM>(item: viewModel.item)
+      JellyfinLibraryItemImageView(
+        item: viewModel.item,
+        connectionService: viewModel.connectionService
+      )
 
       if let details = viewModel.details {
         VStack {
@@ -64,7 +68,12 @@ struct JellyfinAudiobookDetailsView<
       Spacer()
 
       Button {
-        viewModel.beginDownloadAudiobook(viewModel.item)
+        do {
+          try viewModel.beginDownloadAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
       } label: {
         HStack {
           Image(systemName: "square.and.arrow.down")
@@ -78,18 +87,8 @@ struct JellyfinAudiobookDetailsView<
         .cornerRadius(10)
       }
     }
+    .errorAlert(error: $viewModel.error)
     .padding()
-    .toolbar {
-      ToolbarItemGroup(placement: .topBarTrailing) {
-        Button(
-          action: libraryVM.handleDoneAction,
-          label: {
-            Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
-          }
-        )
-      }
-    }
     .onAppear {
       viewModel.fetchData()
     }
@@ -100,8 +99,11 @@ struct JellyfinAudiobookDetailsView<
 }
 
 final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
+  var connectionService = JellyfinConnectionService(keychainService: KeychainService())
+
   let item: JellyfinLibraryItem
   let details: JellyfinAudiobookDetailsData?
+  var error: Error?
 
   init(item: JellyfinLibraryItem, details: JellyfinAudiobookDetailsData?) {
     self.item = item
@@ -116,20 +118,4 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
 
   @MainActor
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
-}
-
-#Preview {
-  let item = JellyfinLibraryItem(id: "0", name: "Mock Audiobook", kind: .audiobook)
-  let details = JellyfinAudiobookDetailsData(
-    artist: "The Author's Name",
-    filePath:
-      "/path/to/file/which/might/be/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/actually.m4a",
-    fileSize: 18_967_839,
-    overview: "Overview",
-    runtimeInSeconds: 580.1737409
-  )
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: details)
-  JellyfinAudiobookDetailsView<MockJellyfinAudiobookDetailsViewModel, MockJellyfinLibraryViewModel>(viewModel: vm)
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }

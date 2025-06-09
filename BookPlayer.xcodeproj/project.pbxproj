@@ -370,6 +370,7 @@
 		634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A42C176B5A0015314D /* StoryActionView.swift */; };
 		634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A62C1777BA0015314D /* PricingBoxView.swift */; };
 		634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5AC2C180F5E0015314D /* StoryViewModel.swift */; };
+		634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */; };
 		6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4632CF004160077CDC1 /* LoadingView.swift */; };
 		6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4652CF423030077CDC1 /* PlayerManager.swift */; };
 		6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
@@ -404,6 +405,7 @@
 		636E77822DF3499000D4DC0A /* JellyfinServerFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */; };
 		636E77842DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77832DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift */; };
 		636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77852DF34F1900D4DC0A /* JellyfinConnectedView.swift */; };
+		636E77892DF4C76600D4DC0A /* JellyfinRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */; };
 		636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E42D51254E00BFF3FD /* TipOption.swift */; };
 		636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */; };
 		63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63717EA92B792E350006291E /* RefreshTaskOperation.swift */; };
@@ -492,7 +494,6 @@
 		8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */; };
 		8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 8A495CC52CC85D27001B4244 /* JellyfinAPI */; };
 		8A9D0D172CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */; };
-		8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */; };
 		8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */; };
 		8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */; };
 		8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */; };
@@ -1192,6 +1193,7 @@
 		634BA5A42C176B5A0015314D /* StoryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryActionView.swift; sourceTree = "<group>"; };
 		634BA5A62C1777BA0015314D /* PricingBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingBoxView.swift; sourceTree = "<group>"; };
 		634BA5AC2C180F5E0015314D /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinSettingsView.swift; sourceTree = "<group>"; };
 		6350E4632CF004160077CDC1 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		6350E4652CF423030077CDC1 /* PlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
 		6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayerView.swift; sourceTree = "<group>"; };
@@ -1221,6 +1223,7 @@
 		636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerFoundView.swift; sourceTree = "<group>"; };
 		636E77832DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerInformationSectionView.swift; sourceTree = "<group>"; };
 		636E77852DF34F1900D4DC0A /* JellyfinConnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectedView.swift; sourceTree = "<group>"; };
+		636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinRootView.swift; sourceTree = "<group>"; };
 		636ED1E42D51254E00BFF3FD /* TipOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOption.swift; sourceTree = "<group>"; };
 		636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarViewModel.swift; sourceTree = "<group>"; };
 		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
@@ -1302,7 +1305,6 @@
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
 		8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveVGrid.swift; sourceTree = "<group>"; };
 		8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionFormViewModel.swift; sourceTree = "<group>"; };
-		8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinator.swift; sourceTree = "<group>"; };
 		8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
 		8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
 		8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLazyView.swift; sourceTree = "<group>"; };
@@ -2389,6 +2391,15 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
+		636E77872DF4948F00D4DC0A /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
+				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
+			);
+			path = Details;
+			sourceTree = "<group>";
+		};
 		636ED1E32D51254400BFF3FD /* Tips */ = {
 			isa = PBXGroup;
 			children = (
@@ -2596,13 +2607,12 @@
 		8A9D0D1A2CCCF36D007A924D /* Library Screen */ = {
 			isa = PBXGroup;
 			children = (
+				636E77872DF4948F00D4DC0A /* Details */,
 				636E777A2DF2907B00D4DC0A /* GridLayout */,
 				8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */,
 				8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */,
 				8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */,
 				8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */,
-				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
-				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
 			);
 			path = "Library Screen";
 			sourceTree = "<group>";
@@ -2613,7 +2623,8 @@
 				636E777D2DF32FFC00D4DC0A /* Network */,
 				8A9D0D1A2CCCF36D007A924D /* Library Screen */,
 				8AE4AAC92CCBA1D200BAA927 /* Connection Screen */,
-				8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */,
+				636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */,
+				634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */,
 			);
 			path = Jellyfin;
 			sourceTree = "<group>";
@@ -3876,6 +3887,7 @@
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
+				634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */,
@@ -4046,9 +4058,9 @@
 				9F134605293D0A410089B1DE /* ThemeViewModel.swift in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
-				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,
 				63E54C362D50626A0040355D /* TipOptionView.swift in Sources */,
 				8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */,
+				636E77892DF4C76600D4DC0A /* JellyfinRootView.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
 				8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */,

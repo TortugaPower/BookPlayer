@@ -9,46 +9,28 @@
 import Kingfisher
 import SwiftUI
 
-struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: View {
+struct JellyfinLibraryItemView: View {
   @State var item: JellyfinLibraryItem
-  @EnvironmentObject var libraryVM: LibraryVM
+  let connectionService: JellyfinConnectionService
 
   @ScaledMetric var accessabilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
 
   var body: some View {
-    switch item.kind {
-    case .audiobook:
-      NavigationLink {
-        NavigationLazyView(libraryVM.createAudiobookDetailsViewFor(item: item))
-          .environmentObject(libraryVM)
-      } label: {
-        itemView
-      }
-      .buttonStyle(PlainButtonStyle())
-    case .userView, .folder:
-      NavigationLink {
-        NavigationLazyView(libraryVM.createFolderViewFor(item: item))
-      } label: {
-        itemView
-      }
-      .buttonStyle(PlainButtonStyle())
-    }
-  }
-
-  @ViewBuilder
-  private var itemView: some View {
     VStack {
       ZStack(alignment: .topTrailing) {
-        JellyfinLibraryItemImageView<LibraryVM>(item: item)
-          .background(
-            GeometryReader { imageGeometry in
-              Color.clear.onAppear {
-                // we'd prever overlay to place the badge, but that's not available for us yet
-                imageSize = imageGeometry.size
-              }
+        JellyfinLibraryItemImageView(
+          item: item,
+          connectionService: connectionService
+        )
+        .background(
+          GeometryReader { imageGeometry in
+            Color.clear.onAppear {
+              // we'd prever overlay to place the badge, but that's not available for us yet
+              imageSize = imageGeometry.size
             }
-          )
+          }
+        )
 
         switch item.kind {
         case .userView, .folder:
@@ -79,20 +61,4 @@ struct JellyfinLibraryItemView<LibraryVM: JellyfinLibraryViewModelProtocol>: Vie
     .padding(5)
     .opacity(0.8)
   }
-}
-
-#Preview("audiobook") {
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(
-    item: JellyfinLibraryItem(id: "0.0", name: "An audiobook with a very very long name", kind: .audiobook)
-  )
-  .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
-}
-
-#Preview("folder") {
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemView<MockJellyfinLibraryViewModel>(
-    item: JellyfinLibraryItem(id: "0.0", name: "Some folder", kind: .folder)
-  )
-  .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }
