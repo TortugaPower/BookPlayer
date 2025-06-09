@@ -750,7 +750,7 @@ extension PlayerManager {
                     )
                     try audioSession.setActive(true)
                 } catch {
-                    SentrySDK.capture(error: error)
+                    fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
                 }
             }.value
             
