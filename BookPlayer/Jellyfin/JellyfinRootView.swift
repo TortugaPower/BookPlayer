@@ -28,17 +28,18 @@ struct JellyfinRootView: View {
   ) {
     let navigation = BPNavigation()
     self._navigation = .init(wrappedValue: navigation)
-    self._connectionViewModel = .init(wrappedValue: .init(
-      connectionService: connectionService,
-      navigation: navigation
-    ))
+    self._connectionViewModel = .init(
+      wrappedValue: .init(
+        connectionService: connectionService,
+        navigation: navigation
+      )
+    )
     self.singleFileDownloadService = singleFileDownloadService
   }
 
   var body: some View {
     NavigationStack(path: $navigation.path) {
       JellyfinConnectionView(viewModel: connectionViewModel)
-        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: JellyfinLibraryLevelData.self) { destination in
           switch destination {
           case .topLevel(let libraryName):
@@ -59,6 +60,7 @@ struct JellyfinRootView: View {
                 navigationTitle: item.name
               )
             )
+            .navigationBarTitleDisplayMode(.inline)
           case .details(let item):
             JellyfinAudiobookDetailsView(
               viewModel: JellyfinAudiobookDetailsViewModel(

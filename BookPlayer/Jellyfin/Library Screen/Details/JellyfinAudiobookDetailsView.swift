@@ -32,10 +32,9 @@ struct JellyfinAudiobookDetailsView<
       Text(viewModel.item.name)
         .font(.title)
 
-      JellyfinLibraryItemImageView(
-        item: viewModel.item,
-        connectionService: viewModel.connectionService
-      )
+      JellyfinLibraryItemImageView(item: viewModel.item)
+        .environmentObject(themeViewModel)
+        .environmentObject(viewModel.connectionService)
 
       if let details = viewModel.details {
         VStack {
@@ -118,4 +117,20 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
 
   @MainActor
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
+}
+
+#Preview {
+  let item = JellyfinLibraryItem(id: "0", name: "Mock Audiobook", kind: .audiobook)
+  let details = JellyfinAudiobookDetailsData(
+    artist: "The Author's Name",
+    filePath:
+      "/path/to/file/which/might/be/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/actually.m4a",
+    fileSize: 18_967_839,
+    overview: "Overview",
+    runtimeInSeconds: 580.1737409
+  )
+  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
+  let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: details)
+  JellyfinAudiobookDetailsView<MockJellyfinAudiobookDetailsViewModel>(viewModel: vm, onDownloadTap: {})
+    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
 }

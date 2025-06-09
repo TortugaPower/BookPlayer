@@ -6,8 +6,8 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import SwiftUI
 import BookPlayerKit
+import SwiftUI
 
 struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
@@ -34,31 +34,28 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
         itemSpacing: itemSpacingBase * accessabilityScale
       ) {
         ForEach(viewModel.items, id: \.id) { item in
-          JellyfinLibraryItemView(
-            item: item,
-            connectionService: viewModel.connectionService
-          )
-          .onTapGesture {
-            switch item.kind {
-            case .audiobook:
-              viewModel.navigation.path.append(
-                JellyfinLibraryLevelData.details(data: item)
-              )
-            case .userView, .folder:
-              viewModel.navigation.path.append(
-                JellyfinLibraryLevelData.folder(data: item)
-              )
+          JellyfinLibraryItemView(item: item)
+            .onTapGesture {
+              switch item.kind {
+              case .audiobook:
+                viewModel.navigation.path.append(
+                  JellyfinLibraryLevelData.details(data: item)
+                )
+              case .userView, .folder:
+                viewModel.navigation.path.append(
+                  JellyfinLibraryLevelData.folder(data: item)
+                )
+              }
             }
-          }
-          .onAppear {
-            viewModel.fetchMoreItemsIfNeeded(currentItem: item)
-          }
-          .frame(
-            minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
-            maxWidth: CGFloat.greatestFiniteMagnitude,
-            minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
-            maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
-          )
+            .onAppear {
+              viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+            }
+            .frame(
+              minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
+              maxWidth: CGFloat.greatestFiniteMagnitude,
+              minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
+              maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
+            )
         }
       }
     }

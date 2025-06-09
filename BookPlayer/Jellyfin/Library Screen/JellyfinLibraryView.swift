@@ -23,6 +23,8 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Group {
       if libraryLayout == .grid {
         JellyfinLibraryGridView(viewModel: viewModel)
+          .environmentObject(themeViewModel)
+          .environmentObject(viewModel.connectionService)
       } else {
         EmptyView()
       }

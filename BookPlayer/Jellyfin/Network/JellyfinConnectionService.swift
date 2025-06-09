@@ -10,10 +10,9 @@ import BookPlayerKit
 import Get
 import JellyfinAPI
 
-class JellyfinConnectionService: BPLogger {
+class JellyfinConnectionService: BPLogger, ObservableObject {
   private let keychainService: KeychainServiceProtocol
 
-  /// TODO: remove published once we remove it from settings
   @Published var connection: JellyfinConnectionData?
   var client: JellyfinClient?
 

@@ -11,7 +11,6 @@ import SwiftUI
 
 struct JellyfinLibraryItemView: View {
   @State var item: JellyfinLibraryItem
-  let connectionService: JellyfinConnectionService
 
   @ScaledMetric var accessabilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
@@ -19,18 +18,15 @@ struct JellyfinLibraryItemView: View {
   var body: some View {
     VStack {
       ZStack(alignment: .topTrailing) {
-        JellyfinLibraryItemImageView(
-          item: item,
-          connectionService: connectionService
-        )
-        .background(
-          GeometryReader { imageGeometry in
-            Color.clear.onAppear {
-              // we'd prever overlay to place the badge, but that's not available for us yet
-              imageSize = imageGeometry.size
+        JellyfinLibraryItemImageView(item: item)
+          .background(
+            GeometryReader { imageGeometry in
+              Color.clear.onAppear {
+                // we'd prever overlay to place the badge, but that's not available for us yet
+                imageSize = imageGeometry.size
+              }
             }
-          }
-        )
+          )
 
         switch item.kind {
         case .userView, .folder:

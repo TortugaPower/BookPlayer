@@ -12,9 +12,9 @@ import BookPlayerKit
 
 struct JellyfinLibraryItemImageView: View {
   let item: JellyfinLibraryItem
-  let connectionService: JellyfinConnectionService
+  @EnvironmentObject var connectionService: JellyfinConnectionService
   @Environment(\.displayScale) private var displayScale
-  
+
   var body: some View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
 
@@ -39,6 +39,8 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   let imageSize: CGSize
   let aspectRatio: CGFloat?
 
+  @EnvironmentObject var themeViewModel: ThemeViewModel
+
   var body: some View {
     KFImage
       .url(url)
@@ -55,15 +57,21 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   
   @ViewBuilder
   private func placeholderImageView(aspectRatio: CGFloat?) -> some View {
-    let image = if let blurHashImage = blurhashImageView {
+    if let blurHashImage = blurhashImageView {
       Image(uiImage: blurHashImage)
+        .resizable()
+        .aspectRatio(aspectRatio, contentMode: .fit)
     } else {
-      Image(systemName: placeholderImageName)
+      ZStack {
+        themeViewModel.linkColor
+        Image(systemName: placeholderImageName)
+          .resizable()
+          .foregroundStyle(.white)
+          .aspectRatio(contentMode: .fit)
+          .padding(Spacing.L)
+          .frame(maxWidth: 200)
+      }
     }
-    
-    image
-      .resizable()
-      .aspectRatio(aspectRatio, contentMode: .fit)
   }
   
   private var blurhashImageView: UIImage? {
@@ -74,13 +82,14 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   private var placeholderImageName: String {
     switch item.kind {
     case .userView, .folder: "folder"
-    case .audiobook: "headphones"
+    case .audiobook: "waveform"
     }
   }
 }
 
 #Preview("audiobook") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
-  JellyfinLibraryItemImageView(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook), connectionService: JellyfinConnectionService(keychainService: KeychainService()))
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
+  JellyfinLibraryItemImageView(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
+    .environmentObject(JellyfinConnectionService(keychainService: KeychainService()))
+    .environmentObject(ThemeViewModel())
 }
