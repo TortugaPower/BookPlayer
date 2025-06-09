@@ -17,24 +17,70 @@ enum JellyfinConnectionViewField: Focusable {
 struct JellyfinConnectionView: View {
   /// View model for the form
   @ObservedObject var viewModel: JellyfinConnectionViewModel
+
+  @State private var firstAppear = true
+  @State private var isLoading = false
+  @State private var error: Error?
+
   /// Theme view model to update colors
   @StateObject var themeViewModel = ThemeViewModel()
-  
-  @State var focusedField: JellyfinConnectionViewField = .none
-  
+
+  @Environment(\.dismiss) var dismiss
+
   var body: some View {
     Form {
       switch viewModel.connectionState {
-      case .disconnected: disconnectedView
-      case .foundServer: foundServerView
-      case .connected: connectedView
+      case .disconnected:
+        JellyfinDisconnectedView(
+          serverUrl: $viewModel.form.serverUrl,
+          onCommit: onConnect
+        )
+        .environmentObject(themeViewModel)
+      case .foundServer:
+        JellyfinServerInformationSectionView(
+          serverName: viewModel.form.serverName,
+          serverUrl: viewModel.form.serverUrl
+        )
+        .environmentObject(themeViewModel)
+        JellyfinServerFoundView(
+          username: $viewModel.form.username,
+          password: $viewModel.form.password,
+          onCommit: onSignIn
+        )
+        .environmentObject(themeViewModel)
+      case .connected:
+        JellyfinServerInformationSectionView(
+          serverName: viewModel.form.serverName,
+          serverUrl: viewModel.form.serverUrl
+        )
+        .environmentObject(themeViewModel)
+        JellyfinConnectedView(viewModel: viewModel)
+          .environmentObject(themeViewModel)
       }
     }
-    .defaultFormBackground()
     .environmentObject(themeViewModel)
-    .navigationTitle(localizedNavigationTitle)
-    .navigationBarTitleDisplayMode(.inline)
+    .errorAlert(error: $error)
+    .overlay {
+      Group {
+        if isLoading {
+          ProgressView()
+            .tint(.white)
+            .padding()
+            .background(
+              Color.black
+                .opacity(0.9)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            )
+            .ignoresSafeArea(.all)
+        }
+      }
+    }
     .toolbar {
+      ToolbarItem(placement: .principal) {
+        Text(localizedNavigationTitle)
+          .font(.headline)
+          .foregroundColor(themeViewModel.primaryColor)
+      }
       ToolbarItemGroup(placement: .cancellationAction) {
         cancelToolbarButton
       }
@@ -52,194 +98,105 @@ struct JellyfinConnectionView: View {
       }
     }
   }
-  
-  // MARK: - View
 
-  @ViewBuilder
-  private var disconnectedView: some View {
-    Section {
-      ClearableTextField("http://jellyfin.example.com:8096", text: $viewModel.form.serverUrl, onCommit: {
-        if viewModel.canConnect {
-          viewModel.handleConnectAction()
-        }
-      })
-      .keyboardType(.URL)
-      .textContentType(.URL)
-      .autocapitalization(.none)
-      .focused($focusedField, selfKey: .serverUrl)
-    } header: {
-      Text("jellyfin_section_server_url".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
-    } footer: {
-      Text("jellyfin_section_server_url_footer".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
-    }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-    .onAppear {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        focusedField = .serverUrl
-      }
-    }
-  }
-
-  @ViewBuilder
-  private var foundServerView: some View {
-    serverInfoSection
-
-    Section {
-      ClearableTextField("jellyfin_username_placeholder".localized, text: $viewModel.form.username, onCommit: {
-        focusedField = .password
-      })
-      .textContentType(.username)
-      .autocapitalization(.none)
-      .focused($focusedField, selfKey: .username)
-      
-      SecureField("jellyfin_password_placeholder".localized, text: $viewModel.form.password, onCommit: {
-        if viewModel.canSignIn {
-          viewModel.handleSignInAction()
-        }
-      })
-      .textContentType(.password)
-      .focused($focusedField, selfKey: .password)
-      
-      Toggle(isOn: $viewModel.form.rememberMe) {
-        Text("jellyfin_password_remember_me_label".localized)
-          .foregroundColor(themeViewModel.primaryColor)
-      }
-    } header: {
-      Text("jellyfin_section_login".localized)
-    }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-    .onAppear {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        focusedField = .username
-      }
-    }
-  }
-
-  @ViewBuilder
-  private var connectedView: some View {
-    serverInfoSection
-
-    Section {
-      HStack {
-        Text("jellyfin_username_placeholder".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
-        Spacer()
-        Text(viewModel.form.username)
-      }
-    } header: {
-      Text("jellyfin_section_login".localized)
-    }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-
-    Section {
-      destructiveButton("logout_title".localized) {
-        viewModel.handleSignOutAction()
-      }
-      .frame(maxWidth: .infinity)
-    }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-  }
-
-  @ViewBuilder
-  private var serverInfoSection: some View {
-    Section {
-      HStack {
-        Text("jellyfin_server_name_label".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
-        Spacer()
-        Text(viewModel.form.serverName ?? "")
-      }
-      HStack {
-        Text("jellyfin_server_url_label".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
-        Spacer()
-        Text(viewModel.form.serverUrl)
-      }
-    } header: {
-      Text("jellyfin_section_server".localized)
-    }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
-  }
-  
   // MARK: Utils
 
-  @ViewBuilder
-  private func destructiveButton(_ title: String, action: @escaping @MainActor () -> Void) -> some View {
-    if #available(iOS 16.0, *) {
-      Button(title, role: .destructive, action: action)
-    } else {
-      Button(title, action: action)
-        .foregroundColor(destructiveRedColor)
+  func onConnect() {
+    isLoading = true
+    Task {
+      do {
+        try await viewModel.handleConnectAction()
+        isLoading = false
+      } catch {
+        isLoading = false
+        self.error = error
+      }
     }
   }
 
-  private var destructiveRedColor: Color {
-    if UIColor.responds(to: Selector(("_systemDestructiveTintColor"))) {
-      if let systemRed = UIColor.perform(Selector(("_systemDestructiveTintColor")))?.takeUnretainedValue() as? UIColor {
-        return Color(systemRed)
+  func onSignIn() {
+    isLoading = true
+    Task {
+      do {
+        try await viewModel.handleSignInAction()
+        isLoading = false
+      } catch {
+        isLoading = false
+        self.error = error
       }
     }
-    return .red
   }
-  
+
   // MARK: - Navigation Title
-  
+
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
     case .disconnected, .foundServer: "Jellyfin"
     case .connected: "jellyfin_connection_details_title".localized
     }
   }
-  
+
   // MARK: - Navigation Buttons
-  
+
   @ViewBuilder
   private var cancelToolbarButton: some View {
     Button(
-      action: viewModel.handleCancelAction,
+      action: {
+        dismiss()
+      },
       label: {
         Image(systemName: "xmark")
           .foregroundColor(themeViewModel.linkColor)
       }
     )
   }
-  
+
   @ViewBuilder
   private var connectToolbarButton: some View {
-    Button("jellyfin_connect_button".localized,
-           action: viewModel.handleConnectAction
+    Button(
+      "jellyfin_connect_button".localized,
+      action: onConnect
     )
-    .disabled(!viewModel.canConnect)
+    .disabled(viewModel.form.serverUrl.isEmpty)
   }
-  
+
   @ViewBuilder
   private var signInToolbarButton: some View {
-    Button("jellyfin_sign_in_button".localized,
-           action: viewModel.handleSignInAction
+    Button(
+      "jellyfin_sign_in_button".localized,
+      action: onSignIn
     )
-    .disabled(!viewModel.canSignIn)
+    .disabled(
+      viewModel.form.serverUrl.isEmpty ||
+      viewModel.form.username.isEmpty ||
+      viewModel.form.password.isEmpty
+    )
   }
-  
+
   @ViewBuilder
   private var goToLibraryToolbarButton: some View {
-    Button("library_title".localized,
-           systemImage: "chevron.right",
-           action: viewModel.handleGoToLibraryAction
+    Button(
+      "library_title".localized,
+      systemImage: "chevron.forward",
+      action: viewModel.handleGoToLibraryAction
     )
-    .disabled(!viewModel.canGoToLibrary)
   }
 }
 
 #Preview("disconnected") {
-  let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
+  let viewModel = JellyfinConnectionViewModel(
+    connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+    navigation: BPNavigation()
+  )
   JellyfinConnectionView(viewModel: viewModel)
 }
 
 #Preview("found server") {
   let viewModel = {
-    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
+    let viewModel = JellyfinConnectionViewModel(
+      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      navigation: BPNavigation()
+    )
     viewModel.connectionState = .foundServer
     viewModel.form.serverName = "Mock Server"
     viewModel.form.serverUrl = "http://example.com"
@@ -250,7 +207,10 @@ struct JellyfinConnectionView: View {
 
 #Preview("connected") {
   let viewModel = {
-    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: JellyfinConnectionService(keychainService: KeychainService()))
+    let viewModel = JellyfinConnectionViewModel(
+      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      navigation: BPNavigation()
+    )
     viewModel.connectionState = .connected
     viewModel.form.serverName = "Mock Server"
     viewModel.form.serverUrl = "http://example.com"

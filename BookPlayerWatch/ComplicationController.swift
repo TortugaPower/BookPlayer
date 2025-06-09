@@ -12,7 +12,6 @@ import BookPlayerWatchKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
 
-  @available(watchOS 9.0, *)
   var widgetMigrator: CLKComplicationWidgetMigrator { self }
 
   // MARK: - Complication Configuration
@@ -136,7 +135,6 @@ extension ComplicationController {
   }
 }
 
-@available(watchOS 9.0, *)
 extension ComplicationController: CLKComplicationWidgetMigrator {
 
   func getWidgetConfiguration(

@@ -10,6 +10,7 @@ import BookPlayerKit
 import Combine
 import UIKit
 import UniformTypeIdentifiers
+import SwiftUI
 
 class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let playerManager: PlayerManagerProtocol
@@ -169,12 +170,15 @@ extension ItemListCoordinator {
   }
 
   func showJellyfinDownloader() {
-    let child = JellyfinCoordinator(
-      flow: .modalFlow(presentingController: flow.navigationController, modalPresentationStyle: .pageSheet),
-      singleFileDownloadService: singleFileDownloadService,
-      jellyfinConnectionService: jellyfinConnectionService
+    let view = JellyfinRootView(
+      connectionService: jellyfinConnectionService,
+      singleFileDownloadService: singleFileDownloadService
     )
-    child.start()
+
+    let vc = UIHostingController(rootView: view)
+    vc.modalPresentationStyle = .pageSheet
+
+    flow.navigationController.present(vc, animated: true, completion: nil)
   }
 
   func showExportController(for items: [SimpleLibraryItem]) {

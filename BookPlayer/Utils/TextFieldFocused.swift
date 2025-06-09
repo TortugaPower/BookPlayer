@@ -29,7 +29,6 @@ import SwiftUI
 protocol Focusable: Hashable {
 }
 
-@available(iOS 15.0, *)
 private struct TextFieldFocused<FocusableType: Equatable & Focusable>: ViewModifier {
 
   @FocusState private var focused: Bool
@@ -63,10 +62,6 @@ extension View {
     _ externalFocused: Binding<FocusableType>,
     selfKey: FocusableType
   ) -> some View {
-    if #available(iOS 15.0, *) {
-      self.modifier(TextFieldFocused(externalFocused: externalFocused, selfKey: selfKey))
-    } else {
-      self
-    }
+    self.modifier(TextFieldFocused(externalFocused: externalFocused, selfKey: selfKey))
   }
 }

@@ -19,7 +19,7 @@ enum JellyfinError: Error, LocalizedError {
     switch self {
     case .urlMalformed(let url):
       String(format: "jellyfin_internal_error_invalid_url".localized, String(reflecting: url))
-    case .urlFromComponents(let components):
+    case .urlFromComponents:
       "jellyfin_internal_error_build_url".localized
     case .noClient:
       "jellyfin_internal_error_no_client".localized

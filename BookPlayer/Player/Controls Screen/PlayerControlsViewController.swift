@@ -77,17 +77,6 @@ class PlayerControlsViewController: UIViewController, Storyboarded {
       self.playbackLabel.adjustsFontForContentSizeCategory = true
       self.boostLabel.font = UIFont(descriptor: titleDescriptor, size: 0.0)
       self.boostLabel.adjustsFontForContentSizeCategory = true
-
-      if #available(iOS 15.0, *) {
-        let configuration = UIButton.Configuration.gray()
-        var container = AttributeContainer()
-        container.font = UIFont(descriptor: titleDescriptor, size: 0.0)
-
-        container.font = UIFont.boldSystemFont(ofSize: 20)
-        self.speedFirstQuickActionButton.configuration = configuration
-        self.speedSecondQuickActionButton.configuration = configuration
-        self.speedThirdQuickActionButton.configuration = configuration
-      }
     }
 
     self.boostSwitchControl.setOn(self.viewModel.getBoostVolumeFlag(), animated: false)
@@ -212,19 +201,11 @@ extension PlayerControlsViewController: Themeable {
     self.currentSpeedSlider.minimumTrackTintColor = theme.linkColor
     self.currentSpeedSlider.maximumTrackTintColor = theme.separatorColor
 
-    if #available(iOS 15.0, *) {
-      self.speedFirstQuickActionButton.tintColor = theme.primaryColor
-      self.speedSecondQuickActionButton.tintColor = theme.primaryColor
-      self.speedThirdQuickActionButton.tintColor = theme.primaryColor
-      self.decrementSpeedButton.tintColor = theme.primaryColor
-      self.incrementSpeedButton.tintColor = theme.primaryColor
-    } else {
-      self.speedFirstQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
-      self.speedSecondQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
-      self.speedThirdQuickActionButton.setTitleColor(theme.linkColor, for: .normal)
-      self.decrementSpeedButton.tintColor = theme.linkColor
-      self.incrementSpeedButton.tintColor = theme.linkColor
-    }
+    self.speedFirstQuickActionButton.tintColor = theme.primaryColor
+    self.speedSecondQuickActionButton.tintColor = theme.primaryColor
+    self.speedThirdQuickActionButton.tintColor = theme.primaryColor
+    self.decrementSpeedButton.tintColor = theme.primaryColor
+    self.incrementSpeedButton.tintColor = theme.primaryColor
 
     self.moreButton.tintColor = theme.linkColor
 

@@ -1,5 +1,5 @@
 //
-//  JellyfinLibraryItemView.swift
+//  JellyfinLibraryItemImageView.swift
 //  BookPlayer
 //
 //  Created by Lysann Tranvouez on 2024-10-28.
@@ -8,19 +8,24 @@
 
 import SwiftUI
 import Kingfisher
+import BookPlayerKit
 
-struct JellyfinLibraryItemImageView<LibraryVM: JellyfinLibraryViewModelProtocol>: View {
+struct JellyfinLibraryItemImageView: View {
   let item: JellyfinLibraryItem
+  @EnvironmentObject var connectionService: JellyfinConnectionService
   @Environment(\.displayScale) private var displayScale
-  
+
   var body: some View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
-    
+
     GeometryReader { proxy in
       let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
-      JellyfinLibraryItemImageViewWrapper<LibraryVM>(item: item,
-                                                     imageSize: imageSize,
-                                                     aspectRatio: aspectRatio)
+      JellyfinLibraryItemImageViewWrapper(
+        item: item,
+        url: try? connectionService.createItemImageURL(item, size: imageSize),
+        imageSize: imageSize,
+        aspectRatio: aspectRatio
+      )
       .cornerRadius(max(3, min(proxy.size.width, proxy.size.height) * 0.02))
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
@@ -28,15 +33,17 @@ struct JellyfinLibraryItemImageView<LibraryVM: JellyfinLibraryViewModelProtocol>
 }
 
 /// Utility for JellyfinLibraryItemImageView to avoid reloading the image when the size changes
-fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibraryViewModelProtocol>: View, Equatable {
+fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   let item: JellyfinLibraryItem
+  let url: URL?
   let imageSize: CGSize
   let aspectRatio: CGFloat?
-  @EnvironmentObject var libraryVM: LibraryVM
-  
+
+  @EnvironmentObject var themeViewModel: ThemeViewModel
+
   var body: some View {
     KFImage
-      .url(libraryVM.createItemImageURL(item, size: imageSize))
+      .url(url)
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()
@@ -50,15 +57,21 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibrar
   
   @ViewBuilder
   private func placeholderImageView(aspectRatio: CGFloat?) -> some View {
-    let image = if let blurHashImage = blurhashImageView {
+    if let blurHashImage = blurhashImageView {
       Image(uiImage: blurHashImage)
+        .resizable()
+        .aspectRatio(aspectRatio, contentMode: .fit)
     } else {
-      Image(systemName: placeholderImageName)
+      ZStack {
+        themeViewModel.linkColor
+        Image(systemName: placeholderImageName)
+          .resizable()
+          .foregroundStyle(.white)
+          .aspectRatio(contentMode: .fit)
+          .padding()
+          .frame(maxWidth: 200)
+      }
     }
-    
-    image
-      .resizable()
-      .aspectRatio(aspectRatio, contentMode: .fit)
   }
   
   private var blurhashImageView: UIImage? {
@@ -69,13 +82,14 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper<LibraryVM: JellyfinLibrar
   private var placeholderImageName: String {
     switch item.kind {
     case .userView, .folder: "folder"
-    case .audiobook: "headphones"
+    case .audiobook: "waveform"
     }
   }
 }
 
 #Preview("audiobook") {
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library", userID: "42")
-  JellyfinLibraryItemImageView<MockJellyfinLibraryViewModel>(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
+  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
+  JellyfinLibraryItemImageView(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
+    .environmentObject(JellyfinConnectionService(keychainService: KeychainService()))
+    .environmentObject(ThemeViewModel())
 }

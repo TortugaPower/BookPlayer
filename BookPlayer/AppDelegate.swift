@@ -372,10 +372,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       do {
         let stack = try await databaseInitializer.loadCoreDataStack()
         let coreServices = createCoreServicesIfNeeded(from: stack)
-        if #available(iOS 16.0, *) {
-          AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
-          AppDependencyManager.shared.add(dependency: coreServices.libraryService)
-        }
+
+        AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
+        AppDependencyManager.shared.add(dependency: coreServices.libraryService)
       } catch {
         errorCoreServicesSetup = error
       }
