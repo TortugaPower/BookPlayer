@@ -18,6 +18,7 @@ struct JellyfinConnectionView: View {
   /// View model for the form
   @ObservedObject var viewModel: JellyfinConnectionViewModel
 
+  @State private var firstAppear = true
   @State private var isLoading = false
   @State private var error: Error?
 
@@ -57,7 +58,6 @@ struct JellyfinConnectionView: View {
           .environmentObject(themeViewModel)
       }
     }
-    .defaultFormBackground()
     .environmentObject(themeViewModel)
     .errorAlert(error: $error)
     .overlay {

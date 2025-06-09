@@ -40,6 +40,7 @@ struct JellyfinRootView: View {
   var body: some View {
     NavigationStack(path: $navigation.path) {
       JellyfinConnectionView(viewModel: connectionViewModel)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: JellyfinLibraryLevelData.self) { destination in
           switch destination {
           case .topLevel(let libraryName):
@@ -60,7 +61,6 @@ struct JellyfinRootView: View {
                 navigationTitle: item.name
               )
             )
-            .navigationBarTitleDisplayMode(.inline)
           case .details(let item):
             JellyfinAudiobookDetailsView(
               viewModel: JellyfinAudiobookDetailsViewModel(

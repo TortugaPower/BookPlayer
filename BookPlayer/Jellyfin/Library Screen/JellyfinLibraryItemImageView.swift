@@ -68,7 +68,7 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
           .resizable()
           .foregroundStyle(.white)
           .aspectRatio(contentMode: .fit)
-          .padding(Spacing.L)
+          .padding()
           .frame(maxWidth: 200)
       }
     }

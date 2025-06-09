@@ -23,18 +23,22 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Group {
       if libraryLayout == .grid {
         JellyfinLibraryGridView(viewModel: viewModel)
-          .environmentObject(themeViewModel)
-          .environmentObject(viewModel.connectionService)
+          .padding()
       } else {
-        EmptyView()
+        JellyfinLibraryListView(viewModel: viewModel)
       }
     }
-    .padding()
+    .environmentObject(themeViewModel)
+    .environmentObject(viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
-    .navigationTitle(navigationTitle)
     .errorAlert(error: $viewModel.error)
     .toolbar {
+      ToolbarItem(placement: .principal) {
+        Text(navigationTitle)
+          .font(.headline)
+          .foregroundColor(themeViewModel.primaryColor)
+      }
       ToolbarItemGroup(placement: .topBarTrailing) {
         Menu {
           Picker(selection: $libraryLayout, label: Text("Layout options")) {

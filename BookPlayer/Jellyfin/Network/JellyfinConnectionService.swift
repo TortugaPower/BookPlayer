@@ -91,7 +91,6 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
 
   public func fetchTopLevelItems() async throws -> [JellyfinLibraryItem] {
     guard
-      let client,
       let connection
     else {
       throw JellyfinError.noClient

@@ -1,5 +1,5 @@
 //
-//  JellyfinLibraryItemView.swift
+//  JellyfinLibraryGridItemView.swift
 //  BookPlayer
 //
 //  Created by Lysann Tranvouez on 2024-10-28.
@@ -9,7 +9,7 @@
 import Kingfisher
 import SwiftUI
 
-struct JellyfinLibraryItemView: View {
+struct JellyfinLibraryGridItemView: View {
   @State var item: JellyfinLibraryItem
 
   @ScaledMetric var accessabilityScale: CGFloat = 1

@@ -34,7 +34,7 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
         itemSpacing: itemSpacingBase * accessabilityScale
       ) {
         ForEach(viewModel.items, id: \.id) { item in
-          JellyfinLibraryItemView(item: item)
+          JellyfinLibraryGridItemView(item: item)
             .onTapGesture {
               switch item.kind {
               case .audiobook:
