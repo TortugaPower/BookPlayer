@@ -112,6 +112,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
 
+    SleepTimer.shared.timerTurnedOnPublisher.sink { [weak self] _ in
+      self?.handleSleepTimerTurnedOnEvent()
+    }.store(in: &disposeBag)
+
     isPlayingPublisher()
       .removeDuplicates()
       .sink { [weak self] isPlayingValue in
@@ -1241,6 +1245,16 @@ extension PlayerManager {
     if state == .endOfChapter {
       bindShakeObserver()
     }
+  }
+
+  private func handleSleepTimerTurnedOnEvent() {
+    guard let currentItem else { return }
+
+    createOrUpdateAutomaticBookmark(
+      at: currentItem.currentTime,
+      relativePath: currentItem.relativePath,
+      type: .sleep
+    )
   }
 
   private func bindShakeObserver() {

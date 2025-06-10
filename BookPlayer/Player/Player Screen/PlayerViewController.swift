@@ -430,7 +430,9 @@ extension PlayerViewController {
   }
 
   func bindCurrentChapterObserver(for item: PlayableItem) {
-    currentChapterSubscriber = item.$currentChapter.sink { [weak self, item] chapter in
+    currentChapterSubscriber = item.$currentChapter
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, item] chapter in
       let relativePath: String
 
       if let chapter,

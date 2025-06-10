@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Αναζήτηση προόδου";
 "settings_seekprogressbar_description" = "Ενεργοποιήστε την αναζήτηση στην οθόνη κλειδώματος";
 "donate_title" = "Προσφέρω";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

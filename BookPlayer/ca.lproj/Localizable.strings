@@ -349,3 +349,4 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "settings_seekprogressbar_title" = "Cerca de barra de progrés";
 "settings_seekprogressbar_description" = "Activa la cerca a la pantalla de bloqueig";
 "donate_title" = "Donar";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
