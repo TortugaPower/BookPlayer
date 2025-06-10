@@ -738,19 +738,22 @@ extension PlayerManager {
         !Task.isCancelled
       else { return }
 
-      userActivityManager.resumePlaybackActivity()
+      /// Move audio session activation off main thread
+      await Task.detached {
+        do {
+          let audioSession = AVAudioSession.sharedInstance()
+          try audioSession.setCategory(
+            AVAudioSession.Category.playback,
+            mode: .spokenAudio,
+            options: []
+          )
+          try audioSession.setActive(true)
+        } catch {
+          fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+        }
+      }.value
 
-      do {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(
-          AVAudioSession.Category.playback,
-          mode: .spokenAudio,
-          options: []
-        )
-        try audioSession.setActive(true)
-      } catch {
-        fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-      }
+      userActivityManager.resumePlaybackActivity()
 
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
@@ -779,7 +782,10 @@ extension PlayerManager {
 
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
-      NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+      // Move notification posting to background
+      Task.detached {
+        NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+      }
     }
   }
 
