@@ -684,6 +684,13 @@ extension PlayerManager {
     let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
     self.jumpTo(newTime)
   }
+
+  /// Bypass checks on chapter limits
+  func directSkip(_ interval: TimeInterval) {
+    guard let currentItem = self.currentItem else { return }
+
+    self.jumpTo(interval + currentItem.currentTime)
+  }
 }
 
 // MARK: - Playback

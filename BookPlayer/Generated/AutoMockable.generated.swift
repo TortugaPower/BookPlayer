@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.0.2 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 import Foundation
@@ -1167,6 +1167,21 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         skipReceivedInterval = interval
         skipReceivedInvocations.append(interval)
         skipClosure?(interval)
+    }
+    //MARK: - directSkip
+
+    var directSkipCallsCount = 0
+    var directSkipCalled: Bool {
+        return directSkipCallsCount > 0
+    }
+    var directSkipReceivedInterval: TimeInterval?
+    var directSkipReceivedInvocations: [TimeInterval] = []
+    var directSkipClosure: ((TimeInterval) -> Void)?
+    func directSkip(_ interval: TimeInterval) {
+        directSkipCallsCount += 1
+        directSkipReceivedInterval = interval
+        directSkipReceivedInvocations.append(interval)
+        directSkipClosure?(interval)
     }
     //MARK: - jumpTo
 

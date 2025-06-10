@@ -39,7 +39,7 @@ struct CustomRewindIntent: AudioStartingIntent {
       try await playerLoaderService.loadPlayer(book.relativePath, autoplay: false)
     }
 
-    playerLoaderService.playerManager.skip(-seconds)
+    playerLoaderService.playerManager.directSkip(-seconds)
 
     return .result()
   }
