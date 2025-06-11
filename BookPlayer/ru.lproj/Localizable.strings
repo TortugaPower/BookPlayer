@@ -349,4 +349,4 @@
 "settings_seekprogressbar_title" = "Полоса прокрутки прогресса";
 "settings_seekprogressbar_description" = "Включить возможность перемотки на экране блокировки";
 "donate_title" = "Пожертвовать";
-"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"bookmark_automatic_sleep_title" = "Последняя позиция, когда был включен таймер сна";
