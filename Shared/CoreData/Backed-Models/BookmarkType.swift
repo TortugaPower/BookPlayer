@@ -9,7 +9,7 @@
 import Foundation
 
 @objc public enum BookmarkType: Int16, Decodable {
-  case user, play, skip
+  case user, play, skip, sleep
 
   public func getNote() -> String? {
     switch self {
@@ -19,6 +19,8 @@ import Foundation
       return "bookmark_automatic_play_title".localized
     case .skip:
       return "bookmark_automatic_skip_title".localized
+    case .sleep:
+      return "bookmark_automatic_sleep_title".localized
     }
   }
 }

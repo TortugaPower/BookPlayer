@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "プログレスバーを使ったシーク";
 "settings_seekprogressbar_description" = "ロック画面でシークを有効にします。";
 "donate_title" = "寄付";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

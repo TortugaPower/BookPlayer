@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Doneren";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

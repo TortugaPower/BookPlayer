@@ -30,6 +30,8 @@ public struct SimpleBookmark: Decodable, Identifiable {
       return "play"
     case .skip:
       return "clock.arrow.2.circlepath"
+    case .sleep:
+      return "moon"
     case .user:
       return nil
     }

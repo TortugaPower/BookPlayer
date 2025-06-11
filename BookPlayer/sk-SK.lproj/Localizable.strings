@@ -349,3 +349,4 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_seekprogressbar_title" = "Vyhľadávanie v paneli priebehu";
 "settings_seekprogressbar_description" = "Povolenie vyhľadávania pri zamknutej obrazovke";
 "donate_title" = "Darovať";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

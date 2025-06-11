@@ -33,6 +33,8 @@ public protocol PlayerManagerProtocol: AnyObject {
   func rewind()
   func forward()
   func skip(_ interval: TimeInterval)
+  /// Bypass checks on chapter limits
+  func directSkip(_ interval: TimeInterval)
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func jumpToChapter(_ chapter: PlayableChapter)
   func markAsCompleted(_ flag: Bool)
