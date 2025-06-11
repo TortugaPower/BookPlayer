@@ -32,18 +32,17 @@ class BackgroundProcessingService {
             task.requiresExternalPower = false
             task.requiresNetworkConnectivity = true
             
-            // Schedule for every Friday at 23:00
+            // Schedule for every night at 23:00
             let calendar = Calendar.current
             var dateComponents = DateComponents()
-            dateComponents.weekday = 6 // Friday
             dateComponents.hour = 23
             dateComponents.minute = 0
             
-            let nextFriday = calendar.nextDate(after: Date(), matching: dateComponents, matchingPolicy: .nextTime)!
-            task.earliestBeginDate = nextFriday
+            let nextRun = calendar.nextDate(after: Date(), matching: dateComponents, matchingPolicy: .nextTime)!
+            task.earliestBeginDate = nextRun
             
             try BGTaskScheduler.shared.submit(task)
-            print("Task Scheduled for next Friday at 23:00")
+            print("Task Scheduled for tonight at 23:00")
         } catch {
             print("Error on submit: \(error)")
         }
