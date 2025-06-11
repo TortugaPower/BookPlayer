@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 public final class DataMigrationManager: BPLogger {
-  private let modelName: String = "BookPlayer"
+  public let modelName: String = "BookPlayer"
   private let currentModel: NSManagedObjectModel
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
@@ -93,17 +93,23 @@ public final class DataMigrationManager: BPLogger {
     Self.logger.trace("Moving into place the newly-migrated Core Data store")
     try fileManager.moveItem(at: destinationURL, to: storeURL)
   }
+    
+    public func getStoreURL() -> URL {
+        return self.storeURL
+    }
 
-  public func cleanupStoreFile() {
-    let storeURL = self.storeURL
-    let fileManager = FileManager.default
-    let wal = storeURL.appendingPathComponent("-wal")
-    let shm = storeURL.appendingPathComponent("-shm")
-    // cleanup in case
-    try? fileManager.removeItem(at: wal)
-    try? fileManager.removeItem(at: shm)
-    try? fileManager.removeItem(at: storeURL)
-  }
+    @discardableResult
+    public func cleanupStoreFile() -> URL {
+        let storeURL = self.storeURL
+        let fileManager = FileManager.default
+        let wal = storeURL.appendingPathComponent("-wal")
+        let shm = storeURL.appendingPathComponent("-shm")
+        // cleanup in case
+        try? fileManager.removeItem(at: wal)
+        try? fileManager.removeItem(at: shm)
+        try? fileManager.removeItem(at: storeURL)
+        return storeURL
+    }
 
   public func canPeformMigration() -> Bool {
     return self.storeModel != nil
