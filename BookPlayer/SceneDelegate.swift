@@ -23,15 +23,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    // Appearance
-    UINavigationBar.appearance().titleTextAttributes = [
-      NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
-    ]
-
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-      NSAttributedString.Key.foregroundColor: UIColor(hex: "#37454E")
-    ]
-
     if let activityType = connectionOptions.userActivities.first?.activityType,
        activityType == Constants.UserActivityPlayback {
       playLastBook()

@@ -112,6 +112,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
 
+    SleepTimer.shared.timerTurnedOnPublisher.sink { [weak self] _ in
+      self?.handleSleepTimerTurnedOnEvent()
+    }.store(in: &disposeBag)
+
     isPlayingPublisher()
       .removeDuplicates()
       .sink { [weak self] isPlayingValue in
@@ -682,6 +686,13 @@ extension PlayerManager {
     let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
     self.jumpTo(newTime)
   }
+
+  /// Bypass checks on chapter limits
+  func directSkip(_ interval: TimeInterval) {
+    guard let currentItem = self.currentItem else { return }
+
+    self.jumpTo(interval + currentItem.currentTime)
+  }
 }
 
 // MARK: - Playback
@@ -738,19 +749,22 @@ extension PlayerManager {
         !Task.isCancelled
       else { return }
 
-      userActivityManager.resumePlaybackActivity()
+      /// Move audio session activation off main thread
+      await Task.detached {
+        do {
+          let audioSession = AVAudioSession.sharedInstance()
+          try audioSession.setCategory(
+            AVAudioSession.Category.playback,
+            mode: .spokenAudio,
+            options: []
+          )
+          try audioSession.setActive(true)
+        } catch {
+          fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+        }
+      }.value
 
-      do {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(
-          AVAudioSession.Category.playback,
-          mode: .spokenAudio,
-          options: []
-        )
-        try audioSession.setActive(true)
-      } catch {
-        fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-      }
+      userActivityManager.resumePlaybackActivity()
 
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
@@ -779,7 +793,10 @@ extension PlayerManager {
 
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
-      NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+      // Move notification posting to background
+      Task.detached {
+        NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+      }
     }
   }
 
@@ -1235,6 +1252,16 @@ extension PlayerManager {
     if state == .endOfChapter {
       bindShakeObserver()
     }
+  }
+
+  private func handleSleepTimerTurnedOnEvent() {
+    guard let currentItem else { return }
+
+    createOrUpdateAutomaticBookmark(
+      at: currentItem.currentTime,
+      relativePath: currentItem.relativePath,
+      type: .sleep
+    )
   }
 
   private func bindShakeObserver() {

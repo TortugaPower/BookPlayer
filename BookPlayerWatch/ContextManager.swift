@@ -24,11 +24,11 @@ class ContextManager: ObservableObject, BPLogger {
       if let oldPath = oldValue.currentItem?.relativePath,
          let currentPath = applicationContext.currentItem?.relativePath,
          oldPath != currentPath {
-        reloadComplications()
+        handleReloadingWidgets()
       } else if let oldChapterIndex = oldValue.currentItem?.currentChapter.index,
                 let currentChapterIndex = applicationContext.currentItem?.currentChapter.index,
                 oldChapterIndex != currentChapterIndex {
-        reloadComplications()
+        handleReloadingWidgets()
       }
     }
   }
@@ -78,26 +78,6 @@ class ContextManager: ObservableObject, BPLogger {
     self.watchConnectivityService.startSession()
   }
 
-  func reloadComplications() {
-    if #available(watchOS 9.0, *) {
-      handleReloadingWidgets()
-    } else {
-      let server = CLKComplicationServer.sharedInstance()
-
-      guard
-        let complications = server.activeComplications,
-        !complications.isEmpty
-      else {
-        return
-      }
-
-      for complication in complications {
-        server.reloadTimeline(for: complication)
-      }
-    }
-  }
-
-  @available(watchOS 9.0, *)
   func handleReloadingWidgets() {
     guard
       let watchContextFileURL = FileManager.default.containerURL(

@@ -11,10 +11,6 @@ import SwiftUI
 extension View {
   @ViewBuilder
   func defaultFormBackground() -> some View {
-    if #available(iOS 16.0, *) {
-      scrollContentBackground(.hidden)
-    } else {
-      self
-    }
+    scrollContentBackground(.hidden)
   }
 }

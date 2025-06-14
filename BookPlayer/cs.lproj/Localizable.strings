@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Přetočit";
 "settings_skip_description" = "Upravte časový interval, který přeskočíte při přetažení obalu alba nebo pomocí tlačítek v ovládacím centru.";
 "settings_support_title" = "PODPORA";
-"settings_siri_title" = "ZKRATKA SIRI";
+"settings_shortcuts_title" = "ZKRATKY";
 "settings_support_project_title" = "Zobrazit projekt na Githubu";
 "settings_support_project_description" = "Vytvořit hlášení chyb a požadavků na funkce";
 "settings_support_email_title" = "Pošlete nám e-mail";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Darovat";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

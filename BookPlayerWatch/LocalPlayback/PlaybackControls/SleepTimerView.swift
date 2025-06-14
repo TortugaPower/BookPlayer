@@ -67,11 +67,7 @@ struct SleepTimerView: View {
 }
 
 #Preview {
-  if #available(watchOS 9.0, *) {
-    NavigationStack {
-      SleepTimerView()
-    }
-  } else {
+  NavigationStack {
     SleepTimerView()
   }
 }

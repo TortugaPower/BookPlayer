@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Avançar";
 "settings_skip_description" = "Ajuste a quantidade saltada ao usar os botões no Player ou no Centro de Controle.";
 "settings_support_title" = "SUPORTE";
-"settings_siri_title" = "ATALHO SIRI";
+"settings_shortcuts_title" = "ATALHOS";
 "settings_support_project_title" = "Veja o projeto no Github";
 "settings_support_project_description" = "Abra novos problemas para os seus pedidos de funcionalidades e erros";
 "settings_support_email_title" = "Envie-nos um e-mail";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Doar";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

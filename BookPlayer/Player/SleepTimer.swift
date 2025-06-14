@@ -66,6 +66,8 @@ final class SleepTimer {
   public var countDownThresholdPublisher = PassthroughSubject<Bool, Never>()
   /// Publisher when the timer ends
   public var timerEndedPublisher = PassthroughSubject<SleepTimerState, Never>()
+  /// Publisher when the timer is activated
+  public var timerTurnedOnPublisher = PassthroughSubject<SleepTimerState, Never>()
 
   // MARK: Internals
 
@@ -143,11 +145,13 @@ final class SleepTimer {
         .sink { [weak self] _ in
           self?.update()
         }
+      timerTurnedOnPublisher.send(newState)
     case .endOfChapter:
       lastActiveState = newState
       donateTimerIntent(with: .endChapter)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
+      timerTurnedOnPublisher.send(newState)
     }
   }
 

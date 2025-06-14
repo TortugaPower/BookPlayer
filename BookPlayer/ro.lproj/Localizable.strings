@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Înainte";
 "settings_skip_description" = "Ajustați valoarea ignorată atunci când utilizați butoanele din Player sau Centrul de Control.";
 "settings_support_title" = "SUPORT";
-"settings_siri_title" = "COMANDA RAPIDĂ SIRI";
+"settings_shortcuts_title" = "SCURTĂTURI";
 "settings_support_project_title" = "Vizualizați proiectul pe Github";
 "settings_support_project_description" = "Deschideți noi probleme pentru solicitările și erorile dvs. de funcții";
 "settings_support_email_title" = "Trimite-ne un e-mail";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Dona";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

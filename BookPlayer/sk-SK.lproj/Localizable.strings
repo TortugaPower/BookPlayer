@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Dopredu";
 "settings_skip_description" = "Úprava časového intervalu preskočenia pri použití tlačidiel v Prehrávači alebo Ovládacom centre.";
 "settings_support_title" = "PODPORA";
-"settings_siri_title" = "SKRATKY SIRI";
+"settings_shortcuts_title" = "SKRATKY";
 "settings_support_project_title" = "Zobraziť projekt na Githube";
 "settings_support_project_description" = "Vytvorí nové hlásenie chyby alebo požiadavky na funkcie";
 "settings_support_email_title" = "Pošlite nám e-mail";
@@ -349,3 +349,4 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_seekprogressbar_title" = "Vyhľadávanie v paneli priebehu";
 "settings_seekprogressbar_description" = "Povolenie vyhľadávania pri zamknutej obrazovke";
 "donate_title" = "Darovať";
+"bookmark_automatic_sleep_title" = "Posledná pozícia, keď bol časovač spánku zapnutý";

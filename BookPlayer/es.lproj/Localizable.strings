@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Adelante";
 "settings_skip_description" = "Ajusta el tamaño del intervalo de tiempo omitido con cada salto";
 "settings_support_title" = "SOPORTE";
-"settings_siri_title" = "ATAJO DE SIRI";
+"settings_shortcuts_title" = "ATAJOS";
 "settings_support_project_title" = "Ver proyecto en Github";
 "settings_support_project_description" = "Abre nuevos tickets para informarnos de errores y peticiones";
 "settings_support_email_title" = "Envíanos un correo";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Donar";
+"bookmark_automatic_sleep_title" = "Última posición antes de que inicie el temporizador de suspensión";

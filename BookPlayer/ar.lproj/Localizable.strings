@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "شريط التقدم";
 "settings_seekprogressbar_description" = "تمكين البحث في شاشة القفل";
 "donate_title" = "تبرع";
+"bookmark_automatic_sleep_title" = "آخر موضع تم فيه عند تشغيل مؤقت السكون";

@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Вперёд";
 "settings_skip_description" = "Настройте шаг перемотки при использовании кнопок в плеере или Центре управления.";
 "settings_support_title" = "ПОДДЕРЖКА";
-"settings_siri_title" = "БЫСТРАЯ КОМАНДА SIRI";
+"settings_shortcuts_title" = "ЯРЛЫКИ";
 "settings_support_project_title" = "Посмотреть проект на Github";
 "settings_support_project_description" = "Создайте новые записи с Вашими пожеланиями и замеченными ошибками";
 "settings_support_email_title" = "Отправить нам письмо";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Полоса прокрутки прогресса";
 "settings_seekprogressbar_description" = "Включить возможность перемотки на экране блокировки";
 "donate_title" = "Пожертвовать";
+"bookmark_automatic_sleep_title" = "Последняя позиция, когда был включен таймер сна";

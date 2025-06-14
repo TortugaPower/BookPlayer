@@ -62,8 +62,9 @@ class BookmarksViewModel: ViewModelProtocol {
   func getAutomaticBookmarks(for relativePath: String) -> [SimpleBookmark] {
     let playBookmarks = self.libraryService.getBookmarks(of: .play, relativePath: relativePath) ?? []
     let skipBookmarks = self.libraryService.getBookmarks(of: .skip, relativePath: relativePath) ?? []
+    let sleepBookmarks = self.libraryService.getBookmarks(of: .sleep, relativePath: relativePath) ?? []
 
-    let bookmarks = playBookmarks + skipBookmarks
+    let bookmarks = playBookmarks + skipBookmarks + sleepBookmarks
 
     return bookmarks.sorted(by: { $0.time < $1.time })
   }
@@ -82,6 +83,8 @@ class BookmarksViewModel: ViewModelProtocol {
       return "play.fill"
     case .skip:
       return "clock.arrow.2.circlepath"
+    case .sleep:
+      return "moon.fill"
     case .user:
       return nil
     }

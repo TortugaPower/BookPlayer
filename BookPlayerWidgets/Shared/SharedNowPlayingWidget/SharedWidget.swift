@@ -150,7 +150,7 @@ struct SharedWidgetTimelineProvider: TimelineProvider {
   }
 }
 
-@available(iOSApplicationExtension 16.1, watchOS 9.0, *)
+@available(iOSApplicationExtension 16.1, *)
 struct SharedWidget: Widget {
   let kind: String = Constants.Widgets.sharedNowPlayingWidget.rawValue
 

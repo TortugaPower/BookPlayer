@@ -110,6 +110,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       self?.handleSleepTimerEndEvent(state)
     }.store(in: &disposeBag)
 
+    SleepTimer.shared.timerTurnedOnPublisher.sink { [weak self] _ in
+      self?.handleSleepTimerTurnedOnEvent()
+    }.store(in: &disposeBag)
+
     isPlayingPublisher()
       .removeDuplicates()
       .sink { [weak self] isPlayingValue in
@@ -680,6 +684,13 @@ extension PlayerManager {
     let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
     self.jumpTo(newTime)
   }
+
+  /// Bypass checks on chapter limits
+  func directSkip(_ interval: TimeInterval) {
+    guard let currentItem = self.currentItem else { return }
+
+    self.jumpTo(interval + currentItem.currentTime)
+  }
 }
 
 // MARK: - Playback
@@ -1223,5 +1234,15 @@ extension PlayerManager {
 
   private func handleSleepTimerEndEvent(_ state: SleepTimerState) {
     pause()
+  }
+
+  private func handleSleepTimerTurnedOnEvent() {
+    guard let currentItem else { return }
+
+    createOrUpdateAutomaticBookmark(
+      at: currentItem.currentTime,
+      relativePath: currentItem.relativePath,
+      type: .sleep
+    )
   }
 }

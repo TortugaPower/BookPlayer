@@ -227,7 +227,7 @@ extension View {
 
 extension WidgetConfiguration {
   public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
-    if #available(iOSApplicationExtension 17.0, iOS 15.0, *) {
+    if #available(iOSApplicationExtension 17.0, *) {
       return self.contentMarginsDisabled()
     } else {
       return self

@@ -624,7 +624,7 @@ extension ItemListViewController: UIDropInteractionDelegate {
 
         self?.viewModel.importData(from: item)
       }
-    } else if #available(iOS 16.0, *) {
+    } else {
       /// Fallback in case it's a folder
       _ = item.itemProvider.loadFileRepresentation(for: .folder) { url, _, _ in
         guard let url else { return }

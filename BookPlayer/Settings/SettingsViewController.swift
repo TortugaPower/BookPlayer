@@ -175,11 +175,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func orientationLockDidChange() {
     viewModel.toggleOrientationLockPreference(lockOrientationSwitch.isOn)
-    if #available(iOS 16.0, *) {
-      setNeedsUpdateOfSupportedInterfaceOrientations()
-    } else {
-      Self.attemptRotationToDeviceOrientation()
-    }
+    setNeedsUpdateOfSupportedInterfaceOrientations()
   }
 
   func bindDataItems() {
@@ -343,7 +339,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
         return nil
       }
     case .siri:
-      return "settings_siri_title".localized
+      return "settings_shortcuts_title".localized
     case .backups:
       return "settings_backup_title".localized
     case .jellyfin:

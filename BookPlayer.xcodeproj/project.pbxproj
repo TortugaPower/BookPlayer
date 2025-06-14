@@ -370,6 +370,8 @@
 		634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A42C176B5A0015314D /* StoryActionView.swift */; };
 		634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A62C1777BA0015314D /* PricingBoxView.swift */; };
 		634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5AC2C180F5E0015314D /* StoryViewModel.swift */; };
+		634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */; };
+		634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634FF7A12DF73DDE005D1C0D /* JellyfinLibraryListView.swift */; };
 		6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4632CF004160077CDC1 /* LoadingView.swift */; };
 		6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4652CF423030077CDC1 /* PlayerManager.swift */; };
 		6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
@@ -398,6 +400,13 @@
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */; };
 		636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636086002C5B3EB400341D78 /* CustomRewindIntent.swift */; };
+		636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */; };
+		636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */; };
+		636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
+		636E77822DF3499000D4DC0A /* JellyfinServerFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */; };
+		636E77842DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77832DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift */; };
+		636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77852DF34F1900D4DC0A /* JellyfinConnectedView.swift */; };
+		636E77892DF4C76600D4DC0A /* JellyfinRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */; };
 		636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E42D51254E00BFF3FD /* TipOption.swift */; };
 		636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */; };
 		63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63717EA92B792E350006291E /* RefreshTaskOperation.swift */; };
@@ -479,6 +488,7 @@
 		63F1C7892BB91260006B164C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 63F1C7882BB91259006B164C /* PrivacyInfo.xcprivacy */; };
 		63F1C78B2BB91E21006B164C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
+		63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
@@ -486,11 +496,10 @@
 		8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */; };
 		8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 8A495CC52CC85D27001B4244 /* JellyfinAPI */; };
 		8A9D0D172CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */; };
-		8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */; };
 		8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */; };
 		8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */; };
 		8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */; };
-		8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */; };
+		8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D292CCFBB96007A924D /* JellyfinLibraryGridItemView.swift */; };
 		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
 		8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */; };
 		8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */; };
@@ -505,9 +514,7 @@
 		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
 		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
-		8AF18A382CF0E6AE00238F8D /* JellyfinConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */; };
 		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
-		8AF18A3D2CF126B800238F8D /* JellyfinCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */; };
 		9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */; };
@@ -1187,6 +1194,8 @@
 		634BA5A42C176B5A0015314D /* StoryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryActionView.swift; sourceTree = "<group>"; };
 		634BA5A62C1777BA0015314D /* PricingBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingBoxView.swift; sourceTree = "<group>"; };
 		634BA5AC2C180F5E0015314D /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinSettingsView.swift; sourceTree = "<group>"; };
+		634FF7A12DF73DDE005D1C0D /* JellyfinLibraryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListView.swift; sourceTree = "<group>"; };
 		6350E4632CF004160077CDC1 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		6350E4652CF423030077CDC1 /* PlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
 		6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayerView.swift; sourceTree = "<group>"; };
@@ -1211,6 +1220,12 @@
 		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryGridView.swift; sourceTree = "<group>"; };
+		636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinDisconnectedView.swift; sourceTree = "<group>"; };
+		636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerFoundView.swift; sourceTree = "<group>"; };
+		636E77832DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerInformationSectionView.swift; sourceTree = "<group>"; };
+		636E77852DF34F1900D4DC0A /* JellyfinConnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectedView.swift; sourceTree = "<group>"; };
+		636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinRootView.swift; sourceTree = "<group>"; };
 		636ED1E42D51254E00BFF3FD /* TipOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOption.swift; sourceTree = "<group>"; };
 		636ED1E72D51331E00BFF3FD /* TipJarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarViewModel.swift; sourceTree = "<group>"; };
 		63717EA92B792E350006291E /* RefreshTaskOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperation.swift; sourceTree = "<group>"; };
@@ -1286,17 +1301,17 @@
 		63F1C7882BB91259006B164C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		63F828562AED56FA00B5CE0C /* CornerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerView.swift; sourceTree = "<group>"; };
+		63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListItemView.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
 		8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveVGrid.swift; sourceTree = "<group>"; };
 		8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionFormViewModel.swift; sourceTree = "<group>"; };
-		8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinator.swift; sourceTree = "<group>"; };
 		8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryViewModel.swift; sourceTree = "<group>"; };
 		8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryView.swift; sourceTree = "<group>"; };
 		8A9D0D272CCEEE30007A924D /* NavigationLazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLazyView.swift; sourceTree = "<group>"; };
-		8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemView.swift; sourceTree = "<group>"; };
+		8A9D0D292CCFBB96007A924D /* JellyfinLibraryGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryGridItemView.swift; sourceTree = "<group>"; };
 		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
 		8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
 		8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleFileDownloadService.swift; sourceTree = "<group>"; };
@@ -1311,9 +1326,7 @@
 		8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionView.swift; sourceTree = "<group>"; };
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A342CF0C42C00238F8D /* JellyfinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinError.swift; sourceTree = "<group>"; };
-		8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionServiceTests.swift; sourceTree = "<group>"; };
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
-		8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinCoordinatorTests.swift; sourceTree = "<group>"; };
 		9F00A5F5294F793F005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsForm.swift; sourceTree = "<group>"; };
@@ -1877,7 +1890,6 @@
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
-				8AF18A362CF0E69A00238F8D /* Jellyfin */,
 				418B6D141D2707F800F974FB /* Info.plist */,
 			);
 			path = BookPlayerTests;
@@ -2345,6 +2357,15 @@
 			path = StoryViewer;
 			sourceTree = "<group>";
 		};
+		634FF7A02DF73DA0005D1C0D /* ListLayout */ = {
+			isa = PBXGroup;
+			children = (
+				634FF7A12DF73DDE005D1C0D /* JellyfinLibraryListView.swift */,
+				63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */,
+			);
+			path = ListLayout;
+			sourceTree = "<group>";
+		};
 		6356F9C82AC89F1600B7A027 /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
@@ -2359,6 +2380,34 @@
 				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
 			);
 			path = AppIntents;
+			sourceTree = "<group>";
+		};
+		636E777A2DF2907B00D4DC0A /* GridLayout */ = {
+			isa = PBXGroup;
+			children = (
+				636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */,
+				8A9D0D292CCFBB96007A924D /* JellyfinLibraryGridItemView.swift */,
+			);
+			path = GridLayout;
+			sourceTree = "<group>";
+		};
+		636E777D2DF32FFC00D4DC0A /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */,
+				8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */,
+				8AF18A342CF0C42C00238F8D /* JellyfinError.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		636E77872DF4948F00D4DC0A /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
+				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
+			);
+			path = Details;
 			sourceTree = "<group>";
 		};
 		636ED1E32D51254400BFF3FD /* Tips */ = {
@@ -2568,13 +2617,13 @@
 		8A9D0D1A2CCCF36D007A924D /* Library Screen */ = {
 			isa = PBXGroup;
 			children = (
+				636E77872DF4948F00D4DC0A /* Details */,
+				636E777A2DF2907B00D4DC0A /* GridLayout */,
+				634FF7A02DF73DA0005D1C0D /* ListLayout */,
 				8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */,
 				8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */,
 				8A9D0D252CCED543007A924D /* JellyfinLibraryView.swift */,
-				8A9D0D292CCFBB96007A924D /* JellyfinLibraryItemView.swift */,
 				8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */,
-				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
-				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
 			);
 			path = "Library Screen";
 			sourceTree = "<group>";
@@ -2582,12 +2631,11 @@
 		8AE4AAC32CCB9E3A00BAA927 /* Jellyfin */ = {
 			isa = PBXGroup;
 			children = (
+				636E777D2DF32FFC00D4DC0A /* Network */,
 				8A9D0D1A2CCCF36D007A924D /* Library Screen */,
 				8AE4AAC92CCBA1D200BAA927 /* Connection Screen */,
-				8A9D0D212CCD00D2007A924D /* JellyfinCoordinator.swift */,
-				8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */,
-				8AAD8A562CEE88DE000A4B4B /* JellyfinConnectionData.swift */,
-				8AF18A342CF0C42C00238F8D /* JellyfinError.swift */,
+				636E77882DF4C76600D4DC0A /* JellyfinRootView.swift */,
+				634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */,
 			);
 			path = Jellyfin;
 			sourceTree = "<group>";
@@ -2597,18 +2645,13 @@
 			children = (
 				8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */,
 				8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */,
+				636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */,
+				636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */,
+				636E77832DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift */,
+				636E77852DF34F1900D4DC0A /* JellyfinConnectedView.swift */,
 				8A9D0D162CCBBF00007A924D /* JellyfinConnectionFormViewModel.swift */,
 			);
 			path = "Connection Screen";
-			sourceTree = "<group>";
-		};
-		8AF18A362CF0E69A00238F8D /* Jellyfin */ = {
-			isa = PBXGroup;
-			children = (
-				8AF18A3C2CF126B100238F8D /* JellyfinCoordinatorTests.swift */,
-				8AF18A372CF0E6A300238F8D /* JellyfinConnectionServiceTests.swift */,
-			);
-			path = Jellyfin;
 			sourceTree = "<group>";
 		};
 		9F00A6222951DEE6005EA316 /* Views */ = {
@@ -3806,10 +3849,12 @@
 				634BA58D2C14D5330015314D /* SecondOnboardingType.swift in Sources */,
 				8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */,
 				9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */,
+				636E77842DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
 				63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
+				636E77822DF3499000D4DC0A /* JellyfinServerFoundView.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
 				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */,
@@ -3837,6 +3882,7 @@
 				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
 				9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */,
 				9F7B647C2804798800895ECC /* IconsViewModel.swift in Sources */,
+				63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */,
 				9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */,
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
@@ -3845,8 +3891,10 @@
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
 				4138CE1926E5B3FB0014F11E /* BookmarksViewController.swift in Sources */,
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
+				634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
+				636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */,
 				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
@@ -3936,10 +3984,12 @@
 				9FBDDB8B27DCF1FB005FB447 /* MiniPlayerView.swift in Sources */,
 				6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
+				636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */,
 				9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */,
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */,
 				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
+				636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */,
 				8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */,
@@ -3955,6 +4005,7 @@
 				8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */,
 				633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */,
 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
+				634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */,
 				415B274421FAE47200F9D9B7 /* LoadingView.swift in Sources */,
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
@@ -3977,7 +4028,7 @@
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				6304CF6A2B4C2AE800055285 /* SettingsAutoplayView.swift in Sources */,
 				4158388326EBD76A00F4A12B /* LibraryListCoordinator.swift in Sources */,
-				8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryItemView.swift in Sources */,
+				8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryGridItemView.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
 				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
@@ -4012,9 +4063,9 @@
 				9F134605293D0A410089B1DE /* ThemeViewModel.swift in Sources */,
 				41188D2A26ED4D8E0017124E /* ItemListViewModel.swift in Sources */,
 				C398559C20C492FF00BE9EC0 /* AddButton.swift in Sources */,
-				8A9D0D222CCD00D2007A924D /* JellyfinCoordinator.swift in Sources */,
 				63E54C362D50626A0040355D /* TipOptionView.swift in Sources */,
 				8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */,
+				636E77892DF4C76600D4DC0A /* JellyfinRootView.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
 				8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */,
@@ -4038,6 +4089,7 @@
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
 				6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */,
 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
+				636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */,
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,
 				412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */,
 				8AAD8A572CEE88E5000A4B4B /* JellyfinConnectionData.swift in Sources */,
@@ -4066,7 +4118,6 @@
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
 				9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
-				8AF18A3D2CF126B800238F8D /* JellyfinCoordinatorTests.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
 				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
@@ -4076,7 +4127,6 @@
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
-				8AF18A382CF0E6AE00238F8D /* JellyfinConnectionServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4460,13 +4510,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4494,13 +4544,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4526,13 +4576,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4568,7 +4618,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4580,7 +4630,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -4609,7 +4659,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4618,7 +4668,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -4647,7 +4697,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4656,7 +4706,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Beta;
 		};
@@ -4701,7 +4751,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -4744,7 +4794,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -4787,7 +4837,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Beta;
 		};
@@ -4810,13 +4860,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -4848,13 +4898,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4884,13 +4934,13 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5038,12 +5088,12 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5076,12 +5126,12 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5106,7 +5156,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5131,7 +5181,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5169,7 +5219,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5215,7 +5265,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5259,7 +5309,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5303,7 +5353,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5341,7 +5391,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5377,7 +5427,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5410,13 +5460,13 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5450,13 +5500,13 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5488,13 +5538,13 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5581,12 +5631,12 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.7.3;
+				MARKETING_VERSION = 5.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5611,7 +5661,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

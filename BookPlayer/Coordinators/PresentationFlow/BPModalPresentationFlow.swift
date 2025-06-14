@@ -65,7 +65,6 @@ public class BPModalPresentationFlow: BPCoordinatorPresentationFlow {
     _navigationController = nav
     if prefersMediumDetent,
        !UIAccessibility.isVoiceOverRunning,
-       #available(iOS 15.0, *),
        let sheet = nav.sheetPresentationController {
       sheet.detents = [.medium()]
     }

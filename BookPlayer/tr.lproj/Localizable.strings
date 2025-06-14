@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "İleri Sarma";
 "settings_skip_description" = "Oynatıcı veya Kontrol Merkezi'ndeki düğmeleri kullanırken atlanan miktarı ayarlayın.";
 "settings_support_title" = "DESTEK";
-"settings_siri_title" = "SIRI KISAYOLU";
+"settings_shortcuts_title" = "KISAYOLLAR";
 "settings_support_project_title" = "Projeyi Github'da görüntüle";
 "settings_support_project_description" = "Özellik istekleriniz ve hatalar için yeni sorun açın";
 "settings_support_email_title" = "Bize bir e-posta gönder";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Bağış yapmak";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

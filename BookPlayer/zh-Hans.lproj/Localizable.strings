@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "快进";
 "settings_skip_description" = "在播放器或控制中间调整略过的时长。";
 "settings_support_title" = "支持";
-"settings_siri_title" = "SIRI 快捷方式";
+"settings_shortcuts_title" = "快捷方式";
 "settings_support_project_title" = "在 Github 上查看项目";
 "settings_support_project_description" = "针对您的功能请求和错误与我们联系";
 "settings_support_email_title" = "向我们发送电子邮件";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "捐";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

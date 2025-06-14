@@ -159,20 +159,10 @@ class AccountViewController: UIViewController, MVVMControllerProtocol {
   }()
 
   private lazy var logoutSectionView: UIView = {
-    let imageName: String
-    var flipImage = false
-
-    if #available(iOS 15, *) {
-      imageName = "rectangle.portrait.and.arrow.right"
-    } else {
-      imageName = "square.and.arrow.up"
-      flipImage = true
-    }
-
     let row = AccountRowContainerView(
       title: "logout_title".localized,
-      systemImageName: imageName,
-      flipImage: flipImage,
+      systemImageName: "rectangle.portrait.and.arrow.forward",
+      flipImage: false,
       imageTintColor: .red
     )
 

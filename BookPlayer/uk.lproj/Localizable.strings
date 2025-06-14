@@ -18,7 +18,7 @@
 "settings_skip_forward_title" = "Вперед";
 "settings_skip_description" = "Налаштування перемотування для кнопок плеєра або центру керування.";
 "settings_support_title" = "Підтримка";
-"settings_siri_title" = "Команди SIRI";
+"settings_shortcuts_title" = "Ярлики";
 "settings_support_project_title" = "Переглянути проєкт на GitHub";
 "settings_support_project_description" = "Створити новий запит на новий функціонал або повідомити про помилку";
 "settings_support_email_title" = "Напишіть нам";
@@ -349,3 +349,4 @@
 "settings_seekprogressbar_title" = "Progress Bar Seeking";
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Пожертвуйте";
+"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";

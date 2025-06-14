@@ -6,9 +6,9 @@
 //  Copyright © 2021 BookPlayer LLC. All rights reserved.
 //
 
-import UIKit
 import BookPlayerKit
 import SwiftUI
+import UIKit
 
 class SettingsCoordinator: Coordinator, AlertPresenter {
   weak var tabBarController: UITabBarController?
@@ -162,7 +162,10 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
     if self.accountService.getAccountId() != nil {
       child = CompleteAccountCoordinator(
-        flow: .modalFlow(presentingController: flow.navigationController.getTopVisibleViewController()!, prefersMediumDetent: true),
+        flow: .modalFlow(
+          presentingController: flow.navigationController.getTopVisibleViewController()!,
+          prefersMediumDetent: true
+        ),
         accountService: self.accountService
       )
     } else {
@@ -200,28 +203,20 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
     flow.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
   }
-  
-  private func showJellyfinConnectionManagement() {
-    let viewModel = JellyfinConnectionViewModel(jellyfinConnectionService: jellyfinConnectionService)
-    viewModel.viewMode = .viewDetails
-    
-    viewModel.onTransition = { [weak self] route in
-      switch route {
-      case .cancel:
-        self?.flow.navigationController.dismiss(animated: true)
-      case .signOut:
-        self?.jellyfinConnectionService.deleteConnection()
-        self?.flow.navigationController.dismiss(animated: true)
-      case .showAlert(let content):
-        self?.showAlert(content)
-      default:
-        break
-      }
-    }
 
-    let vc = UIHostingController(rootView: JellyfinConnectionView(viewModel: viewModel))
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
+  private func showJellyfinConnectionManagement() {
+    Task { @MainActor in
+      let view = JellyfinSettingsView(
+        viewModel: JellyfinConnectionViewModel(
+          connectionService: self.jellyfinConnectionService,
+          navigation: BPNavigation(),
+          mode: .viewDetails
+        )
+      )
+
+      let vc = UIHostingController(rootView: view)
+      flow.navigationController.present(vc, animated: true)
+    }
   }
 
   func showThemes() {
@@ -293,7 +288,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     if let popoverPresentationController = shareController.popoverPresentationController,
-       let view = flow.navigationController.topViewController?.view {
+      let view = flow.navigationController.topViewController?.view
+    {
       popoverPresentationController.permittedArrowDirections = []
       popoverPresentationController.sourceView = view
       popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
