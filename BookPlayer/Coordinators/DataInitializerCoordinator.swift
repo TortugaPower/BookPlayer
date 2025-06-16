@@ -11,8 +11,6 @@ import Combine
 import CoreData
 import Foundation
 
-var testCloudKit = true
-
 @MainActor
 class DataInitializerCoordinator: BPLogger {
   let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
@@ -29,71 +27,68 @@ class DataInitializerCoordinator: BPLogger {
       await initializeLibrary(isRecoveryAttempt: false)
     }
   }
-    
-    func initializeLibrary(isRecoveryAttempt: Bool, comesFromCloudKit: Bool? = nil) async {
-        let appDelegate = AppDelegate.shared!
-        _ = await appDelegate.setupCoreServicesTask?.result
-        
-        if testCloudKit == true {
-            if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
-                testCloudKit = false
-                await handleError(errorCoreServicesSetup as NSError)
-                return
-            }
-        }
-        
-        await finishLibrarySetup(fromRecovery: isRecoveryAttempt, comesFromCloudKit: comesFromCloudKit)
-    }
 
-    func handleError(_ error: NSError) async {
-        if isOutOfSpaceError(error) {
-            await showOutOfSpaceAlert()
-        } else if isMigrationError(error) {
-            await handleMigrationError()
-        } else {
-            await showDetailedErrorAlert(error)
-        }
+  func initializeLibrary(isRecoveryAttempt: Bool) async {
+    let appDelegate = AppDelegate.shared!
+    _ = await appDelegate.setupCoreServicesTask?.result
+    
+    if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
+      await handleError(errorCoreServicesSetup as NSError)
+      return
     }
     
-    private func isOutOfSpaceError(_ error: NSError) -> Bool {
-        error.domain == NSPOSIXErrorDomain &&
-        (error.code == ENOSPC || error.code == NSFileWriteOutOfSpaceError)
+    await finishLibrarySetup(fromRecovery: isRecoveryAttempt)
+  }
+  
+  func handleError(_ error: NSError) async {
+    if isOutOfSpaceError(error) {
+      await showOutOfSpaceAlert()
+    } else if isMigrationError(error) {
+      await handleMigrationError()
+    } else {
+      await showDetailedErrorAlert(error)
     }
-    
-    private func isMigrationError(_ error: NSError) -> Bool {
-        [NSMigrationError, NSMigrationConstraintViolationError,
-         NSMigrationCancelledError, NSMigrationMissingSourceModelError,
-         NSMigrationMissingMappingModelError, NSMigrationManagerSourceStoreError,
-         NSMigrationManagerDestinationStoreError, NSEntityMigrationPolicyError,
-         NSValidationMultipleErrorsError, NSValidationMissingMandatoryPropertyError,
-         NSPersistentStoreIncompatibleSchemaError].contains(error.code)
+  }
+  
+  private func isOutOfSpaceError(_ error: NSError) -> Bool {
+    error.domain == NSPOSIXErrorDomain &&
+    (error.code == ENOSPC || error.code == NSFileWriteOutOfSpaceError)
+  }
+  
+  private func isMigrationError(_ error: NSError) -> Bool {
+    [NSMigrationError, NSMigrationConstraintViolationError,
+     NSMigrationCancelledError, NSMigrationMissingSourceModelError,
+     NSMigrationMissingMappingModelError, NSMigrationManagerSourceStoreError,
+     NSMigrationManagerDestinationStoreError, NSEntityMigrationPolicyError,
+     NSValidationMultipleErrorsError, NSValidationMissingMandatoryPropertyError,
+     NSPersistentStoreIncompatibleSchemaError].contains(error.code)
+  }
+  
+  private func showOutOfSpaceAlert() async {
+    await MainActor.run {
+      alertPresenter.showAlert(
+        "error_title".localized,
+        message: "coredata_error_diskfull_description".localized,
+        completion: nil
+      )
     }
-    
-    private func showOutOfSpaceAlert() async {
-        await MainActor.run {
-            alertPresenter.showAlert(
-                "error_title".localized,
-                message: "coredata_error_diskfull_description".localized,
-                completion: nil
-            )
-        }
+  }
+  
+  private func handleMigrationError() async {
+    Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
+    await MainActor.run {
+      alertPresenter.showAlert(
+        "error_title".localized,
+        message: "coredata_error_migration_description".localized
+      ) {
+        self.recoverLibraryFromFailedMigration()
+      }
     }
-    
-    private func handleMigrationError() async {
-        Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
-        await MainActor.run {
-            alertPresenter.showAlert(
-                "error_title".localized,
-                message: "coredata_error_migration_description".localized
-            ) {
-                self.recoverLibraryFromFailedMigration()
-            }
-        }
-    }
-    
-    private func showDetailedErrorAlert(_ error: NSError) async {
-        await MainActor.run {
-            let errorDescription = """
+  }
+  
+  private func showDetailedErrorAlert(_ error: NSError) async {
+    await MainActor.run {
+      let errorDescription = """
                 \(error.localizedDescription)
                 
                 Error Domain
@@ -102,68 +97,74 @@ class DataInitializerCoordinator: BPLogger {
                 Additional Info
                 \(error.userInfo)
                 """
-            alertPresenter.showAlert(
-                BPAlertContent(
-                    title: "error_title".localized,
-                    message: errorDescription,
-                    style: .alert,
-                    actionItems: [
-                        BPActionItem(
-                            title: "ok_button".localized,
-                            handler: {
-                                fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
-                            }
-                        ),
-                        .init(
-                            title: "Reset and recover database",
-                            style: .destructive,
-                            handler: {
-                                self.recoverLibraryFromFailedMigration()
-                            }
-                        ),
-                    ]
-                )
-            )
-        }
-    }
-
-    private func recoverLibraryFromFailedMigration() {
-        Task {
-            do {
-                let storeURL = DataMigrationManager().cleanupStoreFile()
-                let recoverData = await BackupService().get()?.getData()
-                try recoverData?.write(to: storeURL)
-                let appDelegate = AppDelegate.shared!
-                _ = appDelegate.setupCoreServices()
-                await initializeLibrary(isRecoveryAttempt: false,
-                                        comesFromCloudKit: true)
-            } catch {
-                AppDelegate.shared?.resetCoreServices()
-                await initializeLibrary(isRecoveryAttempt: true)
-            }
-        }
-    }
-
-    func finishLibrarySetup(fromRecovery: Bool, comesFromCloudKit: Bool? = nil) async {
-        let coreServices = AppDelegate.shared!.coreServices!
-        
-        setupDefaultState(
-            libraryService: coreServices.libraryService,
-            dataManager: coreServices.dataManager
+      alertPresenter.showAlert(
+        BPAlertContent(
+          title: "error_title".localized,
+          message: errorDescription,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "ok_button".localized,
+              handler: {
+                fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
+              }
+            ),
+            .init(
+              title: "Reset and recover database",
+              style: .destructive,
+              handler: {
+                self.recoverLibraryFromFailedMigration()
+              }
+            ),
+          ]
         )
-        
-        if let comesFromCloudKit_ = comesFromCloudKit,
-           comesFromCloudKit == true {
-            // Skip recovery block when coming from CloudKit
-        } else if fromRecovery {
-            let files = getLibraryFiles()
-            coreServices.libraryService.insertItems(from: files)
-        }
-        
-        await MainActor.run {
-            self.onFinish?()
-        }
+      )
     }
+  }
+  
+  private func recoverFromCloud() async throws {
+    guard FileManager.default.ubiquityIdentityToken != nil else {
+      throw NSError(domain: "iCloudError", code: NSCloudSharingNoPermissionError,
+                    userInfo: [NSLocalizedDescriptionKey: "iCloud is not available"])
+    }
+    
+    let storeURL = DataMigrationManager().cleanupStoreFile()
+    let recoverData = await BackupService().get()?.getData()
+    try recoverData?.write(to: storeURL)
+  }
+  
+  private func recoverLibraryFromFailedMigration() {
+    Task {
+      var fromRecovery = false
+      do {
+        try await recoverFromCloud()
+        await AppDelegate.shared?.resetCoreServices()
+      } catch {
+        fromRecovery = true
+        await AppDelegate.shared?.resetCoreServices()
+      }
+      
+      await initializeLibrary(isRecoveryAttempt: fromRecovery)
+    }
+  }
+  
+  func finishLibrarySetup(fromRecovery: Bool) async {
+    let coreServices = AppDelegate.shared!.coreServices!
+    
+    setupDefaultState(
+      libraryService: coreServices.libraryService,
+      dataManager: coreServices.dataManager
+    )
+    
+    if fromRecovery {
+      let files = getLibraryFiles()
+      coreServices.libraryService.insertItems(from: files)
+    }
+    
+    await MainActor.run {
+      self.onFinish?()
+    }
+  }
 
   private func getLibraryFiles() -> [URL] {
     let enumerator = FileManager.default.enumerator(
