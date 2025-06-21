@@ -6,9 +6,9 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import Kingfisher
 import SwiftUI
-import BookPlayerKit
 
 struct JellyfinAudiobookDetailsView<
   Model: JellyfinAudiobookDetailsViewModelProtocol
@@ -20,6 +20,17 @@ struct JellyfinAudiobookDetailsView<
 
   var onDownloadTap: (() -> Void)
 
+  var voiceOverBookInfo: String {
+    guard let details = viewModel.details else {
+      return viewModel.item.name
+    }
+
+    return VoiceOverService.playerMetaText(
+      title: viewModel.item.name,
+      author: details.artist ?? "voiceover_unknown_author".localized
+    )
+  }
+
   var body: some View {
     VStack {
       if let artist = viewModel.details?.artist {
@@ -27,14 +38,17 @@ struct JellyfinAudiobookDetailsView<
           .font(.title2)
           .foregroundColor(themeViewModel.secondaryColor)
           .lineLimit(1)
+          .accessibilityHidden(true)
       }
 
       Text(viewModel.item.name)
         .font(.title)
+        .accessibilityLabel(voiceOverBookInfo)
 
       JellyfinLibraryItemImageView(item: viewModel.item)
         .environmentObject(themeViewModel)
         .environmentObject(viewModel.connectionService)
+        .accessibilityHidden(true)
 
       if let details = viewModel.details {
         VStack {
@@ -46,9 +60,11 @@ struct JellyfinAudiobookDetailsView<
                 filePathLineLimit = (filePathLineLimit == nil) ? 1 : nil
               }
               .padding(.bottom, 8)
+              .accessibilityHidden(true)
           }
           HStack {
             Text(details.runtimeString)
+              .accessibilityLabel("book_duration_title".localized + details.runtimeString)
             Spacer()
             Text(details.fileSizeString)
           }
