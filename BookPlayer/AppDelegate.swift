@@ -84,7 +84,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Setup Realm
     self.setupRealm()
     // Setup core services
-    self.setupCoreServices()
+    Task {
+      await setupCoreServices()
+    }
+    // Setup background Processing Task
+    self.setupBackgroundProcessingTasks()
 
     return true
   }
@@ -366,27 +370,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       _ = try! Realm(configuration: Realm.Configuration(fileURL: tasksRealmURL))
     }
   }
-
-  func setupCoreServices() {
-    setupCoreServicesTask = Task {
+  
+  func setupCoreServices() async {
+     if let task = setupCoreServicesTask {
+       task.cancel()
+       do {
+        try await task.value
+       } catch {
+         errorCoreServicesSetup = error
+       }
+     }
+     
+    let newTask: Task<(), Error> = Task {
       do {
         let stack = try await databaseInitializer.loadCoreDataStack()
         let coreServices = createCoreServicesIfNeeded(from: stack)
-
+        
         AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
         AppDependencyManager.shared.add(dependency: coreServices.libraryService)
       } catch {
         errorCoreServicesSetup = error
       }
     }
-  }
+     setupCoreServicesTask = newTask
+    do {
+     try await newTask.value // Wait for the task to complete before starting a new one
+    } catch {
+      print(error)
+    }
+   }
 
-  func resetCoreServices() {
+  func resetCoreServices() async {
     setupCoreServicesTask?.cancel()
     setupCoreServicesTask = nil
     errorCoreServicesSetup = nil
     databaseInitializer.cleanupStoreFiles()
-    setupCoreServices()
+    await setupCoreServices()
   }
 
   /// Setup or stop Sentry based on flag
@@ -494,6 +513,10 @@ extension AppDelegate {
       self.handleAppRefresh(task: refreshTask)
     }
   }
+    
+    func setupBackgroundProcessingTasks(){
+        BackgroundProcessingService.backupDB()
+    }
 
   func scheduleAppRefresh() {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
