@@ -15,6 +15,7 @@ struct JellyfinLibraryListView<Model: JellyfinLibraryViewModelProtocol>: View {
     List {
       ForEach(viewModel.items, id: \.id) { item in
         JellyfinLibraryListItemView(item: item)
+          .accessibilityAddTraits(.isButton)
           .contentShape(Rectangle())
           .onTapGesture {
             switch item.kind {

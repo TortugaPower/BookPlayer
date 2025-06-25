@@ -17,6 +17,7 @@ struct JellyfinLibraryListItemView: View {
     HStack {
       JellyfinLibraryItemImageView(item: item)
         .frame(width: 50, height: 50)
+        .accessibilityHidden(true)
       Text(item.name)
         .font(Font(Fonts.titleRegular))
         .foregroundColor(themeViewModel.primaryColor)
@@ -26,6 +27,7 @@ struct JellyfinLibraryListItemView: View {
           .foregroundColor(themeViewModel.secondaryColor)
       }
     }
+    .accessibilityElement(children: .combine)
   }
 }
 

@@ -27,6 +27,7 @@ struct JellyfinLibraryGridItemView: View {
               }
             }
           )
+          .accessibilityHidden(true)
 
         switch item.kind {
         case .userView, .folder:
@@ -40,6 +41,7 @@ struct JellyfinLibraryGridItemView: View {
         .lineLimit(1)
         .truncationMode(.middle)
     }
+    .accessibilityElement(children: .combine)
   }
 
   @ViewBuilder
