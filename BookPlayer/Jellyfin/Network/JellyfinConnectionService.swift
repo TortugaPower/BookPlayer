@@ -116,8 +116,17 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
   public func fetchItems(
     in folderID: String,
     startIndex: Int?,
-    limit: Int?
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    switch sortBy {
+      case .name:
+        orderBy = [.name]
+      case .smart:
+        orderBy = [.isFolder, .sortName]
+    }
+
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
@@ -126,7 +135,7 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
       parentID: folderID,
       fields: [.sortName],
       includeItemTypes: [.audioBook, .folder],
-      sortBy: [.isFolder, .sortName],
+      sortBy: orderBy,
       imageTypeLimit: 1
     )
 

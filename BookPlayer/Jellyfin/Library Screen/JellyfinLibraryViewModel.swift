@@ -21,8 +21,9 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var navigation: BPNavigation { get set }
   var navigationTitle: String { get }
+  var layout: JellyfinLayout.Options { get set }
+  var sortBy: JellyfinLayout.SortBy { get set }
   var items: [JellyfinLibraryItem] { get set }
-  var layoutStyle: JellyfinLayoutOptions { get set }
   var connectionService: JellyfinConnectionService { get }
   var error: Error? { get set }
 
@@ -34,8 +35,14 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func handleDoneAction()
 }
 
-enum JellyfinLayoutOptions: String {
-  case grid, list
+enum JellyfinLayout {
+  enum Options: String {
+    case grid, list
+  }
+
+  enum SortBy: String {
+    case name, smart
+  }
 }
 
 final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
@@ -45,7 +52,20 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   var navigation: BPNavigation
   let navigationTitle: String
-  @Published var layoutStyle = JellyfinLayoutOptions.grid
+
+  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
+  var layout: JellyfinLayout.Options = .grid
+
+  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
+  var sortBy: JellyfinLayout.SortBy = .smart {
+    didSet {
+      guard let folderID = folderID else { return }
+      items = []
+      nextStartItemIndex = 0
+      fetchFolderItems(folderID: folderID)
+    }
+  }
+
   @Published var items: [JellyfinLibraryItem] = []
   @Published var error: Error?
 
@@ -61,7 +81,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   private static let itemFetchMargin = 3
 
   var canFetchMoreItems: Bool {
-    return maxNumItems == nil || nextStartItemIndex < maxNumItems!
+    maxNumItems == nil || nextStartItemIndex < maxNumItems!
   }
 
   init(
@@ -105,48 +125,41 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   }
 
   private func fetchTopLevelItems() {
-    items = []
-
     fetchTask?.cancel()
-    fetchTask = Task {
-      do {
-        let userViews = try await connectionService.fetchTopLevelItems()
+    fetchTask = Task { @MainActor in
+      items = []
 
-        await { @MainActor in
-          self.items = userViews
-        }()
+      do {
+        let items = try await connectionService.fetchTopLevelItems()
+
+        self.items = items
       } catch is CancellationError {
         // ignore
       } catch {
-        Task { @MainActor in
-          self.error = error
-        }
+        self.error = error
       }
     }
   }
 
   private func fetchFolderItems(folderID: String) {
-    fetchTask = Task {
+    fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
       do {
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
           in: folderID,
           startIndex: nextStartItemIndex,
-          limit: Self.itemBatchSize
+          limit: Self.itemBatchSize,
+          sortBy: sortBy
         )
 
-        await { @MainActor in
-          self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
-          self.maxNumItems = maxNumItems
-          self.items.append(contentsOf: items)
-        }()
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
+        self.maxNumItems = maxNumItems
+        self.items.append(contentsOf: items)
       } catch is CancellationError {
         // ignore
       } catch {
-        Task { @MainActor in
-          self.error = error
-        }
+        self.error = error
       }
     }
   }

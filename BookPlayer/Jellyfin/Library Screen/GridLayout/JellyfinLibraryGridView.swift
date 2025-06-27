@@ -64,14 +64,17 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
 }
 
 final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
-  var error: Error?
   var navigationTitle: String = ""
   var navigation = BPNavigation()
   var connectionService = JellyfinConnectionService(keychainService: KeychainService())
-  var layoutStyle = JellyfinLayoutOptions.grid
 
   let data: JellyfinLibraryLevelData
+
+  var layout = JellyfinLayout.Options.grid
+  var sortBy = JellyfinLayout.SortBy.smart
+
   @Published var items: [JellyfinLibraryItem] = []
+  var error: Error?
 
   init(data: JellyfinLibraryLevelData) {
     self.data = data

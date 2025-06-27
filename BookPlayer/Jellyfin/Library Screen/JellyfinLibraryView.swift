@@ -12,7 +12,6 @@ import SwiftUI
 
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @StateObject var viewModel: Model
-  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout) var libraryLayout: JellyfinLayoutOptions = .grid
   @StateObject private var themeViewModel = ThemeViewModel()
 
   var navigationTitle: String {
@@ -21,7 +20,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
 
   var body: some View {
     Group {
-      if libraryLayout == .grid {
+      if viewModel.layout == .grid {
         JellyfinLibraryGridView(viewModel: viewModel)
           .padding()
       } else {
@@ -41,9 +40,17 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
         Menu {
-          Picker(selection: $libraryLayout, label: Text("Layout options")) {
-            Label("Grid", systemImage: "square.grid.2x2").tag(JellyfinLayoutOptions.grid)
-            Label("List", systemImage: "list.bullet").tag(JellyfinLayoutOptions.list)
+          Section {
+            Picker(selection: $viewModel.layout, label: Text("Layout options")) {
+              Label("Grid", systemImage: "square.grid.2x2").tag(JellyfinLayout.Options.grid)
+              Label("List", systemImage: "list.bullet").tag(JellyfinLayout.Options.list)
+            }
+          }
+          Section {
+            Picker(selection: $viewModel.sortBy, label: Text("Sort by")) {
+              Text("Default").tag(JellyfinLayout.SortBy.smart)
+              Label("Name", systemImage: "textformat.abc").tag(JellyfinLayout.SortBy.name)
+            }
           }
         } label: {
           Label("more_title".localized, systemImage: "ellipsis.circle")

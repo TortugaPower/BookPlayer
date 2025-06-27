@@ -68,6 +68,7 @@ public enum Constants {
 
     /// Jellyfin
     public static let jellyfinLibraryLayout = "jellyfinLibraryLayout"
+    public static let jellyfinLibraryLayoutSortBy = "jellyfinLibraryLayoutSortBy"
   }
 
   public enum SmartRewind {
