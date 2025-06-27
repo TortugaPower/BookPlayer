@@ -167,9 +167,7 @@ struct JellyfinConnectionView: View {
       action: onSignIn
     )
     .disabled(
-      viewModel.form.serverUrl.isEmpty ||
-      viewModel.form.username.isEmpty ||
-      viewModel.form.password.isEmpty
+      viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty || viewModel.form.password.isEmpty
     )
   }
 

@@ -34,18 +34,19 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
         itemSpacing: itemSpacingBase * accessabilityScale
       ) {
         ForEach(viewModel.items, id: \.id) { item in
-          JellyfinLibraryGridItemView(item: item)
+          JellyfinLibraryGridItemView(item: item, isSelected: viewModel.selectedItems.contains(item.id))
             .accessibilityAddTraits(.isButton)
             .onTapGesture {
-              switch item.kind {
-              case .audiobook:
-                viewModel.navigation.path.append(
-                  JellyfinLibraryLevelData.details(data: item)
-                )
-              case .userView, .folder:
-                viewModel.navigation.path.append(
-                  JellyfinLibraryLevelData.folder(data: item)
-                )
+              if viewModel.editMode.isEditing {
+                guard case .audiobook = item.kind else { return }
+                viewModel.onSelectTapped(for: item)
+              } else {
+                switch item.kind {
+                case .audiobook:
+                  viewModel.navigation.path.append(JellyfinLibraryLevelData.details(data: item))
+                case .userView, .folder:
+                  viewModel.navigation.path.append(JellyfinLibraryLevelData.folder(data: item))
+                }
               }
             }
             .onAppear {
@@ -74,7 +75,12 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   var sortBy = JellyfinLayout.SortBy.smart
 
   @Published var items: [JellyfinLibraryItem] = []
+  var totalItems: Int { items.count }
   var error: Error?
+
+  var editMode: EditMode = .inactive
+  var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  var downloadRemaining: Int = 0
 
   init(data: JellyfinLibraryLevelData) {
     self.data = data
@@ -85,6 +91,11 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func cancelFetchItems() {}
 
   func handleDoneAction() {}
+
+  func onEditToggleSelectTapped() {}
+  func onSelectTapped(for item: JellyfinLibraryItem) {}
+  func onSelectAllTapped() {}
+  func onDownloadTapped() {}
 }
 
 #Preview("top level") {

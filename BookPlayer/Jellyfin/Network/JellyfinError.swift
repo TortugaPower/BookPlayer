@@ -14,7 +14,7 @@ enum JellyfinError: Error, LocalizedError {
   case noClient
   case unexpectedResponse(code: Int?)
   case clientError(code: Int)
-  
+
   var errorDescription: String? {
     switch self {
     case .urlMalformed(let url):
@@ -25,7 +25,11 @@ enum JellyfinError: Error, LocalizedError {
       "jellyfin_internal_error_no_client".localized
     case .unexpectedResponse(let code):
       if let code {
-        String(format: "jellyfin_error_unexpected_response_with_code".localized, code, HTTPURLResponse.localizedString(forStatusCode: code))
+        String(
+          format: "jellyfin_error_unexpected_response_with_code".localized,
+          code,
+          HTTPURLResponse.localizedString(forStatusCode: code)
+        )
       } else {
         "jellyfin_error_unexpected_response".localized
       }
@@ -34,7 +38,11 @@ enum JellyfinError: Error, LocalizedError {
       case 401:
         "jellyfin_error_unauthorized".localized
       default:
-        String(format: "jellyfin_error_unexpected_response_with_code".localized, code, HTTPURLResponse.localizedString(forStatusCode: code))
+        String(
+          format: "jellyfin_error_unexpected_response_with_code".localized,
+          code,
+          HTTPURLResponse.localizedString(forStatusCode: code)
+        )
       }
     }
   }

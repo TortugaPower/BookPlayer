@@ -48,6 +48,7 @@ struct JellyfinRootView: View {
               viewModel: JellyfinLibraryViewModel(
                 folderID: nil,
                 connectionService: connectionViewModel.connectionService,
+                singleFileDownloadService: singleFileDownloadService,
                 navigation: navigation,
                 navigationTitle: libraryName
               )
@@ -57,6 +58,7 @@ struct JellyfinRootView: View {
               viewModel: JellyfinLibraryViewModel(
                 folderID: item.id,
                 connectionService: connectionViewModel.connectionService,
+                singleFileDownloadService: singleFileDownloadService,
                 navigation: navigation,
                 navigationTitle: item.name
               )
