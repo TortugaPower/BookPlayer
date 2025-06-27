@@ -148,11 +148,25 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       AppDelegate.shared?.activeSceneDelegate != nil
     else { return }
 
+    var downloadRemaining = 0
+    singleFileDownloadService.eventsPublisher.sink { event in
+      switch event {
+        case .starting:
+          downloadRemaining += 1
+        case .progress, .error:
+          break
+        case .finished:
+          downloadRemaining -= 1
+      }
+    }
+    .store(in: &disposeBag)
+
     fileSubscription = importManager.observeFiles()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] files in
         guard let self = self,
           !files.isEmpty,
+          downloadRemaining <= 1,
           self.shouldShowImportScreen()
         else { return }
 
