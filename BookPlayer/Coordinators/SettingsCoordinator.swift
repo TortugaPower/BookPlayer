@@ -63,6 +63,8 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showTipJar()
       case .jellyfinConnectionManagement:
         self.showJellyfinConnectionManagement()
+      case .hardcoverManagement:
+        self.showHardcoverManagement()
       case .credits:
         self.showCredits()
       case .shareDebugInformation(let info):
@@ -212,6 +214,17 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
           navigation: BPNavigation(),
           mode: .viewDetails
         )
+      )
+
+      let vc = UIHostingController(rootView: view)
+      flow.navigationController.present(vc, animated: true)
+    }
+  }
+
+  private func showHardcoverManagement() {
+    Task { @MainActor in
+      let view = HardcoverSettingsView(
+        viewModel: HardcoverSettingsViewModel()
       )
 
       let vc = UIHostingController(rootView: view)

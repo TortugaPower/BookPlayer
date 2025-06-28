@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F7B64362E0F71E900299D97 /* HardcoverSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7B64352E0F71E900299D97 /* HardcoverSettingsView.swift */; };
+		3F7B64382E0F720B00299D97 /* HardcoverSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7B64372E0F720B00299D97 /* HardcoverSettingsViewModel.swift */; };
+		3F7B643B2E0F9FA000299D97 /* HardcoverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7B643A2E0F9F9400299D97 /* HardcoverService.swift */; };
 		410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */; };
 		4106414025872614008EB8D0 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106413F25872614008EB8D0 /* BarView.swift */; };
 		4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106414825872699008EB8D0 /* TimeListenedSmallView.swift */; };
@@ -868,6 +871,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3F7B64352E0F71E900299D97 /* HardcoverSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverSettingsView.swift; sourceTree = "<group>"; };
+		3F7B64372E0F720B00299D97 /* HardcoverSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverSettingsViewModel.swift; sourceTree = "<group>"; };
+		3F7B643A2E0F9F9400299D97 /* HardcoverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverService.swift; sourceTree = "<group>"; };
 		410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedWidgetView.swift; sourceTree = "<group>"; };
 		4106413F25872614008EB8D0 /* BarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
 		4106414825872699008EB8D0 /* TimeListenedSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedSmallView.swift; sourceTree = "<group>"; };
@@ -1610,6 +1616,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F7B64332E0F713200299D97 /* Hardcover */ = {
+			isa = PBXGroup;
+			children = (
+				3F7B64342E0F716A00299D97 /* Settings Page */,
+			);
+			path = Hardcover;
+			sourceTree = "<group>";
+		};
+		3F7B64342E0F716A00299D97 /* Settings Page */ = {
+			isa = PBXGroup;
+			children = (
+				3F7B64372E0F720B00299D97 /* HardcoverSettingsViewModel.swift */,
+				3F7B64352E0F71E900299D97 /* HardcoverSettingsView.swift */,
+			);
+			path = "Settings Page";
+			sourceTree = "<group>";
+		};
+		3F7B64392E0F9F8200299D97 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				3F7B643A2E0F9F9400299D97 /* HardcoverService.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
 		4106413E258725F1008EB8D0 /* TimeListened */ = {
 			isa = PBXGroup;
 			children = (
@@ -1843,6 +1874,7 @@
 				69343D3121338440000C425E /* Services */,
 				C3A479112094C8A800D92122 /* Utils */,
 				62793618272CCEA20097837D /* Loading */,
+				3F7B64332E0F713200299D97 /* Hardcover */,
 				41C8ABCF26836F03003B67D1 /* Import */,
 				8AE4AAC32CCB9E3A00BAA927 /* Jellyfin */,
 				C35E04F1207E8D0F007D3370 /* Library */,
@@ -3970,6 +4002,7 @@
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
 				4138CE1C26E5B42F0014F11E /* BookmarksViewModel.swift in Sources */,
 				8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */,
+				3F7B643B2E0F9FA000299D97 /* HardcoverService.swift in Sources */,
 				9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */,
 				8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
@@ -3982,6 +4015,7 @@
 				9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */,
 				9FBDDBA027DD13E9005FB447 /* ProfileViewModel.swift in Sources */,
 				9FBDDB8B27DCF1FB005FB447 /* MiniPlayerView.swift in Sources */,
+				3F7B64362E0F71E900299D97 /* HardcoverSettingsView.swift in Sources */,
 				6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */,
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
 				636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */,
@@ -4021,6 +4055,7 @@
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
+				3F7B64382E0F720B00299D97 /* HardcoverSettingsViewModel.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,

@@ -21,3 +21,4 @@ disabled_rules:
   - orphaned_doc_comment
   - large_tuple
   - opening_brace
+  - nesting
