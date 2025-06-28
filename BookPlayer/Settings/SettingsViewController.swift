@@ -477,12 +477,10 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       mail.setToRecipients([self.supportEmail])
       let subject: String = "I need help with BookPlayer \(appVersion)\(versionSuffix)"
       mail.setSubject(subject)
-      if let attachmentData = "\(viewModel.getAnonymousId())\nApp version: \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)".data(using: .utf8) {
-        mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/>", isHTML: true)
-        mail.addAttachmentData(attachmentData, mimeType: "text/plain", fileName: "build-info.txt")
-      } else {
-        mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/><br/> <p>Debug info:<br/>\(viewModel.getAnonymousId())<br/>App version: \(appVersion)\(versionSuffix)<br/>\(device) - \(self.systemVersion)</p>", isHTML: true)
-      }
+
+      let attachmentData = Data("\(viewModel.getAnonymousId())\nApp version: \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)".utf8)
+      mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/>", isHTML: true)
+      mail.addAttachmentData(attachmentData, mimeType: "text/plain", fileName: "build-info.txt")
 
       self.present(mail, animated: true)
     } else {

@@ -70,7 +70,7 @@ final class ThemeManager: ThemeProvider {
     )
   }
 
-  public class func getLocalThemes() -> [SimpleTheme] {
+  public static func getLocalThemes() -> [SimpleTheme] {
     guard let themesFile = Bundle.main.url(forResource: "Themes", withExtension: "json"),
       let data = try? Data(contentsOf: themesFile, options: .mappedIfSafe),
       let themes = try? JSONDecoder().decode([SimpleTheme].self, from: data)
