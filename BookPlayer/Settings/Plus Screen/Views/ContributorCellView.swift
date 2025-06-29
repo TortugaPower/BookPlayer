@@ -10,10 +10,6 @@ import UIKit
 
 class ContributorCellView: UICollectionViewCell {
   @IBOutlet weak var imageView: UIImageView!
-
-  override func awakeFromNib() {
-    super.awakeFromNib()
-  }
 }
 
 class CollectionViewRow {

@@ -41,7 +41,7 @@ class SingleFileDownloadService
   public func handleDownload(_ url: URL) {
     sendEvent(.starting(url: url))
 
-    _ = networkClient.download(url: url, delegate: progressDelegate)
+    networkClient.download(url: url, delegate: progressDelegate)
   }
 
   private func bindObservers() {

@@ -128,7 +128,13 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
   override func viewSafeAreaInsetsDidChange() {
     super.viewSafeAreaInsetsDidChange()
 
-    let window = UIApplication.shared.windows[0]
+    guard
+      let window = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .flatMap(\.windows)
+        .first(where: \.isKeyWindow)
+    else { return }
+
     let insets: UIEdgeInsets = window.safeAreaInsets
 
     self.closeButtonTop.constant = self.view.safeAreaInsets.top == 0.0 ? insets.top : 0
@@ -265,33 +271,48 @@ extension PlayerViewController {
   }
 
   func bindPlaybackControlsObservers() {
-    self.viewModel.isPlayingObserver()
+    bindPlaybackStateObservers()
+    bindTimeAndProgressObservers()
+    bindMediaControlObservers()
+    bindChapterControlObservers()
+  }
+
+  private func bindPlaybackStateObservers() {
+    viewModel.isPlayingObserver()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] isPlaying in
         self?.playIconView.isPlaying = isPlaying
       }
       .store(in: &disposeBag)
 
-    self.maxTimeButton.publisher(for: .touchUpInside)
+    playIconView.observeActionEvents()
+      .sink { [weak self] _ in
+        self?.viewModel.handlePlayPauseAction()
+      }
+      .store(in: &disposeBag)
+  }
+
+  private func bindTimeAndProgressObservers() {
+    maxTimeButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         guard let self = self,
-          !self.progressSlider.isTracking
+              !self.progressSlider.isTracking
         else { return }
 
         let progressObject = self.viewModel.processToggleMaxTime()
-
         self.updateView(with: progressObject)
-      }.store(in: &disposeBag)
+      }
+      .store(in: &disposeBag)
 
     updateProgressObserver = UserDefaults.standard.observe(
       \.userSettingsUpdateProgress,
        options: [.new]
     ) { [weak self] object, change in
-      guard
-        let self,
-        let newValue = change.newValue,
-        newValue == true
+      guard let self,
+            let newValue = change.newValue,
+            newValue == true
       else { return }
+
       self.viewModel.reloadSharedFlags()
       let progressObject = self.viewModel.getCurrentProgressState()
       self.updateView(with: progressObject)
@@ -299,43 +320,41 @@ extension PlayerViewController {
       object.set(false, forKey: Constants.UserDefaults.updateProgress)
     }
 
-    self.progressButton.publisher(for: .touchUpInside)
-      .merge(with: self.chapterTitleButton.publisher(for: .touchUpInside))
+    progressButton.publisher(for: .touchUpInside)
+      .merge(with: chapterTitleButton.publisher(for: .touchUpInside))
       .sink { [weak self] _ in
         guard let self = self,
-          !self.progressSlider.isTracking
+              !self.progressSlider.isTracking
         else { return }
 
         let progressObject = self.viewModel.processToggleProgressState()
-
         self.updateView(with: progressObject)
-      }.store(in: &disposeBag)
-
-    self.playIconView.observeActionEvents()
-      .sink { [weak self] _ in
-        self?.viewModel.handlePlayPauseAction()
       }
       .store(in: &disposeBag)
+  }
 
-    self.rewindIconView.observeActionEvents()
+  private func bindMediaControlObservers() {
+    rewindIconView.observeActionEvents()
       .sink { [weak self] _ in
         self?.viewModel.handleRewindAction()
       }
       .store(in: &disposeBag)
 
-    self.forwardIconView.observeActionEvents()
+    forwardIconView.observeActionEvents()
       .sink { [weak self] _ in
         self?.viewModel.handleForwardAction()
       }
       .store(in: &disposeBag)
+  }
 
-    self.previousChapterButton.publisher(for: .touchUpInside)
+  private func bindChapterControlObservers() {
+    previousChapterButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         self?.viewModel.handlePreviousChapterAction()
       }
       .store(in: &disposeBag)
 
-    self.nextChapterButton.publisher(for: .touchUpInside)
+    nextChapterButton.publisher(for: .touchUpInside)
       .sink { [weak self] _ in
         self?.viewModel.handleNextChapterAction()
       }
@@ -577,9 +596,7 @@ extension PlayerViewController {
   }
 
   @IBAction func showMore() {
-    guard self.viewModel.hasLoadedBook() else {
-      return
-    }
+    guard self.viewModel.hasLoadedBook() else { return }
 
     let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
@@ -587,9 +604,7 @@ extension PlayerViewController {
       UIAlertAction(
         title: self.viewModel.getListTitleForMoreAction(),
         style: .default,
-        handler: { [weak self] _ in
-          self?.viewModel.showListFromMoreAction()
-        }
+        handler: { [weak self] _ in self?.viewModel.showListFromMoreAction() }
       )
     )
 
@@ -597,9 +612,7 @@ extension PlayerViewController {
       UIAlertAction(
         title: "jump_start_title".localized,
         style: .default,
-        handler: { [weak self] _ in
-          self?.viewModel.handleJumpToStart()
-        }
+        handler: { [weak self] _ in self?.viewModel.handleJumpToStart() }
       )
     )
 
@@ -610,9 +623,7 @@ extension PlayerViewController {
       UIAlertAction(
         title: markTitle,
         style: .default,
-        handler: { [weak self] _ in
-          self?.viewModel.handleMarkCompletion()
-        }
+        handler: { [weak self] _ in self?.viewModel.handleMarkCompletion() }
       )
     )
 
@@ -620,9 +631,7 @@ extension PlayerViewController {
       UIAlertAction(
         title: "button_free_title".localized,
         style: .default,
-        handler: { [weak self] _ in
-          self?.viewModel.showButtonFree()
-        }
+        handler: { [weak self] _ in self?.viewModel.showButtonFree() }
       )
     )
 
@@ -631,9 +640,7 @@ extension PlayerViewController {
         title: self.viewModel.isRepeatEnabled()
           ? "repeat_turn_off_title".localized : "repeat_turn_on_title".localized,
         style: .default,
-        handler: { [weak self] _ in
-          self?.viewModel.handleEnableRepeat()
-        }
+        handler: { [weak self] _ in self?.viewModel.handleEnableRepeat() }
       )
     )
 
