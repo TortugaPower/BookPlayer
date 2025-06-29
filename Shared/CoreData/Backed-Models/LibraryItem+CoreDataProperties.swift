@@ -33,6 +33,7 @@ extension LibraryItem {
   @NSManaged public var lastPlayed: Library?
   @NSManaged public var details: String!
   @NSManaged public var type: ItemType
+  @NSManaged public var hardcoverItem: HardcoverItem?
 }
 
 // MARK: Generated accessors for bookmarks
