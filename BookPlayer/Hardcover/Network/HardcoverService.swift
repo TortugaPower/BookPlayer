@@ -15,30 +15,14 @@ protocol HardcoverServiceProtocol {
   /// Search for books using the Hardcover API
   /// - Parameters:
   ///   - query: The search query string
-  ///   - queryType: The type of query (default: "Book")
-  ///   - perPage: Number of results per page (default: 5)
-  ///   - page: Page number (default: 1)
+  ///   - perPage: Number of results per page
   /// - Returns: BooksData containing search results
-  func getBooks(query: String, queryType: String, perPage: Int, page: Int) async throws -> BooksData
-
-  /// Insert a user book into the system
-  /// - Parameters:
-  ///   - bookID: The ID of the book
-  ///   - statusID: The status ID for the book
-  ///   - dateAdded: The date the book was added (as string)
-  ///   - editionID: The ID of the specific edition
-  /// - Returns: InsertUserBookData containing the result
-  func insertUserBook(
-    bookID: Int,
-    statusID: Int,
-    dateAdded: String,
-    editionID: Int
-  ) async throws -> InsertUserBookData
+  func getBooks(query: String, perPage: Int) async throws -> BooksData
 }
 
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let keychain: KeychainServiceProtocol
-  private let graphQL = GraphQLService(baseURL: "https://api.hardcover.app/v1/graphql")
+  private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
 
   init(keychain: KeychainServiceProtocol = KeychainService()) {
     self.keychain = keychain
@@ -57,3 +41,57 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     }
   }
 }
+
+extension HardcoverService {
+  func getBooks(query: String, perPage: Int) async throws -> BooksData {
+    let queryString = """
+        query GetBooks($query: String!, $per_page: Int!) {
+          search(
+            query: $query
+            query_type: "book"
+            per_page: $per_page
+            page: 1,
+            fields: "title,series_names,author_names,alternative_titles",
+            weights: "5,3,3,1"
+          ) {
+            results
+          }
+        }
+        """
+
+    let result = try await graphQL.execute(
+      query: queryString,
+      variables: [
+        "query": query,
+        "per_page": perPage
+      ],
+      authorization: authorization,
+      responseType: BooksData.self
+    )
+
+    return result
+  }
+
+  private func insertUserBook(bookID: Int, statusID: Int) async throws -> InsertUserBookData {
+    let mutation = """
+        mutation InsertUserBook($book_id: Int!, $status_id: Int!) {
+          insert_user_book(
+            object: {book_id: $book_id, status_id: $status_id}
+          ) {
+            id
+          }
+        }
+        """
+
+    return try await graphQL.execute(
+      query: mutation,
+      variables: [
+        "book_id": bookID,
+        "status_id": statusID
+      ],
+      authorization: authorization,
+      responseType: InsertUserBookData.self
+    )
+  }
+}
+
