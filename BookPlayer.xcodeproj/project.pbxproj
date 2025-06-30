@@ -27,6 +27,11 @@
 		3FF8EA422E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA3E2E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel */; };
 		3FF8EA432E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA3E2E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel */; };
 		3FF8EA442E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA3E2E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel */; };
+		3FF8EA4C2E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA492E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift */; };
+		3FF8EA4D2E11E2110054CD2C /* HardcoverBookPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA462E11E2110054CD2C /* HardcoverBookPickerViewModel.swift */; };
+		3FF8EA4E2E11E2110054CD2C /* HardcoverBookPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA452E11E2110054CD2C /* HardcoverBookPickerView.swift */; };
+		3FF8EA4F2E11E2110054CD2C /* HardcoverBookRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA472E11E2110054CD2C /* HardcoverBookRow.swift */; };
+		3FF8EA502E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF8EA4A2E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift */; };
 		410641282579AA2F008EB8D0 /* TimeListenedWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */; };
 		4106414025872614008EB8D0 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106413F25872614008EB8D0 /* BarView.swift */; };
 		4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4106414825872699008EB8D0 /* TimeListenedSmallView.swift */; };
@@ -901,6 +906,11 @@
 		3FF5BA682E10EA8000B82BCC /* HardcoverItem+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HardcoverItem+CoreDataClass.swift"; sourceTree = "<group>"; };
 		3FF8EA3D2E11C7980054CD2C /* Audiobook Player 10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 10.xcdatamodel"; sourceTree = "<group>"; };
 		3FF8EA3E2E11C8EF0054CD2C /* MappingModel_v9_to_v10.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v9_to_v10.xcmappingmodel; sourceTree = "<group>"; };
+		3FF8EA452E11E2110054CD2C /* HardcoverBookPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverBookPickerView.swift; sourceTree = "<group>"; };
+		3FF8EA462E11E2110054CD2C /* HardcoverBookPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverBookPickerViewModel.swift; sourceTree = "<group>"; };
+		3FF8EA472E11E2110054CD2C /* HardcoverBookRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverBookRow.swift; sourceTree = "<group>"; };
+		3FF8EA492E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsHardcoverSectionView.swift; sourceTree = "<group>"; };
+		3FF8EA4A2E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsHardcoverSectionViewModel.swift; sourceTree = "<group>"; };
 		410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedWidgetView.swift; sourceTree = "<group>"; };
 		4106413F25872614008EB8D0 /* BarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
 		4106414825872699008EB8D0 /* TimeListenedSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedSmallView.swift; sourceTree = "<group>"; };
@@ -1646,6 +1656,8 @@
 		3F7B64332E0F713200299D97 /* Hardcover */ = {
 			isa = PBXGroup;
 			children = (
+				3FF8EA482E11E2110054CD2C /* BookPicker */,
+				3FF8EA4B2E11E2110054CD2C /* ItemDetails Section */,
 				3F7B64392E0F9F8200299D97 /* Network */,
 				3F7B64342E0F716A00299D97 /* Settings Page */,
 			);
@@ -1688,6 +1700,25 @@
 				3F7B64412E0FB27000299D97 /* AnyCodable.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		3FF8EA482E11E2110054CD2C /* BookPicker */ = {
+			isa = PBXGroup;
+			children = (
+				3FF8EA452E11E2110054CD2C /* HardcoverBookPickerView.swift */,
+				3FF8EA462E11E2110054CD2C /* HardcoverBookPickerViewModel.swift */,
+				3FF8EA472E11E2110054CD2C /* HardcoverBookRow.swift */,
+			);
+			path = BookPicker;
+			sourceTree = "<group>";
+		};
+		3FF8EA4B2E11E2110054CD2C /* ItemDetails Section */ = {
+			isa = PBXGroup;
+			children = (
+				3FF8EA492E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift */,
+				3FF8EA4A2E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift */,
+			);
+			path = "ItemDetails Section";
 			sourceTree = "<group>";
 		};
 		4106413E258725F1008EB8D0 /* TimeListened */ = {
@@ -4135,6 +4166,11 @@
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				3F7B64422E0FB27000299D97 /* AnyCodable.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
+				3FF8EA4C2E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift in Sources */,
+				3FF8EA4D2E11E2110054CD2C /* HardcoverBookPickerViewModel.swift in Sources */,
+				3FF8EA4E2E11E2110054CD2C /* HardcoverBookPickerView.swift in Sources */,
+				3FF8EA4F2E11E2110054CD2C /* HardcoverBookRow.swift in Sources */,
+				3FF8EA502E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift in Sources */,
 				3F7B64452E0FB29600299D97 /* BooksData.swift in Sources */,
 				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
 				C33E843C20C6E179004A0489 /* ItemProgress.swift in Sources */,

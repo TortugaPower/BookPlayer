@@ -37,6 +37,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
   private var eventsPublisher = InterfaceUpdater<ItemDetailsViewModel.Events>()
 
+  private let hardcoverItem: SimpleHardcoverItem?
   private var disposeBag = Set<AnyCancellable>()
 
   /// Initializer
@@ -57,6 +58,18 @@ class ItemDetailsViewModel: ViewModelProtocol {
       item: item,
       lastPlayedDate: lastPlayedDate
     )
+
+    if let item = libraryService.getHardcoverItem(for: item.relativePath) {
+      hardcoverItem = item
+      formViewModel.hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+        id: item.id,
+        artworkURL: item.artworkURL,
+        title: item.title,
+        author: item.author
+      )
+    } else {
+      hardcoverItem = nil
+    }
   }
 
   func observeEvents() -> AnyPublisher<ItemDetailsViewModel.Events, Never> {
@@ -79,6 +92,22 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
     if formViewModel.showAuthor {
       updateAuthor(formViewModel.author, relativePath: item.relativePath)
+    }
+
+    if let pickerViewModel = formViewModel.hardcoverSectionViewModel?.pickerViewModel,
+       pickerViewModel.selected?.id != hardcoverItem?.id {
+      if let selected = pickerViewModel.selected {
+        let hardcoverItem = SimpleHardcoverItem(
+          id: selected.id,
+          artworkURL: selected.artworkURL,
+          title: selected.title,
+          author: selected.author,
+          status: .local
+        )
+        libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+      } else {
+        libraryService.setHardcoverItem(nil, for: item.relativePath)
+      }
     }
 
     guard formViewModel.artworkIsUpdated else {

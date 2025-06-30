@@ -34,6 +34,8 @@ class ItemDetailsFormViewModel: ObservableObject {
   let showAuthor: Bool
   /// Image data provider to load original artwork from file
   let originalImageDataProvider: AVAudioAssetImageDataProvider
+  
+  @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
 
   /// Initializer
   init(item: SimpleLibraryItem, lastPlayedDate: Date?) {
@@ -55,5 +57,7 @@ class ItemDetailsFormViewModel: ObservableObject {
     } else {
       self.lastPlayedDate = nil
     }
+
+    hardcoverSectionViewModel = ItemDetailsHardcoverSectionViewModel(item: item)
   }
 }

@@ -65,6 +65,10 @@ struct ItemDetailsForm: View {
         )
       }
 
+      if let viewModel = viewModel.hardcoverSectionViewModel {
+        ItemDetailsHardcoverSectionView(viewModel: viewModel)
+      }
+      
       Section {
         EmptyView()
       } footer: {
