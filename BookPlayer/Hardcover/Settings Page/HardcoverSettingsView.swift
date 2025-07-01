@@ -42,12 +42,58 @@ struct HardcoverSettingsView: View {
               .foregroundColor(themeViewModel.secondaryColor)
           }
         }
+
+        Section {
+          Toggle("Auto-match books", isOn: $viewModel.autoMatch)
+            .foregroundColor(themeViewModel.primaryColor)
+          
+          Toggle("Auto-add to Want to Read", isOn: $viewModel.autoAddWantToRead)
+            .foregroundColor(themeViewModel.primaryColor)
+        } header: {
+          Text("Automation".localized)
+            .foregroundColor(themeViewModel.secondaryColor)
+        } footer: {
+          Text(
+            """
+            Auto-match will automatically find and link books from Hardcover when books are added to your library. It intelligently handles bulk imports by matching unique books while skipping items that would conflict with each other.
+              
+            Auto-add will automatically add books to your Hardcover **Want to Read** list when they are added to BookPlayer or when a Hardcover book is assigned.
+            """
+          )
+          .foregroundColor(themeViewModel.secondaryColor)
+        }
+
+        Section {
+          VStack(alignment: .leading, spacing: 8) {
+            HStack {
+              Text("Reading threshold")
+                .foregroundColor(themeViewModel.primaryColor)
+              Spacer()
+              Text("\(Int(viewModel.readingThreshold))%")
+                .foregroundColor(themeViewModel.secondaryColor)
+            }
+            
+            Slider(
+              value: $viewModel.readingThreshold,
+              in: 1...99,
+              step: 1.0
+            )
+            .accentColor(themeViewModel.linkColor)
+          }
+        } header: {
+          Text("Progress Tracking".localized)
+            .foregroundColor(themeViewModel.secondaryColor)
+        } footer: {
+          Text("Sets the minimum progress percentage required before a book is marked as **Currently Reading** in your Hardcover library.")
+            .foregroundColor(themeViewModel.secondaryColor)
+        }
         .navigationBarTitleDisplayMode(.inline)
       }
       .toolbar {
         navigationBar
       }
     }
+    .tint(themeViewModel.linkColor)
     .environmentObject(themeViewModel)
   }
 
@@ -73,9 +119,9 @@ struct HardcoverSettingsView: View {
         "Save".localized,
         action: {
           viewModel.onSaveTapped()
+          dismiss()
         }
       )
-      .disabled(!viewModel.isSaveEnabled)
     }
   }
 }
@@ -83,13 +129,23 @@ struct HardcoverSettingsView: View {
 extension HardcoverSettingsView {
   class Model: ObservableObject {
     @Published var accessToken: String
-    @Published var isSaveEnabled: Bool = false
+    @Published var autoMatch: Bool
+    @Published var autoAddWantToRead: Bool
+    @Published var readingThreshold: Double
 
     @MainActor
     func onSaveTapped() {}
 
-    init(accessToken: String = "") {
+    init(
+      accessToken: String = "",
+      autoMatch: Bool = false,
+      autoAddWantToRead: Bool = false,
+      readingThreshold: Double = 1.0
+    ) {
       self.accessToken = accessToken
+      self.autoMatch = autoMatch
+      self.autoAddWantToRead = autoAddWantToRead
+      self.readingThreshold = readingThreshold
     }
   }
 }

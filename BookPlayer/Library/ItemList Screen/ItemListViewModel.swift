@@ -52,6 +52,7 @@ class ItemListViewModel: ViewModelProtocol {
   private let listRefreshService: ListSyncRefreshService
   let syncService: SyncServiceProtocol
   private let importManager: ImportManager
+  private let hardcoverService: HardcoverServiceProtocol
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
@@ -81,6 +82,7 @@ class ItemListViewModel: ViewModelProtocol {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
+    hardcoverService: HardcoverServiceProtocol,
     themeAccent: UIColor
   ) {
     self.folderRelativePath = folderRelativePath
@@ -91,6 +93,7 @@ class ItemListViewModel: ViewModelProtocol {
     self.syncService = syncService
     self.importManager = importManager
     self.listRefreshService = listRefreshService
+    self.hardcoverService = hardcoverService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
 
@@ -1102,6 +1105,8 @@ extension ItemListViewModel {
 
       self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
 
+      await hardcoverService.processAutoMatch(for: processedItems, libraryService: libraryService)
+
       let availableFolders = self.libraryService.getItems(
         notIn: itemIdentifiers,
         parentFolder: folderRelativePath
@@ -1389,4 +1394,5 @@ extension ItemListViewModel: AlertPresenter {
   func stopLoader() {
     sendEvent(.showLoader(flag: false))
   }
+
 }

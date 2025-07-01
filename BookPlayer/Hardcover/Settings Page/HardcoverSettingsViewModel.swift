@@ -13,24 +13,33 @@ import JellyfinAPI
 import SwiftUI
 
 @MainActor
-final class HardcoverSettingsViewModel: HardcoverSettingsView.Model, BPLogger {
+final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
   private var hardcoverService: HardcoverServiceProtocol
 
-  private var disposeBag = Set<AnyCancellable>()
+  @AppStorage(Constants.UserDefaults.hardcoverAutoMatch, store: UserDefaults.sharedDefaults)
+  private var storedAutoMatch = false
+  
+  @AppStorage(Constants.UserDefaults.hardcoverAutoAddWantToRead, store: UserDefaults.sharedDefaults)
+  private var storedAutoAddWantToRead = true
+
+  @AppStorage(Constants.UserDefaults.hardcoverReadingThreshold, store: UserDefaults.sharedDefaults)
+  private var storedReadingThreshold = 1.0
 
   init(hardcoverService: HardcoverServiceProtocol = HardcoverService()) {
     self.hardcoverService = hardcoverService
+    
     super.init(accessToken: hardcoverService.authorization ?? "")
-
-    $accessToken.sink { [weak self] value in
-      Task { @MainActor in
-        self?.isSaveEnabled = !value.isEmpty && value != self?.hardcoverService.authorization
-      }
-    }.store(in: &disposeBag)
+    
+    self.autoMatch = storedAutoMatch
+    self.autoAddWantToRead = storedAutoAddWantToRead
+    self.readingThreshold = storedReadingThreshold
   }
 
   @MainActor
   override func onSaveTapped() {
     hardcoverService.authorization = accessToken
+    storedAutoMatch = autoMatch
+    storedAutoAddWantToRead = autoAddWantToRead
+    storedReadingThreshold = readingThreshold
   }
 }

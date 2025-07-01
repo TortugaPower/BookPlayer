@@ -30,7 +30,7 @@ final class HardcoverBookPickerViewModel: HardcoverBookPickerView.Model, BPLogge
 
   func loadData() async {
     do {
-      let result = try await hardcoverService.getBooks(query: "\(item.title), \(item.details)", perPage: 5)
+      let result = try await hardcoverService.getBooks(for: item, perPage: 5)
 
       let books = result.search.results.hits.map(\.document)
 

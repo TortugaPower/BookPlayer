@@ -13,7 +13,7 @@ public struct SimpleHardcoverItem {
   public let artworkURL: URL?
   public let title: String
   public let author: String
-  public let status: HardcoverItem.Status
+  public var status: HardcoverItem.Status
 
   public init(
     id: Int,

@@ -35,7 +35,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     accountService: AccountServiceProtocol,
-    jellyfinConnectionService: JellyfinConnectionService
+    jellyfinConnectionService: JellyfinConnectionService,
+    hardcoverService: HardcoverServiceProtocol
   ) {
     self.accountService = accountService
 
@@ -48,7 +49,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       syncService: syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
-      jellyfinConnectionService: jellyfinConnectionService
+      jellyfinConnectionService: jellyfinConnectionService,
+      hardcoverService: hardcoverService
     )
   }
 
@@ -64,6 +66,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       syncService: self.syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
+      hardcoverService: hardcoverService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in
