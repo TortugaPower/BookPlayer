@@ -28,6 +28,13 @@ class SingleFileDownloadService
   private var progressDelegate = BPTaskDownloadDelegate()
   private var disposeBag = Set<AnyCancellable>()
 
+  public private(set) var downloadQueue: [URL] = []
+  private var currentTask: URLSessionTask?
+  private lazy var downloadSession: URLSession = {
+    let config = URLSessionConfiguration.background(withIdentifier: "SingleFileDownloadService")
+    return URLSession(configuration: config, delegate: progressDelegate, delegateQueue: nil)
+  }()
+
   public init(networkClient: NetworkClientProtocol) {
     self.networkClient = networkClient
 
@@ -39,9 +46,24 @@ class SingleFileDownloadService
   }
 
   public func handleDownload(_ url: URL) {
-    sendEvent(.starting(url: url))
+    downloadQueue.append(url)
+    processNextDownload()
+  }
 
-    networkClient.download(url: url, delegate: progressDelegate)
+  private func processNextDownload() {
+    Task { @MainActor in
+      guard currentTask == nil, !downloadQueue.isEmpty else { return }
+      
+      let url = downloadQueue.removeFirst()
+      sendEvent(.starting(url: url))
+      
+      let task = await networkClient.download(
+        url: url,
+        taskDescription: "SingleFileDownload-\(url.absoluteString)",
+        session: downloadSession
+      )
+      currentTask = task
+    }
   }
 
   private func bindObservers() {
@@ -57,6 +79,13 @@ class SingleFileDownloadService
         self.sendEvent(.error(.network, task: task, underlyingError: error))
       } else if let fileURL {
         self.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
+      }
+      
+      if task === self.currentTask {
+        Task { @MainActor in
+          self.currentTask = nil
+          self.processNextDownload()
+        }
       }
     }
   }
