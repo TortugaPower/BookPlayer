@@ -1105,7 +1105,7 @@ extension ItemListViewModel {
 
       self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
 
-      await hardcoverService.processAutoMatch(for: processedItems, libraryService: libraryService)
+      await hardcoverService.processAutoMatch(for: processedItems)
 
       let availableFolders = self.libraryService.getItems(
         notIn: itemIdentifiers,

@@ -213,6 +213,7 @@ extension ItemListCoordinator {
   func showItemDetails(_ item: SimpleLibraryItem) {
     let viewModel = ItemDetailsViewModel(
       item: item,
+      hardcoverService: hardcoverService,
       libraryService: libraryService,
       syncService: syncService
     )

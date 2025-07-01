@@ -12,18 +12,16 @@ import Get
 import JellyfinAPI
 import SwiftUI
 
-final class ItemDetailsHardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model, BPLogger {
-  private let service = HardcoverService()
-
+final class ItemDetailsHardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model {
   private var disposeBag = Set<AnyCancellable>()
 
   private let item: SimpleLibraryItem
 
-  init?(item: SimpleLibraryItem) {
-    guard service.authorization != nil else { return nil }
+  init?(item: SimpleLibraryItem, hardcoverService: HardcoverServiceProtocol) {
+    guard hardcoverService.authorization != nil else { return nil }
 
     self.item = item
 
-    super.init(pickerViewModel: HardcoverBookPickerViewModel(item: item))
+    super.init(pickerViewModel: HardcoverBookPickerViewModel(item: item, hardcoverService: hardcoverService))
   }
 }

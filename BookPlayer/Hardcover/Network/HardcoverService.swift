@@ -24,14 +24,14 @@ protocol HardcoverServiceProtocol {
   /// Uses smart duplicate detection to avoid matching multiple files to the same book
   /// - Parameters:
   ///   - items: The newly imported library items (processes book items only)
-  ///   - libraryService: Library service for managing hardcover associations
-  func processAutoMatch(for items: [SimpleLibraryItem], libraryService: LibraryServiceProtocol) async
+  func processAutoMatch(for items: [SimpleLibraryItem]) async
 }
 
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let keychain: KeychainServiceProtocol
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private let audioMetadataService: AudioMetadataServiceProtocol
+  private let libraryService: LibraryServiceProtocol
 
   private var cancellables = Set<AnyCancellable>()
 
@@ -48,9 +48,11 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   }
 
   init(
+    libraryService: LibraryServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
   ) {
+    self.libraryService = libraryService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
   }
@@ -127,11 +129,11 @@ extension HardcoverService {
 }
 
 extension HardcoverService {
-  func startTrackingLibraryUpdates(libraryService: LibraryServiceProtocol) {
+  func startTrackingLibraryUpdates() {
     Self.logger.info("Starting to track library updates for Hardcover sync")
 
     libraryService.metadataUpdatePublisher
-      .sink { [weak self, weak libraryService] metadata in
+      .sink { [weak self] metadata in
         guard
           let relativePath = metadata["relativePath"] as? String,
           let isFinished = metadata["isFinished"] as? Bool,
@@ -139,8 +141,8 @@ extension HardcoverService {
         else { return }
 
         Task { [weak self] in
-          guard let self, let libraryService else { return }
-          await self.handleBookFinished(relativePath: relativePath, in: libraryService)
+          guard let self else { return }
+          await self.handleBookFinished(relativePath: relativePath)
         }
       }
       .store(in: &cancellables)
@@ -152,23 +154,15 @@ extension HardcoverService {
           let percentCompleted = progress["percentCompleted"] as? Double
         else { return }
 
-        Task { [weak self, weak libraryService] in
-          guard let self, let libraryService else { return }
-          await self.handleBookStarted(
-            relativePath: relativePath,
-            percentCompleted: percentCompleted,
-            in: libraryService
-          )
+        Task { [weak self] in
+          guard let self else { return }
+          await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
         }
       }
       .store(in: &cancellables)
   }
 
-  private func handleBookStarted(
-    relativePath: String,
-    percentCompleted: Double,
-    in libraryService: LibraryServiceProtocol
-  ) async {
+  private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
     guard
       authorization != nil,
       percentCompleted > readingThreshold,
@@ -192,7 +186,7 @@ extension HardcoverService {
     }
   }
 
-  private func handleBookFinished(relativePath: String, in libraryService: LibraryServiceProtocol) async {
+  private func handleBookFinished(relativePath: String) async {
     guard
       authorization != nil,
       var item = libraryService.getHardcoverItem(for: relativePath),
@@ -215,7 +209,7 @@ extension HardcoverService {
     }
   }
 
-  func processAutoMatch(for items: [SimpleLibraryItem], libraryService: LibraryServiceProtocol) async {
+  func processAutoMatch(for items: [SimpleLibraryItem]) async {
     guard authorization != nil, autoMatchEnabled, !items.isEmpty else { return }
 
     Self.logger.info("Auto-matching \(items.count) new items with Hardcover")

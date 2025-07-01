@@ -25,7 +25,7 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
   @AppStorage(Constants.UserDefaults.hardcoverReadingThreshold, store: UserDefaults.sharedDefaults)
   private var storedReadingThreshold = 1.0
 
-  init(hardcoverService: HardcoverServiceProtocol = HardcoverService()) {
+  init(hardcoverService: HardcoverServiceProtocol) {
     self.hardcoverService = hardcoverService
     
     super.init(accessToken: hardcoverService.authorization ?? "")

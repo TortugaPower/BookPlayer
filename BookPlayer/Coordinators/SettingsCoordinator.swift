@@ -18,19 +18,22 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
   let syncService: SyncServiceProtocol
   let accountService: AccountServiceProtocol
   let jellyfinConnectionService: JellyfinConnectionService
+  let hardcoverService: HardcoverServiceProtocol
 
   init(
     flow: BPCoordinatorPresentationFlow,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
     accountService: AccountServiceProtocol,
-    jellyfinConnectionService: JellyfinConnectionService
+    jellyfinConnectionService: JellyfinConnectionService,
+    hardcoverService: HardcoverServiceProtocol
   ) {
     self.flow = flow
     self.libraryService = libraryService
     self.syncService = syncService
     self.accountService = accountService
     self.jellyfinConnectionService = jellyfinConnectionService
+    self.hardcoverService = hardcoverService
   }
 
   func start() {
@@ -223,9 +226,7 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
   private func showHardcoverManagement() {
     Task { @MainActor in
-      let view = HardcoverSettingsView(
-        viewModel: HardcoverSettingsViewModel()
-      )
+      let view = HardcoverSettingsView(viewModel: HardcoverSettingsViewModel(hardcoverService: self.hardcoverService))
 
       let vc = UIHostingController(rootView: view)
       flow.navigationController.present(vc, animated: true)

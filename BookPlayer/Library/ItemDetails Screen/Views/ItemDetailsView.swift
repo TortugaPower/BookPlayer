@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 
 struct ItemDetailsView: View {
-  @ObservedObject var viewModel: ItemDetailsFormViewModel
+  @ObservedObject var viewModel: ItemDetailsForm.Model
 
   var body: some View {
     ItemDetailsForm(viewModel: viewModel)
@@ -21,25 +21,16 @@ struct ItemDetailsView: View {
 struct ItemDetailsView_Previews: PreviewProvider {
   static var previews: some View {
     ItemDetailsView(
-      viewModel: ItemDetailsFormViewModel(
-        item: SimpleLibraryItem(
-          title: "title",
-          details: "details",
-          speed: 1,
-          currentTime: 0,
-          duration: 100,
-          percentCompleted: 1,
-          isFinished: false,
-          relativePath: "",
-          remoteURL: nil,
-          artworkURL: nil,
-          orderRank: 0,
-          parentFolder: nil,
-          originalFileName: "",
-          lastPlayDate: nil,
-          type: .book
-        ),
-        lastPlayedDate: nil
+      viewModel: ItemDetailsForm.Model(
+        originalFileName: "this is a test filename.mp3",
+        title: "title",
+        author: "author",
+        selectedImage: nil,
+        progress: 0.01,
+        lastPlayedDate: nil,
+        titlePlaceholder: "",
+        authorPlaceholder: "",
+        showAuthor: true
       )
     )
   }

@@ -13,14 +13,15 @@ import JellyfinAPI
 import SwiftUI
 
 final class HardcoverBookPickerViewModel: HardcoverBookPickerView.Model, BPLogger {
-  private let hardcoverservice = HardcoverService()
+  private let hardcoverService: HardcoverServiceProtocol
 
   private var disposeBag = Set<AnyCancellable>()
 
   private let item: SimpleLibraryItem
 
-  init(item: SimpleLibraryItem) {
+  init(item: SimpleLibraryItem, hardcoverService: HardcoverServiceProtocol) {
     self.item = item
+    self.hardcoverService = hardcoverService
 
     super.init(
       loading: .fetching,

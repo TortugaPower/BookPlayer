@@ -136,8 +136,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playerManager: playerManager
       )
 
-      let hardcoverService = HardcoverService()
-      hardcoverService.startTrackingLibraryUpdates(libraryService: libraryService)
+      let hardcoverService = HardcoverService(libraryService: libraryService)
+      hardcoverService.startTrackingLibraryUpdates()
 
       let coreServices = CoreServices(
         accountService: accountService,

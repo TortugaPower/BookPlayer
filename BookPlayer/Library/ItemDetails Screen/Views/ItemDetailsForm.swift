@@ -12,7 +12,7 @@ import SwiftUI
 
 struct ItemDetailsForm: View {
   /// View model for the form
-  @ObservedObject var viewModel: ItemDetailsFormViewModel
+  @ObservedObject var viewModel: Model
   /// Theme view model to update colors
   @StateObject var themeViewModel = ThemeViewModel()
   /// Flag to show action sheet for the artwork
@@ -103,29 +103,69 @@ struct ItemDetailsForm: View {
   }
 }
 
-struct ItemDetailsForm_Previews: PreviewProvider {
-  static var previews: some View {
-    ItemDetailsForm(
-      viewModel: ItemDetailsFormViewModel(
-        item: SimpleLibraryItem(
-          title: "title",
-          details: "details",
-          speed: 1,
-          currentTime: 0,
-          duration: 100,
-          percentCompleted: 1,
-          isFinished: false,
-          relativePath: "",
-          remoteURL: nil,
-          artworkURL: nil,
-          orderRank: 0,
-          parentFolder: nil,
-          originalFileName: "this is a test filename.mp3",
-          lastPlayDate: nil,
-          type: .book
-        ),
-        lastPlayedDate: nil
-      )
-    )
+extension ItemDetailsForm {
+  class Model: ObservableObject {
+    /// File name
+    @Published var originalFileName: String
+    /// Title of the item
+    @Published var title: String
+    /// Author of the item (only applies for books)
+    @Published var author: String
+    /// Artwork image
+    @Published var selectedImage: UIImage?
+    /// Progress of the current item
+    let progress: Double
+    /// Last played date
+    let lastPlayedDate: String?
+    /// Original item title
+    var titlePlaceholder: String
+    /// Original item author
+    var authorPlaceholder: String
+    /// Determines if there's an update for the artwork
+    var artworkIsUpdated: Bool = false
+    /// Flag to show the author field
+    let showAuthor: Bool
+
+    @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
+
+    init(
+      originalFileName: String,
+      title: String,
+      author: String,
+      selectedImage: UIImage?,
+      progress: Double,
+      lastPlayedDate: String?,
+      titlePlaceholder: String,
+      authorPlaceholder: String,
+      showAuthor: Bool,
+      hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model? = nil
+    ) {
+      self.originalFileName = originalFileName
+      self.title = title
+      self.author = author
+      self.selectedImage = selectedImage
+      self.progress = progress
+      self.lastPlayedDate = lastPlayedDate
+      self.titlePlaceholder = titlePlaceholder
+      self.authorPlaceholder = authorPlaceholder
+      self.showAuthor = showAuthor
+      self.hardcoverSectionViewModel = hardcoverSectionViewModel
+    }
   }
+}
+
+#Preview("default") {
+  ItemDetailsForm(
+    viewModel: ItemDetailsForm.Model(
+      originalFileName: "this is a test filename.mp3",
+      title: "title",
+      author: "author",
+      selectedImage: nil,
+      progress: 0.01,
+      lastPlayedDate: nil,
+      titlePlaceholder: "",
+      authorPlaceholder: "",
+      showAuthor: true
+    )
+  )
 }

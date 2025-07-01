@@ -43,6 +43,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
   /// Initializer
   init(
     item: SimpleLibraryItem,
+    hardcoverService: HardcoverServiceProtocol,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
@@ -56,7 +57,8 @@ class ItemDetailsViewModel: ViewModelProtocol {
     ) as? Date
     self.formViewModel = ItemDetailsFormViewModel(
       item: item,
-      lastPlayedDate: lastPlayedDate
+      lastPlayedDate: lastPlayedDate,
+      hardcoverService: hardcoverService
     )
 
     if let item = libraryService.getHardcoverItem(for: item.relativePath) {

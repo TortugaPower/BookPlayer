@@ -124,10 +124,11 @@ class MainCoordinator: NSObject {
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let settingsCoordinator = SettingsCoordinator(
       flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: self.libraryService,
-      syncService: self.syncService,
-      accountService: self.accountService,
-      jellyfinConnectionService: jellyfinConnectionService
+      libraryService: libraryService,
+      syncService: syncService,
+      accountService: accountService,
+      jellyfinConnectionService: jellyfinConnectionService,
+      hardcoverService: hardcoverService
     )
     settingsCoordinator.tabBarController = tabBarController
     settingsCoordinator.start()
