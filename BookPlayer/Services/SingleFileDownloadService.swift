@@ -20,7 +20,6 @@ class SingleFileDownloadService
     case progress(task: URLSessionTask, progress: Double) // (0..1)
     case finished(task: URLSessionTask)
     case error(ErrorKind, task: URLSessionTask, underlyingError: Error?)
-    case allDownloadsCompleted
   }
 
   public var eventsPublisher = PassthroughSubject<Events, Never>()
@@ -62,19 +61,16 @@ class SingleFileDownloadService
 
   private func processNextDownload() {
     Task { @MainActor in
-      if downloadQueue.isEmpty {
-        sendEvent(.allDownloadsCompleted)
-      } else if currentTask == nil {
-        let url = downloadQueue.removeFirst()
-        sendEvent(.starting(url: url))
+      guard currentTask == nil, !downloadQueue.isEmpty else { return }
+      let url = downloadQueue.removeFirst()
+      sendEvent(.starting(url: url))
 
-        let task = await networkClient.download(
-          url: url,
-          taskDescription: "SingleFileDownload-\(url.absoluteString)",
-          session: downloadSession
-        )
-        currentTask = task
-      }
+      let task = await networkClient.download(
+        url: url,
+        taskDescription: "SingleFileDownload-\(url.absoluteString)",
+        session: downloadSession
+      )
+      currentTask = task
     }
   }
 

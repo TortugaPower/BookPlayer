@@ -54,16 +54,6 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         }
       }
     }
-    .overlay {
-      if viewModel.downloadRemaining > 0 {
-        LoadingHUD(
-          remaining: viewModel.downloadRemaining,
-          total: viewModel.selectedItems.count
-        )
-        .transition(.opacity)
-      }
-    }
-    .animation(.easeInOut(duration: 0.3), value: viewModel.downloadRemaining != 0)
   }
 
   @ViewBuilder
@@ -117,66 +107,5 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       Image(systemName: "arrow.down.to.line")
     }
     .disabled(viewModel.selectedItems.isEmpty)
-  }
-}
-
-extension JellyfinLibraryView {
-  struct LoadingHUD: View {
-    let remaining: Int
-    let total: Int
-
-    private var downloaded: Int { total - remaining }
-
-    private var progress: Double {
-      guard total > 0 else { return 0 }
-      return Double(downloaded) / Double(total)
-    }
-
-    var body: some View {
-      ZStack {
-        Color.black.opacity(0.4)
-          .ignoresSafeArea()
-          .onTapGesture {}
-
-        VStack(spacing: 24) {
-          ZStack {
-            Circle()
-              .stroke(Color.white.opacity(0.3), lineWidth: 6)
-              .frame(width: 80, height: 80)
-
-            Circle()
-              .trim(from: 0, to: progress)
-              .stroke(Color.white, lineWidth: 6)
-              .frame(width: 80, height: 80)
-              .rotationEffect(Angle(degrees: -90))
-              .animation(.easeInOut(duration: 0.5), value: progress)
-
-            Text("\(downloaded)")
-              .foregroundColor(.white)
-              .font(.title2)
-              .fontWeight(.semibold)
-          }
-
-          VStack(spacing: 8) {
-            HStack {
-              ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-
-              Text("Downloading...".localized)
-                .foregroundColor(.white)
-                .font(.headline)
-            }
-
-            Text("\(downloaded) of \(total) items".localized)
-              .foregroundColor(.white.opacity(0.8))
-              .font(.subheadline)
-          }
-        }
-        .padding(32)
-        .background(Color.black.opacity(0.85))
-        .cornerRadius(16)
-        .shadow(radius: 10)
-      }
-    }
   }
 }

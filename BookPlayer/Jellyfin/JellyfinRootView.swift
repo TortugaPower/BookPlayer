@@ -10,6 +10,8 @@ import SwiftUI
 
 @MainActor
 final class BPNavigation: ObservableObject {
+  var dismiss: DismissAction?
+
   @Published var path = NavigationPath()
 
   nonisolated init() {}
@@ -75,6 +77,9 @@ struct JellyfinRootView: View {
             }
           }
         }
+    }
+    .onAppear {
+        navigation.dismiss = dismiss
     }
   }
 }

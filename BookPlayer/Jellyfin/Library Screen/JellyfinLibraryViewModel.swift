@@ -31,7 +31,6 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
-  var downloadRemaining: Int { get }
 
   var connectionService: JellyfinConnectionService { get }
 
@@ -89,7 +88,6 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
-  @Published var downloadRemaining: Int = 0
 
   var onTransition: BPTransition<Routes>?
 
@@ -237,32 +235,16 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       self.items.first(where: { $0.id == id })
     })
 
-    downloadRemaining = items.count
-
-    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
-      guard let self else { return }
-
-      switch event {
-      case .starting, .progress, .error:
-        break
-
-      case .finished:
-        Task { @MainActor in
-          self.downloadRemaining -= 1
-          if self.downloadRemaining == 0 {
-            self.editMode = .inactive
-          }
-        }
-      }
-    }.store(in: &disposeBag)
-
+    var urls = [URL]()
     for item in items {
       do {
         let url = try connectionService.createItemDownloadUrl(item)
-        singleFileDownloadService.handleDownload(url)
+        urls.append(url)
       } catch {
         self.error = error
       }
     }
+    singleFileDownloadService.handleDownload(urls)
+    navigation.dismiss?()
   }
 }
