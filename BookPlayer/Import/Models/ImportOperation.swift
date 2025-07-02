@@ -199,7 +199,26 @@ public class ImportOperation: Operation {
   }
 
   public override func main() {
+    self.detectFolderOrganization()
     self.processFile(from: self.files)
+  }
+
+  private func detectFolderOrganization() {
+    guard files.count > 1 else { return }
+
+    let documentsURL = DataManager.getDocumentsFolderURL()
+    var parentFolders = Set<String>()
+
+    for file in files {
+        let parentURL = file.deletingLastPathComponent()
+
+        guard parentURL != documentsURL else { continue }
+
+        parentFolders.insert(parentURL.lastPathComponent)
+    }
+
+    guard parentFolders.count == 1, let folderName = parentFolders.first else { return }
+    suggestedFolderName = folderName
   }
 
   func processFile(from files: [URL]) {

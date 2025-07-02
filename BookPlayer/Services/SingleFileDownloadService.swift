@@ -29,8 +29,9 @@ class SingleFileDownloadService
   private var disposeBag = Set<AnyCancellable>()
 
   public var isDownloading: Bool { !downloadQueue.isEmpty || currentTask != nil }
-  public private(set) var downloadQueue: [URL] = []
-  private var currentTask: URLSessionTask?
+  public private(set) var downloadQueue: [(url: URL, folderName: String?)] = []
+
+  private var currentTask: (task: URLSessionTask, folderName: String?)?
   private lazy var downloadSession: URLSession = {
     URLSession(
       configuration: URLSessionConfiguration.background(withIdentifier: "SingleFileDownloadService"),
@@ -50,27 +51,38 @@ class SingleFileDownloadService
   }
 
   public func handleDownload(_ url: URL) {
-    downloadQueue.append(url)
+    downloadQueue.append((url: url, folderName: nil))
     processNextDownload()
   }
 
   public func handleDownload(_ urls: [URL]) {
-    downloadQueue.append(contentsOf: urls)
+    downloadQueue.append(contentsOf: urls.map { (url: $0, folderName: nil) })
+    processNextDownload()
+  }
+
+  public func handleDownload(_ url: URL, folderName: String) {
+    downloadQueue.append((url: url, folderName: folderName))
+    processNextDownload()
+  }
+
+  public func handleDownload(_ urls: [URL], folderName: String) {
+    downloadQueue.append(contentsOf: urls.map { (url: $0, folderName: folderName) })
     processNextDownload()
   }
 
   private func processNextDownload() {
     Task { @MainActor in
       guard currentTask == nil, !downloadQueue.isEmpty else { return }
-      let url = downloadQueue.removeFirst()
-      sendEvent(.starting(url: url))
+      
+      let downloadItem = downloadQueue.removeFirst()
+      sendEvent(.starting(url: downloadItem.url))
 
       let task = await networkClient.download(
-        url: url,
-        taskDescription: "SingleFileDownload-\(url.absoluteString)",
+        url: downloadItem.url,
+        taskDescription: "SingleFileDownload-\(downloadItem.url.absoluteString)",
         session: downloadSession
       )
-      currentTask = task
+      currentTask = (task: task, folderName: downloadItem.folderName)
     }
   }
 
@@ -89,7 +101,7 @@ class SingleFileDownloadService
         self.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
       }
       
-      if task === self.currentTask {
+      if task === self.currentTask?.task {
         Task { @MainActor in
           self.currentTask = nil
           self.processNextDownload()
@@ -103,11 +115,22 @@ class SingleFileDownloadService
     ?? task.originalRequest?.url?.lastPathComponent
     ?? fileURL.lastPathComponent
 
+    var destinationURL: URL
+    if let folderName = currentTask?.folderName {
+      let folderURL = DataManager.getDocumentsFolderURL().appendingPathComponent(folderName)
+      destinationURL = folderURL.appendingPathComponent(filename)
+      
+      do {
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        destinationURL = DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
+      }
+    } else {
+      destinationURL = DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
+    }
+
     do {
-      try FileManager.default.moveItem(
-        at: fileURL,
-        to: DataManager.getDocumentsFolderURL().appendingPathComponent(filename)
-      )
+      try FileManager.default.moveItem(at: fileURL, to: destinationURL)
     } catch {
       sendEvent(.error(.general, task: task, underlyingError: error))
     }

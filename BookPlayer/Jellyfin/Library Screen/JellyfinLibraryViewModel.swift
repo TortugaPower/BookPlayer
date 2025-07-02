@@ -31,6 +31,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
+  var showingDownloadConfirmation: Bool { get set }
 
   var connectionService: JellyfinConnectionService { get }
 
@@ -49,6 +50,10 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func onSelectAllTapped()
   @MainActor
   func onDownloadTapped()
+  @MainActor
+  func onDownloadFolderTapped()
+  @MainActor
+  func confirmDownloadFolder()
 }
 
 enum JellyfinLayout {
@@ -88,6 +93,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var showingDownloadConfirmation = false
 
   var onTransition: BPTransition<Routes>?
 
@@ -246,5 +252,39 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
     singleFileDownloadService.handleDownload(urls)
     navigation.dismiss?()
+  }
+
+  @MainActor
+  func onDownloadFolderTapped() {
+    showingDownloadConfirmation = true
+  }
+  
+  @MainActor
+  func confirmDownloadFolder() {
+    guard let folderID else { return }
+
+    Task { @MainActor [weak self] in
+      guard let self else { return }
+
+      do {
+        let urls = try await self.getAllAudiobookDownloadURLs(for: folderID)
+        self.singleFileDownloadService.handleDownload(urls, folderName: self.navigationTitle)
+        self.navigation.dismiss?()
+      } catch {
+        self.error = error
+      }
+    }
+  }
+  
+  @MainActor
+  private func getAllAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+    if items.count == totalItems {
+      let audiobooks = items.filter { $0.kind == .audiobook }
+      return audiobooks.compactMap { audiobook in
+        try? connectionService.createItemDownloadUrl(audiobook)
+      }
+    } else {
+      return try await connectionService.fetchAudiobookDownloadURLs(for: folderID)
+    }
   }
 }

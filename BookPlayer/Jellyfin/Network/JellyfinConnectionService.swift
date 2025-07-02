@@ -179,6 +179,34 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
     )
   }
 
+  public func fetchAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+    let parameters = Paths.GetItemsParameters(
+      isRecursive: false,
+      parentID: folderID,
+      includeItemTypes: [.audioBook]
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let audiobooks = (response.value.items ?? [])
+      .filter { item in item.id != nil }
+      .compactMap { item -> JellyfinLibraryItem? in
+        return JellyfinLibraryItem(apiItem: item)
+      }
+
+    let downloadURLs = audiobooks.compactMap { audiobook in
+      do {
+        return try createItemDownloadUrl(audiobook)
+      } catch {
+        Self.logger.warning("Failed to create download URL for audiobook \(audiobook.id): \(error)")
+        return nil
+      }
+    }
+
+    return downloadURLs
+  }
+
   private func send<T>(
     _ request: Request<T>
   ) async throws -> Response<T> where T: Decodable {

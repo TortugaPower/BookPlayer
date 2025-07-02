@@ -37,6 +37,17 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
     .environment(\.editMode, $viewModel.editMode)
+    .confirmationDialog(
+      "download_folder_confirmation_title".localized,
+      isPresented: $viewModel.showingDownloadConfirmation
+    ) {
+      Button("download_folder_confirm_button".localized) {
+        viewModel.confirmDownloadFolder()
+      }
+      Button("cancel_button".localized, role: .cancel) { }
+    } message: {
+      Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
+    }
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
@@ -60,11 +71,14 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   var toolbarTrailing: some View {
     if !viewModel.editMode.isEditing {
       Menu {
-        if #available(iOS 17.0, *) {
-          Section {
+        Section {
+          if #available(iOS 17.0, *) {
             Button(action: viewModel.onEditToggleSelectTapped) {
               Label("Select".localized, systemImage: "checkmark.circle")
             }
+          }
+          Button(action: viewModel.onDownloadFolderTapped) {
+            Label("Download".localized, systemImage: "arrow.down.to.line")
           }
         }
 
