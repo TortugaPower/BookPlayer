@@ -20,6 +20,7 @@ class SingleFileDownloadService
     case progress(task: URLSessionTask, progress: Double) // (0..1)
     case finished(task: URLSessionTask)
     case error(ErrorKind, task: URLSessionTask, underlyingError: Error?)
+    case allDownloadsCompleted
   }
 
   public var eventsPublisher = PassthroughSubject<Events, Never>()
@@ -28,11 +29,15 @@ class SingleFileDownloadService
   private var progressDelegate = BPTaskDownloadDelegate()
   private var disposeBag = Set<AnyCancellable>()
 
+  public var isDownloading: Bool { !downloadQueue.isEmpty || currentTask != nil }
   public private(set) var downloadQueue: [URL] = []
   private var currentTask: URLSessionTask?
   private lazy var downloadSession: URLSession = {
-    let config = URLSessionConfiguration.background(withIdentifier: "SingleFileDownloadService")
-    return URLSession(configuration: config, delegate: progressDelegate, delegateQueue: nil)
+    URLSession(
+      configuration: URLSessionConfiguration.background(withIdentifier: "SingleFileDownloadService"),
+      delegate: progressDelegate,
+      delegateQueue: nil
+    )
   }()
 
   public init(networkClient: NetworkClientProtocol) {
@@ -50,19 +55,26 @@ class SingleFileDownloadService
     processNextDownload()
   }
 
+  public func handleDownload(_ urls: [URL]) {
+    downloadQueue.append(contentsOf: urls)
+    processNextDownload()
+  }
+
   private func processNextDownload() {
     Task { @MainActor in
-      guard currentTask == nil, !downloadQueue.isEmpty else { return }
-      
-      let url = downloadQueue.removeFirst()
-      sendEvent(.starting(url: url))
-      
-      let task = await networkClient.download(
-        url: url,
-        taskDescription: "SingleFileDownload-\(url.absoluteString)",
-        session: downloadSession
-      )
-      currentTask = task
+      if downloadQueue.isEmpty {
+        sendEvent(.allDownloadsCompleted)
+      } else if currentTask == nil {
+        let url = downloadQueue.removeFirst()
+        sendEvent(.starting(url: url))
+
+        let task = await networkClient.download(
+          url: url,
+          taskDescription: "SingleFileDownload-\(url.absoluteString)",
+          session: downloadSession
+        )
+        currentTask = task
+      }
     }
   }
 
@@ -72,7 +84,7 @@ class SingleFileDownloadService
     }
 
     progressDelegate.didFinishDownloadingTask = { [weak self] task, fileURL, error in
-      guard let self else { return }
+      guard let self, fileURL != nil || error != nil else { return }
 
       self.sendEvent(.finished(task: task))
       if let error {
