@@ -151,7 +151,6 @@
 "import_preparing_title" = "准备导入文件";
 "library_add_title" = "添加第一本书";
 "invalid_url_title" = "无效的网址： %@";
-"downloading_file_title" = "下载文件";
 "progress_title" = "进展";
 "settings_siri_sleeptimer_title" = "睡眠定时";
 "active_title" = "活性";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "意外的服务器响应";
 "jellyfin_error_unexpected_response_with_code" = "意外的服务器响应（代码： %d - %@ ）";
 "jellyfin_error_unauthorized" = "登录失败。请检查您的用户名和密码。";
+"jellyfin_selection_count" = "%d / %d 项";
 "file_size_unknown" = "未知尺寸";
 "runtime_unknown" = "持续时间未知";
 "subscription_required_title" = "需要订阅";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "捐";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "下载文件夹";
+"download_folder_confirmation_message" = "下载此文件夹中的所有 %d 个文件？";
+"download_folder_confirm_button" = "下载";

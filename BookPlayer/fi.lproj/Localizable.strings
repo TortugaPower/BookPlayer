@@ -151,7 +151,6 @@
 "import_preparing_title" = "Valmistellaan tiedostojen tuontia";
 "library_add_title" = "Lisää ensimmäinen kirjasi";
 "invalid_url_title" = "Virheellinen URL-osoite: %@";
-"downloading_file_title" = "Ladataan tiedostoa";
 "progress_title" = "Edistyminen";
 "settings_siri_sleeptimer_title" = "Uniajastin";
 "active_title" = "Päällä";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Odottamaton palvelimen vastaus";
 "jellyfin_error_unexpected_response_with_code" = "Odottamaton palvelimen vastaus (Koodi: %d - %@ )";
 "jellyfin_error_unauthorized" = "Kirjautuminen epäonnistui. Tarkista käyttäjätunnuksesi ja salasanasi.";
+"jellyfin_selection_count" = "%d / %d Kohdetta";
 "file_size_unknown" = "Tuntematon koko";
 "runtime_unknown" = "Tuntematon kesto";
 "subscription_required_title" = "Tilaus vaaditaan";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Lahjoittaa";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Lataa kansio";
+"download_folder_confirmation_message" = "Ladataanko kaikki %d tiedostoa tästä kansiosta?";
+"download_folder_confirm_button" = "Lataa";

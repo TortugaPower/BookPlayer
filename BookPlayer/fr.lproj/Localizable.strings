@@ -151,7 +151,6 @@
 "import_preparing_title" = "Préparation à l'importation de fichiers";
 "library_add_title" = "Ajoutez votre premier livre";
 "invalid_url_title" = "URL non valide : %@";
-"downloading_file_title" = "Téléchargement du fichier";
 "progress_title" = "Avancement";
 "settings_siri_sleeptimer_title" = "Mise en veille";
 "active_title" = "Actif";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Réponse inattendue du serveur";
 "jellyfin_error_unexpected_response_with_code" = "Réponse inattendue du serveur (Code : %d - %@ )";
 "jellyfin_error_unauthorized" = "La connexion a échoué. Vérifiez votre nom d'utilisateur et votre mot de passe.";
+"jellyfin_selection_count" = "%d sur %d Éléments";
 "file_size_unknown" = "Taille inconnue";
 "runtime_unknown" = "Durée inconnue";
 "subscription_required_title" = "Abonnement requis";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Faire un don";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Télécharger le dossier";
+"download_folder_confirmation_message" = "Télécharger tous les %d fichiers de ce dossier ?"; 
+"download_folder_confirm_button" = "Télécharger";

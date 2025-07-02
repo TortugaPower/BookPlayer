@@ -151,7 +151,6 @@
 "import_preparing_title" = "Fájlok importálásának előkészítése";
 "library_add_title" = "Az első könyv hozzáadása";
 "invalid_url_title" = "Érvénytelen URL: %@";
-"downloading_file_title" = "Fájl letöltése";
 "progress_title" = "Folyamat";
 "settings_siri_sleeptimer_title" = "Alvó állapot időzítése";
 "active_title" = "Be";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Váratlan szerver válasz";
 "jellyfin_error_unexpected_response_with_code" = "Váratlan szerverválasz (Kód: %d - %@ )";
 "jellyfin_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";
+"jellyfin_selection_count" = "%d / %d Elem";
 "file_size_unknown" = "Ismeretlen méret";
 "runtime_unknown" = "Ismeretlen időtartam";
 "subscription_required_title" = "Előfizetés szükséges";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Adományoz";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Mappa letöltése";
+"download_folder_confirmation_message" = "Letölti az összes %d fájlt ebből a mappából?";
+"download_folder_confirm_button" = "Letöltés";

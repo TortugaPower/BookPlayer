@@ -151,7 +151,6 @@
 "import_preparing_title" = "Pregătire pentru importarea fișierelor";
 "library_add_title" = "Adaugați prima carte";
 "invalid_url_title" = "URL invalid: %@";
-"downloading_file_title" = "Descărcarea fișierului.";
 "progress_title" = "Derulare";
 "settings_siri_sleeptimer_title" = "Temporizator somn";
 "active_title" = "Pornit";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Răspuns neașteptat al serverului";
 "jellyfin_error_unexpected_response_with_code" = "Răspuns neașteptat al serverului (Cod: %d - %@ )";
 "jellyfin_error_unauthorized" = "Conectarea a eșuat. Verificați-vă numele de utilizator și parola.";
+"jellyfin_selection_count" = "%d din %d Elemente";
 "file_size_unknown" = "Dimensiune necunoscută";
 "runtime_unknown" = "Durată necunoscută";
 "subscription_required_title" = "Este necesar un abonament";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Dona";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Descarcă dosarul";
+"download_folder_confirmation_message" = "Descarcă toate cele %d fișiere din acest dosar?";
+"download_folder_confirm_button" = "Descarcă";

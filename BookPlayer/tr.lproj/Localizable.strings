@@ -151,7 +151,6 @@
 "import_preparing_title" = "Dosyaları içeri aktarmaya hazırlanılıyor";
 "library_add_title" = "İlk kitabınızı ekleyin";
 "invalid_url_title" = "Geçersiz URL: %@";
-"downloading_file_title" = "Dosya indiriliyor";
 "progress_title" = "İlerleme";
 "settings_siri_sleeptimer_title" = "Uyku Zamanlayıcısı";
 "active_title" = "Aktif Kitap";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Beklenmeyen sunucu yanıtı";
 "jellyfin_error_unexpected_response_with_code" = "Beklenmeyen sunucu yanıtı (Kod: %d - %@ )";
 "jellyfin_error_unauthorized" = "Giriş başarısız. Kullanıcı adınızı ve şifrenizi kontrol edin.";
+"jellyfin_selection_count" = "%d / %d Öğe";
 "file_size_unknown" = "Bilinmeyen boyut";
 "runtime_unknown" = "Bilinmeyen süre";
 "subscription_required_title" = "Abonelik gerekli";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Bağış yapmak";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Klasörü indir";
+"download_folder_confirmation_message" = "Bu klasördeki tüm %d dosya indirilsin mi?";
+"download_folder_confirm_button" = "İndir";

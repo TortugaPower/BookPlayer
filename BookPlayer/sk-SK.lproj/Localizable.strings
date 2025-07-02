@@ -151,7 +151,6 @@
 "import_preparing_title" = "Príprava importu súborov";
 "library_add_title" = "Pridajte vašu prvú knihu";
 "invalid_url_title" = "Neplatná adresa URL: %@";
-"downloading_file_title" = "Sťahovanie súboru";
 "progress_title" = "Priebeh";
 "settings_siri_sleeptimer_title" = "Časovač spánku";
 "active_title" = "Zap.";
@@ -343,6 +342,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "jellyfin_error_unexpected_response" = "Neočakávaná odpoveď servera";
 "jellyfin_error_unexpected_response_with_code" = "Neočakávaná odpoveď servera (kód: %d – %@)";
 "jellyfin_error_unauthorized" = "Prihlásenie zlyhalo. Skontrolujte svoje používateľské meno a heslo.";
+"jellyfin_selection_count" = "%d z %d Položiek";
 "file_size_unknown" = "Neznáma veľkosť";
 "runtime_unknown" = "Neznáme trvanie";
 "Swipe rows to see download options" = "Potiahnutím riadkov zobrazíte možnosti sťahovania";
@@ -350,3 +350,6 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_seekprogressbar_description" = "Povolenie vyhľadávania pri zamknutej obrazovke";
 "donate_title" = "Darovať";
 "bookmark_automatic_sleep_title" = "Posledná pozícia, keď bol časovač spánku zapnutý";
+"download_folder_confirmation_title" = "Stiahnuť priečinok";
+"download_folder_confirmation_message" = "Stiahnuť všetkých %d súbory z tohto priečinku?";
+"download_folder_confirm_button" = "Stiahnuť";

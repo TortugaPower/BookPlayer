@@ -151,7 +151,6 @@
 "import_preparing_title" = "Bestanden importeren voorbereiden";
 "library_add_title" = "Voeg je eerste boek toe";
 "invalid_url_title" = "Ongeldige URL: %@";
-"downloading_file_title" = "Bestand aan het downloaden";
 "progress_title" = "Voortgang";
 "settings_siri_sleeptimer_title" = "Slaaptimer";
 "active_title" = "Op";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Onverwachte serverreactie";
 "jellyfin_error_unexpected_response_with_code" = "Onverwachte serverrespons (Code: %d - %@ )";
 "jellyfin_error_unauthorized" = "Aanmelden mislukt. Controleer uw gebruikersnaam en wachtwoord.";
+"jellyfin_selection_count" = "%d van %d Items";
 "file_size_unknown" = "Onbekende grootte";
 "runtime_unknown" = "Onbekende duur";
 "subscription_required_title" = "Abonnement vereist";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Doneren";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Map downloaden";
+"download_folder_confirmation_message" = "Alle %d bestanden uit deze map downloaden?";
+"download_folder_confirm_button" = "Downloaden";

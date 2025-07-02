@@ -151,7 +151,6 @@
 "import_preparing_title" = "Підготовка до імпорту файлів";
 "library_add_title" = "Додайте свою першу книгу";
 "invalid_url_title" = "Невірне посилання: %@";
-"downloading_file_title" = "Завантаження файлу";
 "progress_title" = "Прогрес";
 "settings_siri_sleeptimer_title" = "Таймер сну";
 "active_title" = "Активний";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Неочікувана відповідь сервера";
 "jellyfin_error_unexpected_response_with_code" = "Неочікувана відповідь сервера (Код: %d - %@ )";
 "jellyfin_error_unauthorized" = "Помилка входу. Перевірте своє ім'я користувача та пароль.";
+"jellyfin_selection_count" = "%d з %d Елементів";
 "file_size_unknown" = "Невідомий розмір";
 "runtime_unknown" = "Невідома тривалість";
 "subscription_required_title" = "Потрібна підписка";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Пожертвуйте";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Завантажити папку";
+"download_folder_confirmation_message" = "Завантажити всі %d файлів з цієї папки?";
+"download_folder_confirm_button" = "Завантажити";

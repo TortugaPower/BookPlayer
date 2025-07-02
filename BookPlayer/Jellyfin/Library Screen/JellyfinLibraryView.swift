@@ -16,7 +16,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
-      return Text("\(viewModel.selectedItems.count) of \(viewModel.totalItems) Items")
+      return Text(String(format: "jellyfin_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems))
     } else {
       return Text(viewModel.navigationTitle)
     }
@@ -74,11 +74,11 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         Section {
           if #available(iOS 17.0, *) {
             Button(action: viewModel.onEditToggleSelectTapped) {
-              Label("Select".localized, systemImage: "checkmark.circle")
+              Label("select_title".localized, systemImage: "checkmark.circle")
             }
           }
           Button(action: viewModel.onDownloadFolderTapped) {
-            Label("Download".localized, systemImage: "arrow.down.to.line")
+            Label("download_title".localized, systemImage: "arrow.down.to.line")
           }
         }
 
@@ -88,7 +88,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       }
     } else {
       Button(action: viewModel.onEditToggleSelectTapped) {
-        Text("Done".localized).bold()
+        Text("done_title".localized).bold()
       }
     }
   }

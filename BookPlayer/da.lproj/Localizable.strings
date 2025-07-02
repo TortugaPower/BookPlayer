@@ -151,7 +151,6 @@
 "import_preparing_title" = "Forbereder import af filer";
 "library_add_title" = "Tilføj din første bog";
 "invalid_url_title" = "Ugyldig URL: %@";
-"downloading_file_title" = "Henter fil";
 "progress_title" = "Fremskridt";
 "settings_siri_sleeptimer_title" = "Sleeptimer";
 "active_title" = "Aktiv";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Uventet serversvar";
 "jellyfin_error_unexpected_response_with_code" = "Uventet serversvar (Kode: %d - %@ )";
 "jellyfin_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";
+"jellyfin_selection_count" = "%d af %d Elementer";
 "file_size_unknown" = "Ukendt størrelse";
 "runtime_unknown" = "Ukendt varighed";
 "subscription_required_title" = "Kræver abonnement";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Doner";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Download mappe";
+"download_folder_confirmation_message" = "Download alle %d filer fra denne mappe?";
+"download_folder_confirm_button" = "Download";

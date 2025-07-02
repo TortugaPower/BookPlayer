@@ -151,7 +151,6 @@
 "import_preparing_title" = "Προετοιμασία για εισαγωγή αρχείων";
 "library_add_title" = "Προσθέστε το πρώτο σας βιβλίο";
 "invalid_url_title" = "Μη έγκυρη διεύθυνση URL: %@";
-"downloading_file_title" = "Λήψη αρχείου";
 "progress_title" = "Πρόοδος";
 "settings_siri_sleeptimer_title" = "Χρονοδιακόπτης ύπνου";
 "active_title" = "Επί";
@@ -343,6 +342,7 @@
 "jellyfin_error_unexpected_response" = "Απροσδόκητη απόκριση διακομιστή";
 "jellyfin_error_unexpected_response_with_code" = "Μη αναμενόμενη απόκριση διακομιστή (Κωδικός: %d - %@ )";
 "jellyfin_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
+"jellyfin_selection_count" = "%d από %d Στοιχεία";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";
 "Swipe rows to see download options" = "Σύρετε σειρές για να δείτε τις επιλογές λήψης";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Ενεργοποιήστε την αναζήτηση στην οθόνη κλειδώματος";
 "donate_title" = "Προσφέρω";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Κατέβασμα φακέλου";
+"download_folder_confirmation_message" = "Κατέβασμα όλων των %d αρχείων από αυτόν τον φάκελο;";
+"download_folder_confirm_button" = "Κατέβασμα";

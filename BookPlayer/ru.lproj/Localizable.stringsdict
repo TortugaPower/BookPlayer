@@ -82,5 +82,25 @@
         <string>Обработка %d файлов</string>
       </dict>
     </dict>
+    <key>downloading_file_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Загрузка 1 файла</string>
+        <key>few</key>
+        <string>Загрузка %d файлов</string>
+        <key>many</key>
+        <string>Загрузка %d файлов</string>
+        <key>other</key>
+        <string>Загрузка %d файлов</string>
+      </dict>
+    </dict>
   </dict>
 </plist>
