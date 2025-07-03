@@ -27,6 +27,7 @@ class ItemListViewModel: ViewModelProtocol {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
+    case listDidLoad
     case listDidAppear
     case showQueuedTasks
   }
@@ -122,6 +123,11 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   /// Notify that the UI is presented and ready
+  func viewDidLoad() {
+    onTransition?(.listDidLoad)
+  }
+
+  /// Notify the UI lifecycle
   func viewDidAppear() {
     onTransition?(.listDidAppear)
   }

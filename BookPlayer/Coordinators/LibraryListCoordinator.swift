@@ -86,8 +86,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self.showMiniPlayer(flag: flag)
-      case .listDidAppear:
+      case .listDidLoad:
         self.handleLibraryLoaded()
+      case .listDidAppear:
+        self.showImport()
       case .showQueuedTasks:
         self.showQueuedTasks()
       }
@@ -119,6 +121,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     showSecondOnboarding()
     bindImportObserverIfNeeded()
     bindDownloadErrorObserver()
+    bindForegroundObserver()
 
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
@@ -140,6 +143,14 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       eventsService: EventsService()
     )
     coordinator.start()
+  }
+
+  func bindForegroundObserver() {
+    NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.showImport()
+      })
+      .store(in: &disposeBag)
   }
 
   func bindImportObserverIfNeeded() {
@@ -289,6 +300,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   func showImport() {
     guard
+      importManager.hasPendingFiles(),
       flow.navigationController.presentedViewController == nil,
       importCoordinator == nil,
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
@@ -309,7 +321,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       let lastItemListViewController = viewControllers.last as? ItemListViewController
     else { return }
 
-    lastItemListViewController.viewModel.viewDidAppear()
+    /// Triggers the coordinator of the nested folder to sync the contents with our servers
+    lastItemListViewController.viewModel.viewDidLoad()
   }
 
   override func syncList() {

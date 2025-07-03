@@ -119,6 +119,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.bindNetworkObserver()
     self.viewModel.bindObservers()
     self.setupRefreshControl()
+    self.viewModel.viewDidLoad()
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -126,11 +127,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
     if didAppearForFirstTime {
       didAppearForFirstTime = false
-      viewModel.viewDidAppear()
       if navigationController?.viewControllers.count == 1 {
         navigationController!.interactivePopGestureRecognizer!.delegate = self
       }
     }
+
+    viewModel.viewDidAppear()
   }
 
   func addSubviews() {

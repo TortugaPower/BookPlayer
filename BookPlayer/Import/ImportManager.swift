@@ -37,6 +37,10 @@ final class ImportManager {
     self.files.value.insert(fileUrl)
   }
 
+  public func hasPendingFiles() -> Bool {
+    return !self.files.value.isEmpty
+  }
+
   public func observeFiles() -> AnyPublisher<[URL], Never> {
     return self.files
       .map({ Array($0) })
