@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "自動化";
 "hardcover_progress_tracking_title" = "進捗追跡";
 "hardcover_save_button" = "保存";
+"hardcover_remove_confirmation_title" = "Hardcoverから削除しますか？";
+"hardcover_remove_confirmation_message" = "Hardcoverライブラリから%@、%@を削除しますか？";
+"hardcover_remove_keep_it" = "保持";
+"hardcover_remove_remove_it" = "削除";
 "graphql_error_generic" = "何かが間違っています。もう一度お試しください。";
 "graphql_error_network" = "接続できません。接続を確認してもう一度お試しください。";
 "graphql_error_no_results" = "結果が見つかりません。もう一度お試しください。";

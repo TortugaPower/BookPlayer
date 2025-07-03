@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "الأتمتة";
 "hardcover_progress_tracking_title" = "تتبع التقدم";
 "hardcover_save_button" = "حفظ";
+"hardcover_remove_confirmation_title" = "هل تريد إزالة من Hardcover؟";
+"hardcover_remove_confirmation_message" = "هل تريد إزالة %@، %@ من مكتبة Hardcover الخاصة بك؟";
+"hardcover_remove_keep_it" = "احتفظ به";
+"hardcover_remove_remove_it" = "إزالة";
 "graphql_error_generic" = "حدث خطأ ما. يرجى المحاولة مرة أخرى.";
 "graphql_error_network" = "تعذر الاتصال. يرجى التحقق من اتصالك والمحاولة مرة أخرى.";
 "graphql_error_no_results" = "لم يتم العثور على نتائج. يرجى المحاولة مرة أخرى.";

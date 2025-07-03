@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatizare";
 "hardcover_progress_tracking_title" = "Urmărirea progresului";
 "hardcover_save_button" = "Salvează";
+"hardcover_remove_confirmation_title" = "Elimini din Hardcover?";
+"hardcover_remove_confirmation_message" = "Vrei să elimini %@, %@ din biblioteca ta Hardcover?";
+"hardcover_remove_keep_it" = "Păstrează";
+"hardcover_remove_remove_it" = "Elimină";
 "graphql_error_generic" = "Ceva nu a mers bine. Vă rugăm să încercați din nou.";
 "graphql_error_network" = "Nu se poate conecta. Vă rugăm să verificați conexiunea și să încercați din nou.";
 "graphql_error_no_results" = "Nu s-au găsit rezultate. Vă rugăm să încercați din nou.";

@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatizálás";
 "hardcover_progress_tracking_title" = "Haladás követése";
 "hardcover_save_button" = "Mentés";
+"hardcover_remove_confirmation_title" = "Eltávolítás a Hardcoverból?";
+"hardcover_remove_confirmation_message" = "El szeretné távolítani a %@, %@ könyvet a Hardcover könyvtárából?";
+"hardcover_remove_keep_it" = "Megtartás";
+"hardcover_remove_remove_it" = "Eltávolítás";
 "graphql_error_generic" = "Valami elromlott. Kérjük, próbálja újra.";
 "graphql_error_network" = "Nem sikerült csatlakozni. Kérjük, ellenőrizze a kapcsolatát és próbálja újra.";
 "graphql_error_no_results" = "Nem található eredmény. Kérjük, próbálja újra.";

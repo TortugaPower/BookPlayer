@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Otomasyon";
 "hardcover_progress_tracking_title" = "İlerleme Takibi";
 "hardcover_save_button" = "Kaydet";
+"hardcover_remove_confirmation_title" = "Hardcover'dan kaldır?";
+"hardcover_remove_confirmation_message" = "%@, %@ kitabını Hardcover kütüphanenizden kaldırmak istiyor musunuz?";
+"hardcover_remove_keep_it" = "Tut";
+"hardcover_remove_remove_it" = "Kaldır";
 "graphql_error_generic" = "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.";
 "graphql_error_network" = "Bağlanamıyor. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.";
 "graphql_error_no_results" = "Sonuç bulunamadı. Lütfen tekrar deneyin.";

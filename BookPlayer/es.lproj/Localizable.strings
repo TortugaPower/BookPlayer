@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatización";
 "hardcover_progress_tracking_title" = "Seguimiento del progreso";
 "hardcover_save_button" = "Guardar";
+"hardcover_remove_confirmation_title" = "¿Eliminar de Hardcover?";
+"hardcover_remove_confirmation_message" = "¿Quieres eliminar %@, %@ de tu biblioteca de Hardcover?";
+"hardcover_remove_keep_it" = "Mantenerlo";
+"hardcover_remove_remove_it" = "Eliminarlo";
 "graphql_error_generic" = "Algo salió mal. Por favor, inténtalo de nuevo.";
 "graphql_error_network" = "No se puede conectar. Por favor, verifica tu conexión e inténtalo de nuevo.";
 "graphql_error_no_results" = "No se encontraron resultados. Por favor, inténtalo de nuevo.";

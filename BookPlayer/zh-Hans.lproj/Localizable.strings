@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "自动化";
 "hardcover_progress_tracking_title" = "进度跟踪";
 "hardcover_save_button" = "保存";
+"hardcover_remove_confirmation_title" = "从Hardcover中删除？";
+"hardcover_remove_confirmation_message" = "您想从Hardcover图书馆删除%@，%@吗？";
+"hardcover_remove_keep_it" = "保留";
+"hardcover_remove_remove_it" = "删除";
 "graphql_error_generic" = "出了点问题。请重试。";
 "graphql_error_network" = "无法连接。请检查您的连接并重试。";
 "graphql_error_no_results" = "未找到结果。请重试。";

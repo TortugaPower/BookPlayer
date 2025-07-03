@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Αυτοματισμός";
 "hardcover_progress_tracking_title" = "Παρακολούθηση προόδου";
 "hardcover_save_button" = "Αποθήκευση";
+"hardcover_remove_confirmation_title" = "Αφαίρεση από το Hardcover;";
+"hardcover_remove_confirmation_message" = "Θέλετε να αφαιρέσετε το %@, %@ από τη βιβλιοθήκη Hardcover σας;";
+"hardcover_remove_keep_it" = "Διατήρηση";
+"hardcover_remove_remove_it" = "Αφαίρεση";
 "graphql_error_generic" = "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά.";
 "graphql_error_network" = "Αδυναμία σύνδεσης. Παρακαλώ ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.";
 "graphql_error_no_results" = "Δεν βρέθηκαν αποτελέσματα. Παρακαλώ δοκιμάστε ξανά.";

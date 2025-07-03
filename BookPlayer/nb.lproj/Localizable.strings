@@ -369,6 +369,10 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Fremdriftssporing";
 "hardcover_save_button" = "Lagre";
+"hardcover_remove_confirmation_title" = "Fjern fra Hardcover?";
+"hardcover_remove_confirmation_message" = "Vil du fjerne %@, %@ fra ditt Hardcover-bibliotek?";
+"hardcover_remove_keep_it" = "Behold den";
+"hardcover_remove_remove_it" = "Fjern den";
 "graphql_error_generic" = "Noe gikk galt. Vennligst prøv igjen.";
 "graphql_error_network" = "Kan ikke koble til. Vennligst sjekk tilkoblingen din og prøv igjen.";
 "graphql_error_no_results" = "Ingen resultater funnet. Vennligst prøv igjen.";

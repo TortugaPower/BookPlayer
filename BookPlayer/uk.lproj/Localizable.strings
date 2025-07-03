@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Автоматизація";
 "hardcover_progress_tracking_title" = "Відстеження прогресу";
 "hardcover_save_button" = "Зберегти";
+"hardcover_remove_confirmation_title" = "Видалити з Hardcover?";
+"hardcover_remove_confirmation_message" = "Хочете видалити %@, %@ з вашої бібліотеки Hardcover?";
+"hardcover_remove_keep_it" = "Залишити";
+"hardcover_remove_remove_it" = "Видалити";
 "graphql_error_generic" = "Щось пішло не так. Спробуйте ще раз.";
 "graphql_error_network" = "Не вдається підключитися. Перевірте підключення і спробуйте ще раз.";
 "graphql_error_no_results" = "Результатів не знайдено. Спробуйте ще раз.";

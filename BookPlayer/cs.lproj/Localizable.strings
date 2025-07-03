@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatizace";
 "hardcover_progress_tracking_title" = "Sledování pokroku";
 "hardcover_save_button" = "Uložit";
+"hardcover_remove_confirmation_title" = "Odebrat z Hardcover?";
+"hardcover_remove_confirmation_message" = "Chcete odebrat %@, %@ z vaší knihovny Hardcover?";
+"hardcover_remove_keep_it" = "Ponechat";
+"hardcover_remove_remove_it" = "Odebrat";
 "graphql_error_generic" = "Něco se pokazilo. Zkuste to prosím znovu.";
 "graphql_error_network" = "Nepodařilo se připojit. Zkontrolujte prosím své připojení a zkuste to znovu.";
 "graphql_error_no_results" = "Nebyly nalezeny žádné výsledky. Zkuste to prosím znovu.";

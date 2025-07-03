@@ -31,6 +31,10 @@ protocol HardcoverServiceProtocol {
   ///   - book: The Hardcover book to assign (nil to remove assignment)
   ///   - item: The library item to assign it to
   func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem)
+  
+  /// Remove a book from the user's Hardcover library
+  /// - Parameter book: The Hardcover book to remove from library
+  func removeFromLibrary(_ book: SimpleHardcoverBook) async throws
 }
 
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
@@ -130,6 +134,25 @@ extension HardcoverService {
       ],
       authorization: authorization,
       responseType: InsertUserBookData.self
+    )
+  }
+  
+  private func deleteUserBook(userBookID: Int) async throws -> DeleteUserBookData {
+    let mutation = """
+        mutation DeleteUserBook($id: Int!) {
+          delete_user_book(id: $id) {
+            book_id
+          }
+        }
+        """
+
+    return try await graphQL.execute(
+      query: mutation,
+      variables: [
+        "id": userBookID
+      ],
+      authorization: authorization,
+      responseType: DeleteUserBookData.self
     )
   }
 }
@@ -308,6 +331,17 @@ extension HardcoverService {
       libraryService.setHardcoverBook(nil, for: item.relativePath)
       Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
     }
+  }
+  
+  func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {
+    guard let userBookID = book.userBookID else {
+      Self.logger.error("Cannot remove book \(book.id) from Hardcover library: no userBookID")
+      return
+    }
+    
+    Self.logger.info("Removing book \(book.id) from Hardcover library (userBookID: \(userBookID))")
+    _ = try await deleteUserBook(userBookID: userBookID)
+    Self.logger.info("Successfully removed book \(book.id) from Hardcover library")
   }
 }
 

@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automaatio";
 "hardcover_progress_tracking_title" = "Edistymisen seuranta";
 "hardcover_save_button" = "Tallenna";
+"hardcover_remove_confirmation_title" = "Poista Hardcoverista?";
+"hardcover_remove_confirmation_message" = "Haluatko poistaa %@, %@ Hardcover-kirjastostasi?";
+"hardcover_remove_keep_it" = "Pidä se";
+"hardcover_remove_remove_it" = "Poista se";
 "graphql_error_generic" = "Jotain meni vikaan. Yritä uudelleen.";
 "graphql_error_network" = "Yhdistäminen epäonnistui. Tarkista verkkoyhteytesi ja yritä uudelleen.";
 "graphql_error_no_results" = "Tuloksia ei löytynyt. Yritä uudelleen.";

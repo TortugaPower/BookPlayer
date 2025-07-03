@@ -369,6 +369,10 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "hardcover_automation_title" = "Automatització";
 "hardcover_progress_tracking_title" = "Seguiment del progrés";
 "hardcover_save_button" = "Desar";
+"hardcover_remove_confirmation_title" = "Eliminar de Hardcover?";
+"hardcover_remove_confirmation_message" = "Voleu eliminar %@, %@ de la vostra biblioteca de Hardcover?";
+"hardcover_remove_keep_it" = "Mantenir-lo";
+"hardcover_remove_remove_it" = "Eliminar-lo";
 "graphql_error_generic" = "Alguna cosa ha anat malament. Si us plau, torneu-ho a provar.";
 "graphql_error_network" = "No es pot connectar. Si us plau, comproveu la vostra connexió i torneu-ho a provar.";
 "graphql_error_no_results" = "No s'han trobat resultats. Si us plau, torneu-ho a provar.";

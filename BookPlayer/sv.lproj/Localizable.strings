@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Framstegsspårning";
 "hardcover_save_button" = "Spara";
+"hardcover_remove_confirmation_title" = "Ta bort från Hardcover?";
+"hardcover_remove_confirmation_message" = "Vill du ta bort %@, %@ från ditt Hardcover-bibliotek?";
+"hardcover_remove_keep_it" = "Behåll den";
+"hardcover_remove_remove_it" = "Ta bort den";
 "graphql_error_generic" = "Något gick fel. Försök igen.";
 "graphql_error_network" = "Kan inte ansluta. Kontrollera din anslutning och försök igen.";
 "graphql_error_no_results" = "Inga resultat hittades. Försök igen.";

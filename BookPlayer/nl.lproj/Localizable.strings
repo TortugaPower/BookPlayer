@@ -369,6 +369,10 @@
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Voortgang bijhouden";
 "hardcover_save_button" = "Opslaan";
+"hardcover_remove_confirmation_title" = "Verwijderen uit Hardcover?";
+"hardcover_remove_confirmation_message" = "Wil je %@, %@ verwijderen uit je Hardcover bibliotheek?";
+"hardcover_remove_keep_it" = "Behouden";
+"hardcover_remove_remove_it" = "Verwijderen";
 "graphql_error_generic" = "Er is iets misgegaan. Probeer het opnieuw.";
 "graphql_error_network" = "Kan geen verbinding maken. Controleer je verbinding en probeer het opnieuw.";
 "graphql_error_no_results" = "Geen resultaten gevonden. Probeer het opnieuw.";

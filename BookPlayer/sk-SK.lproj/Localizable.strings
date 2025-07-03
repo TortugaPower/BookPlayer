@@ -369,6 +369,10 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "hardcover_automation_title" = "Automatizácia";
 "hardcover_progress_tracking_title" = "Sledovanie pokroku";
 "hardcover_save_button" = "Uložiť";
+"hardcover_remove_confirmation_title" = "Odstrániť z Hardcover?";
+"hardcover_remove_confirmation_message" = "Chcete odstrániť %@, %@ z vašej knižnice Hardcover?";
+"hardcover_remove_keep_it" = "Ponechať";
+"hardcover_remove_remove_it" = "Odstrániť";
 "graphql_error_generic" = "Niečo sa pokazilo. Skúste to prosím znovu.";
 "graphql_error_network" = "Nepodarilo sa pripojiť. Skontrolujte prosím vaše pripojenie a skúste to znovu.";
 "graphql_error_no_results" = "Neboli nájdené žiadne výsledky. Skúste to prosím znovu.";
