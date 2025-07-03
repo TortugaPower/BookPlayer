@@ -27,7 +27,8 @@ class ItemListViewModel: ViewModelProtocol {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
-    case listDidAppear(isFirstTime: Bool)
+    case listDidLoad
+    case listDidAppear
     case showQueuedTasks
   }
 
@@ -121,10 +122,14 @@ class ItemListViewModel: ViewModelProtocol {
     bindDownloadObservers()
   }
 
-  /// Notify that the UI is presented and ready on the first time
-  /// Subsequent triggers is in service of the import flow
-  func viewDidAppear(isFirstTime: Bool) {
-    onTransition?(.listDidAppear(isFirstTime: isFirstTime))
+  /// Notify that the UI is presented and ready
+  func viewDidLoad() {
+    onTransition?(.listDidLoad)
+  }
+
+  /// Notify the UI lifecycle
+  func viewDidAppear() {
+    onTransition?(.listDidAppear)
   }
 
   func bindBookObservers() {

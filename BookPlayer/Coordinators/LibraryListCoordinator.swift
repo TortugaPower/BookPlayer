@@ -86,12 +86,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self.showMiniPlayer(flag: flag)
-      case .listDidAppear(let isFirstTime):
-        if isFirstTime {
-          self.handleLibraryLoaded()
-        } else {
-          self.showImportIfNeeded()
-        }
+      case .listDidLoad:
+        self.handleLibraryLoaded()
+      case .listDidAppear:
+        self.showImportIfNeeded()
       case .showQueuedTasks:
         self.showQueuedTasks()
       }
@@ -331,7 +329,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     else { return }
 
     /// Triggers the coordinator of the nested folder to sync the contents with our servers
-    lastItemListViewController.viewModel.viewDidAppear(isFirstTime: true)
+    lastItemListViewController.viewModel.viewDidLoad()
   }
 
   override func syncList() {

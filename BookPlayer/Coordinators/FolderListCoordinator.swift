@@ -72,10 +72,10 @@ class FolderListCoordinator: ItemListCoordinator {
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self.showMiniPlayer(flag: flag)
-      case .listDidAppear(let isFirstTime):
-        if isFirstTime {
-          self.syncList()
-        }
+      case .listDidLoad:
+        self.syncList()
+      case .listDidAppear:
+        break
       case .showQueuedTasks:
         self.showQueuedTasks()
       }
