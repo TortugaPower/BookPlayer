@@ -30,6 +30,8 @@ class ItemDetailsViewModel: ViewModelProtocol {
   let libraryService: LibraryServiceProtocol
   /// Service to sync new artwork
   let syncService: SyncServiceProtocol
+  /// Hardcover service for managing assignments
+  let hardcoverService: HardcoverServiceProtocol
   /// View model for the SwiftUI form
   let formViewModel: ItemDetailsFormViewModel
   /// Callback to handle actions on this screen
@@ -50,6 +52,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
     self.item = item
     self.libraryService = libraryService
     self.syncService = syncService
+    self.hardcoverService = hardcoverService
     /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.lastPlayDate)
     let lastPlayedDate = libraryService.getItemProperty(
       "lastPlayDate",
@@ -106,9 +109,9 @@ class ItemDetailsViewModel: ViewModelProtocol {
           author: selected.author,
           status: .local
         )
-        libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+        hardcoverService.assignItem(hardcoverItem, to: item)
       } else {
-        libraryService.setHardcoverItem(nil, for: item.relativePath)
+        hardcoverService.assignItem(nil, to: item)
       }
     }
 

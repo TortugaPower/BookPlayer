@@ -25,6 +25,12 @@ protocol HardcoverServiceProtocol {
   /// - Parameters:
   ///   - items: The newly imported library items (processes book items only)
   func processAutoMatch(for items: [SimpleLibraryItem]) async
+  
+  /// Assign a Hardcover item to a library item
+  /// - Parameters:
+  ///   - hardcoverItem: The Hardcover item to assign (nil to remove assignment)
+  ///   - item: The library item to assign it to
+  func assignItem(_ hardcoverItem: SimpleHardcoverItem?, to item: SimpleLibraryItem)
 }
 
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
@@ -267,6 +273,36 @@ extension HardcoverService {
       Self.logger.info("Auto-matched \(processedCount) items, skipped \(items.count - processedCount) due to missing or duplicate matches")
     } else {
       Self.logger.info("Auto-matched \(processedCount) items")
+    }
+  }
+  
+  func assignItem(_ hardcoverItem: SimpleHardcoverItem?, to item: SimpleLibraryItem) {
+    if let hardcoverItem = hardcoverItem {
+      Self.logger.info("Assigning Hardcover item \(hardcoverItem.id) to '\(item.title)'")
+      
+      if autoAddWantToReadEnabled, authorization != nil {
+        Task {
+          do {
+            _ = try await insertUserBook(
+              bookID: hardcoverItem.id,
+              statusID: Int(HardcoverItem.Status.library.rawValue)
+            )
+            Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+            
+            var updatedItem = hardcoverItem
+            updatedItem.status = .library
+            libraryService.setHardcoverItem(updatedItem, for: item.relativePath)
+          } catch {
+            Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
+            libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+          }
+        }
+      } else {
+        libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+      }
+    } else {
+      libraryService.setHardcoverItem(nil, for: item.relativePath)
+      Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
     }
   }
 }
