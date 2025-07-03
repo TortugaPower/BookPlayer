@@ -89,7 +89,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       case .listDidLoad:
         self.handleLibraryLoaded()
       case .listDidAppear:
-        self.showImportIfNeeded()
+        self.showImport()
       case .showQueuedTasks:
         self.showQueuedTasks()
       }
@@ -148,7 +148,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   func bindForegroundObserver() {
     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        self?.showImportIfNeeded()
+        self?.showImport()
       })
       .store(in: &disposeBag)
   }
@@ -300,6 +300,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   func showImport() {
     guard
+      importManager.hasPendingFiles(),
       flow.navigationController.presentedViewController == nil,
       importCoordinator == nil,
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
@@ -311,14 +312,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     )
     importCoordinator = coordinator
     coordinator.start()
-  }
-
-  /// Triggered by the viewDidAppear of the library list, and by the foreground lifecycle event,
-  /// as we're not showing the import screen over presented screens anymore
-  func showImportIfNeeded() {
-    guard importManager.hasPendingFiles() else { return }
-
-    showImport()
   }
 
   func syncLastFolderList() {
