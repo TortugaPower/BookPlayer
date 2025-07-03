@@ -8,24 +8,27 @@
 
 import Foundation
 
-public struct SimpleHardcoverItem {
+public struct SimpleHardcoverBook {
   public let id: Int
   public let artworkURL: URL?
   public let title: String
   public let author: String
-  public var status: HardcoverItem.Status
+  public var status: HardcoverBook.Status
+  public var userBookID: Int?
 
   public init(
     id: Int,
     artworkURL: URL?,
     title: String,
     author: String,
-    status: HardcoverItem.Status
+    status: HardcoverBook.Status,
+    userBookID: Int? = nil
   ) {
     self.id = id
     self.artworkURL = artworkURL
     self.title = title
     self.author = author
     self.status = status
+    self.userBookID = userBookID
   }
 }

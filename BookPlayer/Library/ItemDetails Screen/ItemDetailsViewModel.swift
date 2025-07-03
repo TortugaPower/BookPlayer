@@ -39,7 +39,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
   private var eventsPublisher = InterfaceUpdater<ItemDetailsViewModel.Events>()
 
-  private let hardcoverItem: SimpleHardcoverItem?
+  private let hardcoverBook: SimpleHardcoverBook?
   private var disposeBag = Set<AnyCancellable>()
 
   /// Initializer
@@ -64,8 +64,8 @@ class ItemDetailsViewModel: ViewModelProtocol {
       hardcoverService: hardcoverService
     )
 
-    if let item = libraryService.getHardcoverItem(for: item.relativePath) {
-      hardcoverItem = item
+    if let item = libraryService.getHardcoverBook(for: item.relativePath) {
+      hardcoverBook = item
       formViewModel.hardcoverSectionViewModel?.pickerViewModel.selected = .init(
         id: item.id,
         artworkURL: item.artworkURL,
@@ -73,7 +73,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
         author: item.author
       )
     } else {
-      hardcoverItem = nil
+      hardcoverBook = nil
     }
   }
 
@@ -100,16 +100,17 @@ class ItemDetailsViewModel: ViewModelProtocol {
     }
 
     if let pickerViewModel = formViewModel.hardcoverSectionViewModel?.pickerViewModel,
-       pickerViewModel.selected?.id != hardcoverItem?.id {
+       pickerViewModel.selected?.id != hardcoverBook?.id {
       if let selected = pickerViewModel.selected {
-        let hardcoverItem = SimpleHardcoverItem(
+        let hardcoverBook = SimpleHardcoverBook(
           id: selected.id,
           artworkURL: selected.artworkURL,
           title: selected.title,
           author: selected.author,
-          status: .local
+          status: .local,
+          userBookID: nil
         )
-        hardcoverService.assignItem(hardcoverItem, to: item)
+        hardcoverService.assignItem(hardcoverBook, to: item)
       } else {
         hardcoverService.assignItem(nil, to: item)
       }

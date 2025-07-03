@@ -25,12 +25,13 @@
     <entity name="Folder" representedClassName="Folder" parentEntity="LibraryItem" elementID="PlaylistV3" syncable="YES">
         <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="folder" inverseEntity="LibraryItem" elementID="relationBookV3"/>
     </entity>
-    <entity name="HardcoverItem" representedClassName="HardcoverItem" syncable="YES">
+    <entity name="HardcoverBook" representedClassName="HardcoverBook" syncable="YES">
         <attribute name="artworkURL" optional="YES" attributeType="URI"/>
         <attribute name="author" attributeType="String"/>
         <attribute name="id" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="status" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
+        <attribute name="userBookID" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="Library" representedClassName="Library" syncable="YES">
         <relationship name="currentTheme" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Theme" inverseName="selected" inverseEntity="Theme"/>
@@ -55,7 +56,7 @@
         <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="bookmarks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Bookmark" inverseName="item" inverseEntity="Bookmark"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
-        <relationship name="hardcoverItem" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="HardcoverItem"/>
+        <relationship name="hardcoverBook" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="HardcoverBook"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedItem" inverseEntity="Library"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library"/>
     </entity>

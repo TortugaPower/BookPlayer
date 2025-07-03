@@ -26,11 +26,11 @@ protocol HardcoverServiceProtocol {
   ///   - items: The newly imported library items (processes book items only)
   func processAutoMatch(for items: [SimpleLibraryItem]) async
   
-  /// Assign a Hardcover item to a library item
+  /// Assign a Hardcover book to a library item
   /// - Parameters:
-  ///   - hardcoverItem: The Hardcover item to assign (nil to remove assignment)
+  ///   - book: The Hardcover book to assign (nil to remove assignment)
   ///   - item: The library item to assign it to
-  func assignItem(_ hardcoverItem: SimpleHardcoverItem?, to item: SimpleLibraryItem)
+  func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem)
 }
 
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
@@ -111,7 +111,7 @@ extension HardcoverService {
     return result
   }
 
-  private func insertUserBook(bookID: Int, statusID: Int) async throws -> InsertUserBookData {
+  private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> InsertUserBookData {
     let mutation = """
         mutation InsertUserBook($book_id: Int!, $status_id: Int!) {
           insert_user_book(
@@ -126,7 +126,7 @@ extension HardcoverService {
       query: mutation,
       variables: [
         "book_id": bookID,
-        "status_id": statusID
+        "status_id": Int(status.rawValue)
       ],
       authorization: authorization,
       responseType: InsertUserBookData.self
@@ -172,20 +172,20 @@ extension HardcoverService {
     guard
       authorization != nil,
       percentCompleted > readingThreshold,
-      var item = libraryService.getHardcoverItem(for: relativePath),
-      item.status.rawValue < HardcoverItem.Status.reading.rawValue
+      var item = libraryService.getHardcoverBook(for: relativePath),
+      item.status < .reading
     else { return }
 
     do {
       Self.logger.info("Updating Hardcover API: book \(item.id) to 'reading' status")
       _ = try await insertUserBook(
         bookID: item.id,
-        statusID: Int(HardcoverItem.Status.reading.rawValue)
+        status: .reading
       )
       Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
 
       item.status = .reading
-      libraryService.setHardcoverItem(item, for: relativePath)
+      libraryService.setHardcoverBook(item, for: relativePath)
       Self.logger.info("Updated local status to 'reading' for \(relativePath)")
     } catch {
       Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
@@ -195,7 +195,7 @@ extension HardcoverService {
   private func handleBookFinished(relativePath: String) async {
     guard
       authorization != nil,
-      var item = libraryService.getHardcoverItem(for: relativePath),
+      var item = libraryService.getHardcoverBook(for: relativePath),
       item.status != .read
     else { return }
 
@@ -203,12 +203,12 @@ extension HardcoverService {
       Self.logger.info("Updating Hardcover API: book \(item.id) to 'read' status")
       _ = try await insertUserBook(
         bookID: item.id,
-        statusID: Int(HardcoverItem.Status.read.rawValue)
+        status: .read
       )
       Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
 
       item.status = .read
-      libraryService.setHardcoverItem(item, for: relativePath)
+      libraryService.setHardcoverBook(item, for: relativePath)
       Self.logger.info("Updated local status to 'read' for \(relativePath)")
     } catch {
       Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
@@ -220,7 +220,7 @@ extension HardcoverService {
 
     Self.logger.info("Auto-matching \(items.count) new items with Hardcover")
 
-    var potentialMatches: [(item: SimpleLibraryItem, hardcoverItem: SimpleHardcoverItem)] = []
+    var potentialMatches: [(item: SimpleLibraryItem, book: SimpleHardcoverBook)] = []
 
     for item in items {
       do {
@@ -231,9 +231,9 @@ extension HardcoverService {
           continue
         }
 
-        let status: HardcoverItem.Status = autoAddWantToReadEnabled ? .library : .local
-        let hardcoverItem = SimpleHardcoverItem(from: firstMatch, status: status)
-        potentialMatches.append((item: item, hardcoverItem: hardcoverItem))
+        let status: HardcoverBook.Status = autoAddWantToReadEnabled ? .library : .local
+        let hardcoverBook = SimpleHardcoverBook(from: firstMatch, status: status)
+        potentialMatches.append((item: item, book: hardcoverBook))
         Self.logger.info("Found potential match for '\(item.title)': Hardcover ID \(firstMatch.id)")
       } catch {
         Self.logger.error("Failed to search for item '\(item.title)': \(error)")
@@ -244,25 +244,28 @@ extension HardcoverService {
 
     while !potentialMatches.isEmpty {
       let match = potentialMatches.removeFirst()
-      let bookID = match.hardcoverItem.id
+      let bookID = match.book.id
 
-      if potentialMatches.contains(where: { $0.hardcoverItem.id == bookID }) {
-        potentialMatches.removeAll { $0.hardcoverItem.id == bookID }
+      if potentialMatches.contains(where: { $0.book.id == bookID }) {
+        potentialMatches.removeAll { $0.book.id == bookID }
         Self.logger.info("Detected duplicate matches for Hardcover ID \(bookID) - skipping these matches to prevent incorrect associations")
         continue
       }
 
       do {
-        libraryService.setHardcoverItem(match.hardcoverItem, for: match.item.relativePath)
-        Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
+        var book = match.book
 
         if autoAddWantToReadEnabled {
-          _ = try await insertUserBook(
+          let response = try await insertUserBook(
             bookID: bookID,
-            statusID: Int(HardcoverItem.Status.library.rawValue)
+            status: .library
           )
+          book.userBookID = response.insertUserBook.id
           Self.logger.info("Added '\(match.item.title)' to Hardcover Want to Read list")
         }
+        
+        libraryService.setHardcoverBook(book, for: match.item.relativePath)
+        Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
         processedCount += 1
       } catch {
         Self.logger.error("Failed to auto-match item '\(match.item.title)': \(error)")
@@ -276,32 +279,33 @@ extension HardcoverService {
     }
   }
   
-  func assignItem(_ hardcoverItem: SimpleHardcoverItem?, to item: SimpleLibraryItem) {
-    if let hardcoverItem = hardcoverItem {
-      Self.logger.info("Assigning Hardcover item \(hardcoverItem.id) to '\(item.title)'")
-      
+  func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem) {
+    if let book {
+      Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
+
       if autoAddWantToReadEnabled, authorization != nil {
         Task {
           do {
-            _ = try await insertUserBook(
-              bookID: hardcoverItem.id,
-              statusID: Int(HardcoverItem.Status.library.rawValue)
+            let response = try await insertUserBook(
+              bookID: book.id,
+              status: .library
             )
             Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
             
-            var updatedItem = hardcoverItem
-            updatedItem.status = .library
-            libraryService.setHardcoverItem(updatedItem, for: item.relativePath)
+            var updated = book
+            updated.status = .library
+            updated.userBookID = response.insertUserBook.id
+            libraryService.setHardcoverBook(updated, for: item.relativePath)
           } catch {
             Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
-            libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+            libraryService.setHardcoverBook(book, for: item.relativePath)
           }
         }
       } else {
-        libraryService.setHardcoverItem(hardcoverItem, for: item.relativePath)
+        libraryService.setHardcoverBook(book, for: item.relativePath)
       }
     } else {
-      libraryService.setHardcoverItem(nil, for: item.relativePath)
+      libraryService.setHardcoverBook(nil, for: item.relativePath)
       Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
     }
   }
@@ -366,8 +370,8 @@ extension HardcoverService {
 
 }
 
-private extension SimpleHardcoverItem {
-  init(from book: BooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverItem.Status) {
+private extension SimpleHardcoverBook {
+  init(from book: BooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverBook.Status) {
     self.init(
       id: book.id,
       artworkURL: book.image?.url.flatMap(URL.init(string:)),

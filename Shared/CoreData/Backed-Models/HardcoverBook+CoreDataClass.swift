@@ -10,13 +10,13 @@ import AVFoundation
 import CoreData
 import Foundation
 
-@objc(HardcoverItem)
-public class HardcoverItem: NSManagedObject {
+@objc(HardcoverBook)
+public class HardcoverBook: NSManagedObject {
   public convenience init(
-    item: SimpleHardcoverItem,
+    item: SimpleHardcoverBook,
     context: NSManagedObjectContext
   ) {
-    let entity = NSEntityDescription.entity(forEntityName: "HardcoverItem", in: context)!
+    let entity = NSEntityDescription.entity(forEntityName: "HardcoverBook", in: context)!
     self.init(entity: entity, insertInto: context)
 
     self.id = Int32(item.id)
@@ -24,15 +24,17 @@ public class HardcoverItem: NSManagedObject {
     self.title = item.title
     self.author = item.author
     self.status = item.status
+    self.userBookID = Int32(item.userBookID ?? 0)
   }
 
   @discardableResult
-  func update(with item: SimpleHardcoverItem) -> Self {
+  func update(with item: SimpleHardcoverBook) -> Self {
     self.id = Int32(item.id)
     self.artworkURL = item.artworkURL
     self.title = item.title
     self.author = item.author
     self.status = item.status
+    self.userBookID = Int32(item.userBookID ?? 0)
     return self
   }
 }

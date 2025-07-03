@@ -134,11 +134,11 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Delete a bookmark
   func deleteBookmark(_ bookmark: SimpleBookmark)
   
-  /// HardcoverItem
-  /// Set hardcover item for an item (nil to remove)
-  func setHardcoverItem(_ hardcoverItem: SimpleHardcoverItem?, for relativePath: String)
-  /// Get hardcover item for an item
-  func getHardcoverItem(for relativePath: String) -> SimpleHardcoverItem?
+  /// HardcoverBook
+  /// Set hardcover book for an item (nil to remove)
+  func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String)
+  /// Get hardcover book for an item
+  func getHardcoverBook(for relativePath: String) -> SimpleHardcoverBook?
 }
 
 // swiftlint:disable force_cast
@@ -1869,55 +1869,59 @@ extension LibraryService {
   }
 }
 
-// MARK: - HardcoverItem operations
+// MARK: - HardcoverBook operations
 extension LibraryService {
-  public func setHardcoverItem(_ hardcoverItem: SimpleHardcoverItem?, for relativePath: String) {
+  public func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) {
     guard let item = getItemReference(with: relativePath) else { return }
     
     let context = dataManager.getContext()
     
-    if let hardcoverItem = hardcoverItem {
-      let entity = item.hardcoverItem?.update(with: hardcoverItem) ?? HardcoverItem.create(hardcoverItem, in: context)
-      item.hardcoverItem = entity
-    } else if let hardcoverItem = item.hardcoverItem {
-      item.hardcoverItem = nil
-      dataManager.delete(hardcoverItem)
+    if let hardcoverBook = hardcoverBook {
+      let entity = item.hardcoverBook?.update(with: hardcoverBook) ?? HardcoverBook.create(hardcoverBook, in: context)
+      item.hardcoverBook = entity
+    } else if let hardcoverBook = item.hardcoverBook {
+      item.hardcoverBook = nil
+      dataManager.delete(hardcoverBook)
     }
     
     dataManager.saveContext()
   }
   
-  public func getHardcoverItem(for relativePath: String) -> SimpleHardcoverItem? {
+  public func getHardcoverBook(for relativePath: String) -> SimpleHardcoverBook? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1
     fetchRequest.propertiesToFetch = [
-      #keyPath(LibraryItem.hardcoverItem.id),
-      #keyPath(LibraryItem.hardcoverItem.artworkURL),
-      #keyPath(LibraryItem.hardcoverItem.title),
-      #keyPath(LibraryItem.hardcoverItem.author),
-      #keyPath(LibraryItem.hardcoverItem.status)
+      #keyPath(LibraryItem.hardcoverBook.id),
+      #keyPath(LibraryItem.hardcoverBook.artworkURL),
+      #keyPath(LibraryItem.hardcoverBook.title),
+      #keyPath(LibraryItem.hardcoverBook.author),
+      #keyPath(LibraryItem.hardcoverBook.status),
+      #keyPath(LibraryItem.hardcoverBook.userBookID)
     ]
     fetchRequest.resultType = .dictionaryResultType
     
     guard 
       let results = try? dataManager.getContext().fetch(fetchRequest) as? [[String: Any]],
       let result = results.first,
-      let id = result[#keyPath(LibraryItem.hardcoverItem.id)] as? Int32,
-      let title = result[#keyPath(LibraryItem.hardcoverItem.title)] as? String,
-      let author = result[#keyPath(LibraryItem.hardcoverItem.author)] as? String,
-      let rawValue = result[#keyPath(LibraryItem.hardcoverItem.status)] as? Int16,
-      let status = HardcoverItem.Status(rawValue: rawValue)
+      let id = result[#keyPath(LibraryItem.hardcoverBook.id)] as? Int32,
+      let title = result[#keyPath(LibraryItem.hardcoverBook.title)] as? String,
+      let author = result[#keyPath(LibraryItem.hardcoverBook.author)] as? String,
+      let rawValue = result[#keyPath(LibraryItem.hardcoverBook.status)] as? Int16,
+      let status = HardcoverBook.Status(rawValue: rawValue)
     else {
       return nil
     }
     
-    return SimpleHardcoverItem(
+    let userBookID = result[#keyPath(LibraryItem.hardcoverBook.userBookID)] as? Int32 ?? 0
+    
+    return SimpleHardcoverBook(
       id: Int(id),
-      artworkURL: result["hardcoverItem.artworkURL"] as? URL,
+      artworkURL: result["hardcoverBook.artworkURL"] as? URL,
       title: title,
       author: author,
-      status: status
+      status: status,
+      userBookID: userBookID != 0 ? Int(userBookID) : nil
     )
   }
 }
