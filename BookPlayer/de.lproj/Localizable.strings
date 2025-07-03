@@ -151,7 +151,6 @@
 "import_preparing_title" = "Import wird vorbereitet";
 "library_add_title" = "Füge dein erstes Buch hinzu";
 "invalid_url_title" = "Ungültige URL: %@";
-"downloading_file_title" = "Datei wird heruntergeladen";
 "progress_title" = "Fortschritt";
 "settings_siri_sleeptimer_title" = "Einschlaf-Timer";
 "active_title" = "Aktiv";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Unerwartete Serverantwort";
 "jellyfin_error_unexpected_response_with_code" = "Unerwartete Serverantwort (Code: %d - %@ )";
 "jellyfin_error_unauthorized" = "Anmeldung fehlgeschlagen. Überprüfen Sie Ihren Benutzernamen und Ihr Passwort.";
+"jellyfin_selection_count" = "%d von %d Elementen";
 "file_size_unknown" = "Unbekannte Größe";
 "runtime_unknown" = "Unbekannte Dauer";
 "subscription_required_title" = "Abonnement erforderlich";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Spenden";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Ordner herunterladen";
+"download_folder_confirmation_message" = "Alle %d Dateien aus diesem Ordner herunterladen?";
+"download_folder_confirm_button" = "Herunterladen";

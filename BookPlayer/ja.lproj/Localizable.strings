@@ -151,7 +151,6 @@
 "import_preparing_title" = "ファイルの読み込みの準備中";
 "library_add_title" = "最初のブックを追加";
 "invalid_url_title" = "無効なURL: %@";
-"downloading_file_title" = "ダウンロード中のファイル";
 "progress_title" = "進捗状況";
 "settings_siri_sleeptimer_title" = "スリープタイマー";
 "active_title" = "オン";
@@ -343,6 +342,7 @@
 "jellyfin_error_unexpected_response" = "サーバからの予期しない応答";
 "jellyfin_error_unexpected_response_with_code" = "サーバからの予期しない応答（コード: %d - %@）";
 "jellyfin_error_unauthorized" = "サインインできませんでした。ユーザ名とパスワードを確認してください。";
+"jellyfin_selection_count" = "%d / %d アイテム";
 "file_size_unknown" = "不明なサイズ";
 "runtime_unknown" = "不明な再生時間";
 "Swipe rows to see download options" = "スワイプしてダウンロードオプションを表示";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "ロック画面でシークを有効にします。";
 "donate_title" = "寄付";
 "bookmark_automatic_sleep_title" = "スリープタイマーがオンになった最後の位置";
+"download_folder_confirmation_title" = "フォルダをダウンロード";
+"download_folder_confirmation_message" = "このフォルダからすべての %d ファイルをダウンロードしますか？";
+"download_folder_confirm_button" = "ダウンロード";

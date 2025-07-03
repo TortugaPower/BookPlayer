@@ -81,6 +81,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   var editMode: EditMode = .inactive
   var selectedItems: Set<JellyfinLibraryItem.ID> = []
   var downloadRemaining: Int = 0
+  var showingDownloadConfirmation: Bool = false
 
   init(data: JellyfinLibraryLevelData) {
     self.data = data
@@ -96,6 +97,8 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func onSelectTapped(for item: JellyfinLibraryItem) {}
   func onSelectAllTapped() {}
   func onDownloadTapped() {}
+  func onDownloadFolderTapped() {}
+  func confirmDownloadFolder() {}
 }
 
 #Preview("top level") {

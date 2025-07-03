@@ -148,27 +148,10 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       AppDelegate.shared?.activeSceneDelegate != nil
     else { return }
 
-    var downloadRemaining = 0
-    singleFileDownloadService.eventsPublisher.sink { event in
-      switch event {
-        case .starting:
-          downloadRemaining += 1
-        case .progress, .error:
-          break
-        case .finished:
-          downloadRemaining -= 1
-      }
-    }
-    .store(in: &disposeBag)
-
     fileSubscription = importManager.observeFiles()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] files in
-        guard let self = self,
-          !files.isEmpty,
-          downloadRemaining <= 1,
-          self.shouldShowImportScreen()
-        else { return }
+        guard let self = self, !files.isEmpty, !self.singleFileDownloadService.isDownloading else { return }
 
         self.showImport()
       }
@@ -306,6 +289,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
 
   func showImport() {
     guard
+      flow.navigationController.presentedViewController == nil,
+      importCoordinator == nil,
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
     else { return }
 
@@ -315,10 +300,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     )
     importCoordinator = coordinator
     coordinator.start()
-  }
-
-  func shouldShowImportScreen() -> Bool {
-    return importCoordinator == nil
   }
 
   func syncLastFolderList() {

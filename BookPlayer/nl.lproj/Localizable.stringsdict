@@ -66,5 +66,21 @@
         <string>Verwerken van %d bestanden</string>
       </dict>
     </dict>
+    <key>downloading_file_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Downloaden van 1 bestand</string>
+        <key>other</key>
+        <string>Downloaden van %d bestanden</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

@@ -203,6 +203,28 @@ class ItemListViewModel: ViewModelProtocol {
     }
   }
   
+  private func handleDownloadServiceEvent(_ event: SingleFileDownloadService.Events) {
+    switch event {
+    case .starting:
+      let totalFiles = singleFileDownloadService.downloadQueue.count + 1
+      let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+      sendEvent(.showProcessingView(true, title: title, subtitle: "\("progress_title".localized) 0%"))
+    case .progress(task: _, progress: let progress):
+      let percentage = String(format: "%.2f", progress * 100)
+      let totalFiles = singleFileDownloadService.downloadQueue.count + 1
+      let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+      sendEvent(.showProcessingView(
+        true,
+        title: title,
+        subtitle: "\("progress_title".localized) \(percentage)%"
+      ))
+    case .finished:
+      sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
+    case .error(let errorKind, task: let task, underlyingError: let underlyingError):
+      handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)
+    }
+  }
+  
   func bindDownloadObservers() {
     syncService.downloadCompletedPublisher
       .filter({ [weak self] in
@@ -237,24 +259,11 @@ class ItemListViewModel: ViewModelProtocol {
         )
       }.store(in: &disposeBag)
 
-    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
-      guard let self else { return }
-      switch event {
-      case .starting:
-        self.sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
-      case .progress(task: _, progress: let progress):
-        let percentage = String(format: "%.2f", progress * 100)
-        self.sendEvent(.showProcessingView(
-          true,
-          title: "downloading_file_title".localized,
-          subtitle: "\("progress_title".localized) \(percentage)%"
-        ))
-      case .finished:
-        self.sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
-      case .error(let errorKind, task: let task, underlyingError: let underlyingError):
-        self.handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)
-      }
-    }.store(in: &disposeBag)
+    singleFileDownloadService.eventsPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        self?.handleDownloadServiceEvent(event)
+      }.store(in: &disposeBag)
   }
 
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {

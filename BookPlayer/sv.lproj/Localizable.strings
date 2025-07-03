@@ -151,7 +151,6 @@
 "import_preparing_title" = "Förbereder import av filer";
 "library_add_title" = "Lägg till din första bok";
 "invalid_url_title" = "Ogiltig URL: %@";
-"downloading_file_title" = "Hämtar fil";
 "progress_title" = "Framsteg";
 "settings_siri_sleeptimer_title" = "Timer";
 "active_title" = "Aktiva";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Oväntat serversvar";
 "jellyfin_error_unexpected_response_with_code" = "Oväntat serversvar (kod: %d - %@ )";
 "jellyfin_error_unauthorized" = "Inloggning misslyckades. Kontrollera ditt användarnamn och lösenord.";
+"jellyfin_selection_count" = "%d av %d Objekt";
 "file_size_unknown" = "Okänd storlek";
 "runtime_unknown" = "Okänd varaktighet";
 "subscription_required_title" = "Prenumeration krävs";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Donera";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Ladda ner mapp";
+"download_folder_confirmation_message" = "Ladda ner alla %d filer från denna mapp?";
+"download_folder_confirm_button" = "Ladda ner";

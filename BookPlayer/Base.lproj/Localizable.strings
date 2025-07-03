@@ -151,8 +151,10 @@
 "import_preparing_title" = "Preparing to import files";
 "library_add_title" = "Add your first book";
 "invalid_url_title" = "Invalid URL: %@";
-"downloading_file_title" = "Downloading file";
 "progress_title" = "Progress";
+"download_folder_confirmation_title" = "Download Folder";
+"download_folder_confirmation_message" = "Download all %d files from this folder?";
+"download_folder_confirm_button" = "Download";
 "settings_siri_sleeptimer_title" = "Sleep Timer";
 "active_title" = "On";
 "voiceover_currently_playing_title" = "Currently playing %@ by %@";
@@ -342,6 +344,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_error_unexpected_response" = "Unexpected server response";
 "jellyfin_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "jellyfin_error_unauthorized" = "Sign In failed. Check your username and password.";
+"jellyfin_selection_count" = "%d of %d Items";
 "file_size_unknown" = "Unknown size";
 "runtime_unknown" = "Unknown duration";
 "subscription_required_title" = "Subscription required";

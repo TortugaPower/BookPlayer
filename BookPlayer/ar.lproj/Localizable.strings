@@ -151,7 +151,6 @@
 "import_preparing_title" = "التحضير لاستيراد الملفات";
 "library_add_title" = "أضف كتابك الأول";
 "invalid_url_title" = "URL غير صالح: %@";
-"downloading_file_title" = "تحميل الملف";
 "progress_title" = "التقدم";
 "settings_siri_sleeptimer_title" = "مؤقت النوم";
 "active_title" = "تشغيل";
@@ -343,6 +342,7 @@
 "jellyfin_error_unexpected_response" = "استجابة غير متوقعة من الخادم";
 "jellyfin_error_unexpected_response_with_code" = "استجابة غير متوقعة من الخادم (الرمز: %d - %@ )";
 "jellyfin_error_unauthorized" = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
+"jellyfin_selection_count" = "%d من %d عناصر";
 "file_size_unknown" = "حجم غير معروف";
 "runtime_unknown" = "مدة غير معروفة";
 "Swipe rows to see download options" = "اسحب لرؤية خيارات التنزيل";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "تمكين البحث في شاشة القفل";
 "donate_title" = "تبرع";
 "bookmark_automatic_sleep_title" = "آخر موضع تم فيه عند تشغيل مؤقت السكون";
+"download_folder_confirmation_title" = "تحميل المجلد";
+"download_folder_confirmation_message" = "تحميل جميع الملفات %d من هذا المجلد؟";
+"download_folder_confirm_button" = "تحميل";

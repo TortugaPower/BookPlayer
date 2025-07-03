@@ -82,5 +82,25 @@
         <string>Zpracování %d souborů</string>
       </dict>
     </dict>
+    <key>downloading_file_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Stahování 1 souboru</string>
+        <key>few</key>
+        <string>Stahování %d souborů</string>
+        <key>many</key>
+        <string>Stahování %d souborů</string>
+        <key>other</key>
+        <string>Stahování %d souborů</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

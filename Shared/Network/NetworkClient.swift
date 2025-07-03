@@ -34,12 +34,6 @@ public protocol NetworkClientProtocol {
     session: URLSession
   ) async -> URLSessionTask
 
-  /// Download a file handled by a delegate and an internal URLSession
-  func download(
-    url: URL,
-    delegate: BPTaskDownloadDelegate
-  )
-
   /// Managed download by an existing URLSession
   func download(
     url: URL,
@@ -88,23 +82,6 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     let request = try buildURLRequest(path: path, method: method, parameters: parameters)
 
     return try await executeRequest(request, method: method, parameters: parameters)
-  }
-
-  public func download(
-    url: URL,
-    delegate: BPTaskDownloadDelegate
-  ) {
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
-    let session = URLSession(
-      configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background.import"
-      ),
-      delegate: delegate,
-      delegateQueue: OperationQueue()
-    )
-    let task = session.downloadTask(with: url)
-    task.resume()
   }
 
   public func download(

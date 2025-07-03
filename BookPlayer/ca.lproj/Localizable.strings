@@ -151,7 +151,6 @@
 "import_preparing_title" = "Preparant la importació de fitxers";
 "library_add_title" = "Afegeix el teu primer llibre";
 "invalid_url_title" = "URL no vàlida: %@";
-"downloading_file_title" = "S'està baixant el fitxer";
 "progress_title" = "Progrés";
 "settings_siri_sleeptimer_title" = "Temporitzador de suspensió";
 "active_title" = "Activat";
@@ -343,6 +342,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "jellyfin_error_unexpected_response" = "Resposta del servidor inesperada";
 "jellyfin_error_unexpected_response_with_code" = "Resposta del servidor inesperada (Codi: %d - %@)";
 "jellyfin_error_unauthorized" = "No s'ha pogut iniciar la sessió. Comproveu el vostre nom d'usuari i contrasenya.";
+"jellyfin_selection_count" = "%d de %d Elements";
 "file_size_unknown" = "Mida desconeguda";
 "runtime_unknown" = "Durada desconeguda";
 "Swipe rows to see download options" = "Feu lliscar les files per veure les opcions de baixada";
@@ -350,3 +350,6 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "settings_seekprogressbar_description" = "Activa la cerca a la pantalla de bloqueig";
 "donate_title" = "Donar";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"download_folder_confirmation_title" = "Baixar carpeta";
+"download_folder_confirmation_message" = "Baixar tots els %d fitxers d'aquesta carpeta?";
+"download_folder_confirm_button" = "Baixar";

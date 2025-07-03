@@ -51,10 +51,6 @@ class LibraryListCoordinatorTests: XCTestCase {
     self.libraryListCoordinator.start()
   }
 
-  func testInitialState() {
-    XCTAssert(self.libraryListCoordinator.shouldShowImportScreen())
-  }
-
   func testDocumentPickerDelegate() {
     XCTAssertNotNil(self.libraryListCoordinator.documentPickerDelegate)
   }

@@ -31,7 +31,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
-  var downloadRemaining: Int { get }
+  var showingDownloadConfirmation: Bool { get set }
 
   var connectionService: JellyfinConnectionService { get }
 
@@ -50,6 +50,10 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func onSelectAllTapped()
   @MainActor
   func onDownloadTapped()
+  @MainActor
+  func onDownloadFolderTapped()
+  @MainActor
+  func confirmDownloadFolder()
 }
 
 enum JellyfinLayout {
@@ -89,7 +93,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
-  @Published var downloadRemaining: Int = 0
+  @Published var showingDownloadConfirmation = false
 
   var onTransition: BPTransition<Routes>?
 
@@ -237,32 +241,50 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       self.items.first(where: { $0.id == id })
     })
 
-    downloadRemaining = items.count
-
-    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
-      guard let self else { return }
-
-      switch event {
-      case .starting, .progress, .error:
-        break
-
-      case .finished:
-        Task { @MainActor in
-          self.downloadRemaining -= 1
-          if self.downloadRemaining == 0 {
-            self.editMode = .inactive
-          }
-        }
-      }
-    }.store(in: &disposeBag)
-
+    var urls = [URL]()
     for item in items {
       do {
         let url = try connectionService.createItemDownloadUrl(item)
-        singleFileDownloadService.handleDownload(url)
+        urls.append(url)
       } catch {
         self.error = error
       }
+    }
+    singleFileDownloadService.handleDownload(urls)
+    navigation.dismiss?()
+  }
+
+  @MainActor
+  func onDownloadFolderTapped() {
+    showingDownloadConfirmation = true
+  }
+  
+  @MainActor
+  func confirmDownloadFolder() {
+    guard let folderID else { return }
+
+    Task { @MainActor [weak self] in
+      guard let self else { return }
+
+      do {
+        let urls = try await self.getAllAudiobookDownloadURLs(for: folderID)
+        self.singleFileDownloadService.handleDownload(urls, folderName: self.navigationTitle)
+        self.navigation.dismiss?()
+      } catch {
+        self.error = error
+      }
+    }
+  }
+  
+  @MainActor
+  private func getAllAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+    if items.count == totalItems {
+      let audiobooks = items.filter { $0.kind == .audiobook }
+      return audiobooks.compactMap { audiobook in
+        try? connectionService.createItemDownloadUrl(audiobook)
+      }
+    } else {
+      return try await connectionService.fetchAudiobookDownloadURLs(for: folderID)
     }
   }
 }

@@ -151,7 +151,6 @@
 "import_preparing_title" = "Подготовка к импорту файлов";
 "library_add_title" = "Добавьте вашу первую книгу";
 "invalid_url_title" = "Неверный URL: %@";
-"downloading_file_title" = "Скачивание файла";
 "progress_title" = "Прогресс";
 "settings_siri_sleeptimer_title" = "Таймер сна";
 "active_title" = "Включен";
@@ -342,6 +341,7 @@
 "jellyfin_error_unexpected_response" = "Неожиданный ответ сервера";
 "jellyfin_error_unexpected_response_with_code" = "Неожиданный ответ сервера (Код: %d - %@)";
 "jellyfin_error_unauthorized" = "Ошибка входа. Проверьте имя пользователя и пароль.";
+"jellyfin_selection_count" = "%d из %d Элементов";
 "file_size_unknown" = "Неизвестный размер";
 "runtime_unknown" = "Неизвестная продолжительность";
 "subscription_required_title" = "Требуется подписка";
@@ -350,3 +350,6 @@
 "settings_seekprogressbar_description" = "Включить возможность перемотки на экране блокировки";
 "donate_title" = "Пожертвовать";
 "bookmark_automatic_sleep_title" = "Последняя позиция, когда был включен таймер сна";
+"download_folder_confirmation_title" = "Скачать папку";
+"download_folder_confirmation_message" = "Скачать все %d файлов из этой папки?";
+"download_folder_confirm_button" = "Скачать";
