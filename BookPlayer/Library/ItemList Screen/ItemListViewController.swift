@@ -124,9 +124,10 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
+    viewModel.viewDidAppear(isFirstTime: didAppearForFirstTime)
+
     if didAppearForFirstTime {
       didAppearForFirstTime = false
-      viewModel.viewDidAppear()
       if navigationController?.viewControllers.count == 1 {
         navigationController!.interactivePopGestureRecognizer!.delegate = self
       }

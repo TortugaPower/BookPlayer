@@ -86,8 +86,12 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self.showMiniPlayer(flag: flag)
-      case .listDidAppear:
-        self.handleLibraryLoaded()
+      case .listDidAppear(let isFirstTime):
+        if isFirstTime {
+          self.handleLibraryLoaded()
+        } else {
+          self.showImportIfNeeded()
+        }
       case .showQueuedTasks:
         self.showQueuedTasks()
       }
@@ -119,6 +123,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     showSecondOnboarding()
     bindImportObserverIfNeeded()
     bindDownloadErrorObserver()
+    bindForegroundObserver()
 
     if let appDelegate = AppDelegate.shared {
       for action in appDelegate.pendingURLActions {
@@ -140,6 +145,14 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       eventsService: EventsService()
     )
     coordinator.start()
+  }
+
+  func bindForegroundObserver() {
+    NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        self?.showImportIfNeeded()
+      })
+      .store(in: &disposeBag)
   }
 
   func bindImportObserverIfNeeded() {
@@ -302,6 +315,14 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     coordinator.start()
   }
 
+  /// Triggered by the viewDidAppear of the library list, and by the foreground lifecycle event,
+  /// as we're not showing the import screen over presented screens anymore
+  func showImportIfNeeded() {
+    guard importManager.hasPendingFiles() else { return }
+
+    showImport()
+  }
+
   func syncLastFolderList() {
     let viewControllers = flow.navigationController.viewControllers
     guard
@@ -309,7 +330,8 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
       let lastItemListViewController = viewControllers.last as? ItemListViewController
     else { return }
 
-    lastItemListViewController.viewModel.viewDidAppear()
+    /// Triggers the coordinator of the nested folder to sync the contents with our servers
+    lastItemListViewController.viewModel.viewDidAppear(isFirstTime: true)
   }
 
   override func syncList() {
