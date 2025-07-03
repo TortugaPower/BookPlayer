@@ -89,13 +89,13 @@ extension GraphQLClient {
     var errorDescription: String? {
       switch self {
       case .invalidResponse:
-        return "Invalid response received"
-      case .httpError(let statusCode):
-        return "HTTP error with status code: \(statusCode)"
-      case .graphQLErrors(let errors):
-        return "GraphQL errors: \(errors.map(\.message).joined(separator: ", "))"
+        return "graphql_error_generic".localized
+      case .httpError:
+        return "graphql_error_network".localized
+      case .graphQLErrors:
+        return "graphql_error_generic".localized
       case .noData:
-        return "No data returned from GraphQL query"
+        return "graphql_error_no_results".localized
       }
     }
   }

@@ -28,10 +28,11 @@ struct ItemDetailsHardcoverSectionView: View {
           if let row = viewModel.pickerViewModel.selected {
             HardcoverBookRow(viewModel: row)
           } else {
-            Text("Select")
+            Text("hardcover_select_button".localized)
           }
         }
       )
+      .accessibilityHint("voiceover_hardcover_navigation_hint".localized)
     }
     .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
   }

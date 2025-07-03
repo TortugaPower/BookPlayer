@@ -20,12 +20,14 @@ struct HardcoverBookRow: View {
           image
             .resizable()
             .aspectRatio(contentMode: .fill)
+            .accessibilityLabel(String(format: "voiceover_book_cover".localized, viewModel.title, viewModel.author))
         } placeholder: {
           RoundedRectangle(cornerRadius: 8)
             .fill(Color.gray.opacity(0.3))
             .overlay {
               ProgressView()
             }
+            .accessibilityLabel("voiceover_loading_book_cover".localized)
         }
         .frame(width: 60, height: 80)
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -44,6 +46,7 @@ struct HardcoverBookRow: View {
           .foregroundColor(themeViewModel.secondaryColor)
           .foregroundColor(.secondary)
       }
+      .accessibilityElement(children: .combine)
     }
     .padding(.vertical, 4)
     .contentShape(Rectangle())

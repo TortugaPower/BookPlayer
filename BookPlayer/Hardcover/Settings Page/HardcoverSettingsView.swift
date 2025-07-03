@@ -34,39 +34,33 @@ struct HardcoverSettingsView: View {
             isTextFieldFocused = false
           }
         } header: {
-          Text("API Access".localized)
+          Text("hardcover_api_access_title".localized)
             .foregroundColor(themeViewModel.secondaryColor)
         } footer: {
-          if let attributedString = try? AttributedString(markdown: "Your can find your Hardcover API access at https://hardcover.app/account/api.".localized) {
+          if let attributedString = try? AttributedString(markdown: "hardcover_api_access_footer".localized) {
             Text(attributedString)
               .foregroundColor(themeViewModel.secondaryColor)
           }
         }
 
         Section {
-          Toggle("Auto-match books", isOn: $viewModel.autoMatch)
+          Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
             .foregroundColor(themeViewModel.primaryColor)
           
-          Toggle("Auto-add to Want to Read", isOn: $viewModel.autoAddWantToRead)
+          Toggle("hardcover_auto_add_want_to_read".localized, isOn: $viewModel.autoAddWantToRead)
             .foregroundColor(themeViewModel.primaryColor)
         } header: {
-          Text("Automation".localized)
+          Text("hardcover_automation_title".localized)
             .foregroundColor(themeViewModel.secondaryColor)
         } footer: {
-          Text(
-            """
-            Auto-match will automatically find and link books from Hardcover when books are added to your library. It intelligently handles bulk imports by matching unique books while skipping items that would conflict with each other.
-              
-            Auto-add will automatically add books to your Hardcover **Want to Read** list when they are added to BookPlayer or when a Hardcover book is assigned.
-            """
-          )
+          Text("hardcover_automation_description".localized)
           .foregroundColor(themeViewModel.secondaryColor)
         }
 
         Section {
           VStack(alignment: .leading, spacing: 8) {
             HStack {
-              Text("Reading threshold")
+              Text("hardcover_reading_threshold".localized)
                 .foregroundColor(themeViewModel.primaryColor)
               Spacer()
               Text("\(Int(viewModel.readingThreshold))%")
@@ -79,12 +73,14 @@ struct HardcoverSettingsView: View {
               step: 1.0
             )
             .accentColor(themeViewModel.linkColor)
+            .accessibilityLabel("hardcover_reading_threshold".localized)
+            .accessibilityValue("\(Int(viewModel.readingThreshold)) percent")
           }
         } header: {
-          Text("Progress Tracking".localized)
+          Text("hardcover_progress_tracking_title".localized)
             .foregroundColor(themeViewModel.secondaryColor)
         } footer: {
-          Text("Sets the minimum progress percentage required before a book is marked as **Currently Reading** in your Hardcover library.")
+          Text("hardcover_progress_tracking_footer".localized)
             .foregroundColor(themeViewModel.secondaryColor)
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -100,7 +96,7 @@ struct HardcoverSettingsView: View {
   @ToolbarContentBuilder
   var navigationBar: some ToolbarContent {
       ToolbarItem(placement: .principal) {
-        Text("Hardcover Settings")
+        Text("hardcover_settings_title".localized)
           .font(.headline)
           .foregroundColor(themeViewModel.primaryColor)
       }
@@ -112,11 +108,13 @@ struct HardcoverSettingsView: View {
           label: {
             Image(systemName: "xmark")
               .foregroundColor(themeViewModel.linkColor)
-          })
+          }
+        )
+        .accessibilityLabel("voiceover_close_button".localized)
       }
     ToolbarItemGroup(placement: .confirmationAction) {
       Button(
-        "Save".localized,
+        "hardcover_save_button".localized,
         action: {
           viewModel.onSaveTapped()
           dismiss()

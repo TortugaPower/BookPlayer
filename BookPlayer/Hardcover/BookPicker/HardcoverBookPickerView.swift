@@ -22,7 +22,7 @@ struct HardcoverBookPickerView: View {
       case .fetching:
         VStack(spacing: 16) {
           ProgressView()
-          Text("Searching books...")
+          Text("hardcover_searching_books".localized)
             .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -43,8 +43,9 @@ struct HardcoverBookPickerView: View {
           Image(systemName: "exclamationmark.triangle")
             .font(.system(size: 48))
             .foregroundColor(.red)
+            .accessibilityHidden(true)
           
-          Text("Error")
+          Text("hardcover_error_title".localized)
             .font(.headline)
           
           Text(message)
@@ -58,7 +59,7 @@ struct HardcoverBookPickerView: View {
     .onAppear(perform: viewModel.onAppear)
     .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button("Unlink") {
+            Button("hardcover_unlink_button".localized) {
               viewModel.onUnlinkTapped()
               dismiss()
             }
