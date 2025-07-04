@@ -19,6 +19,13 @@ protocol HardcoverServiceProtocol {
   ///   - perPage: Number of results per page
   /// - Returns: BooksData containing search results
   func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData
+  
+  /// Search for books using a custom search query
+  /// - Parameters:
+  ///   - query: The search query string
+  ///   - perPage: Number of results per page
+  /// - Returns: BooksData containing search results
+  func searchBooks(query: String, perPage: Int) async throws -> BooksData
 
   /// Auto-match newly imported books with Hardcover if enabled
   /// Uses smart duplicate detection to avoid matching multiple files to the same book
@@ -87,6 +94,12 @@ extension HardcoverService {
     let searchQuery = await buildSearchQuery(for: item)
     Self.logger.info("Using search query for '\(item.title)': '\(searchQuery)'")
     
+    return try await searchBooks(query: searchQuery, perPage: perPage)
+  }
+  
+  func searchBooks(query: String, perPage: Int) async throws -> BooksData {
+    Self.logger.info("Using custom search query: '\(query)'")
+    
     let queryString = """
         query GetBooks($query: String!, $per_page: Int!) {
           search(
@@ -105,7 +118,7 @@ extension HardcoverService {
     let result = try await graphQL.execute(
       query: queryString,
       variables: [
-        "query": searchQuery,
+        "query": query,
         "per_page": perPage
       ],
       authorization: authorization,
