@@ -24,6 +24,7 @@ class ItemListViewModelTests: XCTestCase {
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
+    let hardcoverService = HardcoverService(libraryService: libraryService)
     let syncServiceMock = SyncServiceProtocolMock()
 
     self.sut = ItemListViewModel(
@@ -38,6 +39,7 @@ class ItemListViewModelTests: XCTestCase {
         playerManager: playerManagerMock,
         syncService: syncServiceMock
       ),
+      hardcoverService: hardcoverService,
       themeAccent: .blue
     )
 
