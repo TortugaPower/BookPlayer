@@ -68,21 +68,23 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     let syncService = SyncServiceProtocolMock()
     let playbackService = PlaybackServiceProtocolMock()
     let playerManager = PlayerManagerProtocolMock()
+    let hardcoverService = HardcoverService(libraryService: libraryService)
 
     /// Avoid making the second onboarding network call
     AppDelegate.shared?.coreServices = CoreServices(
-      dataManager: dataManager,
       accountService: AccountServiceMock(account: nil),
-      syncService: syncService,
+      dataManager: dataManager,
+      hardcoverService: hardcoverService,
       libraryService: libraryService,
       playbackService: playbackService,
-      playerManager: playerManager,
       playerLoaderService: PlayerLoaderService(
         syncService: syncService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager
       ),
+      playerManager: playerManager,
+      syncService: syncService,
       watchService: PhoneWatchConnectivityService(
         libraryService: libraryService,
         playbackService: playbackService,

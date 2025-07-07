@@ -23,6 +23,7 @@ class SettingsViewModel: ViewModelProtocol {
     case deletedFilesManagement
     case tipJar
     case jellyfinConnectionManagement
+    case hardcoverManagement
     case credits
     case shareDebugInformation(info: String)
   }
@@ -176,6 +177,10 @@ class SettingsViewModel: ViewModelProtocol {
   
   func showJellyfinConnectionManagement() {
     onTransition?(.jellyfinConnectionManagement)
+  }
+
+  func showHardcoverManagement() {
+    onTransition?(.hardcoverManagement)
   }
 
   func showCredits() {

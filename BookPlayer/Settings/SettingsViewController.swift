@@ -36,7 +36,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, privacy, support, credits
+    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy, support, credits
   }
 
   let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
@@ -50,6 +50,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
   let jellyfinManageConnectionPath = IndexPath(row: 0, section: SettingsSection.jellyfin.rawValue)
+  let hardcoverPath = IndexPath(row: 0, section: SettingsSection.hardcover.rawValue)
   let tipJarPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
   let supportEmailPath = IndexPath(row: 1, section: SettingsSection.support.rawValue)
   let debugFilesPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
@@ -316,6 +317,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showCloudDeletedFiles()
     case self.jellyfinManageConnectionPath:
       self.viewModel.showJellyfinConnectionManagement()
+    case self.hardcoverPath:
+      self.viewModel.showHardcoverManagement()
     default: break
     }
   }
@@ -348,6 +351,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       } else {
         return nil
       }
+    case .hardcover:
+      return "Hardcover"
     case .privacy:
       return "settings_privacy_title".localized
     case .support:

@@ -69,6 +69,11 @@ public enum Constants {
     /// Jellyfin
     public static let jellyfinLibraryLayout = "jellyfinLibraryLayout"
     public static let jellyfinLibraryLayoutSortBy = "jellyfinLibraryLayoutSortBy"
+
+    /// Hardcover
+    public static let hardcoverAutoMatch = "hardcoverAutoMatch"
+    public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"
+    public static let hardcoverReadingThreshold = "hardcoverReadingThreshold"
   }
 
   public enum SmartRewind {
