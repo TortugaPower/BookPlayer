@@ -40,6 +40,22 @@ class DataInitializerCoordinator: BPLogger {
     await finishLibrarySetup(fromRecovery: isRecoveryAttempt)
   }
 
+  private func isMigrationError(_ error: NSError) -> Bool {
+    [
+      NSMigrationError,
+      NSMigrationConstraintViolationError,
+      NSMigrationCancelledError,
+      NSMigrationMissingSourceModelError,
+      NSMigrationMissingMappingModelError,
+      NSMigrationManagerSourceStoreError,
+      NSMigrationManagerDestinationStoreError,
+      NSEntityMigrationPolicyError,
+      NSValidationMultipleErrorsError,
+      NSValidationMissingMandatoryPropertyError,
+      NSPersistentStoreIncompatibleSchemaError
+    ].contains(error.code)
+  }
+
   func handleError(_ error: NSError) async {
     if error.domain == NSPOSIXErrorDomain
       && (error.code == ENOSPC
@@ -53,13 +69,7 @@ class DataInitializerCoordinator: BPLogger {
           completion: nil
         )
       }
-    } else if error.code == NSMigrationError || error.code == NSMigrationConstraintViolationError
-      || error.code == NSMigrationCancelledError || error.code == NSMigrationMissingSourceModelError
-      || error.code == NSMigrationMissingMappingModelError || error.code == NSMigrationManagerSourceStoreError
-      || error.code == NSMigrationManagerDestinationStoreError || error.code == NSEntityMigrationPolicyError
-      || error.code == NSValidationMultipleErrorsError || error.code == NSValidationMissingMandatoryPropertyError
-      || error.code == NSPersistentStoreIncompatibleSchemaError
-    {
+    } else if isMigrationError(error) {
       Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
       await MainActor.run {
         alertPresenter.showAlert(
@@ -70,39 +80,43 @@ class DataInitializerCoordinator: BPLogger {
         }
       }
     } else {
-      await MainActor.run {
-        let errorDescription = """
-          \(error.localizedDescription)
+      presentGenericError(error)
+    }
+  }
 
-          Error Domain
-          \(error.domain) (\(error.code)
-
-          Additional Info
-          \(error.userInfo)
-          """
-        alertPresenter.showAlert(
-          BPAlertContent(
-            title: "error_title".localized,
-            message: errorDescription,
-            style: .alert,
-            actionItems: [
-              BPActionItem(
-                title: "ok_button".localized,
-                handler: {
-                  fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
-                }
-              ),
-              .init(
-                title: "Reset and recover database",
-                style: .destructive,
-                handler: {
-                  self.recoverLibraryFromFailedMigration()
-                }
-              ),
-            ]
-          )
+  private func presentGenericError(_ error: NSError) {
+    Task { @MainActor in
+      let errorDescription = """
+        \(error.localizedDescription)
+        
+        Error Domain
+        \(error.domain) (\(error.code)
+        
+        Additional Info
+        \(error.userInfo)
+        """
+      alertPresenter.showAlert(
+        BPAlertContent(
+          title: "error_title".localized,
+          message: errorDescription,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "ok_button".localized,
+              handler: {
+                fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
+              }
+            ),
+            .init(
+              title: "Reset and recover database",
+              style: .destructive,
+              handler: {
+                self.recoverLibraryFromFailedMigration()
+              }
+            ),
+          ]
         )
-      }
+      )
     }
   }
 

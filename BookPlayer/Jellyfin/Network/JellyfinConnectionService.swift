@@ -116,8 +116,17 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
   public func fetchItems(
     in folderID: String,
     startIndex: Int?,
-    limit: Int?
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    switch sortBy {
+      case .name:
+        orderBy = [.name]
+      case .smart:
+        orderBy = [.isFolder, .sortName]
+    }
+
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
@@ -126,7 +135,7 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
       parentID: folderID,
       fields: [.sortName],
       includeItemTypes: [.audioBook, .folder],
-      sortBy: [.isFolder, .sortName],
+      sortBy: orderBy,
       imageTypeLimit: 1
     )
 
@@ -168,6 +177,34 @@ class JellyfinConnectionService: BPLogger, ObservableObject {
       overview: itemInfo.overview,
       runtimeInSeconds: runtimeInSeconds
     )
+  }
+
+  public func fetchAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+    let parameters = Paths.GetItemsParameters(
+      isRecursive: false,
+      parentID: folderID,
+      includeItemTypes: [.audioBook]
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let audiobooks = (response.value.items ?? [])
+      .filter { item in item.id != nil }
+      .compactMap { item -> JellyfinLibraryItem? in
+        return JellyfinLibraryItem(apiItem: item)
+      }
+
+    let downloadURLs = audiobooks.compactMap { audiobook in
+      do {
+        return try createItemDownloadUrl(audiobook)
+      } catch {
+        Self.logger.warning("Failed to create download URL for audiobook \(audiobook.id): \(error)")
+        return nil
+      }
+    }
+
+    return downloadURLs
   }
 
   private func send<T>(

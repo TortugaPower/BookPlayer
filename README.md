@@ -27,10 +27,11 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Maintain and see progress of your books
 - Mark books as finished
 - Drag & Drop to sort your library
-- Create playlists
+- Create folders
   - Automatically play items in turn
   - Play the first unfinished file by tapping on the playlist artwork
   - Move files to playlists from the library or import them directly
+- Automatically track your library on [Hardcover](https://hardcover.app)
 
 ### Listen
 
@@ -109,6 +110,7 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@atomicguy](https://github.com/atomicguy) - Zip Support
 - [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
 - [@lysanntranvouez](https://github.com/lysanntranvouez) - Jellyfin Support
+- [@jeremygrenier](https://github.com/jeremygrenier) - Hardcover Support, Jellyfin multi-file & folder download support
 
 A full list of all contributors can be found
 [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)

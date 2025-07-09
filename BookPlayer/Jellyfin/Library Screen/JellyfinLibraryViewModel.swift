@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 import Get
 import JellyfinAPI
@@ -21,10 +22,18 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var navigation: BPNavigation { get set }
   var navigationTitle: String { get }
+  var layout: JellyfinLayout.Options { get set }
+  var sortBy: JellyfinLayout.SortBy { get set }
+
   var items: [JellyfinLibraryItem] { get set }
-  var layoutStyle: JellyfinLayoutOptions { get set }
-  var connectionService: JellyfinConnectionService { get }
+  var totalItems: Int { get }
   var error: Error? { get set }
+
+  var editMode: EditMode { get set }
+  var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
+  var showingDownloadConfirmation: Bool { get set }
+
+  var connectionService: JellyfinConnectionService { get }
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
@@ -32,10 +41,29 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
 
   @MainActor
   func handleDoneAction()
+
+  @MainActor
+  func onEditToggleSelectTapped()
+  @MainActor
+  func onSelectTapped(for item: JellyfinLibraryItem)
+  @MainActor
+  func onSelectAllTapped()
+  @MainActor
+  func onDownloadTapped()
+  @MainActor
+  func onDownloadFolderTapped()
+  @MainActor
+  func confirmDownloadFolder()
 }
 
-enum JellyfinLayoutOptions: String {
-  case grid, list
+enum JellyfinLayout {
+  enum Options: String {
+    case grid, list
+  }
+
+  enum SortBy: String {
+    case name, smart
+  }
 }
 
 final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
@@ -45,33 +73,56 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   var navigation: BPNavigation
   let navigationTitle: String
-  @Published var layoutStyle = JellyfinLayoutOptions.grid
+
+  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
+  var layout: JellyfinLayout.Options = .grid
+
+  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
+  var sortBy: JellyfinLayout.SortBy = .smart {
+    didSet {
+      guard let folderID = folderID else { return }
+      items = []
+      nextStartItemIndex = 0
+      fetchFolderItems(folderID: folderID)
+    }
+  }
+
   @Published var items: [JellyfinLibraryItem] = []
+  @Published var totalItems = Int.max
   @Published var error: Error?
+
+  @Published var editMode: EditMode = .inactive
+  @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var showingDownloadConfirmation = false
 
   var onTransition: BPTransition<Routes>?
 
   let folderID: String?
   let connectionService: JellyfinConnectionService
+  private let singleFileDownloadService: SingleFileDownloadService
+
   private var fetchTask: Task<(), any Error>?
   private var nextStartItemIndex = 0
-  private var maxNumItems: Int?
 
   private static let itemBatchSize = 20
   private static let itemFetchMargin = 3
 
+  private var disposeBag = Set<AnyCancellable>()
+
   var canFetchMoreItems: Bool {
-    return maxNumItems == nil || nextStartItemIndex < maxNumItems!
+    nextStartItemIndex < totalItems
   }
 
   init(
     folderID: String?,
     connectionService: JellyfinConnectionService,
+    singleFileDownloadService: SingleFileDownloadService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.folderID = folderID
     self.connectionService = connectionService
+    self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
   }
@@ -105,48 +156,42 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   }
 
   private func fetchTopLevelItems() {
-    items = []
-
     fetchTask?.cancel()
-    fetchTask = Task {
-      do {
-        let userViews = try await connectionService.fetchTopLevelItems()
+    fetchTask = Task { @MainActor in
+      items = []
 
-        await { @MainActor in
-          self.items = userViews
-        }()
+      do {
+        let items = try await connectionService.fetchTopLevelItems()
+
+        self.totalItems = items.count
+        self.items = items
       } catch is CancellationError {
         // ignore
       } catch {
-        Task { @MainActor in
-          self.error = error
-        }
+        self.error = error
       }
     }
   }
 
   private func fetchFolderItems(folderID: String) {
-    fetchTask = Task {
+    fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
       do {
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
           in: folderID,
           startIndex: nextStartItemIndex,
-          limit: Self.itemBatchSize
+          limit: Self.itemBatchSize,
+          sortBy: sortBy
         )
 
-        await { @MainActor in
-          self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
-          self.maxNumItems = maxNumItems
-          self.items.append(contentsOf: items)
-        }()
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
+        self.totalItems = maxNumItems
+        self.items.append(contentsOf: items)
       } catch is CancellationError {
         // ignore
       } catch {
-        Task { @MainActor in
-          self.error = error
-        }
+        self.error = error
       }
     }
   }
@@ -154,5 +199,92 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   @MainActor
   func handleDoneAction() {
     onTransition?(.done)
+  }
+
+  @MainActor
+  func onEditToggleSelectTapped() {
+    withAnimation {
+      editMode = editMode.isEditing ? .inactive : .active
+    }
+
+    if !editMode.isEditing {
+      selectedItems.removeAll()
+    }
+  }
+
+  @MainActor
+  func onSelectTapped(for item: JellyfinLibraryItem) {
+    if let index = selectedItems.firstIndex(of: item.id) {
+      selectedItems.remove(at: index)
+    } else {
+      selectedItems.insert(item.id)
+    }
+  }
+
+  @MainActor
+  func onSelectAllTapped() {
+    if selectedItems.isEmpty {
+      let ids: [JellyfinLibraryItem.ID] = items.compactMap { item in
+        guard item.kind == .audiobook else { return nil }
+        return item.id
+      }
+
+      selectedItems = Set(ids)
+    } else {
+      selectedItems.removeAll()
+    }
+  }
+
+  @MainActor
+  func onDownloadTapped() {
+    let items = selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+
+    var urls = [URL]()
+    for item in items {
+      do {
+        let url = try connectionService.createItemDownloadUrl(item)
+        urls.append(url)
+      } catch {
+        self.error = error
+      }
+    }
+    singleFileDownloadService.handleDownload(urls)
+    navigation.dismiss?()
+  }
+
+  @MainActor
+  func onDownloadFolderTapped() {
+    showingDownloadConfirmation = true
+  }
+  
+  @MainActor
+  func confirmDownloadFolder() {
+    guard let folderID else { return }
+
+    Task { @MainActor [weak self] in
+      guard let self else { return }
+
+      do {
+        let urls = try await self.getAllAudiobookDownloadURLs(for: folderID)
+        self.singleFileDownloadService.handleDownload(urls, folderName: self.navigationTitle)
+        self.navigation.dismiss?()
+      } catch {
+        self.error = error
+      }
+    }
+  }
+  
+  @MainActor
+  private func getAllAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+    if items.count == totalItems {
+      let audiobooks = items.filter { $0.kind == .audiobook }
+      return audiobooks.compactMap { audiobook in
+        try? connectionService.createItemDownloadUrl(audiobook)
+      }
+    } else {
+      return try await connectionService.fetchAudiobookDownloadURLs(for: folderID)
+    }
   }
 }

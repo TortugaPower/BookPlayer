@@ -34,7 +34,7 @@ final class ImportViewController: UIViewController, Storyboarded {
 
   private func bindFilesObserver() {
     self.viewModel.$files.sink { [weak self] files in
-      self?.files = files
+      self?.files = files.sorted()
       self?.tableView.reloadData()
 
       self?.navigationItem.rightBarButtonItem?.isEnabled = files.count > 0
@@ -68,16 +68,16 @@ extension ImportViewController: UITableViewDataSource {
     // swiftlint:enable force_cast
     let fileItem = self.files[indexPath.row]
 
-    let imageName = fileItem.fileUrl.isDirectoryFolder ? "folder" : "waveform"
+    let imageName = fileItem.fileURL.isDirectoryFolder ? "folder" : "waveform"
     cell.iconImageView.image = UIImage(systemName: imageName)
-    cell.filenameLabel.text = fileItem.getFileName()
+    cell.filenameLabel.text = fileItem.name
     cell.countLabel.text = fileItem.subItems > 0
     ? String.localizedStringWithFormat("files_title".localized, fileItem.subItems)
     : ""
 
     cell.onDeleteTap = { [weak self] in
       do {
-        try self?.viewModel.deleteItem(fileItem.fileUrl)
+        try self?.viewModel.deleteItem(fileItem.fileURL)
       } catch {
         self?.showAlert("error_title".localized, message: error.localizedDescription)
       }

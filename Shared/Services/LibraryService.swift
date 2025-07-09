@@ -12,7 +12,7 @@ import Foundation
 import Combine
 
 /// sourcery: AutoMockable
-public protocol LibraryServiceProtocol {
+public protocol LibraryServiceProtocol: AnyObject {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   /// Progress publisher that debounces changes during 10 seconds before emitting the last payload
@@ -133,6 +133,12 @@ public protocol LibraryServiceProtocol {
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
   func deleteBookmark(_ bookmark: SimpleBookmark)
+  
+  /// HardcoverBook
+  /// Set hardcover book for an item (nil to remove)
+  func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String)
+  /// Get hardcover book for an item
+  func getHardcoverBook(for relativePath: String) -> SimpleHardcoverBook?
 }
 
 // swiftlint:disable force_cast
@@ -1860,6 +1866,63 @@ extension LibraryService {
     let item = getItemReference(with: bookmark.relativePath)
     item?.removeFromBookmarks(bookmarkReference)
     self.dataManager.delete(bookmarkReference)
+  }
+}
+
+// MARK: - HardcoverBook operations
+extension LibraryService {
+  public func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) {
+    guard let item = getItemReference(with: relativePath) else { return }
+    
+    let context = dataManager.getContext()
+    
+    if let hardcoverBook = hardcoverBook {
+      let entity = item.hardcoverBook?.update(with: hardcoverBook) ?? HardcoverBook.create(hardcoverBook, in: context)
+      item.hardcoverBook = entity
+    } else if let hardcoverBook = item.hardcoverBook {
+      item.hardcoverBook = nil
+      dataManager.delete(hardcoverBook)
+    }
+    
+    dataManager.saveContext()
+  }
+  
+  public func getHardcoverBook(for relativePath: String) -> SimpleHardcoverBook? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.hardcoverBook.id),
+      #keyPath(LibraryItem.hardcoverBook.artworkURL),
+      #keyPath(LibraryItem.hardcoverBook.title),
+      #keyPath(LibraryItem.hardcoverBook.author),
+      #keyPath(LibraryItem.hardcoverBook.status),
+      #keyPath(LibraryItem.hardcoverBook.userBookID)
+    ]
+    fetchRequest.resultType = .dictionaryResultType
+    
+    guard 
+      let results = try? dataManager.getContext().fetch(fetchRequest) as? [[String: Any]],
+      let result = results.first,
+      let id = result[#keyPath(LibraryItem.hardcoverBook.id)] as? Int32,
+      let title = result[#keyPath(LibraryItem.hardcoverBook.title)] as? String,
+      let author = result[#keyPath(LibraryItem.hardcoverBook.author)] as? String,
+      let rawValue = result[#keyPath(LibraryItem.hardcoverBook.status)] as? Int16,
+      let status = HardcoverBook.Status(rawValue: rawValue)
+    else {
+      return nil
+    }
+    
+    let userBookID = result[#keyPath(LibraryItem.hardcoverBook.userBookID)] as? Int32 ?? 0
+    
+    return SimpleHardcoverBook(
+      id: Int(id),
+      artworkURL: result["hardcoverBook.artworkURL"] as? URL,
+      title: title,
+      author: author,
+      status: status,
+      userBookID: userBookID != 0 ? Int(userBookID) : nil
+    )
   }
 }
 // swiftlint:enable force_cast

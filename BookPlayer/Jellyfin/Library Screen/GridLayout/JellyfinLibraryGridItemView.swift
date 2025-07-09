@@ -10,10 +10,14 @@ import Kingfisher
 import SwiftUI
 
 struct JellyfinLibraryGridItemView: View {
+  @Environment(\.editMode) private var editMode
+
   @State var item: JellyfinLibraryItem
 
   @ScaledMetric var accessabilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
+
+  var isSelected: Bool
 
   var body: some View {
     VStack {
@@ -27,6 +31,16 @@ struct JellyfinLibraryGridItemView: View {
               }
             }
           )
+          .overlay {
+            if editMode?.wrappedValue.isEditing == true, item.kind == .audiobook {
+              Image(systemName: isSelected ? "checkmark.circle" : "circle")
+                .foregroundColor(.white)
+                .background(isSelected ? .blue : .clear)
+                .clipShape(Circle())
+                .shadow(radius: 4.0)
+                .font(.title2)
+            }
+          }
           .accessibilityHidden(true)
 
         switch item.kind {

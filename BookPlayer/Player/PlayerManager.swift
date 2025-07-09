@@ -840,17 +840,8 @@ extension PlayerManager {
     change: [NSKeyValueChangeKey: Any]?,
     context: UnsafeMutableRawPointer?
   ) {
-    guard
-      let path = keyPath,
-      path == "status",
-      let item = object as? AVPlayerItem
-    else {
-      super.observeValue(
-        forKeyPath: keyPath,
-        of: object,
-        change: change,
-        context: context
-      )
+    guard let path = keyPath, path == "status", let item = object as? AVPlayerItem else {
+      super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
       return
     }
 

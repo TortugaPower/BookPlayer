@@ -30,6 +30,8 @@ class ItemDetailsViewModel: ViewModelProtocol {
   let libraryService: LibraryServiceProtocol
   /// Service to sync new artwork
   let syncService: SyncServiceProtocol
+  /// Hardcover service for managing assignments
+  let hardcoverService: HardcoverServiceProtocol
   /// View model for the SwiftUI form
   let formViewModel: ItemDetailsFormViewModel
   /// Callback to handle actions on this screen
@@ -37,17 +39,20 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
   private var eventsPublisher = InterfaceUpdater<ItemDetailsViewModel.Events>()
 
+  private var hardcoverBook: SimpleHardcoverBook?
   private var disposeBag = Set<AnyCancellable>()
 
   /// Initializer
   init(
     item: SimpleLibraryItem,
+    hardcoverService: HardcoverServiceProtocol,
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol
   ) {
     self.item = item
     self.libraryService = libraryService
     self.syncService = syncService
+    self.hardcoverService = hardcoverService
     /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.lastPlayDate)
     let lastPlayedDate = libraryService.getItemProperty(
       "lastPlayDate",
@@ -55,8 +60,21 @@ class ItemDetailsViewModel: ViewModelProtocol {
     ) as? Date
     self.formViewModel = ItemDetailsFormViewModel(
       item: item,
-      lastPlayedDate: lastPlayedDate
+      lastPlayedDate: lastPlayedDate,
+      hardcoverService: hardcoverService
     )
+
+    if let item = libraryService.getHardcoverBook(for: item.relativePath) {
+      hardcoverBook = item
+      formViewModel.hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+        id: item.id,
+        artworkURL: item.artworkURL,
+        title: item.title,
+        author: item.author
+      )
+    } else {
+      hardcoverBook = nil
+    }
   }
 
   func observeEvents() -> AnyPublisher<ItemDetailsViewModel.Events, Never> {
@@ -68,6 +86,17 @@ class ItemDetailsViewModel: ViewModelProtocol {
   }
 
   func handleSaveAction() {
+    if let pickerViewModel = formViewModel.hardcoverSectionViewModel?.pickerViewModel,
+       pickerViewModel.selected?.id != hardcoverBook?.id {
+
+      if let currentBook = hardcoverBook, currentBook.userBookID != nil {
+        showHardcoverRemovalConfirmation(for: currentBook, newSelection: pickerViewModel.selected)
+        return
+      }
+
+      assignNewSelection(pickerViewModel.selected)
+    }
+
     let cacheKey: String
 
     do {
@@ -154,5 +183,64 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
   private func sendEvent(_ event: ItemDetailsViewModel.Events) {
     eventsPublisher.send(event)
+  }
+  
+  private func showHardcoverRemovalConfirmation(for book: SimpleHardcoverBook, newSelection: HardcoverBookRow.Model?) {
+    let keepItAction = BPActionItem(
+      title: "hardcover_remove_keep_it".localized,
+      style: .default
+    ) { [weak self] in
+      guard let self = self else { return }
+      self.assignNewSelection(newSelection)
+      self.handleSaveAction()
+    }
+    
+    let removeItAction = BPActionItem(
+      title: "hardcover_remove_remove_it".localized,
+      style: .destructive
+    ) { [weak self] in
+      guard let self = self else { return }
+      
+      Task { @MainActor [weak self] in
+        guard let self = self else { return }
+        
+        do {
+          try await self.hardcoverService.removeFromLibrary(book)
+          self.assignNewSelection(newSelection)
+          self.handleSaveAction()
+        } catch {
+          self.sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
+        }
+      }
+    }
+    
+    let message = String(format: "hardcover_remove_confirmation_message".localized, book.title, book.author)
+    
+    let alertContent = BPAlertContent(
+      title: "hardcover_remove_confirmation_title".localized,
+      message: message,
+      style: .alert,
+      actionItems: [keepItAction, removeItAction]
+    )
+    
+    sendEvent(.showAlert(content: alertContent))
+  }
+  
+  private func assignNewSelection(_ newSelection: HardcoverBookRow.Model?) {
+    if let selected = newSelection {
+      let book = SimpleHardcoverBook(
+        id: selected.id,
+        artworkURL: selected.artworkURL,
+        title: selected.title,
+        author: selected.author,
+        status: .local,
+        userBookID: nil
+      )
+      hardcoverService.assignItem(book, to: item)
+      hardcoverBook = book
+    } else {
+      hardcoverService.assignItem(nil, to: item)
+      hardcoverBook = nil
+    }
   }
 }

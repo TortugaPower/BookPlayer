@@ -860,6 +860,41 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         deleteBookmarkReceivedInvocations.append(bookmark)
         deleteBookmarkClosure?(bookmark)
     }
+    //MARK: - setHardcoverBook
+
+    var setHardcoverBookForCallsCount = 0
+    var setHardcoverBookForCalled: Bool {
+        return setHardcoverBookForCallsCount > 0
+    }
+    var setHardcoverBookForReceivedArguments: (hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, relativePath: String)?
+    var setHardcoverBookForReceivedInvocations: [(hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, relativePath: String)] = []
+    var setHardcoverBookForClosure: ((BookPlayerKit.SimpleHardcoverBook?, String) -> Void)?
+    func setHardcoverBook(_ hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, for relativePath: String) {
+        setHardcoverBookForCallsCount += 1
+        setHardcoverBookForReceivedArguments = (hardcoverBook: hardcoverBook, relativePath: relativePath)
+        setHardcoverBookForReceivedInvocations.append((hardcoverBook: hardcoverBook, relativePath: relativePath))
+        setHardcoverBookForClosure?(hardcoverBook, relativePath)
+    }
+    //MARK: - getHardcoverBook
+
+    var getHardcoverBookForCallsCount = 0
+    var getHardcoverBookForCalled: Bool {
+        return getHardcoverBookForCallsCount > 0
+    }
+    var getHardcoverBookForReceivedRelativePath: String?
+    var getHardcoverBookForReceivedInvocations: [String] = []
+    var getHardcoverBookForReturnValue: BookPlayerKit.SimpleHardcoverBook?
+    var getHardcoverBookForClosure: ((String) -> BookPlayerKit.SimpleHardcoverBook?)?
+    func getHardcoverBook(for relativePath: String) -> BookPlayerKit.SimpleHardcoverBook? {
+        getHardcoverBookForCallsCount += 1
+        getHardcoverBookForReceivedRelativePath = relativePath
+        getHardcoverBookForReceivedInvocations.append(relativePath)
+        if let getHardcoverBookForClosure = getHardcoverBookForClosure {
+            return getHardcoverBookForClosure(relativePath)
+        } else {
+            return getHardcoverBookForReturnValue
+        }
+    }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     //MARK: - updatePlaybackTime

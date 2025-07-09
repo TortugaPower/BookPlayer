@@ -135,14 +135,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
+
+      let hardcoverService = HardcoverService(libraryService: libraryService)
+      hardcoverService.startTrackingLibraryUpdates()
+
       let coreServices = CoreServices(
-        dataManager: dataManager,
         accountService: accountService,
-        syncService: syncService,
+        dataManager: dataManager,
+        hardcoverService: hardcoverService,
         libraryService: libraryService,
         playbackService: playbackService,
-        playerManager: playerManager,
         playerLoaderService: playerLoaderService,
+        playerManager: playerManager,
+        syncService: syncService,
         watchService: watchService
       )
 

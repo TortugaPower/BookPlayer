@@ -38,7 +38,7 @@ final class ImportViewModel: NSObject, ObservableObject {
 
       self.cleanupWatchters()
       // make a copy of the files
-      self.observedFiles = files.map { ImportFileItem(fileUrl: $0) }
+      self.observedFiles = files.map { ImportFileItem(fileURL: $0) }
       self.subscribeNewFolders()
       self.refreshData()
     }.store(in: &disposeBag)
@@ -51,14 +51,18 @@ final class ImportViewModel: NSObject, ObservableObject {
 
   private func subscribeNewFolders() {
     for item in self.observedFiles {
-      guard item.fileUrl.isDirectoryFolder else { continue }
-
-      let enumerator = FileManager.default.enumerator(at: item.fileUrl,
-                                                      includingPropertiesForKeys: [.isDirectoryKey],
-                                                      options: [.skipsHiddenFiles], errorHandler: { (url, error) -> Bool in
-        print("directoryEnumerator error at \(url): ", error)
-        return true
-      })!
+      guard
+        item.fileURL.isDirectoryFolder,
+        let enumerator = FileManager.default.enumerator(
+          at: item.fileURL,
+          includingPropertiesForKeys: [.isDirectoryKey],
+          options: [.skipsHiddenFiles],
+          errorHandler: { (url, error) -> Bool in
+            print("directoryEnumerator error at \(url): ", error)
+            return true
+          }
+        )
+      else { continue }
 
       for case let fileURL as URL in enumerator {
         if !fileURL.isDirectoryFolder {
@@ -85,7 +89,7 @@ final class ImportViewModel: NSObject, ObservableObject {
 
   public func getTotalItems() -> Int {
     return self.files.reduce(0) { result, item in
-      return item.fileUrl.isDirectoryFolder
+      return item.fileURL.isDirectoryFolder
       ? result + item.subItems
       : result + 1
     }

@@ -48,9 +48,12 @@ class JellyfinConnectionViewModel: ObservableObject, BPLogger {
     if let data = connectionService.connection {
       form.setValues(from: data)
       self._connectionState = .init(initialValue: .connected)
-      navigation.path.append(
-        JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
-      )
+
+      Task { @MainActor in
+        navigation.path.append(
+          JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
+        )
+      }
     } else {
       self._connectionState = .init(initialValue: .disconnected)
     }

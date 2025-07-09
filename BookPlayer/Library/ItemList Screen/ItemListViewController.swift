@@ -119,6 +119,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.bindNetworkObserver()
     self.viewModel.bindObservers()
     self.setupRefreshControl()
+    self.viewModel.viewDidLoad()
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -126,11 +127,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
     if didAppearForFirstTime {
       didAppearForFirstTime = false
-      viewModel.viewDidAppear()
       if navigationController?.viewControllers.count == 1 {
         navigationController!.interactivePopGestureRecognizer!.delegate = self
       }
     }
+
+    viewModel.viewDidAppear()
   }
 
   func addSubviews() {
@@ -201,8 +203,8 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
               let progress = userInfo["progress"] as? String else {
           return
         }
-
-        self.showLoadView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) \(progress)%")
+        let title = String.localizedStringWithFormat("downloading_file_title".localized, 1)
+        self.showLoadView(true, title: title, subtitle: "\("progress_title".localized) \(progress)%")
       }
       .store(in: &disposeBag)
 
@@ -664,7 +666,7 @@ extension ItemListViewController {
   }
 
   func showLoadView(_ show: Bool, title: String? = nil, subtitle: String? = nil) {
-    guard self.isViewLoaded && self.view.window != nil else {
+    guard self.isViewLoaded else {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
         self?.showLoadView(show, title: title, subtitle: subtitle)
       }

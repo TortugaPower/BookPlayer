@@ -27,6 +27,7 @@ class ItemListViewModel: ViewModelProtocol {
       selectionHandler: (SimpleLibraryItem) -> Void
     )
     case showMiniPlayer(flag: Bool)
+    case listDidLoad
     case listDidAppear
     case showQueuedTasks
   }
@@ -51,6 +52,7 @@ class ItemListViewModel: ViewModelProtocol {
   private let listRefreshService: ListSyncRefreshService
   let syncService: SyncServiceProtocol
   private let importManager: ImportManager
+  private let hardcoverService: HardcoverServiceProtocol
   var offset = 0
 
   public private(set) var defaultArtwork: Data?
@@ -80,6 +82,7 @@ class ItemListViewModel: ViewModelProtocol {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
+    hardcoverService: HardcoverServiceProtocol,
     themeAccent: UIColor
   ) {
     self.folderRelativePath = folderRelativePath
@@ -90,6 +93,7 @@ class ItemListViewModel: ViewModelProtocol {
     self.syncService = syncService
     self.importManager = importManager
     self.listRefreshService = listRefreshService
+    self.hardcoverService = hardcoverService
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
 
@@ -122,6 +126,11 @@ class ItemListViewModel: ViewModelProtocol {
   }
 
   /// Notify that the UI is presented and ready
+  func viewDidLoad() {
+    onTransition?(.listDidLoad)
+  }
+
+  /// Notify the UI lifecycle
   func viewDidAppear() {
     onTransition?(.listDidAppear)
   }
@@ -203,6 +212,28 @@ class ItemListViewModel: ViewModelProtocol {
     }
   }
   
+  private func handleDownloadServiceEvent(_ event: SingleFileDownloadService.Events) {
+    switch event {
+    case .starting:
+      let totalFiles = singleFileDownloadService.downloadQueue.count + 1
+      let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+      sendEvent(.showProcessingView(true, title: title, subtitle: "\("progress_title".localized) 0%"))
+    case .progress(task: _, progress: let progress):
+      let percentage = String(format: "%.2f", progress * 100)
+      let totalFiles = singleFileDownloadService.downloadQueue.count + 1
+      let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+      sendEvent(.showProcessingView(
+        true,
+        title: title,
+        subtitle: "\("progress_title".localized) \(percentage)%"
+      ))
+    case .finished:
+      sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
+    case .error(let errorKind, task: let task, underlyingError: let underlyingError):
+      handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)
+    }
+  }
+  
   func bindDownloadObservers() {
     syncService.downloadCompletedPublisher
       .filter({ [weak self] in
@@ -237,24 +268,11 @@ class ItemListViewModel: ViewModelProtocol {
         )
       }.store(in: &disposeBag)
 
-    singleFileDownloadService.eventsPublisher.sink { [weak self] event in
-      guard let self else { return }
-      switch event {
-      case .starting:
-        self.sendEvent(.showProcessingView(true, title: "downloading_file_title".localized, subtitle: "\("progress_title".localized) 0%"))
-      case .progress(task: _, progress: let progress):
-        let percentage = String(format: "%.2f", progress * 100)
-        self.sendEvent(.showProcessingView(
-          true,
-          title: "downloading_file_title".localized,
-          subtitle: "\("progress_title".localized) \(percentage)%"
-        ))
-      case .finished:
-        self.sendEvent(.showProcessingView(false, title: nil, subtitle: nil))
-      case .error(let errorKind, task: let task, underlyingError: let underlyingError):
-        self.handleSingleFileDownloadError(errorKind, task: task, underlyingError: underlyingError)
-      }
-    }.store(in: &disposeBag)
+    singleFileDownloadService.eventsPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        self?.handleDownloadServiceEvent(event)
+      }.store(in: &disposeBag)
   }
 
   func getPathForParentOfItem(currentItem: PlayableItem) -> String? {
@@ -1087,6 +1105,8 @@ extension ItemListViewModel {
 
       self.coordinator.reloadItemsWithPadding(padding: itemIdentifiers.count)
 
+      await hardcoverService.processAutoMatch(for: processedItems)
+
       let availableFolders = self.libraryService.getItems(
         notIn: itemIdentifiers,
         parentFolder: folderRelativePath
@@ -1374,4 +1394,5 @@ extension ItemListViewModel: AlertPresenter {
   func stopLoader() {
     sendEvent(.showLoader(flag: false))
   }
+
 }

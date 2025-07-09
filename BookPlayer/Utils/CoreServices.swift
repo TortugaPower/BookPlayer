@@ -10,12 +10,13 @@ import BookPlayerKit
 import Foundation
 
 struct CoreServices {
-  let dataManager: DataManager
   let accountService: AccountServiceProtocol
-  let syncService: SyncServiceProtocol
+  let dataManager: DataManager
+  let hardcoverService: HardcoverServiceProtocol
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
   let playerLoaderService: PlayerLoaderService
+  let playerManager: PlayerManagerProtocol
+  let syncService: SyncServiceProtocol
   let watchService: PhoneWatchConnectivityService
 }

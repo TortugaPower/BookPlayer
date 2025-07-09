@@ -21,6 +21,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
   let jellyfinConnectionService: JellyfinConnectionService
+  let hardcoverService: HardcoverServiceProtocol
   let flow: BPCoordinatorPresentationFlow
 
   weak var documentPickerDelegate: UIDocumentPickerDelegate?
@@ -34,7 +35,8 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    jellyfinConnectionService: JellyfinConnectionService
+    jellyfinConnectionService: JellyfinConnectionService,
+    hardcoverService: HardcoverServiceProtocol
   ) {
     self.flow = flow
     self.playerManager = playerManager
@@ -45,6 +47,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     self.importManager = importManager
     self.listRefreshService = listRefreshService
     self.jellyfinConnectionService = jellyfinConnectionService
+    self.hardcoverService = hardcoverService
   }
 
   func start() {
@@ -67,7 +70,8 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
       syncService: syncService,
       importManager: importManager,
       listRefreshService: listRefreshService,
-      jellyfinConnectionService: jellyfinConnectionService
+      jellyfinConnectionService: jellyfinConnectionService,
+      hardcoverService: hardcoverService
     )
     child.start()
   }
@@ -209,6 +213,7 @@ extension ItemListCoordinator {
   func showItemDetails(_ item: SimpleLibraryItem) {
     let viewModel = ItemDetailsViewModel(
       item: item,
+      hardcoverService: hardcoverService,
       libraryService: libraryService,
       syncService: syncService
     )

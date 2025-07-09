@@ -48,7 +48,7 @@ struct TipJarView: View {
           Task { @MainActor in
             await viewModel.donate(selected)
           }
-        }) {
+        }, label: {
           Text("donate_title".localized)
             .contentShape(Rectangle())
             .font(Font(Fonts.headline))
@@ -58,7 +58,7 @@ struct TipJarView: View {
             .background(Color(UIColor(hex: "687AB7")))
             .cornerRadius(6)
             .padding(.top, Spacing.S1)
-        }
+        })
         .disabled(viewModel.isLoading)
         Spacer()
       }

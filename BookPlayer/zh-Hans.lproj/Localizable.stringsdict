@@ -58,5 +58,19 @@
         <string>正在处理%d文件</string>
       </dict>
     </dict>
+    <key>downloading_file_title</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>正在下载 %d 个文件</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

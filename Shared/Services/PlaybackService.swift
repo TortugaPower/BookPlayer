@@ -271,27 +271,15 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   func getPlayableChapters(folder: SimpleLibraryItem) throws -> [PlayableChapter] {
-    guard
-      let items = self.libraryService.fetchContents(
-        at: folder.relativePath,
-        limit: nil,
-        offset: nil
-      )
-    else {
+    guard let items = self.libraryService.fetchContents(at: folder.relativePath, limit: nil, offset: nil) else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_loading_chapters".localized,
-          String(describing: folder.relativePath)
-        )
+        String.localizedStringWithFormat("error_loading_chapters".localized, String(describing: folder.relativePath))
       )
     }
 
     guard !items.isEmpty else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_empty_chapters".localized,
-          String(describing: folder.title)
-        )
+        String.localizedStringWithFormat("error_empty_chapters".localized, String(describing: folder.title))
       )
     }
 
@@ -339,10 +327,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     guard !chapters.isEmpty else {
       throw BookPlayerError.runtimeError(
-        String.localizedStringWithFormat(
-          "error_empty_chapters".localized,
-          String(describing: folder.title)
-        )
+        String.localizedStringWithFormat("error_empty_chapters".localized, String(describing: folder.title))
       )
     }
 

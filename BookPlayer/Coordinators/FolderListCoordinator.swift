@@ -22,7 +22,8 @@ class FolderListCoordinator: ItemListCoordinator {
     syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
-    jellyfinConnectionService: JellyfinConnectionService
+    jellyfinConnectionService: JellyfinConnectionService,
+    hardcoverService: HardcoverServiceProtocol
   ) {
     self.folderRelativePath = folderRelativePath
 
@@ -35,7 +36,8 @@ class FolderListCoordinator: ItemListCoordinator {
       syncService: syncService, 
       importManager: importManager,
       listRefreshService: listRefreshService,
-      jellyfinConnectionService: jellyfinConnectionService
+      jellyfinConnectionService: jellyfinConnectionService,
+      hardcoverService: hardcoverService
     )
   }
 
@@ -50,6 +52,7 @@ class FolderListCoordinator: ItemListCoordinator {
       syncService: self.syncService, 
       importManager: self.importManager, 
       listRefreshService: listRefreshService,
+      hardcoverService: hardcoverService,
       themeAccent: ThemeManager.shared.currentTheme.linkColor
     )
     viewModel.onTransition = { route in
@@ -72,8 +75,10 @@ class FolderListCoordinator: ItemListCoordinator {
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
       case .showMiniPlayer(let flag):
         self.showMiniPlayer(flag: flag)
-      case .listDidAppear:
+      case .listDidLoad:
         self.syncList()
+      case .listDidAppear:
+        break
       case .showQueuedTasks:
         self.showQueuedTasks()
       }

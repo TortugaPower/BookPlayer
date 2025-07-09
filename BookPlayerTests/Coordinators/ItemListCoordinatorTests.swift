@@ -31,6 +31,7 @@ class LibraryListCoordinatorTests: XCTestCase {
     let syncServiceMock = SyncServiceProtocolMock()
     let keychainServiceMock = KeychainServiceMock()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient(keychain: keychainServiceMock))
+    let hardcoverService = HardcoverService(libraryService: libraryService)
 
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -45,14 +46,11 @@ class LibraryListCoordinatorTests: XCTestCase {
         syncService: syncServiceMock
       ),
       accountService: coreServices.accountService,
-      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock),
+      hardcoverService: hardcoverService
     )
 
     self.libraryListCoordinator.start()
-  }
-
-  func testInitialState() {
-    XCTAssert(self.libraryListCoordinator.shouldShowImportScreen())
   }
 
   func testDocumentPickerDelegate() {
@@ -91,6 +89,7 @@ class FolderListCoordinatorTests: XCTestCase {
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
     let keychainServiceMock = KeychainServiceMock()
+    let hardcoverService = HardcoverService(libraryService: libraryService)
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -105,7 +104,8 @@ class FolderListCoordinatorTests: XCTestCase {
         playerManager: playerManagerMock,
         syncService: syncServiceMock
       ),
-      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock)
+      jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock),
+      hardcoverService: hardcoverService
     )
 
     self.folderListCoordinator.start()
