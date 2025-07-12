@@ -6,10 +6,14 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Security
 
 public protocol KeychainServiceProtocol {
+  /// Publishes anytime a value of the `KeychainKeys` is modified
+  var valueUpdatedPublisher: PassthroughSubject<KeychainUpdateValue, Never> { get }
+
   func set(_ value: String, key: KeychainKeys) throws
   func set<T: Encodable>(_ value: T, key: KeychainKeys) throws
 
@@ -17,6 +21,9 @@ public protocol KeychainServiceProtocol {
   func get<T: Decodable>(_ key: KeychainKeys) throws -> T?
   func remove(_ key: KeychainKeys) throws
 }
+
+/// Tuple to simplify sending updates when a value in the keychain is removed or is inserted
+public typealias KeychainUpdateValue = (key: KeychainKeys, deleted: Bool)
 
 public enum KeychainKeys: String {
   /// Stores BookPlayer's API access token
@@ -32,6 +39,8 @@ public class KeychainService: KeychainServiceProtocol {
 
   private let encoder: JSONEncoder = JSONEncoder()
   private let decoder: JSONDecoder = JSONDecoder()
+
+  public var valueUpdatedPublisher = PassthroughSubject<KeychainUpdateValue, Never>()
 
   public init() {}
 
@@ -68,7 +77,7 @@ public class KeychainService: KeychainServiceProtocol {
       kSecAttrService as String: service,
       kSecMatchLimit as String: kSecMatchLimitOne,
       kSecReturnData as String: true,
-      kSecAttrAccount as String: key
+      kSecAttrAccount as String: key,
     ]
 
     var result: AnyObject?
@@ -93,6 +102,7 @@ public class KeychainService: KeychainServiceProtocol {
   public func set<T: Encodable>(_ value: T, key: KeychainKeys) throws {
     let data = try encoder.encode(value)
     try setData(data, key: key.rawValue)
+    valueUpdatedPublisher.send((key: key, deleted: false))
   }
 
   public func set(_ value: String, key: KeychainKeys) throws {
@@ -102,6 +112,7 @@ public class KeychainService: KeychainServiceProtocol {
     }
 
     try setData(data, key: key.rawValue)
+    valueUpdatedPublisher.send((key: key, deleted: false))
   }
 
   private func setData(_ data: Data, key: String) throws {
@@ -109,7 +120,7 @@ public class KeychainService: KeychainServiceProtocol {
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
       kSecAttrAccount as String: key,
-      kSecReturnData as String: true
+      kSecReturnData as String: true,
     ]
 
     var status = SecItemCopyMatching(searchQuery as CFDictionary, nil)
@@ -118,30 +129,32 @@ public class KeychainService: KeychainServiceProtocol {
       let query: [String: Any] = [
         kSecClass as String: kSecClassGenericPassword,
         kSecAttrService as String: service,
-        kSecAttrAccount as String: key
+        kSecAttrAccount as String: key,
       ]
 
       let attributes: [String: Any] = [
         kSecValueData as String: data,
-        kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
       ]
 
-#if os(iOS)
-      if status == errSecInteractionNotAllowed && floor(NSFoundationVersionNumber) <= floor(NSFoundationVersionNumber_iOS_8_0) {
-        try remove(key)
-        try setData(data, key: key)
-      } else {
+      #if os(iOS)
+        if status == errSecInteractionNotAllowed
+          && floor(NSFoundationVersionNumber) <= floor(NSFoundationVersionNumber_iOS_8_0)
+        {
+          try remove(key)
+          try setData(data, key: key)
+        } else {
+          status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+          if status != errSecSuccess {
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+          }
+        }
+      #else
         status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         if status != errSecSuccess {
           throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
         }
-      }
-#else
-      status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
-      if status != errSecSuccess {
-        throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-      }
-#endif
+      #endif
     case errSecItemNotFound:
       try self.add(data, key: key)
     default:
@@ -155,7 +168,7 @@ public class KeychainService: KeychainServiceProtocol {
       kSecAttrService as String: service,
       kSecAttrAccount as String: key,
       kSecValueData as String: data,
-      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
     ]
 
     let status = SecItemAdd(query as CFDictionary, nil)
@@ -166,13 +179,14 @@ public class KeychainService: KeychainServiceProtocol {
 
   public func remove(_ key: KeychainKeys) throws {
     try remove(key.rawValue)
+    valueUpdatedPublisher.send((key: key, deleted: true))
   }
 
   private func remove(_ key: String) throws {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
-      kSecAttrAccount as String: key
+      kSecAttrAccount as String: key,
     ]
 
     let status = SecItemDelete(query as CFDictionary)
