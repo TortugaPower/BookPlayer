@@ -866,14 +866,14 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var setHardcoverBookForCalled: Bool {
         return setHardcoverBookForCallsCount > 0
     }
-    var setHardcoverBookForReceivedArguments: (hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, relativePath: String)?
-    var setHardcoverBookForReceivedInvocations: [(hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, relativePath: String)] = []
-    var setHardcoverBookForClosure: ((BookPlayerKit.SimpleHardcoverBook?, String) -> Void)?
-    func setHardcoverBook(_ hardcoverBook: BookPlayerKit.SimpleHardcoverBook?, for relativePath: String) {
+    var setHardcoverBookForReceivedArguments: (hardcoverBook: SimpleHardcoverBook?, relativePath: String)?
+    var setHardcoverBookForReceivedInvocations: [(hardcoverBook: SimpleHardcoverBook?, relativePath: String)] = []
+    var setHardcoverBookForClosure: ((SimpleHardcoverBook?, String) async -> Void)?
+    func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async {
         setHardcoverBookForCallsCount += 1
         setHardcoverBookForReceivedArguments = (hardcoverBook: hardcoverBook, relativePath: relativePath)
         setHardcoverBookForReceivedInvocations.append((hardcoverBook: hardcoverBook, relativePath: relativePath))
-        setHardcoverBookForClosure?(hardcoverBook, relativePath)
+        await setHardcoverBookForClosure?(hardcoverBook, relativePath)
     }
     //MARK: - getHardcoverBook
 
@@ -883,14 +883,14 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var getHardcoverBookForReceivedRelativePath: String?
     var getHardcoverBookForReceivedInvocations: [String] = []
-    var getHardcoverBookForReturnValue: BookPlayerKit.SimpleHardcoverBook?
-    var getHardcoverBookForClosure: ((String) -> BookPlayerKit.SimpleHardcoverBook?)?
-    func getHardcoverBook(for relativePath: String) -> BookPlayerKit.SimpleHardcoverBook? {
+    var getHardcoverBookForReturnValue: SimpleHardcoverBook?
+    var getHardcoverBookForClosure: ((String) async -> SimpleHardcoverBook?)?
+    func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook? {
         getHardcoverBookForCallsCount += 1
         getHardcoverBookForReceivedRelativePath = relativePath
         getHardcoverBookForReceivedInvocations.append(relativePath)
         if let getHardcoverBookForClosure = getHardcoverBookForClosure {
-            return getHardcoverBookForClosure(relativePath)
+            return await getHardcoverBookForClosure(relativePath)
         } else {
             return getHardcoverBookForReturnValue
         }
