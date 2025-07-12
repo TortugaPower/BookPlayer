@@ -14,6 +14,7 @@ struct HardcoverSettingsView: View {
   @StateObject var themeViewModel = ThemeViewModel()
 
   @StateObject var viewModel: HardcoverSettingsView.Model
+  @State var isValid = true
 
   @FocusState private var isTextFieldFocused: Bool
 
@@ -33,6 +34,9 @@ struct HardcoverSettingsView: View {
           .onSubmit {
             isTextFieldFocused = false
           }
+          .onChange(of: viewModel.accessToken) { new in
+            isValid = new.isEmpty || !new.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          }
         } header: {
           Text("hardcover_api_access_title".localized)
             .foregroundColor(themeViewModel.secondaryColor)
@@ -46,7 +50,7 @@ struct HardcoverSettingsView: View {
         Section {
           Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
             .foregroundColor(themeViewModel.primaryColor)
-          
+
           Toggle("hardcover_auto_add_want_to_read".localized, isOn: $viewModel.autoAddWantToRead)
             .foregroundColor(themeViewModel.primaryColor)
         } header: {
@@ -54,7 +58,7 @@ struct HardcoverSettingsView: View {
             .foregroundColor(themeViewModel.secondaryColor)
         } footer: {
           Text("hardcover_automation_description".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+            .foregroundColor(themeViewModel.secondaryColor)
         }
 
         Section {
@@ -66,7 +70,7 @@ struct HardcoverSettingsView: View {
               Text("\(Int(viewModel.readingThreshold))%")
                 .foregroundColor(themeViewModel.secondaryColor)
             }
-            
+
             Slider(
               value: $viewModel.readingThreshold,
               in: 1...99,
@@ -84,6 +88,16 @@ struct HardcoverSettingsView: View {
             .foregroundColor(themeViewModel.secondaryColor)
         }
         .navigationBarTitleDisplayMode(.inline)
+
+        if viewModel.showUnlinkButton {
+          Section {
+            Button("hardcover_unlink_button".localized, role: .destructive) {
+              viewModel.onUnlinkTapped()
+              dismiss()
+            }
+            .frame(maxWidth: .infinity)
+          }
+        }
       }
       .toolbar {
         navigationBar
@@ -95,23 +109,23 @@ struct HardcoverSettingsView: View {
 
   @ToolbarContentBuilder
   var navigationBar: some ToolbarContent {
-      ToolbarItem(placement: .principal) {
-        Text("hardcover_settings_title".localized)
-          .font(.headline)
-          .foregroundColor(themeViewModel.primaryColor)
-      }
-      ToolbarItemGroup(placement: .cancellationAction) {
-        Button(
-          action: {
-            dismiss()
-          },
-          label: {
-            Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
-          }
-        )
-        .accessibilityLabel("voiceover_close_button".localized)
-      }
+    ToolbarItem(placement: .principal) {
+      Text("hardcover_settings_title".localized)
+        .font(.headline)
+        .foregroundColor(themeViewModel.primaryColor)
+    }
+    ToolbarItemGroup(placement: .cancellationAction) {
+      Button(
+        action: {
+          dismiss()
+        },
+        label: {
+          Image(systemName: "xmark")
+            .foregroundColor(themeViewModel.linkColor)
+        }
+      )
+      .accessibilityLabel("voiceover_close_button".localized)
+    }
     ToolbarItemGroup(placement: .confirmationAction) {
       Button(
         "save_button".localized,
@@ -120,6 +134,7 @@ struct HardcoverSettingsView: View {
           dismiss()
         }
       )
+      .disabled(!isValid)
     }
   }
 }
@@ -131,19 +146,26 @@ extension HardcoverSettingsView {
     @Published var autoAddWantToRead: Bool
     @Published var readingThreshold: Double
 
+    let showUnlinkButton: Bool
+
     @MainActor
     func onSaveTapped() {}
+
+    @MainActor
+    func onUnlinkTapped() {}
 
     init(
       accessToken: String = "",
       autoMatch: Bool = false,
       autoAddWantToRead: Bool = false,
-      readingThreshold: Double = 1.0
+      readingThreshold: Double = 1.0,
+      showUnlinkButton: Bool = false
     ) {
       self.accessToken = accessToken
       self.autoMatch = autoMatch
       self.autoAddWantToRead = autoAddWantToRead
       self.readingThreshold = readingThreshold
+      self.showUnlinkButton = showUnlinkButton
     }
   }
 }
