@@ -351,23 +351,24 @@ extension HardcoverService {
 
     Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
 
-    if autoAddWantToReadEnabled, authorization != nil {
-      do {
-        let response = try await insertUserBook(
-          bookID: book.id,
-          status: .library
-        )
-        Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+    guard autoAddWantToReadEnabled, authorization != nil else {
+      await libraryService.setHardcoverBook(book, for: item.relativePath)
+      return
+    }
 
-        var updated = book
-        updated.status = .library
-        updated.userBookID = response.insertUserBook.id
-        await libraryService.setHardcoverBook(updated, for: item.relativePath)
-      } catch {
-        Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
-        await libraryService.setHardcoverBook(book, for: item.relativePath)
-      }
-    } else {
+    do {
+      let response = try await insertUserBook(
+        bookID: book.id,
+        status: .library
+      )
+      Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+
+      var updated = book
+      updated.status = .library
+      updated.userBookID = response.insertUserBook.id
+      await libraryService.setHardcoverBook(updated, for: item.relativePath)
+    } catch {
+      Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
       await libraryService.setHardcoverBook(book, for: item.relativePath)
     }
   }
