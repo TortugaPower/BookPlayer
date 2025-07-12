@@ -50,6 +50,8 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let audioMetadataService: AudioMetadataServiceProtocol
   private let libraryService: LibraryServiceProtocol
 
+  private var metadataSubscription: AnyCancellable?
+  private var progressSubscription: AnyCancellable?
   private var cancellables = Set<AnyCancellable>()
 
   private var readingThreshold: Double {
@@ -72,6 +74,8 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     self.libraryService = libraryService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
+
+    self.bindKeychainObserver()
   }
 
   var authorization: String? {
@@ -171,10 +175,34 @@ extension HardcoverService {
 }
 
 extension HardcoverService {
-  func startTrackingLibraryUpdates() {
+  private func bindKeychainObserver() {
+    keychain.valueUpdatedPublisher
+      .filter { $0.key == .hardcoverToken }
+      .sink { [weak self] (_, deleted) in
+        if deleted {
+          self?.stopTrackingLibraryUpdates()
+        } else {
+          self?.startTrackingLibraryUpdates()
+        }
+      }
+      .store(in: &cancellables)
+
+    if authorization != nil {
+      startTrackingLibraryUpdates()
+    }
+  }
+
+  private func stopTrackingLibraryUpdates() {
+    Self.logger.info("Stopping library updates for Hardcover sync")
+
+    metadataSubscription?.cancel()
+    progressSubscription?.cancel()
+  }
+
+  private func startTrackingLibraryUpdates() {
     Self.logger.info("Starting to track library updates for Hardcover sync")
 
-    libraryService.metadataUpdatePublisher
+    metadataSubscription = libraryService.metadataUpdatePublisher
       .sink { [weak self] metadata in
         guard
           let relativePath = metadata["relativePath"] as? String,
@@ -187,9 +215,8 @@ extension HardcoverService {
           await self.handleBookFinished(relativePath: relativePath)
         }
       }
-      .store(in: &cancellables)
 
-    libraryService.progressUpdatePublisher
+    progressSubscription = libraryService.progressUpdatePublisher
       .sink { [weak self] progress in
         guard
           let relativePath = progress["relativePath"] as? String,
@@ -201,12 +228,10 @@ extension HardcoverService {
           await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
         }
       }
-      .store(in: &cancellables)
   }
 
   private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
     guard
-      authorization != nil,
       percentCompleted > readingThreshold,
       var item = libraryService.getHardcoverBook(for: relativePath),
       item.status < .reading
@@ -230,7 +255,6 @@ extension HardcoverService {
 
   private func handleBookFinished(relativePath: String) async {
     guard
-      authorization != nil,
       var item = libraryService.getHardcoverBook(for: relativePath),
       item.status != .read
     else { return }
