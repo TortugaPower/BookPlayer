@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Klasörü indir";
 "download_folder_confirmation_message" = "Bu klasördeki tüm %d dosya indirilsin mi?";
-"download_folder_confirm_button" = "İndir";
 "hardcover_searching_books" = "Kitaplar aranıyor...";
-"hardcover_error_title" = "Hata";
 "hardcover_unlink_button" = "Bağlantıyı kes";
-"hardcover_select_button" = "Seç";
 "hardcover_auto_match_books" = "Kitapları otomatik eşleştir";
 "hardcover_auto_add_want_to_read" = "\"Okumak istiyorum\" listesine otomatik ekle";
 "hardcover_reading_threshold" = "Okuma eşiği";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Hardcover API erişiminizi https://hardcover.app/account/api adresinde bulabilirsiniz.";
 "hardcover_automation_title" = "Otomasyon";
 "hardcover_progress_tracking_title" = "İlerleme Takibi";
-"hardcover_save_button" = "Kaydet";
+"save_button" = "Kaydet";
 "hardcover_remove_confirmation_title" = "Hardcover'dan kaldır?";
 "hardcover_remove_confirmation_message" = "%@, %@ kitabını Hardcover kütüphanenizden kaldırmak istiyor musunuz?";
 "hardcover_remove_keep_it" = "Tut";

@@ -41,7 +41,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       "download_folder_confirmation_title".localized,
       isPresented: $viewModel.showingDownloadConfirmation
     ) {
-      Button("download_folder_confirm_button".localized) {
+      Button("download_title".localized) {
         viewModel.confirmDownloadFolder()
       }
       Button("cancel_button".localized, role: .cancel) { }

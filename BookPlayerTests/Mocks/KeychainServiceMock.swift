@@ -7,8 +7,11 @@
 //
 
 import BookPlayerKit
+import Combine
 
 class KeychainServiceMock: KeychainServiceProtocol {
+  var valueUpdatedPublisher = PassthroughSubject<BookPlayerKit.KeychainUpdateValue, Never>()
+  
   private let encoder = JSONEncoder()
   private let decoder = JSONDecoder()
   

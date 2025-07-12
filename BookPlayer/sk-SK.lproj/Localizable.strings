@@ -352,11 +352,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "bookmark_automatic_sleep_title" = "Posledná pozícia, keď bol časovač spánku zapnutý";
 "download_folder_confirmation_title" = "Stiahnuť priečinok";
 "download_folder_confirmation_message" = "Stiahnuť všetkých %d súbory z tohto priečinku?";
-"download_folder_confirm_button" = "Stiahnuť";
 "hardcover_searching_books" = "Hľadanie kníh...";
-"hardcover_error_title" = "Chyba";
 "hardcover_unlink_button" = "Odpojiť";
-"hardcover_select_button" = "Vybrať";
 "hardcover_auto_match_books" = "Automaticky spárovať knihy";
 "hardcover_auto_add_want_to_read" = "Automaticky pridať do \"Chcem čítať\"";
 "hardcover_reading_threshold" = "Prah čítania";
@@ -368,7 +365,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "hardcover_api_access_footer" = "Váš prístup k API Hardcover môžete nájsť na https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatizácia";
 "hardcover_progress_tracking_title" = "Sledovanie pokroku";
-"hardcover_save_button" = "Uložiť";
+"save_button" = "Uložiť";
 "hardcover_remove_confirmation_title" = "Odstrániť z Hardcover?";
 "hardcover_remove_confirmation_message" = "Chcete odstrániť %@, %@ z vašej knižnice Hardcover?";
 "hardcover_remove_keep_it" = "Ponechať";

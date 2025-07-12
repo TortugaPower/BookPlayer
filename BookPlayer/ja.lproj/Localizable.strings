@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "スリープタイマーがオンになった最後の位置";
 "download_folder_confirmation_title" = "フォルダをダウンロード";
 "download_folder_confirmation_message" = "このフォルダからすべての %d ファイルをダウンロードしますか？";
-"download_folder_confirm_button" = "ダウンロード";
 "hardcover_searching_books" = "本を検索中...";
-"hardcover_error_title" = "エラー";
 "hardcover_unlink_button" = "リンク解除";
-"hardcover_select_button" = "選択";
 "hardcover_auto_match_books" = "自動的に本をマッチング";
 "hardcover_auto_add_want_to_read" = "「読みたい」リストに自動追加";
 "hardcover_reading_threshold" = "読書閾値";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Hardcover APIアクセスは https://hardcover.app/account/api で確認できます。";
 "hardcover_automation_title" = "自動化";
 "hardcover_progress_tracking_title" = "進捗追跡";
-"hardcover_save_button" = "保存";
+"save_button" = "保存";
 "hardcover_remove_confirmation_title" = "Hardcoverから削除しますか？";
 "hardcover_remove_confirmation_message" = "Hardcoverライブラリから%@、%@を削除しますか？";
 "hardcover_remove_keep_it" = "保持";

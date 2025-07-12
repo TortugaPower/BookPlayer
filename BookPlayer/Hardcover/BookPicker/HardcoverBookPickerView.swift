@@ -45,7 +45,7 @@ struct HardcoverBookPickerView: View {
               .foregroundColor(.red)
               .accessibilityHidden(true)
             
-            Text("hardcover_error_title".localized)
+            Text("error_title".localized)
               .font(.headline)
             
             Text(message)

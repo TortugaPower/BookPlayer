@@ -352,11 +352,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Last ned mappe";
 "download_folder_confirmation_message" = "Last ned alle %d filer fra denne mappen?";
-"download_folder_confirm_button" = "Last ned";
 "hardcover_searching_books" = "Søker etter bøker...";
-"hardcover_error_title" = "Feil";
 "hardcover_unlink_button" = "Koble fra";
-"hardcover_select_button" = "Velg";
 "hardcover_auto_match_books" = "Automatisk koble bøker";
 "hardcover_auto_add_want_to_read" = "Legg automatisk til \"Ønsker å lese\"";
 "hardcover_reading_threshold" = "Leseterskel";
@@ -368,7 +365,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "hardcover_api_access_footer" = "Du kan finne din Hardcover API-tilgang på https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Fremdriftssporing";
-"hardcover_save_button" = "Lagre";
+"save_button" = "Lagre";
 "hardcover_remove_confirmation_title" = "Fjern fra Hardcover?";
 "hardcover_remove_confirmation_message" = "Vil du fjerne %@, %@ fra ditt Hardcover-bibliotek?";
 "hardcover_remove_keep_it" = "Behold den";
