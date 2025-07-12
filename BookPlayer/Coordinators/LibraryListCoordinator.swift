@@ -304,7 +304,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
   func showImport() {
     guard
       importManager.hasPendingFiles(),
-      flow.navigationController.presentedViewController == nil,
       importCoordinator == nil,
       let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
     else { return }

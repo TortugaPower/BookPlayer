@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Κατέβασμα φακέλου";
 "download_folder_confirmation_message" = "Κατέβασμα όλων των %d αρχείων από αυτόν τον φάκελο;";
-"download_folder_confirm_button" = "Κατέβασμα";
 "hardcover_searching_books" = "Αναζήτηση βιβλίων...";
-"hardcover_error_title" = "Σφάλμα";
 "hardcover_unlink_button" = "Αποσύνδεση";
-"hardcover_select_button" = "Επιλογή";
 "hardcover_auto_match_books" = "Αυτόματο ταίριασμα βιβλίων";
 "hardcover_auto_add_want_to_read" = "Αυτόματη προσθήκη στη λίστα \"Θέλω να διαβάσω\"";
 "hardcover_reading_threshold" = "Κατώφλι ανάγνωσης";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Μπορείτε να βρείτε την πρόσβαση API του Hardcover στο https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Αυτοματισμός";
 "hardcover_progress_tracking_title" = "Παρακολούθηση προόδου";
-"hardcover_save_button" = "Αποθήκευση";
+"save_button" = "Αποθήκευση";
 "hardcover_remove_confirmation_title" = "Αφαίρεση από το Hardcover;";
 "hardcover_remove_confirmation_message" = "Θέλετε να αφαιρέσετε το %@, %@ από τη βιβλιοθήκη Hardcover σας;";
 "hardcover_remove_keep_it" = "Διατήρηση";

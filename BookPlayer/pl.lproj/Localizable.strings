@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Pobierz folder";
 "download_folder_confirmation_message" = "Pobrać wszystkie %d pliki z tego folderu?";
-"download_folder_confirm_button" = "Pobierz";
 "hardcover_searching_books" = "Wyszukiwanie książek...";
-"hardcover_error_title" = "Błąd";
 "hardcover_unlink_button" = "Odłącz";
-"hardcover_select_button" = "Wybierz";
 "hardcover_auto_match_books" = "Automatycznie dopasuj książki";
 "hardcover_auto_add_want_to_read" = "Automatycznie dodaj do \"Chcę przeczytać\"";
 "hardcover_reading_threshold" = "Próg czytania";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Dostęp do API Hardcover można znaleźć pod adresem https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatyzacja";
 "hardcover_progress_tracking_title" = "Śledzenie postępu";
-"hardcover_save_button" = "Zapisz";
+"save_button" = "Zapisz";
 "hardcover_remove_confirmation_title" = "Usunąć z Hardcover?";
 "hardcover_remove_confirmation_message" = "Czy chcesz usunąć %@, %@ z biblioteki Hardcover?";
 "hardcover_remove_keep_it" = "Zachowaj";

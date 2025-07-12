@@ -28,8 +28,11 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
   init(hardcoverService: HardcoverServiceProtocol) {
     self.hardcoverService = hardcoverService
     
-    super.init(accessToken: hardcoverService.authorization ?? "")
-    
+    super.init(
+      accessToken: hardcoverService.authorization ?? "",
+      showUnlinkButton: hardcoverService.authorization != nil
+    )
+
     self.autoMatch = storedAutoMatch
     self.autoAddWantToRead = storedAutoAddWantToRead
     self.readingThreshold = storedReadingThreshold
@@ -41,5 +44,10 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
     storedAutoMatch = autoMatch
     storedAutoAddWantToRead = autoAddWantToRead
     storedReadingThreshold = readingThreshold
+  }
+
+  @MainActor
+  override func onUnlinkTapped() {
+    hardcoverService.authorization = nil
   }
 }

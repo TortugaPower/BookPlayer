@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Stáhnout složku";
 "download_folder_confirmation_message" = "Stáhnout všechny %d soubory z této složky?";
-"download_folder_confirm_button" = "Stáhnout";
 "hardcover_searching_books" = "Hledám knihy...";
-"hardcover_error_title" = "Chyba";
 "hardcover_unlink_button" = "Odpojit";
-"hardcover_select_button" = "Vybrat";
 "hardcover_auto_match_books" = "Automaticky párovat knihy";
 "hardcover_auto_add_want_to_read" = "Automaticky přidat do seznamu \"Chci přečíst\"";
 "hardcover_reading_threshold" = "Práh pro čtení";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Váš přístup k API Hardcover najdete na https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatizace";
 "hardcover_progress_tracking_title" = "Sledování pokroku";
-"hardcover_save_button" = "Uložit";
+"save_button" = "Uložit";
 "hardcover_remove_confirmation_title" = "Odebrat z Hardcover?";
 "hardcover_remove_confirmation_message" = "Chcete odebrat %@, %@ z vaší knihovny Hardcover?";
 "hardcover_remove_keep_it" = "Ponechat";

@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Завантажити папку";
 "download_folder_confirmation_message" = "Завантажити всі %d файлів з цієї папки?";
-"download_folder_confirm_button" = "Завантажити";
 "hardcover_searching_books" = "Пошук книг...";
-"hardcover_error_title" = "Помилка";
 "hardcover_unlink_button" = "Від'єднати";
-"hardcover_select_button" = "Вибрати";
 "hardcover_auto_match_books" = "Автоматично співставляти книги";
 "hardcover_auto_add_want_to_read" = "Автоматично додавати до \"Хочу прочитати\"";
 "hardcover_reading_threshold" = "Поріг читання";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Ви можете знайти свій доступ до API Hardcover за адресою https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Автоматизація";
 "hardcover_progress_tracking_title" = "Відстеження прогресу";
-"hardcover_save_button" = "Зберегти";
+"save_button" = "Зберегти";
 "hardcover_remove_confirmation_title" = "Видалити з Hardcover?";
 "hardcover_remove_confirmation_message" = "Хочете видалити %@, %@ з вашої бібліотеки Hardcover?";
 "hardcover_remove_keep_it" = "Залишити";

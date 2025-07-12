@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Lataa kansio";
 "download_folder_confirmation_message" = "Ladataanko kaikki %d tiedostoa tästä kansiosta?";
-"download_folder_confirm_button" = "Lataa";
 "hardcover_searching_books" = "Etsitään kirjoja...";
-"hardcover_error_title" = "Virhe";
 "hardcover_unlink_button" = "Poista linkki";
-"hardcover_select_button" = "Valitse";
 "hardcover_auto_match_books" = "Vastaa kirjoja automaattisesti";
 "hardcover_auto_add_want_to_read" = "Lisää automaattisesti \"Haluan lukea\" -listaan";
 "hardcover_reading_threshold" = "Lukukynnys";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Löydät Hardcover API -käyttöoikeutesi osoitteesta https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automaatio";
 "hardcover_progress_tracking_title" = "Edistymisen seuranta";
-"hardcover_save_button" = "Tallenna";
+"save_button" = "Tallenna";
 "hardcover_remove_confirmation_title" = "Poista Hardcoverista?";
 "hardcover_remove_confirmation_message" = "Haluatko poistaa %@, %@ Hardcover-kirjastostasi?";
 "hardcover_remove_keep_it" = "Pidä se";

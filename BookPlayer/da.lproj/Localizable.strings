@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Download mappe";
 "download_folder_confirmation_message" = "Download alle %d filer fra denne mappe?";
-"download_folder_confirm_button" = "Download";
 "hardcover_searching_books" = "Søger efter bøger...";
-"hardcover_error_title" = "Fejl";
 "hardcover_unlink_button" = "Afkobl";
-"hardcover_select_button" = "Vælg";
 "hardcover_auto_match_books" = "Auto-match bøger";
 "hardcover_auto_add_want_to_read" = "Tilføj automatisk til \"Vil læse\"";
 "hardcover_reading_threshold" = "Læsetærskel";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Du kan finde din Hardcover API-adgang på https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Fremdriftssporing";
-"hardcover_save_button" = "Gem";
+"save_button" = "Gem";
 "hardcover_remove_confirmation_title" = "Fjern fra Hardcover?";
 "hardcover_remove_confirmation_message" = "Vil du fjerne %@, %@ fra dit Hardcover bibliotek?";
 "hardcover_remove_keep_it" = "Behold den";

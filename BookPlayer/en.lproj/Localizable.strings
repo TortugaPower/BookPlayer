@@ -352,11 +352,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Download Folder";
 "download_folder_confirmation_message" = "Download all %d files from this folder?";
-"download_folder_confirm_button" = "Download";
 "hardcover_searching_books" = "Searching books...";
-"hardcover_error_title" = "Error";
 "hardcover_unlink_button" = "Unlink";
-"hardcover_select_button" = "Select";
 "hardcover_auto_match_books" = "Auto-match books";
 "hardcover_auto_add_want_to_read" = "Auto-add to Want to Read";
 "hardcover_reading_threshold" = "Reading threshold";
@@ -368,7 +365,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "hardcover_api_access_footer" = "Your can find your Hardcover API access at https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automation";
 "hardcover_progress_tracking_title" = "Progress Tracking";
-"hardcover_save_button" = "Save";
+"save_button" = "Save";
 "hardcover_remove_confirmation_title" = "Remove from Hardcover?";
 "hardcover_remove_confirmation_message" = "Do you want to remove %@, %@ from your Hardcover library?";
 "hardcover_remove_keep_it" = "Keep It";
