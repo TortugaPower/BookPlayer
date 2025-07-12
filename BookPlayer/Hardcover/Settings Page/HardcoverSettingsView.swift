@@ -114,7 +114,7 @@ struct HardcoverSettingsView: View {
       }
     ToolbarItemGroup(placement: .confirmationAction) {
       Button(
-        "hardcover_save_button".localized,
+        "save_button".localized,
         action: {
           viewModel.onSaveTapped()
           dismiss()

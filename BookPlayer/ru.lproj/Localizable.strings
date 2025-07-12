@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Последняя позиция, когда был включен таймер сна";
 "download_folder_confirmation_title" = "Скачать папку";
 "download_folder_confirmation_message" = "Скачать все %d файлов из этой папки?";
-"download_folder_confirm_button" = "Скачать";
 "hardcover_searching_books" = "Поиск книг...";
-"hardcover_error_title" = "Ошибка";
 "hardcover_unlink_button" = "Отвязать";
-"hardcover_select_button" = "Выбрать";
 "hardcover_auto_match_books" = "Автоматическое сопоставление книг";
 "hardcover_auto_add_want_to_read" = "Автоматически добавлять в \"Хочу прочитать\"";
 "hardcover_reading_threshold" = "Порог чтения";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Вы можете найти свой доступ к API Hardcover по адресу https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Автоматизация";
 "hardcover_progress_tracking_title" = "Отслеживание прогресса";
-"hardcover_save_button" = "Сохранить";
+"save_button" = "Сохранить";
 "hardcover_remove_confirmation_title" = "Удалить из Hardcover?";
 "hardcover_remove_confirmation_message" = "Хотите удалить %@, %@ из вашей библиотеки Hardcover?";
 "hardcover_remove_keep_it" = "Оставить";

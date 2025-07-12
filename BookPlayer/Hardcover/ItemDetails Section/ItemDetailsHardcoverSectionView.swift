@@ -28,7 +28,7 @@ struct ItemDetailsHardcoverSectionView: View {
           if let row = viewModel.pickerViewModel.selected {
             HardcoverBookRow(viewModel: row)
           } else {
-            Text("hardcover_select_button".localized)
+            Text("select_title".localized)
           }
         }
       )

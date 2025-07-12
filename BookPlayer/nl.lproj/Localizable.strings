@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Map downloaden";
 "download_folder_confirmation_message" = "Alle %d bestanden uit deze map downloaden?";
-"download_folder_confirm_button" = "Downloaden";
 "hardcover_searching_books" = "Zoeken naar boeken...";
-"hardcover_error_title" = "Fout";
 "hardcover_unlink_button" = "Ontkoppelen";
-"hardcover_select_button" = "Selecteren";
 "hardcover_auto_match_books" = "Automatisch boeken koppelen";
 "hardcover_auto_add_want_to_read" = "Automatisch toevoegen aan \"Wil lezen\"";
 "hardcover_reading_threshold" = "Leesdrempel";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "U kunt uw Hardcover API-toegang vinden op https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Voortgang bijhouden";
-"hardcover_save_button" = "Opslaan";
+"save_button" = "Opslaan";
 "hardcover_remove_confirmation_title" = "Verwijderen uit Hardcover?";
 "hardcover_remove_confirmation_message" = "Wil je %@, %@ verwijderen uit je Hardcover bibliotheek?";
 "hardcover_remove_keep_it" = "Behouden";
