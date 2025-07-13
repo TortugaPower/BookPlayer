@@ -24,6 +24,17 @@ class BookmarksViewModel: ViewModelProtocol {
 
   var automaticBookmarks = [SimpleBookmark]()
   var userBookmarks = [SimpleBookmark]()
+  var isAutomaticSectionCollapsed: Bool {
+    get {
+      UserDefaults.standard.bool(forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed)
+    }
+    set {
+      UserDefaults.standard.set(
+        newValue,
+        forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed
+      )
+    }
+  }
 
   /// Callback to handle actions on this screen
   public var onTransition: BPTransition<Routes>?
