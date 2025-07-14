@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "下载文件夹";
 "download_folder_confirmation_message" = "下载此文件夹中的所有 %d 个文件？";
-"download_folder_confirm_button" = "下载";
 "hardcover_searching_books" = "正在搜索图书...";
-"hardcover_error_title" = "错误";
 "hardcover_unlink_button" = "取消链接";
-"hardcover_select_button" = "选择";
 "hardcover_auto_match_books" = "自动匹配图书";
 "hardcover_auto_add_want_to_read" = "自动添加到\"想要阅读\"";
 "hardcover_reading_threshold" = "阅读阈值";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "您可以在 https://hardcover.app/account/api 找到您的 Hardcover API 访问权限。";
 "hardcover_automation_title" = "自动化";
 "hardcover_progress_tracking_title" = "进度跟踪";
-"hardcover_save_button" = "保存";
+"save_button" = "保存";
 "hardcover_remove_confirmation_title" = "从Hardcover中删除？";
 "hardcover_remove_confirmation_message" = "您想从Hardcover图书馆删除%@，%@吗？";
 "hardcover_remove_keep_it" = "保留";

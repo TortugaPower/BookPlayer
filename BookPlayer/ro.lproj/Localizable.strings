@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Descarcă dosarul";
 "download_folder_confirmation_message" = "Descarcă toate cele %d fișiere din acest dosar?";
-"download_folder_confirm_button" = "Descarcă";
 "hardcover_searching_books" = "Căutând cărți...";
-"hardcover_error_title" = "Eroare";
 "hardcover_unlink_button" = "Deconectează";
-"hardcover_select_button" = "Selectează";
 "hardcover_auto_match_books" = "Asociază automat cărțile";
 "hardcover_auto_add_want_to_read" = "Adaugă automat la \"Vreau să citesc\"";
 "hardcover_reading_threshold" = "Pragul de citire";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Îți poți găsi accesul API Hardcover la https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatizare";
 "hardcover_progress_tracking_title" = "Urmărirea progresului";
-"hardcover_save_button" = "Salvează";
+"save_button" = "Salvează";
 "hardcover_remove_confirmation_title" = "Elimini din Hardcover?";
 "hardcover_remove_confirmation_message" = "Vrei să elimini %@, %@ din biblioteca ta Hardcover?";
 "hardcover_remove_keep_it" = "Păstrează";

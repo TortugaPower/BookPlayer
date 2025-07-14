@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Mappa letöltése";
 "download_folder_confirmation_message" = "Letölti az összes %d fájlt ebből a mappából?";
-"download_folder_confirm_button" = "Letöltés";
 "hardcover_searching_books" = "Könyvek keresése...";
-"hardcover_error_title" = "Hiba";
 "hardcover_unlink_button" = "Szétkapcsolás";
-"hardcover_select_button" = "Kiválaszt";
 "hardcover_auto_match_books" = "Könyvek automatikus párosítása";
 "hardcover_auto_add_want_to_read" = "Automatikus hozzáadás az \"El szeretném olvasni\" listához";
 "hardcover_reading_threshold" = "Olvasási küszöb";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "A Hardcover API hozzáférését a https://hardcover.app/account/api címen találhatja meg.";
 "hardcover_automation_title" = "Automatizálás";
 "hardcover_progress_tracking_title" = "Haladás követése";
-"hardcover_save_button" = "Mentés";
+"save_button" = "Mentés";
 "hardcover_remove_confirmation_title" = "Eltávolítás a Hardcoverból?";
 "hardcover_remove_confirmation_message" = "El szeretné távolítani a %@, %@ könyvet a Hardcover könyvtárából?";
 "hardcover_remove_keep_it" = "Megtartás";

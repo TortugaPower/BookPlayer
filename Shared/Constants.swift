@@ -42,6 +42,7 @@ public enum Constants {
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
     public static let lastEnabledTimer = "userSettingsLastEnabledTimer"
     public static let repeatEnabledSuffix = "_repeatEnabled"
+    public static let isAutomaticBookmarksSectionCollapsed = "userSettingsIsAutomaticBookmarksSectionCollapsed"
 
     public static let rewindInterval = "userSettingsRewindInterval"
     public static let forwardInterval = "userSettingsForwardInterval"

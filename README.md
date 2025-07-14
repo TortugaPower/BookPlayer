@@ -56,7 +56,7 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 
 ### Upcoming features
 
-See [our Roadmap on GitHub](https://github.com/GianniCarlo/Audiobook-Player/projects/1) for details.
+See [our Roadmap on GitHub](https://github.com/orgs/TortugaPower/projects/1) for details.
 
 ### Supported locales & Languages
 

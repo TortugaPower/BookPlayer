@@ -36,6 +36,7 @@ class BookmarksViewController: UITableViewController, MVVMControllerProtocol, St
     self.tableView.tableFooterView = UIView()
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.estimatedRowHeight = 55.66
+    self.tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "Header")
 
     self.reloadData()
 
@@ -71,18 +72,46 @@ class BookmarksViewController: UITableViewController, MVVMControllerProtocol, St
     return 2
   }
 
-  override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+  override func tableView(
+    _ tableView: UITableView,
+    viewForHeaderInSection section: Int
+  ) -> UIView? {
     guard !viewModel.automaticBookmarks.isEmpty else { return nil }
 
-    return section == 0
-    ? "bookmark_type_automatic_title".localized
-    : "bookmark_type_user_title".localized
+    let header = UITableViewHeaderFooterView(reuseIdentifier: "Header")
+    header.textLabel?.text =
+      section == 0
+      ? "bookmark_type_automatic_title".localized
+      : "bookmark_type_user_title".localized
+
+    guard section == 0 else { return header }
+
+    let tap = UITapGestureRecognizer(target: self, action: #selector(didTapHeader(_:)))
+    header.addGestureRecognizer(tap)
+
+    return header
+  }
+
+  @objc private func didTapHeader(_ tap: UITapGestureRecognizer) {
+    viewModel.isAutomaticSectionCollapsed.toggle()
+
+    tableView.beginUpdates()
+    let indexPaths = (0..<viewModel.automaticBookmarks.count)
+      .map { IndexPath(row: $0, section: 0) }
+
+    if viewModel.isAutomaticSectionCollapsed {
+      tableView.deleteRows(at: indexPaths, with: .fade)
+    } else {
+      tableView.insertRows(at: indexPaths, with: .fade)
+    }
+    tableView.endUpdates()
   }
 
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return section == 0
-    ? viewModel.automaticBookmarks.count
-    : viewModel.userBookmarks.count
+      ? viewModel.isAutomaticSectionCollapsed
+        ? 0 : viewModel.automaticBookmarks.count
+      : viewModel.userBookmarks.count
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

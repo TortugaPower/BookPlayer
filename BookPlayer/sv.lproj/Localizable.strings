@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
 "download_folder_confirmation_title" = "Ladda ner mapp";
 "download_folder_confirmation_message" = "Ladda ner alla %d filer från denna mapp?";
-"download_folder_confirm_button" = "Ladda ner";
 "hardcover_searching_books" = "Söker böcker...";
-"hardcover_error_title" = "Fel";
 "hardcover_unlink_button" = "Koppla från";
-"hardcover_select_button" = "Välj";
 "hardcover_auto_match_books" = "Matcha böcker automatiskt";
 "hardcover_auto_add_want_to_read" = "Lägg automatiskt till i \"Vill läsa\"";
 "hardcover_reading_threshold" = "Läströskel";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "Du kan hitta din Hardcover API-åtkomst på https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Framstegsspårning";
-"hardcover_save_button" = "Spara";
+"save_button" = "Spara";
 "hardcover_remove_confirmation_title" = "Ta bort från Hardcover?";
 "hardcover_remove_confirmation_message" = "Vill du ta bort %@, %@ från ditt Hardcover-bibliotek?";
 "hardcover_remove_keep_it" = "Behåll den";

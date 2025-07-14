@@ -352,11 +352,8 @@
 "bookmark_automatic_sleep_title" = "آخر موضع تم فيه عند تشغيل مؤقت السكون";
 "download_folder_confirmation_title" = "تحميل المجلد";
 "download_folder_confirmation_message" = "تحميل جميع الملفات %d من هذا المجلد؟";
-"download_folder_confirm_button" = "تحميل";
 "hardcover_searching_books" = "البحث عن الكتب...";
-"hardcover_error_title" = "خطأ";
 "hardcover_unlink_button" = "إلغاء الربط";
-"hardcover_select_button" = "تحديد";
 "hardcover_auto_match_books" = "مطابقة الكتب تلقائيًا";
 "hardcover_auto_add_want_to_read" = "إضافة تلقائيًا إلى قائمة المرغوب قراءته";
 "hardcover_reading_threshold" = "عتبة القراءة";
@@ -368,7 +365,7 @@
 "hardcover_api_access_footer" = "يمكنك العثور على وصول Hardcover API الخاص بك في https://hardcover.app/account/api.";
 "hardcover_automation_title" = "الأتمتة";
 "hardcover_progress_tracking_title" = "تتبع التقدم";
-"hardcover_save_button" = "حفظ";
+"save_button" = "حفظ";
 "hardcover_remove_confirmation_title" = "هل تريد إزالة من Hardcover؟";
 "hardcover_remove_confirmation_message" = "هل تريد إزالة %@، %@ من مكتبة Hardcover الخاصة بك؟";
 "hardcover_remove_keep_it" = "احتفظ به";

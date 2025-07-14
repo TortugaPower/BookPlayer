@@ -19,7 +19,7 @@ protocol HardcoverServiceProtocol {
   ///   - perPage: Number of results per page
   /// - Returns: BooksData containing search results
   func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData
-  
+
   /// Search for books using a custom search query
   /// - Parameters:
   ///   - query: The search query string
@@ -32,13 +32,13 @@ protocol HardcoverServiceProtocol {
   /// - Parameters:
   ///   - items: The newly imported library items (processes book items only)
   func processAutoMatch(for items: [SimpleLibraryItem]) async
-  
+
   /// Assign a Hardcover book to a library item
   /// - Parameters:
   ///   - book: The Hardcover book to assign (nil to remove assignment)
   ///   - item: The library item to assign it to
-  func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem)
-  
+  func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem) async
+
   /// Remove a book from the user's Hardcover library
   /// - Parameter book: The Hardcover book to remove from library
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws
@@ -50,6 +50,8 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let audioMetadataService: AudioMetadataServiceProtocol
   private let libraryService: LibraryServiceProtocol
 
+  private var metadataSubscription: AnyCancellable?
+  private var progressSubscription: AnyCancellable?
   private var cancellables = Set<AnyCancellable>()
 
   private var readingThreshold: Double {
@@ -72,6 +74,8 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     self.libraryService = libraryService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
+
+    self.bindKeychainObserver()
   }
 
   var authorization: String? {
@@ -93,13 +97,13 @@ extension HardcoverService {
   func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData {
     let searchQuery = await buildSearchQuery(for: item)
     Self.logger.info("Using search query for '\(item.title)': '\(searchQuery)'")
-    
+
     return try await searchBooks(query: searchQuery, perPage: perPage)
   }
-  
+
   func searchBooks(query: String, perPage: Int) async throws -> BooksData {
     Self.logger.info("Using custom search query: '\(query)'")
-    
+
     let queryString = """
         query GetBooks($query: String!, $per_page: Int!) {
           search(
@@ -119,7 +123,7 @@ extension HardcoverService {
       query: queryString,
       variables: [
         "query": query,
-        "per_page": perPage
+        "per_page": perPage,
       ],
       authorization: authorization,
       responseType: BooksData.self
@@ -143,13 +147,13 @@ extension HardcoverService {
       query: mutation,
       variables: [
         "book_id": bookID,
-        "status_id": Int(status.rawValue)
+        "status_id": Int(status.rawValue),
       ],
       authorization: authorization,
       responseType: InsertUserBookData.self
     )
   }
-  
+
   private func deleteUserBook(userBookID: Int) async throws -> DeleteUserBookData {
     let mutation = """
         mutation DeleteUserBook($id: Int!) {
@@ -171,10 +175,34 @@ extension HardcoverService {
 }
 
 extension HardcoverService {
-  func startTrackingLibraryUpdates() {
+  private func bindKeychainObserver() {
+    keychain.valueUpdatedPublisher
+      .filter { $0.key == .hardcoverToken }
+      .sink { [weak self] (_, deleted) in
+        if deleted {
+          self?.stopTrackingLibraryUpdates()
+        } else {
+          self?.startTrackingLibraryUpdates()
+        }
+      }
+      .store(in: &cancellables)
+
+    if authorization != nil {
+      startTrackingLibraryUpdates()
+    }
+  }
+
+  private func stopTrackingLibraryUpdates() {
+    Self.logger.info("Stopping library updates for Hardcover sync")
+
+    metadataSubscription?.cancel()
+    progressSubscription?.cancel()
+  }
+
+  private func startTrackingLibraryUpdates() {
     Self.logger.info("Starting to track library updates for Hardcover sync")
 
-    libraryService.metadataUpdatePublisher
+    metadataSubscription = libraryService.metadataUpdatePublisher
       .sink { [weak self] metadata in
         guard
           let relativePath = metadata["relativePath"] as? String,
@@ -187,9 +215,8 @@ extension HardcoverService {
           await self.handleBookFinished(relativePath: relativePath)
         }
       }
-      .store(in: &cancellables)
 
-    libraryService.progressUpdatePublisher
+    progressSubscription = libraryService.progressUpdatePublisher
       .sink { [weak self] progress in
         guard
           let relativePath = progress["relativePath"] as? String,
@@ -201,14 +228,12 @@ extension HardcoverService {
           await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
         }
       }
-      .store(in: &cancellables)
   }
 
   private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
     guard
-      authorization != nil,
       percentCompleted > readingThreshold,
-      var item = libraryService.getHardcoverBook(for: relativePath),
+      var item = await libraryService.getHardcoverBook(for: relativePath),
       item.status < .reading
     else { return }
 
@@ -221,7 +246,7 @@ extension HardcoverService {
       Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
 
       item.status = .reading
-      libraryService.setHardcoverBook(item, for: relativePath)
+      await libraryService.setHardcoverBook(item, for: relativePath)
       Self.logger.info("Updated local status to 'reading' for \(relativePath)")
     } catch {
       Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
@@ -230,8 +255,7 @@ extension HardcoverService {
 
   private func handleBookFinished(relativePath: String) async {
     guard
-      authorization != nil,
-      var item = libraryService.getHardcoverBook(for: relativePath),
+      var item = await libraryService.getHardcoverBook(for: relativePath),
       item.status != .read
     else { return }
 
@@ -244,7 +268,7 @@ extension HardcoverService {
       Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
 
       item.status = .read
-      libraryService.setHardcoverBook(item, for: relativePath)
+      await libraryService.setHardcoverBook(item, for: relativePath)
       Self.logger.info("Updated local status to 'read' for \(relativePath)")
     } catch {
       Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
@@ -299,8 +323,8 @@ extension HardcoverService {
           book.userBookID = response.insertUserBook.id
           Self.logger.info("Added '\(match.item.title)' to Hardcover Want to Read list")
         }
-        
-        libraryService.setHardcoverBook(book, for: match.item.relativePath)
+
+        await libraryService.setHardcoverBook(book, for: match.item.relativePath)
         Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
         processedCount += 1
       } catch {
@@ -314,44 +338,47 @@ extension HardcoverService {
       Self.logger.info("Auto-matched \(processedCount) items")
     }
   }
-  
-  func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem) {
-    if let book {
-      Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
 
-      if autoAddWantToReadEnabled, authorization != nil {
-        Task {
-          do {
-            let response = try await insertUserBook(
-              bookID: book.id,
-              status: .library
-            )
-            Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
-            
-            var updated = book
-            updated.status = .library
-            updated.userBookID = response.insertUserBook.id
-            libraryService.setHardcoverBook(updated, for: item.relativePath)
-          } catch {
-            Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
-            libraryService.setHardcoverBook(book, for: item.relativePath)
-          }
-        }
-      } else {
-        libraryService.setHardcoverBook(book, for: item.relativePath)
-      }
-    } else {
-      libraryService.setHardcoverBook(nil, for: item.relativePath)
+  func assignItem(
+    _ book: SimpleHardcoverBook?,
+    to item: SimpleLibraryItem
+  ) async {
+    guard let book else {
+      await libraryService.setHardcoverBook(nil, for: item.relativePath)
       Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
+      return
+    }
+
+    Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
+
+    guard autoAddWantToReadEnabled, authorization != nil else {
+      await libraryService.setHardcoverBook(book, for: item.relativePath)
+      return
+    }
+
+    do {
+      let response = try await insertUserBook(
+        bookID: book.id,
+        status: .library
+      )
+      Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+
+      var updated = book
+      updated.status = .library
+      updated.userBookID = response.insertUserBook.id
+      await libraryService.setHardcoverBook(updated, for: item.relativePath)
+    } catch {
+      Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
+      await libraryService.setHardcoverBook(book, for: item.relativePath)
     }
   }
-  
+
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {
     guard let userBookID = book.userBookID else {
       Self.logger.error("Cannot remove book \(book.id) from Hardcover library: no userBookID")
       return
     }
-    
+
     Self.logger.info("Removing book \(book.id) from Hardcover library (userBookID: \(userBookID))")
     _ = try await deleteUserBook(userBookID: userBookID)
     Self.logger.info("Successfully removed book \(book.id) from Hardcover library")
@@ -397,7 +424,7 @@ extension HardcoverService {
     let patterns = [
       #"(?i)\b(book|part|chapter|volume|vol\.?)\s+\d+\b"#,
       #"(?i)\b\d+\s*-\s*"#,  // "5 - Title" pattern
-      #"(?i)^\d+\.\s*"#      // "5. Title" pattern
+      #"(?i)^\d+\.\s*"#,  // "5. Title" pattern
     ]
 
     for pattern in patterns {
@@ -417,8 +444,8 @@ extension HardcoverService {
 
 }
 
-private extension SimpleHardcoverBook {
-  init(from book: BooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverBook.Status) {
+extension SimpleHardcoverBook {
+  fileprivate init(from book: BooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverBook.Status) {
     self.init(
       id: book.id,
       artworkURL: book.image?.url.flatMap(URL.init(string:)),
