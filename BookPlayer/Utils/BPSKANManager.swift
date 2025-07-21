@@ -68,24 +68,11 @@ class BPSKANManager: BPLogger {
 
     Self.logger.trace("Updating conversion value: \(conversionValue.rawValue)")
 
-    if #available(iOS 16.1, *) {
-      SKAdNetwork.updatePostbackConversionValue(
-        conversionValue.fineValue,
-        coarseValue: conversionValue.coarseValue,
-        lockWindow: conversionValue == .subscription,
-        completionHandler: nil
-      )
-    } else if #available(iOS 15.4, *) {
-      SKAdNetwork.updatePostbackConversionValue(
-        conversionValue.fineValue,
-        completionHandler: nil
-      )
-    } else {
-      if conversionValue == .install {
-        SKAdNetwork.registerAppForAdNetworkAttribution()
-      } else {
-        SKAdNetwork.updateConversionValue(conversionValue.fineValue)
-      }
-    }
+    SKAdNetwork.updatePostbackConversionValue(
+      conversionValue.fineValue,
+      coarseValue: conversionValue.coarseValue,
+      lockWindow: conversionValue == .subscription,
+      completionHandler: nil
+    )
   }
 }
