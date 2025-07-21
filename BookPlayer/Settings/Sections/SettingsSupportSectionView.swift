@@ -6,12 +6,13 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import MessageUI
 import RevenueCat
 import SwiftUI
 
 struct SettingsSupportSectionView: View {
-  @Binding var accessLevel: AccessLevel
+  var accessLevel: AccessLevel
   @EnvironmentObject var theme: ThemeViewModel
 
   let supportEmail = "support@bookplayer.app"
@@ -73,7 +74,7 @@ struct SettingsSupportSectionView: View {
 #Preview {
   NavigationStack {
     Form {
-      SettingsSupportSectionView(accessLevel: .constant(.pro)) {
+      SettingsSupportSectionView(accessLevel: .pro) {
       } sendEmail: {
       }
     }

@@ -10,7 +10,7 @@ import BookPlayerKit
 import Foundation
 
 struct CoreServices {
-  let accountService: AccountServiceProtocol
+  let accountService: AccountService
   let dataManager: DataManager
   let hardcoverService: HardcoverServiceProtocol
   let libraryService: LibraryService

@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import RevenueCat
+import SwiftUI
 import Themeable
 import UIKit
 
@@ -19,7 +20,7 @@ class MainCoordinator: NSObject {
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let accountService: AccountServiceProtocol
+  let accountService: AccountService
   var syncService: SyncServiceProtocol
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
@@ -122,16 +123,17 @@ class MainCoordinator: NSObject {
   }
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
-    let settingsCoordinator = SettingsCoordinator(
-      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: libraryService,
-      syncService: syncService,
-      accountService: accountService,
-      jellyfinConnectionService: jellyfinConnectionService,
-      hardcoverService: hardcoverService
+    let vc = UIHostingController(
+      rootView: SettingsView().environment(\.accountService, accountService)
     )
-    settingsCoordinator.tabBarController = tabBarController
-    settingsCoordinator.start()
+    vc.tabBarItem = UITabBarItem(
+      title: "settings_title".localized,
+      image: UIImage(systemName: "gearshape"),
+      selectedImage: UIImage(systemName: "gearshape.fill")
+    )
+
+    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
+    tabBarController.setViewControllers(newControllersArray, animated: false)
   }
 
   func bindObservers() {

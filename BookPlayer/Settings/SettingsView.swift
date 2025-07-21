@@ -18,7 +18,7 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
-//  @ObservedObject var accountService: AccountService
+  @Environment(\.accountService) private var accountService
 
   let supportEmail = "support@bookplayer.app"
 
@@ -30,8 +30,8 @@ struct SettingsView: View {
         }
         SettingsAppearanceSectionView()
         SettingsPlaybackSectionView()
-        SettingsStorageSectionView(accessLevel: $viewModel.accessLevel)
-        if viewModel.accessLevel == .pro {
+        SettingsStorageSectionView(accessLevel: accountService.accessLevel)
+        if accountService.accessLevel == .pro {
           SettingsDataUsageSectionView()
         }
         SettingsShortcutsSectionView()
@@ -39,7 +39,7 @@ struct SettingsView: View {
         SettingsIntegrationsSectionView()
         SettingsPrivacySectionView()
         SettingsSupportSectionView(
-          accessLevel: $viewModel.accessLevel,
+          accessLevel: accountService.accessLevel,
           shareDebugInformation: viewModel.shareDebugInformation
         ) {
           if MFMailComposeViewController.canSendMail() {
@@ -104,8 +104,8 @@ struct SettingsView: View {
   }
 
   private var versionSuffix: String {
-    switch viewModel.accessLevel {
-    case .free:
+    switch accountService.accessLevel {
+    case .free, .none:
       return ""
     case .plus:
       return "p"
@@ -165,7 +165,6 @@ extension SettingsView {
   @MainActor
   final class Model: ObservableObject {
     @Published var path = NavigationPath()
-    @Published var accessLevel: AccessLevel = .plus
 
     init() {}
 

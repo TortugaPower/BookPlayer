@@ -6,10 +6,11 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct SettingsStorageSectionView: View {
-  @Binding var accessLevel: AccessLevel
+  var accessLevel: AccessLevel
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
@@ -26,9 +27,10 @@ struct SettingsStorageSectionView: View {
 }
 
 #Preview {
+  @Previewable var accessLevel: AccessLevel = .pro
   NavigationStack {
     Form {
-      SettingsStorageSectionView(accessLevel: .constant(.pro))
+      SettingsStorageSectionView(accessLevel: accessLevel)
     }
   }
   .environmentObject(ThemeViewModel())

@@ -443,7 +443,6 @@
 		6370433B2E2BF77C005353D1 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6370433A2E2BF77C005353D1 /* SettingsScreen.swift */; };
 		6370433D2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6370433C2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift */; };
 		637043402E2BFD6C005353D1 /* SettingsStorageSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */; };
-		637043422E2BFF8F005353D1 /* AccessLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637043412E2BFF8F005353D1 /* AccessLevel.swift */; };
 		637043442E2C0000005353D1 /* SettingsShortcutsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637043432E2C0000005353D1 /* SettingsShortcutsSectionView.swift */; };
 		637043462E2C0199005353D1 /* SettingsiCloudSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637043452E2C0199005353D1 /* SettingsiCloudSectionView.swift */; };
 		637043482E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637043472E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift */; };
@@ -518,6 +517,7 @@
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
 		63E54C342D50576C0040355D /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C332D50576C0040355D /* TipJarView.swift */; };
 		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
+		63E784392E2EAF79001B2E94 /* Environment+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E784382E2EAF79001B2E94 /* Environment+BookPlayer.swift */; };
 		63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */; };
 		63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
 		63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
@@ -1298,7 +1298,6 @@
 		6370433A2E2BF77C005353D1 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		6370433C2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPlaybackSectionView.swift; sourceTree = "<group>"; };
 		6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStorageSectionView.swift; sourceTree = "<group>"; };
-		637043412E2BFF8F005353D1 /* AccessLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessLevel.swift; sourceTree = "<group>"; };
 		637043432E2C0000005353D1 /* SettingsShortcutsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsShortcutsSectionView.swift; sourceTree = "<group>"; };
 		637043452E2C0199005353D1 /* SettingsiCloudSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsiCloudSectionView.swift; sourceTree = "<group>"; };
 		637043472E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIntegrationsSectionView.swift; sourceTree = "<group>"; };
@@ -1373,6 +1372,7 @@
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
 		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
 		63E54C352D50626A0040355D /* TipOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOptionView.swift; sourceTree = "<group>"; };
+		63E784382E2EAF79001B2E94 /* Environment+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+BookPlayer.swift"; sourceTree = "<group>"; };
 		63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
 		63E893912CAFA89000946CD4 /* BPPlayerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPlayerError.swift; sourceTree = "<group>"; };
 		63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerLoaderService.swift; sourceTree = "<group>"; };
@@ -3122,7 +3122,6 @@
 				C37A6874209F13120063AEAC /* CreditsViewController.swift */,
 				C359C30620A9F35B00A626E3 /* SkipDurationViewController.swift */,
 				6370427E2E2BEAC7005353D1 /* SettingsView.swift */,
-				637043412E2BFF8F005353D1 /* AccessLevel.swift */,
 				6370433E2E2BFD52005353D1 /* Sections */,
 				6370433A2E2BF77C005353D1 /* SettingsScreen.swift */,
 				41B2A5D821CAE42600917584 /* Settings.storyboard */,
@@ -3261,6 +3260,7 @@
 				9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */,
 				8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */,
 				8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */,
+				63E784382E2EAF79001B2E94 /* Environment+BookPlayer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4214,7 +4214,6 @@
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
-				637043422E2BFF8F005353D1 /* AccessLevel.swift in Sources */,
 				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
@@ -4223,6 +4222,7 @@
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
 				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
+				63E784392E2EAF79001B2E94 /* Environment+BookPlayer.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
 				6304CF6A2B4C2AE800055285 /* SettingsAutoplayView.swift in Sources */,
@@ -4733,7 +4733,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4767,7 +4767,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4799,7 +4799,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4853,7 +4853,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -4891,7 +4891,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -4929,7 +4929,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Beta;
 		};
@@ -4974,7 +4974,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -5017,7 +5017,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -5060,7 +5060,7 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Beta;
 		};
@@ -5083,7 +5083,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5121,7 +5121,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5157,7 +5157,7 @@
 				DEVELOPMENT_TEAM = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5311,7 +5311,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5349,7 +5349,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5379,7 +5379,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5404,7 +5404,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5442,7 +5442,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5488,7 +5488,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5532,7 +5532,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BookPlayerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5587,7 +5587,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -5623,7 +5623,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -5659,7 +5659,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Beta;
 		};
@@ -5683,7 +5683,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5723,7 +5723,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5761,7 +5761,7 @@
 				INFOPLIST_FILE = BookPlayerShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookPlayerShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 BookPlayer LLC. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5854,7 +5854,7 @@
 				);
 				INFOPLIST_FILE = BookPlayer/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5884,7 +5884,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

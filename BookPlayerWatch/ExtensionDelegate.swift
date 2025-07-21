@@ -65,7 +65,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       return coreServices
     } else {
       let dataManager = DataManager(coreDataStack: stack)
-      let accountService = AccountService(dataManager: dataManager)
+      let accountService = AccountService()
+      accountService.setup(dataManager: dataManager)
       let libraryService = LibraryService(dataManager: dataManager)
       let syncService = SyncService(
         isActive: accountService.hasSyncEnabled(),

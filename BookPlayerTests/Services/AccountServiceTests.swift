@@ -21,7 +21,8 @@ class AccountServiceTests: XCTestCase {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
     self.mockKeychain = KeychainServiceMock()
-    self.sut = AccountService(
+    self.sut = AccountService()
+    self.sut.setup(
       dataManager: dataManager,
       client: NetworkClientMock(mockedResponse: Empty()),
       keychain: self.mockKeychain
@@ -102,7 +103,8 @@ class AccountServiceTests: XCTestCase {
     let mockResponse = DeleteResponse(message: "success")
     let keychainMock = KeychainServiceMock()
 
-    self.sut = AccountService(
+    self.sut = AccountService()
+    self.sut.setup(
       dataManager: dataManager,
       client: NetworkClientMock(mockedResponse: mockResponse),
       keychain: keychainMock
