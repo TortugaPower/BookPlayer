@@ -36,10 +36,9 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy, support, credits
+    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy, support
   }
 
-  let creditsIndexPath = IndexPath(row: 0, section: SettingsSection.credits.rawValue)
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
   let autoplayIndexPath = IndexPath(row: 1, section: SettingsSection.playback.rawValue)
   let autolockIndexPath = IndexPath(row: 2, section: SettingsSection.playback.rawValue)
@@ -281,8 +280,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
     switch indexPath {
-    case self.creditsIndexPath:
-      self.viewModel.showCredits()
     case self.playbackIndexPath:
       self.viewModel.showPlayerControls()
     case self.autoplayIndexPath:

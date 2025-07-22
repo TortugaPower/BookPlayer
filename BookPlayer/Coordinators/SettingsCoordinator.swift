@@ -68,8 +68,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showJellyfinConnectionManagement()
       case .hardcoverManagement:
         self.showHardcoverManagement()
-      case .credits:
-        self.showCredits()
       case .shareDebugInformation(let info):
         self.shareDebugInformation(info: info)
       }
@@ -273,15 +271,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
   func showPlayerControls() {
     let vc = PlayerSettingsViewController.instantiate(from: .Settings)
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-
-    flow.navigationController.present(nav, animated: true)
-  }
-
-  func showCredits() {
-    let vc = CreditsViewController.instantiate(from: .Settings)
     vc.navigationItem.largeTitleDisplayMode = .never
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
