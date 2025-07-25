@@ -18,10 +18,10 @@ class MainCoordinator: NSObject {
 
   let playerManager: PlayerManagerProtocol
   let singleFileDownloadService: SingleFileDownloadService
-  let libraryService: LibraryServiceProtocol
+  let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let accountService: AccountService
-  var syncService: SyncServiceProtocol
+  var syncService: SyncService
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
   let hardcoverService: HardcoverServiceProtocol
@@ -124,7 +124,10 @@ class MainCoordinator: NSObject {
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let vc = UIHostingController(
-      rootView: SettingsView().environment(\.accountService, accountService)
+      rootView: SettingsView()
+        .environment(\.libraryService, libraryService)
+        .environment(\.accountService, accountService)
+        .environment(\.syncService, syncService)
     )
     vc.tabBarItem = UITabBarItem(
       title: "settings_title".localized,

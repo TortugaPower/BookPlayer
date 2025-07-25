@@ -365,6 +365,7 @@
 		63125D0F2C36D84E00D35533 /* EventsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D0D2C36D84E00D35533 /* EventsAPI.swift */; };
 		63125D122C36D97400D35533 /* EventsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D112C36D97400D35533 /* EventsService.swift */; };
 		63125D132C36D97400D35533 /* EventsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D112C36D97400D35533 /* EventsService.swift */; };
+		631908952E333F12009249C1 /* LoadingOverlayState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908942E333F12009249C1 /* LoadingOverlayState.swift */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
 		631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */; };
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
@@ -414,7 +415,6 @@
 		6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */; };
 		6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */; };
 		6350E4762CF4F6E90077CDC1 /* PlaybackFullControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4752CF4F6E90077CDC1 /* PlaybackFullControlsView.swift */; };
-		6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */; };
 		6356D48C2C584EFD00994B71 /* CustomSkipForwardIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */; };
 		6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */; };
 		6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */; };
@@ -426,8 +426,8 @@
 		6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
-		635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */; };
 		636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636086002C5B3EB400341D78 /* CustomRewindIntent.swift */; };
+		63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682CBD2E2F422900C15FC1 /* DebugFileTransferable.swift */; };
 		636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */; };
 		636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */; };
 		636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
@@ -1223,6 +1223,7 @@
 		630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForcedEnvironment.swift; sourceTree = "<group>"; };
 		63125D0D2C36D84E00D35533 /* EventsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsAPI.swift; sourceTree = "<group>"; };
 		63125D112C36D97400D35533 /* EventsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsService.swift; sourceTree = "<group>"; };
+		631908942E333F12009249C1 /* LoadingOverlayState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingOverlayState.swift; sourceTree = "<group>"; };
 		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1268,7 +1269,6 @@
 		635390BC2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		635390BD2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		635390BE2D0DEB1500FE6E45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
-		6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationActivityItemSource.swift; sourceTree = "<group>"; };
 		6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSkipForwardIntent.swift; sourceTree = "<group>"; };
 		6356F9B42AC7CC5600B7A027 /* CancelSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelSleepTimerIntent.swift; sourceTree = "<group>"; };
 		6356F9B82AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndChapterSleepTimerIntent.swift; sourceTree = "<group>"; };
@@ -1278,11 +1278,11 @@
 		6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseInitializer.swift; sourceTree = "<group>"; };
 		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
-		6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugInformationFileActivityItemProvider.swift; sourceTree = "<group>"; };
 		636086002C5B3EB400341D78 /* CustomRewindIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRewindIntent.swift; sourceTree = "<group>"; };
 		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		63682CBD2E2F422900C15FC1 /* DebugFileTransferable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugFileTransferable.swift; sourceTree = "<group>"; };
 		636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryGridView.swift; sourceTree = "<group>"; };
 		636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinDisconnectedView.swift; sourceTree = "<group>"; };
 		636E77812DF3499000D4DC0A /* JellyfinServerFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerFoundView.swift; sourceTree = "<group>"; };
@@ -2587,6 +2587,7 @@
 				637043472E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift */,
 				6370434B2E2C046F005353D1 /* SettingsPrivacySectionView.swift */,
 				6370434D2E2C0481005353D1 /* SettingsSupportSectionView.swift */,
+				63682CBD2E2F422900C15FC1 /* DebugFileTransferable.swift */,
 				6370434F2E2C0491005353D1 /* SettingsCreditsSectionView.swift */,
 				637043532E2DED05005353D1 /* SettingsMailView.swift */,
 				637043512E2DE65A005353D1 /* CreditsView.swift */,
@@ -2764,8 +2765,6 @@
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
-				6359079F2B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift */,
-				6354CD9B2B4902CE006D9551 /* DebugInformationActivityItemSource.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
@@ -3147,6 +3146,7 @@
 				9F3C4357284132640066D99A /* AlertPresenter.swift */,
 				4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */,
 				9FA7C61C280B0E1200A0C136 /* LoadingUtils.swift */,
+				631908942E333F12009249C1 /* LoadingOverlayState.swift */,
 				9F134604293D0A410089B1DE /* ThemeViewModel.swift */,
 				9FB20EB829A479FB0021663B /* BPAlertContent.swift */,
 				9FD8D95729DC53750074C2D8 /* CoreServices.swift */,
@@ -4142,6 +4142,7 @@
 				4142964921F2E2BA004356DA /* ThemeCellView.swift in Sources */,
 				9F4691F72800F85600A8F0E8 /* AccountViewModel.swift in Sources */,
 				63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
+				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
@@ -4185,6 +4186,7 @@
 				63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */,
 				8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */,
 				410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */,
+				631908952E333F12009249C1 /* LoadingOverlayState.swift in Sources */,
 				63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */,
 				41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */,
 				6370427F2E2BEAC7005353D1 /* SettingsView.swift in Sources */,
@@ -4283,7 +4285,6 @@
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
-				635907A02B161B14002FA524 /* DebugInformationFileActivityItemProvider.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
 				9F5FBB0A293EE0C2009F4B0E /* ItemDetailsViewModel.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
@@ -4299,7 +4300,6 @@
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
 				3F6640942E17386400356522 /* DeleteUserBookData.swift in Sources */,
-				6354CD9C2B4902CE006D9551 /* DebugInformationActivityItemSource.swift in Sources */,
 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
 				636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */,
 				9F4691FA2800F8D600A8F0E8 /* AccountCoordinator.swift in Sources */,

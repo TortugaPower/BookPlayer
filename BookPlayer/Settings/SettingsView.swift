@@ -18,6 +18,7 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
+  @State var loadingOverlay = LoadingOverlayState()
   @Environment(\.accountService) private var accountService
 
   let supportEmail = "support@bookplayer.app"
@@ -25,8 +26,10 @@ struct SettingsView: View {
   var body: some View {
     NavigationStack(path: $viewModel.path) {
       Form {
-        SettingsProBannerSectionView {
-          showPro.toggle()
+        if accountService.accessLevel == .free {
+          SettingsProBannerSectionView {
+            showPro.toggle()
+          }
         }
         SettingsAppearanceSectionView()
         SettingsPlaybackSectionView()
@@ -38,10 +41,7 @@ struct SettingsView: View {
         SettingsiCloudSectionView()
         SettingsIntegrationsSectionView()
         SettingsPrivacySectionView()
-        SettingsSupportSectionView(
-          accessLevel: accountService.accessLevel,
-          shareDebugInformation: viewModel.shareDebugInformation
-        ) {
+        SettingsSupportSectionView(accessLevel: accountService.accessLevel) {
           if MFMailComposeViewController.canSendMail() {
             showMailModal.toggle()
           } else {
@@ -52,6 +52,21 @@ struct SettingsView: View {
       }
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
+      .overlay {
+        Group {
+          if loadingOverlay.show {
+            ProgressView()
+              .tint(.white)
+              .padding()
+              .background(
+                Color.black
+                  .opacity(0.9)
+                  .clipShape(RoundedRectangle(cornerRadius: 10))
+              )
+              .ignoresSafeArea(.all)
+          }
+        }
+      }
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
       .listRowBackground(theme.secondarySystemBackgroundColor)
@@ -167,10 +182,6 @@ extension SettingsView {
     @Published var path = NavigationPath()
 
     init() {}
-
-    func shareDebugInformation() {
-
-    }
   }
 }
 

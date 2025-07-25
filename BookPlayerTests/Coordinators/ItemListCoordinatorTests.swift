@@ -82,7 +82,8 @@ class FolderListCoordinatorTests: XCTestCase {
   override func setUp() {
     self.presentingController = MockNavigationController()
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()

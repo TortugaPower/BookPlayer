@@ -90,19 +90,20 @@ public protocol SyncServiceProtocol {
   func setLibraryLastBook(with relativePath: String?) async
 }
 
+@Observable
 public final class SyncService: SyncServiceProtocol, BPLogger {
-  let libraryService: LibrarySyncProtocol
-  private let tasksCountService: SyncTasksCountServiceProtocol
-  var jobManager: JobSchedulerProtocol
-  let client: NetworkClientProtocol
-  public var isActive: Bool
+  private var libraryService: LibrarySyncProtocol!
+  private var tasksCountService = SyncTasksCountService()
+  var jobManager: JobSchedulerProtocol!
+  private var client: NetworkClientProtocol!
+  public var isActive: Bool = false
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
-  private lazy var downloadTasksDictionary = [String: [URLSessionTask]]()
+  private var downloadTasksDictionary = [String: [URLSessionTask]]()
   /// Reference to the initiating item path for the download tasks (relevant for bound books)
-  private lazy var ongoingTasksParentReference = [String: String]()
+  private var ongoingTasksParentReference = [String: String]()
   /// Reference to the parent folder of the initiating item to pass on observer
-  private lazy var initiatingFolderReference = [String: String]()
+  private var initiatingFolderReference = [String: String]()
   /// Completion publisher for ongoing-download tasks
   public var downloadCompletedPublisher = PassthroughSubject<(String, String, String?), Never>()
   /// Progress publisher for ongoing-download tasks
@@ -112,14 +113,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Background URL session to handle downloading synced items
   private var downloadURLSession: BPDownloadURLSession!
 
-  private let provider: NetworkProvider<LibraryAPI>
+  private var provider: NetworkProvider<LibraryAPI>!
 
   private var disposeBag = Set<AnyCancellable>()
 
-  public init(
+  public init() {}
+
+  public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
-    tasksCountService: SyncTasksCountServiceProtocol = SyncTasksCountService(),
     jobManager: JobSchedulerProtocol = SyncJobScheduler(),
     client: NetworkClientProtocol = NetworkClient()
   ) {

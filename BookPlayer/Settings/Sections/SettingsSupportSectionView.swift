@@ -14,10 +14,12 @@ import SwiftUI
 struct SettingsSupportSectionView: View {
   var accessLevel: AccessLevel
   @EnvironmentObject var theme: ThemeViewModel
+  @Environment(\.libraryService) private var libraryService
+  @Environment(\.accountService) private var accountService
+  @Environment(\.syncService) private var syncService
 
   let supportEmail = "support@bookplayer.app"
 
-  var shareDebugInformation: () -> Void
   var sendEmail: () -> Void
 
   var body: some View {
@@ -35,8 +37,19 @@ struct SettingsSupportSectionView: View {
         .contentShape(Rectangle())
       }
       .buttonStyle(.borderless)
-      Button("settings_share_debug_information") {
-        shareDebugInformation()
+
+      ShareLink(
+        item: DebugFileTransferable(
+          libraryService: libraryService,
+          accountService: accountService,
+          syncService: syncService
+        ),
+        preview: SharePreview(
+          "bookplayer_debug_information.txt",
+          image: Image(systemName: "text.page")
+        )
+      ) {
+        Text("settings_share_debug_information")
       }
       .foregroundColor(theme.primaryColor)
       Button("settings_support_project_title") {
@@ -75,7 +88,6 @@ struct SettingsSupportSectionView: View {
   NavigationStack {
     Form {
       SettingsSupportSectionView(accessLevel: .pro) {
-      } sendEmail: {
       }
     }
   }

@@ -10,5 +10,8 @@ import BookPlayerKit
 import SwiftUI
 
 extension EnvironmentValues {
+  @Entry var libraryService: LibraryService = .init()
   @Entry var accountService: AccountService = .init()
+  @Entry var syncService: SyncService = .init()
+  @Entry var loadingOverlay: LoadingOverlayState = .init()
 }

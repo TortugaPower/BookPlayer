@@ -51,9 +51,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let jellyfinManageConnectionPath = IndexPath(row: 0, section: SettingsSection.jellyfin.rawValue)
   let hardcoverPath = IndexPath(row: 0, section: SettingsSection.hardcover.rawValue)
   let tipJarPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
-  let supportEmailPath = IndexPath(row: 1, section: SettingsSection.support.rawValue)
-  let debugFilesPath = IndexPath(row: 2, section: SettingsSection.support.rawValue)
-  let githubLinkPath = IndexPath(row: 3, section: SettingsSection.support.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -292,12 +289,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showIcons()
     case self.tipJarPath:
       self.viewModel.showTipJar()
-    case self.supportEmailPath:
-      self.sendSupportEmail()
-    case self.debugFilesPath:
-      self.shareDebugInformation()
-    case self.githubLinkPath:
-      self.showProjectOnGitHub()
     case self.lastPlayedShortcutPath:
       if #unavailable(iOS 16.4) {
         /// SiriKit shortcuts are deprecated
@@ -461,57 +452,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     vc.delegate = self
 
     self.present(vc, animated: true, completion: nil)
-  }
-
-  @IBAction func sendSupportEmail() {
-    let device = Device.current
-    let appVersion = self.appVersion
-    let versionSuffix = viewModel.hasActiveSubscription()
-    ? "c"
-    : viewModel.hasMadeDonation()
-    ? "p"
-    : "r"
-
-    if MFMailComposeViewController.canSendMail() {
-      let mail = MFMailComposeViewController()
-
-      mail.mailComposeDelegate = self
-      mail.setToRecipients([self.supportEmail])
-      let subject: String = "I need help with BookPlayer \(appVersion)\(versionSuffix)"
-      mail.setSubject(subject)
-
-      let attachmentData = Data("\(viewModel.getAnonymousId())\nApp version: \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)".utf8)
-      mail.setMessageBody("<p>Hello BookPlayer Crew,<br>I have an issue when I try to…</p><br/>", isHTML: true)
-      mail.addAttachmentData(attachmentData, mimeType: "text/plain", fileName: "build-info.txt")
-
-      self.present(mail, animated: true)
-    } else {
-      let debugInfo = "BookPlayer \(appVersion)\(versionSuffix)\n\(device) - \(self.systemVersion)\n\n\(viewModel.getAnonymousId())"
-      let message = "settings_support_compose_description".localized
-
-      let alert = UIAlertController(title: "settings_support_compose_title".localized, message: "\(message) \(self.supportEmail)\n\n\(debugInfo)", preferredStyle: .alert)
-
-      alert.addAction(UIAlertAction(title: "settings_support_compose_copy".localized, style: .default, handler: { [weak self] _ in
-        guard let self = self else { return }
-        UIPasteboard.general.string = "\(self.supportEmail)\n\(debugInfo)"
-      }))
-
-      alert.addAction(UIAlertAction(title: "ok_button".localized, style: .cancel, handler: nil))
-
-      self.present(alert, animated: true, completion: nil)
-    }
-  }
-
-  func shareDebugInformation() {
-    viewModel.shareDebugInformation()
-  }
-
-  func showProjectOnGitHub() {
-    let url = URL(string: "https://github.com/TortugaPower/BookPlayer")
-    let safari = SFSafariViewController(url: url!)
-    safari.dismissButtonStyle = .close
-
-    self.present(safari, animated: true)
   }
 }
 

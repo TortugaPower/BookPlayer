@@ -68,8 +68,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showJellyfinConnectionManagement()
       case .hardcoverManagement:
         self.showHardcoverManagement()
-      case .shareDebugInformation(let info):
-        self.shareDebugInformation(info: info)
       }
     }
 
@@ -276,28 +274,5 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     nav.viewControllers = [vc]
 
     flow.navigationController.present(nav, animated: true)
-  }
-
-  func shareDebugInformation(info: String) {
-    let shareController: UIActivityViewController
-
-    /// Sharing a txt file does not work well on a Mac, it's better to just share the info string
-    if ProcessInfo.processInfo.isiOSAppOnMac {
-      let source = DebugInformationActivityItemSource(info: info)
-      shareController = UIActivityViewController(activityItems: [source], applicationActivities: nil)
-    } else {
-      let provider = DebugInformationFileActivityItemProvider(info: info)
-      shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
-    }
-
-    if let popoverPresentationController = shareController.popoverPresentationController,
-      let view = flow.navigationController.topViewController?.view
-    {
-      popoverPresentationController.permittedArrowDirections = []
-      popoverPresentationController.sourceView = view
-      popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
-    }
-
-    flow.navigationController.present(shareController, animated: true, completion: nil)
   }
 }

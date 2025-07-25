@@ -20,7 +20,8 @@ class ItemListViewModelTests: XCTestCase {
 
   override func setUp() {
     self.dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())

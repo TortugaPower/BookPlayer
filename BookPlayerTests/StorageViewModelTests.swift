@@ -37,7 +37,8 @@ final class StorageViewModelMissingFileTests: XCTestCase {
                                        destinationFolder: folderURL)
 
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: self.testPath))
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     self.viewModel = StorageViewModel(
       libraryService: libraryService,
       syncService: SyncServiceProtocolMock(),
@@ -63,7 +64,8 @@ final class StorageViewModelMissingFileTests: XCTestCase {
                                        destinationFolder: self.directoryURL)
 
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: self.testPath))
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     _ = libraryService.getLibrary()
     let syncService = SyncServiceProtocolMock()
     let playbackService = PlaybackServiceProtocolMock()
