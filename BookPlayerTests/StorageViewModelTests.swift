@@ -67,14 +67,18 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager)
     _ = libraryService.getLibrary()
-    let syncService = SyncServiceProtocolMock()
+    let syncService = SyncService()
+    syncService.setup(isActive: false, libraryService: libraryService)
     let playbackService = PlaybackServiceProtocolMock()
     let playerManager = PlayerManagerProtocolMock()
-    let hardcoverService = HardcoverService(libraryService: libraryService)
+    let hardcoverService = HardcoverService()
+    hardcoverService.setup(libraryService: libraryService)
+    let accountService = AccountService()
+    accountService.setup(dataManager: dataManager)
 
     /// Avoid making the second onboarding network call
     AppDelegate.shared?.coreServices = CoreServices(
-      accountService: AccountServiceMock(account: nil),
+      accountService: accountService,
       dataManager: dataManager,
       hardcoverService: hardcoverService,
       libraryService: libraryService,

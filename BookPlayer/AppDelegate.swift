@@ -139,10 +139,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playerManager: playerManager
       )
 
+      let hardcoverService = HardcoverService()
+      hardcoverService.setup(libraryService: libraryService)
+
       let coreServices = CoreServices(
         accountService: accountService,
         dataManager: dataManager,
-        hardcoverService: HardcoverService(libraryService: libraryService),
+        hardcoverService: hardcoverService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerLoaderService: playerLoaderService,

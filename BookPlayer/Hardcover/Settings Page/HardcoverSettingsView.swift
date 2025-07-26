@@ -11,7 +11,7 @@ import SwiftUI
 
 struct HardcoverSettingsView: View {
   @Environment(\.dismiss) var dismiss
-  @StateObject var themeViewModel = ThemeViewModel()
+  @EnvironmentObject var theme: ThemeViewModel
 
   @StateObject var viewModel: HardcoverSettingsView.Model
   @State var isValid = true
@@ -19,92 +19,89 @@ struct HardcoverSettingsView: View {
   @FocusState private var isTextFieldFocused: Bool
 
   var body: some View {
-    NavigationStack {
-      Form {
-        Section {
-          TextField(
-            "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
-            text: $viewModel.accessToken
-          )
-          .foregroundColor(themeViewModel.primaryColor)
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          .focused($isTextFieldFocused)
-          .submitLabel(.done)
-          .onSubmit {
-            isTextFieldFocused = false
-          }
-          .onChange(of: viewModel.accessToken) { new in
-            isValid = new.isEmpty || !new.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-          }
-        } header: {
-          Text("hardcover_api_access_title".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-        } footer: {
-          if let attributedString = try? AttributedString(markdown: "hardcover_api_access_footer".localized) {
-            Text(attributedString)
-              .foregroundColor(themeViewModel.secondaryColor)
-          }
+    Form {
+      Section {
+        TextField(
+          "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
+          text: $viewModel.accessToken
+        )
+        .foregroundColor(theme.primaryColor)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .focused($isTextFieldFocused)
+        .submitLabel(.done)
+        .onSubmit {
+          isTextFieldFocused = false
         }
-
-        Section {
-          Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
-            .foregroundColor(themeViewModel.primaryColor)
-
-          Toggle("hardcover_auto_add_want_to_read".localized, isOn: $viewModel.autoAddWantToRead)
-            .foregroundColor(themeViewModel.primaryColor)
-        } header: {
-          Text("hardcover_automation_title".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-        } footer: {
-          Text("hardcover_automation_description".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
+        .onChange(of: viewModel.accessToken) { new in
+          isValid = new.isEmpty || !new.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
-
-        Section {
-          VStack(alignment: .leading, spacing: 8) {
-            HStack {
-              Text("hardcover_reading_threshold".localized)
-                .foregroundColor(themeViewModel.primaryColor)
-              Spacer()
-              Text("\(Int(viewModel.readingThreshold))%")
-                .foregroundColor(themeViewModel.secondaryColor)
-            }
-
-            Slider(
-              value: $viewModel.readingThreshold,
-              in: 1...99,
-              step: 1.0
-            )
-            .accentColor(themeViewModel.linkColor)
-            .accessibilityLabel("hardcover_reading_threshold".localized)
-            .accessibilityValue("\(Int(viewModel.readingThreshold)) percent")
-          }
-        } header: {
-          Text("hardcover_progress_tracking_title".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-        } footer: {
-          Text("hardcover_progress_tracking_footer".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
-        }
-        .navigationBarTitleDisplayMode(.inline)
-
-        if viewModel.showUnlinkButton {
-          Section {
-            Button("hardcover_unlink_button".localized, role: .destructive) {
-              viewModel.onUnlinkTapped()
-              dismiss()
-            }
-            .frame(maxWidth: .infinity)
-          }
+      } header: {
+        Text("hardcover_api_access_title".localized)
+          .foregroundColor(theme.secondaryColor)
+      } footer: {
+        if let attributedString = try? AttributedString(markdown: "hardcover_api_access_footer".localized) {
+          Text(attributedString)
+            .foregroundColor(theme.secondaryColor)
         }
       }
-      .toolbar {
-        navigationBar
+
+      Section {
+        Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
+          .foregroundColor(theme.primaryColor)
+
+        Toggle("hardcover_auto_add_want_to_read".localized, isOn: $viewModel.autoAddWantToRead)
+          .foregroundColor(theme.primaryColor)
+      } header: {
+        Text("hardcover_automation_title".localized)
+          .foregroundColor(theme.secondaryColor)
+      } footer: {
+        Text("hardcover_automation_description".localized)
+          .foregroundColor(theme.secondaryColor)
+      }
+
+      Section {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            Text("hardcover_reading_threshold".localized)
+              .foregroundColor(theme.primaryColor)
+            Spacer()
+            Text("\(Int(viewModel.readingThreshold))%")
+              .foregroundColor(theme.secondaryColor)
+          }
+
+          Slider(
+            value: $viewModel.readingThreshold,
+            in: 1...99,
+            step: 1.0
+          )
+          .accentColor(theme.linkColor)
+          .accessibilityLabel("hardcover_reading_threshold".localized)
+          .accessibilityValue("\(Int(viewModel.readingThreshold)) percent")
+        }
+      } header: {
+        Text("hardcover_progress_tracking_title".localized)
+          .foregroundColor(theme.secondaryColor)
+      } footer: {
+        Text("hardcover_progress_tracking_footer".localized)
+          .foregroundColor(theme.secondaryColor)
+      }
+      .navigationBarTitleDisplayMode(.inline)
+
+      if viewModel.showUnlinkButton {
+        Section {
+          Button("hardcover_unlink_button".localized, role: .destructive) {
+            viewModel.onUnlinkTapped()
+            dismiss()
+          }
+          .frame(maxWidth: .infinity)
+          .foregroundStyle(.red)
+        }
       }
     }
-    .tint(themeViewModel.linkColor)
-    .environmentObject(themeViewModel)
+    .toolbar {
+      navigationBar
+    }
   }
 
   @ToolbarContentBuilder
@@ -112,19 +109,7 @@ struct HardcoverSettingsView: View {
     ToolbarItem(placement: .principal) {
       Text("hardcover_settings_title".localized)
         .font(.headline)
-        .foregroundColor(themeViewModel.primaryColor)
-    }
-    ToolbarItemGroup(placement: .cancellationAction) {
-      Button(
-        action: {
-          dismiss()
-        },
-        label: {
-          Image(systemName: "xmark")
-            .foregroundColor(themeViewModel.linkColor)
-        }
-      )
-      .accessibilityLabel("voiceover_close_button".localized)
+        .foregroundColor(theme.primaryColor)
     }
     ToolbarItemGroup(placement: .confirmationAction) {
       Button(
@@ -134,6 +119,7 @@ struct HardcoverSettingsView: View {
           dismiss()
         }
       )
+      .foregroundStyle(theme.linkColor)
       .disabled(!isValid)
     }
   }
@@ -172,4 +158,5 @@ extension HardcoverSettingsView {
 
 #Preview("default") {
   HardcoverSettingsView(viewModel: HardcoverSettingsView.Model())
+    .environmentObject(ThemeViewModel())
 }

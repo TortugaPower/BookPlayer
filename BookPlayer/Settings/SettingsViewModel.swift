@@ -22,7 +22,6 @@ class SettingsViewModel: ViewModelProtocol {
     case storageManagement
     case deletedFilesManagement
     case jellyfinConnectionManagement
-    case hardcoverManagement
   }
 
   enum Events {
@@ -160,9 +159,5 @@ class SettingsViewModel: ViewModelProtocol {
   
   func showJellyfinConnectionManagement() {
     onTransition?(.jellyfinConnectionManagement)
-  }
-
-  func showHardcoverManagement() {
-    onTransition?(.hardcoverManagement)
   }
 }

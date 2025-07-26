@@ -64,8 +64,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showCloudDeletedFiles()
       case .jellyfinConnectionManagement:
         self.showJellyfinConnectionManagement()
-      case .hardcoverManagement:
-        self.showHardcoverManagement()
       }
     }
 
@@ -201,15 +199,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
           mode: .viewDetails
         )
       )
-
-      let vc = UIHostingController(rootView: view)
-      flow.navigationController.present(vc, animated: true)
-    }
-  }
-
-  private func showHardcoverManagement() {
-    Task { @MainActor in
-      let view = HardcoverSettingsView(viewModel: HardcoverSettingsViewModel(hardcoverService: self.hardcoverService))
 
       let vc = UIHostingController(rootView: view)
       flow.navigationController.present(vc, animated: true)

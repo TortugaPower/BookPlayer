@@ -24,7 +24,7 @@ class MainCoordinator: NSObject {
   var syncService: SyncService
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
-  let hardcoverService: HardcoverServiceProtocol
+  let hardcoverService: HardcoverService
 
   let navigationController: UINavigationController
   var libraryCoordinator: LibraryListCoordinator?
@@ -128,6 +128,7 @@ class MainCoordinator: NSObject {
         .environment(\.libraryService, libraryService)
         .environment(\.accountService, accountService)
         .environment(\.syncService, syncService)
+        .environment(\.hardcoverService, hardcoverService)
     )
     vc.tabBarItem = UITabBarItem(
       title: "settings_title".localized,
