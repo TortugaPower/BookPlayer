@@ -14,8 +14,6 @@ import WidgetKit
 
 class IconsViewController: UIViewController, Storyboarded {
   @IBOutlet weak var tableView: UITableView!
-  @IBOutlet weak var bannerView: PlusBannerView!
-  @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
   let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
   var icons: [Icon]!
@@ -48,9 +46,9 @@ class IconsViewController: UIViewController, Storyboarded {
 
     setUpTheming()
 
-    self.bannerView.showPlus = { [weak self] in
-      self?.viewModel.showPro()
-    }
+//    self.bannerView.showPlus = { [weak self] in
+//      self?.viewModel.showPro()
+//    }
 
     bindDataItems()
   }
@@ -104,8 +102,8 @@ class IconsViewController: UIViewController, Storyboarded {
 
   @objc func donationMade() {
     if self.viewModel.hasSubscription {
-      self.bannerView.isHidden = true
-      self.bannerHeightConstraint.constant = 0
+//      self.bannerView.isHidden = true
+//      self.bannerHeightConstraint.constant = 0
     }
     self.tableView.reloadData()
   }

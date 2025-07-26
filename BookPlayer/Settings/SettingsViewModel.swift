@@ -21,7 +21,6 @@ class SettingsViewModel: ViewModelProtocol {
     case autolock
     case storageManagement
     case deletedFilesManagement
-    case tipJar
     case jellyfinConnectionManagement
     case hardcoverManagement
   }
@@ -139,10 +138,6 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showPro() {
     onTransition?(.pro)
-  }
-
-  func showTipJar() {
-    onTransition?(.tipJar)
   }
 
   func showStorageManagement() {

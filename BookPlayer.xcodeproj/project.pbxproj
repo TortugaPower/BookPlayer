@@ -124,7 +124,6 @@
 		4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */; };
 		4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DF26E4A17900E49DBE /* Coordinator.swift */; };
 		41544A1421BAF41400740AD2 /* ItemSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41544A1321BAF41400740AD2 /* ItemSelectionViewController.swift */; };
-		415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415758E92226E18800DDB9B6 /* PlusBannerView.swift */; };
 		4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */; };
 		4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */; };
 		4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158387826EB8D8800F4A12B /* LoadingViewController.swift */; };
@@ -167,12 +166,10 @@
 		418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */; };
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
-		41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41964C822220B4F700FF1A2F /* ContributorCellView.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4197FAFB267E480100811CC8 /* ImportViewController.swift */; };
 		419B373923B8D0C600128A8F /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 419B373B23B8D0C600128A8F /* Player.storyboard */; };
 		419B373F23B8D14100128A8F /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374123B8D14100128A8F /* LoadingView.xib */; };
-		419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 419B374423B8D18000128A8F /* PlusBannerView.xib */; };
 		419B375623B8D5A500128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
 		419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -227,7 +224,6 @@
 		41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA6221C850F00DC41E1 /* IconCellView.swift */; };
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
-		41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DAE221E678600DC41E1 /* PlusViewController.swift */; };
 		41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */; };
 		41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */; };
 		41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */; };
@@ -657,7 +653,6 @@
 		9F7B64782803B0B000895ECC /* AccountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64762803B0B000895ECC /* AccountService.swift */; };
 		9F7B647A2804773D00895ECC /* ThemesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64792804773D00895ECC /* ThemesViewModel.swift */; };
 		9F7B647C2804798800895ECC /* IconsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B647B2804798800895ECC /* IconsViewModel.swift */; };
-		9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B647D2804916900895ECC /* PlusViewModel.swift */; };
 		9F7C47532A2C15D300F9A500 /* AutoMockable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */; };
 		9F82DF6927DE93A2001B0EA8 /* SkipIntervalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6827DE93A2001B0EA8 /* SkipIntervalView.swift */; };
 		9F82DF6B27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6A27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift */; };
@@ -1014,7 +1009,6 @@
 		415460F525E57B4F0085F8D9 /* ArtworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkService.swift; sourceTree = "<group>"; };
 		41546FF026F54F0600825180 /* PlaybackState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackState.swift; sourceTree = "<group>"; };
 		41546FF226F559CE00825180 /* SimpleItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleItemType.swift; sourceTree = "<group>"; };
-		415758E92226E18800DDB9B6 /* PlusBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusBannerView.swift; sourceTree = "<group>"; };
 		4158386826EAF4A300F4A12B /* ItemListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListCoordinator.swift; sourceTree = "<group>"; };
 		4158386D26EAF76700F4A12B /* FolderListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderListCoordinator.swift; sourceTree = "<group>"; };
 		4158387826EB8D8800F4A12B /* LoadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewController.swift; sourceTree = "<group>"; };
@@ -1088,12 +1082,10 @@
 		4193E201243A91AE004D6A82 /* ActionParserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionParserService.swift; sourceTree = "<group>"; };
 		4193E203243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4193E204243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		41964C822220B4F700FF1A2F /* ContributorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorCellView.swift; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
 		4197FAFB267E480100811CC8 /* ImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewController.swift; sourceTree = "<group>"; };
 		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
 		419B374023B8D14100128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LoadingView.xib; sourceTree = "<group>"; };
-		419B374323B8D18000128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PlusBannerView.xib; sourceTree = "<group>"; };
 		419B375523B8D5A500128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419B375723B8D5B000128A8F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419B377423B92CC100128A8F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1132,7 +1124,6 @@
 		41AD3DA6221C850F00DC41E1 /* IconCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconCellView.swift; sourceTree = "<group>"; };
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
-		41AD3DAE221E678600DC41E1 /* PlusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusViewController.swift; sourceTree = "<group>"; };
 		41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
 		41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAndSleepActionHandler.swift; sourceTree = "<group>"; };
 		41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentBooksWidgetView.swift; sourceTree = "<group>"; };
@@ -1508,7 +1499,6 @@
 		9F7B64762803B0B000895ECC /* AccountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountService.swift; sourceTree = "<group>"; };
 		9F7B64792804773D00895ECC /* ThemesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewModel.swift; sourceTree = "<group>"; };
 		9F7B647B2804798800895ECC /* IconsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsViewModel.swift; sourceTree = "<group>"; };
-		9F7B647D2804916900895ECC /* PlusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusViewModel.swift; sourceTree = "<group>"; };
 		9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AutoMockable.generated.swift; path = BookPlayer/Generated/AutoMockable.generated.swift; sourceTree = SOURCE_ROOT; };
 		9F82DF6827DE93A2001B0EA8 /* SkipIntervalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipIntervalView.swift; sourceTree = "<group>"; };
 		9F82DF6A27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingMediaControlsView.swift; sourceTree = "<group>"; };
@@ -1890,16 +1880,6 @@
 				4140EA61227289720009F794 /* Info.plist */,
 			);
 			path = BookPlayerWatchKit;
-			sourceTree = "<group>";
-		};
-		4151A6AF26E490C900E49DBE /* Plus Screen */ = {
-			isa = PBXGroup;
-			children = (
-				62793616272CCE350097837D /* Views */,
-				41AD3DAE221E678600DC41E1 /* PlusViewController.swift */,
-				9F7B647D2804916900895ECC /* PlusViewModel.swift */,
-			);
-			path = "Plus Screen";
 			sourceTree = "<group>";
 		};
 		4151A6DE26E4A13E00E49DBE /* Coordinators */ = {
@@ -2297,16 +2277,6 @@
 			isa = PBXGroup;
 			children = (
 				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		62793616272CCE350097837D /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				419B374423B8D18000128A8F /* PlusBannerView.xib */,
-				415758E92226E18800DDB9B6 /* PlusBannerView.swift */,
-				41964C822220B4F700FF1A2F /* ContributorCellView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3126,7 +3096,6 @@
 				9F4A0F792839575700F9C959 /* Player Settings Screen */,
 				41B2A5DF21CCC1F400917584 /* Themes Screen */,
 				41AD3D96221C700100DC41E1 /* Icons Screen */,
-				4151A6AF26E490C900E49DBE /* Plus Screen */,
 				4124121B26CF289B00B099DB /* Storage */,
 				6304CF682B4C2AB000055285 /* Autoplay */,
 				63C6C2E42B50299D00FFE0D8 /* Autolock */,
@@ -3726,7 +3695,6 @@
 				41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */,
 				41E562CF22394F5200C06BC9 /* ayu-light@3x.png in Resources */,
 				41E562FE223953AE00C06BC9 /* default-icon-ipad@3x.png in Resources */,
-				419B374223B8D18000128A8F /* PlusBannerView.xib in Resources */,
 				4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */,
 				41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */,
 				41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */,
@@ -4057,7 +4025,6 @@
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				636E77822DF3499000D4DC0A /* JellyfinServerFoundView.swift in Sources */,
 				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
-				41AD3DAF221E678600DC41E1 /* PlusViewController.swift in Sources */,
 				9F4691F02800C97000A8F0E8 /* CompleteAccountViewModel.swift in Sources */,
 				9F2681AD2888B26100359BD3 /* LoginBenefitView.swift in Sources */,
 				637043392E2BF63C005353D1 /* SettingsAppearanceSectionView.swift in Sources */,
@@ -4148,7 +4115,6 @@
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,
 				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
-				41964C832220B4F700FF1A2F /* ContributorCellView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */,
@@ -4203,7 +4169,6 @@
 				9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */,
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				4158386926EAF4A300F4A12B /* ItemListCoordinator.swift in Sources */,
-				415758EA2226E18800DDB9B6 /* PlusBannerView.swift in Sources */,
 				636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */,
 				418CABB125EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */,
@@ -4252,7 +4217,6 @@
 				8A9D0D2A2CCFBB96007A924D /* JellyfinLibraryGridItemView.swift in Sources */,
 				4142964421F21D95004356DA /* BulkControlsView.swift in Sources */,
 				9F134603293CFCE80089B1DE /* ProfileListenedTimeView.swift in Sources */,
-				9F7B647E2804916900895ECC /* PlusViewModel.swift in Sources */,
 				41A1B12D226FC7E500EA0400 /* ImportManager.swift in Sources */,
 				9F22DE46288E517600056FCD /* AccountProBenefitsView.swift in Sources */,
 				6370434C2E2C046F005353D1 /* SettingsPrivacySectionView.swift in Sources */,
@@ -4644,14 +4608,6 @@
 				419B374023B8D14100128A8F /* Base */,
 			);
 			name = LoadingView.xib;
-			sourceTree = "<group>";
-		};
-		419B374423B8D18000128A8F /* PlusBannerView.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				419B374323B8D18000128A8F /* Base */,
-			);
-			name = PlusBannerView.xib;
 			sourceTree = "<group>";
 		};
 		419B375423B8D5A500128A8F /* Localizable.strings */ = {

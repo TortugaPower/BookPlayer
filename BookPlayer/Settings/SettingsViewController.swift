@@ -29,14 +29,13 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
-  @IBOutlet weak var plusBannerView: PlusBannerView!
 
   private var disposeBag = Set<AnyCancellable>()
   var iconObserver: NSKeyValueObservation!
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy, support
+    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -50,7 +49,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
   let jellyfinManageConnectionPath = IndexPath(row: 0, section: SettingsSection.jellyfin.rawValue)
   let hardcoverPath = IndexPath(row: 0, section: SettingsSection.hardcover.rawValue)
-  let tipJarPath = IndexPath(row: 0, section: SettingsSection.support.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -107,10 +105,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
           self?.donationMade()
         }
         .store(in: &disposeBag)
-    }
-
-    self.plusBannerView.showPlus = { [weak self] in
-      self?.viewModel.showPro()
     }
     
     self.viewModel.$hasJellyfinConnection
@@ -287,8 +281,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showThemes()
     case self.iconsIndexPath:
       self.viewModel.showIcons()
-    case self.tipJarPath:
-      self.viewModel.showTipJar()
     case self.lastPlayedShortcutPath:
       if #unavailable(iOS 16.4) {
         /// SiriKit shortcuts are deprecated
@@ -343,8 +335,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "Hardcover"
     case .privacy:
       return "settings_privacy_title".localized
-    case .support:
-      return "settings_support_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
@@ -409,8 +399,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
 
     switch settingsSection {
-    case .support:
-      return "BookPlayer \(self.appVersion) - \(self.systemVersion)"
     case .privacy:
       return "settings_skan_attribution_description".localized
     default:

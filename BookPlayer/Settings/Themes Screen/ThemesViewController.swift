@@ -36,8 +36,6 @@ class ThemesViewController: UIViewController, Storyboarded {
   @IBOutlet var separatorViews: [UIView]!
 
   @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
-  @IBOutlet weak var bannerView: PlusBannerView!
-  @IBOutlet weak var bannerHeightConstraint: NSLayoutConstraint!
 
   var viewModel: ThemesViewModel!
   private var disposeBag = Set<AnyCancellable>()
@@ -97,9 +95,9 @@ class ThemesViewController: UIViewController, Storyboarded {
 
     NotificationCenter.default.addObserver(self, selector: #selector(self.brightnessChanged), name: UIScreen.brightnessDidChangeNotification, object: nil)
 
-    self.bannerView.showPlus = { [weak self] in
-      self?.viewModel.showPro()
-    }
+//    self.bannerView.showPlus = { [weak self] in
+//      self?.viewModel.showPro()
+//    }
 
     bindDataItems()
   }
@@ -164,10 +162,10 @@ class ThemesViewController: UIViewController, Storyboarded {
   }
 
   @objc func donationMade() {
-    if self.viewModel.hasSubscription {
-      self.bannerView.isHidden = true
-      self.bannerHeightConstraint.constant = 30
-    }
+//    if self.viewModel.hasSubscription {
+//      self.bannerView.isHidden = true
+//      self.bannerHeightConstraint.constant = 30
+//    }
     self.localThemesTableView.reloadData()
     self.extractedThemesTableView.reloadData()
   }

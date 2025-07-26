@@ -62,8 +62,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showAutolock()
       case .deletedFilesManagement:
         self.showCloudDeletedFiles()
-      case .tipJar:
-        self.showTipJar()
       case .jellyfinConnectionManagement:
         self.showJellyfinConnectionManagement()
       case .hardcoverManagement:
@@ -192,17 +190,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       accountService: self.accountService
     )
     coordinator.start()
-  }
-
-  func showTipJar() {
-    let viewModel = PlusViewModel(accountService: self.accountService)
-    let vc = PlusViewController.instantiate(from: .Settings)
-    vc.viewModel = viewModel
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-
-    flow.navigationController.getTopViewController()?.present(nav, animated: true, completion: nil)
   }
 
   private func showJellyfinConnectionManagement() {
