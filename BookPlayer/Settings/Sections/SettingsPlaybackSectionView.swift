@@ -18,7 +18,7 @@ struct SettingsPlaybackSectionView: View {
       NavigationLink("settings_autlock_section_title", value: SettingsScreen.autolock)
     } header: {
       Text("settings_playback_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

@@ -17,6 +17,7 @@ struct SettingsSupportSectionView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) private var syncService
+  @Environment(\.openURL) private var openURL
 
   let supportEmail = "support@bookplayer.app"
 
@@ -28,10 +29,10 @@ struct SettingsSupportSectionView: View {
       Button(action: sendEmail) {
         VStack(alignment: .leading) {
           Text("settings_support_email_title")
-            .foregroundColor(theme.primaryColor)
+            .foregroundStyle(theme.primaryColor)
           Text(verbatim: supportEmail)
             .font(.subheadline)
-            .foregroundColor(theme.secondaryColor)
+            .foregroundStyle(theme.secondaryColor)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -51,17 +52,18 @@ struct SettingsSupportSectionView: View {
       ) {
         Text("settings_share_debug_information")
       }
-      .foregroundColor(theme.primaryColor)
+      .foregroundStyle(theme.primaryColor)
       Button("settings_support_project_title") {
-        handleOpenGithub()
+        let url = URL(string: "https://github.com/TortugaPower/BookPlayer")!
+        openURL(url)
       }
-      .foregroundColor(theme.primaryColor)
+      .foregroundStyle(theme.primaryColor)
     } header: {
       Text("settings_support_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("BookPlayer \(appVersion) - \(systemVersion)")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 
@@ -76,11 +78,6 @@ struct SettingsSupportSectionView: View {
 
   private var systemVersion: String {
     return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-  }
-
-  func handleOpenGithub() {
-    let url = URL(string: "https://github.com/TortugaPower/BookPlayer")!
-    UIApplication.shared.open(url)
   }
 }
 

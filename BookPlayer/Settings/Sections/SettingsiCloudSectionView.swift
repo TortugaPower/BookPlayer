@@ -19,7 +19,7 @@ struct SettingsiCloudSectionView: View {
       Toggle("settings_backup_files_title", isOn: $isEnabled)
     } header: {
       Text("settings_backup_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

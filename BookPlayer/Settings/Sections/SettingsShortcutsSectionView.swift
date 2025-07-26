@@ -18,7 +18,7 @@ struct SettingsShortcutsSectionView: View {
         .shortcutsLinkStyle(theme.useDarkVariant ? .dark : .light)
     } header: {
       Text("settings_shortcuts_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

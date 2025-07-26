@@ -22,10 +22,10 @@ struct SettingsPrivacySectionView: View {
       Toggle("settings_skan_attribution_title", isOn: $skanAttributionDisabled)
     } header: {
       Text("settings_privacy_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_skan_attribution_description")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

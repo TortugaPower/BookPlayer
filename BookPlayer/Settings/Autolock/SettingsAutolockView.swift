@@ -24,16 +24,16 @@ struct SettingsAutolockView<Model: SettingsAutolockViewModelProtocol>: View {
       Section {
         Toggle(isOn: $viewModel.autolockDisabled, label: {
           Text("settings_autolock_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
         })
         Toggle(isOn: $viewModel.onlyWhenPoweredEnabled, label: {
           Text("settings_power_connected_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
         })
         .disabled(!viewModel.autolockDisabled)
       } footer: {
         Text("settings_autolock_description".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
     }
@@ -50,7 +50,7 @@ struct SettingsAutolockView<Model: SettingsAutolockViewModelProtocol>: View {
           action: viewModel.dismiss,
           label: {
             Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
           }
         )
       }

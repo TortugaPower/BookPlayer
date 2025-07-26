@@ -24,16 +24,16 @@ struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
       Section {
         Toggle(isOn: $viewModel.autoplayLibraryEnabled, label: {
           Text("settings_autoplay_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
         })
         Toggle(isOn: $viewModel.autoplayRestartFinishedEnabled, label: {
           Text("settings_autoplay_restart_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
         })
         .disabled(!viewModel.autoplayLibraryEnabled)
       } footer: {
         Text("settings_autoplay_description".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       }
       .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
     }
@@ -50,7 +50,7 @@ struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
           action: viewModel.dismiss,
           label: {
             Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
           }
         )
       }

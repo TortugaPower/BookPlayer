@@ -19,7 +19,7 @@ struct SettingsDataUsageSectionView: View {
       Toggle("datausage_upload_wifionly_title", isOn: $isEnabled)
     } header: {
       Text("settings_datausage_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

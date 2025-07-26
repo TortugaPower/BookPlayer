@@ -17,7 +17,7 @@ struct SettingsIntegrationsSectionView: View {
       NavigationLink("Hardcover", value: SettingsScreen.hardcover)
     } header: {
       Text("Integrations")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

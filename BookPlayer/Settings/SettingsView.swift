@@ -18,7 +18,6 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
-  @State var loadingOverlay = LoadingOverlayState()
   @Environment(\.accountService) private var accountService
 
   let supportEmail = "support@bookplayer.app"
@@ -52,21 +51,6 @@ struct SettingsView: View {
       }
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
-      .overlay {
-        Group {
-          if loadingOverlay.show {
-            ProgressView()
-              .tint(.white)
-              .padding()
-              .background(
-                Color.black
-                  .opacity(0.9)
-                  .clipShape(RoundedRectangle(cornerRadius: 10))
-              )
-              .ignoresSafeArea(.all)
-          }
-        }
-      }
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
       .listRowBackground(theme.secondarySystemBackgroundColor)
@@ -91,21 +75,24 @@ struct SettingsView: View {
         Text(debugInfoDescription)
       }
       .navigationDestination(for: SettingsScreen.self) { destination in
+        let view: AnyView
         switch destination {
         case .tipjar:
-          EmptyView()
+          view = AnyView(SettingsTipJarView())
         case .credits:
-          CreditsView()
-            .safeAreaInset(edge: .bottom) {
-              Spacer().frame(height: 88)
-            }
+          view = AnyView(CreditsView())
         default:
-          EmptyView()
+          view = AnyView(EmptyView())
         }
+
+        return view
+          .safeAreaInset(edge: .bottom) {
+            Spacer().frame(height: 88)
+          }
       }
     }
     .environmentObject(theme)
-    .foregroundColor(theme.primaryColor)
+    .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
   }
 

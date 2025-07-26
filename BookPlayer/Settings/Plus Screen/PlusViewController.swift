@@ -14,21 +14,6 @@ import RevenueCat
 import Themeable
 import UIKit
 
-struct Contributor: Decodable {
-  var id: Int
-  var login: String
-  var html_url: String
-  var avatar_url: String
-
-  var avatarURL: URL {
-    return URL(string: self.avatar_url)!
-  }
-
-  var profileURL: URL {
-    return URL(string: self.html_url)!
-  }
-}
-
 class PlusViewController: UIViewController, Storyboarded {
   @IBOutlet weak var scrollContentHeightConstraint: NSLayoutConstraint!
 

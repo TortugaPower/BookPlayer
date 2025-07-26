@@ -19,7 +19,7 @@ struct SettingsProBannerSectionView: View {
         Image(systemName: "applewatch.radiowaves.left.and.right")
           .resizable()
           .frame(width: 70, height: 50)
-          .foregroundColor(theme.linkColor)
+          .foregroundStyle(theme.linkColor)
           .opacity(0.5)
 
         VStack(alignment: .leading, spacing: 0) {
@@ -35,7 +35,7 @@ struct SettingsProBannerSectionView: View {
             .padding(.horizontal, Spacing.S)
             .padding(.vertical, Spacing.S3)
             .background(theme.linkColor)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .clipShape(Capsule())
             .buttonStyle(PlainButtonStyle())
         }

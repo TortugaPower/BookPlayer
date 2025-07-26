@@ -22,7 +22,7 @@ struct SettingsAppearanceSectionView: View {
         Text("settings_theme_title")
           .badge(
             Text(theme.title)
-              .foregroundColor(theme.secondaryColor)
+              .foregroundStyle(theme.secondaryColor)
           )
       }
 
@@ -30,14 +30,14 @@ struct SettingsAppearanceSectionView: View {
         Text("settings_app_icon_title")
           .badge(
             Text(appIcon)
-              .foregroundColor(theme.secondaryColor)
+              .foregroundStyle(theme.secondaryColor)
           )
       }
 
       Toggle("settings_lock_orientation_title", isOn: $orientationLock)
     } header: {
       Text("settings_appearance_title".localized)
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }

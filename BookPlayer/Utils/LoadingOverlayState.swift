@@ -11,6 +11,7 @@ import SwiftUI
 @Observable
 class LoadingOverlayState {
   var show: Bool = false
+  var error: Error?
 
   init() {}
 }

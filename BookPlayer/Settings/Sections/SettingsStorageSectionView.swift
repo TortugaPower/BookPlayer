@@ -21,7 +21,7 @@ struct SettingsStorageSectionView: View {
       }
     } header: {
       Text("settings_storage_title")
-        .foregroundColor(theme.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }
