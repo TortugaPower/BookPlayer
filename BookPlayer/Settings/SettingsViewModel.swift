@@ -115,16 +115,6 @@ class SettingsViewModel: ViewModelProtocol {
   }
 
   /// Handle registering the value in `UserDefaults`
-  func toggleCrashReportsAccess(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.crashReportsDisabled)
-  }
-
-  /// Handle registering the value in `UserDefaults`
-  func toggleSKANPreference(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.skanAttributionDisabled)
-  }
-
-  /// Handle registering the value in `UserDefaults`
   func toggleOrientationLockPreference(_ flag: Bool) {
     if flag {
       UserDefaults.standard.set(

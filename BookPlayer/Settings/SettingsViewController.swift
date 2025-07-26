@@ -23,10 +23,8 @@ protocol IntentSelectionDelegate: AnyObject {
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
   @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
-  @IBOutlet weak var crashReportsSwitch: UISwitch!
   @IBOutlet weak var allowCellularDataSwitch: UISwitch!
   @IBOutlet weak var lockOrientationSwitch: UISwitch!
-  @IBOutlet weak var skanSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
 
@@ -35,7 +33,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover, privacy
+    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin, hardcover
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -117,8 +115,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   func setupSwitchValues() {
     allowCellularDataSwitch.addTarget(self, action: #selector(self.allowCellularDataDidChange), for: .valueChanged)
     iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
-    crashReportsSwitch.addTarget(self, action: #selector(crashReportsAccessDidChange), for: .valueChanged)
-    skanSwitch.addTarget(self, action: #selector(skanPreferenceDidChange), for: .valueChanged)
     lockOrientationSwitch.addTarget(self, action: #selector(orientationLockDidChange), for: .valueChanged)
 
     // Set initial switch positions
@@ -128,14 +124,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     )
     iCloudBackupsSwitch.setOn(
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled),
-      animated: false
-    )
-    crashReportsSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.crashReportsDisabled),
-      animated: false
-    )
-    skanSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.skanAttributionDisabled),
       animated: false
     )
     lockOrientationSwitch.setOn(
@@ -154,14 +142,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func iCloudBackupsDidChange() {
     self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
-  }
-
-  @objc func crashReportsAccessDidChange() {
-    viewModel.toggleCrashReportsAccess(crashReportsSwitch.isOn)
-  }
-
-  @objc func skanPreferenceDidChange() {
-    viewModel.toggleSKANPreference(skanSwitch.isOn)
   }
 
   @objc func orientationLockDidChange() {
@@ -333,8 +313,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       }
     case .hardcover:
       return "Hardcover"
-    case .privacy:
-      return "settings_privacy_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
@@ -391,19 +369,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
 
     return totalCount
-  }
-
-  override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-    guard let settingsSection = SettingsSection(rawValue: section) else {
-      return super.tableView(tableView, titleForFooterInSection: section)
-    }
-
-    switch settingsSection {
-    case .privacy:
-      return "settings_skan_attribution_description".localized
-    default:
-      return super.tableView(tableView, titleForFooterInSection: section)
-    }
   }
 
   override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
