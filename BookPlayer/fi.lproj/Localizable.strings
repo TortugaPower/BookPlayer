@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Siirry valitsemaan kirja Hardcoverista";
 "voiceover_book_cover" = "%@ kirjoittaja %@, kirjan kansi";
 "voiceover_loading_book_cover" = "Ladataan kirjan kantta";
+"integrations_title" = "Integraatiot";

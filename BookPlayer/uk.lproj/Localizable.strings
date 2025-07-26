@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Навігація для вибору книги з Hardcover";
 "voiceover_book_cover" = "%@ від %@, обкладинка книги";
 "voiceover_loading_book_cover" = "Завантаження обкладинки книги";
+"integrations_title" = "Інтеграції";

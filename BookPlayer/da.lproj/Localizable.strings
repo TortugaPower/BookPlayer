@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Naviger for at vælge en bog fra Hardcover";
 "voiceover_book_cover" = "%@ af %@, bogomlaget";
 "voiceover_loading_book_cover" = "Indlæser bogomlaget";
+"integrations_title" = "Integrationer";

@@ -16,7 +16,7 @@ struct SettingsIntegrationsSectionView: View {
       NavigationLink("Jellyfin", value: SettingsScreen.jellyfin)
       NavigationLink("Hardcover", value: SettingsScreen.hardcover)
     } header: {
-      Text("Integrations")
+      Text("integrations_title")
         .foregroundStyle(theme.secondaryColor)
     }
   }

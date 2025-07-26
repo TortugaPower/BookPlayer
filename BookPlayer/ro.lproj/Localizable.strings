@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Navigați pentru a selecta o carte din Hardcover";
 "voiceover_book_cover" = "%@ de %@, coperta cărții";
 "voiceover_loading_book_cover" = "Se încarcă coperta cărții";
+"integrations_title" = "Integrări";

@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Nawiguj, aby wybrać książkę z Hardcover";
 "voiceover_book_cover" = "%@ autorstwa %@, okładka książki";
 "voiceover_loading_book_cover" = "Ładowanie okładki książki";
+"integrations_title" = "Integracje";
