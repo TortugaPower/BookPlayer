@@ -19,7 +19,9 @@ struct SettingsView: View {
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
   @State var loadingOverlay = LoadingOverlayState()
-  
+
+  @Environment(\.libraryService) private var libraryService
+  @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
@@ -83,14 +85,34 @@ struct SettingsView: View {
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
-        case .jellyfin:
-          view = AnyView(JellyfinSettingsView(
-            viewModel: JellyfinConnectionViewModel(
-              connectionService: jellyfinService,
-              navigation: BPNavigation(),
-              mode: .viewDetails
+        case .storage:
+          view = AnyView(
+            StorageView(
+              viewModel:
+                StorageViewModel(
+                  libraryService: libraryService,
+                  syncService: syncService,
+                  folderURL: DataManager.getProcessedFolderURL()
+                )
             )
-          ))
+          )
+        case .syncbackup:
+          view = AnyView(
+            StorageCloudDeletedView(
+              viewModel:
+                StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
+            )
+          )
+        case .jellyfin:
+          view = AnyView(
+            JellyfinSettingsView(
+              viewModel: JellyfinConnectionViewModel(
+                connectionService: jellyfinService,
+                navigation: BPNavigation(),
+                mode: .viewDetails
+              )
+            )
+          )
         case .hardcover:
           view = AnyView(
             HardcoverSettingsView(

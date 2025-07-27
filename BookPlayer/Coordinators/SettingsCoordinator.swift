@@ -54,14 +54,10 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showIcons()
       case .playerControls:
         self.showPlayerControls()
-      case .storageManagement:
-        self.showStorageManagement()
       case .autoplay:
         self.showAutoplay()
       case .autolock:
         self.showAutolock()
-      case .deletedFilesManagement:
-        self.showCloudDeletedFiles()
       }
     }
 
@@ -82,29 +78,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     flow.startPresentation(vc, animated: false)
-  }
-
-  func showStorageManagement() {
-    let viewModel = StorageViewModel(
-      libraryService: libraryService,
-      syncService: syncService,
-      folderURL: DataManager.getProcessedFolderURL()
-    )
-
-    viewModel.onTransition = { [weak self] route in
-      switch route {
-      case .showAlert(let content):
-        self?.flow.navigationController
-          .getTopVisibleViewController()?
-          .showAlert(content)
-      case .dismiss:
-        self?.flow.navigationController.dismiss(animated: true)
-      }
-    }
-
-    let vc = UIHostingController(rootView: StorageView(viewModel: viewModel))
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
   }
 
   func showAutoplay() {
@@ -131,23 +104,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     let vc = UIHostingController(rootView: SettingsAutolockView(viewModel: viewModel))
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
-  }
-
-  func showCloudDeletedFiles() {
-    let viewModel = StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
-
-    viewModel.onTransition = { [weak self] route in
-      switch route {
-      case .showAlert(let title, let message):
-        self?.showAlert(title, message: message)
-      case .dismiss:
-        self?.flow.navigationController.dismiss(animated: true)
-      }
-    }
-
-    let vc = UIHostingController(rootView: StorageCloudDeletedView(viewModel: viewModel))
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
   }

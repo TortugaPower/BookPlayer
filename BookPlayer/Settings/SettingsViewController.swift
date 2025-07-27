@@ -31,7 +31,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage
+    case plus = 0, appearance, playback
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -39,8 +39,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let autolockIndexPath = IndexPath(row: 2, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
-  let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
-  let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -141,11 +139,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-    if indexPath == cloudDeletedIndexPath,
-       !self.viewModel.hasMadeDonation() {
-      return 0
-    }
-
     switch indexPath.section {
     case SettingsSection.plus.rawValue:
       if viewModel.hasMadeDonation() {
@@ -190,10 +183,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showThemes()
     case self.iconsIndexPath:
       self.viewModel.showIcons()
-    case self.storageIndexPath:
-      self.viewModel.showStorageManagement()
-    case self.cloudDeletedIndexPath:
-      self.viewModel.showCloudDeletedFiles()
     default: break
     }
   }
@@ -208,8 +197,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_appearance_title".localized
     case .playback:
       return "settings_playback_title".localized
-    case .storage:
-      return "settings_storage_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }

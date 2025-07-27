@@ -25,7 +25,6 @@ protocol StorageViewModelProtocol: ObservableObject {
 
   func getTotalFoldersSize() -> String
   func getArtworkFolderSize() -> String
-  func dismiss()
 }
 
 enum BPStorageSortBy: Int {
@@ -37,16 +36,11 @@ enum BPStorageAlert {
   case delete(item: StorageItem)
   case fix(item: StorageItem)
   case fixAll
+  case uploadTask(item: StorageItem)
   case none // to avoid optional
 }
 
 final class StorageViewModel: StorageViewModelProtocol {
-  /// Available routes
-  enum Routes {
-    case showAlert(BPAlertContent)
-    case dismiss
-  }
-
   // MARK: - Properties
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
@@ -84,6 +78,8 @@ final class StorageViewModel: StorageViewModelProtocol {
       return fixAlert(for: item)
     case .fixAll:
       return fixAllAlert
+    case .uploadTask(let item):
+      return uploadTaskAlert(for: item)
     case .none:
       // processing this case to use non-optional var for storageAlert.
       // This case should not happen
@@ -91,8 +87,6 @@ final class StorageViewModel: StorageViewModelProtocol {
     }
   }
 
-  /// Callback to handle actions on this screen
-  var onTransition: BPTransition<Routes>?
   var storageAlert: BPStorageAlert = .none
 
   lazy var library: Library = {
@@ -186,18 +180,6 @@ final class StorageViewModel: StorageViewModelProtocol {
     if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
       try FileManager.default.removeItem(at: item.fileURL)
       if shouldReloadItems {
-        let alertMessage = String.localizedStringWithFormat("storage_duplicate_item_description".localized, fetchedBook.relativePath!)
-        /// only show alert when doing individual fix
-        self.onTransition?(.showAlert(
-          BPAlertContent(
-            title: "storage_duplicate_item_title".localized,
-            message: alertMessage,
-            style: .alert,
-            actionItems: [
-              BPActionItem.okAction
-            ]
-          )
-        ))
         self.loadItems()
       }
       return
@@ -210,14 +192,26 @@ final class StorageViewModel: StorageViewModelProtocol {
     }
   }
 
-  func deleteSelectedItem(_ item: StorageItem) {
-    verifyUploadTask(for: item) { [unowned self] in
-      do {
-        try handleDelete(for: item)
-      } catch {
-        storageAlert = .error(errorMessage: error.localizedDescription)
+  func checkAndDeleteSelectedItem(_ item: StorageItem) {
+    Task { @MainActor in
+      let hasUploadTask = await verifyUploadTask(for: item)
+
+      if hasUploadTask {
+        showAlert = false
+        storageAlert = .uploadTask(item: item)
         showAlert = true
+      } else {
+        deleteSelectedItem(item)
       }
+    }
+  }
+
+  func deleteSelectedItem(_ item: StorageItem) {
+    do {
+      try handleDelete(for: item)
+    } catch {
+      storageAlert = .error(errorMessage: error.localizedDescription)
+      showAlert = true
     }
   }
 
@@ -245,10 +239,6 @@ final class StorageViewModel: StorageViewModelProtocol {
       storageAlert = .error(errorMessage: error.localizedDescription)
       showAlert = true
     }
-  }
-
-  func dismiss() {
-    onTransition?(.dismiss)
   }
 
   // MARK: - Private functions
@@ -389,27 +379,8 @@ final class StorageViewModel: StorageViewModelProtocol {
     publishedFiles = self.sortedItems(items: filteredFiles)
   }
 
-  func verifyUploadTask(for item: StorageItem, completionHandler: @escaping () -> Void) {
-    Task {
-      if await syncService.hasUploadTask(for: item.path) {
-        await MainActor.run {
-          onTransition?(.showAlert(
-            BPAlertContent(
-              title: "warning_title".localized,
-              message: String(format: "sync_tasks_item_upload_queued".localized, item.path),
-              style: .alert,
-              actionItems: [
-                BPActionItem.cancelAction,
-                BPActionItem(title: "Continue", handler: completionHandler)
-              ])
-          ))
-        }
-      } else {
-        await MainActor.run {
-          completionHandler()
-        }
-      }
-    }
+  func verifyUploadTask(for item: StorageItem) async -> Bool {
+    return await syncService.hasUploadTask(for: item.path)
   }
 
   private func handleFix(for items: [StorageItem], completion: @escaping () -> Void) throws {
@@ -446,6 +417,22 @@ final class StorageViewModel: StorageViewModelProtocol {
     Alert(
       title: Text(""),
       message: Text(String(format: "delete_single_item_title".localized, item.title)),
+      primaryButton: .cancel(
+        Text("cancel_button".localized)
+      ),
+      secondaryButton: .destructive(
+        Text("delete_button".localized),
+        action: { [weak self] in
+          self?.checkAndDeleteSelectedItem(item)
+        }
+      )
+    )
+  }
+
+  private func uploadTaskAlert(for item: StorageItem) -> Alert {
+    Alert(
+      title: Text("warning_title".localized),
+      message: Text(String(format: "sync_tasks_item_upload_queued".localized, item.title)),
       primaryButton: .cancel(
         Text("cancel_button".localized)
       ),

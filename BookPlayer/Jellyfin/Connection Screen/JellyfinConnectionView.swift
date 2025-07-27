@@ -58,6 +58,9 @@ struct JellyfinConnectionView: View {
           .environmentObject(theme)
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemGroupedBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
     .environmentObject(theme)
     .errorAlert(error: $error)
     .overlay {

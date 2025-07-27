@@ -99,6 +99,9 @@ struct HardcoverSettingsView: View {
         }
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemGroupedBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
     .toolbar {
       navigationBar
     }

@@ -19,8 +19,6 @@ class SettingsViewModel: ViewModelProtocol {
     case playerControls
     case autoplay
     case autolock
-    case storageManagement
-    case deletedFilesManagement
   }
 
   enum Events {
@@ -103,14 +101,6 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showPro() {
     onTransition?(.pro)
-  }
-
-  func showStorageManagement() {
-    onTransition?(.storageManagement)
-  }
-
-  func showCloudDeletedFiles() {
-    onTransition?(.deletedFilesManagement)
   }
 
   func showThemes() {
