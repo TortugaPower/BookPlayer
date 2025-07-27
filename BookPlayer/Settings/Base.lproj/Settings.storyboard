@@ -84,41 +84,6 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="Ddl-YJ-idN" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="282" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ddl-YJ-idN" id="Q8E-5O-kyM">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Kbm-v5-cAo">
-                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="49" id="4sV-ar-tFr"/>
-                                                    </constraints>
-                                                </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Orientation Locked" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="0b4-mm-swL" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="16" y="11.5" width="286" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                    <userDefinedRuntimeAttributes>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_lock_orientation_title"/>
-                                                    </userDefinedRuntimeAttributes>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="Kbm-v5-cAo" secondAttribute="trailing" constant="16" id="4tU-ip-zb7"/>
-                                                <constraint firstItem="Kbm-v5-cAo" firstAttribute="centerY" secondItem="Q8E-5O-kyM" secondAttribute="centerY" id="5o2-fX-N2t"/>
-                                                <constraint firstItem="0b4-mm-swL" firstAttribute="leading" secondItem="Q8E-5O-kyM" secondAttribute="leading" constant="16" id="cbX-qX-qDV"/>
-                                                <constraint firstItem="0b4-mm-swL" firstAttribute="centerY" secondItem="Q8E-5O-kyM" secondAttribute="centerY" id="dv2-AK-flc"/>
-                                                <constraint firstItem="Kbm-v5-cAo" firstAttribute="leading" secondItem="0b4-mm-swL" secondAttribute="trailing" constant="8" id="kT8-Cc-zje"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="customLabel" destination="0b4-mm-swL" id="yzT-AF-aik"/>
-                                        </connections>
-                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -131,7 +96,6 @@
                     <size key="freeformSize" width="375" height="775"/>
                     <connections>
                         <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
-                        <outlet property="lockOrientationSwitch" destination="Kbm-v5-cAo" id="lt0-nF-Ahn"/>
                         <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
                     </connections>
                 </tableViewController>

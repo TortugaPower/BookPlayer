@@ -59,8 +59,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     bindObservers()
     bindDataItems()
 
-    setupSwitchValues()
-
     guard
       let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as? String,
       let build = Bundle.main.infoDictionary!["CFBundleVersion"] as? String
@@ -95,22 +93,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     }
   }
 
-  func setupSwitchValues() {
-    lockOrientationSwitch.addTarget(self, action: #selector(orientationLockDidChange), for: .valueChanged)
-
-    lockOrientationSwitch.setOn(
-      UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
-      animated: false
-    )
-  }
-
   @objc func donationMade() {
     self.tableView.reloadData()
-  }
-
-  @objc func orientationLockDidChange() {
-    viewModel.toggleOrientationLockPreference(lockOrientationSwitch.isOn)
-    setNeedsUpdateOfSupportedInterfaceOrientations()
   }
 
   func bindDataItems() {

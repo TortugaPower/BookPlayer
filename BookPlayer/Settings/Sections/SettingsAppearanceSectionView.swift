@@ -12,9 +12,16 @@ import SwiftUI
 struct SettingsAppearanceSectionView: View {
   @AppStorage(Constants.UserDefaults.appIcon)
   var appIcon: String = "Default"
-  @AppStorage(Constants.UserDefaults.orientationLock)
-  var orientationLock: Bool = false
+  @State
+  var orientationLock: Bool
+
   @EnvironmentObject var theme: ThemeViewModel
+
+  init() {
+    self._orientationLock = .init(
+      initialValue: UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil
+    )
+  }
 
   var body: some View {
     Section {
@@ -35,6 +42,19 @@ struct SettingsAppearanceSectionView: View {
       }
 
       Toggle("settings_lock_orientation_title", isOn: $orientationLock)
+        .onChange(of: orientationLock) {
+          if orientationLock {
+            UserDefaults.standard.set(
+              UIDevice.current.orientation.rawValue,
+              forKey: Constants.UserDefaults.orientationLock
+            )
+          } else {
+            UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.orientationLock)
+          }
+
+          AppDelegate.shared?.activeSceneDelegate?.startingNavigationController
+            .setNeedsUpdateOfSupportedInterfaceOrientations()
+        }
     } header: {
       Text("settings_appearance_title".localized)
         .foregroundStyle(theme.secondaryColor)

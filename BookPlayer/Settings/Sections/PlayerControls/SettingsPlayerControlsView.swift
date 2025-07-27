@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SettingsPlayerControlsView: View {
-  @EnvironmentObject var theme: ThemeViewModel
+  @StateObject var theme = ThemeViewModel()
 
   var body: some View {
     Form {
@@ -22,9 +22,10 @@ struct SettingsPlayerControlsView: View {
       ListOptionsSectionView()
       ProgressLabelsSectionView()
     }
+    .environmentObject(theme)
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
+    .background(theme.systemBackgroundColor)
+    .listRowBackground(theme.systemGroupedBackgroundColor)
     .navigationTitle("settings_controls_title")
     .navigationBarTitleDisplayMode(.inline)
   }
@@ -33,6 +34,5 @@ struct SettingsPlayerControlsView: View {
 #Preview {
   NavigationStack {
     SettingsPlayerControlsView()
-      .environmentObject(ThemeViewModel())
   }
 }
