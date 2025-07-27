@@ -22,7 +22,6 @@ protocol IntentSelectionDelegate: AnyObject {
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
-  @IBOutlet weak var iCloudBackupsSwitch: UISwitch!
   @IBOutlet weak var allowCellularDataSwitch: UISwitch!
   @IBOutlet weak var lockOrientationSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
@@ -33,7 +32,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups
+    case plus = 0, appearance, playback, storage, data
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -43,8 +42,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
   let storageIndexPath = IndexPath(row: 0, section: SettingsSection.storage.rawValue)
   let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
-  let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
-  let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -106,16 +103,11 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   func setupSwitchValues() {
     allowCellularDataSwitch.addTarget(self, action: #selector(self.allowCellularDataDidChange), for: .valueChanged)
-    iCloudBackupsSwitch.addTarget(self, action: #selector(self.iCloudBackupsDidChange), for: .valueChanged)
     lockOrientationSwitch.addTarget(self, action: #selector(orientationLockDidChange), for: .valueChanged)
 
     // Set initial switch positions
     allowCellularDataSwitch.setOn(
       UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData),
-      animated: false
-    )
-    iCloudBackupsSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.iCloudBackupsEnabled),
       animated: false
     )
     lockOrientationSwitch.setOn(
@@ -130,10 +122,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func allowCellularDataDidChange() {
     viewModel.toggleCellularDataUsage(allowCellularDataSwitch.isOn)
-  }
-
-  @objc func iCloudBackupsDidChange() {
-    self.viewModel.toggleFileBackupsPreference(self.iCloudBackupsSwitch.isOn)
   }
 
   @objc func orientationLockDidChange() {
@@ -167,10 +155,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     if indexPath == cloudDeletedIndexPath,
        !self.viewModel.hasMadeDonation() {
       return 0
-    }
-
-    if indexPath == lastPlayedShortcutPath {
-      return 55
     }
 
     switch indexPath.section {
@@ -235,16 +219,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showThemes()
     case self.iconsIndexPath:
       self.viewModel.showIcons()
-    case self.lastPlayedShortcutPath:
-      if #unavailable(iOS 16.4) {
-        /// SiriKit shortcuts are deprecated
-        self.showLastPlayedShortcut()
-      }
-    case self.sleepTimerShortcutPath:
-      if #unavailable(iOS 16.4) { 
-        /// SiriKit shortcuts are deprecated
-        self.showSleepTimerShortcut()
-      }
     case self.storageIndexPath:
       self.viewModel.showStorageManagement()
     case self.cloudDeletedIndexPath:
@@ -271,62 +245,20 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       } else {
         return nil
       }
-    case .siri:
-      return "settings_shortcuts_title".localized
-    case .backups:
-      return "settings_backup_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    var tableViewCell = super.tableView(tableView, cellForRowAt: indexPath)
+    let tableViewCell = super.tableView(tableView, cellForRowAt: indexPath)
 
     if indexPath == autoplayIndexPath {
       /// Override title with capitalized string
       tableViewCell.textLabel?.text = "settings_autoplay_section_title".localized.localizedCapitalized
     }
 
-    guard 
-      #available(iOS 16.4, *)
-    else {
-      return tableViewCell
-    }
-
-    if indexPath == lastPlayedShortcutPath {
-      tableViewCell = UITableViewCell()
-      tableViewCell.contentConfiguration = UIHostingConfiguration {
-        HStack {
-          BPShortcutsLink()
-          Spacer()
-        }
-        .padding(.leading)
-      }
-      .margins(.all, 0)
-      tableViewCell.backgroundColor = .clear
-    }
-
     return tableViewCell
-  }
-
-  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    let totalCount = super.tableView(tableView, numberOfRowsInSection: section)
-
-    guard let settingsSection = SettingsSection(rawValue: section) else {
-      return totalCount
-    }
-    
-    switch settingsSection {
-    case .siri:
-      if #available(iOS 16.4, *) {
-        return totalCount - 1
-      }
-    default:
-      break
-    }
-
-    return totalCount
   }
 
   override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {

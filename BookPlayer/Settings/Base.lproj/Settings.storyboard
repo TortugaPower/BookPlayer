@@ -312,45 +312,6 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="ICLOUD BACKUPS" id="Ih3-au-VR8">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="geY-VJ-JHG" customClass="StaticCellView" customModule="BookPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="958" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="geY-VJ-JHG" id="zPn-MZ-SwT">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ssf-Q5-vn2">
-                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="49" id="9Gr-mL-Nfy"/>
-                                                    </constraints>
-                                                </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include book files" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="rRx-5f-ZeW" customClass="LocalizableLabel" customModule="BookPlayer" customModuleProvider="target">
-                                                    <rect key="frame" x="16" y="11.5" width="286" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                    <userDefinedRuntimeAttributes>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="localizedKey" value="settings_backup_files_title"/>
-                                                    </userDefinedRuntimeAttributes>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="rRx-5f-ZeW" firstAttribute="leading" secondItem="zPn-MZ-SwT" secondAttribute="leading" constant="16" id="92Q-25-RDU"/>
-                                                <constraint firstItem="ssf-Q5-vn2" firstAttribute="leading" secondItem="rRx-5f-ZeW" secondAttribute="trailing" constant="8" id="YN3-Da-Ilj"/>
-                                                <constraint firstItem="ssf-Q5-vn2" firstAttribute="centerY" secondItem="zPn-MZ-SwT" secondAttribute="centerY" id="c2N-YO-E2o"/>
-                                                <constraint firstAttribute="trailing" secondItem="ssf-Q5-vn2" secondAttribute="trailing" constant="16" id="fQx-Ao-6Hb"/>
-                                                <constraint firstItem="rRx-5f-ZeW" firstAttribute="centerY" secondItem="zPn-MZ-SwT" secondAttribute="centerY" id="rfF-Ip-hZ9"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="customLabel" destination="rRx-5f-ZeW" id="EkN-7C-PPG"/>
-                                        </connections>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="4H6-OJ-4Mr" id="kk1-RN-BrC"/>
@@ -362,7 +323,6 @@
                     <connections>
                         <outlet property="allowCellularDataSwitch" destination="wVf-z9-c5p" id="g0b-gg-Q6I"/>
                         <outlet property="appIconLabel" destination="MdO-Yx-eBK" id="dXu-fc-mwk"/>
-                        <outlet property="iCloudBackupsSwitch" destination="ssf-Q5-vn2" id="pjG-GZ-NHe"/>
                         <outlet property="lockOrientationSwitch" destination="Kbm-v5-cAo" id="lt0-nF-Ahn"/>
                         <outlet property="themeLabel" destination="CVc-ad-1rf" id="I40-1O-6rO"/>
                     </connections>

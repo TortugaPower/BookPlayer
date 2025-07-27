@@ -18,6 +18,8 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
+  @State var loadingOverlay = LoadingOverlayState()
+  
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
@@ -51,6 +53,7 @@ struct SettingsView: View {
         }
         SettingsCreditsSectionView()
       }
+      .environment(\.loadingOverlay, loadingOverlay)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
       .scrollContentBackground(.hidden)
@@ -68,6 +71,7 @@ struct SettingsView: View {
           attachmentData: attachmentData
         )
       }
+      .errorAlert(error: $loadingOverlay.error)
       .alert("settings_support_compose_title", isPresented: $showMailUnavailableModal) {
         Button("settings_support_compose_copy") {
           UIPasteboard.general.string = debugInfo

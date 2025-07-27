@@ -94,17 +94,6 @@ class SettingsViewModel: ViewModelProtocol {
     UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.allowCellularData)
   }
 
-  func toggleFileBackupsPreference(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.iCloudBackupsEnabled)
-
-    // Modify the processed folder to be considered for backups
-    var resourceValues = URLResourceValues()
-    resourceValues.isExcludedFromBackup = !flag
-    var processedFolderURL = DataManager.getProcessedFolderURL()
-
-    try? processedFolderURL.setResourceValues(resourceValues)
-  }
-
   /// Handle registering the value in `UserDefaults`
   func toggleOrientationLockPreference(_ flag: Bool) {
     if flag {
