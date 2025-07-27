@@ -22,7 +22,6 @@ protocol IntentSelectionDelegate: AnyObject {
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
-  @IBOutlet weak var allowCellularDataSwitch: UISwitch!
   @IBOutlet weak var lockOrientationSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
   @IBOutlet weak var appIconLabel: UILabel!
@@ -32,7 +31,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data
+    case plus = 0, appearance, playback, storage
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -102,14 +101,8 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   func setupSwitchValues() {
-    allowCellularDataSwitch.addTarget(self, action: #selector(self.allowCellularDataDidChange), for: .valueChanged)
     lockOrientationSwitch.addTarget(self, action: #selector(orientationLockDidChange), for: .valueChanged)
 
-    // Set initial switch positions
-    allowCellularDataSwitch.setOn(
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData),
-      animated: false
-    )
     lockOrientationSwitch.setOn(
       UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
       animated: false
@@ -118,10 +111,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
 
   @objc func donationMade() {
     self.tableView.reloadData()
-  }
-
-  @objc func allowCellularDataDidChange() {
-    viewModel.toggleCellularDataUsage(allowCellularDataSwitch.isOn)
   }
 
   @objc func orientationLockDidChange() {
@@ -164,12 +153,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       } else {
         return 152
       }
-    case SettingsSection.data.rawValue:
-      if viewModel.hasMadeDonation() {
-        return super.tableView(tableView, heightForRowAt: indexPath)
-      } else {
-        return 0
-      }
     default:
       return super.tableView(tableView, heightForRowAt: indexPath)
     }
@@ -179,12 +162,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     switch section {
     case SettingsSection.plus.rawValue:
       return CGFloat.leastNormalMagnitude
-    case SettingsSection.data.rawValue:
-      if viewModel.hasMadeDonation() {
-        return super.tableView(tableView, heightForHeaderInSection: section)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
     default:
       return super.tableView(tableView, heightForHeaderInSection: section)
     }
@@ -194,12 +171,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     switch section {
     case SettingsSection.plus.rawValue:
       return CGFloat.leastNormalMagnitude
-    case SettingsSection.data.rawValue:
-      if viewModel.hasMadeDonation() {
-        return super.tableView(tableView, heightForFooterInSection: section)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
     default:
       return super.tableView(tableView, heightForFooterInSection: section)
     }
@@ -239,12 +210,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_playback_title".localized
     case .storage:
       return "settings_storage_title".localized
-    case .data:
-      if viewModel.hasMadeDonation() {
-        return "settings_datausage_title".localized
-      } else {
-        return nil
-      }
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }

@@ -90,11 +90,6 @@ class SettingsViewModel: ViewModelProtocol {
   }
 
   /// Handle registering the value in `UserDefaults`
-  func toggleCellularDataUsage(_ flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.allowCellularData)
-  }
-
-  /// Handle registering the value in `UserDefaults`
   func toggleOrientationLockPreference(_ flag: Bool) {
     if flag {
       UserDefaults.standard.set(
