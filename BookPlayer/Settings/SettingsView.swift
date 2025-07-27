@@ -85,6 +85,10 @@ struct SettingsView: View {
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
+        case .autoplay:
+          view = AnyView(SettingsAutoplayView())
+        case .autolock:
+          view = AnyView(SettingsAutolockView())
         case .storage:
           view = AnyView(
             StorageView(

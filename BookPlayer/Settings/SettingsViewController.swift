@@ -35,8 +35,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
-  let autoplayIndexPath = IndexPath(row: 1, section: SettingsSection.playback.rawValue)
-  let autolockIndexPath = IndexPath(row: 2, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
 
@@ -175,10 +173,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     switch indexPath {
     case self.playbackIndexPath:
       self.viewModel.showPlayerControls()
-    case self.autoplayIndexPath:
-      self.viewModel.showAutoplay()
-    case self.autolockIndexPath:
-      self.viewModel.showAutolock()
     case self.themesIndexPath:
       self.viewModel.showThemes()
     case self.iconsIndexPath:
@@ -200,17 +194,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
-  }
-
-  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let tableViewCell = super.tableView(tableView, cellForRowAt: indexPath)
-
-    if indexPath == autoplayIndexPath {
-      /// Override title with capitalized string
-      tableViewCell.textLabel?.text = "settings_autoplay_section_title".localized.localizedCapitalized
-    }
-
-    return tableViewCell
   }
 
   override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {

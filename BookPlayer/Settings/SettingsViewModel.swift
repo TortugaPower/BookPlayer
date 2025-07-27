@@ -17,8 +17,6 @@ class SettingsViewModel: ViewModelProtocol {
     case themes
     case icons
     case playerControls
-    case autoplay
-    case autolock
   }
 
   enum Events {
@@ -113,13 +111,5 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showPlayerControls() {
     onTransition?(.playerControls)
-  }
-
-  func showAutoplay() {
-    onTransition?(.autoplay)
-  }
-
-  func showAutolock() {
-    onTransition?(.autolock)
   }
 }

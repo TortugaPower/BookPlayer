@@ -54,10 +54,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showIcons()
       case .playerControls:
         self.showPlayerControls()
-      case .autoplay:
-        self.showAutoplay()
-      case .autolock:
-        self.showAutolock()
       }
     }
 
@@ -78,34 +74,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     flow.startPresentation(vc, animated: false)
-  }
-
-  func showAutoplay() {
-    let viewModel = SettingsAutoplayViewModel()
-    viewModel.onTransition = { route in
-      switch route {
-      case .dismiss:
-        self.flow.navigationController.dismiss(animated: true)
-      }
-    }
-
-    let vc = UIHostingController(rootView: SettingsAutoplayView(viewModel: viewModel))
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
-  }
-
-  func showAutolock() {
-    let viewModel = SettingsAutolockViewModel()
-    viewModel.onTransition = { route in
-      switch route {
-      case .dismiss:
-        self.flow.navigationController.dismiss(animated: true)
-      }
-    }
-
-    let vc = UIHostingController(rootView: SettingsAutolockView(viewModel: viewModel))
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
   }
 
   func showPro() {
