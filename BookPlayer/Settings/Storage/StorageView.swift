@@ -27,12 +27,12 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
 
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
-              .foregroundColor(themeViewModel.primaryColor)
+              .foregroundStyle(themeViewModel.primaryColor)
 
             Spacer()
 
             Text(viewModel.getTotalFoldersSize())
-              .foregroundColor(themeViewModel.secondaryColor)
+              .foregroundStyle(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
@@ -43,12 +43,12 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
 
           HStack(alignment: .center) {
             Text("storage_artwork_cache_title".localized)
-              .foregroundColor(themeViewModel.primaryColor)
+              .foregroundStyle(themeViewModel.primaryColor)
 
             Spacer()
 
             Text(viewModel.getArtworkFolderSize())
-              .foregroundColor(themeViewModel.secondaryColor)
+              .foregroundStyle(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
@@ -66,7 +66,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               .localizedUppercase
           )
           .font(Font(Fonts.subheadline))
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
           .accessibilityAddTraits(.isHeader)
 
           Spacer()
@@ -76,7 +76,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               viewModel.storageAlert = .fixAll
               viewModel.showAlert = true
             }
-            .foregroundColor(themeViewModel.linkColor)
+            .foregroundStyle(themeViewModel.linkColor)
           }
         }
         .padding(.horizontal, 16)
@@ -126,7 +126,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
             action: viewModel.dismiss,
             label: {
               Image(systemName: "xmark")
-                .foregroundColor(themeViewModel.linkColor)
+                .foregroundStyle(themeViewModel.linkColor)
             }
           )
         }
@@ -147,7 +147,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
                 .scaledToFit()
                 .frame(width: 12, height: 12)
             }
-            .foregroundColor(themeViewModel.linkColor)
+            .foregroundStyle(themeViewModel.linkColor)
           }
         }
       }

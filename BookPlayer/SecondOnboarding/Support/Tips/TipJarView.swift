@@ -20,7 +20,7 @@ struct TipJarView: View {
       VStack {
         if let disclaimer = viewModel.disclaimer {
           Text(disclaimer)
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
             .font(Font(Fonts.titleRegular))
             .padding()
         }
@@ -54,7 +54,7 @@ struct TipJarView: View {
             .font(Font(Fonts.headline))
             .frame(height: 45)
             .frame(maxWidth: .infinity)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .background(Color(UIColor(hex: "687AB7")))
             .cornerRadius(6)
             .padding(.top, Spacing.S1)

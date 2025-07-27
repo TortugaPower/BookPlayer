@@ -18,9 +18,9 @@ struct ProfileSyncTasksStatusView: View {
   var body: some View {
     VStack {
       Button(buttonText, action: showTasksAction)
-        .foregroundColor(themeViewModel.linkColor)
+        .foregroundStyle(themeViewModel.linkColor)
       Text(statusMessage)
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
     }
   }
 }

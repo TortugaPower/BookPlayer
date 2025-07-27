@@ -33,7 +33,7 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback, storage, data, siri, backups, jellyfin
+    case plus = 0, appearance, playback, storage, data, siri, backups
   }
 
   let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
@@ -45,7 +45,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   let cloudDeletedIndexPath = IndexPath(row: 1, section: SettingsSection.storage.rawValue)
   let lastPlayedShortcutPath = IndexPath(row: 0, section: SettingsSection.siri.rawValue)
   let sleepTimerShortcutPath = IndexPath(row: 1, section: SettingsSection.siri.rawValue)
-  let jellyfinManageConnectionPath = IndexPath(row: 0, section: SettingsSection.jellyfin.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -103,12 +102,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
         }
         .store(in: &disposeBag)
     }
-    
-    self.viewModel.$hasJellyfinConnection
-      .receive(on: RunLoop.main)
-      .sink { [weak self] _ in
-        self?.tableView.reloadData()
-      }.store(in: &disposeBag)
   }
 
   func setupSwitchValues() {
@@ -193,12 +186,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       } else {
         return 0
       }
-    case SettingsSection.jellyfin.rawValue:
-      if viewModel.hasJellyfinConnection {
-        return super.tableView(tableView, heightForRowAt: indexPath)
-      } else {
-        return 0
-      }
     default:
       return super.tableView(tableView, heightForRowAt: indexPath)
     }
@@ -214,12 +201,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       } else {
         return CGFloat.leastNormalMagnitude
       }
-    case SettingsSection.jellyfin.rawValue:
-      if viewModel.hasJellyfinConnection {
-        return super.tableView(tableView, heightForHeaderInSection: section)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
     default:
       return super.tableView(tableView, heightForHeaderInSection: section)
     }
@@ -231,12 +212,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return CGFloat.leastNormalMagnitude
     case SettingsSection.data.rawValue:
       if viewModel.hasMadeDonation() {
-        return super.tableView(tableView, heightForFooterInSection: section)
-      } else {
-        return CGFloat.leastNormalMagnitude
-      }
-    case SettingsSection.jellyfin.rawValue:
-      if viewModel.hasJellyfinConnection {
         return super.tableView(tableView, heightForFooterInSection: section)
       } else {
         return CGFloat.leastNormalMagnitude
@@ -274,8 +249,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       self.viewModel.showStorageManagement()
     case self.cloudDeletedIndexPath:
       self.viewModel.showCloudDeletedFiles()
-    case self.jellyfinManageConnectionPath:
-      self.viewModel.showJellyfinConnectionManagement()
     default: break
     }
   }
@@ -302,12 +275,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
       return "settings_shortcuts_title".localized
     case .backups:
       return "settings_backup_title".localized
-    case .jellyfin:
-      if viewModel.hasJellyfinConnection {
-        return "Jellyfin"
-      } else {
-        return nil
-      }
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }
@@ -354,10 +321,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     case .siri:
       if #available(iOS 16.4, *) {
         return totalCount - 1
-      }
-    case .jellyfin:
-      if !viewModel.hasJellyfinConnection {
-        return 0
       }
     default:
       break

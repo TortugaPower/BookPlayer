@@ -28,3 +28,11 @@ extension View {
     self.modifier(UIFontModifier(uiFont: font))
   }
 }
+
+extension View {
+  func disabledWithOpacity(_ condition: Bool, opacity: Double = 0.5) -> some View {
+    self
+      .disabled(condition)
+      .opacity(condition ? opacity : 1)
+  }
+}

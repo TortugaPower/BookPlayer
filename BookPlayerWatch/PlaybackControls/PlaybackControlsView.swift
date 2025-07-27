@@ -63,7 +63,7 @@ struct PlaybackControlsView: View {
           } label: {
             HStack {
               Text("player_sleep_title".localized)
-                .foregroundColor(Color.primary)
+                .foregroundStyle(Color.primary)
               Spacer()
               Image(systemName: "chevron.forward")
             }

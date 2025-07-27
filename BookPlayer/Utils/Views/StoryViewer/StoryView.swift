@@ -165,6 +165,6 @@ struct StoryView: View {
       }, onTipJar: { _ in
         print("Tip Jar")
       })
-    .foregroundColor(.white)
+    .foregroundStyle(.white)
   }
 }

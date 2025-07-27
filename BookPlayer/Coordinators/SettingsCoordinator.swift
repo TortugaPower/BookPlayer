@@ -62,8 +62,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showAutolock()
       case .deletedFilesManagement:
         self.showCloudDeletedFiles()
-      case .jellyfinConnectionManagement:
-        self.showJellyfinConnectionManagement()
       }
     }
 
@@ -188,21 +186,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
       accountService: self.accountService
     )
     coordinator.start()
-  }
-
-  private func showJellyfinConnectionManagement() {
-    Task { @MainActor in
-      let view = JellyfinSettingsView(
-        viewModel: JellyfinConnectionViewModel(
-          connectionService: self.jellyfinConnectionService,
-          navigation: BPNavigation(),
-          mode: .viewDetails
-        )
-      )
-
-      let vc = UIHostingController(rootView: view)
-      flow.navigationController.present(vc, animated: true)
-    }
   }
 
   func showThemes() {

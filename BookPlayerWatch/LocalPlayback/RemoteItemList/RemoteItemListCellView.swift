@@ -58,7 +58,7 @@ struct RemoteItemListCellView: View {
             .lineLimit(2)
           Text(model.item.details)
             .font(.footnote)
-            .foregroundColor(Color.secondary)
+            .foregroundStyle(Color.secondary)
             .lineLimit(1)
           switch model.downloadState {
           case .downloading(let progress):
@@ -81,13 +81,13 @@ struct RemoteItemListCellView: View {
               .font(.caption2)
               + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
               .font(.footnote)
-              .foregroundColor(Color.secondary)
+              .foregroundStyle(Color.secondary)
           case .notDownloaded:
             Text(Image(systemName: "icloud.fill"))
               .font(.caption2)
               + Text(" - \(percentCompleted)\(model.item.durationFormatted)")
               .font(.footnote)
-              .foregroundColor(Color.secondary)
+              .foregroundStyle(Color.secondary)
           }
         }
         Spacer()

@@ -21,7 +21,6 @@ class SettingsViewModel: ViewModelProtocol {
     case autolock
     case storageManagement
     case deletedFilesManagement
-    case jellyfinConnectionManagement
   }
 
   enum Events {
@@ -38,7 +37,6 @@ class SettingsViewModel: ViewModelProtocol {
   var onTransition: BPTransition<Routes>?
 
   @Published var account: Account?
-  @Published var hasJellyfinConnection: Bool = false
 
   private var disposeBag = Set<AnyCancellable>()
   var eventsPublisher = InterfaceUpdater<SettingsViewModel.Events>()
@@ -64,12 +62,6 @@ class SettingsViewModel: ViewModelProtocol {
       .sink(receiveValue: { [weak self] _ in
         self?.reloadAccount()
       })
-      .store(in: &disposeBag)
-    
-    jellyfinConnectionService.$connection
-      .sink { [weak self] connection in
-        self?.hasJellyfinConnection = connection != nil
-      }
       .store(in: &disposeBag)
   }
 
@@ -155,9 +147,5 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showAutolock() {
     onTransition?(.autolock)
-  }
-  
-  func showJellyfinConnectionManagement() {
-    onTransition?(.jellyfinConnectionManagement)
   }
 }

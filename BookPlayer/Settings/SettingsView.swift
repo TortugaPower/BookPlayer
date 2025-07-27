@@ -19,6 +19,7 @@ struct SettingsView: View {
   @StateObject var theme = ThemeViewModel()
   @State var showPro = false
   @Environment(\.accountService) private var accountService
+  @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
 
   let supportEmail = "support@bookplayer.app"
@@ -78,8 +79,14 @@ struct SettingsView: View {
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
-//        case .jellyfin:
-//          view = AnyView(JellyfinSettingsView())
+        case .jellyfin:
+          view = AnyView(JellyfinSettingsView(
+            viewModel: JellyfinConnectionViewModel(
+              connectionService: jellyfinService,
+              navigation: BPNavigation(),
+              mode: .viewDetails
+            )
+          ))
         case .hardcover:
           view = AnyView(
             HardcoverSettingsView(

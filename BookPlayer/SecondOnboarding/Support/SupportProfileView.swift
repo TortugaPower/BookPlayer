@@ -27,7 +27,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 23)
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
           })
           Spacer()
         }
@@ -36,7 +36,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         Spacer()
         Image(systemName: "person.crop.circle")
           .resizable()
-          .foregroundColor(themeViewModel.secondaryColor.opacity(0.5))
+          .foregroundStyle(themeViewModel.secondaryColor.opacity(0.5))
           .aspectRatio(contentMode: .fit)
           .frame(maxWidth: 150)
           .padding([.bottom], Spacing.M)
@@ -45,11 +45,11 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         Group {
           Text("Create your profile")
             .font(Font(Fonts.titleStory))
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
             .padding()
           Text("To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab")
             .font(Font(Fonts.bodyStory))
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
             .multilineTextAlignment(.center)
         }
         .padding([.bottom], Spacing.M)
@@ -73,7 +73,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
           Text("Not now")
             .underline()
             .font(Font(Fonts.body))
-            .foregroundColor(themeViewModel.secondaryColor)
+            .foregroundStyle(themeViewModel.secondaryColor)
         })
         .padding([.top], Spacing.S5)
       }

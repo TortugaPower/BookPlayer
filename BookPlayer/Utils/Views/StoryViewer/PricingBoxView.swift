@@ -35,15 +35,15 @@ struct PricingBoxView: View {
         Image(systemName: imageName)
           .resizable()
           .frame(width: imageLength, height: imageLength)
-          .foregroundColor(foregroundColor)
+          .foregroundStyle(foregroundColor)
           .padding([.trailing, .top], Spacing.S3)
       }
       Text(title)
         .font(Font(Fonts.titleLarge))
-        .foregroundColor(foregroundColor)
+        .foregroundStyle(foregroundColor)
       Text("/month")
         .font(Font(Fonts.titleRegular))
-        .foregroundColor(foregroundColor.opacity(0.7))
+        .foregroundStyle(foregroundColor.opacity(0.7))
     }
     .padding([.bottom])
     .background(backgroundColor)

@@ -27,12 +27,12 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
 
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
-              .foregroundColor(themeViewModel.primaryColor)
+              .foregroundStyle(themeViewModel.primaryColor)
 
             Spacer()
 
             Text(viewModel.getFolderSize())
-              .foregroundColor(themeViewModel.secondaryColor)
+              .foregroundStyle(themeViewModel.secondaryColor)
           }
           .padding(.horizontal, 16)
           .padding(.top, 4)
@@ -50,7 +50,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
               .localizedUppercase
           )
           .font(Font(Fonts.subheadline))
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
           .accessibilityAddTraits(.isHeader)
 
           Spacer()
@@ -60,7 +60,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
               viewModel.storageAlert = .fixAll
               viewModel.showAlert = true
             }
-            .foregroundColor(themeViewModel.linkColor)
+            .foregroundStyle(themeViewModel.linkColor)
           }
         }
         .padding(.horizontal, 16)
@@ -110,7 +110,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
             action: viewModel.dismiss,
             label: {
               Image(systemName: "xmark")
-                .foregroundColor(themeViewModel.linkColor)
+                .foregroundStyle(themeViewModel.linkColor)
             }
           )
         }
@@ -131,7 +131,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
                 .scaledToFit()
                 .frame(width: 12, height: 12)
             }
-            .foregroundColor(themeViewModel.linkColor)
+            .foregroundStyle(themeViewModel.linkColor)
           }
         }
       }

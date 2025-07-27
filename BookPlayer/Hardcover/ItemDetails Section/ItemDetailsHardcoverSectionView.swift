@@ -17,7 +17,7 @@ struct ItemDetailsHardcoverSectionView: View {
   var body: some View {
     Section(
       header: Text("section_item_hardcover".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
     ) {
       NavigationLink(
         destination: {

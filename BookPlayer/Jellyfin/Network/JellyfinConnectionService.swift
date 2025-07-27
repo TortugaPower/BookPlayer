@@ -10,16 +10,19 @@ import BookPlayerKit
 import Get
 import JellyfinAPI
 
-class JellyfinConnectionService: BPLogger, ObservableObject {
+@Observable
+class JellyfinConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
-  @Published var connection: JellyfinConnectionData?
+  var connection: JellyfinConnectionData?
   var client: JellyfinClient?
 
-  init(keychainService: KeychainServiceProtocol) {
+  init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
+  }
 
-    self.reloadConnection()
+  func setup() {
+    reloadConnection()
   }
 
   /// Finds and creates the api-client for the specified server

@@ -23,7 +23,7 @@ struct JellyfinConnectionView: View {
   @State private var error: Error?
 
   /// Theme view model to update colors
-  @StateObject var themeViewModel = ThemeViewModel()
+  @StateObject var theme = ThemeViewModel()
 
   @Environment(\.dismiss) var dismiss
 
@@ -35,30 +35,30 @@ struct JellyfinConnectionView: View {
           serverUrl: $viewModel.form.serverUrl,
           onCommit: onConnect
         )
-        .environmentObject(themeViewModel)
+        .environmentObject(theme)
       case .foundServer:
         JellyfinServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        .environmentObject(themeViewModel)
+        .environmentObject(theme)
         JellyfinServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
           onCommit: onSignIn
         )
-        .environmentObject(themeViewModel)
+        .environmentObject(theme)
       case .connected:
         JellyfinServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        .environmentObject(themeViewModel)
+        .environmentObject(theme)
         JellyfinConnectedView(viewModel: viewModel)
-          .environmentObject(themeViewModel)
+          .environmentObject(theme)
       }
     }
-    .environmentObject(themeViewModel)
+    .environmentObject(theme)
     .errorAlert(error: $error)
     .overlay {
       Group {
@@ -79,24 +79,22 @@ struct JellyfinConnectionView: View {
       ToolbarItem(placement: .principal) {
         Text(localizedNavigationTitle)
           .font(.headline)
-          .foregroundColor(themeViewModel.primaryColor)
-      }
-      ToolbarItemGroup(placement: .cancellationAction) {
-        cancelToolbarButton
+          .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .confirmationAction) {
-        if viewModel.viewMode == .regular {
-          switch viewModel.connectionState {
-          case .disconnected:
-            connectToolbarButton
-          case .foundServer:
-            signInToolbarButton
-          case .connected:
-            goToLibraryToolbarButton
-          }
+        switch (viewModel.viewMode, viewModel.connectionState) {
+        case (_, .disconnected):
+          connectToolbarButton
+        case (_, .foundServer):
+          signInToolbarButton
+        case (.regular, .connected):
+          goToLibraryToolbarButton
+        case (.viewDetails, .connected):
+          EmptyView()
         }
       }
     }
+    .tint(theme.linkColor)
   }
 
   // MARK: Utils
@@ -139,25 +137,13 @@ struct JellyfinConnectionView: View {
   // MARK: - Navigation Buttons
 
   @ViewBuilder
-  private var cancelToolbarButton: some View {
-    Button(
-      action: {
-        dismiss()
-      },
-      label: {
-        Image(systemName: "xmark")
-          .foregroundColor(themeViewModel.linkColor)
-      }
-    )
-  }
-
-  @ViewBuilder
   private var connectToolbarButton: some View {
     Button(
       "jellyfin_connect_button".localized,
       action: onConnect
     )
-    .disabled(viewModel.form.serverUrl.isEmpty)
+    .foregroundStyle(theme.linkColor)
+    .disabledWithOpacity(viewModel.form.serverUrl.isEmpty)
   }
 
   @ViewBuilder
@@ -166,8 +152,9 @@ struct JellyfinConnectionView: View {
       "jellyfin_sign_in_button".localized,
       action: onSignIn
     )
-    .disabled(
-      viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty || viewModel.form.password.isEmpty
+    .foregroundStyle(theme.linkColor)
+    .disabledWithOpacity(
+      viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty
     )
   }
 
@@ -178,12 +165,13 @@ struct JellyfinConnectionView: View {
       systemImage: "chevron.forward",
       action: viewModel.handleGoToLibraryAction
     )
+    .foregroundStyle(theme.linkColor)
   }
 }
 
 #Preview("disconnected") {
   let viewModel = JellyfinConnectionViewModel(
-    connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+    connectionService: JellyfinConnectionService(),
     navigation: BPNavigation()
   )
   JellyfinConnectionView(viewModel: viewModel)
@@ -192,7 +180,7 @@ struct JellyfinConnectionView: View {
 #Preview("found server") {
   let viewModel = {
     let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      connectionService: JellyfinConnectionService(),
       navigation: BPNavigation()
     )
     viewModel.connectionState = .foundServer
@@ -206,7 +194,7 @@ struct JellyfinConnectionView: View {
 #Preview("connected") {
   let viewModel = {
     let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(keychainService: KeychainService()),
+      connectionService: JellyfinConnectionService(),
       navigation: BPNavigation()
     )
     viewModel.connectionState = .connected

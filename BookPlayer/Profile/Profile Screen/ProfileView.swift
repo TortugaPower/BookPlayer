@@ -43,7 +43,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
         VStack {
           Text("BookPlayer Pro")
             .font(Font(Fonts.title))
-            .foregroundColor(themeViewModel.primaryColor)
+            .foregroundStyle(themeViewModel.primaryColor)
           Button(
             action: {
               viewModel.showAccount()
@@ -53,7 +53,7 @@ struct ProfileView<Model: ProfileViewModelProtocol>: View {
                 .font(.system(size: 11, weight: .bold))
                 .frame(minWidth: 92, minHeight: 22)
                 .background(themeViewModel.linkColor)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .clipShape(Capsule())
             }
           )

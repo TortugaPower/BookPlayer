@@ -17,7 +17,7 @@ struct JellyfinDisconnectedView: View {
 
   @State var focusedField: JellyfinDisconnectedViewFields = .none
 
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var onCommit: () -> Void = {}
 
@@ -38,12 +38,12 @@ struct JellyfinDisconnectedView: View {
       .focused($focusedField, selfKey: .serverUrl)
     } header: {
       Text("jellyfin_section_server_url".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("jellyfin_section_server_url_footer".localized)
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focusedField = .serverUrl

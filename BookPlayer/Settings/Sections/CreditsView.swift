@@ -16,7 +16,7 @@ struct CreditsView: View {
     ScrollView {
       Text(contents)
         .padding()
-        .foregroundColor(theme.primaryColor)
+        .foregroundStyle(theme.primaryColor)
     }
     .onAppear {
       loadFile()

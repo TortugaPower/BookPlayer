@@ -32,7 +32,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       }
     }
     .environmentObject(themeViewModel)
-    .environmentObject(viewModel.connectionService)
+    .environment(\.jellyfinService, viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
@@ -52,7 +52,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       ToolbarItem(placement: .principal) {
         navigationTitle
           .font(.headline)
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
         toolbarTrailing

@@ -25,7 +25,7 @@ struct HardcoverSettingsView: View {
           "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
           text: $viewModel.accessToken
         )
-        .foregroundColor(theme.primaryColor)
+        .foregroundStyle(theme.primaryColor)
         .autocapitalization(.none)
         .autocorrectionDisabled()
         .focused($isTextFieldFocused)
@@ -38,36 +38,36 @@ struct HardcoverSettingsView: View {
         }
       } header: {
         Text("hardcover_api_access_title".localized)
-          .foregroundColor(theme.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       } footer: {
         if let attributedString = try? AttributedString(markdown: "hardcover_api_access_footer".localized) {
           Text(attributedString)
-            .foregroundColor(theme.secondaryColor)
+            .foregroundStyle(theme.secondaryColor)
         }
       }
 
       Section {
         Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
-          .foregroundColor(theme.primaryColor)
+          .foregroundStyle(theme.primaryColor)
 
         Toggle("hardcover_auto_add_want_to_read".localized, isOn: $viewModel.autoAddWantToRead)
-          .foregroundColor(theme.primaryColor)
+          .foregroundStyle(theme.primaryColor)
       } header: {
         Text("hardcover_automation_title".localized)
-          .foregroundColor(theme.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       } footer: {
         Text("hardcover_automation_description".localized)
-          .foregroundColor(theme.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
 
       Section {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
             Text("hardcover_reading_threshold".localized)
-              .foregroundColor(theme.primaryColor)
+              .foregroundStyle(theme.primaryColor)
             Spacer()
             Text("\(Int(viewModel.readingThreshold))%")
-              .foregroundColor(theme.secondaryColor)
+              .foregroundStyle(theme.secondaryColor)
           }
 
           Slider(
@@ -81,10 +81,10 @@ struct HardcoverSettingsView: View {
         }
       } header: {
         Text("hardcover_progress_tracking_title".localized)
-          .foregroundColor(theme.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       } footer: {
         Text("hardcover_progress_tracking_footer".localized)
-          .foregroundColor(theme.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
       .navigationBarTitleDisplayMode(.inline)
 
@@ -109,7 +109,7 @@ struct HardcoverSettingsView: View {
     ToolbarItem(placement: .principal) {
       Text("hardcover_settings_title".localized)
         .font(.headline)
-        .foregroundColor(theme.primaryColor)
+        .foregroundStyle(theme.primaryColor)
     }
     ToolbarItemGroup(placement: .confirmationAction) {
       Button(

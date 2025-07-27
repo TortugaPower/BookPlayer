@@ -42,7 +42,10 @@ class MainCoordinator: NSObject {
     self.playerManager = coreServices.playerManager
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
-    self.jellyfinConnectionService = JellyfinConnectionService(keychainService: KeychainService())
+    let jellyfinService = JellyfinConnectionService()
+    jellyfinService.setup()
+    self.jellyfinConnectionService = jellyfinService
+
     self.hardcoverService = coreServices.hardcoverService
 
     ThemeManager.shared.libraryService = libraryService
@@ -128,6 +131,7 @@ class MainCoordinator: NSObject {
         .environment(\.libraryService, libraryService)
         .environment(\.accountService, accountService)
         .environment(\.syncService, syncService)
+        .environment(\.jellyfinService, jellyfinConnectionService)
         .environment(\.hardcoverService, hardcoverService)
     )
     vc.tabBarItem = UITabBarItem(
