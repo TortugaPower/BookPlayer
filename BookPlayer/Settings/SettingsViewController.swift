@@ -31,10 +31,9 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   var viewModel: SettingsViewModel!
 
   enum SettingsSection: Int {
-    case plus = 0, appearance, playback
+    case plus = 0, appearance
   }
 
-  let playbackIndexPath = IndexPath(row: 0, section: SettingsSection.playback.rawValue)
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
   let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
 
@@ -171,8 +170,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     tableView.deselectRow(at: indexPath as IndexPath, animated: true)
 
     switch indexPath {
-    case self.playbackIndexPath:
-      self.viewModel.showPlayerControls()
     case self.themesIndexPath:
       self.viewModel.showThemes()
     case self.iconsIndexPath:
@@ -189,8 +186,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     switch settingsSection {
     case .appearance:
       return "settings_appearance_title".localized
-    case .playback:
-      return "settings_playback_title".localized
     default:
       return super.tableView(tableView, titleForHeaderInSection: section)
     }

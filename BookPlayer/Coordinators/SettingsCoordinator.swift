@@ -52,8 +52,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showThemes()
       case .icons:
         self.showIcons()
-      case .playerControls:
-        self.showPlayerControls()
       }
     }
 
@@ -143,15 +141,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
 
     let vc = IconsViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-
-    flow.navigationController.present(nav, animated: true)
-  }
-
-  func showPlayerControls() {
-    let vc = PlayerSettingsViewController.instantiate(from: .Settings)
     vc.navigationItem.largeTitleDisplayMode = .never
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]

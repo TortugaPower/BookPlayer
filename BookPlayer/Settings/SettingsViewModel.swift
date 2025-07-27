@@ -16,7 +16,6 @@ class SettingsViewModel: ViewModelProtocol {
     case pro
     case themes
     case icons
-    case playerControls
   }
 
   enum Events {
@@ -107,9 +106,5 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showIcons() {
     onTransition?(.icons)
-  }
-
-  func showPlayerControls() {
-    onTransition?(.playerControls)
   }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import BookPlayerKit
+import SwiftUI
 
 class PlayerControlsCoordinator: Coordinator {
   let flow: BPCoordinatorPresentationFlow
@@ -37,7 +38,7 @@ class PlayerControlsCoordinator: Coordinator {
   }
 
   func showMoreControls() {
-    let vc = PlayerSettingsViewController.instantiate(from: .Settings)
+    let vc = UIHostingController(rootView: SettingsPlayerControlsView())
     vc.navigationItem.largeTitleDisplayMode = .never
     let nav = AppNavigationController.instantiate(from: .Main)
     nav.viewControllers = [vc]
