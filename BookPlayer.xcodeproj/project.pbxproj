@@ -220,7 +220,6 @@
 		41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */; };
 		41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D9D221C750E00DC41E1 /* Icons.json */; };
 		41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA0221C7CAB00DC41E1 /* Icon.swift */; };
-		41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA6221C850F00DC41E1 /* IconCellView.swift */; };
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
 		41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */; };
@@ -359,6 +358,7 @@
 		63125D0F2C36D84E00D35533 /* EventsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D0D2C36D84E00D35533 /* EventsAPI.swift */; };
 		63125D122C36D97400D35533 /* EventsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D112C36D97400D35533 /* EventsService.swift */; };
 		63125D132C36D97400D35533 /* EventsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63125D112C36D97400D35533 /* EventsService.swift */; };
+		631686102E372FE7004A322F /* ThemesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6316860F2E372FE7004A322F /* ThemesView.swift */; };
 		631908952E333F12009249C1 /* LoadingOverlayState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908942E333F12009249C1 /* LoadingOverlayState.swift */; };
 		631908972E33442A009249C1 /* SettingsTipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908962E33442A009249C1 /* SettingsTipJarView.swift */; };
 		631908992E334894009249C1 /* ContributorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908982E334894009249C1 /* ContributorView.swift */; };
@@ -391,7 +391,6 @@
 		63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63388BE12DB6D7D00042C103 /* CreateBookmarkIntent.swift */; };
 		63398E3D2D68254000A6934E /* SimplePlaybackRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */; };
 		63398E3E2D68254000A6934E /* SimplePlaybackRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */; };
-		633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */; };
 		6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D5682AF12D48003D0B09 /* SharedWidget.swift */; };
 		6340D56E2AF13E4C003D0B09 /* RectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6340D56D2AF13E4C003D0B09 /* RectangularView.swift */; };
 		63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63432B582AC1E6F7002619D0 /* MockNavigationController.swift */; };
@@ -492,6 +491,7 @@
 		639E12C72B85AACF00C875F7 /* SyncTasksObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */; };
 		639E12DB2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */; };
 		639E12DC2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */; };
+		63AB64EB2E371FCE00EF6866 /* SettingsThemesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */; };
 		63B2303D2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */; };
 		63B2303E2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */; };
 		63B230422B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */; };
@@ -1126,7 +1126,6 @@
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
 		41AD3DA0221C7CAB00DC41E1 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
-		41AD3DA6221C850F00DC41E1 /* IconCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconCellView.swift; sourceTree = "<group>"; };
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
@@ -1224,6 +1223,7 @@
 		630EC82E2CEF9F0700C19411 /* ForcedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForcedEnvironment.swift; sourceTree = "<group>"; };
 		63125D0D2C36D84E00D35533 /* EventsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsAPI.swift; sourceTree = "<group>"; };
 		63125D112C36D97400D35533 /* EventsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsService.swift; sourceTree = "<group>"; };
+		6316860F2E372FE7004A322F /* ThemesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesView.swift; sourceTree = "<group>"; };
 		631908942E333F12009249C1 /* LoadingOverlayState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingOverlayState.swift; sourceTree = "<group>"; };
 		631908962E33442A009249C1 /* SettingsTipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTipJarView.swift; sourceTree = "<group>"; };
 		631908982E334894009249C1 /* ContributorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorView.swift; sourceTree = "<group>"; };
@@ -1257,7 +1257,6 @@
 		63398E3B2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplePlaybackRecord.swift; sourceTree = "<group>"; };
 		633BE3E12AE43D1300F983AC /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/AppShortcuts.strings"; sourceTree = "<group>"; };
-		633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPShortcutsLink.swift; sourceTree = "<group>"; };
 		6340D5682AF12D48003D0B09 /* SharedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidget.swift; sourceTree = "<group>"; };
 		6340D56D2AF13E4C003D0B09 /* RectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangularView.swift; sourceTree = "<group>"; };
 		63432B582AC1E6F7002619D0 /* MockNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNavigationController.swift; sourceTree = "<group>"; };
@@ -1363,6 +1362,7 @@
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
 		639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmMigrationManager.swift; sourceTree = "<group>"; };
+		63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsThemesView.swift; sourceTree = "<group>"; };
 		63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationStoredSyncTasks.swift; sourceTree = "<group>"; };
 		63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Realm+BookPlayer.swift"; sourceTree = "<group>"; };
 		63B230442B8CCF1800AEECED /* SyncJobType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobType.swift; sourceTree = "<group>"; };
@@ -1830,6 +1830,8 @@
 				D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */,
 				9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */,
 				63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */,
+				6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */,
+				637043492E2C03D9005353D1 /* SettingsDataUsageSectionView.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -2051,7 +2053,6 @@
 			isa = PBXGroup;
 			children = (
 				41B2A5EE21CD5AAE00917584 /* StaticCellView.swift */,
-				633BE3E42AE6102D00F983AC /* BPShortcutsLink.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -2123,15 +2124,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		41AD3D96221C700100DC41E1 /* Icons Screen */ = {
+		41AD3D96221C700100DC41E1 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
-				62793615272CCE150097837D /* Views */,
 				41AD3D9F221C7C8A00DC41E1 /* assets */,
 				41AD3D9D221C750E00DC41E1 /* Icons.json */,
 				41AD3DA0221C7CAB00DC41E1 /* Icon.swift */,
+				631908B72E3718F8009249C1 /* AppIconView.swift */,
+				631908B52E36B007009249C1 /* SettingsAppIconsView.swift */,
 			);
-			path = "Icons Screen";
+			path = Icons;
 			sourceTree = "<group>";
 		};
 		41AD3D9F221C7C8A00DC41E1 /* assets */ = {
@@ -2143,7 +2145,7 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
-		41B2A5DF21CCC1F400917584 /* Themes Screen */ = {
+		41B2A5DF21CCC1F400917584 /* Themes */ = {
 			isa = PBXGroup;
 			children = (
 				62793614272CCDF90097837D /* Views */,
@@ -2151,8 +2153,10 @@
 				41B2A5E021CCC21000917584 /* ThemeManager.swift */,
 				41B2A5DD21CAF20E00917584 /* ThemesViewController.swift */,
 				9F7B64792804773D00895ECC /* ThemesViewModel.swift */,
+				63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */,
+				6316860F2E372FE7004A322F /* ThemesView.swift */,
 			);
-			path = "Themes Screen";
+			path = Themes;
 			sourceTree = "<group>";
 		};
 		41C8ABCF26836F03003B67D1 /* Import */ = {
@@ -2279,14 +2283,6 @@
 			isa = PBXGroup;
 			children = (
 				4142964721F2E2BA004356DA /* ThemeCellView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		62793615272CCE150097837D /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				41AD3DA6221C850F00DC41E1 /* IconCellView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2588,11 +2584,7 @@
 				631908A42E36954B009249C1 /* PlayerControls */,
 				637043302E2BECB1005353D1 /* SettingsProBannerSectionView.swift */,
 				637043382E2BF63C005353D1 /* SettingsAppearanceSectionView.swift */,
-				631908B52E36B007009249C1 /* SettingsAppIconsView.swift */,
-				631908B72E3718F8009249C1 /* AppIconView.swift */,
 				6370433C2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift */,
-				6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */,
-				637043492E2C03D9005353D1 /* SettingsDataUsageSectionView.swift */,
 				637043432E2C0000005353D1 /* SettingsShortcutsSectionView.swift */,
 				637043452E2C0199005353D1 /* SettingsiCloudSectionView.swift */,
 				637043472E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift */,
@@ -3113,8 +3105,8 @@
 		C35E04F2207E8D4C007D3370 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				41B2A5DF21CCC1F400917584 /* Themes Screen */,
-				41AD3D96221C700100DC41E1 /* Icons Screen */,
+				41B2A5DF21CCC1F400917584 /* Themes */,
+				41AD3D96221C700100DC41E1 /* Icons */,
 				4124121B26CF289B00B099DB /* Storage */,
 				6304CF682B4C2AB000055285 /* Autoplay */,
 				63C6C2E42B50299D00FFE0D8 /* Autolock */,
@@ -4206,7 +4198,6 @@
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */,
 				637043542E2DED05005353D1 /* SettingsMailView.swift in Sources */,
-				633BE3E52AE6102D00F983AC /* BPShortcutsLink.swift in Sources */,
 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
 				631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */,
 				634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */,
@@ -4226,10 +4217,10 @@
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
+				631686102E372FE7004A322F /* ThemesView.swift in Sources */,
 				3F7B64382E0F720B00299D97 /* HardcoverSettingsViewModel.swift in Sources */,
 				C3FE94792080086800BCEA37 /* BookCellView.swift in Sources */,
 				9F5F13682978D9E100F061A0 /* ProfileSyncTasksStatusView.swift in Sources */,
-				41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */,
 				63E784392E2EAF79001B2E94 /* Environment+BookPlayer.swift in Sources */,
 				9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */,
 				9FAB93742A53117C005B92B2 /* CompleteAccountView.swift in Sources */,
@@ -4284,6 +4275,7 @@
 				637043482E2C02E2005353D1 /* SettingsIntegrationsSectionView.swift in Sources */,
 				63E54C362D50626A0040355D /* TipOptionView.swift in Sources */,
 				8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */,
+				63AB64EB2E371FCE00EF6866 /* SettingsThemesView.swift in Sources */,
 				636E77892DF4C76600D4DC0A /* JellyfinRootView.swift in Sources */,
 				3F7B643D2E0FA0B800299D97 /* GraphQLClient.swift in Sources */,
 				637043522E2DE65A005353D1 /* CreditsView.swift in Sources */,

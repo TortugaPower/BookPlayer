@@ -85,8 +85,12 @@ struct SettingsView: View {
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
+        case .themes:
+          view = AnyView(SettingsThemesView {
+            showPro.toggle()
+          })
         case .icons:
-          view = AnyView(SettingsAppIconsView() {
+          view = AnyView(SettingsAppIconsView {
             showPro.toggle()
           })
         case .controls:
