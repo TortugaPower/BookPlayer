@@ -46,7 +46,9 @@ class ProcessFilesTests: DataManagerTests {
 
     let expectation = XCTestExpectation(description: "File import notification")
 
-    self.importManager = ImportManager(libraryService: LibraryService(dataManager: self.dataManager))
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: self.dataManager)
+    self.importManager = ImportManager(libraryService: libraryService)
 
     self.subscription = self.importManager.observeFiles().sink { files in
       guard !files.isEmpty else { return }
