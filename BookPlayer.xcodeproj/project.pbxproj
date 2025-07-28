@@ -220,7 +220,6 @@
 		41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */; };
 		41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3D9D221C750E00DC41E1 /* Icons.json */; };
 		41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA0221C7CAB00DC41E1 /* Icon.swift */; };
-		41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */; };
 		41AD3DA7221C850F00DC41E1 /* IconCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA6221C850F00DC41E1 /* IconCellView.swift */; };
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
@@ -376,6 +375,8 @@
 		631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */; };
 		631908B22E36A1AB009249C1 /* SmartRewindSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */; };
 		631908B42E36A26C009249C1 /* SkipIntervalsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B32E36A26C009249C1 /* SkipIntervalsSectionView.swift */; };
+		631908B62E36B007009249C1 /* SettingsAppIconsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B52E36B007009249C1 /* SettingsAppIconsView.swift */; };
+		631908B82E3718F8009249C1 /* AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B72E3718F8009249C1 /* AppIconView.swift */; };
 		631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */; };
 		631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */; };
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
@@ -659,7 +660,6 @@
 		9F7B64772803B0B000895ECC /* AccountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64762803B0B000895ECC /* AccountService.swift */; };
 		9F7B64782803B0B000895ECC /* AccountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64762803B0B000895ECC /* AccountService.swift */; };
 		9F7B647A2804773D00895ECC /* ThemesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B64792804773D00895ECC /* ThemesViewModel.swift */; };
-		9F7B647C2804798800895ECC /* IconsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7B647B2804798800895ECC /* IconsViewModel.swift */; };
 		9F7C47532A2C15D300F9A500 /* AutoMockable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */; };
 		9F82DF6927DE93A2001B0EA8 /* SkipIntervalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6827DE93A2001B0EA8 /* SkipIntervalView.swift */; };
 		9F82DF6B27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF6A27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift */; };
@@ -1126,7 +1126,6 @@
 		41AD3D99221C737F00DC41E1 /* retro-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "retro-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3D9D221C750E00DC41E1 /* Icons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Icons.json; sourceTree = "<group>"; };
 		41AD3DA0221C7CAB00DC41E1 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
-		41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsViewController.swift; sourceTree = "<group>"; };
 		41AD3DA6221C850F00DC41E1 /* IconCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconCellView.swift; sourceTree = "<group>"; };
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
@@ -1241,6 +1240,8 @@
 		631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoSleepTimerSectionView.swift; sourceTree = "<group>"; };
 		631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartRewindSectionView.swift; sourceTree = "<group>"; };
 		631908B32E36A26C009249C1 /* SkipIntervalsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipIntervalsSectionView.swift; sourceTree = "<group>"; };
+		631908B52E36B007009249C1 /* SettingsAppIconsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAppIconsView.swift; sourceTree = "<group>"; };
+		631908B72E3718F8009249C1 /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconView.swift; sourceTree = "<group>"; };
 		631B360B2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalOnlyPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C62AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
@@ -1511,7 +1512,6 @@
 		9F7B64732803217400895ECC /* Account+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account+CoreDataClass.swift"; sourceTree = "<group>"; };
 		9F7B64762803B0B000895ECC /* AccountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountService.swift; sourceTree = "<group>"; };
 		9F7B64792804773D00895ECC /* ThemesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewModel.swift; sourceTree = "<group>"; };
-		9F7B647B2804798800895ECC /* IconsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsViewModel.swift; sourceTree = "<group>"; };
 		9F7C47522A2C15D300F9A500 /* AutoMockable.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AutoMockable.generated.swift; path = BookPlayer/Generated/AutoMockable.generated.swift; sourceTree = SOURCE_ROOT; };
 		9F82DF6827DE93A2001B0EA8 /* SkipIntervalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipIntervalView.swift; sourceTree = "<group>"; };
 		9F82DF6A27DE9792001B0EA8 /* NowPlayingMediaControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingMediaControlsView.swift; sourceTree = "<group>"; };
@@ -2130,8 +2130,6 @@
 				41AD3D9F221C7C8A00DC41E1 /* assets */,
 				41AD3D9D221C750E00DC41E1 /* Icons.json */,
 				41AD3DA0221C7CAB00DC41E1 /* Icon.swift */,
-				41AD3DA2221C7DCE00DC41E1 /* IconsViewController.swift */,
-				9F7B647B2804798800895ECC /* IconsViewModel.swift */,
 			);
 			path = "Icons Screen";
 			sourceTree = "<group>";
@@ -2590,6 +2588,8 @@
 				631908A42E36954B009249C1 /* PlayerControls */,
 				637043302E2BECB1005353D1 /* SettingsProBannerSectionView.swift */,
 				637043382E2BF63C005353D1 /* SettingsAppearanceSectionView.swift */,
+				631908B52E36B007009249C1 /* SettingsAppIconsView.swift */,
+				631908B72E3718F8009249C1 /* AppIconView.swift */,
 				6370433C2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift */,
 				6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */,
 				637043492E2C03D9005353D1 /* SettingsDataUsageSectionView.swift */,
@@ -4050,6 +4050,7 @@
 				634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */,
 				63E893982CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */,
 				9F588DBF2902C798000DA799 /* ComposedButton.swift in Sources */,
+				631908B82E3718F8009249C1 /* AppIconView.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */,
@@ -4060,7 +4061,6 @@
 				636ED1E52D51254E00BFF3FD /* TipOption.swift in Sources */,
 				63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */,
 				9F17D5CD29159297004F4929 /* SearchListViewModel.swift in Sources */,
-				41AD3DA3221C7DCE00DC41E1 /* IconsViewController.swift in Sources */,
 				9F17D5CB29159289004F4929 /* SearchListViewController.swift in Sources */,
 				8AAD8A4F2CEE3650000A4B4B /* View+BookPlayer.swift in Sources */,
 				6370434E2E2C0481005353D1 /* SettingsSupportSectionView.swift in Sources */,
@@ -4071,7 +4071,6 @@
 				9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */,
 				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
 				9F00A5FC294F9B9A005EA316 /* ItemDetailsForm.swift in Sources */,
-				9F7B647C2804798800895ECC /* IconsViewModel.swift in Sources */,
 				63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */,
 				9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */,
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
@@ -4223,6 +4222,7 @@
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
 				9F4691F22800D58A00A8F0E8 /* CompleteAccountCoordinator.swift in Sources */,
 				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
+				631908B62E36B007009249C1 /* SettingsAppIconsView.swift in Sources */,
 				9F00A5F6294F793F005EA316 /* ItemDetailsView.swift in Sources */,
 				4158386E26EAF76700F4A12B /* FolderListCoordinator.swift in Sources */,
 				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,

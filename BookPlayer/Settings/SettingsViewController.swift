@@ -22,9 +22,7 @@ protocol IntentSelectionDelegate: AnyObject {
 
 // TODO: Replace with SwiftUI view when we drop support for iOS 14, we need the .badge modifier (iOS 15 required)
 class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFMailComposeViewControllerDelegate, Storyboarded {
-  @IBOutlet weak var lockOrientationSwitch: UISwitch!
   @IBOutlet weak var themeLabel: UILabel!
-  @IBOutlet weak var appIconLabel: UILabel!
 
   private var disposeBag = Set<AnyCancellable>()
   var iconObserver: NSKeyValueObservation!
@@ -35,7 +33,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   let themesIndexPath = IndexPath(row: 0, section: SettingsSection.appearance.rawValue)
-  let iconsIndexPath = IndexPath(row: 1, section: SettingsSection.appearance.rawValue)
 
   var version: String = "0.0.0"
   var build: String = "0"
@@ -73,14 +70,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
   }
 
   func bindObservers() {
-    let userDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
-
-    self.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
-
-    self.iconObserver = userDefaults?.observe(\.userSettingsAppIcon) { [weak self] _, _ in
-      self?.appIconLabel.text = userDefaults?.string(forKey: Constants.UserDefaults.appIcon) ?? "Default"
-    }
-
     if self.viewModel.hasMadeDonation() {
       self.donationMade()
     } else {
@@ -156,8 +145,6 @@ class SettingsViewController: UITableViewController, MVVMControllerProtocol, MFM
     switch indexPath {
     case self.themesIndexPath:
       self.viewModel.showThemes()
-    case self.iconsIndexPath:
-      self.viewModel.showIcons()
     default: break
     }
   }

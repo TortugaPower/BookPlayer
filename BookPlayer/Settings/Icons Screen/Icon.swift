@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Icon: Codable {
+struct Icon: Codable, Identifiable {
   var id: String
   var title: String
   private var artist: String?

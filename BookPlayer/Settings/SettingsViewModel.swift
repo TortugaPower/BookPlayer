@@ -15,7 +15,6 @@ class SettingsViewModel: ViewModelProtocol {
   enum Routes {
     case pro
     case themes
-    case icons
   }
 
   enum Events {
@@ -90,9 +89,5 @@ class SettingsViewModel: ViewModelProtocol {
 
   func showThemes() {
     onTransition?(.themes)
-  }
-
-  func showIcons() {
-    onTransition?(.icons)
   }
 }

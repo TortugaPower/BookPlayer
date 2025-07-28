@@ -50,8 +50,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
         self.showPro()
       case .themes:
         self.showThemes()
-      case .icons:
-        self.showIcons()
       }
     }
 
@@ -121,25 +119,6 @@ class SettingsCoordinator: Coordinator, AlertPresenter {
     }
 
     let vc = ThemesViewController.instantiate(from: .Settings)
-    vc.viewModel = viewModel
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-
-    flow.navigationController.present(nav, animated: true)
-  }
-
-  func showIcons() {
-    let viewModel = IconsViewModel(accountService: self.accountService)
-
-    viewModel.onTransition = { [weak self] routes in
-      switch routes {
-      case .showPro:
-        self?.showPro()
-      }
-    }
-
-    let vc = IconsViewController.instantiate(from: .Settings)
     vc.viewModel = viewModel
     vc.navigationItem.largeTitleDisplayMode = .never
     let nav = AppNavigationController.instantiate(from: .Main)
