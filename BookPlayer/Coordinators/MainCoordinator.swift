@@ -127,12 +127,14 @@ class MainCoordinator: NSObject {
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
     let vc = UIHostingController(
-      rootView: SettingsView()
-        .environment(\.libraryService, libraryService)
-        .environment(\.accountService, accountService)
-        .environment(\.syncService, syncService)
-        .environment(\.jellyfinService, jellyfinConnectionService)
-        .environment(\.hardcoverService, hardcoverService)
+      rootView: SettingsView {
+        self.showPro()
+      }
+      .environment(\.libraryService, libraryService)
+      .environment(\.accountService, accountService)
+      .environment(\.syncService, syncService)
+      .environment(\.jellyfinService, jellyfinConnectionService)
+      .environment(\.hardcoverService, hardcoverService)
     )
     vc.tabBarItem = UITabBarItem(
       title: "settings_title".localized,
@@ -142,6 +144,43 @@ class MainCoordinator: NSObject {
 
     let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
     tabBarController.setViewControllers(newControllersArray, animated: false)
+  }
+
+  func showPro() {
+    if self.accountService.getAccountId() != nil {
+      self.showCompleteAccount()
+    } else {
+      self.showLogin()
+    }
+  }
+
+  func showCompleteAccount() {
+    guard let vc = tabBarController?.getTopVisibleViewController() else { return }
+
+    let coordinator = CompleteAccountCoordinator(
+      flow: .modalFlow(
+        presentingController: vc,
+        prefersMediumDetent: true
+      ),
+      accountService: accountService
+    )
+    coordinator.start()
+  }
+
+  func showLogin() {
+    guard let vc = tabBarController?.getTopVisibleViewController() else { return }
+
+    let coordinator = LoginCoordinator(
+      flow: .modalFlow(presentingController: vc),
+      accountService: accountService
+    )
+    coordinator.onFinish = { [unowned self] routes in
+      switch routes {
+      case .completeAccount:
+        showCompleteAccount()
+      }
+    }
+    coordinator.start()
   }
 
   func bindObservers() {

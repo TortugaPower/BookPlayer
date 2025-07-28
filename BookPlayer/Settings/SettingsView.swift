@@ -17,7 +17,6 @@ struct SettingsView: View {
   @State var showMailModal = false
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
-  @State var showPro = false
   @State var loadingOverlay = LoadingOverlayState()
 
   @Environment(\.libraryService) private var libraryService
@@ -26,15 +25,15 @@ struct SettingsView: View {
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
 
+  var showPro: () -> Void
+
   let supportEmail = "support@bookplayer.app"
 
   var body: some View {
     NavigationStack(path: $viewModel.path) {
       Form {
         if accountService.accessLevel == .free {
-          SettingsProBannerSectionView {
-            showPro.toggle()
-          }
+          SettingsProBannerSectionView(showPro: showPro)
         }
         SettingsAppearanceSectionView()
         SettingsPlaybackSectionView()
@@ -82,17 +81,14 @@ struct SettingsView: View {
       } message: {
         Text(debugInfoDescription)
       }
+      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
         case .themes:
-          view = AnyView(SettingsThemesView {
-            showPro.toggle()
-          })
+          view = AnyView(SettingsThemesView(showPro: showPro))
         case .icons:
-          view = AnyView(SettingsAppIconsView {
-            showPro.toggle()
-          })
+          view = AnyView(SettingsAppIconsView(showPro: showPro))
         case .controls:
           view =  AnyView(SettingsPlayerControlsView())
         case .autoplay:
@@ -230,5 +226,5 @@ extension SettingsView {
 }
 
 #Preview {
-  SettingsView()
+  SettingsView {}
 }
