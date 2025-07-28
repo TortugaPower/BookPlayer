@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Hardcover'dan kitap seçmek için gezin";
 "voiceover_book_cover" = "%@ tarafından %@, kitap kapağı";
 "voiceover_loading_book_cover" = "Kitap kapağı yükleniyor";
+"integrations_title" = "Entegrasyonlar";

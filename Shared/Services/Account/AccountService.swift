@@ -25,17 +25,25 @@ public enum SecondOnboardingError: Error {
   case notApplicable
 }
 
+public enum AccessLevel: String, CaseIterable, Identifiable {
+  case free, plus, pro
+
+  public var id: String { rawValue }
+}
+
 extension AccountError: LocalizedError {
   public var errorDescription: String? {
     switch self {
     case .emptyProducts:
       return "Empty products!"
     case .managementUnavailable:
-      return "Subscription Management is not available for iOS apps running on Macs, please go to the App Store app to manage your existing subscriptions."
+      return
+        "Subscription Management is not available for iOS apps running on Macs, please go to the App Store app to manage your existing subscriptions."
     case .missingToken:
       return "Identity token not available. Please sign in again."
     case .inactiveSubscription:
-      return "We couldn't find an active subscription for your account. If you believe this is an error, please contact us at support@bookplayer.app"
+      return
+        "We couldn't find an active subscription for your account. If you believe this is an error, please contact us at support@bookplayer.app"
     }
   }
 }
@@ -80,15 +88,21 @@ public protocol AccountServiceProtocol {
   func getSecondOnboarding<T: Decodable>() async throws -> T
 }
 
+@Observable
 public final class AccountService: AccountServiceProtocol {
   let monthlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
   let yearlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
-  let dataManager: DataManager
-  let client: NetworkClientProtocol
-  let keychain: KeychainServiceProtocol
-  private let provider: NetworkProvider<AccountAPI>
+  var dataManager: DataManager!
+  var client: NetworkClientProtocol!
+  var keychain: KeychainServiceProtocol!
+  var account: Account!
+  private var provider: NetworkProvider<AccountAPI>!
 
-  public init(
+  public var accessLevel: AccessLevel!
+
+  public init() {}
+
+  public func setup(
     dataManager: DataManager,
     client: NetworkClientProtocol = NetworkClient(),
     keychain: KeychainServiceProtocol = KeychainService()
@@ -97,6 +111,7 @@ public final class AccountService: AccountServiceProtocol {
     self.client = client
     self.keychain = keychain
     self.provider = NetworkProvider(client: client)
+    self.accessLevel = getAccessLevel()
   }
 
   public func setDelegate(_ delegate: PurchasesDelegate) {
@@ -105,7 +120,8 @@ public final class AccountService: AccountServiceProtocol {
 
   public func getAccountId() -> String? {
     if let account = self.getAccount(),
-       !account.id.isEmpty {
+      !account.id.isEmpty
+    {
       return account.id
     } else {
       return nil
@@ -128,7 +144,8 @@ public final class AccountService: AccountServiceProtocol {
     let context = self.dataManager.getContext()
 
     if let count = try? context.count(for: Account.fetchRequest()),
-       count > 0 {
+      count > 0
+    {
       return true
     }
 
@@ -160,6 +177,16 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     return getAccount()?.donationMade == true
+  }
+
+  private func getAccessLevel() -> AccessLevel {
+    if hasSyncEnabled() {
+      return .pro
+    } else if hasPlusAccess() {
+      return .plus
+    } else {
+      return .free
+    }
   }
 
   private func getSubscriptionInfo(from customerInfo: CustomerInfo) -> SubscriptionInfo? {
@@ -218,6 +245,7 @@ public final class AccountService: AccountServiceProtocol {
     self.dataManager.saveContext()
 
     DispatchQueue.main.async {
+      self.accessLevel = self.getAccessLevel()
       NotificationCenter.default.post(name: .accountUpdate, object: self)
     }
   }
@@ -243,19 +271,23 @@ public final class AccountService: AccountServiceProtocol {
     var options = [PricingModel]()
 
     if let product = products.first(where: { $0.productIdentifier == yearlySubscriptionId }) {
-      options.append(PricingModel(
-        id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("yearly_title".localized)",
-        price: product.priceDecimalNumber.doubleValue
-      ))
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("yearly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
     }
 
     if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
-      options.append(PricingModel(
-        id: product.productIdentifier,
-        title: "\(product.localizedPriceString) \("monthly_title".localized)",
-        price: product.priceDecimalNumber.doubleValue
-      ))
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("monthly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
     }
 
     if options.isEmpty {
@@ -381,7 +413,8 @@ public final class AccountService: AccountServiceProtocol {
     let entitlements = customerInfo.entitlements.all
 
     if entitlements["plus"]?.isActive == true
-      || entitlements["pro"]?.isActive == true {
+      || entitlements["pro"]?.isActive == true
+    {
       throw SecondOnboardingError.notApplicable
     }
 

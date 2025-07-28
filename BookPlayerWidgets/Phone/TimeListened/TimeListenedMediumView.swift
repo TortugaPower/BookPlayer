@@ -33,7 +33,7 @@ struct TimeListenedMediumView: View {
     return VStack(alignment: .leading, spacing: 0) {
       HStack {
         Text("Listened Time (Hours / Day)")
-          .foregroundColor(widgetColors.primaryColor)
+          .foregroundStyle(widgetColors.primaryColor)
           .font(.subheadline)
           .fontWeight(.semibold)
           .accessibility(label: Text("Listened Time per Day."))
@@ -60,19 +60,19 @@ struct TimeListenedMediumView: View {
         VStack {
           Text("Total")
             .fontWeight(.semibold)
-            .foregroundColor(widgetColors.primaryColor)
+            .foregroundStyle(widgetColors.primaryColor)
             .accessibility(label: Text("Total Listened Time in the last 7 days."))
           Text("\(formattedTotalTime)")
-            .foregroundColor(widgetColors.primaryColor)
+            .foregroundStyle(widgetColors.primaryColor)
             .font(.footnote)
             .padding([.bottom], 1)
 
           VStack {
             Text("Last Book")
               .fontWeight(.semibold)
-              .foregroundColor(widgetColors.primaryColor)
+              .foregroundStyle(widgetColors.primaryColor)
             Text("\(titleLabel)")
-              .foregroundColor(widgetColors.primaryColor)
+              .foregroundStyle(widgetColors.primaryColor)
               .font(.footnote)
               .lineLimit(2)
           }

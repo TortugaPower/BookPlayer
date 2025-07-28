@@ -15,12 +15,12 @@ struct LoadingBar: View {
     GeometryReader { geometry in
       ZStack(alignment: .leading) {
         Rectangle()
-          .foregroundColor(Color.gray.opacity(0.9))
+          .foregroundStyle(Color.gray.opacity(0.9))
           .cornerRadius(5)
 
         Rectangle()
           .frame(width: geometry.size.width * progress, height: nil, alignment: .leading)
-          .foregroundColor(Color.white.opacity(0.9))
+          .foregroundStyle(Color.white.opacity(0.9))
           .cornerRadius(5)
       }
     }

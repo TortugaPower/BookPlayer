@@ -289,7 +289,8 @@ class DataInitializerCoordinator: BPLogger {
 
   /// Setup blank account for donationMade key migration
   func setupBlankAccount(dataManager: DataManager) {
-    let accountService = AccountService(dataManager: dataManager)
+    let accountService = AccountService()
+    accountService.setup(dataManager: dataManager)
 
     guard !accountService.hasAccount() else { return }
 

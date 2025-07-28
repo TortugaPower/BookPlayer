@@ -20,6 +20,7 @@ final class BPNavigation: ObservableObject {
 struct JellyfinRootView: View {
   @StateObject var navigation: BPNavigation
   @StateObject var connectionViewModel: JellyfinConnectionViewModel
+  @StateObject var theme = ThemeViewModel()
   let singleFileDownloadService: SingleFileDownloadService
 
   @Environment(\.dismiss) var dismiss
@@ -42,6 +43,11 @@ struct JellyfinRootView: View {
   var body: some View {
     NavigationStack(path: $navigation.path) {
       JellyfinConnectionView(viewModel: connectionViewModel)
+        .toolbar {
+          ToolbarItemGroup(placement: .cancellationAction) {
+            cancelToolbarButton
+          }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: JellyfinLibraryLevelData.self) { destination in
           switch destination {
@@ -81,5 +87,18 @@ struct JellyfinRootView: View {
     .onAppear {
         navigation.dismiss = dismiss
     }
+  }
+
+  @ViewBuilder
+  private var cancelToolbarButton: some View {
+    Button(
+      action: {
+        dismiss()
+      },
+      label: {
+        Image(systemName: "xmark")
+          .foregroundStyle(theme.linkColor)
+      }
+    )
   }
 }

@@ -31,11 +31,11 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 20, height: 20)
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
               .padding([.trailing], 5)
             Text("upload_wifi_required_title".localized)
               .font(Font(Fonts.body))
-              .foregroundColor(themeViewModel.secondaryColor)
+              .foregroundStyle(themeViewModel.secondaryColor)
             Spacer()
           }
         }

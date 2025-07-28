@@ -9,10 +9,10 @@
 import BookPlayerKit
 import SwiftUI
 
-struct SettingsAutolockView<Model: SettingsAutolockViewModelProtocol>: View {
+struct SettingsAutolockView: View {
 
-  @StateObject var themeViewModel = ThemeViewModel()
-  @ObservedObject var viewModel: Model
+  @StateObject var theme = ThemeViewModel()
+  @StateObject var viewModel = SettingsAutolockViewModel()
 
   var body: some View {
     formView
@@ -22,44 +22,37 @@ struct SettingsAutolockView<Model: SettingsAutolockViewModelProtocol>: View {
   var formView: some View {
     Form {
       Section {
-        Toggle(isOn: $viewModel.autolockDisabled, label: {
-          Text("settings_autolock_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
-        })
-        Toggle(isOn: $viewModel.onlyWhenPoweredEnabled, label: {
-          Text("settings_power_connected_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
-        })
+        Toggle(
+          isOn: $viewModel.autolockDisabled,
+          label: {
+            Text("settings_autolock_title".localized)
+              .foregroundStyle(theme.primaryColor)
+          }
+        )
+        Toggle(
+          isOn: $viewModel.onlyWhenPoweredEnabled,
+          label: {
+            Text("settings_power_connected_title".localized)
+              .foregroundStyle(theme.primaryColor)
+          }
+        )
         .disabled(!viewModel.autolockDisabled)
       } footer: {
         Text("settings_autolock_description".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
-      .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
     }
-    .background(
-      themeViewModel.systemGroupedBackgroundColor
-        .edgesIgnoringSafeArea(.bottom)
-    )
-    .environmentObject(themeViewModel)
+    .scrollContentBackground(.hidden)
+    .background(theme.systemGroupedBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
+    .environmentObject(theme)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
-        Button(
-          action: viewModel.dismiss,
-          label: {
-            Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
-          }
-        )
-      }
-    }
   }
 }
 
 struct SettingsAutolockViewView_Previews: PreviewProvider {
   static var previews: some View {
-    SettingsAutolockView(viewModel: SettingsAutolockViewModel())
+    SettingsAutolockView()
   }
 }

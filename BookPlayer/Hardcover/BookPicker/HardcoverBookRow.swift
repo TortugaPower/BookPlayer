@@ -36,15 +36,15 @@ struct HardcoverBookRow: View {
       VStack(alignment: .leading, spacing: 4) {
         Text(viewModel.title)
           .font(.headline)
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
           .lineLimit(2)
           .multilineTextAlignment(.leading)
           .frame(maxWidth: .infinity, alignment: .leading)
 
         Text(viewModel.author)
           .font(.subheadline)
-          .foregroundColor(themeViewModel.secondaryColor)
-          .foregroundColor(.secondary)
+          .foregroundStyle(themeViewModel.secondaryColor)
+          .foregroundStyle(.secondary)
       }
       .accessibilityElement(children: .combine)
     }

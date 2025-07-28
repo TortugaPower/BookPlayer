@@ -18,11 +18,11 @@ struct NowPlayingTitleView: View {
         .frame(maxWidth: .infinity, maxHeight: 0)
       Text(item?.author ?? "")
         .font(.subheadline.smallCaps())
-        .foregroundColor(Color.secondary)
+        .foregroundStyle(Color.secondary)
         .lineLimit(1)
       Text(item?.title ?? "")
         .font(.headline)
-        .foregroundColor(Color.primary)
+        .foregroundStyle(Color.primary)
         .lineLimit(1)
         .fixedSize(horizontal: false, vertical: true)
     }

@@ -21,11 +21,11 @@ struct QueuedSyncTaskRowView: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 20, height: 20)
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
         .padding([.trailing], 5)
       Text(title)
         .font(Font(Fonts.body))
-        .foregroundColor(themeViewModel.primaryColor)
+        .foregroundStyle(themeViewModel.primaryColor)
     }
     .padding([.vertical], 3)
   }

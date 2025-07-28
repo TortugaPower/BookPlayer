@@ -30,7 +30,7 @@ struct LastPlayedView: View {
       } else {
         Rectangle()
           .frame(width: 90, height: 90)
-          .foregroundColor(Color.gray.opacity(0.2))
+          .foregroundStyle(Color.gray.opacity(0.2))
           .cornerRadius(8.0)
       }
     }
@@ -53,13 +53,13 @@ struct LastPlayedView: View {
               ZStack {
                 getArtworkView(for: relativePath)
                 Circle()
-                  .foregroundColor(.white)
+                  .foregroundStyle(.white)
                   .frame(width: 30, height: 30)
                   .opacity(0.8)
                 Image(systemName: imageName)
                   .resizable()
                   .aspectRatio(contentMode: .fit)
-                  .foregroundColor(.black)
+                  .foregroundStyle(.black)
                   .frame(width: 11, height: 11)
                   .offset(x: model.isPlaying ? 0 : 1)
               }
@@ -85,7 +85,7 @@ struct LastPlayedView: View {
         VStack(alignment: .leading) {
           Text(titleLabel)
             .fontWeight(.semibold)
-            .foregroundColor(widgetColors.primaryColor)
+            .foregroundStyle(widgetColors.primaryColor)
             .font(.footnote)
             .lineLimit(2)
             .accessibility(hidden: true)

@@ -34,7 +34,7 @@ struct TimeListenedSmallView: View {
     return VStack(spacing: 0) {
       HStack {
         Text("Listened")
-          .foregroundColor(widgetColors.primaryColor)
+          .foregroundStyle(widgetColors.primaryColor)
           .font(.subheadline)
           .fontWeight(.semibold)
         Spacer()
@@ -57,7 +57,7 @@ struct TimeListenedSmallView: View {
       VStack(spacing: 0) {
         HStack {
           Text("Last Book")
-            .foregroundColor(widgetColors.primaryColor)
+            .foregroundStyle(widgetColors.primaryColor)
             .font(.subheadline)
             .fontWeight(.semibold)
           Spacer()

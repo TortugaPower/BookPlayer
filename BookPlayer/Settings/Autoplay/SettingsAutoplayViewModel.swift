@@ -9,25 +9,8 @@
 import BookPlayerKit
 import SwiftUI
 
-protocol SettingsAutoplayViewModelProtocol: ObservableObject {
-  var navigationTitle: String { get }
-
-  var autoplayLibraryEnabled: Bool { get set }
-  var autoplayRestartFinishedEnabled: Bool { get set }
-
-  func dismiss()
-}
-
-final class SettingsAutoplayViewModel: SettingsAutoplayViewModelProtocol {
-  /// Available routes
-  enum Routes {
-    case dismiss
-  }
-
+final class SettingsAutoplayViewModel: ObservableObject {
   // MARK: - Properties
-
-  /// Callback to handle actions on this screen
-  var onTransition: BPTransition<Routes>?
 
   @Published var autoplayLibraryEnabled: Bool {
     didSet {
@@ -56,9 +39,5 @@ final class SettingsAutoplayViewModel: SettingsAutoplayViewModelProtocol {
     autoplayRestartFinishedEnabled = UserDefaults.standard.bool(
       forKey: Constants.UserDefaults.autoplayRestartEnabled
     )
-  }
-
-  func dismiss() {
-    onTransition?(.dismiss)
   }
 }

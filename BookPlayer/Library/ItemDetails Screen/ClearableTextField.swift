@@ -29,9 +29,9 @@ struct ClearableTextField: View {
   var body: some View {
     HStack {
       TextField(placeholder, text: $text, onCommit: onCommit)
-        .foregroundColor(themeViewModel.primaryColor)
+        .foregroundStyle(themeViewModel.primaryColor)
       Image(systemName: "clear.fill")
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
         .onTapGesture {
           text = ""
         }

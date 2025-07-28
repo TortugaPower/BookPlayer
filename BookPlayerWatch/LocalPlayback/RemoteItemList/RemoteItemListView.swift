@@ -74,7 +74,7 @@ struct RemoteItemListView: View {
             } label: {
               RemoteItemListCellView(model: .init(item: item, coreServices: model.coreServices)) {}
                 .allowsHitTesting(false)
-                .foregroundColor(getForegroundColor(for: item))
+                .foregroundStyle(getForegroundColor(for: item))
             }
           } else {
             RemoteItemListCellView(model: .init(item: item, coreServices: model.coreServices)) {

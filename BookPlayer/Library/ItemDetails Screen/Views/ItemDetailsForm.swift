@@ -26,7 +26,7 @@ struct ItemDetailsForm: View {
     Form {
       Section(
         header: Text("section_item_title".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       ) {
         ClearableTextField(viewModel.titlePlaceholder, text: $viewModel.title)
       }
@@ -35,7 +35,7 @@ struct ItemDetailsForm: View {
       if viewModel.showAuthor {
         Section(
           header: Text("section_item_author".localized)
-            .foregroundColor(themeViewModel.secondaryColor)
+            .foregroundStyle(themeViewModel.secondaryColor)
         ) {
           ClearableTextField(viewModel.authorPlaceholder, text: $viewModel.author)
         }
@@ -81,7 +81,7 @@ struct ItemDetailsForm: View {
           }
         }
         .font(Font(Fonts.body))
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
       }
     }
     .onChange(

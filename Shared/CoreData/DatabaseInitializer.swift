@@ -52,7 +52,8 @@ public class DatabaseInitializer: BPLogger {
           continuation.resume(throwing: error)
         } else {
           let dataManager = DataManager(coreDataStack: stack)
-          let libraryService = LibraryService(dataManager: dataManager)
+          let libraryService = LibraryService()
+          libraryService.setup(dataManager: dataManager)
           _ = libraryService.getLibrary()
 
           continuation.resume(returning: stack)

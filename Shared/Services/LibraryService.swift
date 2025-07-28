@@ -142,39 +142,48 @@ public protocol LibraryServiceProtocol: AnyObject {
 }
 
 // swiftlint:disable force_cast
+@Observable
 public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
-  let dataManager: DataManager
+  var dataManager: DataManager!
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
   /// Internal passthrough publisher for emitting item's progress update events
   private var progressPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
   /// Public metadata publisher that collects changes during 10 seconds before normalizing the payload
-  public lazy var metadataUpdatePublisher = metadataPassthroughPublisher
-    .collect(.byTime(DispatchQueue.main, .seconds(10)))
-    .flatMap({ changes in
-      var results = [String: [String: Any]]()
-      for change in changes {
-        guard let relativePath = change["relativePath"] as? String else { continue }
-
-        if let itemDict = results[relativePath] {
-          results[relativePath] = itemDict.merging(change) { (_, new) in new }
-        } else {
-          results[relativePath] = change
-        }
-      }
-
-      let resultsArray = Array(results.values) as [[String: Any]]
-      return resultsArray.publisher
-    })
+  public var metadataUpdatePublisher = PassthroughSubject<[String: Any], Never>()
     .eraseToAnyPublisher()
   /// Public progress publisher that debounces changes during 10 seconds before emitting the last event
-  public lazy var progressUpdatePublisher = progressPassthroughPublisher
-    .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
+  public var progressUpdatePublisher = PassthroughSubject<[String: Any], Never>()
     .eraseToAnyPublisher()
 
-  public init(dataManager: DataManager) {
+  public init() {}
+
+  public func setup(dataManager: DataManager) {
     self.dataManager = dataManager
+
+    metadataUpdatePublisher = metadataPassthroughPublisher
+      .collect(.byTime(DispatchQueue.main, .seconds(10)))
+      .flatMap({ changes in
+        var results = [String: [String: Any]]()
+        for change in changes {
+          guard let relativePath = change["relativePath"] as? String else { continue }
+
+          if let itemDict = results[relativePath] {
+            results[relativePath] = itemDict.merging(change) { (_, new) in new }
+          } else {
+            results[relativePath] = change
+          }
+        }
+
+        let resultsArray = Array(results.values) as [[String: Any]]
+        return resultsArray.publisher
+      })
+      .eraseToAnyPublisher()
+
+    progressUpdatePublisher = progressPassthroughPublisher
+      .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
+      .eraseToAnyPublisher()
   }
 
   private func rebuildRelativePaths(for item: LibraryItem, parentFolder: String?) {

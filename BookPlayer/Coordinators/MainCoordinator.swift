@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import RevenueCat
+import SwiftUI
 import Themeable
 import UIKit
 
@@ -17,13 +18,13 @@ class MainCoordinator: NSObject {
 
   let playerManager: PlayerManagerProtocol
   let singleFileDownloadService: SingleFileDownloadService
-  let libraryService: LibraryServiceProtocol
+  let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
-  let accountService: AccountServiceProtocol
-  var syncService: SyncServiceProtocol
+  let accountService: AccountService
+  var syncService: SyncService
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
-  let hardcoverService: HardcoverServiceProtocol
+  let hardcoverService: HardcoverService
 
   let navigationController: UINavigationController
   var libraryCoordinator: LibraryListCoordinator?
@@ -41,7 +42,10 @@ class MainCoordinator: NSObject {
     self.playerManager = coreServices.playerManager
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
-    self.jellyfinConnectionService = JellyfinConnectionService(keychainService: KeychainService())
+    let jellyfinService = JellyfinConnectionService()
+    jellyfinService.setup()
+    self.jellyfinConnectionService = jellyfinService
+
     self.hardcoverService = coreServices.hardcoverService
 
     ThemeManager.shared.libraryService = libraryService
@@ -122,16 +126,61 @@ class MainCoordinator: NSObject {
   }
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
-    let settingsCoordinator = SettingsCoordinator(
-      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Settings)),
-      libraryService: libraryService,
-      syncService: syncService,
-      accountService: accountService,
-      jellyfinConnectionService: jellyfinConnectionService,
-      hardcoverService: hardcoverService
+    let vc = UIHostingController(
+      rootView: SettingsView {
+        self.showPro()
+      }
+      .environment(\.libraryService, libraryService)
+      .environment(\.accountService, accountService)
+      .environment(\.syncService, syncService)
+      .environment(\.jellyfinService, jellyfinConnectionService)
+      .environment(\.hardcoverService, hardcoverService)
     )
-    settingsCoordinator.tabBarController = tabBarController
-    settingsCoordinator.start()
+    vc.tabBarItem = UITabBarItem(
+      title: "settings_title".localized,
+      image: UIImage(systemName: "gearshape"),
+      selectedImage: UIImage(systemName: "gearshape.fill")
+    )
+
+    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
+    tabBarController.setViewControllers(newControllersArray, animated: false)
+  }
+
+  func showPro() {
+    if self.accountService.getAccountId() != nil {
+      self.showCompleteAccount()
+    } else {
+      self.showLogin()
+    }
+  }
+
+  func showCompleteAccount() {
+    guard let vc = tabBarController?.getTopVisibleViewController() else { return }
+
+    let coordinator = CompleteAccountCoordinator(
+      flow: .modalFlow(
+        presentingController: vc,
+        prefersMediumDetent: true
+      ),
+      accountService: accountService
+    )
+    coordinator.start()
+  }
+
+  func showLogin() {
+    guard let vc = tabBarController?.getTopVisibleViewController() else { return }
+
+    let coordinator = LoginCoordinator(
+      flow: .modalFlow(presentingController: vc),
+      accountService: accountService
+    )
+    coordinator.onFinish = { [unowned self] routes in
+      switch routes {
+      case .completeAccount:
+        showCompleteAccount()
+      }
+    }
+    coordinator.start()
   }
 
   func bindObservers() {

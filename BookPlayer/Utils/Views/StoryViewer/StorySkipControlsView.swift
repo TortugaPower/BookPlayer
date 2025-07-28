@@ -42,7 +42,7 @@ struct StoryRewindControlView: View {
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
       Rectangle()
-        .foregroundColor(.clear)
+        .foregroundStyle(.clear)
         .contentShape(Rectangle())
         .gesture(longPressSkip)
         .accessibilityAction {
@@ -51,7 +51,7 @@ struct StoryRewindControlView: View {
         .accessibilityValue("Previous")
 
       Rectangle()
-        .foregroundColor(.clear)
+        .foregroundStyle(.clear)
         .accessibilityHidden(true)
     }
     .accessibilityElement(children: .contain)
@@ -92,10 +92,10 @@ struct StoryForwardControlView: View {
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
       Rectangle()
-        .foregroundColor(.clear)
+        .foregroundStyle(.clear)
         .accessibilityHidden(true)
       Rectangle()
-        .foregroundColor(.clear)
+        .foregroundStyle(.clear)
         .contentShape(Rectangle())
         .gesture(longPressSkip)
         .accessibilityAction {

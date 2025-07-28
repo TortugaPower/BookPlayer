@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-public struct SimpleTheme: Codable {
+public struct SimpleTheme: Codable, Identifiable {
+  public var id: String { title }
   public var useDarkVariant: Bool = false
 
   public let lightPrimaryHex: String

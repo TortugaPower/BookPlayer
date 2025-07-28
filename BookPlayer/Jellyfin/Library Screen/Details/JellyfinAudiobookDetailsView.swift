@@ -36,7 +36,7 @@ struct JellyfinAudiobookDetailsView<
       if let artist = viewModel.details?.artist {
         Text(artist)
           .font(.title2)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
           .lineLimit(1)
           .accessibilityHidden(true)
       }
@@ -47,7 +47,7 @@ struct JellyfinAudiobookDetailsView<
 
       JellyfinLibraryItemImageView(item: viewModel.item)
         .environmentObject(themeViewModel)
-        .environmentObject(viewModel.connectionService)
+        .environment(\.jellyfinService, viewModel.connectionService)
         .accessibilityHidden(true)
 
       if let details = viewModel.details {
@@ -77,7 +77,7 @@ struct JellyfinAudiobookDetailsView<
           }
         }
         .padding([.horizontal, .bottom])
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
       }
 
       Spacer()
@@ -97,7 +97,7 @@ struct JellyfinAudiobookDetailsView<
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .foregroundColor(themeViewModel.systemBackgroundColor)
+        .foregroundStyle(themeViewModel.systemBackgroundColor)
         .background(themeViewModel.linkColor)
         .cornerRadius(10)
       }
@@ -114,7 +114,7 @@ struct JellyfinAudiobookDetailsView<
 }
 
 final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
-  var connectionService = JellyfinConnectionService(keychainService: KeychainService())
+  var connectionService = JellyfinConnectionService()
 
   let item: JellyfinLibraryItem
   let details: JellyfinAudiobookDetailsData?

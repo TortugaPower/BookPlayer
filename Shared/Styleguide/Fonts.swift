@@ -20,4 +20,8 @@ public struct Fonts {
   public static let bodyStory = UIFont.preferredFont(with: 20, style: .title1, weight: .regular)
 
   public static let pricingTitle = UIFont.preferredFont(with: 40, style: .largeTitle, weight: .heavy)
+
+  public static let buttonTextSmall = UIFont.preferredFont(with: 11, style: .caption1, weight: .bold)
+  public static let caption = UIFont.preferredFont(with: 13, style: .caption1, weight: .regular)
+  public static let captionMedium = UIFont.preferredFont(with: 13, style: .caption1, weight: .medium)
 }

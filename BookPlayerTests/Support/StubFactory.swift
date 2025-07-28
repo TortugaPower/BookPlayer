@@ -59,7 +59,8 @@ class StubFactory {
   }
 
   public class func library(dataManager: DataManager) -> Library {
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     return libraryService.getLibrary()
   }
 }

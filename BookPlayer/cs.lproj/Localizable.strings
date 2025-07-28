@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Navigujte k výběru knihy z Hardcover";
 "voiceover_book_cover" = "%@ od %@, obálka knihy";
 "voiceover_loading_book_cover" = "Načítá se obálka knihy";
+"integrations_title" = "Integrace";

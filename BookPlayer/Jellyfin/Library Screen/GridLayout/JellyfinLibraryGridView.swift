@@ -67,7 +67,7 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
 final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
   var navigationTitle: String = ""
   var navigation = BPNavigation()
-  var connectionService = JellyfinConnectionService(keychainService: KeychainService())
+  var connectionService = JellyfinConnectionService()
 
   let data: JellyfinLibraryLevelData
 
