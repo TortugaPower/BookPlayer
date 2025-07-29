@@ -28,18 +28,18 @@ struct BarView: View {
 
     return VStack(spacing: 4) {
       Text(time)
-        .foregroundColor(widgetColors.primaryColor)
+        .foregroundStyle(widgetColors.primaryColor)
         .font(.caption2)
       VStack {
         ZStack(alignment: .bottom) {
           RoundedRectangle(cornerRadius: cornerRadius)
-            .frame(width: 20, height: 70).foregroundColor(widgetColors.backgroundColor)
+            .frame(width: 20, height: 70).foregroundStyle(widgetColors.backgroundColor)
           RoundedRectangle(cornerRadius: cornerRadius)
-            .frame(width: 20, height: derp).foregroundColor(widgetColors.accentColor)
+            .frame(width: 20, height: derp).foregroundStyle(widgetColors.accentColor)
         }
       }
       Text("\(day)")
-        .foregroundColor(widgetColors.primaryColor)
+        .foregroundStyle(widgetColors.primaryColor)
         .font(.caption)
         .padding(.bottom, 8)
         .accessibility(hidden: true)

@@ -21,7 +21,7 @@ struct ItemDetailsArtworkSectionView: View {
     Section(
       header: HStack {
         Text("artwork_title".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
         Spacer()
         Button(action: actionHandler) {
           if image != nil {
@@ -30,7 +30,7 @@ struct ItemDetailsArtworkSectionView: View {
             Text("library_add_button".localized)
           }
         }
-        .foregroundColor(themeViewModel.linkColor)
+        .foregroundStyle(themeViewModel.linkColor)
       }
     ) {
       if let image = image {

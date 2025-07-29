@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Navigáljon a Hardcover könyv kiválasztásához";
 "voiceover_book_cover" = "%@ szerző: %@, könyv borítója";
 "voiceover_loading_book_cover" = "Könyv borítójának betöltése";
+"integrations_title" = "Integrációk";

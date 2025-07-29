@@ -14,3 +14,25 @@ extension View {
     scrollContentBackground(.hidden)
   }
 }
+
+struct UIFontModifier: ViewModifier {
+  let uiFont: UIFont
+
+  func body(content: Content) -> some View {
+    content.font(Font(uiFont))
+  }
+}
+
+extension View {
+  func bpFont(_ font: UIFont) -> some View {
+    self.modifier(UIFontModifier(uiFont: font))
+  }
+}
+
+extension View {
+  func disabledWithOpacity(_ condition: Bool, opacity: Double = 0.5) -> some View {
+    self
+      .disabled(condition)
+      .opacity(condition ? opacity : 1)
+  }
+}

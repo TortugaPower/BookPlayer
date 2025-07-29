@@ -9,25 +9,8 @@
 import BookPlayerKit
 import SwiftUI
 
-protocol SettingsAutolockViewModelProtocol: ObservableObject {
-  var navigationTitle: String { get }
-
-  var autolockDisabled: Bool { get set }
-  var onlyWhenPoweredEnabled: Bool { get set }
-
-  func dismiss()
-}
-
-final class SettingsAutolockViewModel: SettingsAutolockViewModelProtocol {
-  /// Available routes
-  enum Routes {
-    case dismiss
-  }
-
+final class SettingsAutolockViewModel: ObservableObject {
   // MARK: - Properties
-
-  /// Callback to handle actions on this screen
-  var onTransition: BPTransition<Routes>?
 
   @Published var autolockDisabled: Bool {
     didSet {
@@ -56,9 +39,5 @@ final class SettingsAutolockViewModel: SettingsAutolockViewModelProtocol {
     onlyWhenPoweredEnabled = UserDefaults.standard.bool(
       forKey: Constants.UserDefaults.autolockDisabledOnlyWhenPowered
     )
-  }
-
-  func dismiss() {
-    onTransition?(.dismiss)
   }
 }

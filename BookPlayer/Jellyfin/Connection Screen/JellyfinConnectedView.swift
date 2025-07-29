@@ -10,27 +10,29 @@ import SwiftUI
 
 struct JellyfinConnectedView: View {
   @ObservedObject var viewModel: JellyfinConnectionViewModel
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
     Section {
       HStack {
         Text("jellyfin_username_placeholder".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(viewModel.form.username)
       }
     } header: {
       Text("jellyfin_section_login".localized)
+        .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
 
     Section {
       Button("logout_title".localized, role: .destructive) {
         viewModel.handleSignOutAction()
       }
       .frame(maxWidth: .infinity)
+      .foregroundStyle(.red)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }

@@ -34,7 +34,7 @@ struct JellyfinLibraryGridItemView: View {
           .overlay {
             if editMode?.wrappedValue.isEditing == true, item.kind == .audiobook {
               Image(systemName: isSelected ? "checkmark.circle" : "circle")
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .background(isSelected ? .blue : .clear)
                 .clipShape(Circle())
                 .shadow(radius: 4.0)

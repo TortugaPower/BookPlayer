@@ -44,11 +44,12 @@ protocol HardcoverServiceProtocol {
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws
 }
 
+@Observable
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
-  private let keychain: KeychainServiceProtocol
+  private var keychain: KeychainServiceProtocol!
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
-  private let audioMetadataService: AudioMetadataServiceProtocol
-  private let libraryService: LibraryServiceProtocol
+  private var audioMetadataService: AudioMetadataServiceProtocol!
+  private var libraryService: LibraryServiceProtocol!
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
@@ -66,7 +67,9 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.hardcoverAutoAddWantToRead)
   }
 
-  init(
+  init() {}
+
+  func setup(
     libraryService: LibraryServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
@@ -74,8 +77,6 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     self.libraryService = libraryService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
-
-    self.bindKeychainObserver()
   }
 
   var authorization: String? {

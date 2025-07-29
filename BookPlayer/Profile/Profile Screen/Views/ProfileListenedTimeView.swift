@@ -17,10 +17,10 @@ struct ProfileListenedTimeView: View {
     VStack {
       Text(formattedListeningTime)
         .font(Font(Fonts.title))
-        .foregroundColor(themeViewModel.primaryColor)
+        .foregroundStyle(themeViewModel.primaryColor)
       Text("total_listening_title".localized)
         .font(Font(Fonts.subheadline))
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
     }
     .accessibilityElement(children: .combine)
   }

@@ -12,9 +12,7 @@ struct JellyfinSettingsView: View {
   @StateObject var viewModel: JellyfinConnectionViewModel
 
   var body: some View {
-    NavigationStack {
-      JellyfinConnectionView(viewModel: viewModel)
-        .navigationBarTitleDisplayMode(.inline)
-    }
+    JellyfinConnectionView(viewModel: viewModel)
+      .navigationBarTitleDisplayMode(.inline)
   }
 }

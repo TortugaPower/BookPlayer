@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "انتقل لتحديد كتاب من Hardcover";
 "voiceover_book_cover" = "%@ بواسطة %@، غلاف الكتاب";
 "voiceover_loading_book_cover" = "جاري تحميل غلاف الكتاب";
+"integrations_title" = "التكاملات";

@@ -53,7 +53,7 @@ struct StoryActionView: View {
         VStack {
           Text(String(format: "$%.0f/mo", sliderValue))
             .font(Font(Fonts.pricingTitle))
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .accessibilityHidden(true)
           Slider(
             value: $sliderValue,
@@ -64,19 +64,19 @@ struct StoryActionView: View {
           } minimumValueLabel: {
             Text(String(format: "$%.0f", action.options.first!.price))
               .font(Font(Fonts.title))
-              .foregroundColor(.white)
+              .foregroundStyle(.white)
               .accessibilityHidden(true)
           } maximumValueLabel: {
             Text(String(format: "$%.0f", action.options.last!.price))
               .font(Font(Fonts.title))
-              .foregroundColor(.white)
+              .foregroundStyle(.white)
               .accessibilityHidden(true)
           }
 
           Text("Pay what you think is fair")
             .multilineTextAlignment(.center)
             .font(Font(Fonts.title))
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .opacity(0.8)
             .accessibilityHidden(true)
         }
@@ -105,7 +105,7 @@ struct StoryActionView: View {
               label: {
                 Text("Choose custom amount")
                   .font(Font(Fonts.title))
-                  .foregroundColor(.white)
+                  .foregroundStyle(.white)
                   .underline()
                   .padding([.top], Spacing.S4)
               }
@@ -131,7 +131,7 @@ struct StoryActionView: View {
             .font(Font(Fonts.headline))
             .frame(height: 45)
             .frame(maxWidth: .infinity)
-            .foregroundColor(Color(UIColor(hex: "334046")))
+            .foregroundStyle(Color(UIColor(hex: "334046")))
             .background(Color.white)
             .cornerRadius(6)
         }
@@ -145,7 +145,7 @@ struct StoryActionView: View {
             Text(dismiss)
               .underline()
               .font(Font(Fonts.body))
-              .foregroundColor(.white)
+              .foregroundStyle(.white)
           }
         )
         .padding([.top], Spacing.S5)
@@ -159,7 +159,7 @@ struct StoryActionView: View {
             Text(tipJar)
               .underline()
               .font(Font(Fonts.body))
-              .foregroundColor(.white)
+              .foregroundStyle(.white)
           }
         )
         .padding([.top], Spacing.S5)

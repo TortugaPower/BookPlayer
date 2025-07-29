@@ -109,9 +109,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       return coreServices
     } else {
       let dataManager = DataManager(coreDataStack: stack)
-      let accountService = AccountService(dataManager: dataManager)
-      let libraryService = LibraryService(dataManager: dataManager)
-      let syncService = SyncService(
+      let accountService = AccountService()
+      accountService.setup(dataManager: dataManager)
+      let libraryService = LibraryService()
+      libraryService.setup(dataManager: dataManager)
+      let syncService = SyncService()
+      syncService.setup(
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService
       )
@@ -136,10 +139,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playerManager: playerManager
       )
 
+      let hardcoverService = HardcoverService()
+      hardcoverService.setup(libraryService: libraryService)
+
       let coreServices = CoreServices(
         accountService: accountService,
         dataManager: dataManager,
-        hardcoverService: HardcoverService(libraryService: libraryService),
+        hardcoverService: hardcoverService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerLoaderService: playerLoaderService,

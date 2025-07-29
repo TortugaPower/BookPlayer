@@ -23,7 +23,7 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
     VStack(spacing: Spacing.S1) {
       Text("choose_plan_title".localized)
         .font(Font(Fonts.body))
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
         .padding(.top, Spacing.M)
 
       PricingOptionsView(
@@ -41,7 +41,7 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
           .font(Font(Fonts.headline))
           .frame(height: 45)
           .frame(maxWidth: .infinity)
-          .foregroundColor(.white)
+          .foregroundStyle(.white)
           .background(Color(UIColor(hex: "687AB7")))
           .cornerRadius(6)
           .padding(.top, Spacing.S1)
@@ -62,7 +62,7 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
           action: viewModel.dismiss,
           label: {
             Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
           }
         )
       }
@@ -71,7 +71,7 @@ struct CompleteAccountView<Model: CompleteAccountViewModelProtocol>: View {
           action: viewModel.handleRestorePurchases,
           label: {
             Text("restore_title".localized)
-              .foregroundColor(themeViewModel.linkColor)
+              .foregroundStyle(themeViewModel.linkColor)
           }
         )
       }

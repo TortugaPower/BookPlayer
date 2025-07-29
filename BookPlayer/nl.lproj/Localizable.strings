@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "Navigeren om een boek van Hardcover te selecteren";
 "voiceover_book_cover" = "%@ door %@, boekomslag";
 "voiceover_loading_book_cover" = "Boekomslag laden";
+"integrations_title" = "Integraties";

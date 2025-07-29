@@ -88,7 +88,7 @@ struct ProfileView: View {
       } header: {
         if let email = coreServices.accountService.getAccount()?.email {
           Text(verbatim: email)
-            .foregroundColor(.secondary)
+            .foregroundStyle(.secondary)
         }
       }
 
@@ -114,7 +114,7 @@ struct ProfileView: View {
         .listRowBackground(Color.clear)
       } header: {
         Text("storage_total_title".localized)
-          .foregroundColor(.secondary)
+          .foregroundStyle(.secondary)
       }
     }
     .environment(\.defaultMinListRowHeight, 30)

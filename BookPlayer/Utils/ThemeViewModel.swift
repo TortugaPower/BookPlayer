@@ -23,6 +23,8 @@ class ThemeViewModel: ObservableObject, Themeable {
     self.theme = theme
   }
 
+  var title: String { theme.title }
+
   var useDarkVariant: Bool {
     return theme.useDarkVariant
   }

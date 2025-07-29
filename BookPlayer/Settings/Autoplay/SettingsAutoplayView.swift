@@ -9,10 +9,10 @@
 import BookPlayerKit
 import SwiftUI
 
-struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
+struct SettingsAutoplayView: View {
 
-  @StateObject var themeViewModel = ThemeViewModel()
-  @ObservedObject var viewModel: Model
+  @StateObject var theme = ThemeViewModel()
+  @StateObject var viewModel = SettingsAutoplayViewModel()
 
   var body: some View {
     formView
@@ -22,44 +22,37 @@ struct SettingsAutoplayView<Model: SettingsAutoplayViewModelProtocol>: View {
   var formView: some View {
     Form {
       Section {
-        Toggle(isOn: $viewModel.autoplayLibraryEnabled, label: {
-          Text("settings_autoplay_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
-        })
-        Toggle(isOn: $viewModel.autoplayRestartFinishedEnabled, label: {
-          Text("settings_autoplay_restart_title".localized)
-            .foregroundColor(themeViewModel.primaryColor)
-        })
+        Toggle(
+          isOn: $viewModel.autoplayLibraryEnabled,
+          label: {
+            Text("settings_autoplay_title".localized)
+              .foregroundStyle(theme.primaryColor)
+          }
+        )
+        Toggle(
+          isOn: $viewModel.autoplayRestartFinishedEnabled,
+          label: {
+            Text("settings_autoplay_restart_title".localized)
+              .foregroundStyle(theme.primaryColor)
+          }
+        )
         .disabled(!viewModel.autoplayLibraryEnabled)
       } footer: {
         Text("settings_autoplay_description".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
-      .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
     }
-    .background(
-      themeViewModel.systemGroupedBackgroundColor
-        .edgesIgnoringSafeArea(.bottom)
-    )
-    .environmentObject(themeViewModel)
+    .scrollContentBackground(.hidden)
+    .background(theme.systemGroupedBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
+    .environmentObject(theme)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
-        Button(
-          action: viewModel.dismiss,
-          label: {
-            Image(systemName: "xmark")
-              .foregroundColor(themeViewModel.linkColor)
-          }
-        )
-      }
-    }
   }
 }
 
 struct SettingsAutoplayView_Previews: PreviewProvider {
   static var previews: some View {
-    SettingsAutoplayView(viewModel: SettingsAutoplayViewModel())
+    SettingsAutoplayView()
   }
 }

@@ -52,7 +52,7 @@ struct ProfileCardView: View {
         Image(systemName: "person")
           .resizable()
           .frame(width: imageLength, height: imageLength)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       }
       .frame(width: containerImageWidth, height: containerImageWidth)
       .clipShape(Circle())
@@ -60,17 +60,17 @@ struct ProfileCardView: View {
       VStack(alignment: .leading) {
         Text(verbatim: title)
           .font(Font(Fonts.titleRegular))
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
         if let status {
           Text(status)
             .font(Font(Fonts.subheadline))
-            .foregroundColor(themeViewModel.secondaryColor)
+            .foregroundStyle(themeViewModel.secondaryColor)
         }
       }
 
       Spacer()
       Image(systemName: "chevron.forward")
-        .foregroundColor(themeViewModel.secondaryColor)
+        .foregroundStyle(themeViewModel.secondaryColor)
     }
     .frame(height: height)
     .padding([.leading, .trailing], Spacing.S)

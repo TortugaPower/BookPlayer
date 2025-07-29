@@ -17,7 +17,8 @@ final class PlaybackPerformanceTests: XCTestCase {
   override func setUpWithError() throws {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    self.sut = LibraryService(dataManager: dataManager)
+    self.sut = LibraryService()
+    self.sut.setup(dataManager: dataManager)
     _ = self.sut.getLibrary()
   }
 

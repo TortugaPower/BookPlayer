@@ -377,3 +377,4 @@
 "voiceover_hardcover_navigation_hint" = "导航以从 Hardcover 选择图书";
 "voiceover_book_cover" = "%@ 作者 %@，图书封面";
 "voiceover_loading_book_cover" = "正在加载图书封面";
+"integrations_title" = "集成";

@@ -15,11 +15,11 @@ struct ItemCellView: View {
   var body: some View {
     VStack(alignment: .leading) {
       Text(item.title)
-        .foregroundColor(Color.primary)
+        .foregroundStyle(Color.primary)
         .lineLimit(2)
       Text(item.author)
         .font(.footnote)
-        .foregroundColor(Color.secondary)
+        .foregroundStyle(Color.secondary)
         .lineLimit(1)
     }
   }

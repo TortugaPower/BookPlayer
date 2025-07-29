@@ -22,7 +22,7 @@ struct HardcoverBookPickerView: View {
           VStack(spacing: Spacing.S) {
             ProgressView()
             Text("hardcover_searching_books".localized)
-              .foregroundColor(.secondary)
+              .foregroundStyle(.secondary)
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           
@@ -42,14 +42,14 @@ struct HardcoverBookPickerView: View {
           VStack(spacing: Spacing.S) {
             Image(systemName: "exclamationmark.triangle")
               .font(.system(size: 48))
-              .foregroundColor(.red)
+              .foregroundStyle(.red)
               .accessibilityHidden(true)
             
             Text("error_title".localized)
               .font(.headline)
             
             Text(message)
-              .foregroundColor(.secondary)
+              .foregroundStyle(.secondary)
               .multilineTextAlignment(.center)
               .padding(.horizontal)
           }

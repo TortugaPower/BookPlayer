@@ -13,7 +13,7 @@ import JellyfinAPI
 import SwiftUI
 
 @MainActor
-class JellyfinConnectionViewModel: ObservableObject, BPLogger {
+final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
   enum ViewMode {
     case regular  // for the "Download from Jellyfin" flow
     case viewDetails  // for the connection details + sign out option from the Settings screen

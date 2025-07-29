@@ -20,11 +20,11 @@ struct JellyfinLibraryListItemView: View {
         .accessibilityHidden(true)
       Text(item.name)
         .font(Font(Fonts.titleRegular))
-        .foregroundColor(themeViewModel.primaryColor)
+        .foregroundStyle(themeViewModel.primaryColor)
       Spacer()
       if item.kind != .audiobook {
         Image(systemName: "chevron.forward")
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       }
     }
     .accessibilityElement(children: .combine)

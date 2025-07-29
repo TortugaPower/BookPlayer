@@ -35,7 +35,7 @@ struct StoryViewer: View {
         onDismiss: viewModel.handleDismiss,
         onTipJar: viewModel.handleTipJar
       )
-      .foregroundColor(Color.white)
+      .foregroundStyle(Color.white)
       .padding()
       .offset(y: Spacing.L1)
     }

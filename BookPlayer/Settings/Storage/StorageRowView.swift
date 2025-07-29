@@ -25,8 +25,9 @@ struct StorageRowView: View {
           .resizable()
           .scaledToFit()
           .frame(width: 22, height: 22)
-          .foregroundColor(.red)
+          .foregroundStyle(.red)
       }
+      .buttonStyle(.plain)
       .padding(15)
       .accessibilitySortPriority(1)
 
@@ -34,17 +35,17 @@ struct StorageRowView: View {
         Text(item.title)
           .font(Font(Fonts.title))
           .multilineTextAlignment(.leading)
-          .foregroundColor(themeViewModel.primaryColor)
+          .foregroundStyle(themeViewModel.primaryColor)
 
         Text(item.path)
           .font(.footnote)
           .multilineTextAlignment(.leading)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
 
         Text(item.formattedSize)
           .font(.footnote)
           .multilineTextAlignment(.leading)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(themeViewModel.secondaryColor)
       }
       .padding(.trailing, item.showWarning ? 10 : 32)
       .accessibilityElement()
@@ -53,7 +54,7 @@ struct StorageRowView: View {
 
       Spacer()
 
-      if item.showWarning {
+//      if item.showWarning {
         Button {
           onWarningTap?()
         } label: {
@@ -61,13 +62,13 @@ struct StorageRowView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 22, height: 22)
-            .foregroundColor(.yellow)
+            .foregroundStyle(.yellow)
         }
+        .buttonStyle(.plain)
         .padding(15)
         .accessibilitySortPriority(2)
-      }
+//      }
     }
-    .background(themeViewModel.systemBackgroundColor)
     .accessibilityElement(children: .contain)
   }
 

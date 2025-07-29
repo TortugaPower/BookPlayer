@@ -31,7 +31,8 @@ class LibraryListCoordinatorTests: XCTestCase {
     let syncServiceMock = SyncServiceProtocolMock()
     let keychainServiceMock = KeychainServiceMock()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient(keychain: keychainServiceMock))
-    let hardcoverService = HardcoverService(libraryService: libraryService)
+    let hardcoverService = HardcoverService()
+    hardcoverService.setup(libraryService: libraryService)
 
     self.libraryListCoordinator = LibraryListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -82,14 +83,16 @@ class FolderListCoordinatorTests: XCTestCase {
   override func setUp() {
     self.presentingController = MockNavigationController()
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let libraryService = LibraryService(dataManager: dataManager)
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager)
     let folder = try! StubFactory.folder(dataManager: dataManager, title: "folder 1")
     let playerManagerMock = PlayerManagerProtocolMock()
     playerManagerMock.currentItemPublisherReturnValue = Just(nil).eraseToAnyPublisher()
     let singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     let syncServiceMock = SyncServiceProtocolMock()
     let keychainServiceMock = KeychainServiceMock()
-    let hardcoverService = HardcoverService(libraryService: libraryService)
+    let hardcoverService = HardcoverService()
+    hardcoverService.setup(libraryService: libraryService)
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),

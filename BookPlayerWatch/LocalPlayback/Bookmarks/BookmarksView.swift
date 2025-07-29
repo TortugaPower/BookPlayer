@@ -46,7 +46,7 @@ struct BookmarksView: View {
           } label: {
             VStack(alignment: .leading) {
               Text(TimeParser.formatTime(bookmark.time))
-                .foregroundColor(Color.secondary)
+                .foregroundStyle(Color.secondary)
                 .font(.footnote)
               if let note = bookmark.note {
                 Text(note)
@@ -81,12 +81,12 @@ struct BookmarksView: View {
             VStack(alignment: .leading) {
               HStack {
                 Text(TimeParser.formatTime(bookmark.time))
-                  .foregroundColor(Color.secondary)
+                  .foregroundStyle(Color.secondary)
                   .font(.footnote)
                 Spacer()
                 if let imageName = bookmark.getImageNameForType() {
                   Image(systemName: imageName)
-                    .foregroundColor(Color.secondary)
+                    .foregroundStyle(Color.secondary)
                 }
               }
               if let note = bookmark.note {

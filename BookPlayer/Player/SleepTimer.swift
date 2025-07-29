@@ -131,12 +131,12 @@ final class SleepTimer {
     /// Always cancel any ongoing timer
     reset()
     state = newState
+    lastActiveState = newState
 
     switch newState {
     case .off:
       donateTimerIntent(with: .cancel)
     case .countdown(let interval):
-      lastActiveState = newState
       if let option = TimeParser.getTimerOption(from: interval) {
         donateTimerIntent(with: option)
       }
@@ -147,7 +147,6 @@ final class SleepTimer {
         }
       timerTurnedOnPublisher.send(newState)
     case .endOfChapter:
-      lastActiveState = newState
       donateTimerIntent(with: .endChapter)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)

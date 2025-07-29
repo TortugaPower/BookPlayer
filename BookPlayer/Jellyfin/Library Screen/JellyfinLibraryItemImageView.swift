@@ -12,7 +12,7 @@ import BookPlayerKit
 
 struct JellyfinLibraryItemImageView: View {
   let item: JellyfinLibraryItem
-  @EnvironmentObject var connectionService: JellyfinConnectionService
+  @Environment(\.jellyfinService) var connectionService: JellyfinConnectionService
   @Environment(\.displayScale) private var displayScale
 
   var body: some View {
@@ -90,6 +90,5 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
 #Preview("audiobook") {
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
   JellyfinLibraryItemImageView(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
-    .environmentObject(JellyfinConnectionService(keychainService: KeychainService()))
     .environmentObject(ThemeViewModel())
 }

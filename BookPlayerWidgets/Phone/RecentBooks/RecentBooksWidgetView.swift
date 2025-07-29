@@ -42,19 +42,19 @@ struct BookView: View {
           Image(systemName: "photo.badge.exclamationmark.fill")
             .frame(width: 60, height: 60)
             .background(Color.gray.opacity(0.2))
-            .foregroundColor(Color.white)
+            .foregroundStyle(Color.white)
             .cornerRadius(8.0)
         }
 
         if let pauseImage {
           Circle()
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .frame(width: 30, height: 30)
             .opacity(0.8)
           Image(systemName: pauseImage)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .foregroundColor(.black)
+            .foregroundStyle(.black)
             .frame(width: 11, height: 11)
         }
       }
@@ -62,7 +62,7 @@ struct BookView: View {
       Text(title)
         .fontWeight(.semibold)
         .frame(height: 40, alignment: .leading)
-        .foregroundColor(titleColor)
+        .foregroundStyle(titleColor)
         .font(.caption)
         .lineLimit(2)
         .multilineTextAlignment(.center)
@@ -84,7 +84,7 @@ struct RecentBooksWidgetView: View {
     return VStack(spacing: 3) {
       HStack {
         Text("Recent Books")
-          .foregroundColor(widgetColors.primaryColor)
+          .foregroundStyle(widgetColors.primaryColor)
           .font(.subheadline)
           .fontWeight(.semibold)
         Spacer()

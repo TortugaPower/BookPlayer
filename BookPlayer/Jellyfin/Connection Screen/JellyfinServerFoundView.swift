@@ -18,7 +18,7 @@ struct JellyfinServerFoundView: View {
 
   @State var focusedField: JellyfinServerFoundViewFields = .none
 
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var onCommit: () -> Void = {}
 
@@ -48,8 +48,9 @@ struct JellyfinServerFoundView: View {
       .focused($focusedField, selfKey: .password)
     } header: {
       Text("jellyfin_section_login".localized)
+        .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focusedField = .username

@@ -12,25 +12,26 @@ struct JellyfinServerInformationSectionView: View {
   let serverName: String
   let serverUrl: String
 
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
     Section {
       HStack {
         Text("jellyfin_server_name_label".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverName)
       }
       HStack {
         Text("jellyfin_server_url_label".localized)
-          .foregroundColor(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverUrl)
       }
     } header: {
       Text("jellyfin_section_server".localized)
+        .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }

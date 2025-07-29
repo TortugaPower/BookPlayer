@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum TipOption: String, Identifiable, CaseIterable {
   public var id: Self { self }
@@ -22,6 +23,17 @@ enum TipOption: String, Identifiable, CaseIterable {
       return "Excellent\ntip of"
     case .incredible:
       return "Incredible\ntip of"
+    }
+  }
+
+  var localizedTitle: LocalizedStringKey {
+    switch self {
+    case .kind:
+      return "kind_tip_title"
+    case .excellent:
+      return "excellent_tip_title"
+    case .incredible:
+      return "incredible_tip_title"
     }
   }
 
