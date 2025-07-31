@@ -14,8 +14,12 @@ struct JellyfinAudiobookDetailsView<
   Model: JellyfinAudiobookDetailsViewModelProtocol
 >: View {
 
+  @State private var isFilePathExpanded: Bool = false
+  @State private var isGenresExpanded: Bool = false
+  @State private var isOverviewExpanded: Bool = true
+  @State private var isTagsExpanded: Bool = true
   @StateObject var viewModel: Model
-  @StateObject private var themeViewModel = ThemeViewModel()
+  @EnvironmentObject private var theme: ThemeViewModel
   @State var filePathLineLimit: Int? = 1
 
   var onDownloadTap: (() -> Void)
@@ -32,76 +36,90 @@ struct JellyfinAudiobookDetailsView<
   }
 
   var body: some View {
-    VStack {
-      if let artist = viewModel.details?.artist {
-        Text(artist)
-          .font(.title2)
-          .foregroundStyle(themeViewModel.secondaryColor)
-          .lineLimit(1)
+    ScrollView {
+      VStack {
+        JellyfinLibraryItemImageView(item: viewModel.item)
+          .environment(\.jellyfinService, viewModel.connectionService)
           .accessibilityHidden(true)
-      }
+          .padding(.horizontal, Spacing.L1)
 
-      Text(viewModel.item.name)
-        .font(.title)
-        .accessibilityLabel(voiceOverBookInfo)
+        Text(viewModel.item.name)
+          .font(.title)
+          .accessibilityLabel(voiceOverBookInfo)
+          .foregroundStyle(theme.primaryColor)
 
-      JellyfinLibraryItemImageView(item: viewModel.item)
-        .environmentObject(themeViewModel)
-        .environment(\.jellyfinService, viewModel.connectionService)
-        .accessibilityHidden(true)
+        if let artist = viewModel.details?.artist {
+          Text(artist)
+            .font(.title2)
+            .foregroundStyle(theme.secondaryColor)
+            .lineLimit(1)
+            .accessibilityHidden(true)
+        }
 
-      if let details = viewModel.details {
-        VStack {
-          if let filePath = details.filePath {
-            Text(filePath)
-              .lineLimit(filePathLineLimit)
-              .truncationMode(.middle)
-              .onTapGesture {
-                filePathLineLimit = (filePathLineLimit == nil) ? 1 : nil
-              }
-              .padding(.bottom, 8)
-              .accessibilityHidden(true)
-          }
-          HStack {
+        if let details = viewModel.details {
+          HStack(alignment: .center) {
             Text(details.runtimeString)
               .accessibilityLabel("book_duration_title".localized + details.runtimeString)
-            Spacer()
+            Text(" | ")
             Text(details.fileSizeString)
+          }
+          .foregroundStyle(theme.primaryColor)
+          .font(.caption)
+        }
+
+        Button {
+          do {
+            try viewModel.beginDownloadAudiobook(viewModel.item)
+            onDownloadTap()
+          } catch {
+            viewModel.error = error
+          }
+        } label: {
+          HStack {
+            Image(systemName: "square.and.arrow.down")
+            Text("download_title".localized)
+              .fontWeight(.semibold)
+          }
+          .frame(maxWidth: .infinity)
+          .padding()
+          .foregroundStyle(theme.systemBackgroundColor)
+          .background(theme.linkColor)
+          .cornerRadius(10)
+        }
+
+        if let details = viewModel.details {
+          if let filePath = details.filePath {
+            DisclosureGroup("File Path", isExpanded: $isFilePathExpanded) {
+              Text(filePath)
+            }
+            .accessibilityHidden(true)
+          }
+
+          if let genres = details.genres,
+            !genres.isEmpty
+          {
+            DisclosureGroup("Genres", isExpanded: $isGenresExpanded) {
+              JellyfinTagsView(tags: genres)
+            }
           }
 
           if let overview = details.overview {
-            Text(overview)
-              .lineLimit(nil)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(.top, 8)
+            DisclosureGroup("Overview", isExpanded: $isOverviewExpanded) {
+              Text(overview)
+            }
+          }
+
+          if let tags = details.tags,
+            !tags.isEmpty
+          {
+            DisclosureGroup("Tags", isExpanded: $isTagsExpanded) {
+              JellyfinTagsView(tags: tags)
+            }
           }
         }
-        .padding([.horizontal, .bottom])
-        .foregroundStyle(themeViewModel.secondaryColor)
-      }
-
-      Spacer()
-
-      Button {
-        do {
-          try viewModel.beginDownloadAudiobook(viewModel.item)
-          onDownloadTap()
-        } catch {
-          viewModel.error = error
-        }
-      } label: {
-        HStack {
-          Image(systemName: "square.and.arrow.down")
-          Text("download_title".localized)
-            .fontWeight(.semibold)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .foregroundStyle(themeViewModel.systemBackgroundColor)
-        .background(themeViewModel.linkColor)
-        .cornerRadius(10)
       }
     }
+    .tint(theme.linkColor)
     .errorAlert(error: $viewModel.error)
     .padding()
     .onAppear {
@@ -110,6 +128,7 @@ struct JellyfinAudiobookDetailsView<
     .onDisappear {
       viewModel.cancelFetchData()
     }
+    .scrollIndicators(.hidden)
   }
 }
 
@@ -143,7 +162,9 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
       "/path/to/file/which/might/be/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/actually.m4a",
     fileSize: 18_967_839,
     overview: "Overview",
-    runtimeInSeconds: 580.1737409
+    runtimeInSeconds: 580.1737409,
+    genres: nil,
+    tags: nil
   )
   let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
   let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: details)
