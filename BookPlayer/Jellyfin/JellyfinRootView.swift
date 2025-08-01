@@ -84,6 +84,8 @@ struct JellyfinRootView: View {
           }
         }
     }
+    .tint(theme.linkColor)
+    .environmentObject(theme)
     .onAppear {
         navigation.dismiss = dismiss
     }

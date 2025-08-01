@@ -378,3 +378,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "voiceover_book_cover" = "%@ by %@, book cover";
 "voiceover_loading_book_cover" = "Loading book cover";
 "integrations_title" = "Integrations";
+"File Path" = "File Path";
+"Genres" = "Genres";
+"Overview" = "Overview";
+"Tags" = "Tags";

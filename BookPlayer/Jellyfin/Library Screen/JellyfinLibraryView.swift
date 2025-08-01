@@ -12,7 +12,7 @@ import SwiftUI
 
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @StateObject var viewModel: Model
-  @StateObject private var themeViewModel = ThemeViewModel()
+  @EnvironmentObject private var theme: ThemeViewModel
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
@@ -31,7 +31,6 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         JellyfinLibraryListView(viewModel: viewModel)
       }
     }
-    .environmentObject(themeViewModel)
     .environment(\.jellyfinService, viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
@@ -52,7 +51,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       ToolbarItem(placement: .principal) {
         navigationTitle
           .font(.headline)
-          .foregroundStyle(themeViewModel.primaryColor)
+          .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
         toolbarTrailing

@@ -16,6 +16,8 @@ struct JellyfinAudiobookDetailsData {
   let fileSize: Int?
   let overview: String?
   let runtimeInSeconds: TimeInterval?
+  let genres: [String]?
+  let tags: [String]?
 
   var fileSizeString: String {
     if let fileSize {
