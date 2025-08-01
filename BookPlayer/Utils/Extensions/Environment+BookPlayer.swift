@@ -16,4 +16,5 @@ extension EnvironmentValues {
   @Entry var jellyfinService: JellyfinConnectionService = .init()
   @Entry var hardcoverService: HardcoverService = .init()
   @Entry var loadingOverlay: LoadingOverlayState = .init()
+  @Entry var playerState: PlayerState = .init()
 }

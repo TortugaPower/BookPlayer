@@ -26,6 +26,8 @@ class MainCoordinator: NSObject {
   let jellyfinConnectionService: JellyfinConnectionService
   let hardcoverService: HardcoverService
 
+  let playerState = PlayerState()
+
   let navigationController: UINavigationController
   var libraryCoordinator: LibraryListCoordinator?
   private var disposeBag = Set<AnyCancellable>()
@@ -114,15 +116,22 @@ class MainCoordinator: NSObject {
   }
 
   func startProfileCoordinator(with tabBarController: UITabBarController) {
-    let profileCoordinator = ProfileCoordinator(
-      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
-      libraryService: libraryService,
-      playerManager: playerManager,
-      accountService: accountService,
-      syncService: syncService
+    let vc = UIHostingController(
+      rootView: ProfileView()
+        .environment(\.accountService, accountService)
+        .environment(\.libraryService, libraryService)
+        .environment(\.syncService, syncService)
+        .environment(\.playerState, playerState)
     )
-    profileCoordinator.tabBarController = tabBarController
-    profileCoordinator.start()
+
+    vc.tabBarItem = UITabBarItem(
+      title: "profile_title".localized,
+      image: UIImage(systemName: "person.crop.circle"),
+      selectedImage: UIImage(systemName: "person.crop.circle.fill")
+    )
+
+    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
+    tabBarController.setViewControllers(newControllersArray, animated: false)
   }
 
   func startSettingsCoordinator(with tabBarController: UITabBarController) {
@@ -204,6 +213,13 @@ class MainCoordinator: NSObject {
         }
 
       })
+      .store(in: &disposeBag)
+
+    playerManager.currentItemPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] item in
+        self?.playerState.isBookLoaded = item != nil
+      }
       .store(in: &disposeBag)
   }
 

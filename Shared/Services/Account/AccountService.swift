@@ -56,7 +56,8 @@ public protocol AccountServiceProtocol {
   func hasSyncEnabled() -> Bool
   func hasPlusAccess() -> Bool
 
-  func createAccount(donationMade: Bool)
+  @discardableResult
+  func createAccount(donationMade: Bool) -> Account
 
   func updateAccount(from customerInfo: CustomerInfo)
 
@@ -95,7 +96,7 @@ public final class AccountService: AccountServiceProtocol {
   var dataManager: DataManager!
   var client: NetworkClientProtocol!
   var keychain: KeychainServiceProtocol!
-  var account: Account!
+  public var account: SimpleAccount!
   private var provider: NetworkProvider<AccountAPI>!
 
   public var accessLevel: AccessLevel!
@@ -112,6 +113,12 @@ public final class AccountService: AccountServiceProtocol {
     self.keychain = keychain
     self.provider = NetworkProvider(client: client)
     self.accessLevel = getAccessLevel()
+
+    let storedAccount: Account = getAccount() ?? createAccount(
+      donationMade: UserDefaults.standard.bool(forKey: Constants.UserDefaults.donationMade)
+    )
+
+    self.account = SimpleAccount(account: storedAccount)
   }
 
   public func setDelegate(_ delegate: PurchasesDelegate) {
@@ -202,7 +209,8 @@ public final class AccountService: AccountServiceProtocol {
     return currentSubscription
   }
 
-  public func createAccount(donationMade: Bool) {
+  @discardableResult
+  public func createAccount(donationMade: Bool) -> Account {
     let context = self.dataManager.getContext()
     let account = Account.create(in: context)
     account.id = ""
@@ -210,6 +218,8 @@ public final class AccountService: AccountServiceProtocol {
     account.hasSubscription = false
     account.donationMade = donationMade
     self.dataManager.saveContext()
+
+    return account
   }
 
   public func updateAccount(from customerInfo: CustomerInfo) {
@@ -246,6 +256,7 @@ public final class AccountService: AccountServiceProtocol {
 
     DispatchQueue.main.async {
       self.accessLevel = self.getAccessLevel()
+      self.account = .init(account: account)
       NotificationCenter.default.post(name: .accountUpdate, object: self)
     }
   }

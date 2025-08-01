@@ -32,38 +32,7 @@ class ProfileCoordinator: Coordinator {
     self.syncService = syncService
   }
 
-  func start() {
-    let viewModel = ProfileViewModel(
-      accountService: accountService,
-      libraryService: libraryService,
-      playerManager: playerManager,
-      syncService: syncService
-    )
-
-    viewModel.onTransition = { route in
-      switch route {
-      case .showAccount:
-        self.showAccount()
-      case .showQueuedTasks:
-        self.showQueuedTasks()
-      }
-    }
-
-    let vc = ProfileViewController(viewModel: viewModel)
-    vc.navigationItem.largeTitleDisplayMode = .never
-    flow.navigationController.tabBarItem = UITabBarItem(
-      title: "profile_title".localized,
-      image: UIImage(systemName: "person.crop.circle"),
-      selectedImage: UIImage(systemName: "person.crop.circle.fill")
-    )
-
-    if let tabBarController = tabBarController {
-      let newControllersArray = (tabBarController.viewControllers ?? []) + [flow.navigationController]
-      tabBarController.setViewControllers(newControllersArray, animated: false)
-    }
-
-    flow.startPresentation(vc, animated: false)
-  }
+  func start() {}
 
   func showAccount() {
     if self.accountService.getAccountId() != nil {

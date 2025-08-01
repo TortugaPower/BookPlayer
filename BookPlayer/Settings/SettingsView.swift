@@ -13,7 +13,7 @@ import RevenueCat
 import SwiftUI
 
 struct SettingsView: View {
-  @StateObject var viewModel = SettingsView.Model()
+  @State private var path = NavigationPath()
   @State var showMailModal = false
   @State var showMailUnavailableModal = false
   @StateObject var theme = ThemeViewModel()
@@ -30,7 +30,7 @@ struct SettingsView: View {
   let supportEmail = "support@bookplayer.app"
 
   var body: some View {
-    NavigationStack(path: $viewModel.path) {
+    NavigationStack(path: $path) {
       Form {
         if accountService.accessLevel == .free {
           SettingsProBannerSectionView(showPro: showPro)
@@ -213,15 +213,6 @@ struct SettingsView: View {
 
   private var systemVersion: String {
     return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-  }
-}
-
-extension SettingsView {
-  @MainActor
-  final class Model: ObservableObject {
-    @Published var path = NavigationPath()
-
-    init() {}
   }
 }
 

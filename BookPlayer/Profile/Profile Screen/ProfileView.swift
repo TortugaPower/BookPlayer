@@ -9,75 +9,53 @@
 import BookPlayerKit
 import SwiftUI
 
-struct ProfileView<Model: ProfileViewModelProtocol>: View {
-  @StateObject var themeViewModel = ThemeViewModel()
-  @ObservedObject var viewModel: Model
+struct ProfileView: View {
+  @State private var path = NavigationPath()
+  @StateObject private var theme = ThemeViewModel()
+  @Environment(\.accountService) private var accountService
+  @Environment(\.playerState) private var playerState
 
   var body: some View {
-    VStack(spacing: Spacing.M) {
-      ProfileCardView(account: $viewModel.account)
-        .onTapGesture {
-          viewModel.showAccount()
+    NavigationStack(path: $path) {
+      VStack(spacing: 0) {
+        Form {
+          ProfileCardSectionView()
+            .listSectionSpacing(Spacing.S1)
+          ProfileListenedSectionView()
         }
-        .padding([.top, .trailing, .leading], Spacing.S)
 
-      ProfileListenedTimeView(
-        formattedListeningTime: $viewModel.totalListeningTimeFormatted
-      )
+        Spacer()
 
-      Spacer()
-
-      if viewModel.account?.hasSubscription == true,
-        viewModel.account?.id.isEmpty == false
-      {
-        ProfileSyncTasksStatusView(
-          buttonText: $viewModel.tasksButtonText,
-          statusMessage: $viewModel.refreshStatusMessage,
-          themeViewModel: themeViewModel,
-          showTasksAction: {
-            viewModel.showTasks()
-          }
-        )
-        .padding([.trailing, .leading], Spacing.M)
-      } else if viewModel.account?.hasSubscription == false {
-        VStack {
-          Text("BookPlayer Pro")
-            .font(Font(Fonts.title))
-            .foregroundStyle(themeViewModel.primaryColor)
-          Button(
-            action: {
-              viewModel.showAccount()
-            },
-            label: {
-              Text("learn_more_title".localized)
-                .font(.system(size: 11, weight: .bold))
-                .frame(minWidth: 92, minHeight: 22)
-                .background(themeViewModel.linkColor)
-                .foregroundStyle(.white)
-                .clipShape(Capsule())
-            }
-          )
+        if accountService.account.hasSubscription,
+          !accountService.account.id.isEmpty
+        {
+          ProfileSyncTasksSectionView()
+        } else if !accountService.account.hasSubscription {
+          ProfileProCalloutSectionView()
+        }
+      }
+      .safeAreaInset(edge: .bottom) {
+        Spacer().frame(height: playerState.isBookLoaded ? 96 : Spacing.M)
+      }
+      .navigationTitle("profile_title")
+      .navigationBarTitleDisplayMode(.inline)
+      .scrollContentBackground(.hidden)
+      .background(theme.systemGroupedBackgroundColor)
+      .listRowBackground(theme.secondarySystemBackgroundColor)
+      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
+      .navigationDestination(for: ProfileScreen.self) { destination in
+        switch destination {
+        case .account:
+          EmptyView()
+        case .login:
+          Text("login")
+        case .tasks:
+          EmptyView()
         }
       }
     }
-    .padding([.bottom], viewModel.bottomOffset)
-    .environmentObject(themeViewModel)
-  }
-}
-
-struct ProfileView_Previews: PreviewProvider {
-  class MockProfileViewModel: ProfileViewModelProtocol, ObservableObject {
-    var tasksButtonText: String = "Queued sync tasks"
-    var bottomOffset: CGFloat = Spacing.M
-    var refreshStatusMessage: String = "Last refresh: 1 second ago"
-    var totalListeningTimeFormatted: String = "0m"
-    var account: Account?
-
-    func showAccount() {}
-    func showTasks() {}
-  }
-  static var previews: some View {
-    ProfileView(viewModel: MockProfileViewModel())
-      .previewLayout(.sizeThatFits)
+    .foregroundStyle(theme.primaryColor)
+    .tint(theme.linkColor)
+    .environmentObject(theme)
   }
 }

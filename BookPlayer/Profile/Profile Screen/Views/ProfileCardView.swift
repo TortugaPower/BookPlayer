@@ -15,12 +15,11 @@ struct ProfileCardView: View {
   var height: CGFloat = 70
   var cornerRadius: CGFloat = 10
 
-  @Binding var account: Account?
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  var email: String = ""
+  @EnvironmentObject var theme: ThemeViewModel
 
   var titleAccessibilityLabel: String {
-    if let account,
-       !account.email.isEmpty {
+    if !email.isEmpty {
       return "account_title".localized
     } else {
       return "setup_account_title".localized
@@ -28,17 +27,15 @@ struct ProfileCardView: View {
   }
 
   var title: String {
-    if let account,
-       !account.email.isEmpty {
-      return account.email
+    if !email.isEmpty {
+      return email
     } else {
       return "setup_account_title".localized
     }
   }
 
   var status: String? {
-    if account == nil
-        || account?.email.isEmpty == true {
+    if email.isEmpty {
       return "not_signedin_title".localized
     } else {
       return nil
@@ -48,11 +45,11 @@ struct ProfileCardView: View {
   var body: some View {
     HStack(spacing: Spacing.S1) {
       ZStack {
-        themeViewModel.tertiarySystemBackgroundColor
+        theme.tertiarySystemBackgroundColor
         Image(systemName: "person")
           .resizable()
           .frame(width: imageLength, height: imageLength)
-          .foregroundStyle(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
       .frame(width: containerImageWidth, height: containerImageWidth)
       .clipShape(Circle())
@@ -60,31 +57,19 @@ struct ProfileCardView: View {
       VStack(alignment: .leading) {
         Text(verbatim: title)
           .font(Font(Fonts.titleRegular))
-          .foregroundStyle(themeViewModel.primaryColor)
         if let status {
           Text(status)
             .font(Font(Fonts.subheadline))
-            .foregroundStyle(themeViewModel.secondaryColor)
+            .foregroundStyle(theme.secondaryColor)
         }
       }
-
-      Spacer()
-      Image(systemName: "chevron.forward")
-        .foregroundStyle(themeViewModel.secondaryColor)
+//      Spacer()
+//      Image(systemName: "chevron.forward")
+//        .foregroundStyle(theme.secondaryColor)
     }
-    .frame(height: height)
-    .padding([.leading, .trailing], Spacing.S)
-    .background(themeViewModel.systemBackgroundColor)
-    .cornerRadius(cornerRadius)
+//    .frame(height: height)
     .accessibilityElement()
     .accessibilityLabel(titleAccessibilityLabel)
     .accessibilityAddTraits(.isButton)
-  }
-}
-
-struct ProfileCardView_Previews: PreviewProvider {
-  static var previews: some View {
-    ProfileCardView(account: .constant(Account()))
-      .environmentObject(ThemeViewModel())
   }
 }
