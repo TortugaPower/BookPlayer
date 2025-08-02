@@ -13,7 +13,7 @@ struct SettingsiCloudSectionView: View {
   @AppStorage(Constants.UserDefaults.iCloudBackupsEnabled)
   var isEnabled: Bool = true
 
-  @Environment(\.loadingOverlay) private var loadingOverlay
+  @Environment(\.loadingState) private var loadingState
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
@@ -42,7 +42,7 @@ struct SettingsiCloudSectionView: View {
       try processedFolderURL.setResourceValues(resourceValues)
       return flag
     } catch {
-      loadingOverlay.error = error
+      loadingState.error = error
       return !flag
     }
   }

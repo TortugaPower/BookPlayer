@@ -13,7 +13,6 @@ struct ThemesView: View {
   let item: SimpleTheme
 
   @Environment(\.accountService) private var accountService
-  @Environment(\.loadingOverlay) private var loadingOverlay
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {

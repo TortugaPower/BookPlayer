@@ -38,11 +38,11 @@ class AccountCoordinator: Coordinator, AlertPresenter {
   }
 
   func showCompleteAccount() {
-    let child = CompleteAccountCoordinator(
-      flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
-      accountService: self.accountService
-    )
-    child.start()
+//    let child = CompleteAccountCoordinator(
+//      flow: .modalFlow(presentingController: flow.navigationController, prefersMediumDetent: true),
+//      accountService: self.accountService
+//    )
+//    child.start()
   }
 
   func showUploadedFiles() { }

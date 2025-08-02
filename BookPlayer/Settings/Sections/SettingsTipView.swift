@@ -18,7 +18,7 @@ struct SettingsTipView: View {
   @State private var product: StoreProduct?
   @State private var loadProductTask: Task<(), Error>?
   @EnvironmentObject private var theme: ThemeViewModel
-  @Environment(\.loadingOverlay) var loadingOverlay
+  @Environment(\.loadingState) var loadingState
 
   let purchaseCompleted: () -> Void
 
@@ -61,7 +61,7 @@ struct SettingsTipView: View {
               self.isLoading = false
             } catch {
               self.isLoading = false
-              self.loadingOverlay.error = error
+              self.loadingState.error = error
             }
           }
         }

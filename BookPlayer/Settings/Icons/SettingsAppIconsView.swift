@@ -7,12 +7,11 @@
 //
 
 import BookPlayerKit
-import RevenueCat
 import SwiftUI
 
 struct SettingsAppIconsView: View {
   @State private var icons: [Icon] = Bundle.main.decodeIcons()
-  @State var loadingOverlay = LoadingOverlayState()
+  @State var loadingState = LoadingOverlayState()
   @State private var showRestoredAlert = false
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.accountService) private var accountService
@@ -28,8 +27,8 @@ struct SettingsAppIconsView: View {
         AppIconView(icon: item)
       }
     }
-    .environment(\.loadingOverlay, loadingOverlay)
-    .errorAlert(error: $loadingOverlay.error)
+    .environment(\.loadingState, loadingState)
+    .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .listRowBackground(theme.secondarySystemBackgroundColor)
@@ -38,47 +37,15 @@ struct SettingsAppIconsView: View {
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {
       Button("ok_button", role: .cancel) {}
     }
-    .overlay {
-      Group {
-        if loadingOverlay.show {
-          ProgressView()
-            .tint(.white)
-            .padding()
-            .background(
-              Color.black
-                .opacity(0.9)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            )
-        }
-      }
-      .ignoresSafeArea()
-    }
+    .loadingOverlay(loadingState.show)
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button("restore_title".localized) {
-          loadingOverlay.show = true
-          Task {
-            do {
-              let customerInfo = try await Purchases.shared.restorePurchases()
-
-              if customerInfo.nonSubscriptions.isEmpty {
-                loadingOverlay.show = false
-                throw "tip_missing_title".localized
-              }
-
-              loadingOverlay.show = false
-              showRestoredAlert = true
-
-              accountService.updateAccount(
-                id: nil,
-                email: nil,
-                donationMade: true,
-                hasSubscription: nil
-              )
-            } catch {
-              loadingOverlay.show = false
-              loadingOverlay.error = error
-            }
+          PurchasesManager.restoreTips(
+            loadingState: loadingState
+          ) {
+            accountService.updateAccount(donationMade: true)
+            showRestoredAlert = true
           }
         }
         .foregroundStyle(theme.linkColor)
@@ -87,8 +54,8 @@ struct SettingsAppIconsView: View {
   }
 }
 
-fileprivate extension Bundle {
-  func decodeIcons() -> [Icon] {
+extension Bundle {
+  fileprivate func decodeIcons() -> [Icon] {
     guard
       let url = self.url(forResource: "Icons", withExtension: "json"),
       let data = try? Data(contentsOf: url, options: .mappedIfSafe)

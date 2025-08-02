@@ -38,6 +38,7 @@ struct ProfileView: View {
       .safeAreaInset(edge: .bottom) {
         Spacer().frame(height: playerState.isBookLoaded ? 96 : Spacing.M)
       }
+      .contentMargins(.top, Spacing.S1, for: .scrollContent)
       .navigationTitle("profile_title")
       .navigationBarTitleDisplayMode(.inline)
       .scrollContentBackground(.hidden)
@@ -53,7 +54,9 @@ struct ProfileView: View {
         }
       }
       .sheet(isPresented: $showLogin) {
-        Text("Login")
+        NavigationStack {
+          LoginView()
+        }
       }
     }
     .foregroundStyle(theme.primaryColor)

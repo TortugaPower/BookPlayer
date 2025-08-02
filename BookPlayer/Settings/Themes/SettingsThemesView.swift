@@ -7,7 +7,6 @@
 //
 
 import BookPlayerKit
-import RevenueCat
 import SwiftUI
 
 struct SettingsThemesView: View {
@@ -24,7 +23,7 @@ struct SettingsThemesView: View {
   var sliderValue: Double = 0
 
   @State private var themes: [SimpleTheme] = ThemeManager.getLocalThemes()
-  @State var loadingOverlay = LoadingOverlayState()
+  @State var loadingState = LoadingOverlayState()
   @State private var showRestoredAlert = false
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.accountService) private var accountService
@@ -88,8 +87,8 @@ struct SettingsThemesView: View {
           .foregroundStyle(theme.secondaryColor)
       }
     }
-    .environment(\.loadingOverlay, loadingOverlay)
-    .errorAlert(error: $loadingOverlay.error)
+    .environment(\.loadingState, loadingState)
+    .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .listRowBackground(theme.secondarySystemBackgroundColor)
@@ -98,47 +97,15 @@ struct SettingsThemesView: View {
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {
       Button("ok_button", role: .cancel) {}
     }
-    .overlay {
-      Group {
-        if loadingOverlay.show {
-          ProgressView()
-            .tint(.white)
-            .padding()
-            .background(
-              Color.black
-                .opacity(0.9)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            )
-        }
-      }
-      .ignoresSafeArea()
-    }
+    .loadingOverlay(loadingState.show)
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button("restore_title".localized) {
-          loadingOverlay.show = true
-          Task {
-            do {
-              let customerInfo = try await Purchases.shared.restorePurchases()
-
-              if customerInfo.nonSubscriptions.isEmpty {
-                loadingOverlay.show = false
-                throw "tip_missing_title".localized
-              }
-
-              loadingOverlay.show = false
-              showRestoredAlert = true
-
-              accountService.updateAccount(
-                id: nil,
-                email: nil,
-                donationMade: true,
-                hasSubscription: nil
-              )
-            } catch {
-              loadingOverlay.show = false
-              loadingOverlay.error = error
-            }
+          PurchasesManager.restoreTips(
+            loadingState: loadingState
+          ) {
+            accountService.updateAccount(donationMade: true)
+            showRestoredAlert = true
           }
         }
         .foregroundStyle(theme.linkColor)

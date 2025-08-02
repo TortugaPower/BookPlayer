@@ -17,7 +17,7 @@ struct AppIconView: View {
   let icon: Icon
 
   @Environment(\.accountService) private var accountService
-  @Environment(\.loadingOverlay) private var loadingOverlay
+  @Environment(\.loadingState) private var loadingState
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
@@ -26,7 +26,7 @@ struct AppIconView: View {
         do {
           try await updateAppIcon(icon.title)
         } catch {
-          self.loadingOverlay.error = error
+          self.loadingState.error = error
         }
       }
     } label: {

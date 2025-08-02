@@ -16,16 +16,17 @@ struct SettingsView: View {
   @State private var path = NavigationPath()
   @State var showMailModal = false
   @State var showMailUnavailableModal = false
+  @State var showLogin = false
+  @State var showCompleteAccount = false
   @StateObject var theme = ThemeViewModel()
-  @State var loadingOverlay = LoadingOverlayState()
+  @State var loadingState = LoadingOverlayState()
 
   @Environment(\.libraryService) private var libraryService
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
-
-  var showPro: () -> Void
+  @Environment(\.playerState) private var playerState
 
   let supportEmail = "support@bookplayer.app"
 
@@ -54,14 +55,15 @@ struct SettingsView: View {
         }
         SettingsCreditsSectionView()
       }
-      .environment(\.loadingOverlay, loadingOverlay)
+      .environment(\.loadingState, loadingState)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
+      .contentMargins(.top, Spacing.S1, for: .scrollContent)
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
       .listRowBackground(theme.secondarySystemBackgroundColor)
       .safeAreaInset(edge: .bottom) {
-        Spacer().frame(height: 88)
+        Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
       }
       .sheet(isPresented: $showMailModal) {
         SettingsMailView(
@@ -72,7 +74,7 @@ struct SettingsView: View {
           attachmentData: attachmentData
         )
       }
-      .errorAlert(error: $loadingOverlay.error)
+      .errorAlert(error: $loadingState.error)
       .alert("settings_support_compose_title", isPresented: $showMailUnavailableModal) {
         Button("settings_support_compose_copy") {
           UIPasteboard.general.string = debugInfo
@@ -90,7 +92,7 @@ struct SettingsView: View {
         case .icons:
           view = AnyView(SettingsAppIconsView(showPro: showPro))
         case .controls:
-          view =  AnyView(SettingsPlayerControlsView())
+          view = AnyView(SettingsPlayerControlsView())
         case .autoplay:
           view = AnyView(SettingsAutoplayView())
         case .autolock:
@@ -140,13 +142,30 @@ struct SettingsView: View {
         return
           view
           .safeAreaInset(edge: .bottom) {
-            Spacer().frame(height: 88)
+            Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
           }
+      }
+      .sheet(isPresented: $showLogin) {
+        NavigationStack {
+          LoginView()
+        }
+      }
+      .sheet(isPresented: $showCompleteAccount) {
+        SettingsCompleteAccountView()
+          .presentationDetents([.medium])
       }
     }
     .environmentObject(theme)
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
+  }
+
+  private func showPro() {
+    if accountService.getAccountId() != nil {
+      showCompleteAccount = true
+    } else {
+      showLogin = true
+    }
   }
 
   // MARK: - Email utils
@@ -217,5 +236,5 @@ struct SettingsView: View {
 }
 
 #Preview {
-  SettingsView {}
+  SettingsView()
 }
