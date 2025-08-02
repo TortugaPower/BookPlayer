@@ -31,7 +31,7 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
     singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol,
+    syncService: SyncService,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     accountService: AccountServiceProtocol,

@@ -9,37 +9,72 @@
 import BookPlayerKit
 import SwiftUI
 
-struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
-  @ObservedObject var viewModel: Model
-  @StateObject var themeViewModel = ThemeViewModel()
+struct QueuedSyncTasksView: View {
+  @AppStorage(Constants.UserDefaults.allowCellularData)
+  private var allowsCellularData: Bool = false
+  @State private var queuedJobs = [SyncTaskReference]()
+  @State private var showInfoAlert = false
 
-  var listView: some View {
-    return List {
+  @Environment(\.syncService) private var syncService
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  var body: some View {
+    List {
       Section {
-        ForEach(viewModel.queuedJobs) { job in
+        ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
             title: .constant(job.relativePath)
           )
-          .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
+          .listRowBackground(theme.secondarySystemBackgroundColor)
         }
       } header: {
-        if !viewModel.allowsCellularData {
+        if !allowsCellularData {
           HStack {
             Spacer()
             Image(systemName: "wifi")
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 20, height: 20)
-              .foregroundStyle(themeViewModel.linkColor)
+              .foregroundStyle(theme.linkColor)
               .padding([.trailing], 5)
             Text("upload_wifi_required_title".localized)
               .font(Font(Fonts.body))
-              .foregroundStyle(themeViewModel.secondaryColor)
+              .foregroundStyle(theme.secondaryColor)
             Spacer()
           }
         }
       }
+    }
+    .navigationTitle("tasks_title")
+    .navigationBarTitleDisplayMode(.inline)
+    .alert("", isPresented: $showInfoAlert) {
+      Button("ok_button", role: .cancel) {}
+        .foregroundStyle(theme.linkColor)
+    } message: {
+      Text("sync_tasks_alert_description")
+    }
+    .onReceive(syncService.observeTasksCount()) { _ in
+      reloadQueuedJobs()
+    }
+    .onAppear {
+      reloadQueuedJobs()
+    }
+    .toolbar {
+      ToolbarItem(placement: .confirmationAction) {
+        Button {
+          showInfoAlert = true
+        } label: {
+          Image(systemName: "info.circle")
+        }
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+  }
+
+  func reloadQueuedJobs() {
+    Task { @MainActor in
+      queuedJobs = await syncService.getAllQueuedJobs()
     }
   }
 
@@ -64,33 +99,5 @@ struct QueuedSyncTasksView<Model: QueuedSyncTasksViewModelProtocol>: View {
     case .uploadArtwork:
       return "photo"
     }
-  }
-
-  var body: some View {
-    listView
-      .defaultFormBackground()
-      .environmentObject(themeViewModel)
-  }
-}
-
-struct QueuedSyncTasksView_Previews: PreviewProvider {
-  class MockQueuedSyncTasksViewModel: QueuedSyncTasksViewModelProtocol, ObservableObject {
-    var allowsCellularData: Bool = false
-    var queuedJobs: [BookPlayerKit.SyncTaskReference] = [
-      SyncTaskReference(
-        id: "1",
-        relativePath: "test/path.mp3",
-        jobType: .upload
-      ),
-      SyncTaskReference(
-        id: "2",
-        relativePath: "test/path2.mp3",
-        jobType: .upload
-      )
-    ]
-  }
-
-  static var previews: some View {
-    QueuedSyncTasksView(viewModel: MockQueuedSyncTasksViewModel())
   }
 }

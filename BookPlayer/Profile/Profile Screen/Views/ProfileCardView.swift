@@ -63,11 +63,12 @@ struct ProfileCardView: View {
             .foregroundStyle(theme.secondaryColor)
         }
       }
-//      Spacer()
-//      Image(systemName: "chevron.forward")
-//        .foregroundStyle(theme.secondaryColor)
+
+      Spacer()
+
+      Image(systemName: "chevron.forward")
+        .foregroundStyle(theme.secondaryColor)
     }
-//    .frame(height: height)
     .accessibilityElement()
     .accessibilityLabel(titleAccessibilityLabel)
     .accessibilityAddTraits(.isButton)

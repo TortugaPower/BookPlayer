@@ -12,6 +12,7 @@ import SwiftUI
 struct ProfileView: View {
   @State private var path = NavigationPath()
   @StateObject private var theme = ThemeViewModel()
+  @State private var showLogin = false
   @Environment(\.accountService) private var accountService
   @Environment(\.playerState) private var playerState
 
@@ -19,7 +20,7 @@ struct ProfileView: View {
     NavigationStack(path: $path) {
       VStack(spacing: 0) {
         Form {
-          ProfileCardSectionView()
+          ProfileCardSectionView(action: showLoginOrAccount)
             .listSectionSpacing(Spacing.S1)
           ProfileListenedSectionView()
         }
@@ -31,7 +32,7 @@ struct ProfileView: View {
         {
           ProfileSyncTasksSectionView()
         } else if !accountService.account.hasSubscription {
-          ProfileProCalloutSectionView()
+          ProfileProCalloutSectionView(action: showLoginOrAccount)
         }
       }
       .safeAreaInset(edge: .bottom) {
@@ -47,15 +48,24 @@ struct ProfileView: View {
         switch destination {
         case .account:
           EmptyView()
-        case .login:
-          Text("login")
         case .tasks:
-          EmptyView()
+          QueuedSyncTasksView()
         }
+      }
+      .sheet(isPresented: $showLogin) {
+        Text("Login")
       }
     }
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
     .environmentObject(theme)
+  }
+
+  func showLoginOrAccount() {
+    if accountService.account.id.isEmpty {
+      showLogin = true
+    } else {
+      path.append(ProfileScreen.account)
+    }
   }
 }

@@ -57,10 +57,6 @@ class ProfileCoordinator: Coordinator {
   }
 
   func showQueuedTasks() {
-    let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
-    let vc = QueuedSyncTasksViewController(viewModel: viewModel)
-    let nav = AppNavigationController(rootViewController: vc)
-    flow.navigationController.present(nav, animated: true)
   }
 
   func showCompleteAccount() {

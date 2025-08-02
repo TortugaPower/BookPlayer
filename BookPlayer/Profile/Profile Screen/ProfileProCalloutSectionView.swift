@@ -10,20 +10,15 @@ import BookPlayerKit
 import SwiftUI
 
 struct ProfileProCalloutSectionView: View {
-  @Environment(\.accountService) private var accountService
   @EnvironmentObject private var theme: ThemeViewModel
 
-  var destination: ProfileScreen {
-    accountService.account.id.isEmpty
-      ? .login
-      : .account
-  }
+  var action: () -> Void
 
   var body: some View {
-    NavigationLink(value: destination) {
-      VStack {
-        Text("BookPlayer Pro")
-          .font(Font(Fonts.title))
+    VStack {
+      Text("BookPlayer Pro")
+        .font(Font(Fonts.title))
+      Button(action: action) {
         Text("learn_more_title".localized)
           .bpFont(Fonts.buttonTextSmall)
           .padding(.horizontal, Spacing.S)
@@ -32,21 +27,12 @@ struct ProfileProCalloutSectionView: View {
           .foregroundStyle(.white)
           .clipShape(Capsule())
       }
+      .buttonStyle(.plain)
     }
   }
 }
 
 #Preview {
-  @Previewable var accountService: AccountService = {
-    let accountService = AccountService()
-    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
-    accountService.setup(dataManager: dataManager)
-    accountService.accessLevel = .free
-
-    return accountService
-  }()
-
-  ProfileProCalloutSectionView()
+  ProfileProCalloutSectionView {}
     .environmentObject(ThemeViewModel())
-    .environment(\.accountService, accountService)
 }

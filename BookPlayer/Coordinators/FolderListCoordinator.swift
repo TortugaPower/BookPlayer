@@ -19,7 +19,7 @@ class FolderListCoordinator: ItemListCoordinator {
     singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncServiceProtocol,
+    syncService: SyncService,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     jellyfinConnectionService: JellyfinConnectionService,

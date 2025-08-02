@@ -12,15 +12,11 @@ import SwiftUI
 struct ProfileCardSectionView: View {
   @Environment(\.accountService) private var accountService
 
-  var destination: ProfileScreen {
-    accountService.account.id.isEmpty
-      ? .login
-      : .account
-  }
+  var action: () -> Void
 
   var body: some View {
     Section {
-      NavigationLink(value: destination) {
+      Button(action: action) {
         ProfileCardView(email: accountService.account.email)
       }
     }
@@ -38,7 +34,7 @@ struct ProfileCardSectionView: View {
   }()
 
   Form {
-    ProfileCardSectionView()
+    ProfileCardSectionView {}
   }
   .environmentObject(ThemeViewModel())
   .environment(\.accountService, accountService)
