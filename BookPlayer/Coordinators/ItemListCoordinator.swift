@@ -17,7 +17,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let syncService: SyncService
+  let syncService: SyncServiceProtocol
   let importManager: ImportManager
   let listRefreshService: ListSyncRefreshService
   let jellyfinConnectionService: JellyfinConnectionService
@@ -32,7 +32,7 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     singleFileDownloadService: SingleFileDownloadService,
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
-    syncService: SyncService,
+    syncService: SyncServiceProtocol,
     importManager: ImportManager,
     listRefreshService: ListSyncRefreshService,
     jellyfinConnectionService: JellyfinConnectionService,
@@ -77,11 +77,13 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func showQueuedTasks() {
+    // swiftlint:disable force_cast
     let vc = UIHostingController(
       rootView: QueuedSyncTasksView()
         .environmentObject(ThemeViewModel())
-        .environment(\.syncService, syncService)
+        .environment(\.syncService, syncService as! SyncService)
     )
+    // swiftlint:enable force_cast
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
   }
