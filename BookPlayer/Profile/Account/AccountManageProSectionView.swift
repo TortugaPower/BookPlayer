@@ -33,10 +33,10 @@ struct AccountManageProSectionView: View {
         }
       } label: {
         Label {
-          Text("BookPlayer Pro")
+          Text("manage_title")
             .foregroundStyle(theme.primaryColor)
         } icon: {
-          Image(systemName: "icloud.and.arrow.up.fill")
+          Image(systemName: "gearshape.2")
             .foregroundStyle(theme.linkColor)
         }
       }

@@ -26,6 +26,7 @@ struct LoginBenefitSectionView: View {
           .opacity(0.5)
           .foregroundStyle(theme.linkColor)
           .padding(.trailing, 23)
+          .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 10) {
           Text(title)
             .bpFont(Fonts.title)
@@ -33,10 +34,10 @@ struct LoginBenefitSectionView: View {
             .bpFont(Fonts.body)
             .foregroundStyle(theme.secondaryColor)
         }
+        .accessibilityElement(children: .combine)
       }
     }
     .listRowBackground(Color.clear)
-    .accessibilityLabel("\(title), \(subtitle)")
   }
 }
 

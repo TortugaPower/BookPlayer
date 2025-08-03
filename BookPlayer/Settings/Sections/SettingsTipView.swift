@@ -33,6 +33,12 @@ struct SettingsTipView: View {
     }
   }
 
+  var buttonPriceTitle: String {
+    buttonTitle.isEmpty
+      ? tipOption.price
+      : buttonTitle
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       Text(tipOption.title)
@@ -41,12 +47,14 @@ struct SettingsTipView: View {
         .multilineTextAlignment(.center)
         .lineLimit(2)
         .padding(.bottom, Spacing.S3)
+        .accessibilityHidden(true)
       if isLoading {
         ProgressView()
           .tint(.white)
           .frame(width: 75, height: 28)
           .background(buttonBackgroundColor)
           .mask(Capsule())
+          .accessibilityHidden(true)
       } else {
         Button(
           buttonTitle.isEmpty
@@ -71,6 +79,7 @@ struct SettingsTipView: View {
         .foregroundStyle(.white)
         .background(buttonBackgroundColor)
         .mask(Capsule())
+        .accessibilityLabel("\(tipOption.title). \(buttonPriceTitle)")
       }
     }
     .onAppear {
