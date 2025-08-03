@@ -88,7 +88,6 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
 }
 
 #Preview("audiobook") {
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
   JellyfinLibraryItemImageView(item: JellyfinLibraryItem(id: "0.0", name: "An audiobook", kind: .audiobook))
     .environmentObject(ThemeViewModel())
 }

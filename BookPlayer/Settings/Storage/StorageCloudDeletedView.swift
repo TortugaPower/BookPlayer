@@ -74,7 +74,6 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
       }
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
-      .listRowBackground(theme.secondarySystemBackgroundColor)
       .environmentObject(theme)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)

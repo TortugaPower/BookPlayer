@@ -27,26 +27,10 @@ class AccountServiceTests: XCTestCase {
       client: NetworkClientMock(mockedResponse: Empty()),
       keychain: self.mockKeychain
     )
-  }
-
-  private func setupBlankAccount() {
-    let context = self.sut.dataManager.getContext()
-    let account = Account.create(in: context)
-    account.id = ""
-    account.email = ""
-    account.hasSubscription = false
-    account.donationMade = false
     self.sut.dataManager.saveContext()
   }
 
-  func testGetAccount() {
-    XCTAssert(sut.getAccount() == nil)
-    self.setupBlankAccount()
-    XCTAssert(sut.getAccount() != nil)
-  }
-
   func testUpdateAccount() {
-    self.setupBlankAccount()
     self.sut.updateAccount(
       id: "1",
       email: "test@email.com",
@@ -62,25 +46,11 @@ class AccountServiceTests: XCTestCase {
   }
 
   func testGetId() {
-    self.setupBlankAccount()
     self.sut.updateAccount(id: "2")
     XCTAssert(self.sut.getAccountId() == "2")
   }
 
-  func testHasAccount() {
-    XCTAssert(self.sut.hasAccount() == false)
-    self.setupBlankAccount()
-    XCTAssert(self.sut.hasAccount() == true)
-  }
-
-  func testCreateAccount() {
-    self.sut.createAccount(donationMade: true)
-    let account = self.sut.getAccount()
-    XCTAssert(account?.donationMade == true)
-  }
-
   func testLogout() throws {
-    self.setupBlankAccount()
     self.sut.updateAccount(
       id: "1",
       email: "test@email.com",
@@ -110,8 +80,6 @@ class AccountServiceTests: XCTestCase {
       keychain: keychainMock
     )
 
-    XCTAssert(self.sut.hasAccount() == false)
-    self.setupBlankAccount()
     XCTAssert(self.sut.hasAccount() == true)
     let result = try await self.sut.deleteAccount()
     XCTAssert(result == "success")

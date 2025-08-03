@@ -45,8 +45,9 @@ class AccountServiceMock: AccountServiceProtocol {
     return self.account != nil
   }
 
-  func createAccount(donationMade: Bool) {
+  func createAccount(donationMade: Bool) -> BookPlayerKit.Account {
     self.account?.donationMade = donationMade
+    return self.account ?? BookPlayerKit.Account()
   }
 
   func setDelegate(_ delegate: PurchasesDelegate) { }

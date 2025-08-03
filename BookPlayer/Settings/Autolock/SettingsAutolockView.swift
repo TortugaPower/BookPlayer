@@ -44,7 +44,6 @@ struct SettingsAutolockView: View {
     }
     .scrollContentBackground(.hidden)
     .background(theme.systemGroupedBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
     .environmentObject(theme)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)

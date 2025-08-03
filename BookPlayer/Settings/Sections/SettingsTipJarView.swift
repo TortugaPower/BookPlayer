@@ -15,7 +15,7 @@ struct SettingsTipJarView: View {
   @State private var showConfetti: Bool = false
   @State private var showSuccessAlert: Bool = false
   @State private var showRestoredAlert = false
-  @State var loadingOverlay = LoadingOverlayState()
+  @State var loadingState = LoadingOverlayState()
   @Environment(\.accountService) var accountService
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var theme: ThemeViewModel
@@ -38,12 +38,7 @@ struct SettingsTipJarView: View {
             showConfetti = true
             showSuccessAlert = true
             BPSKANManager.updateConversionValue(.donation)
-            accountService.updateAccount(
-              id: nil,
-              email: nil,
-              donationMade: true,
-              hasSubscription: nil
-            )
+            accountService.updateAccount(donationMade: true)
           }
           .padding(.top, Spacing.M)
           HStack(spacing: 35) {
@@ -69,32 +64,16 @@ struct SettingsTipJarView: View {
       }
       .scrollIndicators(.hidden)
     }
-    .errorAlert(error: $loadingOverlay.error)
+    .errorAlert(error: $loadingState.error)
     .padding(.horizontal, Spacing.M)
     .background(theme.systemGroupedBackgroundColor)
-    .environment(\.loadingOverlay, loadingOverlay)
+    .environment(\.loadingState, loadingState)
     .navigationTitle("settings_tip_jar_title")
     .navigationBarTitleDisplayMode(.inline)
-    .overlay {
-      Group {
-        ZStack {
-          if showConfetti {
-            ConfettiView()
-          }
-          if loadingOverlay.show {
-            ProgressView()
-              .tint(.white)
-              .padding()
-              .background(
-                Color.black
-                  .opacity(0.9)
-                  .clipShape(RoundedRectangle(cornerRadius: 10))
-              )
-          }
-        }
-      }
-      .ignoresSafeArea()
-    }
+    .loadingOverlayWithConfetti(
+      loadingState.show,
+      showConfetti: showConfetti
+    )
     .alert(alertTitle, isPresented: $showSuccessAlert) {
       Button("ok_button", role: .cancel) {
         dismiss()
@@ -108,30 +87,12 @@ struct SettingsTipJarView: View {
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button("restore_title".localized) {
-          loadingOverlay.show = true
-          Task {
-            do {
-              let customerInfo = try await Purchases.shared.restorePurchases()
-
-              if customerInfo.nonSubscriptions.isEmpty {
-                loadingOverlay.show = false
-                throw "tip_missing_title".localized
-              }
-
-              loadingOverlay.show = false
-              showConfetti = true
-              showRestoredAlert = true
-
-              accountService.updateAccount(
-                id: nil,
-                email: nil,
-                donationMade: true,
-                hasSubscription: nil
-              )
-            } catch {
-              loadingOverlay.show = false
-              loadingOverlay.error = error
-            }
+          PurchasesManager.restoreTips(
+            loadingState: loadingState
+          ) {
+            accountService.updateAccount(donationMade: true)
+            showConfetti = true
+            showRestoredAlert = true
           }
         }
         .foregroundStyle(theme.linkColor)

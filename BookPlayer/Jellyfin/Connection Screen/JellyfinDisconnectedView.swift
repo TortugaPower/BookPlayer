@@ -43,7 +43,6 @@ struct JellyfinDisconnectedView: View {
       Text("jellyfin_section_server_url_footer".localized)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.secondarySystemBackgroundColor)
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focusedField = .serverUrl
