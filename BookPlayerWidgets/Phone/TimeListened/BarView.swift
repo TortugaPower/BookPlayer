@@ -33,9 +33,12 @@ struct BarView: View {
       VStack {
         ZStack(alignment: .bottom) {
           RoundedRectangle(cornerRadius: cornerRadius)
-            .frame(width: 20, height: 70).foregroundStyle(widgetColors.backgroundColor)
+            .frame(width: 20, height: 70)
+            .foregroundStyle(Color.clear)
           RoundedRectangle(cornerRadius: cornerRadius)
-            .frame(width: 20, height: derp).foregroundStyle(widgetColors.accentColor)
+            .frame(width: 20, height: derp)
+            .foregroundStyle(widgetColors.accentColor)
+            .widgetAccentable()
         }
       }
       Text("\(day)")
@@ -44,7 +47,6 @@ struct BarView: View {
         .padding(.bottom, 8)
         .accessibility(hidden: true)
     }
-    .background(widgetColors.backgroundColor)
     .frame(width: 40, height: 100)
     .accessibilityElement(children: .combine)
     .accessibilityValue("Hours, \(WidgetUtils.formatDate(date))")
