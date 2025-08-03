@@ -38,6 +38,7 @@ struct BookView: View {
             .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
             .aspectRatio(1.0, contentMode: .fit)
             .cornerRadius(8.0)
+            .bpWidgetAccentable()
         } else {
           Image(systemName: "photo.badge.exclamationmark.fill")
             .frame(width: 60, height: 60)
@@ -56,6 +57,7 @@ struct BookView: View {
             .aspectRatio(contentMode: .fit)
             .foregroundStyle(.black)
             .frame(width: 11, height: 11)
+            .widgetAccentable()
         }
       }
 
@@ -93,10 +95,12 @@ struct RecentBooksWidgetView: View {
           .frame(width: 28, height: 28)
           .padding([.trailing], 10)
           .cornerRadius(8.0)
+          .bpWidgetAccentable()
       }
       .padding([.leading])
       .padding([.trailing, .bottom], 5)
       .padding([.top], 8)
+      .widgetAccentable()
       HStack {
         ForEach(items, id: \.relativePath) { item in
           if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {

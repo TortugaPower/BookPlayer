@@ -522,6 +522,7 @@
 		63C48D462E3EA035005FBB96 /* AccountTermsConditionsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D452E3EA035005FBB96 /* AccountTermsConditionsSectionView.swift */; };
 		63C48D482E3EFD59005FBB96 /* AccountManageProSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D472E3EFD59005FBB96 /* AccountManageProSectionView.swift */; };
 		63C48D4A2E3F008F005FBB96 /* AccountPerksSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D492E3F008F005FBB96 /* AccountPerksSectionView.swift */; };
+		63C48D4E2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D4D2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift */; };
 		63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */; };
 		63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */; };
 		63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */; };
@@ -1382,6 +1383,7 @@
 		63C48D452E3EA035005FBB96 /* AccountTermsConditionsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTermsConditionsSectionView.swift; sourceTree = "<group>"; };
 		63C48D472E3EFD59005FBB96 /* AccountManageProSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManageProSectionView.swift; sourceTree = "<group>"; };
 		63C48D492E3F008F005FBB96 /* AccountPerksSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPerksSectionView.swift; sourceTree = "<group>"; };
+		63C48D4D2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRenderModeModifier.swift; sourceTree = "<group>"; };
 		63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockView.swift; sourceTree = "<group>"; };
 		63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockViewModel.swift; sourceTree = "<group>"; };
 		63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksStorage.swift; sourceTree = "<group>"; };
@@ -2585,6 +2587,7 @@
 				639720822CAB0C380045A4DB /* LastPlayedView.swift */,
 				639720892CAC5C870045A4DB /* LastPlayedModel.swift */,
 				639720712CAAF8290045A4DB /* LastPlayedProvider.swift */,
+				63C48D4D2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift */,
 			);
 			path = LastPlayed;
 			sourceTree = "<group>";
@@ -3972,6 +3975,7 @@
 				63E893962CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
+				63C48D4E2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift in Sources */,
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
 				630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */,
 				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,

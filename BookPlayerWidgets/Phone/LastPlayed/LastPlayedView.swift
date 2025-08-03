@@ -11,8 +11,9 @@ import SwiftUI
 import WidgetKit
 
 struct LastPlayedView: View {
-  @Environment(\.colorScheme) var colorScheme
   var model: LastPlayedModel
+
+  @Environment(\.colorScheme) var colorScheme
 
   func getArtworkView(for relativePath: String) -> some View {
     ZStack {
@@ -27,6 +28,7 @@ struct LastPlayedView: View {
         .frame(width: 90, height: 90)
         .aspectRatio(1.0, contentMode: .fit)
         .cornerRadius(8.0)
+        .bpWidgetAccentable()
       } else {
         Rectangle()
           .frame(width: 90, height: 90)
@@ -62,6 +64,7 @@ struct LastPlayedView: View {
                   .foregroundStyle(.black)
                   .frame(width: 11, height: 11)
                   .offset(x: model.isPlaying ? 0 : 1)
+                  .widgetAccentable()
               }
             }
             .buttonStyle(.plain)
@@ -75,6 +78,7 @@ struct LastPlayedView: View {
               .frame(width: 32, height: 32)
               .padding([.trailing], 10)
               .cornerRadius(8.0)
+              .bpWidgetAccentable()
             Spacer()
           }
         }
