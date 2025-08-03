@@ -43,12 +43,11 @@ struct ProfileView: View {
       .navigationBarTitleDisplayMode(.inline)
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
-      .listRowBackground(theme.secondarySystemBackgroundColor)
       .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationDestination(for: ProfileScreen.self) { destination in
         switch destination {
         case .account:
-          EmptyView()
+          AccountView()
         case .tasks:
           QueuedSyncTasksView()
         }

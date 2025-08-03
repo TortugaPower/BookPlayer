@@ -30,8 +30,7 @@ struct SettingsAppIconsView: View {
     .environment(\.loadingState, loadingState)
     .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
-    .background(theme.systemBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
+    .background(theme.systemGroupedBackgroundColor)
     .navigationTitle("settings_app_icon_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {

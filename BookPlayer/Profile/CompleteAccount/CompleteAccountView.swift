@@ -106,7 +106,7 @@ struct CompleteAccountView: View {
       }
     }
     .alert("pro_welcome_title", isPresented: $showSuccessAlert) {
-      Button("ok_title") {
+      Button("ok_button") {
         onDismiss()
       }
     } message: {

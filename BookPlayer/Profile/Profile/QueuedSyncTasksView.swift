@@ -26,7 +26,6 @@ struct QueuedSyncTasksView: View {
             imageName: .constant(parseImageName(job.jobType)),
             title: .constant(job.relativePath)
           )
-          .listRowBackground(theme.secondarySystemBackgroundColor)
         }
       } header: {
         if !allowsCellularData {
@@ -46,6 +45,9 @@ struct QueuedSyncTasksView: View {
         }
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemGroupedBackgroundColor)
+    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("tasks_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("", isPresented: $showInfoAlert) {

@@ -90,8 +90,7 @@ struct SettingsThemesView: View {
     .environment(\.loadingState, loadingState)
     .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
-    .background(theme.systemBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
+    .background(theme.systemGroupedBackgroundColor)
     .navigationTitle("themes_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {

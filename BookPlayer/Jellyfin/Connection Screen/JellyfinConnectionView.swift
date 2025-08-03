@@ -54,7 +54,6 @@ struct JellyfinConnectionView: View {
     }
     .scrollContentBackground(.hidden)
     .background(theme.systemGroupedBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
     .errorAlert(error: $error)
     .overlay {
       Group {

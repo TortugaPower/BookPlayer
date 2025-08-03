@@ -61,7 +61,6 @@ struct SettingsView: View {
       .contentMargins(.top, Spacing.S1, for: .scrollContent)
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
-      .listRowBackground(theme.secondarySystemBackgroundColor)
       .safeAreaInset(edge: .bottom) {
         Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
       }

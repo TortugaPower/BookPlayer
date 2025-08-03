@@ -34,7 +34,6 @@ struct ItemDetailsHardcoverSectionView: View {
       )
       .accessibilityHint("voiceover_hardcover_navigation_hint".localized)
     }
-    .listRowBackground(themeViewModel.secondarySystemBackgroundColor)
   }
 }
 
