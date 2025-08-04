@@ -178,7 +178,9 @@ class JellyfinConnectionService: BPLogger {
       filePath: filePath,
       fileSize: fileSize,
       overview: itemInfo.overview,
-      runtimeInSeconds: runtimeInSeconds
+      runtimeInSeconds: runtimeInSeconds,
+      genres: itemInfo.genres,
+      tags: itemInfo.tags
     )
   }
 

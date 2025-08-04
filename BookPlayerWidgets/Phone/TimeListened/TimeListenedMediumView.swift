@@ -23,9 +23,10 @@ struct TimeListenedMediumView: View {
 
     let url = WidgetUtils.getWidgetActionURL(with: nil, autoplay: entry.autoplay, timerSeconds: entry.timerSeconds)
 
-    let maxTime = entry.playbackRecords.max { (record1, record2) -> Bool in
-      record1.time < record2.time
-    }?.time ?? 0
+    let maxTime =
+      entry.playbackRecords.max { (record1, record2) -> Bool in
+        record1.time < record2.time
+      }?.time ?? 0
 
     let totalTime = entry.playbackRecords.reduce(0) { $0 + $1.time }
     let formattedTotalTime = WidgetUtils.formatTime(totalTime)
@@ -43,7 +44,9 @@ struct TimeListenedMediumView: View {
           .frame(width: 28, height: 28)
           .padding([.trailing], 10)
           .cornerRadius(8.0)
+          .bpWidgetAccentable()
       }
+      .widgetAccentable()
       .padding([.leading])
       .padding([.trailing], 5)
       .padding([.top], 7)
@@ -53,7 +56,13 @@ struct TimeListenedMediumView: View {
       HStack(alignment: .center, spacing: 11) {
         Group {
           ForEach(entry.playbackRecords, id: \.self) { record in
-            BarView(currentTime: record.time, date: record.date, maxTime: maxTime, cornerRadius: CGFloat(integerLiteral: 7), widgetColors: widgetColors)
+            BarView(
+              currentTime: record.time,
+              date: record.date,
+              maxTime: maxTime,
+              cornerRadius: CGFloat(integerLiteral: 7),
+              widgetColors: widgetColors
+            )
           }
         }
         .frame(width: 20)
@@ -62,6 +71,7 @@ struct TimeListenedMediumView: View {
             .fontWeight(.semibold)
             .foregroundStyle(widgetColors.primaryColor)
             .accessibility(label: Text("Total Listened Time in the last 7 days."))
+            .widgetAccentable()
           Text("\(formattedTotalTime)")
             .foregroundStyle(widgetColors.primaryColor)
             .font(.footnote)
@@ -71,6 +81,7 @@ struct TimeListenedMediumView: View {
             Text("Last Book")
               .fontWeight(.semibold)
               .foregroundStyle(widgetColors.primaryColor)
+              .widgetAccentable()
             Text("\(titleLabel)")
               .foregroundStyle(widgetColors.primaryColor)
               .font(.footnote)
@@ -80,10 +91,11 @@ struct TimeListenedMediumView: View {
           Spacer()
         }
         .padding([.leading, .trailing], 5)
-      }.animation(.default)
-        .padding([.leading])
-        .padding([.trailing], 5)
-        .padding([.bottom], 5)
+      }
+      .animation(.default)
+      .padding([.leading])
+      .padding([.trailing], 5)
+      .padding([.bottom], 5)
     }
     .widgetBackground(backgroundView: widgetColors.backgroundColor)
     .widgetURL(url)
@@ -92,13 +104,15 @@ struct TimeListenedMediumView: View {
 
 struct TimeListenedMediumView_Previews: PreviewProvider {
   static var previews: some View {
-    TimeListenedMediumView(entry: TimeListenedEntry(
-      date: Date(),
-      title: nil,
-      timerSeconds: 300,
-      autoplay: true,
-      playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)
-    ))
+    TimeListenedMediumView(
+      entry: TimeListenedEntry(
+        date: Date(),
+        title: nil,
+        timerSeconds: 300,
+        autoplay: true,
+        playbackRecords: WidgetUtils.getTestDataPlaybackRecords(.systemMedium)
+      )
+    )
     .previewContext(WidgetPreviewContext(family: .systemMedium))
   }
 }

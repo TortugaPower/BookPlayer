@@ -22,8 +22,7 @@ struct JellyfinConnectionView: View {
   @State private var isLoading = false
   @State private var error: Error?
 
-  /// Theme view model to update colors
-  @StateObject var theme = ThemeViewModel()
+  @EnvironmentObject var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
 
@@ -35,33 +34,26 @@ struct JellyfinConnectionView: View {
           serverUrl: $viewModel.form.serverUrl,
           onCommit: onConnect
         )
-        .environmentObject(theme)
       case .foundServer:
         JellyfinServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        .environmentObject(theme)
         JellyfinServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
           onCommit: onSignIn
         )
-        .environmentObject(theme)
       case .connected:
         JellyfinServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        .environmentObject(theme)
         JellyfinConnectedView(viewModel: viewModel)
-          .environmentObject(theme)
       }
     }
     .scrollContentBackground(.hidden)
     .background(theme.systemGroupedBackgroundColor)
-    .listRowBackground(theme.secondarySystemBackgroundColor)
-    .environmentObject(theme)
     .errorAlert(error: $error)
     .overlay {
       Group {
@@ -178,6 +170,7 @@ struct JellyfinConnectionView: View {
     navigation: BPNavigation()
   )
   JellyfinConnectionView(viewModel: viewModel)
+    .environmentObject(ThemeViewModel())
 }
 
 #Preview("found server") {
@@ -192,6 +185,7 @@ struct JellyfinConnectionView: View {
     return viewModel
   }()
   JellyfinConnectionView(viewModel: viewModel)
+    .environmentObject(ThemeViewModel())
 }
 
 #Preview("connected") {
@@ -208,4 +202,5 @@ struct JellyfinConnectionView: View {
     return viewModel
   }()
   JellyfinConnectionView(viewModel: viewModel)
+    .environmentObject(ThemeViewModel())
 }

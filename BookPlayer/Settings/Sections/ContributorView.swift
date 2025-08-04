@@ -35,6 +35,7 @@ struct ContributorView: View {
       }
     }
     .buttonStyle(.plain)
+    .accessibilityLabel(contributor.login)
   }
 }
 

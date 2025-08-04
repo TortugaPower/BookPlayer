@@ -32,6 +32,5 @@ struct JellyfinServerInformationSectionView: View {
       Text("jellyfin_section_server".localized)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }

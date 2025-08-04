@@ -24,7 +24,6 @@ struct JellyfinConnectedView: View {
       Text("jellyfin_section_login".localized)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.secondarySystemBackgroundColor)
 
     Section {
       Button("logout_title".localized, role: .destructive) {
@@ -33,6 +32,5 @@ struct JellyfinConnectedView: View {
       .frame(maxWidth: .infinity)
       .foregroundStyle(.red)
     }
-    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }

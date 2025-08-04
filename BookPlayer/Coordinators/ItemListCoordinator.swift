@@ -77,8 +77,13 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func showQueuedTasks() {
-    let viewModel = QueuedSyncTasksViewModel(syncService: syncService)
-    let vc = QueuedSyncTasksViewController(viewModel: viewModel)
+    // swiftlint:disable force_cast
+    let vc = UIHostingController(
+      rootView: QueuedSyncTasksView()
+        .environmentObject(ThemeViewModel())
+        .environment(\.syncService, syncService as! SyncService)
+    )
+    // swiftlint:enable force_cast
     let nav = AppNavigationController(rootViewController: vc)
     flow.navigationController.present(nav, animated: true)
   }

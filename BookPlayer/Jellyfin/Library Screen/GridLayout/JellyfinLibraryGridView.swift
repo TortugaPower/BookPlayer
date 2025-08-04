@@ -103,7 +103,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
 
 #Preview("top level") {
   let model = {
-    var model = MockJellyfinLibraryViewModel(data: .topLevel(libraryName: "Mock Library"))
+    let model = MockJellyfinLibraryViewModel(data: .topLevel(libraryName: "Mock Library"))
     model.items = [
       JellyfinLibraryItem(id: "0.0", name: "subfolder", kind: .folder),
       JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),
@@ -139,7 +139,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
 #Preview("folder") {
   let model = {
     let topLevelFolder = JellyfinLibraryItem(id: "0", name: "some folder", kind: .folder)
-    var model = MockJellyfinLibraryViewModel(data: .folder(data: topLevelFolder))
+    let model = MockJellyfinLibraryViewModel(data: .folder(data: topLevelFolder))
     model.items = [
       JellyfinLibraryItem(id: "0.0", name: "subfolder", kind: .folder),
       JellyfinLibraryItem(id: "0.1", name: "book", kind: .audiobook),
