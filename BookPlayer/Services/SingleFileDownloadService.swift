@@ -6,18 +6,17 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import Combine
 import BookPlayerKit
+import Combine
 
-class SingleFileDownloadService
-{
+final class SingleFileDownloadService: ObservableObject {
   public enum ErrorKind: Error {
     case general
     case network
   }
   public enum Events {
     case starting(url: URL)
-    case progress(task: URLSessionTask, progress: Double) // (0..1)
+    case progress(task: URLSessionTask, progress: Double)  // (0..1)
     case finished(task: URLSessionTask)
     case error(ErrorKind, task: URLSessionTask, underlyingError: Error?)
   }
@@ -73,7 +72,7 @@ class SingleFileDownloadService
   private func processNextDownload() {
     Task { @MainActor in
       guard currentTask == nil, !downloadQueue.isEmpty else { return }
-      
+
       let downloadItem = downloadQueue.removeFirst()
       sendEvent(.starting(url: downloadItem.url))
 
@@ -100,7 +99,7 @@ class SingleFileDownloadService
       } else if let fileURL {
         self.handleSingleDownloadTaskFinished(task, fileURL: fileURL)
       }
-      
+
       if task === self.currentTask?.task {
         Task { @MainActor in
           self.currentTask = nil
@@ -111,15 +110,16 @@ class SingleFileDownloadService
   }
 
   private func handleSingleDownloadTaskFinished(_ task: URLSessionTask, fileURL: URL) {
-    let filename = task.response?.suggestedFilename
-    ?? task.originalRequest?.url?.lastPathComponent
-    ?? fileURL.lastPathComponent
+    let filename =
+      task.response?.suggestedFilename
+      ?? task.originalRequest?.url?.lastPathComponent
+      ?? fileURL.lastPathComponent
 
     var destinationURL: URL
     if let folderName = currentTask?.folderName {
       let folderURL = DataManager.getDocumentsFolderURL().appendingPathComponent(folderName)
       destinationURL = folderURL.appendingPathComponent(filename)
-      
+
       do {
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
       } catch {

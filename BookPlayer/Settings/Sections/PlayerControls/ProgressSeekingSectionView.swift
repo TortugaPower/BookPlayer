@@ -21,7 +21,6 @@ struct ProgressSeekingSectionView: View {
         .onChange(of: seekEnabled) {
           MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = seekEnabled
         }
-        .tint(theme.linkColor)
     } footer: {
       Text("settings_seekprogressbar_description")
         .foregroundStyle(theme.secondaryColor)

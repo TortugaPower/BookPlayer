@@ -17,7 +17,6 @@ struct GlobalSpeedSectionView: View {
   var body: some View {
     Section {
       Toggle("settings_globalspeed_title", isOn: $globalSpeedEnabled)
-        .tint(theme.linkColor)
     } footer: {
       Text("settings_globalspeed_description")
         .foregroundStyle(theme.secondaryColor)

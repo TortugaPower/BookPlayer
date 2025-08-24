@@ -118,7 +118,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService
       )
-      let playbackService = PlaybackService(libraryService: libraryService)
+      let playbackService = PlaybackService()
+      playbackService.setup(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
@@ -132,7 +133,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let playerLoaderService = PlayerLoaderService(
+      let playerLoaderService = PlayerLoaderService()
+      playerLoaderService.setup(
         syncService: syncService,
         libraryService: libraryService,
         playbackService: playbackService,

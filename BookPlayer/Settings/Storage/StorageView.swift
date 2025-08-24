@@ -11,7 +11,7 @@ import SwiftUI
 
 struct StorageView<Model: StorageViewModelProtocol>: View {
 
-  @StateObject var theme = ThemeViewModel()
+  @EnvironmentObject var theme: ThemeViewModel
   @ObservedObject var viewModel: Model
 
   var body: some View {
@@ -82,7 +82,6 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
       }
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
-      .environmentObject(theme)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

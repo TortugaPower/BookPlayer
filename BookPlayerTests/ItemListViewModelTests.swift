@@ -14,7 +14,7 @@ import Combine
 import XCTest
 
 class ItemListViewModelTests: XCTestCase {
-  var sut: ItemListViewModel!
+  var sut: ItemListUIViewModel!
   var subscription: AnyCancellable?
   var dataManager: DataManager!
 
@@ -29,7 +29,7 @@ class ItemListViewModelTests: XCTestCase {
     hardcoverService.setup(libraryService: libraryService)
     let syncServiceMock = SyncServiceProtocolMock()
 
-    self.sut = ItemListViewModel(
+    self.sut = ItemListUIViewModel(
       folderRelativePath: nil,
       playerManager: playerManagerMock,
       singleFileDownloadService: singleFileDownloadService,
@@ -39,7 +39,8 @@ class ItemListViewModelTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService), 
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        syncService: syncServiceMock
+        syncService: syncServiceMock,
+        playerLoaderService: PlayerLoaderService()
       ),
       hardcoverService: hardcoverService,
       themeAccent: .blue

@@ -35,15 +35,10 @@ struct ProfileView: View {
           ProfileProCalloutSectionView(action: showLoginOrAccount)
         }
       }
-      .safeAreaInset(edge: .bottom) {
-        Spacer().frame(height: playerState.isBookLoaded ? 96 : Spacing.M)
-      }
-      .contentMargins(.top, Spacing.S1, for: .scrollContent)
+      .miniPlayerSafeAreaInset()
+      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
       .navigationTitle("profile_title")
       .navigationBarTitleDisplayMode(.inline)
-      .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
-      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationDestination(for: ProfileScreen.self) { destination in
         switch destination {
         case .account:

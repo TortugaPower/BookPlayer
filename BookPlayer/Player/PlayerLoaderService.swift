@@ -13,15 +13,18 @@
 #endif
 import Foundation
 
+@Observable
 final class PlayerLoaderService: @unchecked Sendable {
-  var syncService: SyncServiceProtocol
-  var libraryService: LibraryServiceProtocol
-  var playbackService: PlaybackServiceProtocol
-  var playerManager: PlayerManagerProtocol
+  var syncService: SyncService!
+  var libraryService: LibraryService!
+  var playbackService: PlaybackServiceProtocol!
+  var playerManager: PlayerManagerProtocol!
 
-  init(
-    syncService: SyncServiceProtocol,
-    libraryService: LibraryServiceProtocol,
+  init() {}
+
+  func setup(
+    syncService: SyncService,
+    libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
     playerManager: PlayerManagerProtocol
   ) {

@@ -58,12 +58,8 @@ struct SettingsView: View {
       .environment(\.loadingState, loadingState)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
-      .contentMargins(.top, Spacing.S1, for: .scrollContent)
-      .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
-      }
+      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+      .miniPlayerSafeAreaInset(88)
       .sheet(isPresented: $showMailModal) {
         SettingsMailView(
           recipients: [supportEmail],
@@ -82,7 +78,6 @@ struct SettingsView: View {
       } message: {
         Text(debugInfoDescription)
       }
-      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
@@ -140,9 +135,7 @@ struct SettingsView: View {
 
         return
           view
-          .safeAreaInset(edge: .bottom) {
-            Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
-          }
+          .miniPlayerSafeAreaInset()
       }
       .sheet(isPresented: $showLogin) {
         NavigationStack {

@@ -38,4 +38,8 @@ public extension UserDefaults {
   @objc dynamic var userSettingsForwardInterval: TimeInterval {
     return double(forKey: Constants.UserDefaults.forwardInterval)
   }
+
+  @objc dynamic var userSettingsOrientationLock: Bool {
+    return bool(forKey: Constants.UserDefaults.orientationLock)
+  }
 }

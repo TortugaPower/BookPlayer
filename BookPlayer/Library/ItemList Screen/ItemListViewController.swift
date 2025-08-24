@@ -14,7 +14,7 @@ import Themeable
 import UIKit
 
 class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
-  var viewModel: ItemListViewModel!
+  var viewModel: ItemListUIViewModel!
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
   @IBOutlet weak var emptyStateImageView: UIImageView!

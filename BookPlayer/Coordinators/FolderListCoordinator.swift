@@ -43,7 +43,7 @@ class FolderListCoordinator: ItemListCoordinator {
 
   override func start() {
     let vc = ItemListViewController.instantiate(from: .Main)
-    let viewModel = ItemListViewModel(
+    let viewModel = ItemListUIViewModel(
       folderRelativePath: self.folderRelativePath,
       playerManager: self.playerManager,
       singleFileDownloadService: self.singleFileDownloadService,

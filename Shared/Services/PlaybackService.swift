@@ -29,10 +29,13 @@ public protocol PlaybackServiceProtocol {
   func processFoldersStaleProgress() -> Bool
 }
 
+@Observable
 public final class PlaybackService: PlaybackServiceProtocol {
-  let libraryService: LibraryServiceProtocol
+  var libraryService: LibraryServiceProtocol!
 
-  public init(libraryService: LibraryServiceProtocol) {
+  public init() {}
+
+  public func setup(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
   }
 

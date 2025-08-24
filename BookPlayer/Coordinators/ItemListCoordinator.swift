@@ -179,10 +179,7 @@ extension ItemListCoordinator {
   }
 
   func showJellyfinDownloader() {
-    let view = JellyfinRootView(
-      connectionService: jellyfinConnectionService,
-      singleFileDownloadService: singleFileDownloadService
-    )
+    let view = JellyfinRootView(connectionService: jellyfinConnectionService)
 
     let vc = UIHostingController(rootView: view)
     vc.modalPresentationStyle = .pageSheet
@@ -216,29 +213,6 @@ extension ItemListCoordinator {
   }
 
   func showItemDetails(_ item: SimpleLibraryItem) {
-    let viewModel = ItemDetailsViewModel(
-      item: item,
-      hardcoverService: hardcoverService,
-      libraryService: libraryService,
-      syncService: syncService
-    )
-    let vc = ItemDetailsViewController(viewModel: viewModel)
-    viewModel.onTransition = { [vc] route in
-      switch route {
-      case .done:
-        self.reloadItemsWithPadding()
-      case .cancel:
-        /// do nothing on cancel
-        break
-      }
-      vc.dismiss(animated: true)
-    }
-
-    vc.navigationItem.largeTitleDisplayMode = .never
-    let nav = AppNavigationController.instantiate(from: .Main)
-    nav.viewControllers = [vc]
-
-    flow.navigationController.present(nav, animated: true, completion: nil)
   }
 
   func showItemSelectionScreen(

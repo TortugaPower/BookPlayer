@@ -14,7 +14,8 @@ import Foundation
  Handles the creation of ImportOperation objects.
  It waits a specified time wherein new files may be added before the operation is created
  */
-final class ImportManager {
+
+final class ImportManager: ObservableObject {
   let queue = OperationQueue()
   private let libraryService: LibraryServiceProtocol
   private let timeout = 2.0
@@ -86,5 +87,60 @@ final class ImportManager {
 
   public func start(_ operation: Operation) {
     self.queue.addOperation(operation)
+  }
+
+  @MainActor
+  public func notifyPendingFiles() {
+    // Get reference of all the files located inside the Documents, Shared and Inbox folders
+    let documentsURLs =
+      ((try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getDocumentsFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? [])
+      .filter {
+        $0.lastPathComponent != DataManager.processedFolderName
+          && $0.lastPathComponent != DataManager.inboxFolderName
+          && $0.lastPathComponent != DataManager.backupFolderName
+          && $0.lastPathComponent != DataManager.trashFolderName
+      }
+
+    let sharedURLs =
+      (try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getSharedFilesFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? []
+
+    let inboxURLs =
+      (try? FileManager.default.contentsOfDirectory(
+        at: DataManager.getInboxFolderURL(),
+        includingPropertiesForKeys: nil,
+        options: .skipsSubdirectoryDescendants
+      )) ?? []
+
+    let urls = documentsURLs + sharedURLs + inboxURLs
+
+    guard !urls.isEmpty else { return }
+
+    processFiles(urls: urls)
+  }
+
+  private func processFiles(urls: [URL]) {
+    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
+    for url in urls {
+      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
+      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
+      if url.absoluteString.contains(temporaryDirectoryPath) {
+        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+        if !FileManager.default.fileExists(atPath: destinationURL.path) {
+          try! FileManager.default.copyItem(at: url, to: destinationURL)
+        }
+      } else {
+        process(url)
+      }
+    }
   }
 }

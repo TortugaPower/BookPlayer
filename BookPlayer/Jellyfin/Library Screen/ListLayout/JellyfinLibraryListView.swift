@@ -13,12 +13,8 @@ struct JellyfinLibraryListView<Model: JellyfinLibraryViewModelProtocol>: View {
 
   var body: some View {
     List(viewModel.items, selection: $viewModel.selectedItems) { item in
-      if #available(iOS 17.0, *) {
-        row(item: item)
-          .selectionDisabled(item.kind != .audiobook)
-      } else {
-        row(item: item)
-      }
+      row(item: item)
+        .selectionDisabled(item.kind != .audiobook)
     }
   }
 

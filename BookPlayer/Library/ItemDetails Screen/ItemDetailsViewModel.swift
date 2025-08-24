@@ -2,27 +2,24 @@
 //  ItemDetailsViewModel.swift
 //  BookPlayer
 //
-//  Created by gianni.carlo on 5/12/22.
+//  Created by gianni.carlo on 20/12/22.
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
 import Combine
 import Foundation
+import UIKit
 
-class ItemDetailsViewModel: ViewModelProtocol {
-  /// Possible routes for the screen
-  enum Routes {
-    case cancel
-    case done
+final class ItemDetailsViewModel: ObservableObject {
+  struct HardcoverAlertPayload: Identifiable {
+    var id = UUID()
+    let book: SimpleHardcoverBook
+    let newSelection: HardcoverBookRow.Model?
   }
 
-  enum Events {
-    case showAlert(content: BPAlertContent)
-    case showLoader(flag: Bool)
-  }
-
-  weak var coordinator: ItemListCoordinator!
+  @Published var showHardcoverRemovalAlert = false
+  @Published var hardcoverAlertPayload: HardcoverAlertPayload?
 
   /// Item being modified
   let item: SimpleLibraryItem
@@ -32,51 +29,80 @@ class ItemDetailsViewModel: ViewModelProtocol {
   let syncService: SyncServiceProtocol
   /// Hardcover service for managing assignments
   let hardcoverService: HardcoverServiceProtocol
-  /// View model for the SwiftUI form
-  let formViewModel: ItemDetailsFormViewModel
-  /// Callback to handle actions on this screen
-  public var onTransition: BPTransition<Routes>?
 
-  private var eventsPublisher = InterfaceUpdater<ItemDetailsViewModel.Events>()
+  let reloadCenter: ListReloadCenter
 
   private var hardcoverBook: SimpleHardcoverBook?
-  private var disposeBag = Set<AnyCancellable>()
 
-  /// Initializer
+  /// File name
+  @Published var originalFileName: String
+  /// Title of the item
+  @Published var title: String
+  /// Author of the item (only applies for books)
+  @Published var author: String
+  /// Artwork image
+  @Published var selectedImage: UIImage?
+  /// Last played date
+  let lastPlayedDate: String?
+  /// Original item title
+  var titlePlaceholder: String { item.title }
+  /// Original item author
+  var authorPlaceholder: String { item.details }
+
+  var progress: Double { item.progress }
+  /// Determines if there's an update for the artwork
+  var artworkIsUpdated: Bool = false
+  /// Flag to show the author field
+  var showAuthor: Bool { item.type == .book }
+
+  @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
+
   init(
     item: SimpleLibraryItem,
+    libraryService: LibraryService,
+    syncService: SyncService,
     hardcoverService: HardcoverServiceProtocol,
-    libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol
+    reloadCenter: ListReloadCenter
   ) {
-    self.item = item
-    self.libraryService = libraryService
-    self.syncService = syncService
-    self.hardcoverService = hardcoverService
+    let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
+
     /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.lastPlayDate)
     let lastPlayedDate =
       libraryService.getItemProperty(
         "lastPlayDate",
         relativePath: item.relativePath
       ) as? Date
-    self.formViewModel = ItemDetailsFormViewModel(
+
+    let playedDate: String?
+    if let lastPlayedDate {
+      let formatter = DateFormatter()
+      formatter.timeStyle = .short
+      formatter.dateStyle = .medium
+      playedDate = formatter.string(from: lastPlayedDate)
+    } else {
+      playedDate = nil
+    }
+
+    self.item = item
+    self.libraryService = libraryService
+    self.syncService = syncService
+    self.hardcoverService = hardcoverService
+    self.reloadCenter = reloadCenter
+    self.originalFileName = item.originalFileName
+    self.title = item.title
+    self.author = item.details
+    self.selectedImage = UIImage(contentsOfFile: cachedImageURL.path)
+    self.lastPlayedDate = playedDate
+
+    hardcoverSectionViewModel = ItemDetailsHardcoverSectionViewModel(
       item: item,
-      lastPlayedDate: lastPlayedDate,
       hardcoverService: hardcoverService
     )
 
-    loadHardcoverBook()
-  }
-
-  func observeEvents() -> AnyPublisher<ItemDetailsViewModel.Events, Never> {
-    eventsPublisher.eraseToAnyPublisher()
-  }
-
-  func loadHardcoverBook() {
     Task {
       if let item = await libraryService.getHardcoverBook(for: item.relativePath) {
         hardcoverBook = item
-        formViewModel.hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+        hardcoverSectionViewModel?.pickerViewModel.selected = .init(
           id: item.id,
           artworkURL: item.artworkURL,
           title: item.title,
@@ -86,61 +112,61 @@ class ItemDetailsViewModel: ViewModelProtocol {
     }
   }
 
-  func handleCancelAction() {
-    onTransition?(.cancel)
-  }
-
-  func handleSaveAction() {
-    Task { @MainActor [weak self] in
-      guard let self = self else { return }
-
-      self.sendEvent(.showLoader(flag: true))
+  func handleSaveAction(_ loadingState: LoadingOverlayState, success: @escaping () -> Void) {
+    Task { @MainActor in
+      loadingState.show = true
 
       let cacheKey: String
 
       do {
-        cacheKey = try updateTitle(formViewModel.title, relativePath: item.relativePath)
+        cacheKey = try updateTitle(title.trimmingCharacters(in: .whitespacesAndNewlines), relativePath: item.relativePath)
       } catch {
-        self.sendEvent(.showLoader(flag: false))
-        sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
+        loadingState.show = false
+        loadingState.error = error
         return
       }
 
-      if formViewModel.showAuthor {
-        updateAuthor(formViewModel.author, relativePath: item.relativePath)
+      if showAuthor {
+        updateAuthor(author, relativePath: item.relativePath)
       }
 
-      if let pickerViewModel = formViewModel.hardcoverSectionViewModel?.pickerViewModel,
+      if let pickerViewModel = hardcoverSectionViewModel?.pickerViewModel,
         pickerViewModel.selected?.id != hardcoverBook?.id
       {
 
         if let currentBook = hardcoverBook, currentBook.userBookID != nil {
-          self.sendEvent(.showLoader(flag: false))
-          showHardcoverRemovalConfirmation(for: currentBook, newSelection: pickerViewModel.selected)
+          loadingState.show = false
+          hardcoverAlertPayload = .init(
+            book: currentBook,
+            newSelection: pickerViewModel.selected
+          )
+          showHardcoverRemovalAlert = true
           return
         }
 
         await assignNewSelection(pickerViewModel.selected)
       }
 
-      guard formViewModel.artworkIsUpdated else {
-        self.sendEvent(.showLoader(flag: false))
-        onTransition?(.done)
+      guard artworkIsUpdated else {
+        loadingState.show = false
+        reloadCenter.reload(.path(item.parentFolder ?? ""))
+        success()
         return
       }
 
-      guard let imageData = formViewModel.selectedImage?.jpegData(compressionQuality: 0.3) else {
-        self.sendEvent(.showLoader(flag: false))
-        sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: "Failed to process artwork")))
+      guard let imageData = selectedImage?.jpegData(compressionQuality: 0.3) else {
+        loadingState.show = false
+        loadingState.error = BookPlayerError.runtimeError("Failed to process artwork")
         return
       }
 
       await ArtworkService.removeCache(for: item.relativePath)
       await ArtworkService.storeInCache(imageData, for: cacheKey)
-      self.syncService.scheduleUploadArtwork(relativePath: cacheKey)
+      syncService.scheduleUploadArtwork(relativePath: cacheKey)
 
-      self.sendEvent(.showLoader(flag: false))
-      self.onTransition?(.done)
+      loadingState.show = false
+      reloadCenter.reload(.path(item.parentFolder ?? ""))
+      success()
     }
   }
 
@@ -156,7 +182,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
     let storedTitle =
       libraryService.getItemProperty(
-        #keyPath(LibraryItem.title),
+        "title",
         relativePath: relativePath
       ) as? String
 
@@ -184,7 +210,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
 
     let storedDetails =
       libraryService.getItemProperty(
-        #keyPath(LibraryItem.details),
+        "title",
         relativePath: relativePath
       ) as? String
 
@@ -193,53 +219,7 @@ class ItemDetailsViewModel: ViewModelProtocol {
     libraryService.updateDetails(at: relativePath, details: cleanedAuthor)
   }
 
-  private func sendEvent(_ event: ItemDetailsViewModel.Events) {
-    eventsPublisher.send(event)
-  }
-
-  private func showHardcoverRemovalConfirmation(for book: SimpleHardcoverBook, newSelection: HardcoverBookRow.Model?) {
-    let keepItAction = BPActionItem(
-      title: "hardcover_remove_keep_it".localized,
-      style: .default
-    ) { [weak self] in
-      Task { [weak self] in
-        await self?.assignNewSelection(newSelection)
-        self?.handleSaveAction()
-      }
-    }
-
-    let removeItAction = BPActionItem(
-      title: "hardcover_remove_remove_it".localized,
-      style: .destructive
-    ) { [weak self] in
-      guard let self = self else { return }
-
-      Task { @MainActor [weak self] in
-        guard let self = self else { return }
-
-        do {
-          try await self.hardcoverService.removeFromLibrary(book)
-          await self.assignNewSelection(newSelection)
-          self.handleSaveAction()
-        } catch {
-          self.sendEvent(.showAlert(content: BPAlertContent.errorAlert(message: error.localizedDescription)))
-        }
-      }
-    }
-
-    let message = String(format: "hardcover_remove_confirmation_message".localized, book.title, book.author)
-
-    let alertContent = BPAlertContent(
-      title: "hardcover_remove_confirmation_title".localized,
-      message: message,
-      style: .alert,
-      actionItems: [keepItAction, removeItAction]
-    )
-
-    sendEvent(.showAlert(content: alertContent))
-  }
-
-  private func assignNewSelection(
+  func assignNewSelection(
     _ newSelection: HardcoverBookRow.Model?
   ) async {
     if let selected = newSelection {

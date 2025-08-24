@@ -15,40 +15,63 @@ struct ItemDetailsArtworkSectionView: View {
   /// Callback for action handler
   var actionHandler: () -> Void
   /// Theme view model to update colors
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section(
-      header: HStack {
-        Text("artwork_title".localized)
-          .foregroundStyle(themeViewModel.secondaryColor)
-        Spacer()
-        Button(action: actionHandler) {
-          if image != nil {
-            Text("update_title".localized)
-          } else {
-            Text("library_add_button".localized)
-          }
+    Section {
+      HStack {
+        if let image = image {
+          Image(uiImage: image)
+            .resizable()
+            .cornerRadius(4)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 100, height: 100)
+        } else if let defaultArtwork = theme.defaultArtwork {
+          defaultArtwork
+            .resizable()
+            .cornerRadius(4)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 100, height: 100)
         }
-        .foregroundStyle(themeViewModel.linkColor)
+        Spacer()
+
+        Button(
+          "update_title",
+          systemImage: "plus",
+          action: actionHandler
+        )
+        .labelStyle(.vertical)
+        .buttonStyle(.plain)
+        .imageScale(.large)
+        .foregroundStyle(theme.linkColor)
+        Spacer()
+        Spacer()
+          .frame(width: 0.5, height: 45)
+          .background(theme.secondaryColor.opacity(0.5))
+        Spacer()
+        Button("delete_button", systemImage: "trash", role: .destructive) {
+          image = theme.defaultUIArtwork
+        }
+        .labelStyle(.vertical)
+        .buttonStyle(.plain)
+        .imageScale(.large)
+        .foregroundStyle(.red)
+        Spacer()
       }
-    ) {
-      if let image = image {
-        Image(uiImage: image)
-          .resizable()
-          .cornerRadius(4)
-          .aspectRatio(contentMode: .fit)
-      }
+    } header: {
+      Text("artwork_title")
+        .foregroundStyle(theme.secondaryColor)
     }
   }
 }
 
-struct ItemDetailsArtworkSectionView_Previews: PreviewProvider {
-  static var previews: some View {
-    ItemDetailsArtworkSectionView(
-      image: .constant(nil),
-      actionHandler: {}
-    )
-    .environmentObject(ThemeViewModel())
+#Preview {
+  @Previewable var artwork: UIImage?
+
+  Form {
+    ItemDetailsArtworkSectionView(image: .constant(artwork)) {
+      print("Action")
+    }
   }
+  .environmentObject(ThemeViewModel())
 }

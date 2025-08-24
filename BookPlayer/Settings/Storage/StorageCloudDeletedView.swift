@@ -11,7 +11,7 @@ import SwiftUI
 
 struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: View {
 
-  @StateObject var theme = ThemeViewModel()
+  @EnvironmentObject var theme: ThemeViewModel
   @ObservedObject var viewModel: Model
 
   var body: some View {
@@ -74,7 +74,6 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
       }
       .scrollContentBackground(.hidden)
       .background(theme.systemGroupedBackgroundColor)
-      .environmentObject(theme)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

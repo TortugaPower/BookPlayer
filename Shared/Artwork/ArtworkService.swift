@@ -75,16 +75,20 @@ public class ArtworkService {
 
   public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
     self.cache.storeToDisk(data, forKey: relativePath) { _ in
-      artworkUpdatePublisher.send(relativePath)
-      completionHandler?()
+      DispatchQueue.main.async {
+        artworkUpdatePublisher.send(relativePath)
+        completionHandler?()
+      }
     }
   }
 
   public class func storeInCache(_ data: Data, for relativePath: String) async {
     await withCheckedContinuation { continuation in
       cache.storeToDisk(data, forKey: relativePath) { _ in
-        artworkUpdatePublisher.send(relativePath)
-        continuation.resume()
+        DispatchQueue.main.async {
+          artworkUpdatePublisher.send(relativePath)
+          continuation.resume()
+        }
       }
     }
   }

@@ -44,7 +44,8 @@ class LibraryListCoordinatorTests: XCTestCase {
       importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        syncService: syncServiceMock
+        syncService: syncServiceMock,
+        playerLoaderService: PlayerLoaderService()
       ),
       accountService: coreServices.accountService,
       jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock),
@@ -93,6 +94,8 @@ class FolderListCoordinatorTests: XCTestCase {
     let keychainServiceMock = KeychainServiceMock()
     let hardcoverService = HardcoverService()
     hardcoverService.setup(libraryService: libraryService)
+    let playbackService = PlaybackService()
+    playbackService.setup(libraryService: libraryService)
 
     self.folderListCoordinator = FolderListCoordinator(
       flow: .pushFlow(navigationController: self.presentingController),
@@ -100,12 +103,13 @@ class FolderListCoordinatorTests: XCTestCase {
       playerManager: playerManagerMock,
       singleFileDownloadService: singleFileDownloadService,
       libraryService: libraryService,
-      playbackService: PlaybackService(libraryService: libraryService),
-      syncService: syncServiceMock, 
+      playbackService: playbackService,
+      syncService: syncServiceMock,
       importManager: ImportManager(libraryService: libraryService),
       listRefreshService: ListSyncRefreshService(
         playerManager: playerManagerMock,
-        syncService: syncServiceMock
+        syncService: syncServiceMock,
+        playerLoaderService: PlayerLoaderService()
       ),
       jellyfinConnectionService: JellyfinConnectionService(keychainService: keychainServiceMock),
       hardcoverService: hardcoverService

@@ -75,6 +75,13 @@ final class StorageViewModelMissingFileTests: XCTestCase {
     hardcoverService.setup(libraryService: libraryService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
+    let loaderService = PlayerLoaderService()
+    loaderService.setup(
+      syncService: syncService,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager
+    )
 
     /// Avoid making the second onboarding network call
     AppDelegate.shared?.coreServices = CoreServices(
@@ -83,12 +90,7 @@ final class StorageViewModelMissingFileTests: XCTestCase {
       hardcoverService: hardcoverService,
       libraryService: libraryService,
       playbackService: playbackService,
-      playerLoaderService: PlayerLoaderService(
-        syncService: syncService,
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      ),
+      playerLoaderService: loaderService,
       playerManager: playerManager,
       syncService: syncService,
       watchService: PhoneWatchConnectivityService(
