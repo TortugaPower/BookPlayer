@@ -71,7 +71,7 @@ struct BookView: View {
     return syncService
   }()
 
-  ItemView(
+  BookView(
     item: .init(
       title: "Test",
       details: "Details",

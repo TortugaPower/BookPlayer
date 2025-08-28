@@ -535,7 +535,6 @@
 		63C48D4A2E3F008F005FBB96 /* AccountPerksSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D492E3F008F005FBB96 /* AccountPerksSectionView.swift */; };
 		63C48D4E2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D4D2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift */; };
 		63C48D512E3F1FCC005FBB96 /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D502E3F1FCC005FBB96 /* ItemListView.swift */; };
-		63C48D532E3F21B7005FBB96 /* ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48D522E3F21B7005FBB96 /* ItemView.swift */; };
 		63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */; };
 		63C6C2E82B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */; };
 		63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */; };
@@ -1411,7 +1410,6 @@
 		63C48D492E3F008F005FBB96 /* AccountPerksSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPerksSectionView.swift; sourceTree = "<group>"; };
 		63C48D4D2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRenderModeModifier.swift; sourceTree = "<group>"; };
 		63C48D502E3F1FCC005FBB96 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
-		63C48D522E3F21B7005FBB96 /* ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemView.swift; sourceTree = "<group>"; };
 		63C6C2E52B5029BC00FFE0D8 /* SettingsAutolockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockView.swift; sourceTree = "<group>"; };
 		63C6C2E72B5029FE00FFE0D8 /* SettingsAutolockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutolockViewModel.swift; sourceTree = "<group>"; };
 		63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksStorage.swift; sourceTree = "<group>"; };
@@ -1839,7 +1837,6 @@
 				6338C7862E48DA5F008016E5 /* LibraryRootView.swift */,
 				6338C7882E48DDC4008016E5 /* EmptyListView.swift */,
 				6338C7842E486232008016E5 /* ItemListSearchScope.swift */,
-				63C48D522E3F21B7005FBB96 /* ItemView.swift */,
 				63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */,
 				63D561382E5A8C9900615522 /* ItemProgressView.swift */,
 				63FB9E022E5774A500D1966F /* ListReloadCenter.swift */,
@@ -4047,7 +4044,6 @@
 				636E77842DF34A2900D4DC0A /* JellyfinServerInformationSectionView.swift in Sources */,
 				9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */,
 				8A9D0D262CCED543007A924D /* JellyfinLibraryView.swift in Sources */,
-				63C48D532E3F21B7005FBB96 /* ItemView.swift in Sources */,
 				63388BE22DB6D7D00042C103 /* CreateBookmarkIntent.swift in Sources */,
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				631908A32E3693BC009249C1 /* SettingsPlayerControlsView.swift in Sources */,

@@ -33,8 +33,10 @@ struct ItemListView: View {
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
+  @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.reloadCenter) private var reloadCenter
   @Environment(\.playerState) private var playerState
+  @Environment(\.loadingState) private var loadingState
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -54,31 +56,17 @@ struct ItemListView: View {
           action: addAction
         )
       } else {
-        List {
+        List(selection: $model.selectedSetItems) {
           ForEach(model.filteredResults, id: \.id) { item in
-            ItemView(item: item)
-              .onAppear {
-                Task {
-                  await model.prefetchIfNeeded(for: item)
-                }
-              }
-              .swipeActions(edge: .trailing) {
-                Button {
-                  model.selectedItems = [item]
-                  showItemOptions = true
-                } label: {
-                  Text("options_button")
-                }
-              }
+            rowView(item)
+              .allowsHitTesting(!model.editMode.isEditing)
+          }
+          .onMove { source, destination in
+            model.reorderItems(source: source, destination: destination)
           }
 
           if model.canLoadMore {
-            HStack {
-              Spacer()
-              ProgressView()
-              Spacer()
-            }
-            .task { await model.loadNextPage() }
+            loadMoreView()
           }
         }
         .searchable(
@@ -337,6 +325,19 @@ struct ItemListView: View {
       }
 
       if model.editMode.isEditing {
+        ToolbarItem(placement: .cancellationAction) {
+          Button(
+            model.selectedSetItems.count == model.items.count
+              ? "deselect_all_title"
+              : "select_all_title"
+          ) {
+            if model.selectedSetItems.count == model.items.count {
+              model.selectedSetItems.removeAll()
+            } else {
+              model.selectedSetItems = Set(model.items.map { $0.id })
+            }
+          }
+        }
         ToolbarItemGroup(placement: .bottomBar) {
           editingBottomBar
         }
@@ -350,28 +351,33 @@ struct ItemListView: View {
 
   @ViewBuilder
   var regularToolbarTrailing: some View {
-      Button(action: addAction) {
-        Image(systemName: "plus")
-          .foregroundStyle(theme.linkColor)
-      }
-      Menu {
-        Section {
-          Button {
+    Button(action: addAction) {
+      Image(systemName: "plus")
+        .foregroundStyle(theme.linkColor)
+    }
+    Menu {
+      Section {
+        Button {
+          withAnimation {
+            model.selectedSetItems.removeAll()
             model.editMode = .active
-          } label: {
-            Label("select_title".localized, systemImage: "checkmark.circle")
           }
+        } label: {
+          Label("select_title".localized, systemImage: "checkmark.circle")
         }
-      } label: {
-        Label("more_title".localized, systemImage: "ellipsis.circle")
       }
+    } label: {
+      Label("more_title".localized, systemImage: "ellipsis.circle")
+    }
   }
 
   @ViewBuilder
   var editingToolbarTrailing: some View {
     Button {
-      model.editMode = .inactive
-      model.selectedItems.removeAll()
+      withAnimation {
+        model.editMode = .inactive
+        model.selectedSetItems.removeAll()
+      }
     } label: {
       Text("done_title".localized).bold()
     }
@@ -380,15 +386,62 @@ struct ItemListView: View {
   @ViewBuilder
   var editingBottomBar: some View {
     Button {
-      if model.selectedItems.isEmpty {
-        model.selectedItems = model.items
-      } else {
-        model.selectedItems.removeAll()
-      }
+      print("")
     } label: {
       Image(systemName: model.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
     }
 
     Spacer()
+  }
+
+  @ViewBuilder
+  private func rowView(_ item: SimpleLibraryItem) -> some View {
+    Group {
+      if item.type == .folder {
+        FolderView(item: item)
+      } else {
+        BookView(item: item)
+          .onTapGesture {
+            switch syncService.getDownloadState(for: item) {
+            case .downloading:
+              model.selectedSetItems = [item.id]
+              showCancelDownloadAlert = true
+            case .downloaded, .notDownloaded:
+              Task {
+                do {
+                  try await playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  playerState.showPlayerBinding.wrappedValue = true
+                } catch {
+                  loadingState.error = error
+                }
+              }
+            }
+          }
+      }
+    }
+    .onAppear {
+      Task {
+        await model.prefetchIfNeeded(for: item)
+      }
+    }
+    .swipeActions(edge: .trailing) {
+      Button {
+        model.selectedSetItems = [item.id]
+        showItemOptions = true
+      } label: {
+        Text("options_button")
+      }
+    }
+    .listRowBackground(theme.systemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private func loadMoreView() -> some View {
+    HStack {
+      Spacer()
+      ProgressView()
+      Spacer()
+    }
+    .task { await model.loadNextPage() }
   }
 }

@@ -64,11 +64,16 @@ final class ItemListViewModel: ObservableObject {
 
   /// Edit
   @Published var editMode: EditMode = .inactive
+  @Published var selectedSetItems = Set<SimpleLibraryItem.ID>() {
+    didSet {
+      selectedItems = items.filter { selectedSetItems.contains($0.id) }
+    }
+  }
   @Published var selectedItems = [SimpleLibraryItem]()
 
   /// Search
-  var scope: ItemListSearchScope = .all
-  var query = ""
+  @Published var scope: ItemListSearchScope = .all
+  @Published var query = ""
 
   init(
     libraryNode: LibraryNode,
@@ -199,6 +204,19 @@ final class ItemListViewModel: ObservableObject {
     }
 
     return parentFolders[elementIndex]
+  }
+
+  func reorderItems(
+    source: IndexSet,
+    destination: Int
+  ) {
+    libraryService.reorderItems(
+      inside: libraryNode.folderRelativePath,
+      fromOffsets: source,
+      toOffset: destination
+    )
+
+    reloadItems()
   }
 }
 
