@@ -26,4 +26,5 @@ extension EnvironmentValues {
   /// Cached path for containing folder of playing item in relation to a list path
   @Entry var playingItemParentPath: String?
   @Entry var libraryNode: LibraryNode?
+  @Entry var importOperationState: ImportOperationState = .init()
 }

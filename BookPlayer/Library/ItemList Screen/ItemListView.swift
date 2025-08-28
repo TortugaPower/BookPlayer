@@ -12,8 +12,6 @@ import SwiftUI
 struct ItemListView: View {
   @StateObject var model: ItemListViewModel
 
-  let addAction: () -> Void
-
   @State private var showItemOptions = false
   @State private var showMoveOptions = false
 
@@ -27,6 +25,12 @@ struct ItemListView: View {
 
   @State private var showDeleteAlert = false
 
+  @State private var showAddOptions = false
+  @State private var showDocumentPicker = false
+  @State private var showJellyfin = false
+  @State private var showDownloadURLAlert = false
+  @State private var downloadURLInput: String = ""
+
   @State private var playingItemParentPath: String?
 
   @Environment(\.libraryService) private var libraryService
@@ -34,27 +38,24 @@ struct ItemListView: View {
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
+  @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.reloadCenter) private var reloadCenter
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
+  @Environment(\.importOperationState) private var importOperationState
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var theme: ThemeViewModel
 
-  init(
-    initModel: @escaping () -> ItemListViewModel,
-    addAction: @escaping () -> Void
-  ) {
+  init(initModel: @escaping () -> ItemListViewModel) {
     self._model = .init(wrappedValue: initModel())
-    self.addAction = addAction
   }
 
   var body: some View {
     Group {
       if model.isListEmpty {
-        EmptyListView(
-          node: model.libraryNode,
-          action: addAction
-        )
+        EmptyListView(node: model.libraryNode) {
+          showAddOptions = true
+        }
       } else {
         List(selection: $model.selectedSetItems) {
           ForEach(model.filteredResults, id: \.id) { item in
@@ -202,6 +203,14 @@ struct ItemListView: View {
 
       Button("cancel_button", role: .cancel) {}
     }
+    .confirmationDialog(
+      "import_description",
+      isPresented: $showAddOptions,
+      titleVisibility: .visible
+    ) {
+      addFilesOptions()
+      Button("cancel_button", role: .cancel) {}
+    }
     .alert("choose_destination_title", isPresented: $showMoveOptions) {
       if model.libraryNode != .root {
         Button("library_title") {
@@ -302,6 +311,20 @@ struct ItemListView: View {
     } message: {
       Text(String(format: "sync_tasks_item_upload_queued".localized, model.selectedItems.first?.relativePath ?? ""))
     }
+    .alert("download_from_url_title", isPresented: $showDownloadURLAlert) {
+      TextField(
+        "https://",
+        text: $downloadURLInput
+      )
+      Button("download_title") {
+        model.downloadFromURL(downloadURLInput)
+        downloadURLInput = ""
+      }
+      .disabled(downloadURLInput.isEmpty)
+      Button("cancel_button", role: .cancel) {
+        downloadURLInput = ""
+      }
+    }
     .sheet(item: $itemDetailsSelection) { item in
       NavigationStack {
         ItemDetailsView {
@@ -315,12 +338,75 @@ struct ItemListView: View {
         }
       }
     }
+    .onReceive(
+      model.singleFileDownloadService.eventsPublisher
+        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+    ) { event in
+      switch event {
+      case .starting:
+        let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
+        let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+        let subtitle = "\("progress_title".localized) 0%"
+
+        importOperationState.isOperationActive = true
+        importOperationState.processingTitle = "\(title)\n\(subtitle)"
+      case .progress(_, let progress):
+        let percentage = String(format: "%.2f", progress * 100)
+        let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
+        let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+        let subtitle = "\("progress_title".localized) \(percentage)%"
+
+        importOperationState.isOperationActive = true
+        importOperationState.processingTitle = "\(title)\n\(subtitle)"
+      case .finished:
+        importOperationState.isOperationActive = false
+        importOperationState.processingTitle = ""
+      case .error(let errorKind, let task, let underlyingError):
+        model.handleSingleFileDownloadError(
+          errorKind,
+          task: task,
+          underlyingError: underlyingError
+        )
+      }
+    }
+    .sheet(isPresented: $showJellyfin) {
+      JellyfinRootView(connectionService: jellyfinService)
+    }
+    .fileImporter(
+      isPresented: $showDocumentPicker,
+      allowedContentTypes: [
+        .audio,
+        .movie,
+        .zip,
+        .folder
+      ],
+      allowsMultipleSelection: true
+    ) { result in
+      switch result {
+      case .success(let files):
+        let documentsFolder = DataManager.getDocumentsFolderURL()
+
+        files.forEach { file in
+          let gotAccess = file.startAccessingSecurityScopedResource()
+          if !gotAccess { return }
+
+          let destinationURL = documentsFolder.appendingPathComponent(file.lastPathComponent)
+          if !FileManager.default.fileExists(atPath: destinationURL.path) {
+            try! FileManager.default.copyItem(at: file, to: destinationURL)
+          }
+
+          file.stopAccessingSecurityScopedResource()
+        }
+      case .failure(let error):
+        loadingState.error = error
+      }
+    }
     .toolbar {
       ToolbarItemGroup(placement: .confirmationAction) {
         if !model.editMode.isEditing {
-          regularToolbarTrailing
+          regularToolbarTrailing()
         } else {
-          editingToolbarTrailing
+          editingToolbarTrailing()
         }
       }
 
@@ -339,7 +425,7 @@ struct ItemListView: View {
           }
         }
         ToolbarItemGroup(placement: .bottomBar) {
-          editingBottomBar
+          editingBottomBar()
         }
       }
     }
@@ -350,11 +436,18 @@ struct ItemListView: View {
   }
 
   @ViewBuilder
-  var regularToolbarTrailing: some View {
-    Button(action: addAction) {
-      Image(systemName: "plus")
-        .foregroundStyle(theme.linkColor)
+  private func regularToolbarTrailing() -> some View {
+    if importOperationState.isOperationActive {
+      Menu {
+        Text(importOperationState.processingTitle)
+      } label: {
+        Image(systemName: "square.and.arrow.down")
+          .symbolEffect(.pulse.wholeSymbol, options: .repeating)
+          .foregroundStyle(theme.linkColor)
+          .accessibilityLabel("import_preparing_title")
+      }
     }
+
     Menu {
       Section {
         Button {
@@ -366,13 +459,19 @@ struct ItemListView: View {
           Label("select_title".localized, systemImage: "checkmark.circle")
         }
       }
+
+      Section {
+        addFilesOptions()
+      } header: {
+        Text("playlist_add_title")
+      }
     } label: {
       Label("more_title".localized, systemImage: "ellipsis.circle")
     }
   }
 
   @ViewBuilder
-  var editingToolbarTrailing: some View {
+  private func editingToolbarTrailing() -> some View {
     Button {
       withAnimation {
         model.editMode = .inactive
@@ -384,7 +483,7 @@ struct ItemListView: View {
   }
 
   @ViewBuilder
-  var editingBottomBar: some View {
+  private func editingBottomBar() -> some View {
     Button {
       print("")
     } label: {
@@ -443,5 +542,23 @@ struct ItemListView: View {
       Spacer()
     }
     .task { await model.loadNextPage() }
+  }
+
+  @ViewBuilder
+  private func addFilesOptions() -> some View {
+    Button("import_button", systemImage: "folder") {
+      showDocumentPicker = true
+    }
+    Button("download_from_url_title", systemImage: "link") {
+      showDownloadURLAlert = true
+    }
+    Button("download_from_jellyfin_title", image: .jellyfinIcon) {
+      showJellyfin = true
+    }
+    Button("create_playlist_button", systemImage: "folder.badge.plus") {
+      newFolderType = .folder
+      newFolderName = ""
+      showCreateFolderAlert = true
+    }
   }
 }

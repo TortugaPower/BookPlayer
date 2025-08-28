@@ -19,15 +19,10 @@ struct LibraryRootView: View {
   @State private var path = [LibraryNode]()
   @State private var reloadCenter = ListReloadCenter()
 
-  @State private var showAddOptions = false
-  @State private var showJellyfin = false
-
-  @State private var showCreateFolderAlert = false
   @State private var newFolderName: String = ""
   @State private var isFirstLoad = true
 
-  @State private var isImportOperationActive: Bool = false
-  @State private var importProcessingTitle = ""
+  @State private var importOperationState = ImportOperationState()
 
   @State private var loadingState = LoadingOverlayState()
 
@@ -44,7 +39,6 @@ struct LibraryRootView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
-  @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
@@ -58,10 +52,9 @@ struct LibraryRootView: View {
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
           loadingState: loadingState,
-          reloadCenter: reloadCenter
+          reloadCenter: reloadCenter,
+          singleFileDownloadService: singleFileDownloadService
         )
-      } addAction: {
-        showAddOptions = true
       }
       .navigationDestination(for: LibraryNode.self) { node in
         ItemListView {
@@ -73,61 +66,13 @@ struct LibraryRootView: View {
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
             loadingState: loadingState,
-            reloadCenter: reloadCenter
+            reloadCenter: reloadCenter,
+            singleFileDownloadService: singleFileDownloadService
           )
-        } addAction: {
-          showAddOptions = true
         }
         .navigationBarTitleDisplayMode(.inline)
       }
-      .toolbar {
-        if isImportOperationActive {
-          ToolbarItem(placement: .confirmationAction) {
-            Menu {
-              Text(importProcessingTitle)
-            } label: {
-              Image(systemName: "square.and.arrow.down")
-                .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-                .foregroundStyle(theme.linkColor)
-                .accessibilityLabel("import_preparing_title")
-            }
-          }
-        }
-      }
       .errorAlert(error: $loadingState.error)
-      .confirmationDialog(
-        "import_description",
-        isPresented: $showAddOptions,
-        titleVisibility: .visible
-      ) {
-        Button("import_button") {
-          /// show document picker
-        }
-        Button("download_from_url_title") {
-          /// show alert with textfield
-        }
-        Button("download_from_jellyfin_title") {
-          showJellyfin = true
-        }
-        Button("create_playlist_button") {
-          showCreateFolderAlert = true
-        }
-        Button("cancel_button", role: .cancel) {}
-      }
-      .sheet(isPresented: $showJellyfin) {
-        JellyfinRootView(connectionService: jellyfinService)
-      }
-      .alert("create_playlist_title", isPresented: $showCreateFolderAlert) {
-        TextField("new_playlist_button", text: $newFolderName)
-        Button("create_button") {
-          createFolder(with: newFolderName, type: .folder)
-          newFolderName = ""
-        }
-        .disabled(newFolderName.isEmpty)
-        Button("cancel_button", role: .cancel) {
-          newFolderName = ""
-        }
-      }
       .onAppear {
         guard isFirstLoad else { return }
 
@@ -158,15 +103,15 @@ struct LibraryRootView: View {
         showImport()
       }
       .onReceive(importManager.operationPublisher) { operation in
-        isImportOperationActive = true
-        importProcessingTitle = String.localizedStringWithFormat(
+        importOperationState.isOperationActive = true
+        importOperationState.processingTitle = String.localizedStringWithFormat(
           "import_processing_description".localized,
           operation.files.count
         )
         operation.completionBlock = {
           DispatchQueue.main.async {
-            self.isImportOperationActive = false
-            self.importProcessingTitle = ""
+            self.importOperationState.isOperationActive = false
+            self.importOperationState.processingTitle = ""
             self.handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
           }
         }
@@ -178,6 +123,7 @@ struct LibraryRootView: View {
     .environmentObject(theme)
     .environment(\.loadingState, loadingState)
     .environment(\.reloadCenter, reloadCenter)
+    .environment(\.importOperationState, importOperationState)
   }
 
   func handleLibraryLoaded() async {

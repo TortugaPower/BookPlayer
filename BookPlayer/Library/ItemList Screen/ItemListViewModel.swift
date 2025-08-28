@@ -19,6 +19,7 @@ final class ItemListViewModel: ObservableObject {
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
   private let reloadCenter: ListReloadCenter
+  let singleFileDownloadService: SingleFileDownloadService
 
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
@@ -83,7 +84,8 @@ final class ItemListViewModel: ObservableObject {
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
-    reloadCenter: ListReloadCenter
+    reloadCenter: ListReloadCenter,
+    singleFileDownloadService: SingleFileDownloadService
   ) {
     self.libraryNode = libraryNode
     self.libraryService = libraryService
@@ -93,6 +95,7 @@ final class ItemListViewModel: ObservableObject {
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
     self.reloadCenter = reloadCenter
+    self.singleFileDownloadService = singleFileDownloadService
   }
 
   // MARK: - Infinite list
@@ -370,9 +373,6 @@ extension ItemListViewModel {
   func cancelDownload(of item: SimpleLibraryItem) {
     do {
       try syncService.cancelDownload(of: item)
-      //    if let index = items.firstIndex(of: item) {
-      //      self?.sendEvent(.reloadIndex(IndexPath(row: index, section: 0)))
-      //    }
     } catch {
       loadingState.error = error
     }
@@ -396,7 +396,16 @@ extension ItemListViewModel {
     }
   }
 
-  func getDownloadURL(for givenString: String) throws -> URL {
+  func downloadFromURL(_ string: String) {
+    do {
+      let url = try getDownloadURL(for: string)
+      singleFileDownloadService.handleDownload(url)
+    } catch {
+      loadingState.error = error
+    }
+  }
+
+  private func getDownloadURL(for givenString: String) throws -> URL {
     guard
       let givenUrl = URL(string: givenString),
       let hostname = givenUrl.host
@@ -413,7 +422,7 @@ extension ItemListViewModel {
     }
   }
 
-  func getGoogleDriveURL(for url: URL) -> URL {
+  private func getGoogleDriveURL(for url: URL) -> URL {
     let pathComponents = url.pathComponents
     guard
       let index = pathComponents.firstIndex(of: "d"),
@@ -425,7 +434,7 @@ extension ItemListViewModel {
     return newUrl
   }
 
-  func getDropboxURL(for url: URL) throws -> URL {
+  private func getDropboxURL(for url: URL) throws -> URL {
     guard
       var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
     else {
@@ -439,6 +448,30 @@ extension ItemListViewModel {
     }
     urlComponents.queryItems = queryItems
     return urlComponents.url ?? url
+  }
+
+  func handleSingleFileDownloadError(
+    _ errorKind: SingleFileDownloadService.ErrorKind,
+    task: URLSessionTask,
+    underlyingError: Error?
+  ) {
+    switch errorKind {
+
+    case .general:
+      loadingState.error = underlyingError
+    case .network:
+      if let underlyingError {
+        loadingState.error = underlyingError
+        return
+      }
+
+      guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode,
+            statusCode >= 400 else {
+        return
+      }
+
+      loadingState.error = BookPlayerError.networkError("Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))")
+    }
   }
 }
 
