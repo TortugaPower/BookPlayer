@@ -10,26 +10,26 @@ import BookPlayerKit
 import SwiftUI
 
 struct MainView: View {
-  @State private var selection: BPTabItem = .library
-  @State private var isFirstLoad: Bool = true
-  @State private var loadingState = LoadingOverlayState()
+  let showSecondOnboarding: () -> Void
+  let showPlayer: () -> Void
+  let showImport: () -> Void
 
   @StateObject private var theme = ThemeViewModel()
-  @EnvironmentObject private var playerManager: PlayerManager
-
-  @Environment(\.libraryService) private var libraryService
-  @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.playerState) private var playerState
   @Environment(\.colorScheme) private var scheme
 
   var body: some View {
-    TabView(selection: $selection) {
+    TabView {
       Group {
-        LibraryRootView {} showPlayer: {} showImport: {}
-          .tag(BPTabItem.library)
-          .tabItem {
-            Label("library_title", systemImage: "books.vertical")
-          }
+        LibraryRootView(
+          showSecondOnboarding: showSecondOnboarding,
+          showPlayer: showPlayer,
+          showImport: showImport
+        )
+        .tag(BPTabItem.library)
+        .tabItem {
+          Label("library_title", systemImage: "books.vertical")
+        }
         ProfileView()
           .tag(BPTabItem.profile)
           .tabItem {
@@ -44,73 +44,21 @@ struct MainView: View {
       .toolbarBackground(.visible, for: .tabBar)
       .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
     }
-    .sheet(isPresented: playerState.showPlayerBinding) {
-      Text("Player")
+    .safeAreaInset(edge: .bottom, spacing: 0) {
+      if let relativePath = playerState.loadedBookRelativePath {
+        MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+          .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
+      }
     }
-    .environment(\.loadingState, loadingState)
     .environmentObject(theme)
     .tint(theme.linkColor)
     .onChange(of: scheme) {
       ThemeManager.shared.checkSystemMode()
     }
-    .safeAreaInset(edge: .bottom, spacing: 0) {
-      if playerState.loadedBookRelativePath != nil {
-        HStack {
-          Spacer()
-          Button {
-            playerState.showPlayerBinding.wrappedValue = true
-          } label: {
-            Label("Quick Action", systemImage: "bolt.fill")
-              .font(.headline)
-              .padding(.horizontal, 16)
-              .padding(.vertical, 12)
-          }
-          .background(.thinMaterial)
-          .clipShape(Capsule())
-          .shadow(radius: 6)
-          .accessibilityAddTraits(.isButton)
-          Spacer()
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 49 + 12)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
-      }
-    }
-    .onAppear {
-      guard isFirstLoad else { return }
-
-      isFirstLoad = false
-
-    }
-  }
-
-  func loadLastBookIfNeeded() async {
-    guard
-      let libraryItem = libraryService.getLibraryLastItem()
-    else { return }
-
-    do {
-      try await playerLoaderService.loadPlayer(
-        libraryItem.relativePath,
-        autoplay: false,
-        recordAsLastBook: false
-      )
-      if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {
-        UserDefaults.standard.removeObject(forKey: Constants.UserActivityPlayback)
-        self.playerManager.play()
-      }
-
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
-        UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
-        //        self.showPlayer()
-      }
-    } catch {
-      loadingState.error = error
-    }
   }
 }
 
 #Preview {
-  MainView()
+  MainView {} showPlayer: {} showImport: {}
 }

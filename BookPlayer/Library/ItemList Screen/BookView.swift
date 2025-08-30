@@ -54,6 +54,7 @@ struct BookView: View {
         isHighlighted: isHighlighted
       )
     }
+    .contentShape(Rectangle())
   }
 }
 

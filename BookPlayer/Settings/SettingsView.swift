@@ -18,7 +18,6 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @State var showLogin = false
   @State var showCompleteAccount = false
-  @StateObject var theme = ThemeViewModel()
   @State var loadingState = LoadingOverlayState()
 
   @Environment(\.libraryService) private var libraryService
@@ -27,6 +26,7 @@ struct SettingsView: View {
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerState) private var playerState
+  @EnvironmentObject private var theme: ThemeViewModel
 
   let supportEmail = "support@bookplayer.app"
 
@@ -147,7 +147,6 @@ struct SettingsView: View {
           .presentationDetents([.medium])
       }
     }
-    .environmentObject(theme)
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
   }

@@ -12,7 +12,7 @@ import Themeable
 import UIKit
 
 class AppTabBarController: UITabBarController {
-  let miniPlayer: MiniPlayerView
+  let miniPlayer: MiniPlayerUIView
   let miniPlayerViewModel: MiniPlayerViewModel
 
   private var disposeBag = Set<AnyCancellable>()
@@ -46,7 +46,7 @@ class AppTabBarController: UITabBarController {
   // MARK: - Initializer
   public init(miniPlayerViewModel: MiniPlayerViewModel) {
     self.miniPlayerViewModel = miniPlayerViewModel
-    self.miniPlayer = Bundle.loadView(fromNib: "MiniPlayerView", withType: MiniPlayerView.self)
+    self.miniPlayer = Bundle.loadView(fromNib: "MiniPlayerView", withType: MiniPlayerUIView.self)
 
     super.init(nibName: nil, bundle: nil)
   }

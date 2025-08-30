@@ -14,7 +14,7 @@ import Themeable
 import UIKit
 
 class MainCoordinator: NSObject {
-  var tabBarController: AppTabBarController?
+  var mainController: UIViewController?
 
   let importManager: ImportManager
   let playerManager: PlayerManager
@@ -81,11 +81,6 @@ class MainCoordinator: NSObject {
       }
     }
 
-    let tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
-    self.tabBarController = tabBarController
-    tabBarController.modalPresentationStyle = .fullScreen
-    tabBarController.modalTransitionStyle = .crossDissolve
-
     if var currentTheme = libraryService.getLibraryCurrentTheme() {
       currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
       ThemeManager.shared.currentTheme = currentTheme
@@ -95,32 +90,8 @@ class MainCoordinator: NSObject {
 
     accountService.loginIfUserExists(delegate: self)
 
-    startLibraryCoordinator(with: tabBarController)
-
-    startProfileCoordinator(with: tabBarController)
-
-    startSettingsCoordinator(with: tabBarController)
-
-    navigationController.present(tabBarController, animated: false)
-
-    //    let vc = AppHostingViewController(
-    //      rootView: MainView()
-    //        .environment(\.libraryService, libraryService)
-    //        .environment(\.accountService, accountService)
-    //        .environment(\.syncService, syncService)
-    //        .environment(\.jellyfinService, jellyfinConnectionService)
-    //        .environment(\.hardcoverService, hardcoverService)
-    //        .environment(\.playerState, playerState)
-    //        .environment(\.playerLoaderService, playerLoaderService)
-    //    )
-    //    vc.modalPresentationStyle = .fullScreen
-    //    vc.modalTransitionStyle = .crossDissolve
-    //    navigationController.present(vc, animated: false)
-  }
-
-  func startLibraryCoordinator(with tabBarController: UITabBarController) {
-    let vc = UIHostingController(
-      rootView: LibraryRootView {
+    let vc = AppHostingViewController(
+      rootView: MainView {
         self.showSecondOnboarding()
       } showPlayer: {
         self.showPlayer()
@@ -140,57 +111,12 @@ class MainCoordinator: NSObject {
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)
     )
-
-    vc.navigationItem.largeTitleDisplayMode = .automatic
-    vc.tabBarItem = UITabBarItem(
-      title: "library_title".localized,
-      image: UIImage(systemName: "books.vertical"),
-      selectedImage: UIImage(systemName: "books.vertical.fill")
-    )
-
-    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
-    tabBarController.setViewControllers(newControllersArray, animated: false)
+    vc.modalPresentationStyle = .fullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    navigationController.present(vc, animated: false)
+    mainController = vc
 
     AppDelegate.shared?.coreServices?.watchService.startSession()
-  }
-
-  func startProfileCoordinator(with tabBarController: UITabBarController) {
-    let vc = UIHostingController(
-      rootView: ProfileView()
-        .environment(\.accountService, accountService)
-        .environment(\.libraryService, libraryService)
-        .environment(\.syncService, syncService)
-        .environment(\.playerState, playerState)
-    )
-
-    vc.tabBarItem = UITabBarItem(
-      title: "profile_title".localized,
-      image: UIImage(systemName: "person.crop.circle"),
-      selectedImage: UIImage(systemName: "person.crop.circle.fill")
-    )
-
-    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
-    tabBarController.setViewControllers(newControllersArray, animated: false)
-  }
-
-  func startSettingsCoordinator(with tabBarController: UITabBarController) {
-    let vc = UIHostingController(
-      rootView: SettingsView()
-        .environment(\.libraryService, libraryService)
-        .environment(\.accountService, accountService)
-        .environment(\.syncService, syncService)
-        .environment(\.jellyfinService, jellyfinConnectionService)
-        .environment(\.hardcoverService, hardcoverService)
-        .environment(\.playerState, playerState)
-    )
-    vc.tabBarItem = UITabBarItem(
-      title: "settings_title".localized,
-      image: UIImage(systemName: "gearshape"),
-      selectedImage: UIImage(systemName: "gearshape.fill")
-    )
-
-    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
-    tabBarController.setViewControllers(newControllersArray, animated: false)
   }
 
   func showSecondOnboarding() {
@@ -198,7 +124,7 @@ class MainCoordinator: NSObject {
 
     let coordinator = SecondOnboardingCoordinator(
       flow: .modalOnlyFlow(
-        presentingController: tabBarController!,
+        presentingController: mainController!,
         modalPresentationStyle: .fullScreen
       ),
       anonymousId: anonymousId,
@@ -284,29 +210,12 @@ class MainCoordinator: NSObject {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      flow: .modalOnlyFlow(presentingController: tabBarController!, modalPresentationStyle: .overFullScreen),
+      flow: .modalOnlyFlow(presentingController: mainController!, modalPresentationStyle: .overFullScreen),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
     )
     playerCoordinator.start()
-  }
-
-  func showMiniPlayer(_ flag: Bool) {
-    // Only animate if it toggles the state
-    guard
-      let tabBarController,
-      flag != tabBarController.isMiniPlayerVisible
-    else { return }
-
-    guard flag else {
-      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
-      return
-    }
-
-    if self.playerManager.hasLoadedBook() {
-      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
-    }
   }
 
   func hasPlayerShown() -> Bool {

@@ -34,7 +34,6 @@ struct ItemListSelectionView: View {
       List {
         ForEach(filteredResults, id: \.id) { item in
           BookView(item: item)
-            .contentShape(Rectangle())
             .onTapGesture {
               onSelect(item)
               dismiss()
