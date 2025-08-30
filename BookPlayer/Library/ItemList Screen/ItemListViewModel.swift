@@ -280,6 +280,17 @@ extension ItemListViewModel {
     reloadCenter.reloadAll(padding: selectedItems.count)
   }
 
+  func importIntoLibrary(_ items: [String]) {
+    do {
+      try libraryService.moveItems(items, inside: nil)
+      syncService.scheduleMove(items: items, to: nil)
+    } catch {
+      loadingState.error = error
+    }
+
+    reloadCenter.reloadAll(padding: items.count)
+  }
+
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
@@ -310,7 +321,27 @@ extension ItemListViewModel {
     }
   }
 
+  func importIntoFolder(
+    _ folder: SimpleLibraryItem,
+    items: [String]
+  ) {
+    do {
+      try libraryService.moveItems(items, inside: folder.relativePath)
+      syncService.scheduleMove(items: items, to: folder.relativePath)
+      try libraryService.updateFolder(at: folder.relativePath, type: .folder)
+    } catch {
+      loadingState.error = error
+    }
+
+    reloadCenter.reloadAll()
+  }
+
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
+    if mode == .deep,
+       items.contains(where: { $0.relativePath == playerManager.currentItem?.relativePath }) {
+      playerManager.stop()
+    }
+
     let parentFolder = items.first?.parentFolder
 
     do {
@@ -345,6 +376,43 @@ extension ItemListViewModel {
     }
 
     return (title, message)
+  }
+
+  func getAvailableFolders(notIn items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
+    var availableFolders = [SimpleLibraryItem]()
+
+//    guard
+//      let existingItems = libraryService.fetchContents(
+//        at: self.folderRelativePath,
+//        limit: nil,
+//        offset: nil
+//      )
+//    else { return [] }
+//
+//    let existingFolders = existingItems.filter({ $0.type == .folder })
+//
+//    for folder in existingFolders {
+//      if items.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+//
+//      availableFolders.append(folder)
+//    }
+
+    return availableFolders
+  }
+
+  func handleFilePickerSelection(_ urls: [URL]) {
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+    urls.forEach { url in
+      let gotAccess = url.startAccessingSecurityScopedResource()
+      if !gotAccess { return }
+
+      let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+      if !FileManager.default.fileExists(atPath: destinationURL.path) {
+        try! FileManager.default.copyItem(at: url, to: destinationURL)
+      }
+
+      url.stopAccessingSecurityScopedResource()
+    }
   }
 }
 

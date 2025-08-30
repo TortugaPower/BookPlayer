@@ -6,7 +6,7 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import SwiftUICore
+import SwiftUI
 
 struct NavigationLazyView<Content: View>: View {
   let build: () -> Content

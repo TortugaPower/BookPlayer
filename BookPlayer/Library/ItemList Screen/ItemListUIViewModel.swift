@@ -1061,7 +1061,7 @@ class ItemListUIViewModel: ViewModelProtocol {
 
 // MARK: - Import related functions
 extension ItemListUIViewModel {
-//  typealias ImportVolumeParams = (hasOnlyBooks: Bool, singleFolder: SimpleLibraryItem?)
+  typealias ImportVolumeParams = (hasOnlyBooks: Bool, singleFolder: SimpleLibraryItem?)
 
   func handleNewFiles(_ urls: [URL]) {
     let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString

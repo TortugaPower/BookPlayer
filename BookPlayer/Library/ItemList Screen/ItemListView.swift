@@ -18,6 +18,7 @@ struct ItemListView: View {
   @State private var itemDetailsSelection: SimpleLibraryItem?
   @State private var showCreateFolderAlert = false
   @State private var newFolderName: String = ""
+  @State private var newFolderPlaceholder: String = ""
   @State private var newFolderType: SimpleItemType = .folder
 
   @State private var showCancelDownloadAlert = false
@@ -30,6 +31,8 @@ struct ItemListView: View {
   @State private var showJellyfin = false
   @State private var showDownloadURLAlert = false
   @State private var downloadURLInput: String = ""
+
+  @State private var showImportCompletionAlert = false
 
   @State private var playingItemParentPath: String?
 
@@ -44,6 +47,7 @@ struct ItemListView: View {
   @Environment(\.loadingState) private var loadingState
   @Environment(\.importOperationState) private var importOperationState
   @Environment(\.scenePhase) private var scenePhase
+  @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
 
   init(initModel: @escaping () -> ItemListViewModel) {
@@ -82,126 +86,14 @@ struct ItemListView: View {
         .environment(\.editMode, $model.editMode)
         .environment(\.playingItemParentPath, playingItemParentPath)
         .environment(\.libraryNode, model.libraryNode)
-        .onChange(of: scenePhase) {
-          guard scenePhase == .active else { return }
-
-          Task {
-            await model.syncList()
-          }
-        }
-        .onChange(of: reloadCenter.token(for: .all), initial: false) {
-          let padding = reloadCenter.padding(for: .all)
-          model.reloadItems(with: padding)
-        }
-        .onChange(of: reloadCenter.token(for: model.reloadScope), initial: false) {
-          let padding = reloadCenter.padding(for: model.reloadScope)
-          model.reloadItems(with: padding)
-        }
-        .onChange(of: playerState.loadedBookRelativePath) {
-          playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
-        }
       }
     }
     .confirmationDialog(
-      model.selectedItems.count == 1
-        ? model.selectedItems.first!.title
-        : "options_button",
+      itemOptionsTitle,
       isPresented: $showItemOptions,
       titleVisibility: .visible
     ) {
-      let item = model.selectedItems.first
-      let isSingle = model.selectedItems.count == 1
-
-      Button("details_title") {
-        itemDetailsSelection = item
-      }
-      .disabled(!isSingle)
-      Button("move_title") {
-        showMoveOptions = true
-      }
-
-      if model.selectedItems.count == 1,
-        let item = model.selectedItems.first
-      {
-        ShareLink(
-          item: item,
-          preview: SharePreview(
-            item.relativePath,
-            image: Image(systemName: item.type == .book ? "waveform" : "folder")
-          )
-        ) {
-          Text("export_button")
-        }
-        .foregroundStyle(theme.primaryColor)
-      } else {
-        Button("export_button") {}
-          .disabled(true)
-      }
-
-      Button("jump_start_title") {
-        model.handleResetPlaybackPosition()
-      }
-
-      let areFinished = model.selectedItems.filter({ !$0.isFinished }).isEmpty
-      let markTitle = areFinished ? "mark_unfinished_title".localized : "mark_finished_title".localized
-
-      Button(markTitle) {
-        model.handleMarkAsFinished(flag: !areFinished)
-      }
-
-      if model.selectedItems.allSatisfy({ $0.type == .bound }) {
-        Button("bound_books_undo_alert_title") {
-          model.updateFolders(model.selectedItems, type: .folder)
-        }
-      } else {
-        let isActionEnabled =
-          (model.selectedItems.count > 1 && model.selectedItems.allSatisfy({ $0.type == .book }))
-          || (isSingle && item?.type == .folder)
-        Button("bound_books_create_button") {
-          if isSingle {
-            model.updateFolders(model.selectedItems, type: .bound)
-          } else {
-            newFolderName = item?.title ?? ""
-            newFolderType = .bound
-            showCreateFolderAlert = true
-          }
-        }
-        .disabled(!isActionEnabled)
-      }
-
-      if let item,
-        syncService.isActive
-      {
-        switch syncService.getDownloadState(for: item) {
-        case .notDownloaded:
-          Button("download_title") {
-            model.startDownload(of: item)
-          }
-          .disabled(!isSingle)
-        case .downloading:
-          Button("cancel_download_title") {
-            showCancelDownloadAlert = true
-          }
-          .disabled(!isSingle)
-        case .downloaded:
-          Button("remove_downloaded_file_title") {
-            Task {
-              if await syncService.hasUploadTask(for: item.relativePath) {
-                showWarningOffloadAlert = true
-              } else {
-                model.handleOffloading(of: item)
-              }
-            }
-          }
-          .disabled(!isSingle)
-        }
-      }
-
-      Button("delete_button", role: .destructive) {
-        showDeleteAlert = true
-      }
-
-      Button("cancel_button", role: .cancel) {}
+      itemOptionsDialog()
     }
     .confirmationDialog(
       "import_description",
@@ -211,52 +103,21 @@ struct ItemListView: View {
       addFilesOptions()
       Button("cancel_button", role: .cancel) {}
     }
+    .alert(
+      importOptionsTitle,
+      isPresented: $showImportCompletionAlert,
+      presenting: importOperationState.alertParameters
+    ) { alertParameters in
+      importOptions(for: alertParameters)
+    }
     .alert("choose_destination_title", isPresented: $showMoveOptions) {
-      if model.libraryNode != .root {
-        Button("library_title") {
-          model.handleMoveIntoLibrary()
-        }
-      }
-
-      Button("new_playlist_button") {
-        showCreateFolderAlert = true
-      }
-
-      Button("existing_playlist_button") {
-        /// show existing folders in sheet, like with details screen
-      }
+      moveOptions()
     }
     .alert(
-      newFolderType == .folder
-        ? "create_playlist_title"
-        : "bound_books_create_alert_title",
+      createFolderTitle,
       isPresented: $showCreateFolderAlert
     ) {
-      TextField(
-        newFolderType == .folder
-          ? "new_playlist_button"
-          : "bound_books_new_title_placeholder",
-        text: $newFolderName
-      )
-      Button("create_button") {
-        let items =
-          !model.selectedItems.isEmpty
-          ? model.selectedItems.map { $0.relativePath }
-          : nil
-
-        model.createFolder(
-          with: newFolderName,
-          items: items,
-          type: newFolderType
-        )
-        newFolderName = ""
-        newFolderType = .folder
-      }
-      .disabled(newFolderName.isEmpty)
-      Button("cancel_button", role: .cancel) {
-        newFolderName = ""
-        newFolderType = .folder
-      }
+      createFolderOptions()
     } message: {
       if newFolderType == .bound {
         Text("bound_books_create_alert_description")
@@ -266,30 +127,7 @@ struct ItemListView: View {
       model.deleteActionDetails()?.title ?? "",
       isPresented: $showDeleteAlert
     ) {
-      if model.selectedItems.count == 1,
-        let item = model.selectedItems.first,
-        item.type == .folder
-      {
-        Button("delete_deep_button", role: .destructive) {
-          if model.selectedItems.contains(where: { $0.relativePath == model.playerManager.currentItem?.relativePath }) {
-            model.playerManager.stop()
-          }
-          model.handleDelete(items: model.selectedItems, mode: .deep)
-        }
-
-        Button("delete_shallow_button") {
-          model.handleDelete(items: model.selectedItems, mode: .shallow)
-        }
-      } else {
-        Button("delete_button", role: .destructive) {
-          if model.selectedItems.contains(where: { $0.relativePath == model.playerManager.currentItem?.relativePath }) {
-            model.playerManager.stop()
-          }
-          model.handleDelete(items: model.selectedItems, mode: .deep)
-        }
-      }
-
-      Button("cancel_button", role: .cancel) {}
+      deleteOptions()
     } message: {
       if let message = model.deleteActionDetails()?.message {
         Text(message)
@@ -369,6 +207,40 @@ struct ItemListView: View {
         )
       }
     }
+    .task(id: playerState.loadedBookRelativePath) {
+      playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
+    }
+    .onChange(of: scenePhase) {
+      guard scenePhase == .active else { return }
+
+      Task {
+        await model.syncList()
+      }
+    }
+    .onChange(of: reloadCenter.token(for: .all), initial: false) {
+      let padding = reloadCenter.padding(for: .all)
+      model.reloadItems(with: padding)
+    }
+    .onChange(of: reloadCenter.token(for: model.reloadScope), initial: false) {
+      let padding = reloadCenter.padding(for: model.reloadScope)
+      model.reloadItems(with: padding)
+    }
+    .onChange(of: importOperationState.alertParameters) {
+      guard
+        let alertParameters = importOperationState.alertParameters,
+        alertParameters.lastNode == model.libraryNode
+      else { return }
+
+      /// Register that at least one import operation has completed
+      BPSKANManager.updateConversionValue(.import)
+      showImportCompletionAlert = true
+    }
+    .onChange(of: showImportCompletionAlert) {
+      /// Clean up after import
+      if showImportCompletionAlert == false {
+        importOperationState.alertParameters = nil
+      }
+    }
     .sheet(isPresented: $showJellyfin) {
       JellyfinRootView(connectionService: jellyfinService)
     }
@@ -378,119 +250,24 @@ struct ItemListView: View {
         .audio,
         .movie,
         .zip,
-        .folder
+        .folder,
       ],
       allowsMultipleSelection: true
     ) { result in
       switch result {
       case .success(let files):
-        let documentsFolder = DataManager.getDocumentsFolderURL()
-
-        files.forEach { file in
-          let gotAccess = file.startAccessingSecurityScopedResource()
-          if !gotAccess { return }
-
-          let destinationURL = documentsFolder.appendingPathComponent(file.lastPathComponent)
-          if !FileManager.default.fileExists(atPath: destinationURL.path) {
-            try! FileManager.default.copyItem(at: file, to: destinationURL)
-          }
-
-          file.stopAccessingSecurityScopedResource()
-        }
+        model.handleFilePickerSelection(files)
       case .failure(let error):
         loadingState.error = error
       }
     }
     .toolbar {
-      ToolbarItemGroup(placement: .confirmationAction) {
-        if !model.editMode.isEditing {
-          regularToolbarTrailing()
-        } else {
-          editingToolbarTrailing()
-        }
-      }
-
-      if model.editMode.isEditing {
-        ToolbarItem(placement: .cancellationAction) {
-          Button(
-            model.selectedSetItems.count == model.items.count
-              ? "deselect_all_title"
-              : "select_all_title"
-          ) {
-            if model.selectedSetItems.count == model.items.count {
-              model.selectedSetItems.removeAll()
-            } else {
-              model.selectedSetItems = Set(model.items.map { $0.id })
-            }
-          }
-        }
-        ToolbarItemGroup(placement: .bottomBar) {
-          editingBottomBar()
-        }
-      }
+      mainToolbar()
     }
     .miniPlayerSafeAreaInset()
     .listStyle(.plain)
     .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle(model.navigationTitle)
-  }
-
-  @ViewBuilder
-  private func regularToolbarTrailing() -> some View {
-    if importOperationState.isOperationActive {
-      Menu {
-        Text(importOperationState.processingTitle)
-      } label: {
-        Image(systemName: "square.and.arrow.down")
-          .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-          .foregroundStyle(theme.linkColor)
-          .accessibilityLabel("import_preparing_title")
-      }
-    }
-
-    Menu {
-      Section {
-        Button {
-          withAnimation {
-            model.selectedSetItems.removeAll()
-            model.editMode = .active
-          }
-        } label: {
-          Label("select_title".localized, systemImage: "checkmark.circle")
-        }
-      }
-
-      Section {
-        addFilesOptions()
-      } header: {
-        Text("playlist_add_title")
-      }
-    } label: {
-      Label("more_title".localized, systemImage: "ellipsis.circle")
-    }
-  }
-
-  @ViewBuilder
-  private func editingToolbarTrailing() -> some View {
-    Button {
-      withAnimation {
-        model.editMode = .inactive
-        model.selectedSetItems.removeAll()
-      }
-    } label: {
-      Text("done_title".localized).bold()
-    }
-  }
-
-  @ViewBuilder
-  private func editingBottomBar() -> some View {
-    Button {
-      print("")
-    } label: {
-      Image(systemName: model.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
-    }
-
-    Spacer()
   }
 
   @ViewBuilder
@@ -558,7 +335,359 @@ struct ItemListView: View {
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       newFolderType = .folder
       newFolderName = ""
+      newFolderPlaceholder = ""
       showCreateFolderAlert = true
     }
+  }
+
+  // MARK: - Toolbar
+  @ToolbarContentBuilder
+  private func mainToolbar() -> some ToolbarContent {
+    ToolbarItemGroup(placement: .confirmationAction) {
+      if !model.editMode.isEditing {
+        regularToolbarTrailing()
+      } else {
+        editingToolbarTrailing()
+      }
+    }
+
+    if model.editMode.isEditing {
+      ToolbarItem(placement: .cancellationAction) {
+        Button(
+          model.selectedSetItems.count == model.items.count
+          ? "deselect_all_title"
+          : "select_all_title"
+        ) {
+          if model.selectedSetItems.count == model.items.count {
+            model.selectedSetItems.removeAll()
+          } else {
+            model.selectedSetItems = Set(model.items.map { $0.id })
+          }
+        }
+      }
+      ToolbarItemGroup(placement: .bottomBar) {
+        editingBottomBar()
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func regularToolbarTrailing() -> some View {
+    if importOperationState.isOperationActive {
+      Menu {
+        Text(importOperationState.processingTitle)
+      } label: {
+        Image(systemName: "square.and.arrow.down")
+          .symbolEffect(.pulse.wholeSymbol, options: .repeating)
+          .foregroundStyle(theme.linkColor)
+          .accessibilityLabel("import_preparing_title")
+      }
+    }
+
+    Menu {
+      Section {
+        Button {
+          withAnimation {
+            model.selectedSetItems.removeAll()
+            model.editMode = .active
+          }
+        } label: {
+          Label("select_title".localized, systemImage: "checkmark.circle")
+        }
+      }
+
+      Section {
+        addFilesOptions()
+      } header: {
+        Text("playlist_add_title")
+      }
+    } label: {
+      Label("more_title".localized, systemImage: "ellipsis.circle")
+    }
+  }
+
+  @ViewBuilder
+  private func editingToolbarTrailing() -> some View {
+    Button {
+      withAnimation {
+        model.editMode = .inactive
+        model.selectedSetItems.removeAll()
+      }
+    } label: {
+      Text("done_title".localized).bold()
+    }
+  }
+
+  @ViewBuilder
+  private func editingBottomBar() -> some View {
+    Button {
+      print("")
+    } label: {
+      Image(systemName: model.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
+    }
+
+    Spacer()
+  }
+}
+
+// MARK: - Options dialog
+extension ItemListView {
+  private var itemOptionsTitle: String {
+    let isSingle: Bool = model.selectedItems.count == 1
+    let title: String = isSingle ? (model.selectedItems.first?.title ?? "") : "options_button".localized
+    return title
+  }
+
+  @ViewBuilder
+  private func itemOptionsDialog() -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+
+    let areAllFinished: Bool = model.selectedItems.allSatisfy { $0.isFinished }
+    let markTitle: String = areAllFinished
+    ? "mark_unfinished_title".localized
+    : "mark_finished_title".localized
+
+    let allAreBound: Bool = model.selectedItems.allSatisfy { $0.type == .bound }
+    let multipleBooks: Bool = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
+    let singleFolder: Bool = isSingle && (item?.type == .folder)
+    let canCreateBound: Bool = multipleBooks || singleFolder
+
+    Button("details_title") {
+      itemDetailsSelection = item
+    }
+    .disabled(!isSingle)
+    Button("move_title") {
+      showMoveOptions = true
+    }
+
+    if isSingle,
+       let item
+    {
+      ShareLink(
+        item: item,
+        preview: SharePreview(
+          item.relativePath,
+          image: Image(systemName: item.type == .book ? "waveform" : "folder")
+        )
+      ) {
+        Text("export_button")
+      }
+      .foregroundStyle(theme.primaryColor)
+    } else {
+      Button("export_button") {}
+        .disabled(true)
+    }
+
+    Button("jump_start_title") {
+      model.handleResetPlaybackPosition()
+    }
+
+    Button(markTitle) {
+      model.handleMarkAsFinished(flag: !areAllFinished)
+    }
+
+    if allAreBound {
+      Button("bound_books_undo_alert_title") {
+        model.updateFolders(model.selectedItems, type: .folder)
+      }
+    } else {
+      Button("bound_books_create_button") {
+        if isSingle {
+          model.updateFolders(model.selectedItems, type: .bound)
+        } else {
+          newFolderName = item?.title ?? ""
+          newFolderPlaceholder = item?.title ?? ""
+          newFolderType = .bound
+          showCreateFolderAlert = true
+        }
+      }
+      .disabled(!canCreateBound)
+    }
+
+    if let item,
+       syncService.isActive
+    {
+      switch syncService.getDownloadState(for: item) {
+      case .notDownloaded:
+        Button("download_title") {
+          model.startDownload(of: item)
+        }
+        .disabled(!isSingle)
+      case .downloading:
+        Button("cancel_download_title") {
+          showCancelDownloadAlert = true
+        }
+        .disabled(!isSingle)
+      case .downloaded:
+        Button("remove_downloaded_file_title") {
+          Task {
+            if await syncService.hasUploadTask(for: item.relativePath) {
+              showWarningOffloadAlert = true
+            } else {
+              model.handleOffloading(of: item)
+            }
+          }
+        }
+        .disabled(!isSingle)
+      }
+    }
+
+    Button("delete_button", role: .destructive) {
+      showDeleteAlert = true
+    }
+
+    Button("cancel_button", role: .cancel) {}
+  }
+}
+
+// MARK: - Import alert
+extension ItemListView {
+  private var importOptionsTitle: String {
+    let filesCount: Int = importOperationState.alertParameters?.itemIdentifiers.count ?? 0
+
+    return String.localizedStringWithFormat("import_alert_title".localized, filesCount)
+  }
+  @ViewBuilder
+  private func importOptions(
+    for alertParameters: ImportOperationState.AlertParameters
+  ) -> some View {
+    let hasParentFolder = model.libraryNode.folderRelativePath != nil
+    let suggestedFolderName = alertParameters.suggestedFolderName ?? ""
+    let canCreateBound: Bool = alertParameters.hasOnlyBooks || alertParameters.singleFolder != nil
+
+    if hasParentFolder {
+      Button("current_playlist_title") {}
+    }
+
+    Button("library_title") {
+      if hasParentFolder {
+        model.importIntoLibrary(alertParameters.itemIdentifiers)
+      }
+    }
+
+    Button("new_playlist_button") {
+      newFolderName = ""
+      newFolderPlaceholder = suggestedFolderName
+      newFolderType = .folder
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      showCreateFolderAlert = true
+    }
+
+    Button("existing_playlist_button") {
+      //        model.importIntoFolder(selectedFolder, items: alertParameters.itemIdentifiers)
+
+      //        self.onTransition?(.showItemSelectionScreen(
+      //          availableItems: availableFolders,
+      //          selectionHandler: { selectedFolder in
+      //            self?.importIntoFolder(selectedFolder, items: itemIdentifiers, type: .folder)
+      //          }
+      //        ))
+    }
+    .disabled(alertParameters.availableFolders.isEmpty)
+
+    Button("bound_books_create_button") {
+      if alertParameters.hasOnlyBooks {
+        newFolderName = ""
+        newFolderPlaceholder = suggestedFolderName
+        newFolderType = .bound
+        model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+        showCreateFolderAlert = true
+      } else if let singleFolder = alertParameters.singleFolder {
+        model.updateFolders([singleFolder], type: .bound)
+      }
+    }
+    .disabled(!canCreateBound)
+  }
+}
+
+// MARK: - Move alert
+extension ItemListView {
+  @ViewBuilder
+  private func moveOptions() -> some View {
+    let availableFolders = model.getAvailableFolders(notIn: [])
+
+    if model.libraryNode != .root {
+      Button("library_title") {
+        model.handleMoveIntoLibrary()
+      }
+    }
+
+    Button("new_playlist_button") {
+      showCreateFolderAlert = true
+    }
+
+    Button("existing_playlist_button") {
+      /// show existing folders in sheet, like with details screen
+    }
+    .disabled(availableFolders.isEmpty)
+  }
+}
+
+// MARK: - Create folder alert
+extension ItemListView {
+  private var createFolderTitle: LocalizedStringKey {
+    newFolderType == .folder
+    ? "create_playlist_title"
+    : "bound_books_create_alert_title"
+  }
+  @ViewBuilder
+  private func createFolderOptions() -> some View {
+    let placeholder = !newFolderPlaceholder.isEmpty
+    ? newFolderPlaceholder
+    : newFolderType == .folder
+    ? "new_playlist_button"
+    : "bound_books_new_title_placeholder"
+    let selectedItems = !model.selectedSetItems.isEmpty
+    ? Array(model.selectedSetItems).sorted {
+      $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending
+    }
+    : nil
+
+    TextField(
+      placeholder,
+      text: $newFolderName
+    )
+    Button("create_button") {
+      model.createFolder(
+        with: newFolderName,
+        items: selectedItems,
+        type: newFolderType
+      )
+      newFolderPlaceholder = ""
+      newFolderName = ""
+      newFolderType = .folder
+    }
+    .disabled(newFolderName.isEmpty)
+    Button("cancel_button", role: .cancel) {
+      newFolderPlaceholder = ""
+      newFolderName = ""
+      newFolderType = .folder
+    }
+  }
+}
+
+// MARK: - Delete alert
+extension ItemListView {
+  @ViewBuilder
+  private func deleteOptions() -> some View {
+    let canShallowDelete = model.selectedItems.count == 1
+    && model.selectedItems.first?.type == .folder
+
+    if canShallowDelete {
+      Button("delete_deep_button", role: .destructive) {
+        model.handleDelete(items: model.selectedItems, mode: .deep)
+      }
+
+      Button("delete_shallow_button") {
+        model.handleDelete(items: model.selectedItems, mode: .shallow)
+      }
+    } else {
+      Button("delete_button", role: .destructive) {
+        model.handleDelete(items: model.selectedItems, mode: .deep)
+      }
+    }
+
+    Button("cancel_button", role: .cancel) {}
   }
 }

@@ -7,9 +7,8 @@
 //
 
 import BookPlayerKit
+import DirectoryWatcher
 import SwiftUI
-
-typealias ImportVolumeParams = (hasOnlyBooks: Bool, singleFolder: SimpleLibraryItem?)
 
 struct LibraryRootView: View {
   let showSecondOnboarding: () -> Void
@@ -25,6 +24,15 @@ struct LibraryRootView: View {
   @State private var importOperationState = ImportOperationState()
 
   @State private var loadingState = LoadingOverlayState()
+
+  @StateObject private var documentFolderWatcher = DirectoryWatcher.watch(
+    DataManager.getDocumentsFolderURL(),
+    ignoreDirectories: false
+  )!
+  @StateObject private var sharedFolderWatcher = DirectoryWatcher.watch(
+    DataManager.getSharedFilesFolderURL(),
+    ignoreDirectories: false
+  )!
 
   /// Environment
   @StateObject private var theme = ThemeViewModel()
@@ -102,6 +110,12 @@ struct LibraryRootView: View {
 
         showImport()
       }
+      .onReceive(documentFolderWatcher.newFilesPublisher) { files in
+        files.forEach { importManager.process($0) }
+      }
+      .onReceive(sharedFolderWatcher.newFilesPublisher) { files in
+        files.forEach { importManager.process($0) }
+      }
       .onReceive(importManager.operationPublisher) { operation in
         importOperationState.isOperationActive = true
         importOperationState.processingTitle = String.localizedStringWithFormat(
@@ -163,7 +177,6 @@ struct LibraryRootView: View {
     }
   }
 
-  // TODO: Rework how operation completion is handled
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
     guard !files.isEmpty else { return }
 
@@ -200,206 +213,27 @@ struct LibraryRootView: View {
         ? processedItems.first : nil
       let hasOnlyBooks = processedItems.allSatisfy({ $0.type == .book })
 
-      showOperationCompletedAlert(
-        itemIdentifiers: itemIdentifiers,
-        volumeParams: (hasOnlyBooks, singleFolder),
-        availableFolders: availableFolders,
-        suggestedFolderName: suggestedFolderName
-      )
-    }
-  }
-
-  // swiftlint:disable:next function_body_length
-  func showOperationCompletedAlert(
-    itemIdentifiers: [String],
-    volumeParams: ImportVolumeParams,
-    availableFolders: [SimpleLibraryItem],
-    suggestedFolderName: String?
-  ) {
-    let hasParentFolder = path.last?.folderRelativePath != nil
-
-    var firstTitle: String?
-    if let suggestedFolderName {
-      firstTitle = suggestedFolderName
-    } else if let relativePath = itemIdentifiers.first {
-      /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
-      firstTitle =
+      var firstTitle: String?
+      if let suggestedFolderName {
+        firstTitle = suggestedFolderName
+      } else if let relativePath = itemIdentifiers.first {
+        /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
+        firstTitle =
         libraryService.getItemProperty(
           "title",
           relativePath: relativePath
         ) as? String
-    }
-
-    var actions = [BPActionItem]()
-
-    if hasParentFolder {
-      actions.append(BPActionItem(title: "current_playlist_title".localized))
-    }
-
-    actions.append(
-      BPActionItem(
-        title: "library_title".localized,
-        handler: { [hasParentFolder, itemIdentifiers] in
-          guard hasParentFolder else { return }
-
-          self.importIntoLibrary(itemIdentifiers)
-        }
-      )
-    )
-
-    actions.append(
-      BPActionItem(
-        title: "new_playlist_button".localized,
-        handler: { [firstTitle] in
-          let placeholder = firstTitle ?? "new_playlist_button".localized
-
-          self.showCreateFolderAlert(
-            placeholder: placeholder,
-            with: itemIdentifiers,
-            type: .folder
-          )
-        }
-      )
-    )
-
-    //    actions.append(BPActionItem(
-    //      title: "existing_playlist_button".localized,
-    //      isEnabled: !availableFolders.isEmpty,
-    //      handler: { [itemIdentifiers, availableFolders] in
-    //        self.onTransition?(.showItemSelectionScreen(
-    //          availableItems: availableFolders,
-    //          selectionHandler: { selectedFolder in
-    //            self?.importIntoFolder(selectedFolder, items: itemIdentifiers, type: .folder)
-    //          }
-    //        ))
-    //      }
-    //    ))
-
-    //    actions.append(BPActionItem(
-    //      title: "bound_books_create_button".localized,
-    //      isEnabled: volumeParams.hasOnlyBooks || volumeParams.singleFolder != nil,
-    //      handler: { [firstTitle, weak self] in
-    //        let placeholder = firstTitle ?? "bound_books_new_title_placeholder".localized
-    //
-    //        if volumeParams.hasOnlyBooks {
-    //          self?.showCreateFolderAlert(placeholder: placeholder, with: itemIdentifiers, type: .bound)
-    //        } else if let singleFolder = volumeParams.singleFolder {
-    //          self?.updateFolders([singleFolder], type: .bound)
-    //        }
-    //      }
-    //    ))
-
-    /// Register that at least one import operation has completed
-    BPSKANManager.updateConversionValue(.import)
-
-    //    sendEvent(.showAlert(
-    //      content: BPAlertContent(
-    //        title: String.localizedStringWithFormat("import_alert_title".localized, itemIdentifiers.count),
-    //        style: .alert,
-    //        actionItems: actions
-    //      )
-    //    ))
-  }
-
-  func importIntoLibrary(_ items: [String]) {
-    do {
-      try libraryService.moveItems(items, inside: nil)
-      syncService.scheduleMove(items: items, to: nil)
-    } catch {
-      loadingState.error = error
-    }
-
-    reloadCenter.reloadAll(padding: items.count)
-  }
-
-  func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
-    Task { @MainActor in
-      do {
-        let folder = try libraryService.createFolder(
-          with: title,
-          inside: path.last?.folderRelativePath
-        )
-        await syncService.scheduleUpload(items: [folder])
-        if let fetchedItems = items {
-          try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
-        }
-        try libraryService.updateFolder(at: folder.relativePath, type: type)
-        libraryService.rebuildFolderDetails(folder.relativePath)
-
-        // stop playback if folder items contain that current item
-        if let items = items,
-          let currentRelativePath = playerManager.currentItem?.relativePath,
-          items.contains(currentRelativePath)
-        {
-          playerManager.stop()
-        }
-
-      } catch {
-        loadingState.error = error
       }
 
-      reloadCenter.reloadAll(padding: 1)
+      importOperationState.alertParameters = .init(
+        itemIdentifiers: itemIdentifiers,
+        hasOnlyBooks: hasOnlyBooks,
+        singleFolder: singleFolder,
+        availableFolders: availableFolders,
+        suggestedFolderName: firstTitle,
+        lastNode: path.last ?? .root
+      )
     }
-  }
-
-  func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
-    do {
-      try folders.forEach { folder in
-        try libraryService.updateFolder(at: folder.relativePath, type: type)
-
-        if let currentItem = playerManager.currentItem,
-          currentItem.relativePath.contains(folder.relativePath)
-        {
-          playerManager.stop()
-        }
-      }
-    } catch {
-      loadingState.error = error
-    }
-
-    reloadCenter.reloadAll()
-  }
-
-  func showCreateFolderAlert(
-    placeholder: String? = nil,
-    with items: [String]? = nil,
-    type: SimpleItemType = .folder
-  ) {
-    let alertTitle: String
-    let alertMessage: String
-    let alertPlaceholderDefault: String
-
-    switch type {
-    case .folder:
-      alertTitle = "create_playlist_title".localized
-      alertMessage = ""
-      alertPlaceholderDefault = "new_playlist_button".localized
-    case .bound:
-      alertTitle = "bound_books_create_alert_title".localized
-      alertMessage = "bound_books_create_alert_description".localized
-      alertPlaceholderDefault = "bound_books_new_title_placeholder".localized
-    case .book:
-      return
-    }
-
-    //    sendEvent(.showAlert(
-    //      content: BPAlertContent(
-    //        title: alertTitle,
-    //        message: alertMessage,
-    //        style: .alert,
-    //        textInputPlaceholder: placeholder ?? alertPlaceholderDefault,
-    //        actionItems: [
-    //          BPActionItem(
-    //            title: "create_button".localized,
-    //            inputHandler: { [items, type] title in
-    //              self.createFolder(with: title, items: items, type: type)
-    //            }
-    //          ),
-    //          BPActionItem.cancelAction
-    //        ]
-    //      )
-    //    ))
   }
 }
 
