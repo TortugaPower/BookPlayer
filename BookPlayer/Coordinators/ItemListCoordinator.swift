@@ -147,12 +147,6 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
     }
   }
 
-  func showMiniPlayer(flag: Bool) {
-    Task { @MainActor in
-      getMainCoordinator()?.showMiniPlayer(flag)
-    }
-  }
-
   func syncList() {
     fatalError("ItemListCoordinator is an abstract class, override this function in the subclass")
   }

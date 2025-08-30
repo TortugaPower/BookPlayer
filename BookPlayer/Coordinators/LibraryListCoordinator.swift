@@ -87,8 +87,6 @@ class LibraryListCoordinator: ItemListCoordinator, UINavigationControllerDelegat
         self.showExportController(for: items)
       case .showItemSelectionScreen(let availableItems, let selectionHandler):
         self.showItemSelectionScreen(availableItems: availableItems, selectionHandler: selectionHandler)
-      case .showMiniPlayer(let flag):
-        self.showMiniPlayer(flag: flag)
       case .listDidLoad:
         self.handleLibraryLoaded()
       case .listDidAppear:

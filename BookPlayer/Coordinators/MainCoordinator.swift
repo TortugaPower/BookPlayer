@@ -70,17 +70,6 @@ class MainCoordinator: NSObject {
   }
 
   func start() {
-    let viewModel = MiniPlayerViewModel(playerManager: playerManager)
-
-    viewModel.onTransition = { route in
-      switch route {
-      case .showPlayer:
-        self.showPlayer()
-      case .loadItem(let relativePath, let autoplay, let showPlayer):
-        self.loadPlayer(relativePath, autoplay: autoplay, showPlayer: showPlayer)
-      }
-    }
-
     if var currentTheme = libraryService.getLibraryCurrentTheme() {
       currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
       ThemeManager.shared.currentTheme = currentTheme
