@@ -19,10 +19,10 @@ extension EnvironmentValues {
   @Entry var hardcoverService: HardcoverService = .init()
   @Entry var loadingState: LoadingOverlayState = .init()
   @Entry var playerState: PlayerState = .init()
-  @Entry var reloadCenter: ListReloadCenter = .init()
 }
 
 extension EnvironmentValues {
+  @Entry var listState: ListStateManager = .init()
   /// Cached path for containing folder of playing item in relation to a list path
   @Entry var playingItemParentPath: String?
   @Entry var libraryNode: LibraryNode?

@@ -34,7 +34,7 @@ class MainCoordinator: NSObject {
   /// Reference to know if the import screen is already being shown (or in the process of showing)
   weak var importCoordinator: ImportCoordinator?
   let navigationController: UINavigationController
-  var libraryCoordinator: LibraryListCoordinator?
+
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -139,28 +139,6 @@ class MainCoordinator: NSObject {
   }
 
   func bindObservers() {
-    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        guard
-          let self = self,
-          self.accountService.hasAccount()
-        else { return }
-
-        if self.accountService.hasSyncEnabled() {
-          if !self.syncService.isActive {
-            self.syncService.isActive = true
-            self.getLibraryCoordinator()?.syncList()
-          }
-        } else {
-          if self.syncService.isActive {
-            self.syncService.isActive = false
-            self.syncService.cancelAllJobs()
-          }
-        }
-
-      })
-      .store(in: &disposeBag)
-
     playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
@@ -171,7 +149,7 @@ class MainCoordinator: NSObject {
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
     Task { @MainActor in
-      let alertPresenter: AlertPresenter = getLibraryCoordinator() ?? self
+      let alertPresenter: AlertPresenter = self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
@@ -208,11 +186,25 @@ class MainCoordinator: NSObject {
   }
 
   func hasPlayerShown() -> Bool {
-    return libraryCoordinator?.flow.navigationController.visibleViewController is PlayerViewController
+    return mainController?.presentedViewController is PlayerViewController
   }
 
-  func getLibraryCoordinator() -> LibraryListCoordinator? {
-    return libraryCoordinator
+  func processFiles(urls: [URL]) {
+    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
+    for url in urls {
+      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
+      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
+      if url.absoluteString.contains(temporaryDirectoryPath) {
+        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+        if !FileManager.default.fileExists(atPath: destinationURL.path) {
+          try! FileManager.default.copyItem(at: url, to: destinationURL)
+        }
+      } else {
+        importManager.process(url)
+      }
+    }
   }
 }
 
@@ -240,18 +232,18 @@ extension MainCoordinator: Themeable {
 
 extension MainCoordinator: AlertPresenter {
   func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
-    navigationController.showAlert(title, message: message, completion: completion)
+    mainController?.showAlert(title, message: message, completion: completion)
   }
 
   func showAlert(_ content: BPAlertContent) {
-    navigationController.showAlert(content)
+    mainController?.showAlert(content)
   }
 
   func showLoader() {
-    LoadingUtils.loadAndBlock(in: navigationController)
+    LoadingUtils.loadAndBlock(in: mainController!)
   }
 
   func stopLoader() {
-    LoadingUtils.stopLoading(in: navigationController)
+    LoadingUtils.stopLoading(in: mainController!)
   }
 }

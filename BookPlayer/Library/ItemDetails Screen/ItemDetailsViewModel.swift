@@ -30,7 +30,7 @@ final class ItemDetailsViewModel: ObservableObject {
   /// Hardcover service for managing assignments
   let hardcoverService: HardcoverServiceProtocol
 
-  let reloadCenter: ListReloadCenter
+  let listState: ListStateManager
 
   private var hardcoverBook: SimpleHardcoverBook?
 
@@ -62,7 +62,7 @@ final class ItemDetailsViewModel: ObservableObject {
     libraryService: LibraryService,
     syncService: SyncService,
     hardcoverService: HardcoverServiceProtocol,
-    reloadCenter: ListReloadCenter
+    listState: ListStateManager
   ) {
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
 
@@ -87,7 +87,7 @@ final class ItemDetailsViewModel: ObservableObject {
     self.libraryService = libraryService
     self.syncService = syncService
     self.hardcoverService = hardcoverService
-    self.reloadCenter = reloadCenter
+    self.listState = listState
     self.originalFileName = item.originalFileName
     self.title = item.title
     self.author = item.details
@@ -149,7 +149,7 @@ final class ItemDetailsViewModel: ObservableObject {
 
       guard artworkIsUpdated else {
         loadingState.show = false
-        reloadCenter.reload(.path(item.parentFolder ?? ""))
+        listState.reload(.path(item.parentFolder ?? ""))
         success()
         return
       }
@@ -165,7 +165,7 @@ final class ItemDetailsViewModel: ObservableObject {
       syncService.scheduleUploadArtwork(relativePath: cacheKey)
 
       loadingState.show = false
-      reloadCenter.reload(.path(item.parentFolder ?? ""))
+      listState.reload(.path(item.parentFolder ?? ""))
       success()
     }
   }

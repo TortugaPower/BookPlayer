@@ -576,7 +576,7 @@
 		63F1C78B2BB91E21006B164C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
 		63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */; };
-		63FB9E032E5774A500D1966F /* ListReloadCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FB9E022E5774A500D1966F /* ListReloadCenter.swift */; };
+		63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FB9E022E5774A500D1966F /* ListStateManager.swift */; };
 		63FCAB1B2E3BBA5F005EB9DE /* JellyfinTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCAB1A2E3BBA5F005EB9DE /* JellyfinTagsView.swift */; };
 		63FCAB1D2E3BBEA0005EB9DE /* TagsFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCAB1C2E3BBEA0005EB9DE /* TagsFlowLayout.swift */; };
 		63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */; };
@@ -1438,7 +1438,7 @@
 		63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		63F828562AED56FA00B5CE0C /* CornerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerView.swift; sourceTree = "<group>"; };
 		63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
-		63FB9E022E5774A500D1966F /* ListReloadCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListReloadCenter.swift; sourceTree = "<group>"; };
+		63FB9E022E5774A500D1966F /* ListStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListStateManager.swift; sourceTree = "<group>"; };
 		63FCAB1A2E3BBA5F005EB9DE /* JellyfinTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinTagsView.swift; sourceTree = "<group>"; };
 		63FCAB1C2E3BBEA0005EB9DE /* TagsFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsFlowLayout.swift; sourceTree = "<group>"; };
 		63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListItemView.swift; sourceTree = "<group>"; };
@@ -1837,7 +1837,7 @@
 				63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */,
 				63D561382E5A8C9900615522 /* ItemProgressView.swift */,
 				638D91A72E60AAA600B62BDD /* ImportOperationState.swift */,
-				63FB9E022E5774A500D1966F /* ListReloadCenter.swift */,
+				63FB9E022E5774A500D1966F /* ListStateManager.swift */,
 			);
 			path = "ItemList Screen";
 			sourceTree = "<group>";
@@ -4170,7 +4170,7 @@
 				63B760FC2C33B77F00AA98C7 /* SupportProfileView.swift in Sources */,
 				9F00A6212950F44B005EA316 /* ImagePicker.swift in Sources */,
 				638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */,
-				63FB9E032E5774A500D1966F /* ListReloadCenter.swift in Sources */,
+				63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */,
 				9F00A6242951F2F3005EA316 /* ItemDetailsViewModel.swift in Sources */,
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,

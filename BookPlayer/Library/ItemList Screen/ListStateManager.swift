@@ -1,5 +1,5 @@
 //
-//  ListReloadCenter.swift
+//  ListStateManager.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 21/8/25.
@@ -9,7 +9,7 @@
 import SwiftUI
 
 @Observable
-final class ListReloadCenter {
+final class ListStateManager {
   enum Scope: Hashable {
     case all
     case path(String)
@@ -18,6 +18,9 @@ final class ListReloadCenter {
   private(set) var globalToken: Int = 0
   private var tokens: [Scope: Int] = [:]
   private var payloads: [Scope: Int] = [:]
+
+  public var isSearching = false
+  public var isEditing = false
 
   func reloadAll(padding: Int = 0) {
     payloads[.all] = padding

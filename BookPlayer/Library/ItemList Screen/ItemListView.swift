@@ -35,6 +35,9 @@ struct ItemListView: View {
 
   @State private var showImportCompletionAlert = false
 
+  @State private var showQueuedTasksAlert = false
+  @State private var showQueuedTasks = false
+
   @State private var playingItemParentPath: String?
 
   @Environment(\.libraryService) private var libraryService
@@ -43,7 +46,7 @@ struct ItemListView: View {
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.jellyfinService) private var jellyfinService
-  @Environment(\.reloadCenter) private var reloadCenter
+  @Environment(\.listState) private var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
   @Environment(\.importOperationState) private var importOperationState
@@ -77,6 +80,7 @@ struct ItemListView: View {
         }
         .searchable(
           text: $model.query,
+          isPresented: $model.isSearchFocused,
           prompt: "search_title".localized + " \(model.libraryNode.title)"
         )
         .searchScopes($model.scope) {
@@ -85,6 +89,14 @@ struct ItemListView: View {
           }
         }
         .environment(\.editMode, $model.editMode)
+        .refreshable {
+          importManager.notifyPendingFiles()
+          do {
+            try await model.refreshListState()
+          } catch {
+            self.showQueuedTasksAlert = true
+          }
+        }
         .environment(\.playingItemParentPath, playingItemParentPath)
         .environment(\.libraryNode, model.libraryNode)
       }
@@ -103,6 +115,15 @@ struct ItemListView: View {
     ) {
       addFilesOptions()
       Button("cancel_button", role: .cancel) {}
+    }
+    .alert(
+      "sync_tasks_inprogress_alert_title",
+      isPresented: $showQueuedTasksAlert
+    ) {
+      Button("sync_tasks_view_title") {
+        showQueuedTasks = true
+      }
+      Button("ok_button", role: .cancel) {}
     }
     .alert(
       importOptionsTitle,
@@ -172,7 +193,7 @@ struct ItemListView: View {
             libraryService: libraryService,
             syncService: syncService,
             hardcoverService: hardcoverService,
-            reloadCenter: reloadCenter
+            listState: listState
           )
         }
       }
@@ -218,12 +239,12 @@ struct ItemListView: View {
         await model.syncList()
       }
     }
-    .onChange(of: reloadCenter.token(for: .all), initial: false) {
-      let padding = reloadCenter.padding(for: .all)
+    .onChange(of: listState.token(for: .all), initial: false) {
+      let padding = listState.padding(for: .all)
       model.reloadItems(with: padding)
     }
-    .onChange(of: reloadCenter.token(for: model.reloadScope), initial: false) {
-      let padding = reloadCenter.padding(for: model.reloadScope)
+    .onChange(of: listState.token(for: model.reloadScope), initial: false) {
+      let padding = listState.padding(for: model.reloadScope)
       model.reloadItems(with: padding)
     }
     .onChange(of: importOperationState.alertParameters) {
@@ -241,6 +262,9 @@ struct ItemListView: View {
       if showImportCompletionAlert == false {
         importOperationState.alertParameters = nil
       }
+    }
+    .sheet(isPresented: $showQueuedTasks) {
+      QueuedSyncTasksView()
     }
     .sheet(isPresented: $showJellyfin) {
       JellyfinRootView(connectionService: jellyfinService)
@@ -361,8 +385,8 @@ struct ItemListView: View {
       ToolbarItem(placement: .cancellationAction) {
         Button(
           model.selectedSetItems.count == model.items.count
-          ? "deselect_all_title"
-          : "select_all_title"
+            ? "deselect_all_title"
+            : "select_all_title"
         ) {
           if model.selectedSetItems.count == model.items.count {
             model.selectedSetItems.removeAll()
@@ -450,9 +474,10 @@ extension ItemListView {
     let isSingle = model.selectedItems.count == 1
 
     let areAllFinished: Bool = model.selectedItems.allSatisfy { $0.isFinished }
-    let markTitle: String = areAllFinished
-    ? "mark_unfinished_title".localized
-    : "mark_finished_title".localized
+    let markTitle: String =
+      areAllFinished
+      ? "mark_unfinished_title".localized
+      : "mark_finished_title".localized
 
     let allAreBound: Bool = model.selectedItems.allSatisfy { $0.type == .bound }
     let multipleBooks: Bool = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
@@ -468,7 +493,7 @@ extension ItemListView {
     }
 
     if isSingle,
-       let item
+      let item
     {
       ShareLink(
         item: item,
@@ -512,7 +537,7 @@ extension ItemListView {
     }
 
     if let item,
-       syncService.isActive
+      syncService.isActive
     {
       switch syncService.getDownloadState(for: item) {
       case .notDownloaded:
@@ -628,21 +653,23 @@ extension ItemListView {
 extension ItemListView {
   private var createFolderTitle: LocalizedStringKey {
     newFolderType == .folder
-    ? "create_playlist_title"
-    : "bound_books_create_alert_title"
+      ? "create_playlist_title"
+      : "bound_books_create_alert_title"
   }
   @ViewBuilder
   private func createFolderOptions() -> some View {
-    let placeholder = !newFolderPlaceholder.isEmpty
-    ? newFolderPlaceholder
-    : newFolderType == .folder
-    ? "new_playlist_button".localized
-    : "bound_books_new_title_placeholder".localized
-    let selectedItems = !model.selectedSetItems.isEmpty
-    ? Array(model.selectedSetItems).sorted {
-      $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending
-    }
-    : nil
+    let placeholder =
+      !newFolderPlaceholder.isEmpty
+      ? newFolderPlaceholder
+      : newFolderType == .folder
+        ? "new_playlist_button".localized
+        : "bound_books_new_title_placeholder".localized
+    let selectedItems =
+      !model.selectedSetItems.isEmpty
+      ? Array(model.selectedSetItems).sorted {
+        $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending
+      }
+      : nil
 
     TextField(
       placeholder,
@@ -671,8 +698,9 @@ extension ItemListView {
 extension ItemListView {
   @ViewBuilder
   private func deleteOptions() -> some View {
-    let canShallowDelete = model.selectedItems.count == 1
-    && model.selectedItems.first?.type == .folder
+    let canShallowDelete =
+      model.selectedItems.count == 1
+      && model.selectedItems.first?.type == .folder
 
     if canShallowDelete {
       Button("delete_deep_button", role: .destructive) {

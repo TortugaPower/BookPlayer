@@ -1038,18 +1038,6 @@ class ItemListUIViewModel: ViewModelProtocol {
   }
 
   func refreshAppState() async throws {
-    /// Check if there's any pending file to import
-    await coordinator.getMainCoordinator()?.getLibraryCoordinator()?.notifyPendingFiles()
-
-    guard syncService.isActive else {
-      throw BPSyncRefreshError.disabled
-    }
-
-    guard await syncService.queuedJobsCount() == 0 else {
-      throw BPSyncRefreshError.scheduledTasks
-    }
-
-    await listRefreshService.syncList(at: folderRelativePath, alertPresenter: self)
   }
 
   func showQueuedTasks() {

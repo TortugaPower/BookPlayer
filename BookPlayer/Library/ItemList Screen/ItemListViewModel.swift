@@ -18,7 +18,7 @@ final class ItemListViewModel: ObservableObject {
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
-  private let reloadCenter: ListReloadCenter
+  private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
 
   /// Reference to ongoing library fetch task
@@ -30,7 +30,7 @@ final class ItemListViewModel: ObservableObject {
 
   private var offset = 0
 
-  var reloadScope: ListReloadCenter.Scope {
+  var reloadScope: ListStateManager.Scope {
     switch libraryNode {
     case .root: return .path("")
     case .book(_, let relativePath), .folder(_, let relativePath):
@@ -64,7 +64,11 @@ final class ItemListViewModel: ObservableObject {
   }
 
   /// Edit
-  @Published var editMode: EditMode = .inactive
+  @Published var editMode: EditMode = .inactive {
+    didSet {
+      listState.isEditing = editMode.isEditing
+    }
+  }
   @Published var selectedSetItems = Set<SimpleLibraryItem.ID>() {
     didSet {
       selectedItems = items.filter { selectedSetItems.contains($0.id) }
@@ -75,6 +79,11 @@ final class ItemListViewModel: ObservableObject {
   /// Search
   @Published var scope: ItemListSearchScope = .all
   @Published var query = ""
+  @Published var isSearchFocused: Bool = false {
+    didSet {
+      listState.isSearching = isSearchFocused
+    }
+  }
 
   init(
     libraryNode: LibraryNode,
@@ -84,7 +93,7 @@ final class ItemListViewModel: ObservableObject {
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
-    reloadCenter: ListReloadCenter,
+    listState: ListStateManager,
     singleFileDownloadService: SingleFileDownloadService
   ) {
     self.libraryNode = libraryNode
@@ -94,8 +103,12 @@ final class ItemListViewModel: ObservableObject {
     self.syncService = syncService
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
-    self.reloadCenter = reloadCenter
+    self.listState = listState
     self.singleFileDownloadService = singleFileDownloadService
+
+    if libraryNode == .root {
+      playerManager.syncProgressDelegate = self
+    }
   }
 
   // MARK: - Infinite list
@@ -158,7 +171,7 @@ final class ItemListViewModel: ObservableObject {
 
   func syncList() async {
     if processFoldersStaleProgress() {
-      reloadCenter.reloadAll()
+      listState.reloadAll()
     }
 
     /// check if it's called from both on first appear and from scene delegate
@@ -176,12 +189,29 @@ final class ItemListViewModel: ObservableObject {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
           await MainActor.run {
-            reloadCenter.reloadAll()
+            listState.reloadAll()
           }
         } catch {
           loadingState.error = error
         }
       }
+    }
+  }
+
+  func refreshListState() async throws {
+    guard syncService.isActive else { return }
+
+    guard await syncService.queuedJobsCount() == 0 else {
+      throw BPSyncRefreshError.scheduledTasks
+    }
+
+    do {
+      try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
+      await MainActor.run {
+        listState.reloadAll()
+      }
+    } catch {
+      loadingState.error = error
     }
   }
 
@@ -228,7 +258,7 @@ extension ItemListViewModel {
   func handleResetPlaybackPosition() {
     selectedItems.forEach({ libraryService.jumpToStart(relativePath: $0.relativePath) })
 
-    reloadCenter.reloadAll()
+    listState.reloadAll()
   }
 
   func handleMarkAsFinished(flag: Bool) {
@@ -242,7 +272,7 @@ extension ItemListViewModel {
       libraryService.rebuildFolderDetails(parentFolder)
     }
 
-    reloadCenter.reloadAll()
+    listState.reloadAll()
   }
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
@@ -257,7 +287,7 @@ extension ItemListViewModel {
         }
       }
 
-      reloadCenter.reloadAll()
+      listState.reloadAll()
     } catch {
       loadingState.error = error
     }
@@ -277,7 +307,7 @@ extension ItemListViewModel {
       loadingState.error = error
     }
 
-    reloadCenter.reloadAll(padding: selectedItems.count)
+    listState.reloadAll(padding: selectedItems.count)
   }
 
   func importIntoLibrary(_ items: [String]) {
@@ -288,7 +318,7 @@ extension ItemListViewModel {
       loadingState.error = error
     }
 
-    reloadCenter.reloadAll(padding: items.count)
+    listState.reloadAll(padding: items.count)
   }
 
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
@@ -314,7 +344,7 @@ extension ItemListViewModel {
           playerManager.stop()
         }
 
-        reloadCenter.reloadAll(padding: 1)
+        listState.reloadAll(padding: 1)
       } catch {
         loadingState.error = error
       }
@@ -331,7 +361,7 @@ extension ItemListViewModel {
       loadingState.error = error
     }
 
-    reloadCenter.reloadAll()
+    listState.reloadAll()
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
@@ -354,7 +384,7 @@ extension ItemListViewModel {
       loadingState.error = error
     }
 
-    reloadCenter.reloadAll()
+    listState.reloadAll()
   }
 
   func deleteActionDetails() -> (title: String, message: String?)? {
@@ -542,7 +572,8 @@ extension ItemListViewModel {
   }
 }
 
-struct BPAlertDetails {
-  let title: LocalizedStringKey
-  let action: () -> Void
+extension ItemListViewModel: PlaybackSyncProgressDelegate {
+  func waitForSyncInProgress() async {
+    _ = await contentsFetchTask?.result
+  }
 }

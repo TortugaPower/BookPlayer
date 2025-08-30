@@ -12,7 +12,6 @@ import BackgroundTasks
 import BookPlayerKit
 import Combine
 import CoreData
-import DirectoryWatcher
 import Intents
 import MediaPlayer
 import RealmSwift
@@ -28,8 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   var pendingURLActions = [Action]()
 
   var window: UIWindow?
-  var documentFolderWatcher: DirectoryWatcher?
-  var sharedFolderWatcher: DirectoryWatcher?
 
   let databaseInitializer = DatabaseInitializer()
   var coreServices: CoreServices?
@@ -75,8 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupBackgroundRefreshTasks()
     // register for remote events
     self.setupMPRemoteCommands()
-    // register document's folder listener
-    self.setupDocumentListener()
     // Setup RevenueCat
     self.setupRevenueCat()
     // Setup Sentry
@@ -417,30 +412,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.enableAppHangTracking = false
       options.tracesSampleRate = 0.5
     }
-  }
-
-  func setupDocumentListener() {
-    let newFilesCallback: (([URL]) -> Void) = { [weak self] newFiles in
-      guard
-        let mainCoordinator = self?.activeSceneDelegate?.mainCoordinator,
-        let libraryCoordinator = mainCoordinator.getLibraryCoordinator()
-      else {
-        return
-      }
-
-      libraryCoordinator.processFiles(urls: newFiles)
-    }
-
-    let documentsURL = DataManager.getDocumentsFolderURL()
-    documentFolderWatcher = DirectoryWatcher.watch(documentsURL)
-    documentFolderWatcher?.ignoreDirectories = false
-    documentFolderWatcher?.onNewFiles = newFilesCallback
-
-    let sharedFolderURL = DataManager.getSharedFilesFolderURL()
-    sharedFolderWatcher = DirectoryWatcher.watch(sharedFolderURL)
-    sharedFolderWatcher?.ignoreDirectories = false
-    sharedFolderWatcher?.onNewFiles = newFilesCallback
-
   }
 
   func requestReview() {

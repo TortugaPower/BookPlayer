@@ -16,7 +16,6 @@ struct LibraryRootView: View {
   let showImport: () -> Void
 
   @State private var path = [LibraryNode]()
-  @State private var reloadCenter = ListReloadCenter()
 
   @State private var newFolderName: String = ""
   @State private var isFirstLoad = true
@@ -42,6 +41,7 @@ struct LibraryRootView: View {
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
+  @Environment(\.listState) private var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playbackService) private var playbackService
@@ -60,7 +60,7 @@ struct LibraryRootView: View {
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
           loadingState: loadingState,
-          reloadCenter: reloadCenter,
+          listState: listState,
           singleFileDownloadService: singleFileDownloadService
         )
       }
@@ -74,7 +74,7 @@ struct LibraryRootView: View {
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
             loadingState: loadingState,
-            reloadCenter: reloadCenter,
+            listState: listState,
             singleFileDownloadService: singleFileDownloadService
           )
         }
@@ -136,7 +136,6 @@ struct LibraryRootView: View {
     .tint(theme.linkColor)
     .environmentObject(theme)
     .environment(\.loadingState, loadingState)
-    .environment(\.reloadCenter, reloadCenter)
     .environment(\.importOperationState, importOperationState)
   }
 
@@ -198,7 +197,7 @@ struct LibraryRootView: View {
       }
 
       /// Reload all items
-      reloadCenter.reloadAll(padding: itemIdentifiers.count)
+      listState.reloadAll(padding: itemIdentifiers.count)
 
       await hardcoverService.processAutoMatch(for: processedItems)
 

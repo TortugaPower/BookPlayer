@@ -20,6 +20,7 @@ struct SettingsView: View {
   @State var showCompleteAccount = false
   @State var loadingState = LoadingOverlayState()
 
+  @Environment(\.listState) private var listState
   @Environment(\.libraryService) private var libraryService
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
@@ -98,7 +99,8 @@ struct SettingsView: View {
                 StorageViewModel(
                   libraryService: libraryService,
                   syncService: syncService,
-                  folderURL: DataManager.getProcessedFolderURL()
+                  folderURL: DataManager.getProcessedFolderURL(),
+                  listState: listState
                 )
             )
           )
