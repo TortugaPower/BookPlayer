@@ -30,7 +30,8 @@ struct ItemListView: View {
   @State private var showDocumentPicker = false
   @State private var showJellyfin = false
   @State private var showDownloadURLAlert = false
-  @State private var downloadURLInput: String = ""
+  @State private var downloadURLInput = ""
+  @State private var showFoldersSelection = false
 
   @State private var showImportCompletionAlert = false
 
@@ -243,6 +244,11 @@ struct ItemListView: View {
     }
     .sheet(isPresented: $showJellyfin) {
       JellyfinRootView(connectionService: jellyfinService)
+    }
+    .sheet(isPresented: $showFoldersSelection) {
+      ItemListSelectionView(items: model.getAvailableFolders()) { folder in
+        model.handleMoveIntoFolder(folder)
+      }
     }
     .fileImporter(
       isPresented: $showDocumentPicker,
@@ -575,14 +581,8 @@ extension ItemListView {
     }
 
     Button("existing_playlist_button") {
-      //        model.importIntoFolder(selectedFolder, items: alertParameters.itemIdentifiers)
-
-      //        self.onTransition?(.showItemSelectionScreen(
-      //          availableItems: availableFolders,
-      //          selectionHandler: { selectedFolder in
-      //            self?.importIntoFolder(selectedFolder, items: itemIdentifiers, type: .folder)
-      //          }
-      //        ))
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      showFoldersSelection = true
     }
     .disabled(alertParameters.availableFolders.isEmpty)
 
@@ -605,7 +605,7 @@ extension ItemListView {
 extension ItemListView {
   @ViewBuilder
   private func moveOptions() -> some View {
-    let availableFolders = model.getAvailableFolders(notIn: [])
+    let availableFolders = model.getAvailableFolders()
 
     if model.libraryNode != .root {
       Button("library_title") {
@@ -618,7 +618,7 @@ extension ItemListView {
     }
 
     Button("existing_playlist_button") {
-      /// show existing folders in sheet, like with details screen
+      showFoldersSelection = true
     }
     .disabled(availableFolders.isEmpty)
   }
@@ -636,8 +636,8 @@ extension ItemListView {
     let placeholder = !newFolderPlaceholder.isEmpty
     ? newFolderPlaceholder
     : newFolderType == .folder
-    ? "new_playlist_button"
-    : "bound_books_new_title_placeholder"
+    ? "new_playlist_button".localized
+    : "bound_books_new_title_placeholder".localized
     let selectedItems = !model.selectedSetItems.isEmpty
     ? Array(model.selectedSetItems).sorted {
       $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending

@@ -321,14 +321,12 @@ extension ItemListViewModel {
     }
   }
 
-  func importIntoFolder(
-    _ folder: SimpleLibraryItem,
-    items: [String]
-  ) {
+  func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
+    let fetchedItems = selectedItems.compactMap({ $0.relativePath })
+
     do {
-      try libraryService.moveItems(items, inside: folder.relativePath)
-      syncService.scheduleMove(items: items, to: folder.relativePath)
-      try libraryService.updateFolder(at: folder.relativePath, type: .folder)
+      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+      syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
     } catch {
       loadingState.error = error
     }
@@ -378,24 +376,25 @@ extension ItemListViewModel {
     return (title, message)
   }
 
-  func getAvailableFolders(notIn items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
+  func getAvailableFolders() -> [SimpleLibraryItem] {
+    let items = selectedItems
     var availableFolders = [SimpleLibraryItem]()
 
-//    guard
-//      let existingItems = libraryService.fetchContents(
-//        at: self.folderRelativePath,
-//        limit: nil,
-//        offset: nil
-//      )
-//    else { return [] }
-//
-//    let existingFolders = existingItems.filter({ $0.type == .folder })
-//
-//    for folder in existingFolders {
-//      if items.contains(where: { $0.relativePath == folder.relativePath }) { continue }
-//
-//      availableFolders.append(folder)
-//    }
+    guard
+      let existingItems = libraryService.fetchContents(
+        at: libraryNode.folderRelativePath,
+        limit: nil,
+        offset: nil
+      )
+    else { return [] }
+
+    let existingFolders = existingItems.filter({ $0.type == .folder })
+
+    for folder in existingFolders {
+      if items.contains(where: { $0.relativePath == folder.relativePath }) { continue }
+
+      availableFolders.append(folder)
+    }
 
     return availableFolders
   }
