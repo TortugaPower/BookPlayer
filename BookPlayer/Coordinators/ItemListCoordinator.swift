@@ -60,20 +60,6 @@ class ItemListCoordinator: NSObject, Coordinator, AlertPresenter, BPLogger {
   }
 
   func showFolder(_ relativePath: String) {
-    let child = FolderListCoordinator(
-      flow: .pushFlow(navigationController: flow.navigationController),
-      folderRelativePath: relativePath,
-      playerManager: playerManager,
-      singleFileDownloadService: singleFileDownloadService,
-      libraryService: libraryService,
-      playbackService: playbackService,
-      syncService: syncService,
-      importManager: importManager,
-      listRefreshService: listRefreshService,
-      jellyfinConnectionService: jellyfinConnectionService,
-      hardcoverService: hardcoverService
-    )
-    child.start()
   }
 
   func showQueuedTasks() {
