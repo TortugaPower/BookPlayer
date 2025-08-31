@@ -228,6 +228,11 @@ struct ItemListView: View {
         )
       }
     }
+    .task {
+      Task {
+        await model.syncList()
+      }
+    }
     .task(id: playerState.loadedBookRelativePath) {
       playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
     }
@@ -472,11 +477,44 @@ struct ItemListView: View {
 
   @ViewBuilder
   private func editingBottomBar() -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+
+    Spacer()
+
     Button {
-      print("")
+      itemDetailsSelection = item!
     } label: {
-      Image(systemName: model.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
+      Image(systemName: "square.and.pencil")
     }
+    .disabled(!isSingle)
+
+    Spacer()
+
+    Button {
+      showMoveOptions = true
+    } label: {
+      Image(systemName: "folder")
+    }
+    .disabled(model.selectedItems.isEmpty)
+
+    Spacer()
+
+    Button {
+      showDeleteAlert = true
+    } label: {
+      Image(systemName: "trash")
+    }
+    .disabled(model.selectedItems.isEmpty)
+
+    Spacer()
+
+    Button {
+      showItemOptions = true
+    } label: {
+      Image(systemName: "ellipsis")
+    }
+    .disabled(model.selectedItems.isEmpty)
 
     Spacer()
   }
@@ -528,9 +566,6 @@ extension ItemListView {
         Text("export_button")
       }
       .foregroundStyle(theme.primaryColor)
-    } else {
-      Button("export_button") {}
-        .disabled(true)
     }
 
     Button("jump_start_title") {
@@ -669,6 +704,8 @@ extension ItemListView {
       showFoldersSelection = true
     }
     .disabled(availableFolders.isEmpty)
+
+    Button("cancel_button", role: .cancel) {}
   }
 }
 

@@ -276,6 +276,7 @@ extension ItemListViewModel {
     selectedItems.forEach({ libraryService.jumpToStart(relativePath: $0.relativePath) })
 
     listState.reloadAll()
+    editMode = .inactive
   }
 
   func handleMarkAsFinished(flag: Bool) {
@@ -290,6 +291,7 @@ extension ItemListViewModel {
     }
 
     listState.reloadAll()
+    editMode = .inactive
   }
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
@@ -305,6 +307,7 @@ extension ItemListViewModel {
       }
 
       listState.reloadAll()
+      editMode = .inactive
     } catch {
       loadingState.error = error
     }
@@ -325,6 +328,7 @@ extension ItemListViewModel {
     }
 
     listState.reloadAll(padding: selectedItems.count)
+    editMode = .inactive
   }
 
   func importIntoLibrary(_ items: [String]) {
@@ -362,6 +366,7 @@ extension ItemListViewModel {
         }
 
         listState.reloadAll(padding: 1)
+        editMode = .inactive
       } catch {
         loadingState.error = error
       }
@@ -379,6 +384,7 @@ extension ItemListViewModel {
     }
 
     listState.reloadAll()
+    editMode = .inactive
   }
 
   func handleDelete(items: [SimpleLibraryItem], mode: DeleteMode) {
@@ -402,6 +408,7 @@ extension ItemListViewModel {
     }
 
     listState.reloadAll()
+    editMode = .inactive
   }
 
   func deleteActionDetails() -> (title: String, message: String?)? {
