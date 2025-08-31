@@ -63,10 +63,12 @@ final class ItemListViewModel: ObservableObject {
     libraryNode.title
   }
 
-  /// Edit
   @Published var editMode: EditMode = .inactive {
     didSet {
       listState.isEditing = editMode.isEditing
+      if editMode.isEditing {
+        isSearchFocused = false
+      }
     }
   }
   @Published var selectedSetItems = Set<SimpleLibraryItem.ID>() {
@@ -82,6 +84,9 @@ final class ItemListViewModel: ObservableObject {
   @Published var isSearchFocused: Bool = false {
     didSet {
       listState.isSearching = isSearchFocused
+      if isSearchFocused {
+        editMode = .inactive
+      }
     }
   }
 
@@ -113,7 +118,7 @@ final class ItemListViewModel: ObservableObject {
 
   // MARK: - Infinite list
 
-  func loadNextPage(_ pageSize: Int = 4) async {
+  func loadNextPage(_ pageSize: Int? = 4) async {
     guard !isLoading, canLoadMore else { return }
 
     isLoading = true
@@ -249,6 +254,18 @@ final class ItemListViewModel: ObservableObject {
       toOffset: destination
     )
 
+    reloadItems()
+  }
+
+  func handleSelectAll() {
+    Task {
+      await loadNextPage(nil)
+      selectedSetItems = Set(items.map { $0.id })
+    }
+  }
+
+  func handleSort(by option: SortType) {
+    libraryService.sortContents(at: libraryNode.folderRelativePath, by: option)
     reloadItems()
   }
 }

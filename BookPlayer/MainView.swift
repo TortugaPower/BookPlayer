@@ -35,6 +35,13 @@ struct MainView: View {
         .tabItem {
           Label("library_title", systemImage: "books.vertical")
         }
+        .onDrop(
+          of: ImportableItem.readableTypeIdentifiers,
+          isTargeted: nil
+        ) { providers in
+          handleDrop(providers)
+          return true
+        }
         ProfileView()
           .tag(BPTabItem.profile)
           .tabItem {
@@ -81,6 +88,45 @@ struct MainView: View {
         syncService.isActive = false
         syncService.cancelAllJobs()
       }
+    }
+  }
+
+  func handleDrop(_ providers: [NSItemProvider]) {
+    for provider in providers {
+      let suggestedName = provider.suggestedName
+      provider.loadObject(ofClass: ImportableItem.self) { [suggestedName] (object, _) in
+        guard let item = object as? ImportableItem else { return }
+        /// Set `suggesteName` from the provider
+        item.suggestedName = suggestedName
+
+        importData(from: item)
+      }
+    }
+  }
+
+  func importData(from item: ImportableItem) {
+    let filename: String
+
+    if let suggestedName = item.suggestedName {
+      let pathExtension = (suggestedName as NSString).pathExtension
+      /// Use  `suggestedFileExtension` only if the curret name does not include an extension
+      if pathExtension.isEmpty {
+        filename = "\(suggestedName).\(item.suggestedFileExtension)"
+      } else {
+        filename = suggestedName
+      }
+    } else {
+      /// Fallback if the provider didn't have a suggested name
+      filename = "\(Date().timeIntervalSince1970).\(item.suggestedFileExtension)"
+    }
+
+    let destinationURL = DataManager.getDocumentsFolderURL()
+      .appendingPathComponent(filename)
+
+    do {
+      try item.data.write(to: destinationURL)
+    } catch {
+      print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
     }
   }
 }

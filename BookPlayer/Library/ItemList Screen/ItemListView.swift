@@ -68,7 +68,6 @@ struct ItemListView: View {
         List(selection: $model.selectedSetItems) {
           ForEach(model.filteredResults, id: \.id) { item in
             rowView(item)
-              .allowsHitTesting(!model.editMode.isEditing)
           }
           .onMove { source, destination in
             model.reorderItems(source: source, destination: destination)
@@ -339,6 +338,7 @@ struct ItemListView: View {
       }
     }
     .listRowBackground(theme.systemBackgroundColor)
+    .allowsHitTesting(!model.editMode.isEditing)
   }
 
   @ViewBuilder
@@ -349,6 +349,22 @@ struct ItemListView: View {
       Spacer()
     }
     .task { await model.loadNextPage() }
+  }
+
+  @ViewBuilder
+  private func sortOptions() -> some View {
+    Button("title_button", systemImage: "textformat.size") {
+      model.handleSort(by: .metadataTitle)
+    }
+    Button("sort_filename_button", systemImage: "list.bullet.indent") {
+      model.handleSort(by: .fileName)
+    }
+    Button("sort_most_recent_button", systemImage: "clock") {
+      model.handleSort(by: .mostRecent)
+    }
+    Button("sort_reversed_button", systemImage: "repeat") {
+      model.handleSort(by: .reverseOrder)
+    }
   }
 
   @ViewBuilder
@@ -391,7 +407,7 @@ struct ItemListView: View {
           if model.selectedSetItems.count == model.items.count {
             model.selectedSetItems.removeAll()
           } else {
-            model.selectedSetItems = Set(model.items.map { $0.id })
+            model.handleSelectAll()
           }
         }
       }
@@ -424,6 +440,12 @@ struct ItemListView: View {
         } label: {
           Label("select_title".localized, systemImage: "checkmark.circle")
         }
+      }
+
+      Section {
+        sortOptions()
+      } header: {
+        Text("sort_files_title")
       }
 
       Section {
@@ -469,6 +491,7 @@ extension ItemListView {
   }
 
   @ViewBuilder
+  // swiftlint:disable:next function_body_length
   private func itemOptionsDialog() -> some View {
     let item = model.selectedItems.first
     let isSingle = model.selectedItems.count == 1

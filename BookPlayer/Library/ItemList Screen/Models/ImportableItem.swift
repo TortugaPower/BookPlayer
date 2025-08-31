@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 /**
  Defines the type of items the app supports for drop operations
@@ -36,6 +37,10 @@ final public class ImportableItem: NSObject, NSItemProviderReading {
 
   public static var readableTypeIdentifiersForItemProvider: [String] {
     return ["public.audio", "com.pkware.zip-archive", "public.movie"]
+  }
+
+  public static var readableTypeIdentifiers: [UTType] {
+    return [.audio, .zip, .movie]
   }
 
   public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {

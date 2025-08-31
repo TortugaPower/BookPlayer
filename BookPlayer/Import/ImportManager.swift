@@ -126,7 +126,7 @@ final class ImportManager: ObservableObject {
     processFiles(urls: urls)
   }
 
-  private func processFiles(urls: [URL]) {
+  func processFiles(urls: [URL]) {
     let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
     let documentsFolder = DataManager.getDocumentsFolderURL()
 

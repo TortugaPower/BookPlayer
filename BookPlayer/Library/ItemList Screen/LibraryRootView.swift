@@ -21,7 +21,6 @@ struct LibraryRootView: View {
   @State private var isFirstLoad = true
 
   @State private var importOperationState = ImportOperationState()
-
   @State private var loadingState = LoadingOverlayState()
 
   @StateObject private var documentFolderWatcher = DirectoryWatcher.watch(
@@ -218,10 +217,10 @@ struct LibraryRootView: View {
       } else if let relativePath = itemIdentifiers.first {
         /// Xcode Cloud is throwing an error on #keyPath(BookPlayerKit.LibraryItem.title)
         firstTitle =
-        libraryService.getItemProperty(
-          "title",
-          relativePath: relativePath
-        ) as? String
+          libraryService.getItemProperty(
+            "title",
+            relativePath: relativePath
+          ) as? String
       }
 
       importOperationState.alertParameters = .init(

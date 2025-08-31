@@ -13,7 +13,7 @@ import Kingfisher
 import Themeable
 import UIKit
 
-class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
+class ItemListViewController: UIViewController, Storyboarded, UIGestureRecognizerDelegate, BPLogger {
   var viewModel: ItemListUIViewModel!
 
   @IBOutlet weak var emptyStatePlaceholder: UIView!
@@ -32,7 +32,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   private lazy var searchButton: UIBarButtonItem = {
     return UIBarButtonItem(systemItem: .search, primaryAction: UIAction { [weak self] _ in
       self?.navigationItem.backButtonDisplayMode = .minimal
-      self?.viewModel.showSearchList()
     })
   }()
 
@@ -52,20 +51,20 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
       imageHeight: 8
     )
 
-    button.menu = UIMenu(title: "sort_files_title".localized, children: [
-      UIAction(title: "title_button".localized) { [weak self] _ in
-        self?.viewModel.handleSort(by: .metadataTitle)
-      },
-      UIAction(title: "sort_filename_button".localized) { [weak self] _ in
-        self?.viewModel.handleSort(by: .fileName)
-      },
-      UIAction(title: "sort_most_recent_button".localized) { [weak self] _ in
-        self?.viewModel.handleSort(by: .mostRecent)
-      },
-      UIAction(title: "sort_reversed_button".localized) { [weak self] _ in
-        self?.viewModel.handleSort(by: .reverseOrder)
-      }
-    ])
+//    button.menu = UIMenu(title: "sort_files_title".localized, children: [
+//      UIAction(title: "title_button".localized) { [weak self] _ in
+//        self?.viewModel.handleSort(by: .metadataTitle)
+//      },
+//      UIAction(title: "sort_filename_button".localized) { [weak self] _ in
+//        self?.viewModel.handleSort(by: .fileName)
+//      },
+//      UIAction(title: "sort_most_recent_button".localized) { [weak self] _ in
+//        self?.viewModel.handleSort(by: .mostRecent)
+//      },
+//      UIAction(title: "sort_reversed_button".localized) { [weak self] _ in
+//        self?.viewModel.handleSort(by: .reverseOrder)
+//      }
+//    ])
     button.showsMenuAsPrimaryAction = true
     button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
     return button
@@ -117,22 +116,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.bindDataItems()
     self.configureInitialState()
     self.bindNetworkObserver()
-    self.viewModel.bindObservers()
     self.setupRefreshControl()
-    self.viewModel.viewDidLoad()
-  }
-
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    if didAppearForFirstTime {
-      didAppearForFirstTime = false
-      if navigationController?.viewControllers.count == 1 {
-        navigationController!.interactivePopGestureRecognizer!.delegate = self
-      }
-    }
-
-    viewModel.viewDidAppear()
   }
 
   func addSubviews() {
@@ -159,14 +143,10 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
     self.navigationItem.rightBarButtonItems = [addButton, searchButton]
 
-    self.emptyStateImageView.image = UIImage(named: self.viewModel.getEmptyStateImageName())
-
     // VoiceOver
     self.setupCustomRotors()
 
     self.showLoadView(false)
-
-    self.navigationItem.title = self.viewModel.getNavigationTitle()
 
     // Remove the line after the last cell
     self.tableView.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: 1))
@@ -190,7 +170,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
     self.tableView.dragDelegate = self
     self.tableView.dropDelegate = self
 
-    self.viewModel.loadInitialItems()
     self.toggleEmptyStateView()
   }
 
@@ -225,26 +204,12 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   @objc func handleRefreshControl() {
     Task {
       do {
-        try await viewModel.refreshAppState()
         tableView.refreshControl?.endRefreshing()
       } catch BPSyncRefreshError.scheduledTasks {
         tableView.refreshControl?.endRefreshing()
 
         /// Allow the refresh animation to complete and avoid jumping when showing the alert
         try await Task.sleep(nanoseconds: 500_000_000)
-
-        await MainActor.run {
-          self.showAlert(BPAlertContent(
-            title: "sync_tasks_inprogress_alert_title".localized,
-            style: .alert,
-            actionItems: [
-              BPActionItem(title: "sync_tasks_view_title".localized, handler: { [weak self] in
-                self?.viewModel.showQueuedTasks()
-              }),
-              BPActionItem.okAction
-            ]
-          ))
-        }
       } catch {
         tableView.refreshControl?.endRefreshing()
       }
@@ -275,7 +240,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
       }
 
       let selectedItem = self.viewModel.items[indexPath.row]
-      self.viewModel.showItemDetails(selectedItem)
+//      self.viewModel.showItemDetails(selectedItem)
     }
 
     self.bulkControls.onMoveTap = { [weak self] in
@@ -288,7 +253,7 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
       let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
 
-      self.viewModel.showMoveOptions(selectedItems: selectedItems)
+//      self.viewModel.showMoveOptions(selectedItems: selectedItems)
     }
 
     self.bulkControls.onDeleteTap = { [weak self] in
@@ -299,9 +264,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
         return
       }
 
-      let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
-
-      self.viewModel.showDeleteAlert(selectedItems: selectedItems)
     }
 
     self.bulkControls.onMoreTap = { [weak self] in
@@ -311,35 +273,10 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
       else {
         return
       }
-
-      let selectedItems = indexPaths.compactMap({ self.viewModel.items[$0.row] })
-
-      self.viewModel.showMoreOptions(selectedItems: selectedItems)
     }
   }
 
   func bindDataItems() {
-    self.viewModel.observeEvents()
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] event in
-        switch event {
-        case .newData:
-          self?.reloadData()
-        case .resetEditMode:
-          self?.setEditing(false, animated: false)
-        case .reloadIndex(let indexPath):
-          self?.tableView.reloadRows(at: [indexPath], with: .none)
-        case .downloadState(let state, let indexPath):
-          self?.updateDownloadState(state, for: indexPath)
-        case .showAlert(let content):
-          self?.showAlert(content)
-        case .showLoader(let flag):
-          self?.showLoader(flag)
-        case .showProcessingView(let flag, let title, let subtitle):
-          self?.showLoadView(flag, title: title, subtitle: subtitle)
-        }
-      }
-      .store(in: &disposeBag)
   }
 
   func showLoader(_ flag: Bool) {
@@ -362,8 +299,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
 
   override func setEditing(_ editing: Bool, animated: Bool) {
     super.setEditing(editing, animated: animated)
-
-    self.viewModel.showMiniPlayer(!editing)
 
     self.animateView(self.bulkControls, show: editing)
     self.tableView.setEditing(editing, animated: true)
@@ -418,11 +353,9 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   }
 
   @IBAction func addAction() {
-    self.viewModel.showAddActions()
   }
 
   @objc func handleAddAction() {
-    self.viewModel.showAddActions()
   }
 
   @objc func handleSelectButtonPressed() {
@@ -430,8 +363,6 @@ class ItemListViewController: UIViewController, MVVMControllerProtocol, Storyboa
   }
 
   @objc func selectAllButtonPressed(_ sender: Any) {
-    self.viewModel.loadAllItemsIfNeeded()
-
     if self.tableView.numberOfRows(inSection: 0) == (self.tableView.indexPathsForSelectedRows?.count ?? 0) {
       for row in 0..<self.tableView.numberOfRows(inSection: 0) {
         self.tableView.deselectRow(at: IndexPath(row: row, section: 0), animated: true)
@@ -468,12 +399,11 @@ extension ItemListViewController: UITableViewDataSource {
           self?.tableView(tableView, didDeselectRowAt: indexPath)
         } else {
           tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
-          self?.tableView(tableView, didSelectRowAt: indexPath)
         }
         return
       }
 
-      self?.viewModel.handleArtworkTap(for: item)
+//      self?.viewModel.handleArtworkTap(for: item)
     }
 
     cell.title = item.title
@@ -481,8 +411,6 @@ extension ItemListViewController: UITableViewDataSource {
     cell.progress = item.progress
     cell.duration = item.durationFormatted
     cell.type = item.type
-    cell.playbackState = viewModel.getPlaybackState(for: item)
-    cell.downloadState = viewModel.getDownloadState(for: item)
 
     if let artworkURL = item.artworkURL {
       cell.artworkView.kf.setImage(
@@ -517,8 +445,6 @@ extension ItemListViewController: UITableViewDelegate {
       return
     }
 
-    let item = self.viewModel.items[sourceIndexPath.row]
-    self.viewModel.reorder(item: item, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
   }
 
   // MARK: editing support
@@ -533,11 +459,6 @@ extension ItemListViewController: UITableViewDelegate {
 
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     guard indexPath.row == (self.viewModel.items.count - 1) else { return }
-
-    DispatchQueue.main.async { [weak self] in
-      guard let self = self else { return }
-      self.viewModel.loadNextItems()
-    }
   }
 
   func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -546,32 +467,6 @@ extension ItemListViewController: UITableViewDelegate {
 
   func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
     self.updateSelectionStatus()
-  }
-
-  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    self.updateSelectionStatus()
-
-    guard !tableView.isEditing else {
-      return
-    }
-
-    tableView.deselectRow(at: indexPath, animated: true)
-
-    let item = self.viewModel.items[indexPath.row]
-
-    navigationItem.backButtonDisplayMode = .default
-    self.viewModel.showItemContents(item)
-  }
-
-  func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-    let item = self.viewModel.items[indexPath.row]
-
-    let optionsAction = UIContextualAction(style: .normal, title: "\("options_button".localized)…") { _, _, completion in
-      self.viewModel.showMoreOptions(selectedItems: [item])
-      completion(true)
-    }
-
-    return UISwipeActionsConfiguration(actions: [optionsAction])
   }
 }
 
@@ -624,7 +519,7 @@ extension ItemListViewController: UIDropInteractionDelegate {
         /// Set `suggesteName` from the provider
         item.suggestedName = providerReference.suggestedName
 
-        self?.viewModel.importData(from: item)
+//        self?.viewModel.importData(from: item)
       }
     } else {
       /// Fallback in case it's a folder
@@ -653,7 +548,6 @@ extension ItemListViewController: UIDocumentPickerDelegate {
 
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     UIApplication.shared.isIdleTimerDisabled = false
-    self.viewModel.handleNewFiles(urls)
   }
 }
 
@@ -712,28 +606,28 @@ extension ItemListViewController {
 
   private func rotorFactory(name: String, type: SimpleItemType) -> UIAccessibilityCustomRotor {
     return UIAccessibilityCustomRotor(name: name) { [weak self] (predicate) -> UIAccessibilityCustomRotorItemResult? in
-
-      guard
-        let self = self,
-        let cell = predicate.currentItem.targetElement as? BookCellView,
-        let indexPath = self.tableView.indexPath(for: cell)
-      else { return nil }
+      return nil
+//      guard
+//        let self = self,
+//        let cell = predicate.currentItem.targetElement as? BookCellView,
+//        let indexPath = self.tableView.indexPath(for: cell)
+//      else { return nil }
 
       // Load all items just in case
-      self.viewModel.loadAllItemsIfNeeded()
+//      self.viewModel.loadAllItemsIfNeeded()
 
-      let newIndex = predicate.searchDirection == .next
-      ? self.viewModel.getItem(of: type, after: indexPath.row)
-      : self.viewModel.getItem(of: type, before: indexPath.row)
+//      let newIndex = predicate.searchDirection == .next
+//      ? self.viewModel.getItem(of: type, after: indexPath.row)
+//      : self.viewModel.getItem(of: type, before: indexPath.row)
 
-      guard let foundIndex = newIndex else { return nil }
+//      guard let foundIndex = newIndex else { return nil }
 
-      let newIndexPath = IndexPath(row: foundIndex, section: 0)
+//      let newIndexPath = IndexPath(row: foundIndex, section: 0)
 
-      self.tableView.scrollToRow(at: newIndexPath, at: .none, animated: false)
-      let newCell = self.tableView.cellForRow(at: newIndexPath)!
+//      self.tableView.scrollToRow(at: newIndexPath, at: .none, animated: false)
+//      let newCell = self.tableView.cellForRow(at: newIndexPath)!
 
-      return UIAccessibilityCustomRotorItemResult(targetElement: newCell, targetRange: nil)
+//      return UIAccessibilityCustomRotorItemResult(targetElement: newCell, targetRange: nil)
     }
   }
 }
@@ -754,7 +648,5 @@ extension ItemListViewController: Themeable {
     self.bulkControls.layer.shadowColor = theme.useDarkVariant
     ? UIColor.white.cgColor
     : UIColor(red: 0.12, green: 0.14, blue: 0.15, alpha: 1.0).cgColor
-
-    self.viewModel.updateDefaultArtwork(for: theme)
   }
 }
