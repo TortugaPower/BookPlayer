@@ -7,14 +7,14 @@
 //
 
 import AVFoundation
-import BookPlayerKit
+@preconcurrency import BookPlayerKit
 import Combine
 import Foundation
 import MediaPlayer
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   private let syncService: SyncServiceProtocol
@@ -118,6 +118,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
     isPlayingPublisher()
       .removeDuplicates()
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] isPlayingValue in
         if isPlayingValue {
           UserDefaults.sharedDefaults.set(
@@ -179,6 +180,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
     }
   }
 
+  @MainActor
   func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
 
@@ -321,7 +323,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
       playbackQueued = autoplay
     }
 
-    loadChapterTask = Task { [unowned self] in
+    loadChapterTask = Task { @MainActor [unowned self] in
       do {
         try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
         self.loadChapterOperation(chapter)
@@ -354,12 +356,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
 
       self.audioPlayer.replaceCurrentItem(with: nil)
       self.observeStatus = true
-      self.isFetchingRemoteURL = nil
-      self.audioPlayer.replaceCurrentItem(with: playerItem)
 
       // Update UI on main thread
-      DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+      DispatchQueue.main.async {
+        self.isFetchingRemoteURL = nil
+        self.audioPlayer.replaceCurrentItem(with: playerItem)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
         // Set book metadata for lockscreen and control center
@@ -517,6 +518,29 @@ final class PlayerManager: NSObject, PlayerManagerProtocol {
         || (isFetchingRemoteURL == true && playbackQueuedFlag)
     })
     .eraseToAnyPublisher()
+  }
+
+  func currentProgressPublisher() -> AnyPublisher<(String, Double), Never> {
+    $currentItem
+      .removeDuplicates(by: { lhs, rhs in
+        lhs?.relativePath == rhs?.relativePath
+      })
+      .map { item -> AnyPublisher<(String, Double), Never> in
+        guard let item = item else {
+          return Empty<(String, Double), Never>(completeImmediately: false)
+            .eraseToAnyPublisher()
+        }
+
+        return item.publisher(for: \.percentCompleted, options: [.initial, .new])
+          .map { percentCompleted in
+            let progress = item.isFinished ? 1.0 : percentCompleted / 100
+            return (item.relativePath, progress )
+          }
+          .eraseToAnyPublisher()
+      }
+      .switchToLatest()
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
   }
 
   var boostVolume: Bool = false {
@@ -698,6 +722,7 @@ extension PlayerManager {
 // MARK: - Playback
 
 extension PlayerManager {
+  @MainActor
   func prepareForPlayback(_ currentItem: PlayableItem) async -> Bool {
     /// Allow refetching remote URL if the action was initiating by the user
     canFetchRemoteURL = true

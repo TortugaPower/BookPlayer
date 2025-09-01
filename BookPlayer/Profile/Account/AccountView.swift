@@ -33,12 +33,9 @@ struct AccountView: View {
       AccountLogoutSectionView()
       AccountDeleteSectionView(showAlert: $showDeleteAlert)
     }
-    .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
-    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle(accountService.account.email)
     .navigationBarTitleDisplayMode(.inline)
-    .contentMargins(.top, Spacing.S1, for: .scrollContent)
+    .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
     .errorAlert(error: $loadingState.error)
     .loadingOverlay(loadingState.show)
     .alert("Delete Account", isPresented: $showDeleteAlert) {

@@ -14,12 +14,15 @@ import Themeable
 import UIKit
 
 class MainCoordinator: NSObject {
-  var tabBarController: AppTabBarController?
+  var mainController: UIViewController?
 
-  let playerManager: PlayerManagerProtocol
+  let importManager: ImportManager
+  let playerManager: PlayerManager
+  let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryService
-  let playbackService: PlaybackServiceProtocol
+  let playbackService: PlaybackService
+  let listSyncRefreshService: ListSyncRefreshService
   let accountService: AccountService
   var syncService: SyncService
   let watchConnectivityService: PhoneWatchConnectivityService
@@ -28,8 +31,10 @@ class MainCoordinator: NSObject {
 
   let playerState = PlayerState()
 
+  /// Reference to know if the import screen is already being shown (or in the process of showing)
+  weak var importCoordinator: ImportCoordinator?
   let navigationController: UINavigationController
-  var libraryCoordinator: LibraryListCoordinator?
+
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -38,10 +43,17 @@ class MainCoordinator: NSObject {
   ) {
     self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
+    self.importManager = ImportManager(libraryService: coreServices.libraryService)
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
     self.playerManager = coreServices.playerManager
+    self.playerLoaderService = coreServices.playerLoaderService
+    self.listSyncRefreshService = ListSyncRefreshService(
+      playerManager: playerManager,
+      syncService: syncService,
+      playerLoaderService: coreServices.playerLoaderService
+    )
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -58,22 +70,6 @@ class MainCoordinator: NSObject {
   }
 
   func start() {
-    let viewModel = MiniPlayerViewModel(playerManager: playerManager)
-
-    viewModel.onTransition = { route in
-      switch route {
-      case .showPlayer:
-        self.showPlayer()
-      case .loadItem(let relativePath, let autoplay, let showPlayer):
-        self.loadPlayer(relativePath, autoplay: autoplay, showPlayer: showPlayer)
-      }
-    }
-
-    let tabBarController = AppTabBarController(miniPlayerViewModel: viewModel)
-    self.tabBarController = tabBarController
-    tabBarController.modalPresentationStyle = .fullScreen
-    tabBarController.modalTransitionStyle = .crossDissolve
-
     if var currentTheme = libraryService.getLibraryCurrentTheme() {
       currentTheme.useDarkVariant = ThemeManager.shared.useDarkVariant
       ThemeManager.shared.currentTheme = currentTheme
@@ -83,111 +79,77 @@ class MainCoordinator: NSObject {
 
     accountService.loginIfUserExists(delegate: self)
 
-    startLibraryCoordinator(with: tabBarController)
+    let vc = AppHostingViewController(
+      rootView: MainView {
+        self.showSecondOnboarding()
+      } showPlayer: {
+        self.showPlayer()
+      } showImport: {
+        self.showImport()
+      }
+      .environmentObject(singleFileDownloadService)
+      .environmentObject(importManager)
+      .environmentObject(playerManager)
+      .environmentObject(listSyncRefreshService)
+      .environment(\.libraryService, libraryService)
+      .environment(\.accountService, accountService)
+      .environment(\.syncService, syncService)
+      .environment(\.jellyfinService, jellyfinConnectionService)
+      .environment(\.hardcoverService, hardcoverService)
+      .environment(\.playerState, playerState)
+      .environment(\.playerLoaderService, playerLoaderService)
+      .environment(\.playbackService, playbackService)
+    )
+    vc.modalPresentationStyle = .fullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    navigationController.present(vc, animated: false)
+    mainController = vc
 
-    startProfileCoordinator(with: tabBarController)
-
-    startSettingsCoordinator(with: tabBarController)
-
-    navigationController.present(tabBarController, animated: false)
+    AppDelegate.shared?.coreServices?.watchService.startSession()
   }
 
-  func startLibraryCoordinator(with tabBarController: UITabBarController) {
-    let libraryCoordinator = LibraryListCoordinator(
-      flow: .pushFlow(navigationController: AppNavigationController.instantiate(from: .Main)),
-      playerManager: self.playerManager,
-      singleFileDownloadService: self.singleFileDownloadService,
-      libraryService: self.libraryService,
-      playbackService: self.playbackService,
-      syncService: syncService,
-      importManager: ImportManager(libraryService: self.libraryService),
-      listRefreshService: ListSyncRefreshService(
-        playerManager: playerManager,
-        syncService: syncService
+  func showSecondOnboarding() {
+    guard let anonymousId = accountService.getAnonymousId() else { return }
+
+    let coordinator = SecondOnboardingCoordinator(
+      flow: .modalOnlyFlow(
+        presentingController: mainController!,
+        modalPresentationStyle: .fullScreen
       ),
-      accountService: self.accountService,
-      jellyfinConnectionService: jellyfinConnectionService,
-      hardcoverService: hardcoverService
+      anonymousId: anonymousId,
+      accountService: accountService,
+      eventsService: EventsService()
     )
-    playerManager.syncProgressDelegate = libraryCoordinator
-    self.libraryCoordinator = libraryCoordinator
-    libraryCoordinator.tabBarController = tabBarController
-    libraryCoordinator.start()
+    coordinator.start()
   }
 
-  func startProfileCoordinator(with tabBarController: UITabBarController) {
-    let vc = UIHostingController(
-      rootView: ProfileView()
-        .environment(\.accountService, accountService)
-        .environment(\.libraryService, libraryService)
-        .environment(\.syncService, syncService)
-        .environment(\.playerState, playerState)
-    )
+  func showImport() {
+    guard
+      importManager.hasPendingFiles(),
+      importCoordinator == nil,
+      let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
+    else { return }
 
-    vc.tabBarItem = UITabBarItem(
-      title: "profile_title".localized,
-      image: UIImage(systemName: "person.crop.circle"),
-      selectedImage: UIImage(systemName: "person.crop.circle.fill")
+    let coordinator = ImportCoordinator(
+      flow: .modalFlow(presentingController: topVC),
+      importManager: self.importManager
     )
-
-    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
-    tabBarController.setViewControllers(newControllersArray, animated: false)
-  }
-
-  func startSettingsCoordinator(with tabBarController: UITabBarController) {
-    let vc = UIHostingController(
-      rootView: SettingsView()
-        .environment(\.libraryService, libraryService)
-        .environment(\.accountService, accountService)
-        .environment(\.syncService, syncService)
-        .environment(\.jellyfinService, jellyfinConnectionService)
-        .environment(\.hardcoverService, hardcoverService)
-        .environment(\.playerState, playerState)
-    )
-    vc.tabBarItem = UITabBarItem(
-      title: "settings_title".localized,
-      image: UIImage(systemName: "gearshape"),
-      selectedImage: UIImage(systemName: "gearshape.fill")
-    )
-
-    let newControllersArray = (tabBarController.viewControllers ?? []) + [vc]
-    tabBarController.setViewControllers(newControllersArray, animated: false)
+    importCoordinator = coordinator
+    coordinator.start()
   }
 
   func bindObservers() {
-    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
-      .sink(receiveValue: { [weak self] _ in
-        guard
-          let self = self,
-          self.accountService.hasAccount()
-        else { return }
-
-        if self.accountService.hasSyncEnabled() {
-          if !self.syncService.isActive {
-            self.syncService.isActive = true
-            self.getLibraryCoordinator()?.syncList()
-          }
-        } else {
-          if self.syncService.isActive {
-            self.syncService.isActive = false
-            self.syncService.cancelAllJobs()
-          }
-        }
-
-      })
-      .store(in: &disposeBag)
-
     playerManager.currentItemPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
-        self?.playerState.isBookLoaded = item != nil
+        self?.playerState.loadedBookRelativePath = item?.relativePath
       }
       .store(in: &disposeBag)
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
     Task { @MainActor in
-      let alertPresenter: AlertPresenter = getLibraryCoordinator() ?? self
+      let alertPresenter: AlertPresenter = self
       do {
         try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
@@ -215,7 +177,7 @@ class MainCoordinator: NSObject {
 
   func showPlayer() {
     let playerCoordinator = PlayerCoordinator(
-      flow: .modalOnlyFlow(presentingController: tabBarController!, modalPresentationStyle: .overFullScreen),
+      flow: .modalOnlyFlow(presentingController: mainController!, modalPresentationStyle: .overFullScreen),
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
@@ -223,29 +185,26 @@ class MainCoordinator: NSObject {
     playerCoordinator.start()
   }
 
-  func showMiniPlayer(_ flag: Bool) {
-    // Only animate if it toggles the state
-    guard
-      let tabBarController,
-      flag != tabBarController.isMiniPlayerVisible
-    else { return }
-
-    guard flag else {
-      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
-      return
-    }
-
-    if self.playerManager.hasLoadedBook() {
-      tabBarController.animateView(tabBarController.miniPlayer, show: flag)
-    }
-  }
-
   func hasPlayerShown() -> Bool {
-    return libraryCoordinator?.flow.navigationController.visibleViewController is PlayerViewController
+    return mainController?.presentedViewController is PlayerViewController
   }
 
-  func getLibraryCoordinator() -> LibraryListCoordinator? {
-    return libraryCoordinator
+  func processFiles(urls: [URL]) {
+    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
+    for url in urls {
+      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
+      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
+      if url.absoluteString.contains(temporaryDirectoryPath) {
+        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+        if !FileManager.default.fileExists(atPath: destinationURL.path) {
+          try! FileManager.default.copyItem(at: url, to: destinationURL)
+        }
+      } else {
+        importManager.process(url)
+      }
+    }
   }
 }
 
@@ -273,18 +232,18 @@ extension MainCoordinator: Themeable {
 
 extension MainCoordinator: AlertPresenter {
   func showAlert(_ title: String? = nil, message: String? = nil, completion: (() -> Void)? = nil) {
-    navigationController.showAlert(title, message: message, completion: completion)
+    mainController?.showAlert(title, message: message, completion: completion)
   }
 
   func showAlert(_ content: BPAlertContent) {
-    navigationController.showAlert(content)
+    mainController?.showAlert(content)
   }
 
   func showLoader() {
-    LoadingUtils.loadAndBlock(in: navigationController)
+    LoadingUtils.loadAndBlock(in: mainController!)
   }
 
   func stopLoader() {
-    LoadingUtils.stopLoading(in: navigationController)
+    LoadingUtils.stopLoading(in: mainController!)
   }
 }

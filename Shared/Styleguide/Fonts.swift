@@ -24,4 +24,6 @@ public struct Fonts {
   public static let buttonTextSmall = UIFont.preferredFont(with: 11, style: .caption1, weight: .bold)
   public static let caption = UIFont.preferredFont(with: 13, style: .caption1, weight: .regular)
   public static let captionMedium = UIFont.preferredFont(with: 13, style: .caption1, weight: .medium)
+
+  public static let miniPlayerTitle = UIFont.preferredFont(with: 15, style: .body, weight: .semibold)
 }

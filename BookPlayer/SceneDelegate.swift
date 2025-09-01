@@ -77,15 +77,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       // Notify controller to see if it should ask for review
       NotificationCenter.default.post(name: .requestReview, object: nil)
     }
-
-    if let libraryCoordinator = mainCoordinator.getLibraryCoordinator() {
-      /// Sync list when app is active again
-      libraryCoordinator.syncList()
-      /// Sync currently shown list
-      libraryCoordinator.syncLastFolderList()
-      /// Register import observer in case it's not up already
-      libraryCoordinator.bindImportObserverIfNeeded()
-    }
   }
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {

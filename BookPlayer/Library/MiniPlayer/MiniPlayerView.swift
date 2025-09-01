@@ -2,96 +2,89 @@
 //  MiniPlayerView.swift
 //  BookPlayer
 //
-//  Created by gianni.carlo on 12/3/22.
-//  Copyright © 2022 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 30/8/25.
+//  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
-import Combine
-import MarqueeLabel
-import Themeable
-import UIKit
+import SwiftUI
 
-class MiniPlayerView: UIView {
-  @IBOutlet private weak var containerView: UIView!
-  @IBOutlet private weak var artwork: BPArtworkView!
-  @IBOutlet private weak var titleLabel: BPMarqueeLabel!
-  @IBOutlet private weak var authorLabel: BPMarqueeLabel!
-  @IBOutlet weak var playIconView: PlayPauseIconView!
+struct MiniPlayerView: View {
+  let relativePath: String
+  let showPlayer: () -> Void
 
-  private var disposeBag = Set<AnyCancellable>()
+  @State private var isPlaying: Bool = false
 
-  var onPlayerTap: (() -> Void)?
-  var onPlayPauseTap: (() -> Void)?
+  @EnvironmentObject private var theme: ThemeViewModel
+  @EnvironmentObject private var playerManager: PlayerManager
 
-  override func awakeFromNib() {
-    self.backgroundColor = .clear
+  var voiceOverLabel: String {
+    let voiceOverTitle = playerManager.currentItem?.title ?? "voiceover_no_title".localized
+    let voiceOverSubtitle = playerManager.currentItem?.author ?? "voiceover_no_author".localized
 
-    setUpTheming()
-
-    self.containerView.layer.cornerRadius = 13.0
-    self.containerView.layer.masksToBounds = true
-    self.playIconView.imageView.contentMode = .scaleAspectFit
-
-    let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapAction))
-    tap.cancelsTouchesInView = true
-
-    self.addGestureRecognizer(tap)
-
-    self.playIconView.observeActionEvents()
-      .sink { [weak self] _ in
-        self?.onPlayPauseTap?()
-      }
-      .store(in: &disposeBag)
-  }
-
-  func setupPlayerView(
-    with title: String,
-    author: String,
-    relativePath: String
-  ) {
-    self.setNeedsLayout()
-
-    self.artwork.kf.setImage(
-      with: ArtworkService.getArtworkProvider(for: relativePath),
-      placeholder: ArtworkService.generateDefaultArtwork(
-        from: themeProvider.currentTheme.linkColor
-      ),
-      options: [.targetCache(ArtworkService.cache)]
-    )
-    self.authorLabel.text = author
-    self.titleLabel.text = title
-
-    setVoiceOverLabels()
-    applyTheme(self.themeProvider.currentTheme)
-  }
-
-  // MARK: Gesture recognizers
-
-  @objc func tapAction() {
-    self.onPlayerTap?()
-  }
-
-  // MARK: - Voiceover
-
-  private func setVoiceOverLabels() {
-    let voiceOverTitle = self.titleLabel.text ?? "voiceover_no_title".localized
-    let voiceOverSubtitle = self.authorLabel.text ?? "voiceover_no_author".localized
-    self.titleLabel.accessibilityLabel = "voiceover_miniplayer_hint".localized
+    return "voiceover_miniplayer_hint".localized
     + ", "
     + String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
-    self.titleLabel.accessibilityTraits =  [.header]
-    self.playIconView.accessibilityLabel = "play_title".localized
-    self.artwork.isAccessibilityElement = false
+  }
+
+  var body: some View {
+    Group {
+      HStack(spacing: 9) {
+        MiniPlayerArtworkView(relativePath: relativePath)
+          .accessibilityHidden(true)
+
+        VStack(alignment: .leading, spacing: 8) {
+          Text(verbatim: playerManager.currentItem?.title ?? "")
+            .foregroundStyle(theme.primaryColor)
+            .bpFont(Fonts.miniPlayerTitle)
+            .lineLimit(1)
+          Text(verbatim: playerManager.currentItem?.author ?? "")
+            .foregroundStyle(theme.secondaryColor)
+            .bpFont(Fonts.miniPlayerTitle)
+            .lineLimit(1)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityLabel(voiceOverLabel)
+        Spacer()
+        Button {
+          UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+          playerManager.playPause()
+        } label: {
+          Image(
+            systemName: isPlaying
+            ? "pause.fill"
+            : "play.fill"
+          )
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 48, height: 28)
+          .foregroundStyle(theme.linkColor)
+        }
+        .buttonStyle(.plain)
+      }
+      .padding(.horizontal, Spacing.S1)
+      .frame(height: 72)
+      .background(theme.secondarySystemBackgroundColor)
+      .clipShape(RoundedRectangle(cornerRadius: 13))
+      .contentShape(Rectangle())
+      .onTapGesture {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        showPlayer()
+      }
+    }
+    .padding(.horizontal, 12)
+    .padding(.bottom, 49 + 12)
+    .shadow(color: theme.primaryColor.opacity(0.18), radius: 9)
+    .onReceive(
+      playerManager.isPlayingPublisher()
+        .receive(on: DispatchQueue.main)
+    ) { isPlaying in
+      self.isPlaying = isPlaying
+    }
   }
 }
 
-extension MiniPlayerView: Themeable {
-  func applyTheme(_ theme: SimpleTheme) {
-    self.titleLabel.textColor = theme.primaryColor
-    self.authorLabel.textColor = theme.secondaryColor
-    self.playIconView.tintColor = theme.linkColor
-
-    self.containerView.backgroundColor = theme.secondarySystemBackgroundColor
-  }
+#Preview {
+  MiniPlayerView(relativePath: "path/to/file.mp3") {}
 }

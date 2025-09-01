@@ -10,7 +10,15 @@ import SwiftUI
 
 @Observable
 class PlayerState {
-  var isBookLoaded: Bool = false
+  var loadedBookRelativePath: String?
+  var showPlayer = false
+
+  var showPlayerBinding: Binding<Bool> {
+    .init(
+      get: { self.showPlayer },
+      set: { self.showPlayer = $0 }
+    )
+  }
 
   init() {}
 }

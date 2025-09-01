@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SimpleLibraryItem: Hashable, Identifiable {
+public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public var id: String {
     return self.relativePath
   }
@@ -44,6 +44,11 @@ public struct SimpleLibraryItem: Hashable, Identifiable {
 
   public static func == (lhs: SimpleLibraryItem, rhs: SimpleLibraryItem) -> Bool {
     return lhs.id == rhs.id
+    && lhs.title == rhs.title
+    && lhs.details == rhs.details
+    && lhs.percentCompleted == rhs.percentCompleted
+    && lhs.isFinished == rhs.isFinished
+    && lhs.type.rawValue == rhs.type.rawValue
   }
 
   static var fetchRequestProperties = [

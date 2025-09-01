@@ -106,6 +106,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   private var initiatingFolderReference = [String: String]()
   /// Completion publisher for ongoing-download tasks
   public var downloadCompletedPublisher = PassthroughSubject<(String, String, String?), Never>()
+  /// Cancelled publisher for ongoing-download tasks
+  public var downloadCancelledPublisher = PassthroughSubject<(String, String, String?), Never>()
   /// Progress publisher for ongoing-download tasks
   public var downloadProgressPublisher = PassthroughSubject<(String, String, String?, Double), Never>()
   /// Error publisher for ongoing-download tasks
@@ -643,6 +645,7 @@ extension SyncService {
 
     var hasCompletedTasks = false
 
+    var events = [(String, String, String?)]()
     for task in tasks {
       guard task.state != .completed else {
         hasCompletedTasks = true
@@ -650,8 +653,14 @@ extension SyncService {
       }
 
       if let relativePath = task.taskDescription {
+        let startingItemPath = ongoingTasksParentReference[relativePath]
         ongoingTasksParentReference[relativePath] = nil
+        let parentFolderPath = initiatingFolderReference[relativePath]
         initiatingFolderReference[relativePath] = nil
+
+        if let startingItemPath {
+          events.append((relativePath, startingItemPath, parentFolderPath))
+        }
       }
 
       task.cancel()
@@ -671,6 +680,12 @@ extension SyncService {
     }
 
     downloadTasksDictionary[item.relativePath] = nil
+
+    DispatchQueue.main.async {
+      for event in events {
+        self.downloadCancelledPublisher.send(event)
+      }
+    }
   }
 
   /// Handler called when the download has finished for a task
@@ -690,9 +705,12 @@ extension SyncService {
     }
 
     let parentFolderPath = initiatingFolderReference[relativePath]
-    downloadProgressPublisher.send(
-      (relativePath, initiatingItemRelativePath, parentFolderPath, progress)
-    )
+
+    DispatchQueue.main.async {
+      self.downloadProgressPublisher.send(
+        (relativePath, initiatingItemRelativePath, parentFolderPath, progress)
+      )
+    }
   }
 
   /// Calculate the overall download progress for an item (useful for bound books)

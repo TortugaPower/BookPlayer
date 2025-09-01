@@ -46,6 +46,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   let syncService: SyncServiceProtocol
   let folderURL: URL
   let artworkCacheFolderURL = ArtworkService.cacheDirectoryURL
+  let listState: ListStateManager
 
   @Published var publishedFiles = [StorageItem]() {
     didSet {
@@ -96,11 +97,13 @@ final class StorageViewModel: StorageViewModelProtocol {
   init(
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
-    folderURL: URL
+    folderURL: URL,
+    listState: ListStateManager
   ) {
     self.libraryService = libraryService
     self.syncService = syncService
     self.folderURL = folderURL
+    self.listState = listState
 
     self.sortBy = BPStorageSortBy(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.storageFilesSortOrder)) ?? .size
 
@@ -336,8 +339,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   private func reloadLibraryItems() {
-    AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?
-      .getLibraryCoordinator()?.reloadItemsWithPadding()
+    listState.reloadAll()
   }
 
   private func createBook(from item: StorageItem) throws {

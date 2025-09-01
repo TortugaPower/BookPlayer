@@ -20,15 +20,13 @@ final class BPNavigation: ObservableObject {
 struct JellyfinRootView: View {
   @StateObject var navigation: BPNavigation
   @StateObject var connectionViewModel: JellyfinConnectionViewModel
-  @StateObject var theme = ThemeViewModel()
-  let singleFileDownloadService: SingleFileDownloadService
+
+  @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
+  @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
 
-  init(
-    connectionService: JellyfinConnectionService,
-    singleFileDownloadService: SingleFileDownloadService
-  ) {
+  init(connectionService: JellyfinConnectionService) {
     let navigation = BPNavigation()
     self._navigation = .init(wrappedValue: navigation)
     self._connectionViewModel = .init(
@@ -37,7 +35,6 @@ struct JellyfinRootView: View {
         navigation: navigation
       )
     )
-    self.singleFileDownloadService = singleFileDownloadService
   }
 
   var body: some View {
@@ -87,7 +84,7 @@ struct JellyfinRootView: View {
     .tint(theme.linkColor)
     .environmentObject(theme)
     .onAppear {
-        navigation.dismiss = dismiss
+      navigation.dismiss = dismiss
     }
   }
 

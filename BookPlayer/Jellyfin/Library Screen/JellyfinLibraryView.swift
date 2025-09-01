@@ -16,7 +16,9 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
-      return Text(String(format: "jellyfin_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems))
+      return Text(
+        String(format: "jellyfin_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
+      )
     } else {
       return Text(viewModel.navigationTitle)
     }
@@ -43,7 +45,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       Button("download_title".localized) {
         viewModel.confirmDownloadFolder()
       }
-      Button("cancel_button".localized, role: .cancel) { }
+      Button("cancel_button".localized, role: .cancel) {}
     } message: {
       Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
     }
@@ -71,10 +73,8 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     if !viewModel.editMode.isEditing {
       Menu {
         Section {
-          if #available(iOS 17.0, *) {
-            Button(action: viewModel.onEditToggleSelectTapped) {
-              Label("select_title".localized, systemImage: "checkmark.circle")
-            }
+          Button(action: viewModel.onEditToggleSelectTapped) {
+            Label("select_title".localized, systemImage: "checkmark.circle")
           }
           Button(action: viewModel.onDownloadFolderTapped) {
             Label("download_title".localized, systemImage: "arrow.down.to.line")

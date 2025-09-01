@@ -11,7 +11,7 @@ import SwiftUI
 
 struct SettingsAutolockView: View {
 
-  @StateObject var theme = ThemeViewModel()
+  @EnvironmentObject var theme: ThemeViewModel
   @StateObject var viewModel = SettingsAutolockViewModel()
 
   var body: some View {
@@ -44,7 +44,6 @@ struct SettingsAutolockView: View {
     }
     .scrollContentBackground(.hidden)
     .background(theme.systemGroupedBackgroundColor)
-    .environmentObject(theme)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
   }

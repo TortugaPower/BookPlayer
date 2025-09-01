@@ -10,8 +10,8 @@ import BookPlayerKit
 import SwiftUI
 
 struct ProgressLabelsSectionView: View {
-  @AppStorage(Constants.UserDefaults.remainingTimeEnabled) var prefersRemainingTime: Bool = true
-  @AppStorage(Constants.UserDefaults.chapterContextEnabled) var prefersChapterContext: Bool = true
+  @AppStorage(Constants.UserDefaults.remainingTimeEnabled, store: UserDefaults.sharedDefaults) var prefersRemainingTime: Bool = true
+  @AppStorage(Constants.UserDefaults.chapterContextEnabled, store: UserDefaults.sharedDefaults) var prefersChapterContext: Bool = true
 
   @EnvironmentObject var theme: ThemeViewModel
 

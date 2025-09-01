@@ -18,15 +18,16 @@ struct SettingsView: View {
   @State var showMailUnavailableModal = false
   @State var showLogin = false
   @State var showCompleteAccount = false
-  @StateObject var theme = ThemeViewModel()
   @State var loadingState = LoadingOverlayState()
 
+  @Environment(\.listState) private var listState
   @Environment(\.libraryService) private var libraryService
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerState) private var playerState
+  @EnvironmentObject private var theme: ThemeViewModel
 
   let supportEmail = "support@bookplayer.app"
 
@@ -58,12 +59,8 @@ struct SettingsView: View {
       .environment(\.loadingState, loadingState)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
-      .contentMargins(.top, Spacing.S1, for: .scrollContent)
-      .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
-      }
+      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+      .miniPlayerSafeAreaInset(88)
       .sheet(isPresented: $showMailModal) {
         SettingsMailView(
           recipients: [supportEmail],
@@ -82,7 +79,6 @@ struct SettingsView: View {
       } message: {
         Text(debugInfoDescription)
       }
-      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationDestination(for: SettingsScreen.self) { destination in
         let view: AnyView
         switch destination {
@@ -103,7 +99,8 @@ struct SettingsView: View {
                 StorageViewModel(
                   libraryService: libraryService,
                   syncService: syncService,
-                  folderURL: DataManager.getProcessedFolderURL()
+                  folderURL: DataManager.getProcessedFolderURL(),
+                  listState: listState
                 )
             )
           )
@@ -140,9 +137,7 @@ struct SettingsView: View {
 
         return
           view
-          .safeAreaInset(edge: .bottom) {
-            Spacer().frame(height: playerState.isBookLoaded ? 88 : Spacing.M)
-          }
+          .miniPlayerSafeAreaInset()
       }
       .sheet(isPresented: $showLogin) {
         NavigationStack {
@@ -154,7 +149,6 @@ struct SettingsView: View {
           .presentationDetents([.medium])
       }
     }
-    .environmentObject(theme)
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
   }

@@ -17,7 +17,6 @@ struct SmartRewindSectionView: View {
   var body: some View {
     Section {
       Toggle("settings_smartrewind_title", isOn: $smartRewindEnabled)
-        .tint(theme.linkColor)
     } footer: {
       Text("settings_smartrewind_description")
         .foregroundStyle(theme.secondaryColor)
