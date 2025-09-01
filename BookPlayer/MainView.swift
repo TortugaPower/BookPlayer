@@ -31,7 +31,6 @@ struct MainView: View {
           showPlayer: showPlayer,
           showImport: showImport
         )
-        .tag(BPTabItem.library)
         .tabItem {
           Label("library_title", systemImage: "books.vertical")
         }
@@ -43,12 +42,10 @@ struct MainView: View {
           return true
         }
         ProfileView()
-          .tag(BPTabItem.profile)
           .tabItem {
             Label("profile_title", systemImage: "person.crop.circle")
           }
         SettingsView()
-          .tag(BPTabItem.settings)
           .tabItem {
             Label("settings_title", systemImage: "gearshape")
           }

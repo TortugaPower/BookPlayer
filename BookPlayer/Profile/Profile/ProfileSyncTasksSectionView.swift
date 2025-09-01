@@ -28,16 +28,22 @@ struct ProfileSyncTasksSectionView: View {
     .onReceive(syncService.observeTasksCount()) { count in
       self.buttonText = String(format: "queued_sync_tasks_title".localized, count)
     }
-    .onReceive(NotificationCenter.default.publisher(for: .uploadProgressUpdated), perform: { notification in
+    .onReceive(
+      NotificationCenter.default.publisher(for: .uploadProgressUpdated)
+        .receive(on: DispatchQueue.main)
+    ) { notification in
       guard
         let relativePath = notification.userInfo?["relativePath"] as? String,
         let progress = notification.userInfo?["progress"] as? Double
       else { return }
       self.updateSyncMessage(relativePath: relativePath, progress: progress)
-    })
-    .onReceive(NotificationCenter.default.publisher(for: .uploadCompleted), perform: { _ in
+    }
+    .onReceive(
+      NotificationCenter.default.publisher(for: .uploadCompleted)
+        .receive(on: DispatchQueue.main)
+    ) { _ in
       self.statusMessage = ""
-    })
+    }
     .onAppear {
       refreshSyncStatusMessage()
     }
