@@ -80,6 +80,7 @@ struct LibraryRootView: View {
         .navigationBarTitleDisplayMode(.inline)
       }
       .errorAlert(error: $loadingState.error)
+      .loadingOverlay(loadingState.show)
       .onAppear {
         guard isFirstLoad else { return }
 
