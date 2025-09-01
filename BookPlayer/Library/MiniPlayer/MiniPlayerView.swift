@@ -18,10 +18,20 @@ struct MiniPlayerView: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
 
+  var voiceOverLabel: String {
+    let voiceOverTitle = playerManager.currentItem?.title ?? "voiceover_no_title".localized
+    let voiceOverSubtitle = playerManager.currentItem?.author ?? "voiceover_no_author".localized
+
+    return "voiceover_miniplayer_hint".localized
+    + ", "
+    + String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
+  }
+
   var body: some View {
     Group {
       HStack(spacing: 9) {
         MiniPlayerArtworkView(relativePath: relativePath)
+          .accessibilityHidden(true)
 
         VStack(alignment: .leading, spacing: 8) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
@@ -33,6 +43,9 @@ struct MiniPlayerView: View {
             .bpFont(Fonts.miniPlayerTitle)
             .lineLimit(1)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityLabel(voiceOverLabel)
         Spacer()
         Button {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()

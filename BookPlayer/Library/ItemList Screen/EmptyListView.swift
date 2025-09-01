@@ -20,10 +20,12 @@ struct EmptyListView: View {
       if node == .root {
         Image(.emptyLibrary)
           .padding(.bottom, Spacing.L)
+          .accessibilityHidden(true)
       } else {
         Image(.emptyPlaylist)
           .padding(.bottom, Spacing.L)
           .foregroundStyle(theme.linkColor)
+          .accessibilityHidden(true)
       }
 
       Button(action: action) {

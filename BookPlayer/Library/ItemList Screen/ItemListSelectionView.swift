@@ -33,12 +33,15 @@ struct ItemListSelectionView: View {
     NavigationStack {
       List {
         ForEach(filteredResults, id: \.id) { item in
-          BookView(item: item)
-            .onTapGesture {
-              onSelect(item)
-              dismiss()
-            }
-            .listRowBackground(theme.systemBackgroundColor)
+          BookView(item: item) {
+            onSelect(item)
+            dismiss()
+          }
+          .onTapGesture {
+            onSelect(item)
+            dismiss()
+          }
+          .listRowBackground(theme.systemBackgroundColor)
         }
       }
       .searchable(

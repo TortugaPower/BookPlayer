@@ -10,6 +10,8 @@ import BookPlayerKit
 import SwiftUI
 
 struct ItemListView: View {
+  enum FocusTarget: Hashable { case primary }
+
   @StateObject var model: ItemListViewModel
 
   @State private var showItemOptions = false
@@ -40,6 +42,9 @@ struct ItemListView: View {
 
   @State private var playingItemParentPath: String?
 
+  @Namespace private var customRotorNamespace
+  @AccessibilityFocusState private var focus: FocusTarget?
+
   @Environment(\.libraryService) private var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) private var syncService
@@ -65,41 +70,52 @@ struct ItemListView: View {
           showAddOptions = true
         }
       } else {
-        List(selection: $model.selectedSetItems) {
-          ForEach(model.filteredResults, id: \.id) { item in
-            rowView(item)
-          }
-          .onMove { source, destination in
-            model.reorderItems(source: source, destination: destination)
-          }
+        ScrollViewReader { scrollView in
+          List(selection: $model.selectedSetItems) {
+            ForEach(model.filteredResults, id: \.id) { item in
+              rowView(item)
+                .accessibilityRotorEntry(id: item.id, in: customRotorNamespace)
+            }
+            .onMove { source, destination in
+              model.reorderItems(source: source, destination: destination)
+            }
 
-          if model.canLoadMore {
-            loadMoreView()
+            if model.canLoadMore {
+              loadMoreView()
+            }
           }
-        }
-        .searchable(
-          text: $model.query,
-          isPresented: $model.isSearchFocused,
-          prompt: "search_title".localized + " \(model.libraryNode.title)"
-        )
-        .searchScopes($model.scope) {
-          ForEach(ItemListSearchScope.allCases) { scope in
-            Text(scope.title).tag(scope)
+          .accessibilityElement(children: .contain)
+          .accessibilityRotor("books_title") {
+            customBookRotor(with: scrollView)
           }
-        }
-        .environment(\.editMode, $model.editMode)
-        .refreshable {
-          importManager.notifyPendingFiles()
-          do {
-            try await model.refreshListState()
-          } catch {
-            self.showQueuedTasksAlert = true
+          .accessibilityRotor("folders_title") {
+            customFolderRotor(with: scrollView)
           }
+          .searchable(
+            text: $model.query,
+            isPresented: $model.isSearchFocused,
+            prompt: "search_title".localized + " \(model.libraryNode.title)"
+          )
+          .searchScopes($model.scope) {
+            ForEach(ItemListSearchScope.allCases) { scope in
+              Text(scope.title).tag(scope)
+            }
+          }
+          .environment(\.editMode, $model.editMode)
+          .refreshable {
+            importManager.notifyPendingFiles()
+            do {
+              try await model.refreshListState()
+            } catch {
+              self.showQueuedTasksAlert = true
+            }
+          }
+          .environment(\.playingItemParentPath, playingItemParentPath)
+          .environment(\.libraryNode, model.libraryNode)
         }
-        .environment(\.playingItemParentPath, playingItemParentPath)
-        .environment(\.libraryNode, model.libraryNode)
       }
     }
+    .accessibilityFocused($focus, equals: .primary)
     .confirmationDialog(
       itemOptionsTitle,
       isPresented: $showItemOptions,
@@ -229,9 +245,8 @@ struct ItemListView: View {
       }
     }
     .task {
-      Task {
-        await model.syncList()
-      }
+      focus = .primary
+      await model.syncList()
     }
     .task(id: playerState.loadedBookRelativePath) {
       playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
@@ -308,25 +323,21 @@ struct ItemListView: View {
   private func rowView(_ item: SimpleLibraryItem) -> some View {
     Group {
       if item.type == .folder {
-        FolderView(item: item)
+        FolderView(item: item) {
+          handleArtworkTap(for: item)
+        }
       } else {
-        BookView(item: item)
-          .onTapGesture {
-            switch syncService.getDownloadState(for: item) {
-            case .downloading:
-              model.selectedSetItems = [item.id]
-              showCancelDownloadAlert = true
-            case .downloaded, .notDownloaded:
-              Task {
-                do {
-                  try await playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
-                  playerState.showPlayerBinding.wrappedValue = true
-                } catch {
-                  loadingState.error = error
-                }
-              }
-            }
+        BookView(item: item) {
+          handleArtworkTap(for: item)
+        }
+        .onTapGesture {
+          switch syncService.getDownloadState(for: item) {
+          case .downloading:
+            cancelDownload(of: item.id)
+          case .downloaded, .notDownloaded:
+            loadPlayer(with: item.relativePath)
           }
+        }
       }
     }
     .onAppear {
@@ -353,6 +364,8 @@ struct ItemListView: View {
       ProgressView()
       Spacer()
     }
+    .listRowBackground(theme.systemBackgroundColor)
+    .accessibilityHidden(true)
     .task { await model.loadNextPage() }
   }
 
@@ -374,7 +387,7 @@ struct ItemListView: View {
 
   @ViewBuilder
   private func addFilesOptions() -> some View {
-    Button("import_button", systemImage: "folder") {
+    Button("import_button", systemImage: "waveform") {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {
@@ -448,15 +461,15 @@ struct ItemListView: View {
       }
 
       Section {
-        sortOptions()
-      } header: {
-        Text("sort_files_title")
-      }
-
-      Section {
         addFilesOptions()
       } header: {
         Text("playlist_add_title")
+      }
+
+      Section {
+        sortOptions()
+      } header: {
+        Text("sort_files_title")
       }
     } label: {
       Label("more_title".localized, systemImage: "ellipsis.circle")
@@ -517,6 +530,40 @@ struct ItemListView: View {
     .disabled(model.selectedItems.isEmpty)
 
     Spacer()
+  }
+
+  private func handleArtworkTap(for item: SimpleLibraryItem) {
+    switch syncService.getDownloadState(for: item) {
+    case .notDownloaded:
+      model.startDownload(of: item)
+    case .downloading:
+      cancelDownload(of: item.id)
+    case .downloaded:
+      switch item.type {
+      case .folder:
+        if let relativePath = model.getNextPlayableBookPath(in: item) {
+          loadPlayer(with: relativePath)
+        }
+      case .bound, .book:
+        loadPlayer(with: item.relativePath)
+      }
+    }
+  }
+
+  func cancelDownload(of relativePath: String) {
+    model.selectedSetItems = [relativePath]
+    showCancelDownloadAlert = true
+  }
+
+  func loadPlayer(with relativePath: String) {
+    Task {
+      do {
+        try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+        playerState.showPlayerBinding.wrappedValue = true
+      } catch {
+        loadingState.error = error
+      }
+    }
   }
 }
 
@@ -777,5 +824,38 @@ extension ItemListView {
     }
 
     Button("cancel_button", role: .cancel) {}
+  }
+}
+
+// MARK: - Custom Rotors
+extension ItemListView {
+  @AccessibilityRotorContentBuilder
+  private func customBookRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
+    ForEach(model.filteredResults, id: \.id) { item in
+      if item.type != .folder {
+        AccessibilityRotorEntry(
+          VoiceOverService.getAccessibilityLabel(for: item),
+          item.id,
+          in: customRotorNamespace
+        ) {
+          scrollView.scrollTo(item.id)
+        }
+      }
+    }
+  }
+
+  @AccessibilityRotorContentBuilder
+  private func customFolderRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
+    ForEach(model.filteredResults, id: \.id) { item in
+      if item.type == .folder {
+        AccessibilityRotorEntry(
+          VoiceOverService.getAccessibilityLabel(for: item),
+          item.id,
+          in: customRotorNamespace
+        ) {
+          scrollView.scrollTo(item.id)
+        }
+      }
+    }
   }
 }

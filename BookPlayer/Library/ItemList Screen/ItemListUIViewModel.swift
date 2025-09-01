@@ -94,26 +94,6 @@ class ItemListUIViewModel {
     self.defaultArtwork = ArtworkService.generateDefaultArtwork(from: themeAccent)?.pngData()
   }
 
-//  func getItem(of type: SimpleItemType, after currentIndex: Int) -> Int? {
-//    guard let (index, _) = (self.items.enumerated().first { (index, item) in
-//      guard index > currentIndex else { return false }
-//
-//      return item.type == type
-//    }) else { return nil }
-//
-//    return index
-//  }
-//
-//  func getItem(of type: SimpleItemType, before currentIndex: Int) -> Int? {
-//    guard let (index, _) = (self.items.enumerated().reversed().first { (index, item) in
-//      guard index < currentIndex else { return false }
-//
-//      return item.type == type
-//    }) else { return nil }
-//
-//    return index
-//  }
-
 //  private func playNextBook(in item: SimpleLibraryItem) {
 //    guard item.type == .folder else { return }
 //

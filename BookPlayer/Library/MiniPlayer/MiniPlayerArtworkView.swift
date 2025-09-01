@@ -16,13 +16,15 @@ struct MiniPlayerArtworkView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Group {
+    ZStack {
+      Color.black
       if let relativePath {
         KFImage
           .dataProvider(ArtworkService.getArtworkProvider(for: relativePath))
           .placeholder { theme.defaultArtwork }
           .targetCache(ArtworkService.cache)
           .resizable()
+          .aspectRatio(contentMode: .fit)
       } else {
         theme.defaultArtwork
       }

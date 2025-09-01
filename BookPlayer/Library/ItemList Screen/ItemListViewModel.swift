@@ -118,7 +118,7 @@ final class ItemListViewModel: ObservableObject {
 
   // MARK: - Infinite list
 
-  func loadNextPage(_ pageSize: Int? = 4) async {
+  func loadNextPage(_ pageSize: Int? = 13) async {
     guard !isLoading, canLoadMore else { return }
 
     isLoading = true
@@ -259,7 +259,9 @@ final class ItemListViewModel: ObservableObject {
 
   func handleSelectAll() {
     Task {
-      await loadNextPage(nil)
+      if canLoadMore {
+        await loadNextPage(nil)
+      }
       selectedSetItems = Set(items.map { $0.id })
     }
   }
@@ -267,6 +269,23 @@ final class ItemListViewModel: ObservableObject {
   func handleSort(by option: SortType) {
     libraryService.sortContents(at: libraryNode.folderRelativePath, by: option)
     reloadItems()
+  }
+
+  func getNextPlayableBookPath(in item: SimpleLibraryItem) -> String? {
+    guard item.type == .folder else { return nil }
+
+    /// If the player already is playing a subset of this folder, let the player handle playback
+    if let currentItem = playerManager.currentItem,
+       currentItem.relativePath.contains(item.relativePath) {
+      return currentItem.relativePath
+    }
+
+    let nextPlayableItem = try? playbackService.getFirstPlayableItem(
+      in: item,
+      isUnfinished: true
+    )
+
+    return nextPlayableItem?.relativePath
   }
 }
 

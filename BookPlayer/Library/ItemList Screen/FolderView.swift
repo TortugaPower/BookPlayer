@@ -11,12 +11,13 @@ import SwiftUI
 
 struct FolderView: View {
   let item: SimpleLibraryItem
+  let artworkTap: () -> Void
 
   var body: some View {
     NavigationLink(
       value: LibraryNode.folder(title: item.title, relativePath: item.relativePath)
     ) {
-      BookView(item: item)
+      BookView(item: item, artworkTap: artworkTap)
     }
   }
 }

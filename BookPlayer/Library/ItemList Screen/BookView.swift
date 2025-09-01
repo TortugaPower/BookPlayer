@@ -12,6 +12,7 @@ import SwiftUI
 
 struct BookView: View {
   let item: SimpleLibraryItem
+  let artworkTap: () -> Void
 
   @Environment(\.syncService) private var syncService
   @Environment(\.playingItemParentPath) private var playingItemParentPath
@@ -30,11 +31,14 @@ struct BookView: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      ItemArtworkView(
-        item: item,
-        isHighlighted: isHighlighted,
-        syncService: syncService
-      )
+      Button(action: artworkTap) {
+        ItemArtworkView(
+          item: item,
+          isHighlighted: isHighlighted,
+          syncService: syncService
+        )
+      }
+      .buttonStyle(.plain)
       VStack(alignment: .leading) {
         Text(verbatim: item.title)
           .font(.subheadline)
@@ -92,7 +96,7 @@ struct BookView: View {
       lastPlayDate: nil,
       type: .book
     )
-  )
+  ) {}
   .environment(\.syncService, syncService)
   .environmentObject(ThemeViewModel())
 }

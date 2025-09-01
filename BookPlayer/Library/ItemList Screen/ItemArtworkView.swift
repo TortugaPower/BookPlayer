@@ -35,6 +35,7 @@ struct ItemArtworkView: View {
 
   var body: some View {
     ZStack {
+      Color.black
       if let artworkURL = item.artworkURL {
         KFImage
           .resource(
@@ -45,6 +46,7 @@ struct ItemArtworkView: View {
           }
           .targetCache(ArtworkService.cache)
           .resizable()
+          .aspectRatio(contentMode: .fit)
       } else {
         KFImage
           .dataProvider(
@@ -58,6 +60,7 @@ struct ItemArtworkView: View {
           }
           .targetCache(ArtworkService.cache)
           .resizable()
+          .aspectRatio(contentMode: .fit)
       }
     }
     .frame(width: 50, height: 50)
