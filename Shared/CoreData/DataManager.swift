@@ -21,6 +21,9 @@ public class DataManager {
   private static var documentsFolderURL: URL = {
     return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
   }()
+  private static var applicationSupportFolderURL: URL = {
+    return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+  }()
   /// Prefer using this instead of ``getProcessedFolderURL()``, as it's calculated just once
   public static var processedFolderURL: URL = {
     let documentsURL = documentsFolderURL
@@ -45,6 +48,10 @@ public class DataManager {
 
   public class func getDocumentsFolderURL() -> URL {
     return documentsFolderURL
+  }
+
+  public class func getApplicationSupportFolderURL() -> URL {
+    return applicationSupportFolderURL
   }
 
   /// Keeping original implementation due to unit tests behaviors
@@ -80,6 +87,12 @@ public class DataManager {
     }
 
     return hiddenFolderURL.appendingPathComponent("bookplayer-synctasks.realm")
+  }
+
+  public class func getSyncTasksSwiftDataURL() -> URL {
+    let folderURL = getApplicationSupportFolderURL()
+
+    return folderURL.appendingPathComponent("bp-synctasks.sqlite")
   }
 
   public class func getBackupFolderURL() -> URL {

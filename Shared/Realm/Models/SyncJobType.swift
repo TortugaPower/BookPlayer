@@ -9,7 +9,7 @@
 import Foundation
 import RealmSwift
 
-public enum SyncJobType: String, PersistableEnum {
+public enum SyncJobType: String, CaseIterable, Codable, PersistableEnum {
   case upload
   case update
   case move

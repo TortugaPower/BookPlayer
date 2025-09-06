@@ -7,12 +7,14 @@
 //
 
 import BookPlayerKit
+import SwiftData
 import SwiftUI
 
 struct QueuedSyncTasksView: View {
   @AppStorage(Constants.UserDefaults.allowCellularData)
   private var allowsCellularData: Bool = false
   @State private var queuedJobs = [SyncTaskReference]()
+  @State private var jobsCount = 0
   @State private var showInfoAlert = false
 
   @Environment(\.syncService) private var syncService
@@ -56,7 +58,13 @@ struct QueuedSyncTasksView: View {
     } message: {
       Text("sync_tasks_alert_description")
     }
-    .onReceive(syncService.observeTasksCount()) { _ in
+    .onReceive(
+      syncService.observeTasksCount()
+      .dropFirst()
+    ) { count in
+      guard jobsCount != count else { return }
+
+      jobsCount = count
       reloadQueuedJobs()
     }
     .onAppear {
@@ -76,7 +84,9 @@ struct QueuedSyncTasksView: View {
 
   func reloadQueuedJobs() {
     Task { @MainActor in
-      queuedJobs = await syncService.getAllQueuedJobs()
+      let allJobs = await syncService.getAllQueuedJobs()
+      jobsCount = allJobs.count
+      queuedJobs = allJobs
     }
   }
 
