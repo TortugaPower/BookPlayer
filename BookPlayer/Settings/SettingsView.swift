@@ -60,7 +60,7 @@ struct SettingsView: View {
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
       .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-      .miniPlayerSafeAreaInset(88)
+      .miniPlayerSafeAreaInset()
       .sheet(isPresented: $showMailModal) {
         SettingsMailView(
           recipients: [supportEmail],

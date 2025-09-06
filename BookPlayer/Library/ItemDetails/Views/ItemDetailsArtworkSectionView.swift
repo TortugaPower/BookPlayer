@@ -50,7 +50,7 @@ struct ItemDetailsArtworkSectionView: View {
           .background(theme.secondaryColor.opacity(0.5))
         Spacer()
         Button("delete_button", systemImage: "trash", role: .destructive) {
-          image = theme.defaultUIArtwork
+          image = ImageRenderer(content: theme.defaultArtwork).uiImage
         }
         .labelStyle(.vertical)
         .buttonStyle(.plain)
@@ -62,6 +62,7 @@ struct ItemDetailsArtworkSectionView: View {
       Text("artwork_title")
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }
 

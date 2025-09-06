@@ -45,6 +45,7 @@ struct ProfileView: View {
           AccountView()
         case .tasks:
           QueuedSyncTasksView()
+            .miniPlayerSafeAreaInset()
         }
       }
       .sheet(isPresented: $showLogin) {

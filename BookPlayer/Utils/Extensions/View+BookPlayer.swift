@@ -39,8 +39,6 @@ extension View {
 }
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
-  let spacing: CGFloat
-
   @Environment(\.playerState) var playerState
 
   func body(content: Content) -> some View {
@@ -48,7 +46,7 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
       .safeAreaInset(edge: .bottom) {
         Spacer().frame(
           height: playerState.loadedBookRelativePath != nil
-            ? spacing
+            ? 112
             : Spacing.M
         )
       }
@@ -56,8 +54,8 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
 }
 
 extension View {
-  func miniPlayerSafeAreaInset(_ spacing: CGFloat = 112) -> some View {
-    self.modifier(MiniPlayerSafeAreaInsetModifier(spacing: spacing))
+  func miniPlayerSafeAreaInset() -> some View {
+    self.modifier(MiniPlayerSafeAreaInsetModifier())
   }
 }
 

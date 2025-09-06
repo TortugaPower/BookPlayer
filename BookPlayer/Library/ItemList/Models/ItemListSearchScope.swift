@@ -15,12 +15,9 @@ enum ItemListSearchScope: String, CaseIterable, Identifiable {
 
   var title: LocalizedStringKey {
     switch self {
-    case .all:
-      return "All"
-    case .books:
-      return "books_title"
-    case .folders:
-      return "folders_title"
+    case .all: "All"
+    case .books: "books_title"
+    case .folders: "folders_title"
     }
   }
 }

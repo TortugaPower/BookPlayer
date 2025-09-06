@@ -24,12 +24,12 @@ final class ListStateManager {
 
   func reloadAll(padding: Int = 0) {
     payloads[.all] = padding
-    globalToken &+= 1
+    globalToken += 1
   }
 
   func reload(_ scope: Scope, padding: Int = 0) {
     payloads[scope] = padding
-    tokens[scope, default: 0] &+= 1
+    tokens[scope, default: 0] += 1
   }
 
   func token(for scope: Scope) -> Int {

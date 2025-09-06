@@ -14,7 +14,6 @@ import Themeable
 class ThemeViewModel: ObservableObject, Themeable {
   @Published var theme: SimpleTheme
   @Published var defaultArtwork: Image?
-  @Published var defaultUIArtwork: UIImage?
 
   init() {
     theme = SimpleTheme.getDefaultTheme(useDarkVariant: UIScreen.main.traitCollection.userInterfaceStyle == .dark)
@@ -25,7 +24,6 @@ class ThemeViewModel: ObservableObject, Themeable {
     self.theme = theme
 
     if let artwork = ArtworkService.generateDefaultArtwork(from: theme.linkColor) {
-      defaultUIArtwork = artwork
       defaultArtwork = Image(uiImage: artwork)
     }
   }

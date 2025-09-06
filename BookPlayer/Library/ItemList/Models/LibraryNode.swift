@@ -15,19 +15,15 @@ enum LibraryNode: Equatable, Hashable {
 
   var title: String {
     switch self {
-    case .root:
-      return "library_title".localized
-    case .book(let title, _), .folder(let title, _):
-      return title
+    case .root: "library_title".localized
+    case .book(let title, _), .folder(let title, _): title
     }
   }
 
   var folderRelativePath: String? {
     switch self {
-    case .root, .book:
-      return nil
-    case .folder(_, let relativePath):
-      return relativePath
+    case .root, .book: nil
+    case .folder(_, let relativePath): relativePath
     }
   }
 }

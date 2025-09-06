@@ -22,3 +22,8 @@ struct VerticalLabelStyle: LabelStyle {
 extension LabelStyle where Self == VerticalLabelStyle {
   static var vertical: VerticalLabelStyle { .init() }
 }
+
+#Preview {
+  Label("Hello", systemImage: "arrow.up.circle")
+    .labelStyle(.vertical)
+}

@@ -542,6 +542,8 @@
 		63E15D9A2D8F1461005B42E5 /* SleepTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15D992D8F1461005B42E5 /* SleepTimerView.swift */; };
 		63E15DA22D91C934005B42E5 /* CountDownPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */; };
 		63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */; };
+		63E1FF8D2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */; };
+		63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */; };
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
 		63E54C342D50576C0040355D /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C332D50576C0040355D /* TipJarView.swift */; };
 		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
@@ -1389,6 +1391,8 @@
 		63E15D992D8F1461005B42E5 /* SleepTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerView.swift; sourceTree = "<group>"; };
 		63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountDownPickerView.swift; sourceTree = "<group>"; };
 		63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerCommandsView.swift; sourceTree = "<group>"; };
+		63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsFooterSectionView.swift; sourceTree = "<group>"; };
+		63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsTitleSectionView.swift; sourceTree = "<group>"; };
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
 		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
 		63E54C352D50626A0040355D /* TipOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOptionView.swift; sourceTree = "<group>"; };
@@ -2783,6 +2787,7 @@
 				9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */,
 				9F00A6202950F44B005EA316 /* ImagePicker.swift */,
 				9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */,
+				63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2911,6 +2916,7 @@
 				9F00A6222951DEE6005EA316 /* Views */,
 				9F00A6232951F2F3005EA316 /* ItemDetailsViewModel.swift */,
 				9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */,
+				63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */,
 			);
 			path = ItemDetails;
 			sourceTree = "<group>";
@@ -3966,6 +3972,7 @@
 				634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */,
 				63E893982CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */,
 				631908B82E3718F8009249C1 /* AppIconView.swift in Sources */,
+				63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */,
 				632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */,
@@ -4048,6 +4055,7 @@
 				6356F9C12AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift in Sources */,
 				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
+				63E1FF8D2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,

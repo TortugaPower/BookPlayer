@@ -32,41 +32,27 @@ struct ItemDetailsView: View {
 
   var body: some View {
     Form {
-      Section {
-        ClearableTextField(viewModel.titlePlaceholder, text: $viewModel.title)
-        if viewModel.showAuthor {
-          ClearableTextField(viewModel.authorPlaceholder, text: $viewModel.author)
-        }
-      } header: {
-        Text("details_title")
-          .foregroundStyle(theme.secondaryColor)
-      }
-      .listRowBackground(theme.secondarySystemBackgroundColor)
+      ItemDetailsTitleSectionView(
+        title: $viewModel.title,
+        titlePlaceholder: viewModel.titlePlaceholder,
+        showAuthor: viewModel.showAuthor,
+        author: $viewModel.author,
+        authorPlaceholder: viewModel.authorPlaceholder
+      )
 
       ItemDetailsArtworkSectionView(image: $viewModel.selectedImage) {
         showingArtworkOptions = true
       }
-      .listRowBackground(theme.secondarySystemBackgroundColor)
 
       if let viewModel = viewModel.hardcoverSectionViewModel {
         ItemDetailsHardcoverSectionView(viewModel: viewModel)
-          .listRowBackground(theme.secondarySystemBackgroundColor)
       }
 
-      Section {
-        EmptyView()
-      } footer: {
-        VStack(alignment: .leading) {
-          Text(viewModel.originalFileName)
-          Text("\(Int(viewModel.progress * 100))% " + "progress_title".localized.lowercased())
-          if let lastPlayedDate = viewModel.lastPlayedDate {
-            Text("watchapp_last_played_title".localized)
-              + Text(": " + lastPlayedDate)
-          }
-        }
-        .bpFont(Fonts.body)
-        .foregroundStyle(theme.secondaryColor)
-      }
+      ItemDetailsFooterSectionView(
+        originalFileName: viewModel.originalFileName,
+        progress: viewModel.progress,
+        lastPlayedDate: viewModel.lastPlayedDate
+      )
     }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true

@@ -38,7 +38,6 @@ struct LoginView: View {
         LoginDisclaimerSectionView()
       }
       .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-      .miniPlayerSafeAreaInset(88)
       LoginSignInButton { hasSubscription in
         if hasSubscription {
           dismiss()
