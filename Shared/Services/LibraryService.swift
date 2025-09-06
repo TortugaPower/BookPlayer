@@ -1464,6 +1464,35 @@ extension LibraryService {
     return results["totalDuration"] ?? 0
   }
 
+  public func reorderItems(
+    inside folderRelativePath: String?,
+    fromOffsets source: IndexSet,
+    toOffset destination: Int
+  ) {
+    guard
+      var contents = fetchRawContents(
+        at: folderRelativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.orderRank),
+        ]
+      )
+    else { return }
+
+    contents.move(fromOffsets: source, toOffset: destination)
+
+    /// Rebuild order rank
+    for (index, item) in contents.enumerated() {
+      item.orderRank = Int16(index)
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): item.relativePath!,
+        #keyPath(LibraryItem.orderRank): item.orderRank,
+      ])
+    }
+
+    dataManager.saveContext()
+  }
+
   public func reorderItem(
     with relativePath: String,
     inside folderRelativePath: String?,

@@ -10,19 +10,18 @@ import SwiftUI
 
 struct ItemDetailsHardcoverSectionView: View {
   @Environment(\.dismiss) var dismiss
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   @ObservedObject var viewModel: ItemDetailsHardcoverSectionView.Model
 
   var body: some View {
     Section(
       header: Text("section_item_hardcover".localized)
-        .foregroundStyle(themeViewModel.secondaryColor)
+        .foregroundStyle(theme.secondaryColor)
     ) {
       NavigationLink(
         destination: {
           HardcoverBookPickerView(viewModel: viewModel.pickerViewModel)
-            .environmentObject(themeViewModel)
         },
         label: {
           if let row = viewModel.pickerViewModel.selected {
@@ -34,6 +33,7 @@ struct ItemDetailsHardcoverSectionView: View {
       )
       .accessibilityHint("voiceover_hardcover_navigation_hint".localized)
     }
+    .listRowBackground(theme.secondarySystemBackgroundColor)
   }
 }
 
@@ -51,4 +51,5 @@ extension ItemDetailsHardcoverSectionView {
   Form {
     ItemDetailsHardcoverSectionView(viewModel: ItemDetailsHardcoverSectionView.Model())
   }
+  .environmentObject(ThemeViewModel())
 }

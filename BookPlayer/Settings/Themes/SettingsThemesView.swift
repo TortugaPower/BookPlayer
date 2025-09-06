@@ -58,7 +58,6 @@ struct SettingsThemesView: View {
                 .offset(x: xPos, y: -7)
             }
             Slider(value: $sliderValue, in: 0...1)
-              .tint(theme.linkColor)
           }
           .padding(.vertical)
           .onChange(of: sliderValue) {

@@ -74,7 +74,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService
       )
-      let playbackService = PlaybackService(libraryService: libraryService)
+      let playbackService = PlaybackService()
+      playbackService.setup(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
@@ -82,7 +83,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         speedService: SpeedService(libraryService: libraryService),
         widgetReloadService: WidgetReloadService()
       )
-      let playerLoaderService = PlayerLoaderService(
+      let playerLoaderService = PlayerLoaderService()
+      playerLoaderService.setup(
         syncService: syncService,
         libraryService: libraryService,
         playbackService: playbackService,

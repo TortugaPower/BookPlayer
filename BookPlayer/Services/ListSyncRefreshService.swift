@@ -15,16 +15,19 @@ enum BPSyncRefreshError: Error {
   case disabled
 }
 
-class ListSyncRefreshService: BPLogger {
+final class ListSyncRefreshService: BPLogger, ObservableObject {
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
+  let playerLoaderService: PlayerLoaderService
 
   init(
     playerManager: PlayerManagerProtocol,
-    syncService: SyncServiceProtocol
+    syncService: SyncServiceProtocol,
+    playerLoaderService: PlayerLoaderService
   ) {
     self.playerManager = playerManager
     self.syncService = syncService
+    self.playerLoaderService = playerLoaderService
   }
 
   func syncList(at relativePath: String?, alertPresenter: AlertPresenter) async {
@@ -81,7 +84,7 @@ class ListSyncRefreshService: BPLogger {
     await syncService.setLibraryLastBook(with: relativePath)
 
     do {
-      try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+      try await playerLoaderService.loadPlayer(
         relativePath,
         autoplay: false
       )
@@ -99,5 +102,47 @@ class ListSyncRefreshService: BPLogger {
         completion: nil
       )
     }
+  }
+
+  func syncList(at relativePath: String?) async throws {
+    do {
+      if let relativePath {
+        try await syncService.syncListContents(at: relativePath)
+      } else if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+        try await syncService.syncListContents(at: nil)
+      } else {
+        try await syncService.syncLibraryContents()
+      }
+    } catch BPSyncError.reloadLastBook(let relativePath) {
+      try await reloadLastBook(relativePath: relativePath)
+    } catch BPSyncError.differentLastBook(let relativePath) {
+      try await setSyncedLastPlayedItem(relativePath: relativePath)
+    } catch {
+      Self.logger.trace("Sync contents error: \(error.localizedDescription)")
+    }
+  }
+
+  @MainActor
+  private func reloadLastBook(relativePath: String) async throws {
+    let wasPlaying = playerManager.isPlaying
+    playerManager.stop()
+
+    try await playerLoaderService.loadPlayer(
+      relativePath,
+      autoplay: wasPlaying
+    )
+  }
+
+  @MainActor
+  private func setSyncedLastPlayedItem(relativePath: String) async throws {
+    /// Only continue overriding local book if it's not currently playing
+    guard playerManager.isPlaying == false else { return }
+
+    await syncService.setLibraryLastBook(with: relativePath)
+
+    try await playerLoaderService.loadPlayer(
+      relativePath,
+      autoplay: false
+    )
   }
 }

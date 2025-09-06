@@ -17,7 +17,6 @@ struct AutoSleepTimerSectionView: View {
   var body: some View {
     Section {
       Toggle("settings_sleeptimer_auto_title", isOn: $autoTimerEnabled)
-        .tint(theme.linkColor)
     } footer: {
       Text("settings_sleeptimer_auto_description")
         .foregroundStyle(theme.secondaryColor)

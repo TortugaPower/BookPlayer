@@ -17,7 +17,6 @@ struct BoostVolumeSectionView: View {
   var body: some View {
     Section {
       Toggle("settings_boostvolume_title", isOn: $boostVolumeEnabled)
-        .tint(theme.linkColor)
         .onChange(of: boostVolumeEnabled) {
           /// TODO: change when playerManager is avaialble in the environment
           guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }

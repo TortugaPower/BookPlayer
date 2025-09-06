@@ -158,7 +158,7 @@ class ActionParserService {
 
   private class func handleFileImportAction(_ action: Action) {
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator(),
+      let mainCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator,
       let urlString = action.getQueryValue(for: "url")
     else {
       return
@@ -166,7 +166,7 @@ class ActionParserService {
 
     let url = URL(fileURLWithPath: urlString)
     self.removeAction(action)
-    libraryCoordinator.processFiles(urls: [url])
+    mainCoordinator.processFiles(urls: [url])
   }
 
   private class func handleSleepAction(_ action: Action) {
@@ -196,9 +196,13 @@ class ActionParserService {
     if let bookIdentifier = action.getQueryValue(for: "identifier"),
       playerManager.currentItem?.relativePath != bookIdentifier
     {
-      if let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator() {
+      if let mainCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator {
         self.removeAction(action)
-        libraryCoordinator.loadPlayer(bookIdentifier)
+        mainCoordinator.loadPlayer(
+          bookIdentifier,
+          autoplay: true,
+          showPlayer: true
+        )
       }
     } else {
       self.removeAction(action)
@@ -253,24 +257,27 @@ class ActionParserService {
     }
 
     guard
-      let libraryCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator?.getLibraryCoordinator()
+      let mainCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator
     else { return }
 
     self.removeAction(action)
-    libraryCoordinator.loadPlayer(bookIdentifier)
+    mainCoordinator.loadPlayer(
+      bookIdentifier,
+      autoplay: true,
+      showPlayer: true
+    )
   }
 
   private class func handleDownloadAction(_ action: Action) {
     guard
       let mainCoordinator = AppDelegate.shared?.activeSceneDelegate?.mainCoordinator,
-      let libraryCoordinator = mainCoordinator.getLibraryCoordinator(),
       let urlString = action.getQueryValue(for: "url")?.replacingOccurrences(of: "\"", with: "")
     else {
       return
     }
 
     guard let url = URL(string: urlString) else {
-      libraryCoordinator.showAlert(
+      mainCoordinator.showAlert(
         "error_title".localized,
         message: String.localizedStringWithFormat("invalid_url_title".localized, urlString)
       )

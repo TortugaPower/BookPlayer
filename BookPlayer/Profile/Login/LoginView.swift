@@ -37,10 +37,7 @@ struct LoginView: View {
         )
         LoginDisclaimerSectionView()
       }
-      .contentMargins(.top, Spacing.S1, for: .scrollContent)
-      .safeAreaInset(edge: .bottom) {
-        Spacer().frame(height: 88)
-      }
+      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
       LoginSignInButton { hasSubscription in
         if hasSubscription {
           dismiss()
@@ -50,9 +47,7 @@ struct LoginView: View {
       }
     }
     .environment(\.loadingState, loadingState)
-    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .listSectionSpacing(Spacing.S2)
-    .scrollContentBackground(.hidden)
     .navigationTitle("BookPlayer Pro")
     .navigationBarTitleDisplayMode(.inline)
     .errorAlert(error: $loadingState.error)
