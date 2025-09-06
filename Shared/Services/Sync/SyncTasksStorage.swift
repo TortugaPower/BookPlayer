@@ -8,7 +8,6 @@
 
 import Combine
 import Foundation
-import RealmSwift
 import SwiftData
 
 /// Persist jobs using SwiftData
