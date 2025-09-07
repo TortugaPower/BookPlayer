@@ -42,14 +42,22 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
 
   func body(content: Content) -> some View {
-    content
-      .safeAreaInset(edge: .bottom) {
-        Spacer().frame(
-          height: playerState.loadedBookRelativePath != nil
-            ? 112
-            : Spacing.M
-        )
-      }
+    if #available(iOS 26.0, *) {
+      /// New accessory view already insets the entire view
+      content
+        .safeAreaInset(edge: .bottom) {
+          Spacer().frame(height: Spacing.M)
+        }
+    } else {
+      content
+        .safeAreaInset(edge: .bottom) {
+          Spacer().frame(
+            height: playerState.loadedBookRelativePath != nil
+              ? 112
+              : Spacing.M
+          )
+        }
+    }
   }
 }
 
@@ -69,5 +77,31 @@ extension View {
       .scrollContentBackground(.hidden)
       .background(background)
       .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
+  }
+}
+
+// MARK: - Toolbar utils
+
+struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
+  @ViewBuilder let regular: () -> Regular
+  @ViewBuilder let accessory: () -> Accessory
+
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .tabViewBottomAccessory(content: accessory)
+    } else {
+      content
+        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+    }
+  }
+}
+extension View {
+  func miniPlayer<Regular: View, Accessory: View>(
+    @ViewBuilder regularContent: @escaping () -> Regular,
+    @ViewBuilder accessoryContent: @escaping () -> Accessory
+  ) -> some View {
+    self.modifier(MiniPlayerModifier<Regular, Accessory>(regular: regularContent, accessory: accessoryContent))
   }
 }

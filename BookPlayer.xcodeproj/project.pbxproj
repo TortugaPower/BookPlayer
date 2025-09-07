@@ -304,6 +304,9 @@
 		63005A3C2AE7FD8000A4CA2C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
 		63005A3E2AE7FD8000A4CA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 416A29AB2569658300605395 /* Assets.xcassets */; };
 		63005A452AE800C000A4CA2C /* BookPlayerWidgetsWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		630494812E6C932100C72387 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 630494802E6C928E00C72387 /* AppIcon.icon */; };
+		630494822E6C937A00C72387 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 630494802E6C928E00C72387 /* AppIcon.icon */; };
+		630494842E6D1DF000C72387 /* MiniPlayerAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630494832E6D1DF000C72387 /* MiniPlayerAccessoryView.swift */; };
 		6304CF672B4B595400055285 /* SettingsAutoplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6304CF662B4B595400055285 /* SettingsAutoplayViewModel.swift */; };
 		6304CF6A2B4C2AE800055285 /* SettingsAutoplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6304CF692B4C2AE800055285 /* SettingsAutoplayView.swift */; };
 		630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418445C2258AE11E0072DD13 /* WidgetUtils.swift */; };
@@ -449,8 +452,6 @@
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
-		638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
-		638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
 		638352CA2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
 		638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
 		638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
@@ -459,8 +460,6 @@
 		638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
 		638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */; };
 		638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638D91A72E60AAA600B62BDD /* ImportOperationState.swift */; };
-		638E64CB2B8E086400DCFA3B /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CA2B8E086400DCFA3B /* RealmManager.swift */; };
-		638E64CC2B8E086400DCFA3B /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CA2B8E086400DCFA3B /* RealmManager.swift */; };
 		638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		6397206F2CA71D600045A4DB /* .swift-format in Resources */ = {isa = PBXBuildFile; fileRef = 6397206E2CA71D600045A4DB /* .swift-format */; };
@@ -477,14 +476,6 @@
 		639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639DF4982E634C8600B29BBB /* MiniPlayerArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */; };
 		639DF49A2E6350D700B29BBB /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639DF4992E6350D700B29BBB /* MiniPlayerView.swift */; };
-		639E12BA2B85A4A400C875F7 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 639E12B92B85A4A400C875F7 /* Realm */; };
-		639E12BC2B85A4A400C875F7 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 639E12BB2B85A4A400C875F7 /* RealmSwift */; };
-		639E12BE2B85A58600C875F7 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 639E12BD2B85A58600C875F7 /* Realm */; };
-		639E12C02B85A58D00C875F7 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 639E12BF2B85A58D00C875F7 /* RealmSwift */; };
-		639E12C62B85AACF00C875F7 /* SyncTasksObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */; };
-		639E12C72B85AACF00C875F7 /* SyncTasksObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */; };
-		639E12DB2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */; };
-		639E12DC2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */; };
 		63AB64EB2E371FCE00EF6866 /* SettingsThemesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */; };
 		63AD93D22E3C1BA70077E73A /* SimpleAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */; };
 		63AD93D32E3C1BA70077E73A /* SimpleAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */; };
@@ -497,12 +488,6 @@
 		63AE44732E6161B60088668F /* DirectoryWatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 63AE44722E6161B60088668F /* DirectoryWatcher */; };
 		63AE5A872E4C4329002531B8 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE5A862E4C4329002531B8 /* MainView.swift */; };
 		63AE5A8D2E4C59FE002531B8 /* AppHostingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE5A8C2E4C59FE002531B8 /* AppHostingViewController.swift */; };
-		63B2303D2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */; };
-		63B2303E2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */; };
-		63B230422B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */; };
-		63B230432B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */; };
-		63B230452B8CCF1800AEECED /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B230442B8CCF1800AEECED /* SyncJobType.swift */; };
-		63B230462B8CCF1800AEECED /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B230442B8CCF1800AEECED /* SyncJobType.swift */; };
 		63B3B6902B1F625B007A367C /* StorageCloudDeletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */; };
 		63B407432C1B0CC1000A3B19 /* StorySkipControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B407422C1B0CC1000A3B19 /* StorySkipControlsView.swift */; };
 		63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */; };
@@ -551,6 +536,8 @@
 		63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */; };
 		63E1FF8D2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */; };
 		63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */; };
+		63E1FF912E6C8C2000F2E003 /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */; };
+		63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */; };
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
 		63E54C342D50576C0040355D /* TipJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C332D50576C0040355D /* TipJarView.swift */; };
 		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
@@ -1177,6 +1164,8 @@
 		62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportableItem.swift; sourceTree = "<group>"; };
 		63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerWidgetsWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		63005A442AE7FD8100A4CA2C /* Watch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Watch-Info.plist"; path = "/Users/pro.gianni.carlo/Workspace/BookPlayer/Watch-Info.plist"; sourceTree = "<absolute>"; };
+		630494802E6C928E00C72387 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		630494832E6D1DF000C72387 /* MiniPlayerAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerAccessoryView.swift; sourceTree = "<group>"; };
 		6304CF662B4B595400055285 /* SettingsAutoplayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutoplayViewModel.swift; sourceTree = "<group>"; };
 		6304CF692B4C2AE800055285 /* SettingsAutoplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutoplayView.swift; sourceTree = "<group>"; };
 		630584E32ADEB88500FBFA6F /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -1326,13 +1315,11 @@
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
-		638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmToSwiftDataMigrationService.swift; sourceTree = "<group>"; };
 		638352C52E67F327009EE79E /* SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksModels.swift; sourceTree = "<group>"; };
 		638352C72E67F327009EE79E /* TasksDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksDataManager.swift; sourceTree = "<group>"; };
 		638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels+Extensions.swift"; sourceTree = "<group>"; };
 		638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListSelectionView.swift; sourceTree = "<group>"; };
 		638D91A72E60AAA600B62BDD /* ImportOperationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationState.swift; sourceTree = "<group>"; };
-		638E64CA2B8E086400DCFA3B /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
 		638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCountService.swift; sourceTree = "<group>"; };
 		6397206E2CA71D600045A4DB /* .swift-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-format"; sourceTree = "<group>"; };
 		639720712CAAF8290045A4DB /* LastPlayedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedProvider.swift; sourceTree = "<group>"; };
@@ -1345,8 +1332,6 @@
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerArtworkView.swift; sourceTree = "<group>"; };
 		639DF4992E6350D700B29BBB /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
-		639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksObject.swift; sourceTree = "<group>"; };
-		639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmMigrationManager.swift; sourceTree = "<group>"; };
 		63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsThemesView.swift; sourceTree = "<group>"; };
 		63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccount.swift; sourceTree = "<group>"; };
 		63AD93D42E3C72830077E73A /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
@@ -1357,9 +1342,6 @@
 		63AD93DE2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSyncTasksSectionView.swift; sourceTree = "<group>"; };
 		63AE5A862E4C4329002531B8 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		63AE5A8C2E4C59FE002531B8 /* AppHostingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHostingViewController.swift; sourceTree = "<group>"; };
-		63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationStoredSyncTasks.swift; sourceTree = "<group>"; };
-		63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Realm+BookPlayer.swift"; sourceTree = "<group>"; };
-		63B230442B8CCF1800AEECED /* SyncJobType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobType.swift; sourceTree = "<group>"; };
 		63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedView.swift; sourceTree = "<group>"; };
 		63B407422C1B0CC1000A3B19 /* StorySkipControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorySkipControlsView.swift; sourceTree = "<group>"; };
 		63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshService.swift; sourceTree = "<group>"; };
@@ -1401,6 +1383,7 @@
 		63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerCommandsView.swift; sourceTree = "<group>"; };
 		63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsFooterSectionView.swift; sourceTree = "<group>"; };
 		63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsTitleSectionView.swift; sourceTree = "<group>"; };
+		63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobType.swift; sourceTree = "<group>"; };
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
 		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
 		63E54C352D50626A0040355D /* TipOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipOptionView.swift; sourceTree = "<group>"; };
@@ -1613,8 +1596,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				639E12C02B85A58D00C875F7 /* RealmSwift in Frameworks */,
-				639E12BE2B85A58600C875F7 /* Realm in Frameworks */,
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
 				62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */,
 			);
@@ -1657,8 +1638,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				639E12BC2B85A4A400C875F7 /* RealmSwift in Frameworks */,
-				639E12BA2B85A4A400C875F7 /* Realm in Frameworks */,
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
 				62CADBA82725BCE800A4A98F /* Kingfisher in Frameworks */,
 			);
@@ -1929,6 +1908,7 @@
 		418B6CEF1D2707F700F974FB = {
 			isa = PBXGroup;
 			children = (
+				630494802E6C928E00C72387 /* AppIcon.icon */,
 				9F00F6EF28084C8800996BBB /* IAP-Configuration.storekit */,
 				9F00F6F128085CCC00996BBB /* StoreKitTestCertificate.cer */,
 				415A9974264CCD2E002BFD35 /* BuildConfiguration */,
@@ -2041,7 +2021,6 @@
 				62AAE22F274AA6E9001EB9FF /* Services */,
 				C3AA3732207BF7670004DCFD /* CoreData */,
 				638352C92E67F327009EE79E /* SwiftData */,
-				63B2303B2B8CCDDB00AEECED /* Realm */,
 				6279361B272CDA8A0097837D /* Artwork */,
 				41A1B106226E9DCA00EA0400 /* Extensions */,
 				41A8941F2652A5DE0032E972 /* Configuration.swift */,
@@ -2566,6 +2545,7 @@
 			isa = PBXGroup;
 			children = (
 				638352C52E67F327009EE79E /* SyncTasksModels.swift */,
+				63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2611,36 +2591,6 @@
 				6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */,
 			);
 			path = RemoteItemList;
-			sourceTree = "<group>";
-		};
-		63B2303B2B8CCDDB00AEECED /* Realm */ = {
-			isa = PBXGroup;
-			children = (
-				63B2303F2B8CCE5800AEECED /* Migrations */,
-				63B230402B8CCE6200AEECED /* Models */,
-				638E64CA2B8E086400DCFA3B /* RealmManager.swift */,
-				63B230412B8CCE8600AEECED /* Realm+BookPlayer.swift */,
-			);
-			path = Realm;
-			sourceTree = "<group>";
-		};
-		63B2303F2B8CCE5800AEECED /* Migrations */ = {
-			isa = PBXGroup;
-			children = (
-				639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */,
-				63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */,
-				638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */,
-			);
-			path = Migrations;
-			sourceTree = "<group>";
-		};
-		63B230402B8CCE6200AEECED /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				639E12C52B85AACF00C875F7 /* SyncTasksObject.swift */,
-				63B230442B8CCF1800AEECED /* SyncJobType.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		63C6C2E42B50299D00FFE0D8 /* Autolock */ = {
@@ -3082,6 +3032,7 @@
 			children = (
 				639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */,
 				639DF4992E6350D700B29BBB /* MiniPlayerView.swift */,
+				630494832E6D1DF000C72387 /* MiniPlayerAccessoryView.swift */,
 			);
 			path = MiniPlayer;
 			sourceTree = "<group>";
@@ -3305,8 +3256,6 @@
 			packageProductDependencies = (
 				62CADBA92725BCF000A4A98F /* Kingfisher */,
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
-				639E12BD2B85A58600C875F7 /* Realm */,
-				639E12BF2B85A58D00C875F7 /* RealmSwift */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -3403,8 +3352,6 @@
 			packageProductDependencies = (
 				62CADBA72725BCE800A4A98F /* Kingfisher */,
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
-				639E12B92B85A4A400C875F7 /* Realm */,
-				639E12BB2B85A4A400C875F7 /* RealmSwift */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -3555,7 +3502,6 @@
 				41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
-				639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */,
 				63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 			);
@@ -3589,6 +3535,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4689C06D2D270A7100D6C169 /* Localizable.strings in Resources */,
+				630494822E6C937A00C72387 /* AppIcon.icon in Resources */,
 				630F115F2AE7EECA000A997A /* Assets.xcassets in Resources */,
 				41A8BAFB227E2991003C9895 /* Assets.xcassets in Resources */,
 			);
@@ -3668,6 +3615,7 @@
 				9F665EDE2A4898F6004BFE27 /* heart-of-glass-ayu@2x.png in Resources */,
 				6397206F2CA71D600045A4DB /* .swift-format in Resources */,
 				C3EA7176218DEC870005D488 /* .swiftformat in Resources */,
+				630494812E6C932100C72387 /* AppIcon.icon in Resources */,
 				41E562FC2239535D00C06BC9 /* neon-ipad@2x.png in Resources */,
 				41E562D222394F5A00C06BC9 /* dark@2x.png in Resources */,
 				41E562E322394FB900C06BC9 /* songs@2x.png in Resources */,
@@ -3850,7 +3798,6 @@
 				3F6640902E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				3FF5BA672E10EA6F00B82BCC /* HardcoverBook+CoreDataProperties.swift in Sources */,
 				4140EA7D227289CB0009F794 /* LibraryItem+CoreDataProperties.swift in Sources */,
-				63B230462B8CCF1800AEECED /* SyncJobType.swift in Sources */,
 				4140EA73227289A80009F794 /* Notification+BookPlayerKit.swift in Sources */,
 				41A894212652A5DE0032E972 /* Configuration.swift in Sources */,
 				9FACAC6A2970F2F500D01EB7 /* SyncableItem.swift in Sources */,
@@ -3873,8 +3820,8 @@
 				9FDDD2D9289B64440020C428 /* SyncStatus.swift in Sources */,
 				9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
-				638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
+				63E1FF912E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
 				9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */,
@@ -3885,7 +3832,6 @@
 				6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */,
 				63125D0F2C36D84E00D35533 /* EventsAPI.swift in Sources */,
 				9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */,
-				63B2303E2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
 				638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */,
@@ -3896,7 +3842,6 @@
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
 				9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
-				639E12DC2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
 				4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */,
 				41EB07192752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
@@ -3905,7 +3850,6 @@
 				41D20DB325D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				63C6C31A2B5E102200FFE0D8 /* SyncTask.swift in Sources */,
 				9F07B79929B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
-				63B230432B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */,
 				4124AB1825DFE07E0007C839 /* DataMigrationManager.swift in Sources */,
 				41C3394A25E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */,
@@ -3917,14 +3861,12 @@
 				9F7B64752803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */,
 				639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
-				639E12C72B85AACF00C875F7 /* SyncTasksObject.swift in Sources */,
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
 				9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
-				638E64CC2B8E086400DCFA3B /* RealmManager.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				6308260B2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */,
 				63398E3D2D68254000A6934E /* SimplePlaybackRecord.swift in Sources */,
@@ -4115,6 +4057,7 @@
 				9F00A6212950F44B005EA316 /* ImagePicker.swift in Sources */,
 				638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */,
 				63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */,
+				630494842E6D1DF000C72387 /* MiniPlayerAccessoryView.swift in Sources */,
 				9F00A6242951F2F3005EA316 /* ItemDetailsViewModel.swift in Sources */,
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
@@ -4320,7 +4263,6 @@
 				4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				41A90C4827564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23401272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
-				639E12DB2B8AC65B00C875F7 /* RealmMigrationManager.swift in Sources */,
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				3FF5BA692E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
@@ -4334,11 +4276,9 @@
 				41A359C5276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				41A1B125226F88C500EA0400 /* LibraryItem+CoreDataClass.swift in Sources */,
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
-				63B2303D2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,
 				41C23403272E1965006BC7B8 /* PlaybackState.swift in Sources */,
 				41A1B120226F88C500EA0400 /* Chapter+CoreDataProperties.swift in Sources */,
-				63B230422B8CCE8700AEECED /* Realm+BookPlayer.swift in Sources */,
 				41CE44A9227215B500C900AF /* Notification+BookPlayerKit.swift in Sources */,
 				41C233FF272E195B006BC7B8 /* SimpleItemType.swift in Sources */,
 				9FDDD2D8289B64440020C428 /* SyncStatus.swift in Sources */,
@@ -4363,7 +4303,6 @@
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
-				638E64CB2B8E086400DCFA3B /* RealmManager.swift in Sources */,
 				412AB71527017ABE00969618 /* DBVersion.swift in Sources */,
 				9F6BC86627E6D03D002CF2A6 /* WatchApplicationContext.swift in Sources */,
 				4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
@@ -4380,16 +4319,15 @@
 				638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */,
 				638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
-				639E12C62B85AACF00C875F7 /* SyncTasksObject.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
 				418CABB425EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
-				638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
+				63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
@@ -4401,7 +4339,6 @@
 				638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
 				63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */,
 				3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */,
-				63B230452B8CCF1800AEECED /* SyncJobType.swift in Sources */,
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				9F1345B62938DF070089B1DE /* Fonts.swift in Sources */,
@@ -4750,6 +4687,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -4791,6 +4729,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -4829,6 +4768,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -5221,7 +5161,8 @@
 			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUNDLE_ID_SUFFIX = .debug;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
@@ -5260,7 +5201,8 @@
 			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
@@ -5765,7 +5707,8 @@
 			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon${BUNDLE_ID_SUFFIX}";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUNDLE_ID_SUFFIX = .beta;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CODE_SIGN_ENTITLEMENTS = "BookPlayer/$(BP_ENTITLEMENTS).entitlements";
@@ -5987,14 +5930,6 @@
 				minimumVersion = 2.3.0;
 			};
 		};
-		639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/realm-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.47.0;
-			};
-		};
 		63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GianniCarlo/DirectoryWatcher.git";
@@ -6061,26 +5996,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		639E12B92B85A4A400C875F7 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		639E12BB2B85A4A400C875F7 /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
-		};
-		639E12BD2B85A58600C875F7 /* Realm */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		639E12BF2B85A58D00C875F7 /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 639E12B82B85A4A400C875F7 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
 		};
 		63AE44722E6161B60088668F /* DirectoryWatcher */ = {
 			isa = XCSwiftPackageProductDependency;
