@@ -89,8 +89,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private func initializeStore() {
     initializeStoreTask = Task.detached {
       do {
-        let migrationService = RealmToSwiftDataMigrationService(modelContainer: self.tasksDataManager.container)
-        try await migrationService.migrateRealmDataToSwiftData()
         self.taskStore = try SyncTasksStorage(tasksDataManager: self.tasksDataManager)
       } catch {
         fatalError("Failed to initialize sync tasks store: \(error.localizedDescription)")
