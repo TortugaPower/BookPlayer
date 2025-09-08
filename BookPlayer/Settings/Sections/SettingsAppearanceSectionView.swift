@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 
 struct SettingsAppearanceSectionView: View {
-  @AppStorage(Constants.UserDefaults.appIcon)
+  @AppStorage(Constants.UserDefaults.appIcon, store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier))
   var appIcon: String = "Default"
   @State
   var orientationLock: Bool

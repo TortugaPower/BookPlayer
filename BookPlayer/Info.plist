@@ -105,6 +105,34 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>Fruit Based26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based-26</string>
+				</array>
+			</dict>
+			<key>Music</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>music-26</string>
+				</array>
+			</dict>
+			<key>Platinum</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Platinum</string>
+				</array>
+			</dict>
+			<key>Pride26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride-26</string>
+				</array>
+			</dict>
 			<key>Pride</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -198,19 +226,47 @@
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>
-      <key>NSAppIconActionTintColorName</key>
-      <string>ShortcutsForegroundColor</string>
-      <key>NSAppIconComplementingColorNames</key>
-      <array>
-        <string>ShortcutsBackgroundColor1</string>
-        <string>ShortcutsBackgroundColor2</string>
-      </array>
+			<key>NSAppIconActionTintColorName</key>
+			<string>ShortcutsForegroundColor</string>
+			<key>NSAppIconComplementingColorNames</key>
+			<array>
+				<string>ShortcutsBackgroundColor1</string>
+				<string>ShortcutsBackgroundColor2</string>
+			</array>
 		</dict>
 	</dict>
 	<key>CFBundleIcons~ipad</key>
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>Fruit Based26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based-ipad-26</string>
+				</array>
+			</dict>
+			<key>Music</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>music-ipad-26</string>
+				</array>
+			</dict>
+			<key>Platinum</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Platinum-ipad</string>
+				</array>
+			</dict>
+			<key>Pride26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride-ipad-26</string>
+				</array>
+			</dict>
 			<key>Pride</key>
 			<dict>
 				<key>CFBundleIconFiles</key>

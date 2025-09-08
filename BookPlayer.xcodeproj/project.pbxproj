@@ -393,6 +393,22 @@
 		634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A42C176B5A0015314D /* StoryActionView.swift */; };
 		634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5A62C1777BA0015314D /* PricingBoxView.swift */; };
 		634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634BA5AC2C180F5E0015314D /* StoryViewModel.swift */; };
+		634E16082E6E9D2900ED9589 /* pride-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16072E6E9D2900ED9589 /* pride-26@3x.png */; };
+		634E16092E6E9D2900ED9589 /* pride-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16062E6E9D2900ED9589 /* pride-26@2x.png */; };
+		634E160C2E6E9DC300ED9589 /* pride-ipad-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E160A2E6E9DC300ED9589 /* pride-ipad-26@2x.png */; };
+		634E160D2E6E9DC300ED9589 /* pride-ipad-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E160B2E6E9DC300ED9589 /* pride-ipad-26@3x.png */; };
+		634E16182E6E9F0500ED9589 /* Platinum-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16162E6E9F0500ED9589 /* Platinum-ipad@2x.png */; };
+		634E16192E6E9F0500ED9589 /* Platinum-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16172E6E9F0500ED9589 /* Platinum-ipad@3x.png */; };
+		634E16202E6EA00500ED9589 /* music-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E161E2E6EA00500ED9589 /* music-26@2x.png */; };
+		634E16212E6EA00500ED9589 /* music-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E161F2E6EA00500ED9589 /* music-26@3x.png */; };
+		634E16242E6EA00E00ED9589 /* music-ipad-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16222E6EA00E00ED9589 /* music-ipad-26@2x.png */; };
+		634E16252E6EA00E00ED9589 /* music-ipad-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16232E6EA00E00ED9589 /* music-ipad-26@3x.png */; };
+		634E16282E6EA0FC00ED9589 /* fruit-based-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16262E6EA0FC00ED9589 /* fruit-based-26@2x.png */; };
+		634E16292E6EA0FC00ED9589 /* fruit-based-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E16272E6EA0FC00ED9589 /* fruit-based-26@3x.png */; };
+		634E162C2E6EA10800ED9589 /* fruit-based-ipad-26@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E162A2E6EA10800ED9589 /* fruit-based-ipad-26@2x.png */; };
+		634E162D2E6EA10800ED9589 /* fruit-based-ipad-26@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E162B2E6EA10800ED9589 /* fruit-based-ipad-26@3x.png */; };
+		634E16302E6EA73E00ED9589 /* Platinum@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E162E2E6EA73E00ED9589 /* Platinum@2x.png */; };
+		634E16312E6EA73E00ED9589 /* Platinum@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E162F2E6EA73E00ED9589 /* Platinum@3x.png */; };
 		634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */; };
 		634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634FF7A12DF73DDE005D1C0D /* JellyfinLibraryListView.swift */; };
 		6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4632CF004160077CDC1 /* LoadingView.swift */; };
@@ -1240,6 +1256,22 @@
 		634BA5A42C176B5A0015314D /* StoryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryActionView.swift; sourceTree = "<group>"; };
 		634BA5A62C1777BA0015314D /* PricingBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingBoxView.swift; sourceTree = "<group>"; };
 		634BA5AC2C180F5E0015314D /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		634E16062E6E9D2900ED9589 /* pride-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-26@2x.png"; sourceTree = "<group>"; };
+		634E16072E6E9D2900ED9589 /* pride-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-26@3x.png"; sourceTree = "<group>"; };
+		634E160A2E6E9DC300ED9589 /* pride-ipad-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-ipad-26@2x.png"; sourceTree = "<group>"; };
+		634E160B2E6E9DC300ED9589 /* pride-ipad-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pride-ipad-26@3x.png"; sourceTree = "<group>"; };
+		634E16162E6E9F0500ED9589 /* Platinum-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Platinum-ipad@2x.png"; sourceTree = "<group>"; };
+		634E16172E6E9F0500ED9589 /* Platinum-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Platinum-ipad@3x.png"; sourceTree = "<group>"; };
+		634E161E2E6EA00500ED9589 /* music-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "music-26@2x.png"; sourceTree = "<group>"; };
+		634E161F2E6EA00500ED9589 /* music-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "music-26@3x.png"; sourceTree = "<group>"; };
+		634E16222E6EA00E00ED9589 /* music-ipad-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "music-ipad-26@2x.png"; sourceTree = "<group>"; };
+		634E16232E6EA00E00ED9589 /* music-ipad-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "music-ipad-26@3x.png"; sourceTree = "<group>"; };
+		634E16262E6EA0FC00ED9589 /* fruit-based-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fruit-based-26@2x.png"; sourceTree = "<group>"; };
+		634E16272E6EA0FC00ED9589 /* fruit-based-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fruit-based-26@3x.png"; sourceTree = "<group>"; };
+		634E162A2E6EA10800ED9589 /* fruit-based-ipad-26@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fruit-based-ipad-26@2x.png"; sourceTree = "<group>"; };
+		634E162B2E6EA10800ED9589 /* fruit-based-ipad-26@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fruit-based-ipad-26@3x.png"; sourceTree = "<group>"; };
+		634E162E2E6EA73E00ED9589 /* Platinum@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Platinum@2x.png"; sourceTree = "<group>"; };
+		634E162F2E6EA73E00ED9589 /* Platinum@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Platinum@3x.png"; sourceTree = "<group>"; };
 		634FF79E2DF6932E005D1C0D /* JellyfinSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinSettingsView.swift; sourceTree = "<group>"; };
 		634FF7A12DF73DDE005D1C0D /* JellyfinLibraryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListView.swift; sourceTree = "<group>"; };
 		6350E4632CF004160077CDC1 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
@@ -2134,8 +2166,16 @@
 		41E562CB22394E2300C06BC9 /* iPhone */ = {
 			isa = PBXGroup;
 			children = (
+				634E162E2E6EA73E00ED9589 /* Platinum@2x.png */,
+				634E162F2E6EA73E00ED9589 /* Platinum@3x.png */,
+				634E16262E6EA0FC00ED9589 /* fruit-based-26@2x.png */,
+				634E16272E6EA0FC00ED9589 /* fruit-based-26@3x.png */,
+				634E161E2E6EA00500ED9589 /* music-26@2x.png */,
+				634E161F2E6EA00500ED9589 /* music-26@3x.png */,
 				634BA5432C0BD0180015314D /* pride@2x.png */,
 				634BA5442C0BD0180015314D /* pride@3x.png */,
+				634E16062E6E9D2900ED9589 /* pride-26@2x.png */,
+				634E16072E6E9D2900ED9589 /* pride-26@3x.png */,
 				9F665ED72A4894FC004BFE27 /* heart-of-glass@2x.png */,
 				9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */,
 				9F665EDA2A4898F5004BFE27 /* heart-of-glass-ayu@2x.png */,
@@ -2167,8 +2207,16 @@
 		41E562E422394FCB00C06BC9 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
+				634E162A2E6EA10800ED9589 /* fruit-based-ipad-26@2x.png */,
+				634E162B2E6EA10800ED9589 /* fruit-based-ipad-26@3x.png */,
+				634E16222E6EA00E00ED9589 /* music-ipad-26@2x.png */,
+				634E16232E6EA00E00ED9589 /* music-ipad-26@3x.png */,
+				634E16162E6E9F0500ED9589 /* Platinum-ipad@2x.png */,
+				634E16172E6E9F0500ED9589 /* Platinum-ipad@3x.png */,
 				634BA5482C0BD06B0015314D /* pride-ipad@2x.png */,
 				634BA5472C0BD06B0015314D /* pride-ipad@3x.png */,
+				634E160A2E6E9DC300ED9589 /* pride-ipad-26@2x.png */,
+				634E160B2E6E9DC300ED9589 /* pride-ipad-26@3x.png */,
 				9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */,
 				9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */,
 				9F665EE32A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png */,
@@ -3562,11 +3610,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				634E16082E6E9D2900ED9589 /* pride-26@3x.png in Resources */,
+				634E16092E6E9D2900ED9589 /* pride-26@2x.png in Resources */,
+				634E160C2E6E9DC300ED9589 /* pride-ipad-26@2x.png in Resources */,
+				634E160D2E6E9DC300ED9589 /* pride-ipad-26@3x.png in Resources */,
 				637609192ADCD81400A01D5D /* AppShortcuts.strings in Resources */,
 				9F665ED52A4894C4004BFE27 /* heart-of-glass-ipad@3x.png in Resources */,
 				41E562D622394F8500C06BC9 /* fruit-based@3x.png in Resources */,
 				418B6D081D2707F800F974FB /* LaunchScreen.storyboard in Resources */,
 				9F665EE92A48991C004BFE27 /* heart-of-glass-forest-ipad@3x.png in Resources */,
+				634E162C2E6EA10800ED9589 /* fruit-based-ipad-26@2x.png in Resources */,
+				634E162D2E6EA10800ED9589 /* fruit-based-ipad-26@3x.png in Resources */,
 				4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
@@ -3583,6 +3637,8 @@
 				41E562EB2239531E00C06BC9 /* retro-modern-ipad@3x.png in Resources */,
 				9F665EE12A4898F6004BFE27 /* heart-of-glass-forest@3x.png in Resources */,
 				41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */,
+				634E16202E6EA00500ED9589 /* music-26@2x.png in Resources */,
+				634E16212E6EA00500ED9589 /* music-26@3x.png in Resources */,
 				9F665EE02A4898F6004BFE27 /* heart-of-glass-forest@2x.png in Resources */,
 				9F665EDF2A4898F6004BFE27 /* heart-of-glass-ayu@3x.png in Resources */,
 				9F665EE72A48991C004BFE27 /* heart-of-glass-ayu-ipad@2x.png in Resources */,
@@ -3592,10 +3648,16 @@
 				41E562FB2239535D00C06BC9 /* fruit-based-ipad@2x.png in Resources */,
 				4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */,
 				41AD3D9E221C750E00DC41E1 /* Icons.json in Resources */,
+				634E16242E6EA00E00ED9589 /* music-ipad-26@2x.png in Resources */,
+				634E16252E6EA00E00ED9589 /* music-ipad-26@3x.png in Resources */,
+				634E16282E6EA0FC00ED9589 /* fruit-based-26@2x.png in Resources */,
+				634E16292E6EA0FC00ED9589 /* fruit-based-26@3x.png in Resources */,
 				41E79BF526C6255C00EA9FFF /* PlayPauseIconView.xib in Resources */,
 				63F1C7892BB91260006B164C /* PrivacyInfo.xcprivacy in Resources */,
 				41E562ED2239531E00C06BC9 /* neon-ipad@3x.png in Resources */,
 				41E562E222394FB900C06BC9 /* songs@3x.png in Resources */,
+				634E16302E6EA73E00ED9589 /* Platinum@2x.png in Resources */,
+				634E16312E6EA73E00ED9589 /* Platinum@3x.png in Resources */,
 				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				41E562DE22394FA800C06BC9 /* retro-modern@2x.png in Resources */,
 				9F665ED92A4894FC004BFE27 /* heart-of-glass@2x.png in Resources */,
@@ -3622,6 +3684,8 @@
 				41E562EC2239531E00C06BC9 /* dark-ipad@3x.png in Resources */,
 				634BA5452C0BD0190015314D /* pride@2x.png in Resources */,
 				41E562D322394F5A00C06BC9 /* dark@3x.png in Resources */,
+				634E16182E6E9F0500ED9589 /* Platinum-ipad@2x.png in Resources */,
+				634E16192E6E9F0500ED9589 /* Platinum-ipad@3x.png in Resources */,
 				4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */,
 				41E562D722394F8500C06BC9 /* fruit-based@2x.png in Resources */,
 				41E562FA2239535D00C06BC9 /* songs-ipad@2x.png in Resources */,
