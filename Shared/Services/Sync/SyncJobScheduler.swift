@@ -43,6 +43,7 @@ public protocol JobSchedulerProtocol {
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let networkClient: NetworkClientProtocol
   let operationQueue: OperationQueue
+  let tasksDataManager: TasksDataManager
 
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
@@ -53,12 +54,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var taskStore: SyncTasksStorage!
 
   public init(
+    tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol = NetworkClient(),
     operationQueue: OperationQueue = OperationQueue()
   ) {
     operationQueue.maxConcurrentOperationCount = 1
     self.operationQueue = operationQueue
     self.networkClient = networkClient
+    self.tasksDataManager = tasksDataManager
 
     bindObservers()
   }
@@ -84,15 +87,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
 
   private func initializeStore() {
-    initializeStoreTask = Task {
+    initializeStoreTask = Task.detached {
       do {
-        taskStore = try await SyncTasksStorage()
+        let migrationService = RealmToSwiftDataMigrationService(modelContainer: self.tasksDataManager.container)
+        try await migrationService.migrateRealmDataToSwiftData()
+        self.taskStore = try SyncTasksStorage(tasksDataManager: self.tasksDataManager)
       } catch {
         fatalError("Failed to initialize sync tasks store: \(error.localizedDescription)")
       }
 
       /// This will start the loop where it will periodically check for queued tasks to execute
-      queueNextTask()
+      self.queueNextTask()
     }
   }
 
@@ -126,7 +131,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "isFinished": item.isFinished,
       "orderRank": item.orderRank,
       "type": item.type.rawValue,
-      "jobType": SyncJobType.upload.rawValue
+      "jobType": SyncJobType.upload.rawValue,
     ]
 
     if let lastPlayTimestamp = item.lastPlayDateTimestamp {
@@ -148,7 +153,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "relativePath": relativePath,
       "origin": relativePath,
       "destination": parentFolder ?? "",
-      "jobType": SyncJobType.move.rawValue
+      "jobType": SyncJobType.move.rawValue,
     ]
 
     await persistTask(parameters: parameters)
@@ -172,11 +177,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     case .shallow:
       jobType = SyncJobType.shallowDelete
     }
-    
+
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
-      "jobType": jobType.rawValue
+      "jobType": jobType.rawValue,
     ]
 
     await persistTask(parameters: parameters)
@@ -187,7 +192,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "time": time,
-      "jobType": SyncJobType.deleteBookmark.rawValue
+      "jobType": SyncJobType.deleteBookmark.rawValue,
     ]
 
     await persistTask(parameters: parameters)
@@ -202,7 +207,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "time": time,
-      "jobType": SyncJobType.setBookmark.rawValue
+      "jobType": SyncJobType.setBookmark.rawValue,
     ]
 
     if let note {
@@ -217,7 +222,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "name": name,
-      "jobType": SyncJobType.renameFolder.rawValue
+      "jobType": SyncJobType.renameFolder.rawValue,
     ]
 
     await persistTask(parameters: params)
@@ -227,7 +232,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     let params: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
-      "jobType": SyncJobType.uploadArtwork.rawValue
+      "jobType": SyncJobType.uploadArtwork.rawValue,
     ]
 
     await persistTask(parameters: params)
@@ -287,7 +292,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
             self.retryQueuedTask()
           } else {
-            self.handleFinishedTask(id: task.id)
+            self.handleFinishedTask(task)
           }
         }
 
@@ -305,11 +310,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     }
   }
 
-  private func handleFinishedTask(id: String) {
+  private func handleFinishedTask(_ task: SyncTask) {
     lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
       Task {
         _ = await self.initializeStoreTask?.result
-        try! await self.taskStore.finishedTask(id: id)
+        try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
       }
     }

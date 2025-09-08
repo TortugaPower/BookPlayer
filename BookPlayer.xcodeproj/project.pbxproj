@@ -450,6 +450,14 @@
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
+		638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
+		638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
+		638352CA2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
+		638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
+		638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
+		638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
+		638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
+		638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
 		638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */; };
 		638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638D91A72E60AAA600B62BDD /* ImportOperationState.swift */; };
 		638E64CB2B8E086400DCFA3B /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CA2B8E086400DCFA3B /* RealmManager.swift */; };
@@ -1322,6 +1330,10 @@
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
+		638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmToSwiftDataMigrationService.swift; sourceTree = "<group>"; };
+		638352C52E67F327009EE79E /* SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksModels.swift; sourceTree = "<group>"; };
+		638352C72E67F327009EE79E /* TasksDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksDataManager.swift; sourceTree = "<group>"; };
+		638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels+Extensions.swift"; sourceTree = "<group>"; };
 		638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListSelectionView.swift; sourceTree = "<group>"; };
 		638D91A72E60AAA600B62BDD /* ImportOperationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationState.swift; sourceTree = "<group>"; };
 		638E64CA2B8E086400DCFA3B /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
@@ -2036,6 +2048,7 @@
 				9FC1E4572814E09700522FA8 /* Network */,
 				62AAE22F274AA6E9001EB9FF /* Services */,
 				C3AA3732207BF7670004DCFD /* CoreData */,
+				638352C92E67F327009EE79E /* SwiftData */,
 				63B2303B2B8CCDDB00AEECED /* Realm */,
 				6279361B272CDA8A0097837D /* Artwork */,
 				41A1B106226E9DCA00EA0400 /* Extensions */,
@@ -2557,6 +2570,24 @@
 			path = PerformanceTests;
 			sourceTree = "<group>";
 		};
+		638352C62E67F327009EE79E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				638352C52E67F327009EE79E /* SyncTasksModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		638352C92E67F327009EE79E /* SwiftData */ = {
+			isa = PBXGroup;
+			children = (
+				638352C62E67F327009EE79E /* Models */,
+				638352C72E67F327009EE79E /* TasksDataManager.swift */,
+				638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */,
+			);
+			path = SwiftData;
+			sourceTree = "<group>";
+		};
 		639720702CAAF8180045A4DB /* LastPlayed */ = {
 			isa = PBXGroup;
 			children = (
@@ -2606,6 +2637,7 @@
 			children = (
 				639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */,
 				63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */,
+				638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -3850,6 +3882,7 @@
 				9FDDD2D9289B64440020C428 /* SyncStatus.swift in Sources */,
 				9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
+				638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
@@ -3864,6 +3897,9 @@
 				63B2303E2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
+				638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */,
+				638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */,
+				638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
@@ -4352,6 +4388,9 @@
 				9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */,
+				638352CA2E67F327009EE79E /* TasksDataManager.swift in Sources */,
+				638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */,
+				638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				639E12C62B85AACF00C875F7 /* SyncTasksObject.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
@@ -4360,6 +4399,7 @@
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
+				638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
