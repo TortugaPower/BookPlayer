@@ -24,7 +24,7 @@ struct AppIconView: View {
     Button {
       Task {
         do {
-          try await updateAppIcon(icon.title)
+          try await updateAppIcon(icon)
         } catch {
           self.loadingState.error = error
         }
@@ -50,7 +50,7 @@ struct AppIconView: View {
 
         Spacer()
 
-        if appIcon == icon.title {
+        if appIcon == icon.id {
           Image(systemName: "checkmark")
             .foregroundColor(theme.linkColor)
         } else if icon.isLocked && accountService.accessLevel == .free {
@@ -64,14 +64,14 @@ struct AppIconView: View {
     .disabledWithOpacity(icon.isLocked && accountService.accessLevel == .free, opacity: 0.99)
   }
 
-  func updateAppIcon(_ iconName: String) async throws {
+  func updateAppIcon(_ icon: Icon) async throws {
     guard UIApplication.shared.supportsAlternateIcons else {
       throw "icon_error_description".localized
     }
 
-    appIcon = iconName
+    appIcon = icon.title
 
-    let icon = iconName == "Default" ? nil : iconName
+    let icon = icon.id == "Default" ? nil : icon.id
 
     try await UIApplication.shared.setAlternateIconName(icon)
     WidgetCenter.shared.reloadAllTimelines()
