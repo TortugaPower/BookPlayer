@@ -58,7 +58,7 @@ public class UploadTaskModel {
   public var duration: Double
   public var percentCompleted: Double
   public var isFinished: Bool
-  public var orderRank: Int
+  public var orderRank: Int16
   public var lastPlayDateTimestamp: Double?
   public var type: Int16
 
@@ -73,7 +73,7 @@ public class UploadTaskModel {
     duration: Double,
     percentCompleted: Double,
     isFinished: Bool,
-    orderRank: Int,
+    orderRank: Int16,
     lastPlayDateTimestamp: Double? = nil,
     type: Int16
   ) {
@@ -104,7 +104,7 @@ public class UpdateTaskModel {
   public var duration: Double?
   public var percentCompleted: Double?
   public var isFinished: Bool?
-  public var orderRank: Int?
+  public var orderRank: Int16?
   public var lastPlayDateTimestamp: Double?
   public var type: Int16?
 
@@ -118,7 +118,7 @@ public class UpdateTaskModel {
     duration: Double? = nil,
     percentCompleted: Double? = nil,
     isFinished: Bool? = nil,
-    orderRank: Int? = nil,
+    orderRank: Int16? = nil,
     lastPlayDateTimestamp: Double? = nil,
     type: Int16? = nil
   ) {
