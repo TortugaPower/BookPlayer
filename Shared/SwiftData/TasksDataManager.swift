@@ -175,7 +175,7 @@ public final class TasksDataManager {
         duration: parameters["duration"] as! Double,
         percentCompleted: parameters["percentCompleted"] as! Double,
         isFinished: parameters["isFinished"] as! Bool,
-        orderRank: parameters["orderRank"] as! Int,
+        orderRank: parameters["orderRank"] as! Int16,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as! Int16
       )
@@ -192,7 +192,7 @@ public final class TasksDataManager {
         duration: parameters["duration"] as? Double,
         percentCompleted: parameters["percentCompleted"] as? Double,
         isFinished: parameters["isFinished"] as? Bool,
-        orderRank: parameters["orderRank"] as? Int,
+        orderRank: parameters["orderRank"] as? Int16,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as? Int16
       )
@@ -318,7 +318,7 @@ public final class TasksDataManager {
     if let duration = parameters["duration"] as? Double { task.duration = duration }
     if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
     if let isFinished = parameters["isFinished"] as? Bool { task.isFinished = isFinished }
-    if let orderRank = parameters["orderRank"] as? Int { task.orderRank = orderRank }
+    if let orderRank = parameters["orderRank"] as? Int16 { task.orderRank = orderRank }
     if let lastPlayDateTimestamp = parameters["lastPlayDateTimestamp"] as? Double {
       task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
