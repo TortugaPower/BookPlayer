@@ -7,11 +7,16 @@
 //
 
 import BookPlayerKit
+import SwiftData
 import SwiftUI
 
 struct ProfileSyncTasksSectionView: View {
-  @State private var buttonText: String = ""
   @State private var statusMessage: String = ""
+  @State private var jobsCount = 0
+
+  private var buttonText: String {
+    String(format: "queued_sync_tasks_title".localized, jobsCount)
+  }
 
   @Environment(\.syncService) private var syncService
   @EnvironmentObject private var theme: ThemeViewModel
@@ -26,7 +31,9 @@ struct ProfileSyncTasksSectionView: View {
       }
     }
     .onReceive(syncService.observeTasksCount()) { count in
-      self.buttonText = String(format: "queued_sync_tasks_title".localized, count)
+      guard jobsCount != count else { return }
+
+      jobsCount = count
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)

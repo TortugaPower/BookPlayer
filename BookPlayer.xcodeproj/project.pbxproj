@@ -48,7 +48,6 @@
 		4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE825EDEFDD0096954F /* forest-green@3x.png */; };
 		4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE925EDEFDD0096954F /* forest-green@2x.png */; };
 		41188D2026ECDDD50017124E /* BookmarkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */; };
-		41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2126ECFE450017124E /* ChapterCoordinator.swift */; };
 		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
 		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122726D19A8600B099DB /* StorageViewModel.swift */; };
@@ -208,7 +207,6 @@
 		41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */; };
 		41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5E021CCC21000917584 /* ThemeManager.swift */; };
 		41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */; };
-		41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */; };
 		41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B30A32230232D200025D69 /* CarPlayManager.swift */; };
 		41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
 		41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D3026ED715D0017124E /* SimpleLibraryItem.swift */; };
@@ -420,6 +418,7 @@
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636086002C5B3EB400341D78 /* CustomRewindIntent.swift */; };
+		63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63652C722E6E8A9700231202 /* ChaptersView.swift */; };
 		63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682CBD2E2F422900C15FC1 /* DebugFileTransferable.swift */; };
 		636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */; };
 		636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */; };
@@ -450,6 +449,14 @@
 		637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		637DAB0D2AEBEF1B006DC2D1 /* BookPlayerWatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */; };
 		63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */; };
+		638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
+		638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */; };
+		638352CA2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
+		638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
+		638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
+		638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
+		638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
+		638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
 		638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */; };
 		638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638D91A72E60AAA600B62BDD /* ImportOperationState.swift */; };
 		638E64CB2B8E086400DCFA3B /* RealmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CA2B8E086400DCFA3B /* RealmManager.swift */; };
@@ -943,7 +950,6 @@
 		4111FBE925EDEFDD0096954F /* forest-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "forest-green@2x.png"; sourceTree = "<group>"; };
 		4112AFD5223AD27D00BFEA55 /* Sentry.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sentry.framework; path = Carthage/Build/iOS/Sentry.framework; sourceTree = "<group>"; };
 		41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCoordinator.swift; sourceTree = "<group>"; };
-		41188D2126ECFE450017124E /* ChapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterCoordinator.swift; sourceTree = "<group>"; };
 		41188D2326ED2BA30017124E /* LoadingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinator.swift; sourceTree = "<group>"; };
 		41188D3026ED715D0017124E /* SimpleLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleLibraryItem.swift; sourceTree = "<group>"; };
 		4124122726D19A8600B099DB /* StorageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageViewModel.swift; sourceTree = "<group>"; };
@@ -1105,7 +1111,6 @@
 		41B2A5E021CCC21000917584 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		41B2A5EC21CCC6D100917584 /* AppNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppNavigationController.swift; sourceTree = "<group>"; };
 		41B2A6AB21D3274500917584 /* Themeable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Themeable.framework; path = Carthage/Build/iOS/Themeable.framework; sourceTree = "<group>"; };
-		41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChaptersViewController.swift; sourceTree = "<group>"; };
 		41B30A32230232D200025D69 /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
 		41C3394825E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v2_to_v3.xcmappingmodel; sourceTree = "<group>"; };
 		41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTests.swift; sourceTree = "<group>"; };
@@ -1272,6 +1277,7 @@
 		636086022C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = el; path = el.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		636086032C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		636086042C5B589900341D78 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
+		63652C722E6E8A9700231202 /* ChaptersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersView.swift; sourceTree = "<group>"; };
 		63682CBD2E2F422900C15FC1 /* DebugFileTransferable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugFileTransferable.swift; sourceTree = "<group>"; };
 		636E77782DF28E9400D4DC0A /* JellyfinLibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryGridView.swift; sourceTree = "<group>"; };
 		636E777E2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinDisconnectedView.swift; sourceTree = "<group>"; };
@@ -1322,6 +1328,10 @@
 		63833DF62AAC127900496246 /* Unit Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Unit Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Performance Tests.xctestplan"; sourceTree = "<group>"; };
 		63833DF92AAC139700496246 /* PlaybackPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPerformanceTests.swift; sourceTree = "<group>"; };
+		638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmToSwiftDataMigrationService.swift; sourceTree = "<group>"; };
+		638352C52E67F327009EE79E /* SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksModels.swift; sourceTree = "<group>"; };
+		638352C72E67F327009EE79E /* TasksDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksDataManager.swift; sourceTree = "<group>"; };
+		638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels+Extensions.swift"; sourceTree = "<group>"; };
 		638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListSelectionView.swift; sourceTree = "<group>"; };
 		638D91A72E60AAA600B62BDD /* ImportOperationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationState.swift; sourceTree = "<group>"; };
 		638E64CA2B8E086400DCFA3B /* RealmManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmManager.swift; sourceTree = "<group>"; };
@@ -1773,8 +1783,8 @@
 		410D00FC26DDD26000D11A45 /* Chapters Screen */ = {
 			isa = PBXGroup;
 			children = (
-				41B2AC8D1D43CCE8005382A9 /* ChaptersViewController.swift */,
 				410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */,
+				63652C722E6E8A9700231202 /* ChaptersView.swift */,
 			);
 			path = "Chapters Screen";
 			sourceTree = "<group>";
@@ -1890,7 +1900,6 @@
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
-				41188D2126ECFE450017124E /* ChapterCoordinator.swift */,
 				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
 				9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */,
 			);
@@ -2036,6 +2045,7 @@
 				9FC1E4572814E09700522FA8 /* Network */,
 				62AAE22F274AA6E9001EB9FF /* Services */,
 				C3AA3732207BF7670004DCFD /* CoreData */,
+				638352C92E67F327009EE79E /* SwiftData */,
 				63B2303B2B8CCDDB00AEECED /* Realm */,
 				6279361B272CDA8A0097837D /* Artwork */,
 				41A1B106226E9DCA00EA0400 /* Extensions */,
@@ -2557,6 +2567,24 @@
 			path = PerformanceTests;
 			sourceTree = "<group>";
 		};
+		638352C62E67F327009EE79E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				638352C52E67F327009EE79E /* SyncTasksModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		638352C92E67F327009EE79E /* SwiftData */ = {
+			isa = PBXGroup;
+			children = (
+				638352C62E67F327009EE79E /* Models */,
+				638352C72E67F327009EE79E /* TasksDataManager.swift */,
+				638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */,
+			);
+			path = SwiftData;
+			sourceTree = "<group>";
+		};
 		639720702CAAF8180045A4DB /* LastPlayed */ = {
 			isa = PBXGroup;
 			children = (
@@ -2606,6 +2634,7 @@
 			children = (
 				639E12DA2B8AC65B00C875F7 /* RealmMigrationManager.swift */,
 				63B2303C2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift */,
+				638352AD2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -3850,6 +3879,7 @@
 				9FDDD2D9289B64440020C428 /* SyncStatus.swift in Sources */,
 				9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
+				638352AE2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
@@ -3864,6 +3894,9 @@
 				63B2303E2B8CCDFD00AEECED /* MigrationStoredSyncTasks.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
+				638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */,
+				638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */,
+				638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
@@ -4010,7 +4043,6 @@
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
 				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */,
-				41188D2226ECFE450017124E /* ChapterCoordinator.swift in Sources */,
 				63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */,
 				637043442E2C0000005353D1 /* SettingsShortcutsSectionView.swift in Sources */,
 				631908B22E36A1AB009249C1 /* SmartRewindSectionView.swift in Sources */,
@@ -4023,7 +4055,6 @@
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */,
 				63B407432C1B0CC1000A3B19 /* StorySkipControlsView.swift in Sources */,
-				41B2AC8E1D43CCE8005382A9 /* ChaptersViewController.swift in Sources */,
 				6338C7932E4AA4BA008016E5 /* LibraryNode.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
 				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
@@ -4142,6 +4173,7 @@
 				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
+				63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,
 				63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
@@ -4352,6 +4384,9 @@
 				9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */,
 				41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */,
+				638352CA2E67F327009EE79E /* TasksDataManager.swift in Sources */,
+				638352CC2E67F327009EE79E /* SyncTasksModels.swift in Sources */,
+				638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				639E12C62B85AACF00C875F7 /* SyncTasksObject.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
@@ -4360,6 +4395,7 @@
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
+				638352AF2E67F1B3009EE79E /* RealmToSwiftDataMigrationService.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
@@ -4637,7 +4673,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4671,7 +4707,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4703,7 +4739,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4739,7 +4775,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4780,7 +4816,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4818,7 +4854,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4987,7 +5023,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -5025,7 +5061,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5061,7 +5097,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5214,7 +5250,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5252,7 +5288,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5474,7 +5510,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5512,7 +5548,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5548,7 +5584,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5587,7 +5623,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5627,7 +5663,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5665,7 +5701,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5757,7 +5793,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.12.0;
+				MARKETING_VERSION = 5.12.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

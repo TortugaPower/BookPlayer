@@ -6,15 +6,16 @@
 //  Copyright © 2021 BookPlayer LLC. All rights reserved.
 //
 
-import UIKit
 import BookPlayerKit
 import Combine
+import SwiftUI
+import UIKit
 
 class PlayerCoordinator: Coordinator {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
-  
+
   let flow: BPCoordinatorPresentationFlow
 
   weak var alert: UIAlertController?
@@ -82,11 +83,13 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showChapters() {
-    let chaptersCoordinator = ChapterCoordinator(
-      flow: .modalFlow(presentingController: playerViewController),
-      playerManager: self.playerManager
+    let vc = UIHostingController(
+      rootView: ChaptersView {
+        ChaptersViewModel(playerManager: self.playerManager)
+      }
     )
-    chaptersCoordinator.start()
+
+    playerViewController.present(vc, animated: true)
   }
 
   func showControls() {

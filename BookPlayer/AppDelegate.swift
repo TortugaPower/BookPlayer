@@ -14,7 +14,6 @@ import Combine
 import CoreData
 import Intents
 import MediaPlayer
-import RealmSwift
 import RevenueCat
 import Sentry
 import StoreKit
@@ -76,8 +75,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
-    // Setup Realm
-    self.setupRealm()
     // Setup core services
     self.setupCoreServices()
 
@@ -361,15 +358,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         forKey: Constants.UserDefaults.crashReportsDisabled
       )
     )
-  }
-
-  /// Initialize Realm empty database
-  func setupRealm() {
-    /// Tasks database
-    let tasksRealmURL = DataManager.getSyncTasksRealmURL()
-    if !FileManager.default.fileExists(atPath: tasksRealmURL.path) {
-      _ = try! Realm(configuration: Realm.Configuration(fileURL: tasksRealmURL))
-    }
   }
 
   func setupCoreServices() {

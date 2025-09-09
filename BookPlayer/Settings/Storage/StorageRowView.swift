@@ -54,7 +54,7 @@ struct StorageRowView: View {
 
       Spacer()
 
-//      if item.showWarning {
+      if item.showWarning {
         Button {
           onWarningTap?()
         } label: {
@@ -67,7 +67,7 @@ struct StorageRowView: View {
         .buttonStyle(.plain)
         .padding(15)
         .accessibilitySortPriority(2)
-//      }
+      }
     }
     .accessibilityElement(children: .contain)
   }

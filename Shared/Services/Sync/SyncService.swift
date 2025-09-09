@@ -93,7 +93,7 @@ public protocol SyncServiceProtocol {
 @Observable
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
-  private var tasksCountService = SyncTasksCountService()
+  private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
   public var isActive: Bool = false
@@ -124,13 +124,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
-    jobManager: JobSchedulerProtocol = SyncJobScheduler(),
     client: NetworkClientProtocol = NetworkClient()
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
-    self.tasksCountService = tasksCountService
-    self.jobManager = jobManager
+    let tasksDataManager = TasksDataManager()
+    self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
+    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager)
     self.client = client
     self.provider = NetworkProvider(client: client)
 

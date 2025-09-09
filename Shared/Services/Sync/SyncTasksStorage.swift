@@ -8,29 +8,25 @@
 
 import Combine
 import Foundation
-import RealmSwift
+import SwiftData
 
-public protocol BPTasksStorageProtocol: AnyActor {
-  func appendTask(parameters: [String: Any]) async throws
-  func getNextTask() async throws -> SyncTask?
-  func finishedTask(id: String) async throws
-  func getAllTasks() async -> [SyncTaskReference]
-  func getTasksCount() async -> Int
-  func clearAll() async throws
-  /// Check if there's an upload task queued for the item
-  func hasUploadTask(for relativePath: String) async -> Bool
-}
+/// Persist jobs using SwiftData
+public actor SyncTasksStorage: ModelActor {
+  nonisolated public let modelContainer: ModelContainer
+  nonisolated public let modelExecutor: any ModelExecutor
 
-/// Persist jobs in UserDefaults
-public actor SyncTasksStorage: BPTasksStorageProtocol {
-  private var realm: Realm!
+  private let tasksDataManager: TasksDataManager
 
-  public init() async throws {
-    self.realm = try await RealmManager.shared.initializeRealm(in: self)
+  init(tasksDataManager: TasksDataManager) throws {
+    self.modelContainer = tasksDataManager.container
+    let modelContext = ModelContext(tasksDataManager.container)
+    modelContext.autosaveEnabled = true
+    self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
+    self.tasksDataManager = tasksDataManager
   }
 
   public func appendTask(parameters: [String: Any]) async throws {
-    guard 
+    guard
       let taskId = parameters["id"] as? String,
       let relativePath = parameters["relativePath"] as? String,
       let rawJobType = parameters["jobType"] as? String,
@@ -39,131 +35,153 @@ public actor SyncTasksStorage: BPTasksStorageProtocol {
       throw BookPlayerError.runtimeError("Missing id or job type when creating task")
     }
 
+    let context = modelContext
+
+    // Get or create the tasks container
+    let descriptor = FetchDescriptor<SyncTasksContainer>()
+    let containers = try context.fetch(descriptor)
+    let tasksContainer = containers.first ?? SyncTasksContainer()
+
+    if containers.isEmpty {
+      context.insert(tasksContainer)
+    }
+
+    // Check for update task optimization
     if jobType == .update,
-       (realm.objects(SyncTasksObject.self).first?.tasks.count ?? 0) > 1,
-       let existingTask = realm.objects(UpdateTaskObject.self).last(where: {
-         $0.relativePath == relativePath
-       }) {
+      tasksContainer.tasks.count > 1,
+      let existingTask = try context.fetch(FetchDescriptor<UpdateTaskModel>())
+        .last(where: { $0.relativePath == relativePath })
+    {
+
       var parameters = parameters
       parameters["id"] = existingTask.id
 
-      try await realm.asyncWrite {
-        realm.create(UpdateTaskObject.self, value: parameters, update: .modified)
-      }
-    } else {
-      try await realm.asyncWrite {
-        let objectType = getRealmObjectType(for: jobType)
-        realm.create(objectType, value: parameters)
-        let taskReference = realm.create(
-          SyncTaskReferenceObject.self,
-          value: [
-            "id": ObjectId.generate(),
-            "relativePath": relativePath,
-            "taskID": taskId,
-            "jobType": jobType.rawValue
-          ]
-        )
+      // Update existing task
+      tasksDataManager.updateTaskModel(existingTask, with: parameters)
 
-        let controller = realm.objects(SyncTasksObject.self).first
-        ?? realm.create(SyncTasksObject.self)
-        controller.tasks.append(taskReference)
-      }
+    } else {
+      // Create new task object
+      tasksDataManager.createTaskModel(for: jobType, with: parameters, in: modelContext)
+
+      let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
+      // Create task reference
+      let taskReference = SyncTaskReferenceModel(
+        relativePath: relativePath,
+        taskID: taskId,
+        jobType: jobType,
+        position: nextPosition
+      )
+
+      // Add to container
+      tasksContainer.tasks.append(taskReference)
+      taskReference.container = tasksContainer
     }
+
+    try context.save()
+
+    tasksDataManager.notifyTasksChanged(context: context)
   }
 
   public func getNextTask() async throws -> SyncTask? {
-    guard
-      let controller = realm.objects(SyncTasksObject.self).first,
-      let task = controller.tasks.first
+    let descriptor = FetchDescriptor<SyncTasksContainer>()
+    let containers = try modelContext.fetch(descriptor)
+
+    guard let tasksContainer = containers.first,
+      let firstTask = tasksContainer.orderedTasks.first
     else {
       return nil
     }
 
-    guard 
-      let storedObject = getRealmObject(with: task.taskID, jobType: task.jobType)
+    guard
+      let storedObject = tasksDataManager.getTaskModel(
+        with: firstTask.taskID,
+        jobType: firstTask.jobType,
+        in: modelContext
+      )
     else {
-      try await realm.asyncWrite {
-        controller.tasks.removeFirst()
-      }
+      // Remove invalid task reference
+      tasksContainer.tasks = tasksContainer.tasks.filter { $0.taskID != firstTask.taskID }
+      try modelContext.save()
       return nil
     }
 
     return SyncTask(
-      id: task.taskID,
-      relativePath: task.relativePath,
-      jobType: task.jobType,
+      id: firstTask.taskID,
+      relativePath: firstTask.relativePath,
+      jobType: firstTask.jobType,
       parameters: storedObject.toDictionaryPayload()
     )
   }
 
-  private func getRealmObjectType(for jobType: SyncJobType) -> Object.Type {
-    switch jobType {
-    case .upload:
-      return UploadTaskObject.self
-    case .update:
-      return UpdateTaskObject.self
-    case .move:
-      return MoveTaskObject.self
-    case .delete, .shallowDelete:
-      return DeleteTaskObject.self
-    case .deleteBookmark:
-      return DeleteBookmarkTaskObject.self
-    case .setBookmark:
-      return SetBookmarkTaskObject.self
-    case .renameFolder:
-      return RenameFolderTaskObject.self
-    case .uploadArtwork:
-      return ArtworkUploadTaskObject.self
-    }
+  public func finishedTask(id: String, jobType: SyncJobType) async throws {
+    let descriptor = FetchDescriptor<SyncTasksContainer>()
+    let containers = try modelContext.fetch(descriptor)
+
+    guard let tasksContainer = containers.first else { return }
+
+    // Delete the actual task object
+    try tasksDataManager.deleteTaskModel(
+      with: id,
+      jobType: jobType,
+      context: modelContext
+    )
+
+    // Remove task reference
+    tasksContainer.tasks = tasksContainer.tasks.filter { $0.taskID != id }
+
+    try tasksDataManager.deleteReferenceModel(
+      with: id,
+      jobType: jobType,
+      context: modelContext
+    )
+
+    try modelContext.save()
+
+    tasksDataManager.notifyTasksChanged(context: modelContext)
   }
 
-  private func getRealmObject(with id: String, jobType: SyncJobType) -> Object? {
-    let type = getRealmObjectType(for: jobType)
+  public func getAllTasks() async -> [SyncTaskReference] {
+    do {
+      let descriptor = FetchDescriptor<SyncTasksContainer>()
+      let containers = try modelContext.fetch(descriptor)
 
-    return realm.object(ofType: type, forPrimaryKey: id)
-  }
+      guard let tasksContainer = containers.first else { return [] }
 
-  public func finishedTask(id: String) async throws {
-    guard
-      let controller = realm.objects(SyncTasksObject.self).first,
-      let task = controller.tasks.first
-    else { return }
-
-    try await realm.asyncWrite {
-      if let storedObject = getRealmObject(with: task.taskID, jobType: task.jobType) {
-        realm.delete(storedObject)
+      return tasksContainer.orderedTasks.map { task in
+        SyncTaskReference(
+          id: task.taskID,
+          relativePath: task.relativePath,
+          jobType: task.jobType
+        )
       }
 
-      controller.tasks.removeFirst()
-      realm.delete(task)
+    } catch {
+      return []
     }
-  }
-
-  public func getAllTasks() -> [SyncTaskReference] {
-    guard
-      let tasks = realm.objects(SyncTasksObject.self).first?.tasks
-    else { return [] }
-
-    return tasks.map { SyncTaskReference(
-      id: $0.taskID,
-      relativePath: $0.relativePath,
-      jobType: $0.jobType
-    ) }
   }
 
   public func getTasksCount() -> Int {
-    return realm.objects(SyncTasksObject.self).first?.tasks.count ?? 0
+    tasksDataManager.getTasksCount()
   }
 
   public func clearAll() async throws {
-    try await realm.asyncWrite {
-      realm.deleteAll()
-    }
+    try tasksDataManager.deleteAllTasks(with: modelContext)
   }
 
   /// Check if there's an upload task queued for the item
-  public func hasUploadTask(for relativePath: String) -> Bool {
-    return realm.objects(UploadTaskObject.self)
-      .first { $0.relativePath == relativePath } != nil
+  public func hasUploadTask(for relativePath: String) async -> Bool {
+    do {
+      let descriptor = FetchDescriptor<UploadTaskModel>(
+        predicate: #Predicate<UploadTaskModel> { task in
+          task.relativePath == relativePath
+        }
+      )
+
+      let tasks = try modelContext.fetch(descriptor)
+      return !tasks.isEmpty
+
+    } catch {
+      return false
+    }
   }
 }
