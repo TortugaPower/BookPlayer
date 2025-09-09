@@ -113,7 +113,7 @@ final public actor RealmToSwiftDataMigrationService: BPLogger {
           duration: realmTask.duration,
           percentCompleted: realmTask.percentCompleted,
           isFinished: realmTask.isFinished,
-          orderRank: realmTask.orderRank,
+          orderRank: Int16(exactly: realmTask.orderRank)!,
           lastPlayDateTimestamp: realmTask.lastPlayDateTimestamp,
           type: realmTask.type
         )
@@ -122,6 +122,12 @@ final public actor RealmToSwiftDataMigrationService: BPLogger {
 
     case .update:
       if let realmTask = realm.objects(UpdateTaskObject.self).first(where: { $0.id == taskID }) {
+        var orderRank: Int16?
+
+        if let realmOrderRank = realmTask.orderRank {
+          orderRank = Int16(realmOrderRank)
+        }
+
         let swiftDataTask = UpdateTaskModel(
           id: realmTask.id,
           relativePath: realmTask.relativePath,
@@ -132,7 +138,7 @@ final public actor RealmToSwiftDataMigrationService: BPLogger {
           duration: realmTask.duration,
           percentCompleted: realmTask.percentCompleted,
           isFinished: realmTask.isFinished,
-          orderRank: realmTask.orderRank,
+          orderRank: orderRank,
           lastPlayDateTimestamp: realmTask.lastPlayDateTimestamp,
           type: realmTask.type
         )
