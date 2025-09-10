@@ -54,12 +54,17 @@ struct MainView: View {
       .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
       .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
     }
-    .safeAreaInset(edge: .bottom, spacing: 0) {
+    .miniPlayer {
       if !listState.isSearching && !listState.isEditing,
          let relativePath = playerState.loadedBookRelativePath {
         MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
           .transition(.move(edge: .bottom).combined(with: .opacity))
           .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
+      }
+    } accessoryContent: {
+      if !listState.isSearching && !listState.isEditing,
+         let relativePath = playerState.loadedBookRelativePath {
+        MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
     .environmentObject(theme)
@@ -129,5 +134,8 @@ struct MainView: View {
 }
 
 #Preview {
-  MainView {} showPlayer: {} showImport: {}
+  MainView {
+  } showPlayer: {
+  } showImport: {
+  }
 }

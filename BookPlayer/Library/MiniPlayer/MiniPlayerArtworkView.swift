@@ -12,6 +12,7 @@ import SwiftUI
 
 struct MiniPlayerArtworkView: View {
   let relativePath: String?
+  var artworkLength: CGFloat = 50
   @State private var artworkReloadBump = false
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -29,7 +30,7 @@ struct MiniPlayerArtworkView: View {
         theme.defaultArtwork
       }
     }
-    .frame(width: 50, height: 50)
+    .frame(width: artworkLength, height: artworkLength)
     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     .mask(RoundedRectangle(cornerRadius: 4))
     .id(artworkReloadBump)
