@@ -113,7 +113,7 @@ final public actor RealmToSwiftDataMigrationService: BPLogger {
           duration: realmTask.duration,
           percentCompleted: realmTask.percentCompleted,
           isFinished: realmTask.isFinished,
-          orderRank: Int16(exactly: realmTask.orderRank)!,
+          orderRank: realmTask.orderRank,
           lastPlayDateTimestamp: realmTask.lastPlayDateTimestamp,
           type: realmTask.type
         )

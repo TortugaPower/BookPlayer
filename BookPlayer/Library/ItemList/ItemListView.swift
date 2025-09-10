@@ -397,6 +397,8 @@ struct ItemListView: View {
       showJellyfin = true
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
+      /// Clean up just in case due to how List(selection:) works under the hood
+      model.selectedSetItems.removeAll()
       newFolderType = .folder
       newFolderName = ""
       newFolderPlaceholder = ""
