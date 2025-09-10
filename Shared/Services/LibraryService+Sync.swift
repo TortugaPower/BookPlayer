@@ -316,7 +316,7 @@ extension LibraryService: LibrarySyncProtocol {
           )
         }
 
-        try? delete(items, mode: .deep)
+        try? delete(items, mode: .deep, context: context)
         continuation.resume()
       }
     }
