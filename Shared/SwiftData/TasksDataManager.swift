@@ -175,7 +175,7 @@ public final class TasksDataManager {
         duration: parameters["duration"] as! Double,
         percentCompleted: parameters["percentCompleted"] as! Double,
         isFinished: parameters["isFinished"] as! Bool,
-        orderRank: parameters["orderRank"] as! Int16,
+        orderRank: parameters["orderRank"] as! Int,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as! Int16
       )
