@@ -10,17 +10,10 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class ButtonFreeViewModel {
-  enum Routes {
-    case dismiss
-  }
-
-  var onTransition: BPTransition<Routes>?
-
+final class ButtonFreeViewModel: ButtonFreeView.Model {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
-  var eventPublisher = PassthroughSubject<String, Never>()
 
   init(
     playerManager: PlayerManagerProtocol,
@@ -32,7 +25,7 @@ class ButtonFreeViewModel {
     self.syncService = syncService
   }
 
-  func disableTimer(_ flag: Bool) {
+  override func disableTimer(_ flag: Bool) {
     // Disregard if it's already handled by setting
     guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autolockDisabled) else {
       return
@@ -41,9 +34,9 @@ class ButtonFreeViewModel {
     UIApplication.shared.isIdleTimerDisabled = flag
   }
 
-  func playPause() {
+  override func playPause() -> String? {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    guard let currentItem = playerManager.currentItem else { return }
+    guard let currentItem = playerManager.currentItem else { return nil }
 
     let isPlaying = playerManager.isPlaying
     playerManager.playPause()
@@ -52,24 +45,24 @@ class ButtonFreeViewModel {
     let message = isPlaying
     ? "\("paused_title".localized) (\(formattedTime))"
     : "\("playing_title".localized.capitalized) (\(formattedTime))"
-    eventPublisher.send(message)
+    return message
   }
 
-  func rewind() {
+  override func rewind() -> String? {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.rewind()
-    eventPublisher.send("skipped_back_title".localized)
+    return "skipped_back_title".localized
   }
 
-  func forward() {
+  override func forward() -> String? {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     playerManager.forward()
-    eventPublisher.send("skipped_forward_title".localized)
+    return "skipped_forward_title".localized
   }
 
-  func createBookmark() {
+  override func createBookmark() -> String? {
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    guard let currentItem = playerManager.currentItem else { return }
+    guard let currentItem = playerManager.currentItem else { return nil }
 
     if let bookmark = self.libraryService.getBookmark(
       at: currentItem.currentTime,
@@ -77,12 +70,10 @@ class ButtonFreeViewModel {
       type: .user
     ) {
       let formattedTime = TimeParser.formatTime(bookmark.time)
-      let message = String.localizedStringWithFormat(
+      return String.localizedStringWithFormat(
         "bookmark_exists_title".localized,
         formattedTime
       )
-      eventPublisher.send(message)
-      return
     }
 
     let currentTime = floor(currentItem.currentTime)
@@ -98,17 +89,12 @@ class ButtonFreeViewModel {
         note: nil
       )
       let formattedTime = TimeParser.formatTime(bookmark.time)
-      let message = String.localizedStringWithFormat(
+      return String.localizedStringWithFormat(
         "bookmark_created_title".localized,
         formattedTime
       )
-      eventPublisher.send(message)
     } else {
-      eventPublisher.send("file_missing_title".localized)
+      return "file_missing_title".localized
     }
-  }
-
-  func dismiss() {
-    onTransition?(.dismiss)
   }
 }

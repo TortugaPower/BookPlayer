@@ -570,6 +570,7 @@
 		63F1C78B2BB91E21006B164C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */; };
 		63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F828562AED56FA00B5CE0C /* CornerView.swift */; };
 		63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */; };
+		63FB67882E714F0A00331767 /* ButtonFreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FB67872E714F0A00331767 /* ButtonFreeView.swift */; };
 		63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FB9E022E5774A500D1966F /* ListStateManager.swift */; };
 		63FCAB1B2E3BBA5F005EB9DE /* JellyfinTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCAB1A2E3BBA5F005EB9DE /* JellyfinTagsView.swift */; };
 		63FCAB1D2E3BBEA0005EB9DE /* TagsFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCAB1C2E3BBEA0005EB9DE /* TagsFlowLayout.swift */; };
@@ -632,10 +633,7 @@
 		9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */; };
 		9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */; };
 		9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C4357284132640066D99A /* AlertPresenter.swift */; };
-		9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */; };
 		9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */; };
-		9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */; };
-		9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */; };
 		9F49072C2903663800054AD6 /* SortType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F49072B2903663800054AD6 /* SortType.swift */; };
 		9F49072D2903663800054AD6 /* SortType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F49072B2903663800054AD6 /* SortType.swift */; };
 		9F4A33E0292B0C710034CD4C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A33DF292B0C710034CD4C /* ShareViewController.swift */; };
@@ -1416,6 +1414,7 @@
 		63F1C78A2BB91E1B006B164C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		63F828562AED56FA00B5CE0C /* CornerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerView.swift; sourceTree = "<group>"; };
 		63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
+		63FB67872E714F0A00331767 /* ButtonFreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeView.swift; sourceTree = "<group>"; };
 		63FB9E022E5774A500D1966F /* ListStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListStateManager.swift; sourceTree = "<group>"; };
 		63FCAB1A2E3BBA5F005EB9DE /* JellyfinTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinTagsView.swift; sourceTree = "<group>"; };
 		63FCAB1C2E3BBEA0005EB9DE /* TagsFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsFlowLayout.swift; sourceTree = "<group>"; };
@@ -1477,10 +1476,7 @@
 		9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCloudDeletedViewModel.swift; sourceTree = "<group>"; };
 		9F3C4357284132640066D99A /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		9F3C435B28413C070066D99A /* DataInitializerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataInitializerCoordinator.swift; sourceTree = "<group>"; };
-		9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewController.swift; sourceTree = "<group>"; };
 		9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeViewModel.swift; sourceTree = "<group>"; };
-		9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonFreeCoordinator.swift; sourceTree = "<group>"; };
-		9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureItemRow.swift; sourceTree = "<group>"; };
 		9F49072B2903663800054AD6 /* SortType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortType.swift; sourceTree = "<group>"; };
 		9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F4A33DF292B0C710034CD4C /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; wrapsLines = 1; };
@@ -1780,13 +1776,13 @@
 			path = "Player Screen";
 			sourceTree = "<group>";
 		};
-		410D00FC26DDD26000D11A45 /* Chapters Screen */ = {
+		410D00FC26DDD26000D11A45 /* Chapters */ = {
 			isa = PBXGroup;
 			children = (
 				410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */,
 				63652C722E6E8A9700231202 /* ChaptersView.swift */,
 			);
-			path = "Chapters Screen";
+			path = Chapters;
 			sourceTree = "<group>";
 		};
 		41188D2626ED4D470017124E /* ItemList */ = {
@@ -1901,7 +1897,6 @@
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 				41188D1F26ECDDD50017124E /* BookmarkCoordinator.swift */,
 				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
-				9F3D0CE828C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2857,14 +2852,13 @@
 			path = Styleguide;
 			sourceTree = "<group>";
 		};
-		9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree Screen */ = {
+		9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */ = {
 			isa = PBXGroup;
 			children = (
+				63FB67872E714F0A00331767 /* ButtonFreeView.swift */,
 				9F3D0CE628C2BF7700E9E8A3 /* ButtonFreeViewModel.swift */,
-				9F3D0CE428C2BF5C00E9E8A3 /* ButtonFreeViewController.swift */,
-				9F3D0CF328C2F31600E9E8A3 /* GestureItemRow.swift */,
 			);
-			path = "ButtonFree Screen";
+			path = ButtonFree;
 			sourceTree = "<group>";
 		};
 		9F4691EB2800C8EE00A8F0E8 /* Profile */ = {
@@ -3181,10 +3175,10 @@
 			isa = PBXGroup;
 			children = (
 				410D00FB26DDD24300D11A45 /* Player Screen */,
-				410D00FC26DDD26000D11A45 /* Chapters Screen */,
+				410D00FC26DDD26000D11A45 /* Chapters */,
 				4138CE1A26E5B4020014F11E /* Bookmarks Screen */,
 				9F64C6222793C37C00B2493C /* Controls Screen */,
-				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree Screen */,
+				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
 				63E893912CAFA89000946CD4 /* BPPlayerError.swift */,
@@ -4129,7 +4123,6 @@
 				8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */,
 				6319089F2E33C7D0009249C1 /* SettingsTipView.swift in Sources */,
 				3F7B643B2E0F9FA000299D97 /* HardcoverService.swift in Sources */,
-				9F3D0CE528C2BF5C00E9E8A3 /* ButtonFreeViewController.swift in Sources */,
 				63AD93D52E3C72830077E73A /* ProfileScreen.swift in Sources */,
 				8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */,
 				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
@@ -4146,7 +4139,6 @@
 				C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */,
 				3F7B64492E0FB2C100299D97 /* InsertUserBookData.swift in Sources */,
 				636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */,
-				9F3D0CF428C2F31600E9E8A3 /* GestureItemRow.swift in Sources */,
 				63C48D442E3E9338005FBB96 /* AccountLogoutSectionView.swift in Sources */,
 				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */,
@@ -4208,6 +4200,7 @@
 				3FF8EA502E11E2110054CD2C /* ItemDetailsHardcoverSectionViewModel.swift in Sources */,
 				3F7B64452E0FB29600299D97 /* BooksData.swift in Sources */,
 				6356F9B92AC7CDDE00B7A027 /* EndChapterSleepTimerIntent.swift in Sources */,
+				63FB67882E714F0A00331767 /* ButtonFreeView.swift in Sources */,
 				62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */,
 				4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */,
 				9FE86B8E2A544CB200B5450E /* Binding+BookPlayer.swift in Sources */,
@@ -4236,7 +4229,6 @@
 				637043522E2DE65A005353D1 /* CreditsView.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */,
-				9F3D0CE928C2BFC600E9E8A3 /* ButtonFreeCoordinator.swift in Sources */,
 				3F6640912E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,

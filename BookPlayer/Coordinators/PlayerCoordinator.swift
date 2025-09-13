@@ -73,13 +73,18 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showButtonFree() {
-    let coordinator = ButtonFreeCoordinator(
-      flow: .modalFlow(presentingController: playerViewController, modalPresentationStyle: .overFullScreen),
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      syncService: self.syncService
+    let vc = UIHostingController(
+      rootView: ButtonFreeView {
+        ButtonFreeViewModel(
+          playerManager: self.playerManager,
+          libraryService: self.libraryService,
+          syncService: self.syncService
+        )
+      }
     )
-    coordinator.start()
+
+    vc.modalPresentationStyle = .overFullScreen
+    playerViewController.present(vc, animated: true)
   }
 
   func showChapters() {
