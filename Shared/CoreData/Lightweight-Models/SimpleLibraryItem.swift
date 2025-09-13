@@ -49,6 +49,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     && lhs.percentCompleted == rhs.percentCompleted
     && lhs.isFinished == rhs.isFinished
     && lhs.type.rawValue == rhs.type.rawValue
+    && lhs.orderRank == rhs.orderRank
   }
 
   static var fetchRequestProperties = [

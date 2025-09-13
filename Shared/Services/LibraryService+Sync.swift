@@ -7,9 +7,9 @@
 //
 
 import AVFoundation
+import Combine
 import CoreData
 import Foundation
-import Combine
 
 public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
@@ -21,6 +21,7 @@ public protocol LibrarySyncProtocol {
   func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Update single local item with synced info
   func updateInfo(for item: SyncableItem) async
+  func updateInfo(for item: SyncableItem, ignoreCurrentTime: Bool) async
   /// Create new items from synced info
   func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Remove local items that were not in the remote identifiers
@@ -100,34 +101,52 @@ extension LibraryService: LibrarySyncProtocol {
   }
 
   public func updateInfo(for item: SyncableItem) async {
+    return await updateInfo(for: item, ignoreCurrentTime: false)
+  }
+
+  public func updateInfo(for item: SyncableItem, ignoreCurrentTime: Bool) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
-        updateInfo(for: item, context: context, shouldSaveContext: true)
+        updateInfo(
+          for: item,
+          context: context,
+          shouldSaveContext: true,
+          ignoreCurrentTime: ignoreCurrentTime
+        )
         continuation.resume()
       }
     }
   }
 
-  private func updateInfo(for item: SyncableItem, context: NSManagedObjectContext, shouldSaveContext: Bool) {
+  private func updateInfo(
+    for item: SyncableItem,
+    context: NSManagedObjectContext,
+    shouldSaveContext: Bool,
+    ignoreCurrentTime: Bool = false
+  ) {
     guard let storedItem = getItem(with: item.relativePath, context: context) else { return }
 
     storedItem.title = item.title
     storedItem.details = item.details
-    storedItem.currentTime = item.currentTime
     storedItem.duration = item.duration
-    storedItem.isFinished = item.isFinished
     storedItem.orderRank = Int16(item.orderRank)
-    storedItem.percentCompleted = item.percentCompleted
+    if !ignoreCurrentTime {
+      storedItem.currentTime = item.currentTime
+      storedItem.percentCompleted = item.percentCompleted
+      storedItem.isFinished = item.isFinished
+
+      if let timestamp = item.lastPlayDateTimestamp {
+        storedItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
+      } else {
+        storedItem.lastPlayDate = nil
+      }
+    }
+
     storedItem.remoteURL = item.remoteURL
     storedItem.artworkURL = item.artworkURL
     storedItem.type = item.type.itemType
     storedItem.speed = Float(item.speed ?? 1.0)
-    if let timestamp = item.lastPlayDateTimestamp {
-      storedItem.lastPlayDate = Date(timeIntervalSince1970: timestamp)
-    } else {
-      storedItem.lastPlayDate = nil
-    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
@@ -166,7 +185,8 @@ extension LibraryService: LibrarySyncProtocol {
     )
 
     if let relativePath = parentFolder,
-       let folder = getItem(with: relativePath, context: context) as? Folder {
+      let folder = getItem(with: relativePath, context: context) as? Folder
+    {
       folder.addToItems(newBook)
     } else {
       let library = getLibraryReference(context: context)
@@ -185,7 +205,8 @@ extension LibraryService: LibrarySyncProtocol {
 
     // insert into existing folder or library at index
     if let relativePath = parentFolder,
-       let folder = getItemReference(with: relativePath, context: context) as? Folder {
+      let folder = getItemReference(with: relativePath, context: context) as? Folder
+    {
       folder.addToItems(newFolder)
     } else {
       let library = getLibraryReference(context: context)
@@ -242,7 +263,9 @@ extension LibraryService: LibrarySyncProtocol {
     fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
     fetchRequest.predicate = NSPredicate(
-      format: "%K BEGINSWITH %@", #keyPath(LibraryItem.folder.relativePath), relativePath
+      format: "%K BEGINSWITH %@",
+      #keyPath(LibraryItem.folder.relativePath),
+      relativePath
     )
 
     let results = try? self.dataManager.getBackgroundContext().fetch(fetchRequest) as? [[String: Any]]
@@ -316,7 +339,7 @@ extension LibraryService: LibrarySyncProtocol {
           )
         }
 
-        try? delete(items, mode: .deep)
+        try? delete(items, mode: .deep, context: context)
         continuation.resume()
       }
     }

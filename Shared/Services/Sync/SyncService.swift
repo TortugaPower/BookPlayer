@@ -319,11 +319,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     /// Only update the time if the remote last played timestamp is greater than the local timestamp
-    if let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp,
-      remoteLastPlayDateTimestamp > localLastPlayDateTimestamp
-    {
-      await libraryService.updateInfo(for: item)
-      throw BPSyncError.reloadLastBook(item.relativePath)
+    if let remoteLastPlayDateTimestamp = item.lastPlayDateTimestamp {
+      let hasNewLastPlayDate = remoteLastPlayDateTimestamp > localLastPlayDateTimestamp
+      await libraryService.updateInfo(for: item, ignoreCurrentTime: !hasNewLastPlayDate)
+      if hasNewLastPlayDate {
+        throw BPSyncError.reloadLastBook(item.relativePath)
+      }
     }
   }
 
