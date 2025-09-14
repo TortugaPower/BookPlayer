@@ -16,6 +16,7 @@ struct MainView: View {
 
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
+  @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
@@ -25,15 +26,15 @@ struct MainView: View {
 
   var body: some View {
     TabView {
-      Group {
+      Tab("library_title", systemImage: "books.vertical") {
         LibraryRootView(
           showSecondOnboarding: showSecondOnboarding,
           showPlayer: showPlayer,
           showImport: showImport
         )
-        .tabItem {
-          Label("library_title", systemImage: "books.vertical")
-        }
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
+        .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
         .onDrop(
           of: ImportableItem.readableTypeIdentifiers,
           isTargeted: nil
@@ -41,29 +42,34 @@ struct MainView: View {
           handleDrop(providers)
           return true
         }
-        ProfileView()
-          .tabItem {
-            Label("profile_title", systemImage: "person.crop.circle")
-          }
-        SettingsView()
-          .tabItem {
-            Label("settings_title", systemImage: "gearshape")
-          }
       }
-      .toolbarBackground(.visible, for: .tabBar)
-      .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
-      .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
+      Tab("profile_title", systemImage: "person.crop.circle") {
+        ProfileView()
+      }
+      Tab("settings_title", systemImage: "gearshape") {
+        SettingsView()
+      }
+      if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+        Tab("search_title", systemImage: "magnifyingglass", role: .search) {
+          SearchView {
+            SearchViewModel(libraryService: libraryService)
+          }
+        }
+      }
+
     }
     .miniPlayer {
       if !listState.isSearching && !listState.isEditing,
-         let relativePath = playerState.loadedBookRelativePath {
+        let relativePath = playerState.loadedBookRelativePath
+      {
         MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
           .transition(.move(edge: .bottom).combined(with: .opacity))
           .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
       }
     } accessoryContent: {
       if !listState.isSearching && !listState.isEditing,
-         let relativePath = playerState.loadedBookRelativePath {
+        let relativePath = playerState.loadedBookRelativePath
+      {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }

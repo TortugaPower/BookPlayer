@@ -38,6 +38,50 @@ extension View {
   }
 }
 
+struct ItemListSearchableModifier: ViewModifier {
+  @Binding var text: String
+  @Binding var isSearchFocused: Bool
+  let prompt: String
+  @Binding var selectedScope: ItemListSearchScope
+
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+      /// New tab bar role handles searches
+      content
+    } else {
+      content
+        .searchable(
+          text: $text,
+          isPresented: $isSearchFocused,
+          prompt: prompt
+        )
+        .searchScopes($selectedScope) {
+          ForEach(ItemListSearchScope.allCases) { scope in
+            Text(scope.title).tag(scope)
+          }
+        }
+    }
+  }
+}
+
+extension View {
+  func bpSearchable(
+    text: Binding<String>,
+    isSearchFocused: Binding<Bool>,
+    prompt: String,
+    selectedScope: Binding<ItemListSearchScope>
+  ) -> some View {
+    self.modifier(
+      ItemListSearchableModifier(
+        text: text,
+        isSearchFocused: isSearchFocused,
+        prompt: prompt,
+        selectedScope: selectedScope
+      )
+    )
+  }
+}
+
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
 
