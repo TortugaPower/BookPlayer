@@ -91,16 +91,12 @@ struct ItemListView: View {
           .accessibilityRotor("folders_title") {
             customFolderRotor(with: scrollView)
           }
-          .searchable(
+          .bpSearchable(
             text: $model.query,
-            isPresented: $model.isSearchFocused,
-            prompt: "search_title".localized + " \(model.libraryNode.title)"
+            isSearchFocused: $model.isSearchFocused,
+            prompt: "search_title".localized + " \(model.libraryNode.title)",
+            selectedScope: $model.scope
           )
-          .searchScopes($model.scope) {
-            ForEach(ItemListSearchScope.allCases) { scope in
-              Text(scope.title).tag(scope)
-            }
-          }
           .environment(\.editMode, $model.editMode)
           .refreshable {
             importManager.notifyPendingFiles()

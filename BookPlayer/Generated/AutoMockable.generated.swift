@@ -351,6 +351,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return filterContentsAtQueryScopeLimitOffsetReturnValue
         }
     }
+    //MARK: - searchAllBooks
+
+    var searchAllBooksQueryLimitOffsetCallsCount = 0
+    var searchAllBooksQueryLimitOffsetCalled: Bool {
+        return searchAllBooksQueryLimitOffsetCallsCount > 0
+    }
+    var searchAllBooksQueryLimitOffsetReceivedArguments: (query: String?, limit: Int?, offset: Int?)?
+    var searchAllBooksQueryLimitOffsetReceivedInvocations: [(query: String?, limit: Int?, offset: Int?)] = []
+    var searchAllBooksQueryLimitOffsetReturnValue: [SimpleLibraryItem]?
+    var searchAllBooksQueryLimitOffsetClosure: ((String?, Int?, Int?) -> [SimpleLibraryItem]?)?
+    func searchAllBooks(query: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+        searchAllBooksQueryLimitOffsetCallsCount += 1
+        searchAllBooksQueryLimitOffsetReceivedArguments = (query: query, limit: limit, offset: offset)
+        searchAllBooksQueryLimitOffsetReceivedInvocations.append((query: query, limit: limit, offset: offset))
+        if let searchAllBooksQueryLimitOffsetClosure = searchAllBooksQueryLimitOffsetClosure {
+            return searchAllBooksQueryLimitOffsetClosure(query, limit, offset)
+        } else {
+            return searchAllBooksQueryLimitOffsetReturnValue
+        }
+    }
     //MARK: - findFirstItem
 
     var findFirstItemInIsUnfinishedCallsCount = 0

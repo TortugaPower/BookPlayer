@@ -62,6 +62,12 @@ public protocol LibraryServiceProtocol: AnyObject {
     limit: Int?,
     offset: Int?
   ) -> [SimpleLibraryItem]?
+  /// Global search across all books in the library
+  func searchAllBooks(
+    query: String?,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleLibraryItem]?
   /// Autoplay
   /// Find first item that is unfinished in a folder
   func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem?
@@ -1118,6 +1124,52 @@ extension LibraryService {
     )
 
     let sort = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
+    fetchRequest.sortDescriptors = [sort]
+
+    if let limit = limit {
+      fetchRequest.fetchLimit = limit
+    }
+
+    if let offset = offset {
+      fetchRequest.fetchOffset = offset
+    }
+
+    let context = dataManager.getContext()
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results, context: context)
+  }
+
+  public func searchAllBooks(
+    query: String?,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleLibraryItem]? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+    
+    var predicates = [NSPredicate]()
+
+    // Apply scope filtering
+    predicates.append(
+      NSPredicate(format: "type != 0")
+    )
+    
+    // Add search query predicate if provided
+    if let query = query, !query.isEmpty {
+      predicates.append(
+        NSPredicate(
+          format: "title CONTAINS[cd] %@",
+          query
+        )
+      )
+    }
+    
+    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    
+    // Sort by last play date descending (most recent first)
+    let sort = NSSortDescriptor(key: "lastPlayDate", ascending: false)
     fetchRequest.sortDescriptors = [sort]
 
     if let limit = limit {

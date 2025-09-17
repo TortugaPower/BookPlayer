@@ -17,6 +17,7 @@ struct BookView: View {
   @Environment(\.syncService) private var syncService
   @Environment(\.playingItemParentPath) private var playingItemParentPath
   @Environment(\.playerState) private var playerState
+  @Environment(\.listState) private var listState
   @EnvironmentObject private var theme: ThemeViewModel
 
   var isHighlighted: Bool {
@@ -53,10 +54,12 @@ struct BookView: View {
       }
       .padding(.leading, Spacing.S)
       Spacer()
-      ItemProgressView(
-        item: item,
-        isHighlighted: isHighlighted
-      )
+      if !listState.isEditing {
+        ItemProgressView(
+          item: item,
+          isHighlighted: isHighlighted
+        )
+      }
     }
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
