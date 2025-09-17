@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     # https://github.com/actions/runner-images/tree/main/images/macos
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
     - uses: actions/checkout@v4
@@ -26,12 +26,13 @@ jobs:
         sudo rm -rf /Applications/Xcode_16.1.app
         sudo rm -rf /Applications/Xcode_16.2.app
         sudo rm -rf /Applications/Xcode_16.3.app
+        sudo rm -rf /Applications/Xcode_16.4.app
         df -hI /dev/disk3s1s1
     - name: Create Debug.xcconfig
       run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
     - name: Set Xcode version
-      run: sudo xcode-select -s "/Applications/Xcode_16.4.app"
+      run: sudo xcode-select -s "/Applications/Xcode_26.0.app"
     - name: Resolve dependencies
       run: xcodebuild -resolvePackageDependencies
     - name: Build and Run tests
-      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
+      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.0'
