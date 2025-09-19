@@ -25,5 +25,6 @@ public struct Fonts {
   public static let caption = UIFont.preferredFont(with: 13, style: .caption1, weight: .regular)
   public static let captionMedium = UIFont.preferredFont(with: 13, style: .caption1, weight: .medium)
 
-  public static let miniPlayerTitle = UIFont.preferredFont(with: 15, style: .body, weight: .semibold)
+  public static let miniPlayerTitle = UIFont.preferredFont(with: 14, style: .body, weight: .semibold)
+  public static let miniPlayerAuthor = UIFont.preferredFont(with: 13, style: .body, weight: .regular)
 }

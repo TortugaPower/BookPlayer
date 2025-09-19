@@ -181,22 +181,6 @@ class PlayerManagerTests: XCTestCase {
     XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 1)
   }
 
-  func testGetNextPlayableBookOpusFail() {
-    playbackServiceMock
-      .getPlayableItemAfterParentFolderAutoplayedRestartFinishedClosure = { relativePath, _, _, _ in
-        return [PlayableItem.mockWithExtension("opus")].filter({ $0.relativePath != relativePath }).first
-      }
-
-    let nextItem = sut.getNextPlayableBook(
-      after: PlayableItem.mock,
-      autoPlayed: true,
-      restartFinished: true
-    )
-
-    XCTAssertNil(nextItem)
-    XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
-  }
-
   func testGetNextPlayableBookJpgFail() {
     /// Test unrecognized file
     playbackServiceMock

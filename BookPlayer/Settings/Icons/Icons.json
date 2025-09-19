@@ -16,6 +16,24 @@
         "locked": true
     },
     {
+        "id": "Music",
+        "title": "Music",
+        "imageName": "music-26",
+        "locked": true
+    },
+    {
+        "id": "Fruit Based",
+        "title": "Fruit Based",
+        "imageName": "fruit-based",
+        "locked": true
+    },
+    {
+        "id": "Platinum",
+        "title": "Platinum",
+        "imageName": "Platinum",
+        "locked": true
+    },
+    {
         "id": "Heart of Glass",
         "title": "Heart of Glass",
         "imageName": "heart-of-glass",
@@ -67,12 +85,6 @@
         "id": "Songs",
         "title": "Songs",
         "imageName": "songs",
-        "locked": true
-    },
-    {
-        "id": "Fruit Based",
-        "title": "Fruit Based",
-        "imageName": "fruit-based",
         "locked": true
     }
 ]
