@@ -334,6 +334,23 @@ struct ItemListView: View {
             loadPlayer(with: item.relativePath)
           }
         }
+        .accessibilityAction {
+          guard !model.editMode.isEditing else {
+            if model.selectedSetItems.contains(item.id) {
+              model.selectedSetItems.remove(item.id)
+            } else {
+              model.selectedSetItems.insert(item.id)
+            }
+            return
+          }
+
+          switch syncService.getDownloadState(for: item) {
+          case .downloading:
+            cancelDownload(of: item.id)
+          case .downloaded, .notDownloaded:
+            loadPlayer(with: item.relativePath)
+          }
+        }
       }
     }
     .onAppear {
