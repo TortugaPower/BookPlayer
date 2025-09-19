@@ -10,7 +10,7 @@ jobs:
   build:
     # https://github.com/actions/runner-images/tree/main/images/macos
     runs-on: macos-26
-
+    timeout-minutes: 30
     steps:
     - uses: actions/checkout@v4
     # We only use Xcode 16.0
