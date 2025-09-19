@@ -23,6 +23,7 @@ struct MainView: View {
   @Environment(\.colorScheme) private var scheme
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
+  @EnvironmentObject private var playerManager: PlayerManager
 
   var body: some View {
     TabView {
@@ -72,6 +73,9 @@ struct MainView: View {
       {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
+    }
+    .accessibilityAction(.magicTap) {
+      playerManager.playPause()
     }
     .environmentObject(theme)
     .environment(\.listState, listState)
