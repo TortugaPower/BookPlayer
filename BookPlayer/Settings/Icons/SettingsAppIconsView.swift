@@ -62,12 +62,12 @@ extension Bundle {
       return []
     }
 
-    let decodedIcons = try? JSONDecoder().decode([Icon].self, from: data)
+    let decodedIcons = (try? JSONDecoder().decode([Icon].self, from: data)) ?? []
 
     var icons = [Icon]()
 
     if  #available(iOS 26.0, *) {
-      for var icon in decodedIcons ?? [] {
+      for var icon in decodedIcons {
         if icon.title == "Pride" {
           icon.id += "26"
           icon.imageName += "-26"
@@ -78,6 +78,8 @@ extension Bundle {
         }
         icons.append(icon)
       }
+    } else {
+      icons = decodedIcons
     }
 
     return icons

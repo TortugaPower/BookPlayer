@@ -79,6 +79,9 @@ struct ButtonFreeView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
       .navigationTitle("button_free_title")
       .navigationBarTitleDisplayMode(.inline)
+      .accessibilityAction(.escape) {
+        dismiss()
+      }
       .onAppear {
         model.disableTimer(true)
       }

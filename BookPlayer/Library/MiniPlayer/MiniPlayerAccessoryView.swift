@@ -14,19 +14,25 @@ struct MiniPlayerAccessoryView: View {
   let showPlayer: () -> Void
 
   @State private var isPlaying: Bool = false
-
+  @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
-  
+
   var voiceOverLabel: String {
     let voiceOverTitle = playerManager.currentItem?.title ?? "voiceover_no_title".localized
     let voiceOverSubtitle = playerManager.currentItem?.author ?? "voiceover_no_author".localized
 
     return "voiceover_miniplayer_hint".localized
-    + ", "
-    + String(describing: String.localizedStringWithFormat("voiceover_currently_playing_title".localized, voiceOverTitle, voiceOverSubtitle))
+      + ", "
+      + String(
+        describing: String.localizedStringWithFormat(
+          "voiceover_currently_playing_title".localized,
+          voiceOverTitle,
+          voiceOverSubtitle
+        )
+      )
   }
-  
+
   var body: some View {
     Group {
       HStack(spacing: 12) {
@@ -39,12 +45,16 @@ struct MiniPlayerAccessoryView: View {
 
         VStack(alignment: .leading) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
-            .foregroundStyle(theme.primaryColor)
+            .foregroundStyle(
+              reduceTransparency ? Color.primary : theme.primaryColor
+            )
             .bpFont(Fonts.miniPlayerTitle)
             .lineLimit(1)
 
           Text(verbatim: playerManager.currentItem?.author ?? "")
-            .foregroundStyle(theme.secondaryColor)
+            .foregroundStyle(
+              reduceTransparency ? Color.secondary : theme.secondaryColor
+            )
             .bpFont(Fonts.miniPlayerAuthor)
             .lineLimit(1)
         }
@@ -72,8 +82,8 @@ struct MiniPlayerAccessoryView: View {
         } label: {
           Image(
             systemName: isPlaying
-            ? "pause.fill"
-            : "play.fill"
+              ? "pause.fill"
+              : "play.fill"
           )
           .resizable()
           .aspectRatio(contentMode: .fit)
