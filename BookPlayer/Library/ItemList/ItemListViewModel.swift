@@ -292,21 +292,32 @@ final class ItemListViewModel: ObservableObject {
 // MARK: - 'More' actions handlers
 extension ItemListViewModel {
   func handleResetPlaybackPosition() {
-    selectedItems.forEach({ libraryService.jumpToStart(relativePath: $0.relativePath) })
+    let currentlyPlayingPath = playerManager.currentItem?.relativePath
+
+    for selectedItem in selectedItems {
+      libraryService.jumpToStart(relativePath: selectedItem.relativePath)
+
+      if currentlyPlayingPath == selectedItem.relativePath {
+        playerManager.pause()
+        playerManager.jumpTo(0, recordBookmark: false)
+      }
+    }
+
+    if let parentFolder = libraryNode.folderRelativePath {
+      libraryService.recursiveFolderProgressUpdate(from: parentFolder)
+    }
 
     listState.reloadAll()
     editMode = .inactive
   }
 
   func handleMarkAsFinished(flag: Bool) {
-    let parentFolder = selectedItems.first?.parentFolder
-
     selectedItems.forEach {
       libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
     }
 
-    if let parentFolder {
-      libraryService.rebuildFolderDetails(parentFolder)
+    if let parentFolder = libraryNode.folderRelativePath {
+      libraryService.recursiveFolderProgressUpdate(from: parentFolder)
     }
 
     listState.reloadAll()

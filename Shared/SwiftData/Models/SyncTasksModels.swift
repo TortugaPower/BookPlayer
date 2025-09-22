@@ -68,7 +68,7 @@ public class UploadTaskModel {
     originalFileName: String,
     title: String,
     details: String,
-    speed: Double? = nil,
+    speed: Float? = nil,
     currentTime: Double,
     duration: Double,
     percentCompleted: Double,
@@ -82,7 +82,11 @@ public class UploadTaskModel {
     self.originalFileName = originalFileName
     self.title = title
     self.details = details
-    self.speed = speed
+    if let speed {
+      self.speed = Double(speed)
+    } else {
+      self.speed = nil
+    }
     self.currentTime = currentTime
     self.duration = duration
     self.percentCompleted = percentCompleted
@@ -113,7 +117,7 @@ public class UpdateTaskModel {
     relativePath: String,
     title: String? = nil,
     details: String? = nil,
-    speed: Double? = nil,
+    speed: Float? = nil,
     currentTime: Double? = nil,
     duration: Double? = nil,
     percentCompleted: Double? = nil,
@@ -126,7 +130,11 @@ public class UpdateTaskModel {
     self.relativePath = relativePath
     self.title = title
     self.details = details
-    self.speed = speed
+    if let speed {
+      self.speed = Double(speed)
+    } else {
+      self.speed = nil
+    }
     self.currentTime = currentTime
     self.duration = duration
     self.percentCompleted = percentCompleted

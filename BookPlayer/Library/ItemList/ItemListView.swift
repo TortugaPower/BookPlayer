@@ -365,6 +365,11 @@ struct ItemListView: View {
       } label: {
         Text("options_button")
       }
+      Button("delete_button", role: .destructive) {
+        model.selectedSetItems = [item.id]
+        showDeleteAlert = true
+      }
+      .tint(.red)
     }
     .listRowBackground(theme.systemBackgroundColor)
     .allowsHitTesting(!model.editMode.isEditing)
