@@ -35,7 +35,7 @@ struct ItemProgressView: View {
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .folderProgressUpdated)
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
         .filter { notification in
           guard
             item.type != .book,
