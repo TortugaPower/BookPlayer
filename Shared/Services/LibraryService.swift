@@ -17,6 +17,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   /// Progress publisher that debounces changes during 10 seconds before emitting the last payload
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+  /// Immediate progress publisher for real-time UI updates (no throttling)
+  var immediateProgressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
@@ -162,6 +164,9 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   /// Public progress publisher that debounces changes during 10 seconds before emitting the last event
   public var progressUpdatePublisher = PassthroughSubject<[String: Any], Never>()
     .eraseToAnyPublisher()
+  /// Immediate progress publisher for real-time UI updates (no throttling)
+  public var immediateProgressUpdatePublisher = PassthroughSubject<[String: Any], Never>()
+    .eraseToAnyPublisher()
 
   public init() {}
 
@@ -191,6 +196,10 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     progressUpdatePublisher =
       progressPassthroughPublisher
       .throttle(for: .seconds(10), scheduler: DispatchQueue.main, latest: true)
+      .eraseToAnyPublisher()
+
+    immediateProgressUpdatePublisher =
+      metadataPassthroughPublisher
       .eraseToAnyPublisher()
   }
 
@@ -1148,14 +1157,14 @@ extension LibraryService {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
-    
+
     var predicates = [NSPredicate]()
 
     // Apply scope filtering
     predicates.append(
       NSPredicate(format: "type != 0")
     )
-    
+
     // Add search query predicate if provided
     if let query = query, !query.isEmpty {
       predicates.append(
@@ -1165,9 +1174,9 @@ extension LibraryService {
         )
       )
     }
-    
+
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    
+
     // Sort by last play date descending (most recent first)
     let sort = NSSortDescriptor(key: "lastPlayDate", ascending: false)
     fetchRequest.sortDescriptors = [sort]

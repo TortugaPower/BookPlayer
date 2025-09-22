@@ -14,17 +14,20 @@ struct ItemProgressView: View {
   let isHighlighted: Bool
 
   @State private var progress: Double
+  @State private var isFinished: Bool
   @EnvironmentObject private var playerManager: PlayerManager
+  @Environment(\.libraryService) private var libraryService
 
   init(item: SimpleLibraryItem, isHighlighted: Bool) {
     self.item = item
     self.isHighlighted = isHighlighted
-    self._progress = .init(initialValue: item.progress)
+    self._progress = .init(initialValue: item.percentCompleted / 100)
+    self._isFinished = .init(initialValue: item.isFinished)
   }
 
   var body: some View {
     CircularProgressView(
-      progress: progress,
+      progress: isFinished ? 1.0 : progress,
       isHighlighted: isHighlighted
     )
     .onReceive(
@@ -32,6 +35,16 @@ struct ItemProgressView: View {
         .filter { $0.0 == item.relativePath }
     ) { (_, progress) in
       self.progress = progress
+    }
+    .onReceive(
+      libraryService.immediateProgressUpdatePublisher
+        .filter { item.relativePath == $0["relativePath"] as? String }
+    ) { params in
+      if let percentCompleted = params["percentCompleted"] as? Double {
+        self.progress = percentCompleted / 100
+      } else if let isFinished = params["isFinished"] as? Bool {
+        self.isFinished = isFinished
+      }
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .folderProgressUpdated)
