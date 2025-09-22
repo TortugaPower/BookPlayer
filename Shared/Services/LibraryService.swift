@@ -1803,7 +1803,7 @@ extension LibraryService {
     item.currentTime = time
     item.lastPlayDate = date
     let progress = round((item.currentTime / item.duration) * 100)
-    let percentCompleted =
+    let percentCompleted: Double =
       progress.isFinite
       ? progress
       : 0
@@ -1899,7 +1899,7 @@ extension LibraryService {
       book.currentTime.rounded(.up) == book.duration.rounded(.up)
     {
       book.currentTime = 0.0
-      metadataUpdates[#keyPath(LibraryItem.currentTime)] = 0
+      metadataUpdates[#keyPath(LibraryItem.currentTime)] = Double(0)
     }
 
     metadataPassthroughPublisher.send(metadataUpdates)
@@ -1940,8 +1940,8 @@ extension LibraryService {
 
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): book.relativePath!,
-      #keyPath(LibraryItem.currentTime): 0,
-      #keyPath(LibraryItem.percentCompleted): 0,
+      #keyPath(LibraryItem.currentTime): Double(0),
+      #keyPath(LibraryItem.percentCompleted): Double(0),
       #keyPath(LibraryItem.isFinished): false,
     ])
 
@@ -1955,8 +1955,8 @@ extension LibraryService {
 
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
-      #keyPath(LibraryItem.currentTime): 0,
-      #keyPath(LibraryItem.percentCompleted): 0,
+      #keyPath(LibraryItem.currentTime): Double(0),
+      #keyPath(LibraryItem.percentCompleted): Double(0),
       #keyPath(LibraryItem.isFinished): false,
     ])
 
