@@ -55,12 +55,10 @@ struct BookView: View {
       }
       .padding(.leading, Spacing.S)
       Spacer()
-      if !listState.isEditing {
-        ItemProgressView(
-          item: item,
-          isHighlighted: isHighlighted
-        )
-      }
+      ItemProgressView(
+        item: item,
+        isHighlighted: isHighlighted
+      )
     }
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
