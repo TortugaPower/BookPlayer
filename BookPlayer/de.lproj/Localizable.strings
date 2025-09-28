@@ -346,10 +346,10 @@
 "runtime_unknown" = "Unbekannte Dauer";
 "subscription_required_title" = "Abonnement erforderlich";
 "Swipe rows to see download options" = "Wischen Sie durch die Zeilen, um die Download-Optionen anzuzeigen";
-"settings_seekprogressbar_title" = "Progress Bar Seeking";
-"settings_seekprogressbar_description" = "Enable seeking on the lock screen";
+"settings_seekprogressbar_title" = "In Fortschrittsleiste navigieren";
+"settings_seekprogressbar_description" = "Aktiviert das Navigieren in der Fortschrittsleiste auf dem Sperrbildschirm.";
 "donate_title" = "Spenden";
-"bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
+"bookmark_automatic_sleep_title" = "Letzte Position, als der Sleep-Timer aktiviert wurde";
 "download_folder_confirmation_title" = "Ordner herunterladen";
 "download_folder_confirmation_message" = "Alle %d Dateien aus diesem Ordner herunterladen?";
 "hardcover_searching_books" = "Bücher suchen...";
