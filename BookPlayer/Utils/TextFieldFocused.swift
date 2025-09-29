@@ -43,11 +43,11 @@ private struct TextFieldFocused<FocusableType: Equatable & Focusable>: ViewModif
 
   func body(content: Content) -> some View {
     content
-      .onChange(of: externalFocused) { newValue in
+      .onChange(of: externalFocused) { _, newValue in
         focused = (newValue.hashValue == selfkey.hashValue)
       }
       .focused($focused)
-      .onChange(of: focused) { isFocused in
+      .onChange(of: focused) { _, isFocused in
         if isFocused {
           externalFocused = selfkey
         }
