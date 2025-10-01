@@ -88,6 +88,9 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
     self.containerItemStackView.setCustomSpacing(26, after: self.artworkControl)
     toggleArtwork(for: traitCollection)
+
+    self.currentTimeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
+
   }
 
   override func willTransition(
@@ -192,7 +195,15 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
     if let maxTime = progressObject.maxTime,
       let formattedMaxTime = progressObject.formattedMaxTime
     {
-      self.maxTimeButton.setTitle(formattedMaxTime, for: .normal)
+
+    let title = NSAttributedString(
+         string: formattedMaxTime,
+         attributes: [
+             .font: UIFont.monospacedDigitSystemFont(ofSize: 14, weight: .semibold),
+         ]
+    )
+    self.maxTimeButton.setAttributedTitle(title, for: .normal)
+      
       self.maxTimeButton.accessibilityLabel = String(
         describing: "\(self.viewModel.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
       )
