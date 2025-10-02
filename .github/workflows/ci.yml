@@ -12,27 +12,45 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v4
-    # We only use Xcode 16.0
-    - name: Remove unused applications
-      run: |
-        df -hI /dev/disk3s1s1
-        sudo rm -rf /Applications/Xcode_14.3.1.app
-        sudo rm -rf /Applications/Xcode_15.0.1.app
-        sudo rm -rf /Applications/Xcode_15.1.app
-        sudo rm -rf /Applications/Xcode_15.2.app
-        sudo rm -rf /Applications/Xcode_15.3.app
-        sudo rm -rf /Applications/Xcode_16.0.app
-        sudo rm -rf /Applications/Xcode_16.1.app
-        sudo rm -rf /Applications/Xcode_16.2.app
-        sudo rm -rf /Applications/Xcode_16.3.app
-        sudo rm -rf /Applications/Xcode_16.4.app
-        df -hI /dev/disk3s1s1
-    - name: Create Debug.xcconfig
-      run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
-    - name: Set Xcode version
-      run: sudo xcode-select -s "/Applications/Xcode_26.0.app"
-    - name: Resolve dependencies
-      run: xcodebuild -resolvePackageDependencies
-    - name: Build and Run tests
-      run: xcodebuild -scheme BookPlayer test -testPlan Unit\ Tests -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.0'
+      - uses: actions/checkout@v4
+      - name: Select Xcode 26.0
+        run: |
+          ls -1 /Applications | grep -E '^Xcode_26\.' || true
+          sudo xcode-select -s "/Applications/Xcode_26.0.app"
+          xcodebuild -version
+          xcrun simctl list runtimes
+
+      - name: Create Debug.xcconfig
+        run: cp ./BuildConfiguration/Debug.template.xcconfig ./BuildConfiguration/Debug.xcconfig
+
+      - name: Resolve SPM dependencies
+        run: xcodebuild -resolvePackageDependencies
+
+      - name: Reset Simulator
+        run: |
+          xcrun simctl shutdown all || true
+          xcrun simctl erase all || true
+          launchctl remove com.apple.CoreSimulator.CoreSimulatorService || true
+          xcrun simctl list devices
+
+      - name: Build for testing
+        run: |
+          xcodebuild \
+            -scheme BookPlayer \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.0" \
+            build-for-testing
+
+      - name: Run unit tests (fail fast)
+        timeout-minutes: 12
+        env:
+          NSUnbufferedIO: "YES"
+        run: |
+          xcodebuild \
+            -scheme BookPlayer \
+            -configuration Debug \
+            -testPlan "Unit Tests" \
+            -only-testing:BookPlayerTests \
+            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.0" \
+            -destination-timeout 120 \
+            test-without-building
