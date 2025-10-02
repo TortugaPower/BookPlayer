@@ -11,7 +11,7 @@ import BookPlayerKit
 import Foundation
 
 @available(macOS 14.0, watchOS 10.0, *)
-struct PausePlaybackIntent: AudioStartingIntent {
+struct PausePlaybackIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = "intent_playback_pause_title"
 
   @Dependency

@@ -32,6 +32,9 @@ public final class TasksDataManager {
     let modelConfiguration = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
 
     container = try! ModelContainer(for: schema, configurations: [modelConfiguration])
+    
+    // Initialize task count from database
+    initializeTasksCount()
   }
 
   public func getTasksCount() -> Int {
@@ -323,5 +326,20 @@ public final class TasksDataManager {
       task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
     if let type = parameters["type"] as? Int16 { task.type = type }
+  }
+  
+  /// Initialize the tasks count from the database on startup
+  private func initializeTasksCount() {
+    let context = ModelContext(container)
+    
+    do {
+      let descriptor = FetchDescriptor<SyncTasksContainer>()
+      let containers = try context.fetch(descriptor)
+      let count = containers.first?.tasks.count ?? 0
+      tasksCountSubject.send(count)
+    } catch {
+      // If there's an error reading from the database, keep the default value of 0
+      tasksCountSubject.send(0)
+    }
   }
 }

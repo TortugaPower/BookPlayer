@@ -33,7 +33,7 @@ struct HardcoverSettingsView: View {
         .onSubmit {
           isTextFieldFocused = false
         }
-        .onChange(of: viewModel.accessToken) { new in
+        .onChange(of: viewModel.accessToken) { _, new in
           isValid = new.isEmpty || !new.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
       } header: {

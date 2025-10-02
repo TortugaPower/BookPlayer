@@ -11,7 +11,7 @@ import BookPlayerKit
 import Foundation
 
 @available(macOS 14.0, watchOS 10.0, *)
-struct LastBookStartPlaybackIntent: AudioStartingIntent {
+struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = "intent_lastbook_play_title"
 
   @Dependency

@@ -11,7 +11,7 @@ import BookPlayerKit
 import Foundation
 
 @available(macOS 14.0, watchOS 10.0, tvOS 16.0, *)
-struct CustomRewindIntent: AudioStartingIntent {
+struct CustomRewindIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = "intent_custom_skiprewind_title"
 
   @Parameter(
