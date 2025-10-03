@@ -11,7 +11,7 @@ import MediaPlayer
 import SwiftUI
 
 struct ProgressSeekingSectionView: View {
-  @AppStorage(Constants.UserDefaults.seekProgressBarDisabled) var seekEnabled: Bool = true
+  @AppStorage(Constants.UserDefaults.seekProgressBarEnabled) var seekEnabled: Bool = true
 
   @EnvironmentObject var theme: ThemeViewModel
 
