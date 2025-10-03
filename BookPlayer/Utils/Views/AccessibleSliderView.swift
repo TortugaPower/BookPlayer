@@ -22,10 +22,12 @@ class AccessibleSliderView: UISlider {
   override func accessibilityDecrement() {
     self.value -= self.intervalValue
     self.accessibilityValue = "\(round(self.value * 100) / 100.0)"
+    sendActions(for: .valueChanged)
   }
 
   override func accessibilityIncrement() {
     self.value += self.intervalValue
     self.accessibilityValue = "\(round(self.value * 100) / 100.0)"
+    sendActions(for: .valueChanged)
   }
 }
