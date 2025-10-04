@@ -78,6 +78,7 @@ struct LibraryRootView: View {
           )
         }
         .navigationBarTitleDisplayMode(.inline)
+        .errorAlert(error: $loadingState.error)
       }
       .errorAlert(error: $loadingState.error)
       .loadingOverlay(loadingState.show)

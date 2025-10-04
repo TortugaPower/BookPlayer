@@ -121,7 +121,7 @@ struct ItemListView: View {
     Group {
       if model.isListEmpty {
         EmptyListView(node: model.libraryNode) {
-          showDocumentPicker = true
+          activeConfirmationDialog = .addOptions
         }
       } else {
         ScrollViewReader { scrollView in
@@ -332,7 +332,7 @@ struct ItemListView: View {
   }
 
   @ViewBuilder
-  private func addFilesOptions() -> some View {
+  func addFilesOptions() -> some View {
     Button("import_button", systemImage: "waveform") {
       showDocumentPicker = true
     }

@@ -11,11 +11,14 @@ import Foundation
 /// Represents all possible confirmation dialog types in ItemListView
 enum ConfirmationDialogType: Identifiable {
   case itemOptions
+  case addOptions
   
   var id: String {
     switch self {
     case .itemOptions:
       return "itemOptions"
+    case .addOptions:
+      return "addOptions"
     }
   }
 }

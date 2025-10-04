@@ -16,6 +16,8 @@ extension ItemListView {
     case .itemOptions:
       let isSingle = model.selectedItems.count == 1
       return isSingle ? (model.selectedItems.first?.title ?? "") : "options_button".localized
+    case .addOptions:
+      return "import_description".localized
     }
   }
   
@@ -24,6 +26,9 @@ extension ItemListView {
     switch dialog {
     case .itemOptions:
       itemOptionsDialog()
+    case .addOptions:
+      addFilesOptions()
+      Button("cancel_button", role: .cancel) {}
     }
   }
 }
