@@ -14,44 +14,25 @@ struct ItemListView: View {
 
   @StateObject var model: ItemListViewModel
 
-  @State private var showItemOptions = false
-  @State private var showMoveOptions = false
+  @State var activeAlert: ItemListAlert?
+  @State var activeSheet: ItemListSheet?
+  @State var activeConfirmationDialog: ConfirmationDialogType?
+  @State var folderInput = FolderCreationInput()
 
-  @State private var itemDetailsSelection: SimpleLibraryItem?
-  @State private var showCreateFolderAlert = false
-  @State private var newFolderName: String = ""
-  @State private var newFolderPlaceholder: String = ""
-  @State private var newFolderType: SimpleItemType = .folder
-
-  @State private var showCancelDownloadAlert = false
-  @State private var showWarningOffloadAlert = false
-
-  @State private var showDeleteAlert = false
-
-  @State private var showAddOptions = false
-  @State private var showDocumentPicker = false
-  @State private var showJellyfin = false
-  @State private var showDownloadURLAlert = false
-  @State private var downloadURLInput = ""
-  @State private var showFoldersSelection = false
-
-  @State private var showImportCompletionAlert = false
-
-  @State private var showQueuedTasksAlert = false
-  @State private var showQueuedTasks = false
-
+  @State var showDocumentPicker = false
+  @State var downloadURLInput = ""
   @State private var playingItemParentPath: String?
 
   @Namespace private var customRotorNamespace
   @AccessibilityFocusState private var focus: FocusTarget?
 
-  @Environment(\.libraryService) private var libraryService
+  @Environment(\.libraryService) var libraryService
   @Environment(\.accountService) private var accountService
-  @Environment(\.syncService) private var syncService
-  @Environment(\.hardcoverService) private var hardcoverService
+  @Environment(\.syncService) var syncService
+  @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) private var jellyfinService
-  @Environment(\.listState) private var listState
+  @Environment(\.jellyfinService) var jellyfinService
+  @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
   @Environment(\.importOperationState) private var importOperationState
@@ -63,11 +44,84 @@ struct ItemListView: View {
     self._model = .init(wrappedValue: initModel())
   }
 
+  // Computed bindings to help the compiler
+  private var isAlertPresented: Binding<Bool> {
+    Binding(
+      get: { activeAlert != nil },
+      set: { if !$0 { activeAlert = nil } }
+    )
+  }
+
+  private var isConfirmationDialogPresented: Binding<Bool> {
+    Binding(
+      get: { activeConfirmationDialog != nil },
+      set: { if !$0 { activeConfirmationDialog = nil } }
+    )
+  }
+
   var body: some View {
+    contentView
+      .accessibilityFocused($focus, equals: .primary)
+      .toolbar {
+        mainToolbar()
+      }
+      .miniPlayerSafeAreaInset()
+      .listStyle(.plain)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+      .navigationTitle(model.navigationTitle)
+  }
+
+  @ViewBuilder
+  private var contentView: some View {
+    mainContent
+      .confirmationDialog(
+        activeConfirmationDialog.map { confirmationDialogTitle(for: $0) } ?? "",
+        isPresented: isConfirmationDialogPresented,
+        titleVisibility: .visible
+      ) {
+        if let dialog = activeConfirmationDialog {
+          confirmationDialogContent(for: dialog)
+        }
+      }
+      .alert(
+        alertTitle(for: activeAlert),
+        isPresented: isAlertPresented,
+        presenting: activeAlert,
+        actions: alertContent,
+        message: { alert in
+          if let message = alertMessage(for: alert) {
+            Text(message)
+          }
+        }
+      )
+      .sheet(item: $activeSheet) { sheet in
+        sheetContent(for: sheet)
+      }
+      .fileImporter(
+        isPresented: $showDocumentPicker,
+        allowedContentTypes: [
+          .audio,
+          .movie,
+          .zip,
+          .folder,
+        ],
+        allowsMultipleSelection: true
+      ) { result in
+        switch result {
+        case .success(let files):
+          model.handleFilePickerSelection(files)
+        case .failure(let error):
+          loadingState.error = error
+        }
+      }
+  }
+
+  @ViewBuilder
+  private var mainContent: some View {
     Group {
       if model.isListEmpty {
         EmptyListView(node: model.libraryNode) {
-          showAddOptions = true
+          showDocumentPicker = true
         }
       } else {
         ScrollViewReader { scrollView in
@@ -103,109 +157,11 @@ struct ItemListView: View {
             do {
               try await model.refreshListState()
             } catch {
-              self.showQueuedTasksAlert = true
+              self.activeAlert = .queuedTasks
             }
           }
           .environment(\.playingItemParentPath, playingItemParentPath)
           .environment(\.libraryNode, model.libraryNode)
-        }
-      }
-    }
-    .accessibilityFocused($focus, equals: .primary)
-    .confirmationDialog(
-      itemOptionsTitle,
-      isPresented: $showItemOptions,
-      titleVisibility: .visible
-    ) {
-      itemOptionsDialog()
-    }
-    .confirmationDialog(
-      "import_description",
-      isPresented: $showAddOptions,
-      titleVisibility: .visible
-    ) {
-      addFilesOptions()
-      Button("cancel_button", role: .cancel) {}
-    }
-    .alert(
-      "sync_tasks_inprogress_alert_title",
-      isPresented: $showQueuedTasksAlert
-    ) {
-      Button("sync_tasks_view_title") {
-        showQueuedTasks = true
-      }
-      Button("ok_button", role: .cancel) {}
-    }
-    .alert(
-      importOptionsTitle,
-      isPresented: $showImportCompletionAlert,
-      presenting: importOperationState.alertParameters
-    ) { alertParameters in
-      importOptions(for: alertParameters)
-    }
-    .alert("choose_destination_title", isPresented: $showMoveOptions) {
-      moveOptions()
-    }
-    .alert(
-      createFolderTitle,
-      isPresented: $showCreateFolderAlert
-    ) {
-      createFolderOptions()
-    } message: {
-      if newFolderType == .bound {
-        Text("bound_books_create_alert_description")
-      }
-    }
-    .alert(
-      model.deleteActionDetails()?.title ?? "",
-      isPresented: $showDeleteAlert
-    ) {
-      deleteOptions()
-    } message: {
-      if let message = model.deleteActionDetails()?.message {
-        Text(message)
-      }
-    }
-    .alert("cancel_download_title", isPresented: $showCancelDownloadAlert) {
-      Button("ok_button") {
-        let item = model.selectedItems.first!
-        model.cancelDownload(of: item)
-      }
-      Button("cancel_button", role: .cancel) {}
-    }
-    .alert("warning_title", isPresented: $showWarningOffloadAlert) {
-      Button("ok_button") {
-        let item = model.selectedItems.first!
-        model.handleOffloading(of: item)
-      }
-      Button("cancel_button", role: .cancel) {}
-    } message: {
-      Text(String(format: "sync_tasks_item_upload_queued".localized, model.selectedItems.first?.relativePath ?? ""))
-    }
-    .alert("download_from_url_title", isPresented: $showDownloadURLAlert) {
-      TextField(
-        "https://",
-        text: $downloadURLInput
-      )
-      Button("download_title") {
-        model.downloadFromURL(downloadURLInput)
-        downloadURLInput = ""
-      }
-      .disabled(downloadURLInput.isEmpty)
-      Button("cancel_button", role: .cancel) {
-        downloadURLInput = ""
-      }
-    }
-    .sheet(item: $itemDetailsSelection) { item in
-      NavigationStack {
-        ItemDetailsView {
-          ItemDetailsViewModel(
-            item: item,
-            libraryService: libraryService,
-            syncService: syncService,
-            hardcoverService: hardcoverService,
-            listState: listState
-          )
         }
       }
     }
@@ -238,6 +194,11 @@ struct ItemListView: View {
           task: task,
           underlyingError: underlyingError
         )
+
+        if model.singleFileDownloadService.downloadQueue.count == 0 {
+          importOperationState.isOperationActive = false
+          importOperationState.processingTitle = ""
+        }
       }
     }
     .task {
@@ -262,6 +223,14 @@ struct ItemListView: View {
       let padding = listState.padding(for: model.reloadScope)
       model.reloadItems(with: padding)
     }
+    .onChange(of: activeAlert) {
+      /// Clean up after import completion
+      if case .importCompletion = activeAlert {
+        // Alert is showing
+      } else if importOperationState.alertParameters != nil {
+        importOperationState.alertParameters = nil
+      }
+    }
     .onChange(of: importOperationState.alertParameters) {
       guard
         let alertParameters = importOperationState.alertParameters,
@@ -270,49 +239,8 @@ struct ItemListView: View {
 
       /// Register that at least one import operation has completed
       BPSKANManager.updateConversionValue(.import)
-      showImportCompletionAlert = true
+      activeAlert = .importCompletion(alertParameters)
     }
-    .onChange(of: showImportCompletionAlert) {
-      /// Clean up after import
-      if showImportCompletionAlert == false {
-        importOperationState.alertParameters = nil
-      }
-    }
-    .sheet(isPresented: $showQueuedTasks) {
-      QueuedSyncTasksView()
-    }
-    .sheet(isPresented: $showJellyfin) {
-      JellyfinRootView(connectionService: jellyfinService)
-    }
-    .sheet(isPresented: $showFoldersSelection) {
-      ItemListSelectionView(items: model.getAvailableFolders()) { folder in
-        model.handleMoveIntoFolder(folder)
-      }
-    }
-    .fileImporter(
-      isPresented: $showDocumentPicker,
-      allowedContentTypes: [
-        .audio,
-        .movie,
-        .zip,
-        .folder,
-      ],
-      allowsMultipleSelection: true
-    ) { result in
-      switch result {
-      case .success(let files):
-        model.handleFilePickerSelection(files)
-      case .failure(let error):
-        loadingState.error = error
-      }
-    }
-    .toolbar {
-      mainToolbar()
-    }
-    .miniPlayerSafeAreaInset()
-    .listStyle(.plain)
-    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-    .navigationTitle(model.navigationTitle)
   }
 
   @ViewBuilder
@@ -361,13 +289,13 @@ struct ItemListView: View {
     .swipeActions(edge: .trailing) {
       Button {
         model.selectedSetItems = [item.id]
-        showItemOptions = true
+        activeConfirmationDialog = .itemOptions
       } label: {
         Text("options_button")
       }
       Button("delete_button", role: .destructive) {
         model.selectedSetItems = [item.id]
-        showDeleteAlert = true
+        activeAlert = .delete
       }
       .tint(.red)
     }
@@ -409,18 +337,16 @@ struct ItemListView: View {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {
-      showDownloadURLAlert = true
+      activeAlert = .downloadURL("")
     }
     Button("download_from_jellyfin_title", image: .jellyfinIcon) {
-      showJellyfin = true
+      activeSheet = .jellyfin
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
       model.selectedSetItems.removeAll()
-      newFolderType = .folder
-      newFolderName = ""
-      newFolderPlaceholder = ""
-      showCreateFolderAlert = true
+      folderInput.prepareForFolder()
+      activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
     }
   }
 
@@ -516,7 +442,7 @@ struct ItemListView: View {
     Spacer()
 
     Button {
-      itemDetailsSelection = item!
+      activeSheet = .itemDetails(item!)
     } label: {
       Image(systemName: "square.and.pencil")
     }
@@ -525,7 +451,7 @@ struct ItemListView: View {
     Spacer()
 
     Button {
-      showMoveOptions = true
+      activeAlert = .moveOptions
     } label: {
       Image(systemName: "folder")
     }
@@ -534,7 +460,7 @@ struct ItemListView: View {
     Spacer()
 
     Button {
-      showDeleteAlert = true
+      activeAlert = .delete
     } label: {
       Image(systemName: "trash")
     }
@@ -543,7 +469,7 @@ struct ItemListView: View {
     Spacer()
 
     Button {
-      showItemOptions = true
+      activeConfirmationDialog = .itemOptions
     } label: {
       Image(systemName: "ellipsis")
     }
@@ -572,7 +498,9 @@ struct ItemListView: View {
 
   func cancelDownload(of relativePath: String) {
     model.selectedSetItems = [relativePath]
-    showCancelDownloadAlert = true
+    if let item = model.selectedItems.first {
+      activeAlert = .cancelDownload(item)
+    }
   }
 
   func loadPlayer(with relativePath: String) {
@@ -584,6 +512,18 @@ struct ItemListView: View {
         loadingState.error = error
       }
     }
+  }
+
+  // Helper to unwrap optional alert for title
+  private func alertTitle(for alert: ItemListAlert?) -> String {
+    guard let alert = alert else { return "" }
+    return alertTitle(for: alert)
+  }
+
+  // Helper to unwrap optional alert for message
+  private func alertMessage(for alert: ItemListAlert?) -> String? {
+    guard let alert = alert else { return nil }
+    return alertMessage(for: alert)
   }
 }
 
@@ -597,7 +537,7 @@ extension ItemListView {
 
   @ViewBuilder
   // swiftlint:disable:next function_body_length
-  private func itemOptionsDialog() -> some View {
+  func itemOptionsDialog() -> some View {
     let item = model.selectedItems.first
     let isSingle = model.selectedItems.count == 1
 
@@ -613,11 +553,11 @@ extension ItemListView {
     let canCreateBound: Bool = multipleBooks || singleFolder
 
     Button("details_title") {
-      itemDetailsSelection = item
+      activeSheet = .itemDetails(item!)
     }
     .disabled(!isSingle)
     Button("move_title") {
-      showMoveOptions = true
+      activeAlert = .moveOptions
     }
 
     if isSingle,
@@ -652,10 +592,8 @@ extension ItemListView {
         if isSingle {
           model.updateFolders(model.selectedItems, type: .bound)
         } else {
-          newFolderName = item?.title ?? ""
-          newFolderPlaceholder = item?.title ?? ""
-          newFolderType = .bound
-          showCreateFolderAlert = true
+          folderInput.prepareForBound(title: item?.title)
+          activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
         }
       }
       .disabled(!canCreateBound)
@@ -672,14 +610,14 @@ extension ItemListView {
         .disabled(!isSingle)
       case .downloading:
         Button("cancel_download_title") {
-          showCancelDownloadAlert = true
+          activeAlert = .cancelDownload(item)
         }
         .disabled(!isSingle)
       case .downloaded:
         Button("remove_downloaded_file_title") {
           Task {
             if await syncService.hasUploadTask(for: item.relativePath) {
-              showWarningOffloadAlert = true
+              activeAlert = .warningOffload(item)
             } else {
               model.handleOffloading(of: item)
             }
@@ -690,157 +628,7 @@ extension ItemListView {
     }
 
     Button("delete_button", role: .destructive) {
-      showDeleteAlert = true
-    }
-
-    Button("cancel_button", role: .cancel) {}
-  }
-}
-
-// MARK: - Import alert
-extension ItemListView {
-  private var importOptionsTitle: String {
-    let filesCount: Int = importOperationState.alertParameters?.itemIdentifiers.count ?? 0
-
-    return String.localizedStringWithFormat("import_alert_title".localized, filesCount)
-  }
-  @ViewBuilder
-  private func importOptions(
-    for alertParameters: ImportOperationState.AlertParameters
-  ) -> some View {
-    let hasParentFolder = model.libraryNode.folderRelativePath != nil
-    let suggestedFolderName = alertParameters.suggestedFolderName ?? ""
-    let canCreateBound: Bool = alertParameters.hasOnlyBooks || alertParameters.singleFolder != nil
-
-    if hasParentFolder {
-      Button("current_playlist_title") {}
-    }
-
-    Button("library_title") {
-      if hasParentFolder {
-        model.importIntoLibrary(alertParameters.itemIdentifiers)
-      }
-    }
-
-    Button("new_playlist_button") {
-      newFolderName = ""
-      newFolderPlaceholder = suggestedFolderName
-      newFolderType = .folder
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
-      showCreateFolderAlert = true
-    }
-
-    Button("existing_playlist_button") {
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
-      showFoldersSelection = true
-    }
-    .disabled(alertParameters.availableFolders.isEmpty)
-
-    Button("bound_books_create_button") {
-      if alertParameters.hasOnlyBooks {
-        newFolderName = ""
-        newFolderPlaceholder = suggestedFolderName
-        newFolderType = .bound
-        model.selectedSetItems = Set(alertParameters.itemIdentifiers)
-        showCreateFolderAlert = true
-      } else if let singleFolder = alertParameters.singleFolder {
-        model.updateFolders([singleFolder], type: .bound)
-      }
-    }
-    .disabled(!canCreateBound)
-  }
-}
-
-// MARK: - Move alert
-extension ItemListView {
-  @ViewBuilder
-  private func moveOptions() -> some View {
-    let availableFolders = model.getAvailableFolders()
-
-    if model.libraryNode != .root {
-      Button("library_title") {
-        model.handleMoveIntoLibrary()
-      }
-    }
-
-    Button("new_playlist_button") {
-      showCreateFolderAlert = true
-    }
-
-    Button("existing_playlist_button") {
-      showFoldersSelection = true
-    }
-    .disabled(availableFolders.isEmpty)
-
-    Button("cancel_button", role: .cancel) {}
-  }
-}
-
-// MARK: - Create folder alert
-extension ItemListView {
-  private var createFolderTitle: LocalizedStringKey {
-    newFolderType == .folder
-      ? "create_playlist_title"
-      : "bound_books_create_alert_title"
-  }
-  @ViewBuilder
-  private func createFolderOptions() -> some View {
-    let placeholder =
-      !newFolderPlaceholder.isEmpty
-      ? newFolderPlaceholder
-      : newFolderType == .folder
-        ? "new_playlist_button".localized
-        : "bound_books_new_title_placeholder".localized
-    let selectedItems =
-      !model.selectedSetItems.isEmpty
-      ? Array(model.selectedSetItems).sorted {
-        $0.localizedStandardCompare($1) == ComparisonResult.orderedAscending
-      }
-      : nil
-
-    TextField(
-      placeholder,
-      text: $newFolderName
-    )
-    Button("create_button") {
-      model.createFolder(
-        with: newFolderName,
-        items: selectedItems,
-        type: newFolderType
-      )
-      newFolderPlaceholder = ""
-      newFolderName = ""
-      newFolderType = .folder
-    }
-    .disabled(newFolderName.isEmpty)
-    Button("cancel_button", role: .cancel) {
-      newFolderPlaceholder = ""
-      newFolderName = ""
-      newFolderType = .folder
-    }
-  }
-}
-
-// MARK: - Delete alert
-extension ItemListView {
-  @ViewBuilder
-  private func deleteOptions() -> some View {
-    let canShallowDelete =
-      model.selectedItems.count == 1
-      && model.selectedItems.first?.type == .folder
-
-    if canShallowDelete {
-      Button("delete_deep_button", role: .destructive) {
-        model.handleDelete(items: model.selectedItems, mode: .deep)
-      }
-
-      Button("delete_shallow_button") {
-        model.handleDelete(items: model.selectedItems, mode: .shallow)
-      }
-    } else {
-      Button("delete_button", role: .destructive) {
-        model.handleDelete(items: model.selectedItems, mode: .deep)
-      }
+      activeAlert = .delete
     }
 
     Button("cancel_button", role: .cancel) {}
