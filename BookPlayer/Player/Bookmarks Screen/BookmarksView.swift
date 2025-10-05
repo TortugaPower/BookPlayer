@@ -92,14 +92,20 @@ struct BookmarksView: View {
         }
 
         ToolbarItem(placement: .confirmationAction) {
-          // TODO: Implement export using SwiftUI ShareLink and Transferable protocol
-          // Create a struct conforming to Transferable that can export bookmarks as text
-          // Use ShareLink(item: transferableBookmarks) { Label("Share", systemImage: "square.and.arrow.up") }
-          Button {
-            model.exportBookmarks()
-          } label: {
-            Image(systemName: "square.and.arrow.up")
-              .foregroundStyle(theme.linkColor)
+          if let currentItem = model.currentItem {
+            ShareLink(
+              item: BookmarksFileTransferable(
+                currentItem: currentItem,
+                bookmarks: model.userBookmarks
+              ),
+              preview: SharePreview(
+                "bookmarks_title".localized + " \(currentItem.title).txt",
+                image: Image(systemName: "bookmark")
+              )
+            ) {
+              Image(systemName: "square.and.arrow.up")
+                .foregroundStyle(theme.linkColor)
+            }
           }
         }
       }
@@ -171,6 +177,7 @@ extension BookmarksView {
   class Model: ObservableObject {
     @Published var automaticBookmarks = [SimpleBookmark]()
     @Published var userBookmarks = [SimpleBookmark]()
+    @Published var currentItem: PlayableItem?
 
     var isAutomaticSectionCollapsed: Bool {
       get {
@@ -186,16 +193,17 @@ extension BookmarksView {
 
     init(
       automaticBookmarks: [SimpleBookmark] = [],
-      userBookmarks: [SimpleBookmark] = []
+      userBookmarks: [SimpleBookmark] = [],
+      currentItem: PlayableItem? = nil
     ) {
       self.automaticBookmarks = automaticBookmarks
       self.userBookmarks = userBookmarks
+      self.currentItem = currentItem
     }
 
     func handleBookmarkSelected(_ bookmark: SimpleBookmark) {}
     func deleteBookmark(_ bookmark: SimpleBookmark) {}
     func addNote(_ note: String, bookmark: SimpleBookmark) {}
-    func exportBookmarks() {}
   }
 }
 

@@ -16,10 +16,6 @@ final class BookmarksViewModel: BookmarksView.Model {
   let syncService: SyncServiceProtocol
 
   private var disposeBag = Set<AnyCancellable>()
-  
-  /// Callback for export functionality
-  /// TODO: Replace with Transferable protocol implementation
-  var onExport: ((PlayableItem, [SimpleBookmark]) -> Void)?
 
   init(
     playerManager: PlayerManagerProtocol,
@@ -39,6 +35,8 @@ final class BookmarksViewModel: BookmarksView.Model {
     playerManager.currentItemPublisher()
       .sink { [weak self] currentItem in
         guard let self else { return }
+
+        self.currentItem = currentItem
 
         if let currentItem {
           self.automaticBookmarks = self.getAutomaticBookmarks(for: currentItem.relativePath)
@@ -84,11 +82,6 @@ final class BookmarksViewModel: BookmarksView.Model {
     libraryService.deleteBookmark(bookmark)
     userBookmarks = getUserBookmarks(for: bookmark.relativePath)
     syncService.scheduleDeleteBookmark(bookmark)
-  }
-
-  override func exportBookmarks() {
-    guard let currentItem = playerManager.currentItem else { return }
-    onExport?(currentItem, userBookmarks)
   }
 
   func syncBookmarks(for relativePath: String) {

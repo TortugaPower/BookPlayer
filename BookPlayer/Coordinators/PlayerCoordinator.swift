@@ -69,18 +69,6 @@ class PlayerCoordinator: Coordinator {
       syncService: self.syncService
     )
     
-    // TODO: Replace with Transferable protocol implementation
-    viewModel.onExport = { [weak self] currentItem, bookmarks in
-      let provider = BookmarksActivityItemProvider(currentItem: currentItem, bookmarks: bookmarks)
-      let shareController = UIActivityViewController(activityItems: [provider], applicationActivities: nil)
-      
-      if let popoverPresentationController = shareController.popoverPresentationController {
-        popoverPresentationController.barButtonItem = self?.playerViewController?.navigationItem.rightBarButtonItem
-      }
-      
-      self?.playerViewController?.present(shareController, animated: true, completion: nil)
-    }
-    
     let vc = UIHostingController(
       rootView: BookmarksView {
         viewModel

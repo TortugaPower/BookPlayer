@@ -513,6 +513,7 @@
 		63B4A3BC2E9186CD00784A22 /* ConfirmationDialogType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3BB2E9186CD00784A22 /* ConfirmationDialogType.swift */; };
 		63B4A3BE2E9187B800784A22 /* ItemListView+ConfirmationDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3BD2E9187B800784A22 /* ItemListView+ConfirmationDialogs.swift */; };
 		63B4A3C02E91DE6C00784A22 /* BookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3BF2E91DE6C00784A22 /* BookmarksView.swift */; };
+		63B4A3C22E92A87C00784A22 /* BookmarksFileTransferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C12E92A87C00784A22 /* BookmarksFileTransferable.swift */; };
 		63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */; };
 		63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */; };
 		63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */; };
@@ -720,7 +721,6 @@
 		9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
 		9FBF33EC29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
 		9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
-		9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */; };
 		9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
 		9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
 		9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */; };
@@ -1390,6 +1390,7 @@
 		63B4A3BB2E9186CD00784A22 /* ConfirmationDialogType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationDialogType.swift; sourceTree = "<group>"; };
 		63B4A3BD2E9187B800784A22 /* ItemListView+ConfirmationDialogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+ConfirmationDialogs.swift"; sourceTree = "<group>"; };
 		63B4A3BF2E91DE6C00784A22 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
+		63B4A3C12E92A87C00784A22 /* BookmarksFileTransferable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksFileTransferable.swift; sourceTree = "<group>"; };
 		63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshService.swift; sourceTree = "<group>"; };
 		63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportFlowCoordinator.swift; sourceTree = "<group>"; };
 		63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingResponse.swift; sourceTree = "<group>"; };
@@ -1572,7 +1573,6 @@
 		9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsResponse.swift; sourceTree = "<group>"; };
 		9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadItemResponse.swift; sourceTree = "<group>"; };
 		9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleBookmark.swift; sourceTree = "<group>"; };
-		9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksActivityItemProvider.swift; sourceTree = "<group>"; };
 		9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
 		9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkUtils.swift; sourceTree = "<group>"; };
 		9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProvider.swift; sourceTree = "<group>"; };
@@ -1872,6 +1872,7 @@
 		4138CE1A26E5B4020014F11E /* Bookmarks Screen */ = {
 			isa = PBXGroup;
 			children = (
+				63B4A3C12E92A87C00784A22 /* BookmarksFileTransferable.swift */,
 				4138CE1B26E5B42F0014F11E /* BookmarksViewModel.swift */,
 				63B4A3BF2E91DE6C00784A22 /* BookmarksView.swift */,
 			);
@@ -2770,7 +2771,6 @@
 				69343D322133844D000C425E /* VoiceOverService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
-				9FC1A29E28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
@@ -4109,6 +4109,7 @@
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
 				634BA5932C160B890015314D /* LoadingBar.swift in Sources */,
 				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
+				63B4A3C22E92A87C00784A22 /* BookmarksFileTransferable.swift in Sources */,
 				6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */,
 				6319089B2E335196009249C1 /* ContributorsListView.swift in Sources */,
 				63AD93DF2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift in Sources */,
@@ -4283,7 +4284,6 @@
 				632D5A582E58C3CC006D10BC /* VerticalLabelStyle.swift in Sources */,
 				63C48C822E3DC2BE005FBB96 /* LoginSignInButton.swift in Sources */,
 				63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */,
-				9FC1A29F28C0D8CC00F25906 /* BookmarksActivityItemProvider.swift in Sources */,
 				D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */,
 				3F7B64472E0FB2A900299D97 /* AudiobookEditionsData.swift in Sources */,
 				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,
