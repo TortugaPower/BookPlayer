@@ -179,18 +179,6 @@ extension BookmarksView {
     @Published var userBookmarks = [SimpleBookmark]()
     @Published var currentItem: PlayableItem?
 
-    var isAutomaticSectionCollapsed: Bool {
-      get {
-        UserDefaults.standard.bool(forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed)
-      }
-      set {
-        UserDefaults.standard.set(
-          newValue,
-          forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed
-        )
-      }
-    }
-
     init(
       automaticBookmarks: [SimpleBookmark] = [],
       userBookmarks: [SimpleBookmark] = [],
