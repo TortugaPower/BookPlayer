@@ -28,10 +28,12 @@ jobs:
 
       - name: Reset Simulator
         run: |
+          set -x
+          export DEVELOPER_DIR="/Applications/Xcode_26.0.app"
           xcrun simctl shutdown all || true
           xcrun simctl erase all || true
-          launchctl remove com.apple.CoreSimulator.CoreSimulatorService || true
-          xcrun simctl list devices
+          launchctl kickstart -k gui/$UID/com.apple.CoreSimulator.CoreSimulatorService || true
+          xcrun simctl list devices || true
 
       - name: Build for testing
         run: |
@@ -41,7 +43,7 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 17,OS=26.0" \
             build-for-testing
 
-      - name: Run unit tests (fail fast)
+      - name: Run unit tests
         timeout-minutes: 12
         env:
           NSUnbufferedIO: "YES"

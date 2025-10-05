@@ -77,6 +77,8 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     self.libraryService = libraryService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
+
+    bindKeychainObserver()
   }
 
   var authorization: String? {
