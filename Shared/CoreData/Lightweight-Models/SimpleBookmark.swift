@@ -36,12 +36,19 @@ public struct SimpleBookmark: Decodable, Identifiable {
       return nil
     }
   }
+
+  public init(time: Double, note: String?, type: BookmarkType, relativePath: String) {
+    self.time = time
+    self.note = note
+    self.type = type
+    self.relativePath = relativePath
+  }
 }
 
 extension SimpleBookmark: Equatable {
   public static func == (lhs: SimpleBookmark, rhs: SimpleBookmark) -> Bool {
     return lhs.time == rhs.time
-    && lhs.relativePath == rhs.relativePath
+      && lhs.relativePath == rhs.relativePath
   }
 }
 
