@@ -73,7 +73,7 @@ struct BookmarksView: View {
               }
           }
         } header: {
-          Text("bookmark_type_user_title".localized)
+          Text("bookmark_type_user_title")
             .foregroundStyle(theme.primaryColor)
         }
       }
@@ -110,16 +110,16 @@ struct BookmarksView: View {
         }
       }
       .alert(
-        "bookmark_note_action_title".localized,
+        "bookmark_note_action_title",
         isPresented: .constant(showingNoteAlert != nil),
         presenting: showingNoteAlert
       ) { bookmark in
-        TextField("note_title".localized, text: $noteText)
-        Button("cancel_button".localized, role: .cancel) {
+        TextField("note_title", text: $noteText)
+        Button("cancel_button", role: .cancel) {
           showingNoteAlert = nil
           noteText = ""
         }
-        Button("ok_button".localized) {
+        Button("ok_button") {
           model.addNote(noteText, bookmark: bookmark)
           showingNoteAlert = nil
           noteText = ""
@@ -130,10 +130,10 @@ struct BookmarksView: View {
         isPresented: .constant(bookmarkToDelete != nil),
         presenting: bookmarkToDelete
       ) { bookmark in
-        Button("cancel_button".localized, role: .cancel) {
+        Button("cancel_button", role: .cancel) {
           bookmarkToDelete = nil
         }
-        Button("delete_button".localized, role: .destructive) {
+        Button("delete_button", role: .destructive) {
           model.deleteBookmark(bookmark)
           bookmarkToDelete = nil
         }
