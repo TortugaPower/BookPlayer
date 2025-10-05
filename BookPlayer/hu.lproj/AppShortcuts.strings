@@ -19,4 +19,4 @@
 "Fast forward in ${applicationName}" = "Gyors előrelépés a ${applicationName}";
 "Skip forward in ${applicationName}" = "Ugrás előre itt: ${applicationName}";
 "Jump forward in ${applicationName}" = "Ugrás előre a ${applicationName}";
-"Create Bookmark in ${applicationName}" = "Könyvjelző létrehozása itt: ${applicationName}";
+"Create Bookmark in ${applicationName}" = "Könyvjelző létrehozása ${applicationName}";
