@@ -10,35 +10,11 @@ import BookPlayerKit
 import Combine
 import Foundation
 
-class BookmarksViewModel: ViewModelProtocol {
-  /// Available routes for this screen
-  enum Routes {
-    case export(bookmarks: [SimpleBookmark], item: PlayableItem)
-  }
-
-  weak var coordinator: BookmarkCoordinator!
-
+final class BookmarksViewModel: BookmarksView.Model {
   let playerManager: PlayerManagerProtocol
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
 
-  var automaticBookmarks = [SimpleBookmark]()
-  var userBookmarks = [SimpleBookmark]()
-  var isAutomaticSectionCollapsed: Bool {
-    get {
-      UserDefaults.standard.bool(forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed)
-    }
-    set {
-      UserDefaults.standard.set(
-        newValue,
-        forKey: Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed
-      )
-    }
-  }
-
-  /// Callback to handle actions on this screen
-  public var onTransition: BPTransition<Routes>?
-  let reloadDataPublisher = PassthroughSubject<Bool, Never>()
   private var disposeBag = Set<AnyCancellable>()
 
   init(
@@ -49,12 +25,18 @@ class BookmarksViewModel: ViewModelProtocol {
     self.playerManager = playerManager
     self.libraryService = libraryService
     self.syncService = syncService
+    
+    super.init()
+    
+    self.bindCurrentItemObserver()
   }
 
   func bindCurrentItemObserver() {
     playerManager.currentItemPublisher()
       .sink { [weak self] currentItem in
         guard let self else { return }
+
+        self.currentItem = currentItem
 
         if let currentItem {
           self.automaticBookmarks = self.getAutomaticBookmarks(for: currentItem.relativePath)
@@ -64,8 +46,6 @@ class BookmarksViewModel: ViewModelProtocol {
           self.automaticBookmarks = []
           self.userBookmarks = []
         }
-
-        self.reloadDataPublisher.send(true)
       }
       .store(in: &disposeBag)
   }
@@ -84,50 +64,11 @@ class BookmarksViewModel: ViewModelProtocol {
     return self.libraryService.getBookmarks(of: .user, relativePath: relativePath) ?? []
   }
 
-  func handleBookmarkSelected(_ bookmark: SimpleBookmark) {
+  override func handleBookmarkSelected(_ bookmark: SimpleBookmark) {
     self.playerManager.jumpTo(bookmark.time + 0.01, recordBookmark: false)
   }
 
-  func getBookmarkImageName(for type: BookmarkType) -> String? {
-    switch type {
-    case .play:
-      return "play.fill"
-    case .skip:
-      return "clock.arrow.2.circlepath"
-    case .sleep:
-      return "moon.fill"
-    case .user:
-      return nil
-    }
-  }
-
-  func editNote(_ note: String, for bookmark: SimpleBookmark) {
-    addNote(note, bookmark: bookmark)
-  }
-
-  func getBookmarkNoteAlert(_ bookmark: SimpleBookmark) -> UIAlertController {
-    let alert = UIAlertController(title: "bookmark_note_action_title".localized,
-                                  message: nil,
-                                  preferredStyle: .alert)
-
-    alert.addTextField(configurationHandler: { textfield in
-      textfield.text = bookmark.note
-    })
-
-    alert.addAction(UIAlertAction(title: "cancel_button".localized, style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "ok_button".localized, style: .default, handler: { [weak self] _ in
-      guard let note = alert.textFields?.first?.text else {
-        return
-      }
-
-      self?.addNote(note, bookmark: bookmark)
-      self?.reloadDataPublisher.send(true)
-    }))
-
-    return alert
-  }
-
-  func addNote(_ note: String, bookmark: SimpleBookmark) {
+  override func addNote(_ note: String, bookmark: SimpleBookmark) {
     libraryService.addNote(note, bookmark: bookmark)
     userBookmarks = getUserBookmarks(for: bookmark.relativePath)
     syncService.scheduleSetBookmark(
@@ -137,16 +78,10 @@ class BookmarksViewModel: ViewModelProtocol {
     )
   }
 
-  func deleteBookmark(_ bookmark: SimpleBookmark) {
+  override func deleteBookmark(_ bookmark: SimpleBookmark) {
     libraryService.deleteBookmark(bookmark)
     userBookmarks = getUserBookmarks(for: bookmark.relativePath)
     syncService.scheduleDeleteBookmark(bookmark)
-  }
-
-  func showExportController() {
-    guard let currentItem = playerManager.currentItem else { return }
-
-    onTransition?(.export(bookmarks: userBookmarks, item: currentItem))
   }
 
   func syncBookmarks(for relativePath: String) {
@@ -157,7 +92,6 @@ class BookmarksViewModel: ViewModelProtocol {
       else { return }
 
       self.userBookmarks = bookmarks
-      self.reloadDataPublisher.send(true)
     }
   }
 }

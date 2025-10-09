@@ -62,7 +62,7 @@ struct BookView: View {
     }
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
-    .accessibilityLabel(VoiceOverService.getAccessibilityLabel(for: item))
+    .dynamicAccessibilityLabel(for: item)
   }
 }
 

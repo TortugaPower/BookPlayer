@@ -102,4 +102,14 @@ class ProgressSlider: UISlider {
     self.value = value
     self.setNeedsDisplay()
   }
+
+  override func accessibilityDecrement() {
+    super.accessibilityDecrement()
+    sendActions(for: .touchUpOutside)
+  }
+
+  override func accessibilityIncrement() {
+    super.accessibilityIncrement()
+    sendActions(for: .touchUpOutside)
+  }
 }

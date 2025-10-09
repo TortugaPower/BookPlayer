@@ -63,13 +63,19 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showBookmarks() {
-    let bookmarksCoordinator = BookmarkCoordinator(
-      flow: .modalFlow(presentingController: playerViewController),
+    let viewModel = BookmarksViewModel(
       playerManager: self.playerManager,
       libraryService: self.libraryService,
       syncService: self.syncService
     )
-    bookmarksCoordinator.start()
+    
+    let vc = UIHostingController(
+      rootView: BookmarksView {
+        viewModel
+      }
+    )
+
+    playerViewController.present(vc, animated: true)
   }
 
   func showButtonFree() {
