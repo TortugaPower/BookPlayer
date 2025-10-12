@@ -7,8 +7,8 @@
 //
 
 import BookPlayerKit
-import SwiftUI
 import MediaPlayer
+import SwiftUI
 
 struct SkipIntervalsSectionView: View {
   @AppStorage(Constants.UserDefaults.rewindInterval) var rewindInterval: TimeInterval = 30
@@ -59,7 +59,7 @@ struct SkipIntervalsSectionView: View {
         MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [forwardInterval] as [NSNumber]
       }
     } header: {
-      Text("settings_skip_title")
+      Text("settings_skip_title".localized.capitalized)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_skip_description")
