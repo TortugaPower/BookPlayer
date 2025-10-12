@@ -2972,7 +2972,7 @@
 			path = ItemDetails;
 			sourceTree = "<group>";
 		};
-		9F64C6222793C37C00B2493C /* Controls Screen */ = {
+		9F64C6222793C37C00B2493C /* Controls */ = {
 			isa = PBXGroup;
 			children = (
 				63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */,
@@ -2980,7 +2980,7 @@
 				63B9EFA92E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift */,
 				9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */,
 			);
-			path = "Controls Screen";
+			path = Controls;
 			sourceTree = "<group>";
 		};
 		9FA334B427C156DB0064E8EA /* ItemList */ = {
@@ -3208,7 +3208,7 @@
 				410D00FB26DDD24300D11A45 /* Player Screen */,
 				410D00FC26DDD26000D11A45 /* Chapters */,
 				4138CE1A26E5B4020014F11E /* Bookmarks */,
-				9F64C6222793C37C00B2493C /* Controls Screen */,
+				9F64C6222793C37C00B2493C /* Controls */,
 				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
