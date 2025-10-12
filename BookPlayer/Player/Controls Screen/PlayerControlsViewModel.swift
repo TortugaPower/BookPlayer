@@ -9,65 +9,54 @@
 import BookPlayerKit
 import Combine
 import Foundation
+import SwiftUI
 
-class PlayerControlsViewModel {
-  enum Routes {
-    case more
-    case dismiss
-  }
-
-  var onTransition: BPTransition<Routes>?
-
+class PlayerControlsViewModel: PlayerControlsView.Model {
   let playerManager: PlayerManagerProtocol
-  let speedStep: Float = 0.1
-  let minimumSpeed: Double = 0.5
-  let maximumSpeed: Double = 4.0
+  private var disposeBag = Set<AnyCancellable>()
+  private var boostVolumeObserver: NSKeyValueObservation?
 
   init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
+
+    super.init(
+      currentSpeed: Double(playerManager.currentSpeed),
+      isBoostVolumeEnabled: UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+    )
+
+    bindObservers()
   }
 
-  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
-    return self.playerManager.currentSpeedPublisher()
+  private func bindObservers() {
+    playerManager.currentSpeedPublisher()
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] speed in
+        self?.currentSpeed = round(Double(speed) * 100) / 100.0
+      }
+      .store(in: &disposeBag)
+
+    boostVolumeObserver = UserDefaults.standard.observe(
+      \.userSettingsBoostVolume,
+      options: [.new]
+    ) { [weak self] _, change in
+      guard let newValue = change.newValue else { return }
+
+      self?.isBoostVolumeEnabled = newValue
+    }
   }
 
-  func getMinimumSpeedValue() -> Float {
-    return Float(self.minimumSpeed)
+  override func handleSpeedChange(_ speed: Double) {
+    let roundedValue = round(speed * 100) / 100.0
+
+    guard currentSpeed != roundedValue else { return }
+
+    playerManager.setSpeed(Float(roundedValue))
   }
 
-  func getMaximumSpeedValue() -> Float {
-    return Float(self.maximumSpeed)
-  }
+  override func handleBoostVolumeToggle(_ enabled: Bool) {
+    UserDefaults.standard.set(enabled, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
-  func getCurrentSpeed() -> Float {
-    return self.playerManager.currentSpeed
-  }
-
-  func getBoostVolumeFlag() -> Bool {
-    return UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
-  }
-
-  func handleBoostVolumeToggle(flag: Bool) {
-    UserDefaults.standard.set(flag, forKey: Constants.UserDefaults.boostVolumeEnabled)
-
-    self.playerManager.setBoostVolume(flag)
-  }
-
-  func roundSpeedValue(_ value: Float) -> Float {
-    return round(value / self.speedStep) * self.speedStep
-  }
-
-  func handleSpeedChange(newValue: Float) {
-    let roundedValue = round(newValue * 100) / 100.0
-
-    self.playerManager.setSpeed(roundedValue)
-  }
-
-  func dismiss() {
-    onTransition?(.dismiss)
-  }
-
-  func showMoreControls() {
-    onTransition?(.more)
+    playerManager.setBoostVolume(enabled)
   }
 }
