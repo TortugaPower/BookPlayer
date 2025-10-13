@@ -149,3 +149,9 @@ extension View {
     self.modifier(MiniPlayerModifier<Regular, Accessory>(regular: regularContent, accessory: accessoryContent))
   }
 }
+
+extension View {
+  func formatSpeed(_ speed: Double) -> String {
+    return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
+  }
+}

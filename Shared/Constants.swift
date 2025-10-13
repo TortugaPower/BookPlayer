@@ -75,6 +75,11 @@ public enum Constants {
     public static let hardcoverAutoMatch = "hardcoverAutoMatch"
     public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"
     public static let hardcoverReadingThreshold = "hardcoverReadingThreshold"
+
+    /// Speed controls
+    public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"
+    public static let quickSpeedSecondPreference = "quickSpeedSecondPreference"
+    public static let quickSpeedThirdPreference = "quickSpeedThirdPreference"
   }
 
   public enum SmartRewind {
