@@ -57,10 +57,6 @@ struct GlobalSpeedSectionView: View {
         .foregroundStyle(theme.secondaryColor)
     }
   }
-
-  private func formatSpeed(_ speed: Double) -> String {
-    return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
-  }
 }
 
 #Preview {

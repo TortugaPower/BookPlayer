@@ -136,10 +136,6 @@ struct PlayerControlsSpeedSectionView: View {
     .clipShape(RoundedRectangle(cornerRadius: 5))
     .frame(minWidth: 70, minHeight: 32)
   }
-
-  private func formatSpeed(_ speed: Double) -> String {
-    return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
-  }
 }
 
 #Preview {
