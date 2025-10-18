@@ -817,9 +817,13 @@ extension PlayerManager {
       let delta = timePassedLimited / Constants.SmartRewind.threshold
 
       // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
-      let rewindTime = pow(delta, 3) * Constants.SmartRewind.maxTime
+      let rewindTime = pow(delta, 3) * PlayerManager.rewindInterval
 
-      let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTime, 0)
+      // Don't rewind past the beginning of the chapter
+      let timeInChapter = item.currentTime - item.currentChapter.start
+      let rewindTimeLimited = min(rewindTime, timeInChapter)
+
+      let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTimeLimited, 0)
 
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }

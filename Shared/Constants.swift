@@ -84,7 +84,6 @@ public enum Constants {
 
   public enum SmartRewind {
     public static let threshold: TimeInterval = 599.0 // 599 = 10 mins
-    public static let maxTime: TimeInterval = 30.0
   }
 
   public enum Volume {
