@@ -815,17 +815,34 @@ extension PlayerManager {
       let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold)
 
       let delta = timePassedLimited / Constants.SmartRewind.threshold
+      let baseRewindTime = ease(delta) * getMaxInterval()
 
-      // Using a cubic curve to soften the rewind effect for lower values and strengthen it for higher
-      let rewindTime = pow(delta, 3) * PlayerManager.rewindInterval
+      // Always rewind by at least minRewind...
+      let rewindTimeMin = max(baseRewindTime, Constants.SmartRewind.minRewind)
 
-      // Don't rewind past the beginning of the chapter
+      // ...but don't rewind past the beginning of the chapter, or more than the amount of time passed
       let timeInChapter = item.currentTime - item.currentChapter.start
-      let rewindTimeLimited = min(rewindTime, timeInChapter)
+      let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
 
       let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTimeLimited, 0)
 
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    }
+
+    func getMaxInterval() -> TimeInterval {
+      let userSetInterval = UserDefaults.standard.double(forKey: Constants.UserDefaults.smartRewindMaxInterval)
+      // The interval may be 0 if the setting has never been changed
+      return if userSetInterval > 0 {
+        userSetInterval
+      } else {
+        30.0
+      }
+    }
+
+    // Quartic ease out, where 0 ≤ delta ≤ 1
+    // Increases quickly at first, then levels off closer to 1
+    func ease(_ delta: Double) -> Double {
+      return 1 - pow(1 - delta, 4)
     }
   }
 

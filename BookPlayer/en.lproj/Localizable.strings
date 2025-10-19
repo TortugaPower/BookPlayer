@@ -4,7 +4,8 @@
 "settings_autoplay_title" = "AutoPlay Library";
 "settings_autoplay_description" = "After finishing an audiobook, playback will resume with all items in the library, including items in folders.";
 "settings_smartrewind_title" = "Smart Rewind";
-"settings_smartrewind_description" = "Automatically skip backwards once after being paused for 10 minutes.";
+"settings_smartrewind_description" = "Automatically skip backwards when resuming playback. Skips back further the longer playback has been paused, up to a maximum of %@.";
+"settings_smartrewind_max_interval_title" = "Smart Rewind Limit";
 "settings_boostvolume_title" = "Boost Volume";
 "settings_boostvolume_description" = "Doubles the volume.\nUse with caution and care for your hearing.";
 "settings_globalspeed_title" = "Global Speed Control";
