@@ -98,8 +98,6 @@ extension PlayerControlsView {
     @Published var currentSpeed: Double = 1.0
     @Published var isBoostVolumeEnabled: Bool = false
 
-    let minimumSpeed: Double = 0.5
-    let maximumSpeed: Double = 4.0
     let speedStep: Double = 0.1
 
     init(

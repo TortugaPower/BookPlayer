@@ -49,6 +49,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   /// Background refresh task identifier
   private lazy var refreshTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.refresh"
+  /// Database backup task identifier
+  private lazy var databaseBackupTaskIdentifier =
+    "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
 
   /// Reference to the task that creates the core services
   var setupCoreServicesTask: Task<(), Error>?
@@ -94,64 +97,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       response = INPlayMediaIntentResponse(code: .failure, userActivity: nil)
     }
     completionHandler(response)
-  }
-
-  func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
-    if let coreServices = self.coreServices {
-      return coreServices
-    } else {
-      let dataManager = DataManager(coreDataStack: stack)
-      let accountService = AccountService()
-      accountService.setup(dataManager: dataManager)
-      let libraryService = LibraryService()
-      libraryService.setup(dataManager: dataManager)
-      let syncService = SyncService()
-      syncService.setup(
-        isActive: accountService.hasSyncEnabled(),
-        libraryService: libraryService
-      )
-      let playbackService = PlaybackService()
-      playbackService.setup(libraryService: libraryService)
-      let playerManager = PlayerManager(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        syncService: syncService,
-        speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
-      )
-      let watchService = PhoneWatchConnectivityService(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
-      let playerLoaderService = PlayerLoaderService()
-      playerLoaderService.setup(
-        syncService: syncService,
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
-
-      let hardcoverService = HardcoverService()
-      hardcoverService.setup(libraryService: libraryService)
-
-      let coreServices = CoreServices(
-        accountService: accountService,
-        dataManager: dataManager,
-        hardcoverService: hardcoverService,
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerLoaderService: playerLoaderService,
-        playerManager: playerManager,
-        syncService: syncService,
-        watchService: watchService
-      )
-
-      self.coreServices = coreServices
-
-      return coreServices
-    }
   }
 
   @objc func messageReceived(_ notification: Notification) {
@@ -247,7 +192,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
 
   func setupChangePlaybackPositionCommand() {
     let center = MPRemoteCommandCenter.shared()
-    center.changePlaybackPositionCommand.isEnabled  = UserDefaults.standard.bool(forKey: Constants.UserDefaults.seekProgressBarEnabled)
+    center.changePlaybackPositionCommand.isEnabled = UserDefaults.standard.bool(
+      forKey: Constants.UserDefaults.seekProgressBarEnabled
+    )
     center.changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
       guard
         let playerManager = self?.coreServices?.playerManager,
@@ -360,28 +307,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     )
   }
 
-  func setupCoreServices() {
-    setupCoreServicesTask = Task {
-      do {
-        let stack = try await databaseInitializer.loadCoreDataStack()
-        let coreServices = createCoreServicesIfNeeded(from: stack)
-
-        AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
-        AppDependencyManager.shared.add(dependency: coreServices.libraryService)
-      } catch {
-        errorCoreServicesSetup = error
-      }
-    }
-  }
-
-  func resetCoreServices() {
-    setupCoreServicesTask?.cancel()
-    setupCoreServicesTask = nil
-    errorCoreServicesSetup = nil
-    databaseInitializer.cleanupStoreFiles()
-    setupCoreServices()
-  }
-
   /// Setup or stop Sentry based on flag
   /// - Parameter isDisabled: Determines user preference for crash reports
   private func handleSentryPreference(isDisabled: Bool) {
@@ -462,6 +387,18 @@ extension AppDelegate {
 
       self.handleAppRefresh(task: refreshTask)
     }
+
+    BGTaskScheduler.shared.register(
+      forTaskWithIdentifier: databaseBackupTaskIdentifier,
+      using: nil
+    ) { task in
+      guard let backupTask = task as? BGAppRefreshTask else { return }
+
+      self.handleDatabaseBackup(task: backupTask)
+    }
+
+    // Schedule the first database backup
+    scheduleDatabaseBackup()
   }
 
   func scheduleAppRefresh() {
@@ -495,5 +432,179 @@ extension AppDelegate {
     queue.maxConcurrentOperationCount = 1
 
     queue.addOperation(refreshOperation)
+  }
+
+  // MARK: - Database Backup
+
+  func scheduleDatabaseBackup() {
+    let request = BGAppRefreshTaskRequest(identifier: databaseBackupTaskIdentifier)
+
+    // Schedule for midnight
+    let calendar = Calendar.current
+    let now = Date()
+    var components = calendar.dateComponents([.year, .month, .day], from: now)
+
+    // Set time to midnight
+    components.hour = 0
+    components.minute = 0
+    components.second = 0
+
+    // Get next midnight if it's already past midnight today
+    if let midnight = calendar.date(from: components) {
+      let nextMidnight = midnight > now ? midnight : calendar.date(byAdding: .day, value: 1, to: midnight)!
+      request.earliestBeginDate = nextMidnight
+    } else {
+      // Fallback: schedule for 24 hours from now
+      request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+    }
+
+    do {
+      try BGTaskScheduler.shared.submit(request)
+      Self.logger.info("Database backup scheduled for: \(request.earliestBeginDate?.description ?? "unknown")")
+    } catch {
+      Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
+    }
+  }
+
+  func handleDatabaseBackup(task: BGAppRefreshTask) {
+    let backupOperation = BackupDatabaseOperation()
+
+    backupOperation.completionBlock = { [weak self] in
+      // Always reschedule for next day
+      self?.scheduleDatabaseBackup()
+
+      // Always mark as completed to prevent iOS throttling
+      task.setTaskCompleted(success: true)
+    }
+
+    task.expirationHandler = {
+      backupOperation.cancel()
+      backupOperation.finish()
+    }
+
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 1
+
+    queue.addOperation(backupOperation)
+  }
+}
+
+// - MARK: Core services
+
+extension AppDelegate {
+  func setupCoreServices() {
+    setupCoreServicesTask = Task {
+      do {
+        let stack = try await databaseInitializer.loadCoreDataStack()
+        let coreServices = createCoreServicesIfNeeded(from: stack)
+
+        AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
+        AppDependencyManager.shared.add(dependency: coreServices.libraryService)
+      } catch {
+        errorCoreServicesSetup = error
+      }
+    }
+  }
+
+  func resetCoreServices() {
+    setupCoreServicesTask?.cancel()
+    setupCoreServicesTask = nil
+    errorCoreServicesSetup = nil
+    databaseInitializer.cleanupStoreFiles()
+    setupCoreServices()
+  }
+
+  func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
+    if let coreServices = self.coreServices {
+      return coreServices
+    } else {
+      let dataManager = DataManager(coreDataStack: stack)
+      let accountService = makeAccountService(dataManager: dataManager)
+      let libraryService = makeLibraryService(dataManager: dataManager)
+      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService)
+      let playbackService = makePlaybackService(libraryService: libraryService)
+      let playerManager = PlayerManager(
+        libraryService: libraryService,
+        playbackService: playbackService,
+        syncService: syncService,
+        speedService: SpeedService(libraryService: libraryService),
+        shakeMotionService: ShakeMotionService(),
+        widgetReloadService: WidgetReloadService()
+      )
+      let watchService = PhoneWatchConnectivityService(
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerManager: playerManager
+      )
+      let playerLoaderService = makePlayerLoaderService(
+        syncService: syncService,
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerManager: playerManager
+      )
+      let hardcoverService = makeHardcoverService(libraryService: libraryService)
+
+      let coreServices = CoreServices(
+        accountService: accountService,
+        dataManager: dataManager,
+        hardcoverService: hardcoverService,
+        libraryService: libraryService,
+        playbackService: playbackService,
+        playerLoaderService: playerLoaderService,
+        playerManager: playerManager,
+        syncService: syncService,
+        watchService: watchService
+      )
+
+      self.coreServices = coreServices
+
+      return coreServices
+    }
+  }
+
+  private func makeAccountService(dataManager: DataManager) -> AccountService {
+    let service = AccountService()
+    service.setup(dataManager: dataManager)
+    return service
+  }
+
+  private func makeLibraryService(dataManager: DataManager) -> LibraryService {
+    let service = LibraryService()
+    service.setup(dataManager: dataManager)
+    return service
+  }
+
+  private func makeSyncService(accountService: AccountService, libraryService: LibraryService) -> SyncService {
+    let service = SyncService()
+    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService)
+    return service
+  }
+
+  private func makePlaybackService(libraryService: LibraryService) -> PlaybackService {
+    let service = PlaybackService()
+    service.setup(libraryService: libraryService)
+    return service
+  }
+
+  private func makePlayerLoaderService(
+    syncService: SyncService,
+    libraryService: LibraryService,
+    playbackService: PlaybackService,
+    playerManager: PlayerManager
+  ) -> PlayerLoaderService {
+    let service = PlayerLoaderService()
+    service.setup(
+      syncService: syncService,
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager
+    )
+    return service
+  }
+
+  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
+    let service = HardcoverService()
+    service.setup(libraryService: libraryService)
+    return service
   }
 }
