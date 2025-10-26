@@ -18,17 +18,20 @@ class DataInitializerCoordinator: BPLogger {
 
   var onFinish: (() -> Void)?
 
+  // Track if we've already attempted backup restoration to prevent infinite loops
+  private var hasAttemptedBackupRestore: Bool = false
+
   init(alertPresenter: AlertPresenter) {
     self.alertPresenter = alertPresenter
   }
 
   public func start() {
     Task {
-      await initializeLibrary(isRecoveryAttempt: false)
+      await initializeLibrary(shouldRebuildFromFiles: false)
     }
   }
 
-  func initializeLibrary(isRecoveryAttempt: Bool) async {
+  func initializeLibrary(shouldRebuildFromFiles: Bool) async {
     let appDelegate = AppDelegate.shared!
     _ = await appDelegate.setupCoreServicesTask?.result
 
@@ -37,23 +40,7 @@ class DataInitializerCoordinator: BPLogger {
       return
     }
 
-    await finishLibrarySetup(fromRecovery: isRecoveryAttempt)
-  }
-
-  private func isMigrationError(_ error: NSError) -> Bool {
-    [
-      NSMigrationError,
-      NSMigrationConstraintViolationError,
-      NSMigrationCancelledError,
-      NSMigrationMissingSourceModelError,
-      NSMigrationMissingMappingModelError,
-      NSMigrationManagerSourceStoreError,
-      NSMigrationManagerDestinationStoreError,
-      NSEntityMigrationPolicyError,
-      NSValidationMultipleErrorsError,
-      NSValidationMissingMandatoryPropertyError,
-      NSPersistentStoreIncompatibleSchemaError
-    ].contains(error.code)
+    await finishLibrarySetup(shouldRebuildFromFiles: shouldRebuildFromFiles)
   }
 
   func handleError(_ error: NSError) async {
@@ -69,49 +56,41 @@ class DataInitializerCoordinator: BPLogger {
           completion: nil
         )
       }
-    } else if isMigrationError(error) {
-      Self.logger.warning("Failed to perform migration, attempting recovery with the loading library sequence")
-      await MainActor.run {
-        alertPresenter.showAlert(
-          "error_title".localized,
-          message: "coredata_error_migration_description".localized
-        ) {
-          self.recoverLibraryFromFailedMigration()
-        }
-      }
     } else {
-      presentGenericError(error)
+      // For other database errors, check if backups are available
+      if !hasAttemptedBackupRestore && databaseInitializer.hasAvailableBackups() {
+        await presentBackupRestoreAlert(error)
+      } else {
+        // No backups available OR backup restoration already failed
+        await presentFinalRecoveryAlert(error)
+      }
     }
   }
 
-  private func presentGenericError(_ error: NSError) {
-    Task { @MainActor in
-      let errorDescription = """
-        \(error.localizedDescription)
-        
-        Error Domain
-        \(error.domain) (\(error.code)
-        
-        Additional Info
-        \(error.userInfo)
-        """
+  /// Present alert offering to restore from backup
+  private func presentBackupRestoreAlert(_ error: NSError) async {
+    await MainActor.run {
       alertPresenter.showAlert(
         BPAlertContent(
           title: "error_title".localized,
-          message: errorDescription,
+          message: "database_backup_available_message".localized,
           style: .alert,
           actionItems: [
             BPActionItem(
-              title: "ok_button".localized,
+              title: "database_restore_button".localized,
+              style: .default,
               handler: {
-                fatalError("Unresolved error \(error.domain) (\(error.code)): \(error.localizedDescription)")
+                Task {
+                  await self.restoreFromBackup(originalError: error)
+                }
               }
             ),
-            .init(
-              title: "Reset and recover database",
-              style: .destructive,
+            BPActionItem(
+              title: "cancel_button".localized,
+              style: .cancel,
               handler: {
-                self.recoverLibraryFromFailedMigration()
+                self.databaseInitializer.cleanupAssociatedFiles()
+                fatalError("User cancelled database recovery: \(error.domain) (\(error.code))")
               }
             ),
           ]
@@ -120,14 +99,77 @@ class DataInitializerCoordinator: BPLogger {
     }
   }
 
-  func recoverLibraryFromFailedMigration() {
-    Task {
-      AppDelegate.shared?.resetCoreServices()
-      await initializeLibrary(isRecoveryAttempt: true)
+  /// Present final recovery alert (no backups or backup restoration failed)
+  private func presentFinalRecoveryAlert(_ error: NSError) async {
+    await MainActor.run {
+      let message: String
+      if hasAttemptedBackupRestore {
+        message = "database_restore_failed_message".localized
+      } else {
+        message = "database_no_backup_message".localized
+      }
+
+      let errorDescription = """
+        \(message)
+
+        Error Details:
+        \(error.localizedDescription)
+
+        Error Domain: \(error.domain) (\(error.code))
+        """
+
+      alertPresenter.showAlert(
+        BPAlertContent(
+          title: "error_title".localized,
+          message: errorDescription,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "database_reset_button".localized,
+              style: .destructive,
+              handler: {
+                self.recoverLibraryFromFailedMigration()
+              }
+            ),
+            BPActionItem(
+              title: "cancel_button".localized,
+              style: .cancel,
+              handler: {
+                self.databaseInitializer.cleanupAssociatedFiles()
+                fatalError("User cancelled database recovery: \(error.domain) (\(error.code))")
+              }
+            ),
+          ]
+        )
+      )
     }
   }
 
-  func finishLibrarySetup(fromRecovery: Bool) async {
+  /// Attempt to restore database from backup
+  private func restoreFromBackup(originalError: NSError) async {
+    hasAttemptedBackupRestore = true
+
+    let restoreSuccess = await databaseInitializer.restoreFromLatestBackup()
+
+    if restoreSuccess {
+      AppDelegate.shared?.resetCoreServices()
+      await initializeLibrary(shouldRebuildFromFiles: false)
+    } else {
+      await presentFinalRecoveryAlert(originalError)
+    }
+  }
+
+  func recoverLibraryFromFailedMigration() {
+    Task {
+      databaseInitializer.cleanupStoreFiles()
+      // Reset core services to start fresh
+      AppDelegate.shared?.resetCoreServices()
+      // Rebuild library from files since database is empty
+      await initializeLibrary(shouldRebuildFromFiles: true)
+    }
+  }
+
+  func finishLibrarySetup(shouldRebuildFromFiles: Bool) async {
     let coreServices = AppDelegate.shared!.coreServices!
 
     setupDefaultState(
@@ -135,7 +177,7 @@ class DataInitializerCoordinator: BPLogger {
       dataManager: coreServices.dataManager
     )
 
-    if fromRecovery {
+    if shouldRebuildFromFiles {
       let files = getLibraryFiles()
       coreServices.libraryService.insertItems(from: files)
     }

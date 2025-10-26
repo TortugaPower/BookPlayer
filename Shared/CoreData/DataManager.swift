@@ -111,6 +111,22 @@ public class DataManager {
     return backupFolderURL
   }
 
+  public class func getDatabaseBackupFolderURL() -> URL {
+    let appSupportURL = self.getApplicationSupportFolderURL()
+
+    let backupFolderURL = appSupportURL.appendingPathComponent("DatabaseBackups")
+
+    if !FileManager.default.fileExists(atPath: backupFolderURL.path) {
+      do {
+        try FileManager.default.createDirectory(at: backupFolderURL, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        fatalError("Couldn't create Database Backup folder")
+      }
+    }
+
+    return backupFolderURL
+  }
+
   public class func getInboxFolderURL() -> URL {
     let documentsURL = self.getDocumentsFolderURL()
 

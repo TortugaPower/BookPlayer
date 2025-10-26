@@ -18,11 +18,13 @@ public final class DataMigrationManager: BPLogger {
 
   public init() {
     self.currentModel = .model(named: self.modelName)
-    let storeURL =  FileManager.default.containerURL(
-      forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
-      .appendingPathComponent("\(self.modelName).sqlite")
+    let storeURL = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
+    )!
+    .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
-    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
+    self.storeModel =
+      NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
       .filter {
         self.store(at: storeURL, isCompatibleWithModel: $0)
       }.first
@@ -41,9 +43,13 @@ public final class DataMigrationManager: BPLogger {
   private func metadataForStoreAtURL(storeURL: URL) -> [String: Any] {
     let metadata: [String: Any]
     do {
-      metadata = try NSPersistentStoreCoordinator
-        .metadataForPersistentStore(ofType: NSSQLiteStoreType,
-                                    at: storeURL, options: nil)
+      metadata =
+        try NSPersistentStoreCoordinator
+        .metadataForPersistentStore(
+          ofType: NSSQLiteStoreType,
+          at: storeURL,
+          options: nil
+        )
     } catch {
       metadata = [:]
       print("Error retrieving metadata for store at URL: \(storeURL): \(error)")
@@ -51,14 +57,17 @@ public final class DataMigrationManager: BPLogger {
     return metadata
   }
 
-  private func migrateStoreAt(URL storeURL: URL,
-                              fromModel from: NSManagedObjectModel,
-                              toModel to: NSManagedObjectModel,
-                              mappingModel: NSMappingModel? = nil) throws {
+  private func migrateStoreAt(
+    URL storeURL: URL,
+    fromModel from: NSManagedObjectModel,
+    toModel to: NSManagedObjectModel,
+    mappingModel: NSMappingModel? = nil
+  ) throws {
     let migrationManager = NSMigrationManager(sourceModel: from, destinationModel: to)
 
-    let migrationMappingModel = try? mappingModel
-    ?? NSMappingModel.inferredMappingModel(forSourceModel: from, destinationModel: to)
+    let migrationMappingModel =
+      try? mappingModel
+      ?? NSMappingModel.inferredMappingModel(forSourceModel: from, destinationModel: to)
 
     let targetURL = storeURL.deletingLastPathComponent()
     let destinationName = storeURL.lastPathComponent + "~1"
@@ -69,20 +78,24 @@ public final class DataMigrationManager: BPLogger {
     }
 
     Self.logger.trace("Migrating Core Data store")
-    try migrationManager.migrateStore(from: storeURL,
-                                      sourceType: NSSQLiteStoreType,
-                                      options: nil,
-                                      with: migrationMappingModel,
-                                      toDestinationURL: destinationURL,
-                                      destinationType: NSSQLiteStoreType,
-                                      destinationOptions: nil)
+    try migrationManager.migrateStore(
+      from: storeURL,
+      sourceType: NSSQLiteStoreType,
+      options: nil,
+      with: migrationMappingModel,
+      toDestinationURL: destinationURL,
+      destinationType: NSSQLiteStoreType,
+      destinationOptions: nil
+    )
 
     let fileManager = FileManager.default
     let wal = storeURL.lastPathComponent + "-wal"
     let shm = storeURL.lastPathComponent + "-shm"
-    let destinationWal = targetURL
+    let destinationWal =
+      targetURL
       .appendingPathComponent(wal)
-    let destinationShm = targetURL
+    let destinationShm =
+      targetURL
       .appendingPathComponent(shm)
     // cleanup in case
     try? fileManager.removeItem(at: destinationWal)
@@ -105,13 +118,25 @@ public final class DataMigrationManager: BPLogger {
     try? fileManager.removeItem(at: storeURL)
   }
 
+  /// Deletes associated WAL and SHM files for a given database URL
+  public func cleanupAssociatedFiles() {
+    let storeURL = self.storeURL
+    let fileManager = FileManager.default
+    let walURL = storeURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
+    try? fileManager.removeItem(at: walURL)
+
+    let shmURL = storeURL.deletingPathExtension().appendingPathExtension("sqlite-shm")
+    try? fileManager.removeItem(at: shmURL)
+  }
+
   public func canPeformMigration() -> Bool {
     return self.storeModel != nil
   }
 
   public func needsMigration() -> Bool {
     guard let storeModel = self.storeModel,
-          let lastVersion = DBVersion.allCases.last else { return false }
+      let lastVersion = DBVersion.allCases.last
+    else { return false }
 
     return storeModel != lastVersion.model()
   }
@@ -130,8 +155,9 @@ public final class DataMigrationManager: BPLogger {
 
   public func performMigration(completionHandler: @escaping () -> Void) throws {
     guard let storeModel = self.storeModel,
-          let currentVersion = DBVersion(model: storeModel),
-          let nextVersion = currentVersion.next() else {
+      let currentVersion = DBVersion(model: storeModel),
+      let nextVersion = currentVersion.next()
+    else {
       completionHandler()
       return
     }
@@ -140,16 +166,19 @@ public final class DataMigrationManager: BPLogger {
     var mappingModel: NSMappingModel?
 
     if let mappingModelName = nextVersion.mappingModelName(),
-       let mapPath = Bundle.main.path(forResource: mappingModelName, ofType: "cdm") {
+      let mapPath = Bundle.main.path(forResource: mappingModelName, ofType: "cdm")
+    {
       let mapUrl = URL(fileURLWithPath: mapPath)
 
       mappingModel = NSMappingModel(contentsOf: mapUrl)
     }
 
-    try self.migrateStoreAt(URL: self.storeURL,
-                            fromModel: storeModel,
-                            toModel: destinationModel,
-                            mappingModel: mappingModel)
+    try self.migrateStoreAt(
+      URL: self.storeURL,
+      fromModel: storeModel,
+      toModel: destinationModel,
+      mappingModel: mappingModel
+    )
 
     // update after migration
     self.storeModel = destinationModel
@@ -183,8 +212,10 @@ public final class DataMigrationManager: BPLogger {
 extension NSManagedObjectModel {
   private class func modelURLs(in modelFolder: String) -> [URL] {
     return Bundle.main
-      .urls(forResourcesWithExtension: "mom",
-            subdirectory: "\(modelFolder).momd") ?? []
+      .urls(
+        forResourcesWithExtension: "mom",
+        subdirectory: "\(modelFolder).momd"
+      ) ?? []
   }
 
   class func modelVersionsFor(modelNamed modelName: String) -> [NSManagedObjectModel] {
@@ -203,11 +234,13 @@ extension NSManagedObjectModel {
   class func model(named modelName: String, in bundle: Bundle = .main) -> NSManagedObjectModel {
     return bundle.url(forResource: modelName, withExtension: "momd")
       .flatMap(NSManagedObjectModel.init)
-    ?? NSManagedObjectModel()
+      ?? NSManagedObjectModel()
   }
 }
 
-func == (firstModel: NSManagedObjectModel,
-         otherModel: NSManagedObjectModel) -> Bool {
+func == (
+  firstModel: NSManagedObjectModel,
+  otherModel: NSManagedObjectModel
+) -> Bool {
   return firstModel.entitiesByName == otherModel.entitiesByName
 }
