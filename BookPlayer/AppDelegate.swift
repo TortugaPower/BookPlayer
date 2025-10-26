@@ -451,7 +451,11 @@ extension AppDelegate {
 
     // Get next midnight if it's already past midnight today
     if let midnight = calendar.date(from: components) {
-      let nextMidnight = midnight > now ? midnight : calendar.date(byAdding: .day, value: 1, to: midnight)!
+      let nextMidnight =
+        midnight > now
+        ? midnight
+        : calendar.date(byAdding: .day, value: 1, to: midnight)
+          ?? Date(timeIntervalSinceNow: 24 * 60 * 60)
       request.earliestBeginDate = nextMidnight
     } else {
       // Fallback: schedule for 24 hours from now
