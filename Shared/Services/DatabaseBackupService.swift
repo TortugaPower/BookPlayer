@@ -54,6 +54,77 @@ public class DatabaseBackupService: BPLogger {
     Self.logger.info("Database backup completed successfully at: \(backupURL.path)")
   }
 
+  /// Get list of available backups sorted by creation date (newest first)
+  /// - Returns: Array of backup file URLs
+  public func getAvailableBackups() -> [URL] {
+    let backupFolder = DataManager.getDatabaseBackupFolderURL()
+
+    do {
+      let files = try fileManager.contentsOfDirectory(
+        at: backupFolder,
+        includingPropertiesForKeys: [.creationDateKey],
+        options: .skipsHiddenFiles
+      )
+
+      // Filter to only .sqlite files and sort by creation date (newest first)
+      let backups = files
+        .filter { $0.pathExtension == "sqlite" }
+        .sorted { url1, url2 in
+          let date1 = (try? url1.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
+          let date2 = (try? url2.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
+          return date1 > date2
+        }
+
+      return backups
+    } catch {
+      Self.logger.error("Failed to list backups: \(error.localizedDescription)")
+      return []
+    }
+  }
+
+  /// Get the most recent backup URL
+  /// - Returns: URL of the latest backup, or nil if no backups exist
+  public func getLatestBackup() -> URL? {
+    return getAvailableBackups().first
+  }
+
+  /// Restore database from backup
+  /// - Parameter backupURL: The backup file to restore from
+  /// - Returns: true if restoration succeeded, false otherwise
+  public func restoreDatabase(from backupURL: URL) async -> Bool {
+    Self.logger.info("Starting database restoration from: \(backupURL.lastPathComponent)")
+
+    // Verify backup file exists
+    guard fileManager.fileExists(atPath: backupURL.path) else {
+      Self.logger.error("Backup file does not exist at: \(backupURL.path)")
+      return false
+    }
+
+    // Get destination (main database) URL
+    guard let destinationURL = getSourceDatabaseURL() else {
+      Self.logger.error("Failed to get destination database URL")
+      return false
+    }
+
+    try? fileManager.removeItem(at: destinationURL)
+    deleteAssociatedFiles(for: destinationURL)
+
+    guard copyDatabaseFiles(from: backupURL, to: destinationURL) else {
+      Self.logger.error("Failed to copy backup files during restoration")
+      return false
+    }
+
+    guard validateBackup(at: destinationURL) else {
+      Self.logger.error("Restored database validation failed, cleaning up")
+      try? fileManager.removeItem(at: destinationURL)
+      deleteAssociatedFiles(for: destinationURL)
+      return false
+    }
+
+    Self.logger.info("Database restoration completed successfully")
+    return true
+  }
+
   // MARK: - Private Methods
 
   /// Returns the URL of the source CoreData database file

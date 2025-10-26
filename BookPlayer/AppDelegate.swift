@@ -510,7 +510,6 @@ extension AppDelegate {
     setupCoreServicesTask?.cancel()
     setupCoreServicesTask = nil
     errorCoreServicesSetup = nil
-    databaseInitializer.cleanupStoreFiles()
     setupCoreServices()
   }
 

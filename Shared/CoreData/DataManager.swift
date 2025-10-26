@@ -51,8 +51,6 @@ public class DataManager {
   }
 
   public class func getApplicationSupportFolderURL() -> URL {
-    let contents = try! FileManager.default.contentsOfDirectory(atPath: "\(applicationSupportFolderURL.path)/DatabaseBackups")
-    print(contents)
     return applicationSupportFolderURL
   }
 
