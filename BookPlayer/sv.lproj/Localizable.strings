@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Automatisk Uppspelning";
 "settings_autoplay_description" = "När du har avslutat en ljudbok kommer uppspelningen att återupptas med alla objekt i biblioteket, inklusive objekt i mappar.";
 "settings_smartrewind_title" = "Automatisk Tillbakaspolning";
-"settings_smartrewind_description" = "Spola tillbaka 30 sekunder efter appen varit pausad i 10 minuter.";
+"settings_smartrewind_description" = "Hoppa automatiskt bakåt när uppspelning återupptas. Hoppar längre bakåt ju längre uppspelningen har pausats, upp till maximalt %@.";
 "settings_boostvolume_title" = "Öka volymen";
 "settings_boostvolume_description" = "Dubblar volymen. \nAnvänd med försiktighet och omsorg för din hörsel.";
 "settings_globalspeed_title" = "Global Uppspelningshastighet";

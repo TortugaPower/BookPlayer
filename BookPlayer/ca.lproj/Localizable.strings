@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Reprodueix automàticament la biblioteca";
 "settings_autoplay_description" = "Després d'acabar un audiollibre, la reproducció es reprendrà amb tots els elements de la biblioteca, inclosos els de les carpetes.";
 "settings_smartrewind_title" = "Rebobinat intel·ligent";
-"settings_smartrewind_description" = "Rebobina 30 segons després d'haver estat en pausa durant 10 minuts.";
+"settings_smartrewind_description" = "Salta automàticament enrere en reprendre la reproducció. Salta més enrere com més temps s'ha pausat la reproducció, fins a un màxim de %@.";
 "settings_boostvolume_title" = "Augmenta el volum";
 "settings_boostvolume_description" = "Dobla el volum.\nFeu servir amb precaució i cura de la vostra audició.";
 "settings_globalspeed_title" = "Control global de velocitat";

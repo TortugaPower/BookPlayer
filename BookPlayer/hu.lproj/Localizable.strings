@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Könyvtárak automatikus lejátszása";
 "settings_autoplay_description" = "A hangoskönyv befejezése után a lejátszás folytatódik a könyvtár összes elemével, beleértve a mappákban lévő elemeket is";
 "settings_smartrewind_title" = "Okos visszatekerés";
-"settings_smartrewind_description" = "Tekerjen vissza 30 másodpercet, ha 10 percig szüneteltette";
+"settings_smartrewind_description" = "Automatikus visszaugrás a lejátszás folytatásakor. Ha a lejátszás hosszabb ideig szünetel, akkor tovább ugrik vissza, maximum %@-ig.";
 "settings_boostvolume_title" = "Hangerő növelése";
 "settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében";
 "settings_globalspeed_title" = "Globális sebességszabályozás";

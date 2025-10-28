@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Reproduzir automaticamente a Biblioteca";
 "settings_autoplay_description" = "Ao terminar um audiolivro, a reprodução continuará com todos os itens na biblioteca, incluindo itens nas pastas.";
 "settings_smartrewind_title" = "Rebobinagem Inteligente";
-"settings_smartrewind_description" = "Rebobinar 30 segundos após pausa de 10 minutos.";
+"settings_smartrewind_description" = "Retrocede automaticamente ao retomar a reprodução. Retrocede ainda mais quanto mais tempo a reprodução estiver pausada, até um máximo de %@.";
 "settings_boostvolume_title" = "Aumentar volume";
 "settings_boostvolume_description" = "Duplicar o volume.\nUse com precaução e tenha cuidado com sua audição.";
 "settings_globalspeed_title" = "Controlo da Velocidade Global";

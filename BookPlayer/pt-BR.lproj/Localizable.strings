@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Reprodução automática da Biblioteca";
 "settings_autoplay_description" = "Depois de terminar um audiolivro, a reprodução será retomada com todos os itens da biblioteca, incluindo itens nas pastas.";
 "settings_smartrewind_title" = "Retrocesso Inteligente";
-"settings_smartrewind_description" = "Retroceda 30 segundos após ser pausado por 10 minutos.";
+"settings_smartrewind_description" = "Retrocede automaticamente ao retomar a reprodução. Retrocede ainda mais quanto mais tempo a reprodução estiver pausada, até um máximo de %@.";
 "settings_boostvolume_title" = "Aumentar volume";
 "settings_boostvolume_description" = "Dobra o volume.\nUse com cautela e cuidado com sua audição.";
 "settings_globalspeed_title" = "Controle de Velocidade Global";

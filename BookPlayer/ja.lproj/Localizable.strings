@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "ライブラリの自動再生";
 "settings_autoplay_description" = "オーディオブックが再生済みになると、フォルダ内の項目も含むライブラリ内のすべての項目で再生が再開されます。";
 "settings_smartrewind_title" = "スマート早戻し";
-"settings_smartrewind_description" = "10分以上一時停止していた場合、30秒早戻しします。";
+"settings_smartrewind_description" = "再生を再開すると、自動的に巻き戻します。一時停止時間が長いほど、最大%@まで巻き戻されます。";
 "settings_boostvolume_title" = "音量をブースト";
 "settings_boostvolume_description" = "音量を2倍にします。 \n聴覚に配慮し、注意して使用してください。";
 "settings_globalspeed_title" = "再生速度の共通設定";

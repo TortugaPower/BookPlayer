@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "AutoPlay Bibliotek";
 "settings_autoplay_description" = "Når du har afsluttet en lydbog, genoptages afspilningen med alle elementer i biblioteket, inklusive elementer i mapper.";
 "settings_smartrewind_title" = "Smart Tilbagespolning";
-"settings_smartrewind_description" = "Spol 30 sekunder tilbage, efter at du har sat bogen på pause i 10 minutter.";
+"settings_smartrewind_description" = "Springer automatisk tilbage, når afspilningen genoptages. Springer længere tilbage, jo længere afspilningen har været på pause, op til maksimalt %@.";
 "settings_boostvolume_title" = "Boost lydstyrken";
 "settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
 "settings_globalspeed_title" = "Global hastighedskontrol";

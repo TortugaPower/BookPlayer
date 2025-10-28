@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "AutoPlay-bibliotheek";
 "settings_autoplay_description" = "Nadat een audioboek is voltooid, wordt het afspelen hervat met alle items in de bibliotheek, inclusief items in mappen.";
 "settings_smartrewind_title" = "Slim terugspoelen";
-"settings_smartrewind_description" = "Spoel 30 seconden terug na 10 minuten pauze.";
+"settings_smartrewind_description" = "Automatisch terugspringen bij het hervatten van de weergave. Springt verder terug naarmate de weergave langer is gepauzeerd, tot een maximum van %@.";
 "settings_boostvolume_title" = "Boost volume";
 "settings_boostvolume_description" = "Verdubbelt het volume. \n Wees voorzichtig en zorg voor uw gehoor.";
 "settings_globalspeed_title" = "Globale snelheidsregeling";

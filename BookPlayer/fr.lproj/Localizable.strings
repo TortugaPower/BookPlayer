@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Lecture auto. de la Bibliothèque";
 "settings_autoplay_description" = "Après avoir terminé un livre audio, la lecture reprendra avec tous les éléments de la bibliothèque, y compris les éléments des dossiers.";
 "settings_smartrewind_title" = "Rembobinage intelligent";
-"settings_smartrewind_description" = "Rembobine 30 secondes après avoir été mis en pause pendant 10 minutes.";
+"settings_smartrewind_description" = "Revenir automatiquement en arrière à la reprise de la lecture. Le retour en arrière est d'autant plus important que la lecture est en pause, jusqu'à un maximum de %@.";
 "settings_boostvolume_title" = "Augmenter le volume";
 "settings_boostvolume_description" = "Double le volume.\nUtilisez avec prudence et faites attention à votre audition.";
 "settings_globalspeed_title" = "Contrôle de la vitesse globale";

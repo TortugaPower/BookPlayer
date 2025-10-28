@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Automatyczne odtwarzanie Biblioteki";
 "settings_autoplay_description" = "Po ukończeniu książki audio odtwarzanie zostanie wznowione ze wszystkimi elementami w bibliotece, w tym elementami w folderach.";
 "settings_smartrewind_title" = "Inteligentne Cofanie";
-"settings_smartrewind_description" = "Cofnij o 30 sekund po 10 minutowej pauzie.";
+"settings_smartrewind_description" = "Automatyczne przewijanie do tyłu po wznowieniu odtwarzania. Przewijanie do tyłu jest tym dłuższe, im dłużej odtwarzanie jest wstrzymane, do maksymalnie %@.";
 "settings_boostvolume_title" = "Zwiększ głośność";
 "settings_boostvolume_description" = "Podwaja głośność. Używaj z rozwagą i troską o swój słuch.";
 "settings_globalspeed_title" = "Globalna Kontrola Prędkości";
