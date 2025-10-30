@@ -825,8 +825,8 @@ extension PlayerManager {
     if smartRewindEnabled,
       let lastPlayTime = item.lastPlayDate
     {
-      let timePassed = Date().timeIntervalSince(lastPlayTime)
-      let timePassedLimited = min(max(timePassed, 0), Constants.SmartRewind.threshold)
+      let timePassed = max(Date().timeIntervalSince(lastPlayTime), 0)
+      let timePassedLimited = min(timePassed, Constants.SmartRewind.threshold)
 
       let delta = timePassedLimited / Constants.SmartRewind.threshold
       let baseRewindTime = ease(delta) * getMaxInterval()
