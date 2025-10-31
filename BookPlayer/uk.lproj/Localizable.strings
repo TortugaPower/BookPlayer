@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ від %@, обкладинка книги";
 "voiceover_loading_book_cover" = "Завантаження обкладинки книги";
 "integrations_title" = "Інтеграції";
+"settings_smartrewind_max_interval_title" = "Розумне обмеження перемотування";

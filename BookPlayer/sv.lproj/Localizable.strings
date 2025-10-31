@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ av %@, bokomslag";
 "voiceover_loading_book_cover" = "Laddar bokomslag";
 "integrations_title" = "Integrationer";
+"settings_smartrewind_max_interval_title" = "Smart återspolningsgräns";

@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ di %@, copertina del libro";
 "voiceover_loading_book_cover" = "Caricamento copertina del libro";
 "integrations_title" = "Integrazioni";
+"settings_smartrewind_max_interval_title" = "Limite di riavvolgimento intelligente";

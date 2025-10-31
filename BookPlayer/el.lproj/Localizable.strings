@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ από %@, εξώφυλλο βιβλίου";
 "voiceover_loading_book_cover" = "Φόρτωση εξώφυλλου βιβλίου";
 "integrations_title" = "Ενσωματώσεις";
+"settings_smartrewind_max_interval_title" = "Έξυπνο όριο επαναφοράς";

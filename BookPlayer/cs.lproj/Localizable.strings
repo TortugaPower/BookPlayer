@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ od %@, obálka knihy";
 "voiceover_loading_book_cover" = "Načítá se obálka knihy";
 "integrations_title" = "Integrace";
+"settings_smartrewind_max_interval_title" = "Chytrý limit převíjení";

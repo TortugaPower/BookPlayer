@@ -382,3 +382,4 @@
 "Genres" = "Stílusok";
 "Overview" = "Áttekintés";
 "Tags" = "Cimkék";
+"settings_smartrewind_max_interval_title" = "Intelligens visszatekerés korlátozása";

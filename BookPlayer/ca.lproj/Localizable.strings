@@ -378,3 +378,4 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "voiceover_book_cover" = "%@ per %@, coberta del llibre";
 "voiceover_loading_book_cover" = "S'està carregant la coberta del llibre";
 "integrations_title" = "Integracions";
+"settings_smartrewind_max_interval_title" = "Límit de rebobinat intel·ligent";

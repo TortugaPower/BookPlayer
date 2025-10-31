@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ 作者 %@，图书封面";
 "voiceover_loading_book_cover" = "正在加载图书封面";
 "integrations_title" = "集成";
+"settings_smartrewind_max_interval_title" = "智能倒带限制";

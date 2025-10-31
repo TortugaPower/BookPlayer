@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ af %@, bogomlaget";
 "voiceover_loading_book_cover" = "Indlæser bogomlaget";
 "integrations_title" = "Integrationer";
+"settings_smartrewind_max_interval_title" = "Smart tilbagespolingsgrænse";

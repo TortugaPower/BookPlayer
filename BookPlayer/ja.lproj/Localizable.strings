@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ 著者%@、本の表紙";
 "voiceover_loading_book_cover" = "本の表紙を読み込み中";
 "integrations_title" = "統合";
+"settings_smartrewind_max_interval_title" = "スマート巻き戻し制限";

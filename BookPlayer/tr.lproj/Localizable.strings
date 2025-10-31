@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ tarafından %@, kitap kapağı";
 "voiceover_loading_book_cover" = "Kitap kapağı yükleniyor";
 "integrations_title" = "Entegrasyonlar";
+"settings_smartrewind_max_interval_title" = "Akıllı Geri Sarma Sınırı";

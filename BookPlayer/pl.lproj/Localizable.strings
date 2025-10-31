@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ autorstwa %@, okładka książki";
 "voiceover_loading_book_cover" = "Ładowanie okładki książki";
 "integrations_title" = "Integracje";
+"settings_smartrewind_max_interval_title" = "Limit inteligentnego przewijania";

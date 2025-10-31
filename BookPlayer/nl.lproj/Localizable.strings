@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ door %@, boekomslag";
 "voiceover_loading_book_cover" = "Boekomslag laden";
 "integrations_title" = "Integraties";
+"settings_smartrewind_max_interval_title" = "Slimme terugspoellimiet";
