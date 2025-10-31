@@ -12,8 +12,8 @@ import SwiftUI
 import UIKit
 
 class PlayerCoordinator: Coordinator {
-  let playerManager: PlayerManagerProtocol
-  let libraryService: LibraryServiceProtocol
+  let playerManager: PlayerManager
+  let libraryService: LibraryService
   let syncService: SyncServiceProtocol
 
   let flow: BPCoordinatorPresentationFlow
@@ -29,8 +29,8 @@ class PlayerCoordinator: Coordinator {
 
   init(
     flow: BPModalOnlyPresentationFlow,
-    playerManager: PlayerManagerProtocol,
-    libraryService: LibraryServiceProtocol,
+    playerManager: PlayerManager,
+    libraryService: LibraryService,
     syncService: SyncServiceProtocol
   ) {
     self.flow = flow
@@ -63,15 +63,13 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showBookmarks() {
-    let viewModel = BookmarksViewModel(
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      syncService: self.syncService
-    )
-    
     let vc = UIHostingController(
       rootView: BookmarksView {
-        viewModel
+        BookmarksViewModel(
+          playerManager: self.playerManager,
+          libraryService: self.libraryService,
+          syncService: self.syncService
+        )
       }
     )
 
@@ -104,11 +102,18 @@ class PlayerCoordinator: Coordinator {
   }
 
   func showControls() {
-    let playerControlsCoordinator = PlayerControlsCoordinator(
-      flow: .modalFlow(presentingController: playerViewController, prefersMediumDetent: true),
-      playerManager: playerManager
+    let vc = UIHostingController(
+      rootView: PlayerControlsView {
+        PlayerControlsViewModel(playerManager: self.playerManager)
+      }
     )
-    playerControlsCoordinator.start()
+
+    if let sheet = vc.sheetPresentationController {
+      sheet.detents = [.medium()]
+      sheet.prefersGrabberVisible = true
+    }
+    
+    playerViewController.present(vc, animated: true)
   }
 
   func bindGeneralObservers() {

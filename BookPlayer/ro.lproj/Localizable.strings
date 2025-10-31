@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Bibliotecă redare automată";
 "settings_autoplay_description" = "După terminarea unei cărți audio, redarea se va relua cu toate elementele din bibliotecă, inclusiv cele din foldere.";
 "settings_smartrewind_title" = "Derulare inteligentă înapoi";
-"settings_smartrewind_description" = "Derulați 30 de secunde înapoi după ce a fost o pauza de 10 minute.";
+"settings_smartrewind_description" = "Sare automat înapoi la reluarea redării. Sare înapoi și mai mult dacă redarea a fost întreruptă pentru o perioadă mai lungă, până la un maxim de %@.";
 "settings_boostvolume_title" = "Creșterea volumului";
 "settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
 "settings_globalspeed_title" = "Controlul global al vitezei";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ de %@, coperta cărții";
 "voiceover_loading_book_cover" = "Se încarcă coperta cărții";
 "integrations_title" = "Integrări";
+"settings_smartrewind_max_interval_title" = "Limită de derulare înapoi inteligentă";

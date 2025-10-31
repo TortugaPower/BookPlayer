@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Kirjaston automaattitoisto";
 "settings_autoplay_description" = "Kun äänikirja on valmis, toisto jatkuu kaikilla kirjaston kohteilla, mukaan lukien kansioissa olevat kohteet.";
 "settings_smartrewind_title" = "Älykäs taaksepäinkelaus";
-"settings_smartrewind_description" = "Kelaa taaksepäin 30 sekuntia 10 minuutin tauon jälkeen.";
+"settings_smartrewind_description" = "Siirry automaattisesti taaksepäin toistoa jatkettaessa. Siirry pidempään taaksepäin, mitä pidempi toisto on ollut tauolla, enintään %@.";
 "settings_boostvolume_title" = "Lisää äänenvoimakkuutta";
 "settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
 "settings_globalspeed_title" = "Yleinen nopeudenhallinta";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ kirjoittaja %@, kirjan kansi";
 "voiceover_loading_book_cover" = "Ladataan kirjan kantta";
 "integrations_title" = "Integraatiot";
+"settings_smartrewind_max_interval_title" = "Älykäs kelausrajoitus";

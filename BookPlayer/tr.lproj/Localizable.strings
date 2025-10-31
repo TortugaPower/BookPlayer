@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Kitaplığı Otomatik Oynat";
 "settings_autoplay_description" = "Bir sesli kitabı bitirdikten sonra, klasörlerdeki öğeler de dahil olmak üzere kitaplıktaki tüm öğelerle oynatma devam edecektir.";
 "settings_smartrewind_title" = "Akıllı Geri Sarma";
-"settings_smartrewind_description" = "10 dakika duraklatıldıktan sonra 30 saniye geri sarın.";
+"settings_smartrewind_description" = "Oynatmaya devam edildiğinde otomatik olarak geriye atlar. Oynatmanın duraklatıldığı en uzun süreden daha geriye atlar, en fazla %@'a kadar.";
 "settings_boostvolume_title" = "Sesi Güçlendir";
 "settings_boostvolume_description" = "Sesi iki katına çıkarır.\nİşitme duyunuz için dikkat edin ve dikkatli kullanın.";
 "settings_globalspeed_title" = "Evrensel Hız Kontrolü";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ tarafından %@, kitap kapağı";
 "voiceover_loading_book_cover" = "Kitap kapağı yükleniyor";
 "integrations_title" = "Entegrasyonlar";
+"settings_smartrewind_max_interval_title" = "Akıllı Geri Sarma Sınırı";

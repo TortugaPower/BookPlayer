@@ -12,8 +12,12 @@ import Combine
 
 class CarPlayManager: NSObject {
   var interfaceController: CPInterfaceController?
+  var listSyncRefreshService: ListSyncRefreshService?
   weak var recentTemplate: CPListTemplate?
   weak var libraryTemplate: CPListTemplate?
+
+  /// Reference to ongoing library fetch task
+  var contentsFetchTask: Task<(), Error>?
 
   private var disposeBag = Set<AnyCancellable>()
   /// Reference for updating boost volume title
@@ -52,10 +56,57 @@ class CarPlayManager: NSObject {
 
     dataInitializerCoordinator.onFinish = { [weak self] in
       self?.setRootTemplate()
-      AppDelegate.shared?.coreServices?.watchService.startSession()
+      if let coreServices = AppDelegate.shared?.coreServices {
+        coreServices.watchService.startSession()
+        let listRefreshService = ListSyncRefreshService(
+          playerManager: coreServices.playerManager,
+          syncService: coreServices.syncService,
+          playerLoaderService: coreServices.playerLoaderService
+        )
+        self?.listSyncRefreshService = listRefreshService
+
+        if coreServices.playerManager.syncProgressDelegate == nil {
+          coreServices.playerManager.syncProgressDelegate = self
+          Task {
+            await self?.syncList()
+          }
+        }
+      }
     }
 
     dataInitializerCoordinator.start()
+  }
+
+  func syncList() async {
+    guard
+      let syncService = await AppDelegate.shared?.coreServices?.syncService,
+      await syncService.canSyncListContents(
+        at: nil,
+        ignoreLastTimestamp: false
+      ),
+      let listSyncRefreshService
+    else {
+      return
+    }
+
+    /// Create new task to sync the library and the last played
+    await MainActor.run {
+      contentsFetchTask?.cancel()
+      contentsFetchTask = Task {
+        do {
+          try await listSyncRefreshService.syncList(at: nil)
+          await MainActor.run {
+            reloadRecentItems()
+          }
+        } catch {
+          self.showAlert(
+            "error_title".localized,
+            message: error.localizedDescription,
+            completion: nil
+          )
+        }
+      }
+    }
   }
 
   func bindObservers() {
@@ -604,5 +655,11 @@ extension CarPlayManager: CPTabBarTemplateDelegate {
     default:
       break
     }
+  }
+}
+
+extension CarPlayManager: PlaybackSyncProgressDelegate {
+  func waitForSyncInProgress() async {
+    _ = await contentsFetchTask?.result
   }
 }

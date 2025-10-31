@@ -24,6 +24,7 @@ public enum Constants {
     public static let chapterContextEnabled = "userSettingsChapterContext"
     public static let remainingTimeEnabled = "userSettingsRemainingTime"
     public static let smartRewindEnabled = "userSettingsSmartRewind"
+    public static let smartRewindMaxInterval = "userSettingsSmartRewindMaxInterval"
     public static let boostVolumeEnabled = "userSettingsBoostVolume"
     public static let globalSpeedEnabled = "userSettingsGlobalSpeed"
     public static let seekProgressBarEnabled = "userSettingsSeekProgressBar"
@@ -75,11 +76,16 @@ public enum Constants {
     public static let hardcoverAutoMatch = "hardcoverAutoMatch"
     public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"
     public static let hardcoverReadingThreshold = "hardcoverReadingThreshold"
+
+    /// Speed controls
+    public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"
+    public static let quickSpeedSecondPreference = "quickSpeedSecondPreference"
+    public static let quickSpeedThirdPreference = "quickSpeedThirdPreference"
   }
 
   public enum SmartRewind {
-    public static let threshold: TimeInterval = 599.0 // 599 = 10 mins
-    public static let maxTime: TimeInterval = 30.0
+    public static let threshold: TimeInterval = 60 * 60 // 60 minutes
+    public static let minRewind: TimeInterval = 2
   }
 
   public enum Volume {

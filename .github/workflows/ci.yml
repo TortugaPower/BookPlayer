@@ -40,7 +40,7 @@ jobs:
           xcodebuild \
             -scheme BookPlayer \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.0" \
+            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
             build-for-testing
 
       - name: Run unit tests
@@ -53,6 +53,6 @@ jobs:
             -configuration Debug \
             -testPlan "Unit Tests" \
             -only-testing:BookPlayerTests \
-            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.0" \
+            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
             -destination-timeout 120 \
             test-without-building

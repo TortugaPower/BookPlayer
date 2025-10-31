@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "التشغيل التلقائي في المكتبة";
 "settings_autoplay_description" = "عند االإنتهاء من كتاب صوتي، سيتم تشغيل العناصر التالية الموجودة داخل المكتبة، بما في ذلك محتويات المجلدات.";
 "settings_smartrewind_title" = "التأخير الذكي";
-"settings_smartrewind_description" = "إعادة 30 ثانية بعد التوقف لمدة 10 دقائق.";
+"settings_smartrewind_description" = "التخطي للخلف تلقائيًا عند استئناف التشغيل. التخطي للخلف لفترة أطول كلما طالت مدة إيقاف التشغيل مؤقتًا، بحد أقصى %@.";
 "settings_boostvolume_title" = "زيادة مستوى الصوت";
 "settings_boostvolume_description" = "ضاعف مستوى الصوت.\nاستخدم بحذر وعناية.";
 "settings_globalspeed_title" = "التحكم بالسرعة الافتراضية لجميع الكتب";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ بواسطة %@، غلاف الكتاب";
 "voiceover_loading_book_cover" = "جاري تحميل غلاف الكتاب";
 "integrations_title" = "التكاملات";
+"settings_smartrewind_max_interval_title" = "حد التراجع الذكي";

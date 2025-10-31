@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "AutoAvspill Bibliotek";
 "settings_autoplay_description" = "Når du er ferdig med en lydbok, fortsetter avspillingen med alle elementer i biblioteket, inkludert elementer i mapper.";
 "settings_smartrewind_title" = "Smart tilbakespoling";
-"settings_smartrewind_description" = "Spol tilbake 30 sekunder etter å vært pauset i 10 minutter.";
+"settings_smartrewind_description" = "Hopp automatisk bakover når avspillingen gjenopptas. Hopper lenger bakover jo lenger avspillingen har vært på pause, opptil maksimalt %@.";
 "settings_boostvolume_title" = "Boost volumet";
 "settings_boostvolume_description" = "Dobler volumet.\nBruk med forsiktighet og ta vare på hørselen din.";
 "settings_globalspeed_title" = "Global hastighetskontroll";
@@ -378,3 +378,4 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "voiceover_book_cover" = "%@ av %@, bokomslag";
 "voiceover_loading_book_cover" = "Laster bokomslag";
 "integrations_title" = "Integrasjoner";
+"settings_smartrewind_max_interval_title" = "Smart tilbakespolingsgrense";

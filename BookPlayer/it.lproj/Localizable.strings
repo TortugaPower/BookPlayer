@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Riproduci Automaticamente la Libreria";
 "settings_autoplay_description" = "Dopo aver terminato un audiolibro, la riproduzione riprenderà con tutti gli elementi nella libreria, inclusi gli elementi nelle cartelle.";
 "settings_smartrewind_title" = "Riavvolgimento intelligente";
-"settings_smartrewind_description" = "Riavvolgi 30 secondi dopo essere stato in pausa per 10 minuti.";
+"settings_smartrewind_description" = "Salta automaticamente indietro quando si riprende la riproduzione. Salta ulteriormente indietro quanto più a lungo la riproduzione è stata messa in pausa, fino a un massimo di %@.";
 "settings_boostvolume_title" = "Aumenta il volume massimo";
 "settings_boostvolume_description" = "Raddoppia il volume. \nUsa con cautela e fai attenzione al tuo udito.";
 "settings_globalspeed_title" = "Controllo globale della velocità ";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ di %@, copertina del libro";
 "voiceover_loading_book_cover" = "Caricamento copertina del libro";
 "integrations_title" = "Integrazioni";
+"settings_smartrewind_max_interval_title" = "Limite di riavvolgimento intelligente";

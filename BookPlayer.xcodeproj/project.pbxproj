@@ -359,6 +359,9 @@
 		6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		632941402AEEE739000AD2EE /* CircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6329413F2AEEE739000AD2EE /* CircularView.swift */; };
 		632D5A582E58C3CC006D10BC /* VerticalLabelStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632D5A572E58C3CC006D10BC /* VerticalLabelStyle.swift */; };
+		63344C002EA708F800B90DF7 /* BackupDatabaseOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63344BFF2EA708F800B90DF7 /* BackupDatabaseOperation.swift */; };
+		63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63344C012EA7097D00B90DF7 /* DatabaseBackupService.swift */; };
+		63344C032EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63344C012EA7097D00B90DF7 /* DatabaseBackupService.swift */; };
 		6334CF1B2CF8D87500F1FA17 /* SkipDurationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */; };
 		6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */; };
 		6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */; };
@@ -515,11 +518,14 @@
 		63B4A3C02E91DE6C00784A22 /* BookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3BF2E91DE6C00784A22 /* BookmarksView.swift */; };
 		63B4A3C22E92A87C00784A22 /* BookmarksFileTransferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C12E92A87C00784A22 /* BookmarksFileTransferable.swift */; };
 		63B4A3C42E93749300784A22 /* DynamicAccessibilityLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C32E93749300784A22 /* DynamicAccessibilityLabel.swift */; };
+		63B4A3C62E93858C00784A22 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */; };
 		63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */; };
 		63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */; };
 		63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */; };
 		63B760F92C32738E00AA98C7 /* StoryAccountSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F82C32738E00AA98C7 /* StoryAccountSubscriptionService.swift */; };
 		63B760FC2C33B77F00AA98C7 /* SupportProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760FB2C33B77F00AA98C7 /* SupportProfileView.swift */; };
+		63B9EFA82E9A4230002361A0 /* PlayerControlsBoostVolumeSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B9EFA72E9A4230002361A0 /* PlayerControlsBoostVolumeSectionView.swift */; };
+		63B9EFAA2E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B9EFA92E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift */; };
 		63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418445C2258AE11E0072DD13 /* WidgetUtils.swift */; };
 		63C1A8B22B09166F00C4B418 /* WidgetEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637DAB092AEB3E0D006DC2D1 /* WidgetEntries.swift */; };
 		63C48C7A2E3DAC9D005FBB96 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C48C792E3DAC9D005FBB96 /* LoginView.swift */; };
@@ -630,7 +636,6 @@
 		9F1345BA2938E0130089B1DE /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE36288CBCA400056FCD /* Spacing.swift */; };
 		9F1345FF293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */; };
 		9F134605293D0A410089B1DE /* ThemeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F134604293D0A410089B1DE /* ThemeViewModel.swift */; };
-		9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */; };
 		9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1C30FB2A2E593300D5BC81 /* PlayableItemMock.swift */; };
 		9F22DE39288CBE6A00056FCD /* FormButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE38288CBE6A00056FCD /* FormButton.swift */; };
 		9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3F288D8BC800056FCD /* BaseLabel.swift */; };
@@ -657,9 +662,7 @@
 		9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
 		9F5F12DB2976E8CD00F061A0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */; };
 		9F5F13462977A06300F061A0 /* ProfileCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5F13452977A06300F061A0 /* ProfileCardView.swift */; };
-		9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */; };
 		9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */; };
-		9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */; };
 		9F665ED42A4894C4004BFE27 /* heart-of-glass-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */; };
 		9F665ED52A4894C4004BFE27 /* heart-of-glass-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */; };
 		9F665ED82A4894FC004BFE27 /* heart-of-glass@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */; };
@@ -1227,6 +1230,8 @@
 		632119D62E543973005B3E10 /* ItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModel.swift; sourceTree = "<group>"; };
 		6329413F2AEEE739000AD2EE /* CircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularView.swift; sourceTree = "<group>"; };
 		632D5A572E58C3CC006D10BC /* VerticalLabelStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalLabelStyle.swift; sourceTree = "<group>"; };
+		63344BFF2EA708F800B90DF7 /* BackupDatabaseOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupDatabaseOperation.swift; sourceTree = "<group>"; };
+		63344C012EA7097D00B90DF7 /* DatabaseBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseBackupService.swift; sourceTree = "<group>"; };
 		6334CF1A2CF8D87500F1FA17 /* SkipDurationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipDurationListView.swift; sourceTree = "<group>"; };
 		6334CF1C2CF90AF900F1FA17 /* PlayerMoreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMoreListView.swift; sourceTree = "<group>"; };
 		6334CF1E2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemCellViewModel.swift; sourceTree = "<group>"; };
@@ -1393,11 +1398,14 @@
 		63B4A3BF2E91DE6C00784A22 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
 		63B4A3C12E92A87C00784A22 /* BookmarksFileTransferable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksFileTransferable.swift; sourceTree = "<group>"; };
 		63B4A3C32E93749300784A22 /* DynamicAccessibilityLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAccessibilityLabel.swift; sourceTree = "<group>"; };
+		63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsView.swift; sourceTree = "<group>"; };
 		63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshService.swift; sourceTree = "<group>"; };
 		63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportFlowCoordinator.swift; sourceTree = "<group>"; };
 		63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingResponse.swift; sourceTree = "<group>"; };
 		63B760F82C32738E00AA98C7 /* StoryAccountSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAccountSubscriptionService.swift; sourceTree = "<group>"; };
 		63B760FB2C33B77F00AA98C7 /* SupportProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportProfileView.swift; sourceTree = "<group>"; };
+		63B9EFA72E9A4230002361A0 /* PlayerControlsBoostVolumeSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsBoostVolumeSectionView.swift; sourceTree = "<group>"; };
+		63B9EFA92E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsSpeedSectionView.swift; sourceTree = "<group>"; };
 		63C48C792E3DAC9D005FBB96 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		63C48C7B2E3DAD6E005FBB96 /* LoginBenefitSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginBenefitSectionView.swift; sourceTree = "<group>"; };
 		63C48C7D2E3DB24A005FBB96 /* LoginDisclaimerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDisclaimerSectionView.swift; sourceTree = "<group>"; };
@@ -1487,7 +1495,6 @@
 		9F0872DA2A19867C00B7FD4A /* ArtworkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkResponse.swift; sourceTree = "<group>"; };
 		9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+BookPlayer.swift"; sourceTree = "<group>"; };
 		9F134604293D0A410089B1DE /* ThemeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeViewModel.swift; sourceTree = "<group>"; };
-		9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleSliderView.swift; sourceTree = "<group>"; };
 		9F1804BF27A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fi; path = fi.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9F1804C027A739D400FEDFE5 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9F1C30FB2A2E593300D5BC81 /* PlayableItemMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemMock.swift; sourceTree = "<group>"; };
@@ -1521,9 +1528,7 @@
 		9F56C84C287B734C00EA9751 /* BPLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPLogger.swift; sourceTree = "<group>"; };
 		9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9F5F13452977A06300F061A0 /* ProfileCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
-		9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsCoordinator.swift; sourceTree = "<group>"; };
 		9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModel.swift; sourceTree = "<group>"; };
-		9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewController.swift; sourceTree = "<group>"; };
 		9F665ED22A4894C4004BFE27 /* heart-of-glass-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ipad@2x.png"; sourceTree = "<group>"; };
 		9F665ED32A4894C4004BFE27 /* heart-of-glass-ipad@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass-ipad@3x.png"; sourceTree = "<group>"; };
 		9F665ED62A4894FC004BFE27 /* heart-of-glass@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-of-glass@3x.png"; sourceTree = "<group>"; };
@@ -1929,7 +1934,6 @@
 				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
 				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
-				9F64C6202793C31600B2493C /* PlayerControlsCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2391,6 +2395,7 @@
 				62AAE22B274AA3EB001EB9FF /* LibraryService.swift */,
 				9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */,
 				41EB071A2752FA6B00EFEE13 /* PlaybackService.swift */,
+				63344C012EA7097D00B90DF7 /* DatabaseBackupService.swift */,
 				63125D102C36D96800D35533 /* Events */,
 				9FC1E4612814F68F00522FA8 /* Account */,
 				9FD8FE4C286566FF00EB2C3D /* Sync */,
@@ -2973,13 +2978,15 @@
 			path = ItemDetails;
 			sourceTree = "<group>";
 		};
-		9F64C6222793C37C00B2493C /* Controls Screen */ = {
+		9F64C6222793C37C00B2493C /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */,
+				63B9EFA72E9A4230002361A0 /* PlayerControlsBoostVolumeSectionView.swift */,
+				63B9EFA92E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift */,
 				9F64C6232793C3DA00B2493C /* PlayerControlsViewModel.swift */,
-				9F64C6252793D5B100B2493C /* PlayerControlsViewController.swift */,
 			);
-			path = "Controls Screen";
+			path = Controls;
 			sourceTree = "<group>";
 		};
 		9FA334B427C156DB0064E8EA /* ItemList */ = {
@@ -3136,6 +3143,7 @@
 				63717EA92B792E350006291E /* RefreshTaskOperation.swift */,
 				8ADD46212CF29A02002E9C50 /* TextFieldFocused.swift */,
 				63C48C832E3E66D1005FBB96 /* PurchasesManager.swift */,
+				63344BFF2EA708F800B90DF7 /* BackupDatabaseOperation.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3178,7 +3186,6 @@
 				416AAC3223F51031005AD04F /* LocalizableButton.swift */,
 				C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */,
 				C3FA301D20E0024900393DDA /* BPArtworkView.swift */,
-				9F1804B727A4AEC500FEDFE5 /* AccessibleSliderView.swift */,
 				9F22DE3F288D8BC800056FCD /* BaseLabel.swift */,
 				9FB20EB629A423410021663B /* InterfaceUpdater.swift */,
 				634BA5912C160B720015314D /* StoryViewer */,
@@ -3208,7 +3215,7 @@
 				410D00FB26DDD24300D11A45 /* Player Screen */,
 				410D00FC26DDD26000D11A45 /* Chapters */,
 				4138CE1A26E5B4020014F11E /* Bookmarks */,
-				9F64C6222793C37C00B2493C /* Controls Screen */,
+				9F64C6222793C37C00B2493C /* Controls */,
 				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
@@ -3888,6 +3895,7 @@
 				63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				3FF5BA6A2E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
+				63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
 				63125D132C36D97400D35533 /* EventsService.swift in Sources */,
@@ -4041,6 +4049,7 @@
 				632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */,
+				63B9EFA82E9A4230002361A0 /* PlayerControlsBoostVolumeSectionView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */,
 				631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */,
@@ -4060,6 +4069,7 @@
 				63B4A3BE2E9187B800784A22 /* ItemListView+ConfirmationDialogs.swift in Sources */,
 				4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */,
 				63B4A3C42E93749300784A22 /* DynamicAccessibilityLabel.swift in Sources */,
+				63B4A3C62E93858C00784A22 /* PlayerControlsView.swift in Sources */,
 				9F00A5FC294F9B9A005EA316 /* ItemDetailsView.swift in Sources */,
 				63AE5A872E4C4329002531B8 /* MainView.swift in Sources */,
 				63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */,
@@ -4067,7 +4077,6 @@
 				63AD93D72E3C74990077E73A /* ProfileCardSectionView.swift in Sources */,
 				9F2DC9DB2A008B28006CDF1F /* PricingRowView.swift in Sources */,
 				C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */,
-				9F1804B827A4AEC500FEDFE5 /* AccessibleSliderView.swift in Sources */,
 				8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */,
 				631908B42E36A26C009249C1 /* SkipIntervalsSectionView.swift in Sources */,
 				9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */,
@@ -4136,6 +4145,7 @@
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
 				6338C7892E48DDC4008016E5 /* EmptyListView.swift in Sources */,
 				63C48D402E3E8128005FBB96 /* AccountView.swift in Sources */,
+				63B9EFAA2E9A4644002361A0 /* PlayerControlsSpeedSectionView.swift in Sources */,
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
 				634BA5A12C174F9D0015314D /* StoryViewerViewModel.swift in Sources */,
@@ -4150,6 +4160,7 @@
 				9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */,
 				63E893B22CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */,
 				63B760FC2C33B77F00AA98C7 /* SupportProfileView.swift in Sources */,
+				63344C002EA708F800B90DF7 /* BackupDatabaseOperation.swift in Sources */,
 				9F00A6212950F44B005EA316 /* ImagePicker.swift in Sources */,
 				638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */,
 				63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */,
@@ -4214,7 +4225,6 @@
 				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
 				63AD93DD2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift in Sources */,
 				631908B62E36B007009249C1 /* SettingsAppIconsView.swift in Sources */,
-				9F64C6262793D5B100B2493C /* PlayerControlsViewController.swift in Sources */,
 				63AD93D92E3C754B0077E73A /* ProfileListenedSectionView.swift in Sources */,
 				631686102E372FE7004A322F /* ThemesView.swift in Sources */,
 				63B4A3C02E91DE6C00784A22 /* BookmarksView.swift in Sources */,
@@ -4290,7 +4300,6 @@
 				63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */,
 				D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */,
 				3F7B64472E0FB2A900299D97 /* AudiobookEditionsData.swift in Sources */,
-				9F64C6212793C31600B2493C /* PlayerControlsCoordinator.swift in Sources */,
 				6370434A2E2C03D9005353D1 /* SettingsDataUsageSectionView.swift in Sources */,
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				63AE5A8D2E4C59FE002531B8 /* AppHostingViewController.swift in Sources */,
@@ -4350,6 +4359,7 @@
 				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
 				63125D0E2C36D84E00D35533 /* EventsAPI.swift in Sources */,
 				412AB7092701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
+				63344C032EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */,
 				639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
@@ -4706,7 +4716,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
@@ -4740,7 +4750,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4772,7 +4782,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4809,7 +4819,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
@@ -4851,7 +4861,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4890,7 +4900,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5059,7 +5069,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
@@ -5097,7 +5107,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5133,7 +5143,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerWidgetUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5287,7 +5297,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5326,7 +5336,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";
@@ -5548,7 +5558,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
@@ -5586,7 +5596,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5622,7 +5632,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).watchkitapp.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5661,7 +5671,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
@@ -5701,7 +5711,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5739,7 +5749,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5832,7 +5842,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.13.5;
+				MARKETING_VERSION = 5.14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = BookPlayer;
 				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_MAIN)";

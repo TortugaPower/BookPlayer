@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "自动播放有声书库";
 "settings_autoplay_description" = "完成有声读物后，将继续播放库中的所有项目，包括文件夹中的项目。";
 "settings_smartrewind_title" = "智能倒带";
-"settings_smartrewind_description" = "暂停 10 分钟后倒带 30 秒。";
+"settings_smartrewind_description" = "恢复播放时自动向后跳。播放暂停时间越长，向后跳的距离就越远，最多可达 %@。";
 "settings_boostvolume_title" = "提高音量";
 "settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
 "settings_globalspeed_title" = "全局播放速度";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ 作者 %@，图书封面";
 "voiceover_loading_book_cover" = "正在加载图书封面";
 "integrations_title" = "集成";
+"settings_smartrewind_max_interval_title" = "智能倒带限制";

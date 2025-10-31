@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Knihovna automatického přehrávání";
 "settings_autoplay_description" = "Po dokončení audioknihy se přehrávání obnoví se všemi položkami v knihovně, včetně položek ve složkách.";
 "settings_smartrewind_title" = "Chytré přetáčení";
-"settings_smartrewind_description" = "Po přerušení poslechu na 10 minut dojde k přetočení zpět o 30 sekund.";
+"settings_smartrewind_description" = "Automatické přeskakování zpět při obnovení přehrávání. Přeskočí zpět o dobu delší, čím déle bylo přehrávání pozastaveno, maximálně však o %@.";
 "settings_boostvolume_title" = "Zvýšení hlasitosti";
 "settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
 "settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ od %@, obálka knihy";
 "voiceover_loading_book_cover" = "Načítá se obálka knihy";
 "integrations_title" = "Integrace";
+"settings_smartrewind_max_interval_title" = "Chytrý limit převíjení";

@@ -4,7 +4,7 @@
 "settings_autoplay_title" = "Kontinuierliche Wiedergabe";
 "settings_autoplay_description" = "Nach Beendigung eines Hörbuchs wird die Wiedergabe mit allen Elementen in der Bibliothek fortgesetzt, einschließlich Elementen in Ordnern.";
 "settings_smartrewind_title" = "Intelligentes Zurückspulen";
-"settings_smartrewind_description" = "30 Sekunden zurückspulen, nachdem die Wiedergabe für 10 Minuten oder länger angehalten wurde.";
+"settings_smartrewind_description" = "Beim Fortsetzen der Wiedergabe automatisch zurückspringen. Springt weiter zurück, je länger die Wiedergabe pausiert war, bis maximal %@.";
 "settings_boostvolume_title" = "Lautstärke erhöhen";
 "settings_boostvolume_description" = "Verdoppelt die Lautstärke. Bitte nur mit Vorsicht verwenden. Dein Gehör ist unersetzlich!";
 "settings_globalspeed_title" = "Abspielgeschwindigkeit übergreifend festlegen";
@@ -378,3 +378,4 @@
 "voiceover_book_cover" = "%@ von %@, Buchcover";
 "voiceover_loading_book_cover" = "Buchcover wird geladen";
 "integrations_title" = "Integrationen";
+"settings_smartrewind_max_interval_title" = "Intelligentes Rückspullimit";
