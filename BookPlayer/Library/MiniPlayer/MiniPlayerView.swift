@@ -29,11 +29,15 @@ struct MiniPlayerView: View {
 
   var body: some View {
     Group {
-      HStack(spacing: 9) {
-        MiniPlayerArtworkView(relativePath: relativePath)
-          .accessibilityHidden(true)
+      HStack(spacing: 12) {
+        MiniPlayerArtworkView(
+          relativePath: relativePath,
+          artworkLength: 34
+        )
+        .accessibilityHidden(true)
+        .padding(.leading, 8)
 
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
             .foregroundStyle(theme.primaryColor)
             .bpFont(Fonts.miniPlayerTitle)
@@ -49,6 +53,20 @@ struct MiniPlayerView: View {
         Spacer()
         Button {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+          playerManager.rewind()
+        } label: {
+          Image(
+            systemName: "arrow.counterclockwise"
+          )
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 24, height: 20)
+          .foregroundStyle(theme.linkColor)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(VoiceOverService.rewindText())
+        Button {
+          UIImpactFeedbackGenerator(style: .medium).impactOccurred()
           playerManager.playPause()
         } label: {
           Image(
@@ -58,15 +76,17 @@ struct MiniPlayerView: View {
           )
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(width: 48, height: 28)
+          .frame(width: 24, height: 20)
           .foregroundStyle(theme.linkColor)
         }
         .buttonStyle(.plain)
       }
+      .padding(.horizontal, Spacing.S2)
+      .padding(.horizontal, Spacing.S2)
+      .padding(.vertical, Spacing.S2)
+      .liquidGlassBackground()
+      .clipShape(Capsule())
       .padding(.horizontal, Spacing.S1)
-      .frame(height: 72)
-      .background(theme.secondarySystemBackgroundColor)
-      .clipShape(RoundedRectangle(cornerRadius: 13))
       .contentShape(Rectangle())
       .onTapGesture {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -74,8 +94,7 @@ struct MiniPlayerView: View {
       }
     }
     .padding(.horizontal, 12)
-    .padding(.bottom, 49 + 12)
-    .shadow(color: theme.primaryColor.opacity(0.18), radius: 9)
+    .padding(.bottom, 49 + 8)
     .onReceive(
       playerManager.isPlayingPublisher()
         .receive(on: DispatchQueue.main)
