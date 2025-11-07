@@ -106,12 +106,7 @@ class JellyfinConnectionService: BPLogger {
     try Task.checkCancellation()
 
     let userViews = (response.value.items ?? [])
-      .compactMap { userView -> JellyfinLibraryItem? in
-        guard userView.collectionType == .books else {
-          return nil
-        }
-        return JellyfinLibraryItem(apiItem: userView)
-      }
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
 
     return userViews
   }
