@@ -86,7 +86,16 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
 
   func body(content: Content) -> some View {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 26.1, *) {
+      content
+        .safeAreaInset(edge: .bottom) {
+          Spacer().frame(
+            height: playerState.loadedBookRelativePath != nil
+              ? 80
+              : Spacing.M
+          )
+        }
+    } else if #available(iOS 26.0, *) {
       /// New accessory view already insets the entire view
       content
         .safeAreaInset(edge: .bottom) {
@@ -97,7 +106,7 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
         .safeAreaInset(edge: .bottom) {
           Spacer().frame(
             height: playerState.loadedBookRelativePath != nil
-              ? 112
+              ? 80
               : Spacing.M
           )
         }
@@ -131,7 +140,10 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   @ViewBuilder let accessory: () -> Accessory
 
   func body(content: Content) -> some View {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 26.1, *) {
+      content
+        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+    } else if #available(iOS 26.0, *) {
       content
         .tabBarMinimizeBehavior(.onScrollDown)
         .tabViewBottomAccessory(content: accessory)
@@ -153,5 +165,16 @@ extension View {
 extension View {
   func formatSpeed(_ speed: Double) -> String {
     return (speed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(speed))" : "\(speed)") + "×"
+  }
+}
+
+extension View {
+  @ViewBuilder
+  func liquidGlassBackground() -> some View {
+    if #available(iOS 26.0, *) {
+      glassEffect()
+    } else {
+      background(.ultraThinMaterial)
+    }
   }
 }
