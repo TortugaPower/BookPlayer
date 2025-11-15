@@ -14,6 +14,7 @@ struct SettingsIntegrationsSectionView: View {
   var body: some View {
     Section {
       NavigationLink("Jellyfin", value: SettingsScreen.jellyfin)
+      NavigationLink("AudiobookShelf", value: SettingsScreen.audiobookshelf)
       NavigationLink("Hardcover", value: SettingsScreen.hardcover)
     } header: {
       Text("integrations_title")

@@ -32,6 +32,7 @@ struct ItemListView: View {
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.jellyfinService) var jellyfinService
+  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
@@ -181,7 +182,14 @@ struct ItemListView: View {
         let percentage = String(format: "%.2f", progress * 100)
         let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
         let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
-        let subtitle = "\("progress_title".localized) \(percentage)%"
+        let subtitle: String
+        if progress >= 0 {
+          subtitle = "\("progress_title".localized) \(percentage)%"
+        } else {
+          /// If the server doesn't know the file size, it sends a -1 as the total size
+          let sizeDownloaded = ByteCountFormatter.string(fromByteCount: Int64(progress) * -1, countStyle: ByteCountFormatter.CountStyle.file)
+          subtitle = "\("progress_title".localized) \(sizeDownloaded)"
+        }
 
         importOperationState.isOperationActive = true
         importOperationState.processingTitle = "\(title)\n\(subtitle)"
@@ -341,6 +349,9 @@ struct ItemListView: View {
     }
     Button("download_from_jellyfin_title", image: .jellyfinIcon) {
       activeSheet = .jellyfin
+    }
+    Button("download_from_audiobookshelf_title", image: .audiobookshelfIcon) {
+      activeSheet = .audiobookshelf
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
