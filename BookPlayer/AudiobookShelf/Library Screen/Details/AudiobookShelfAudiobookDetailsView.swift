@@ -1,17 +1,17 @@
 //
-//  JellyfinAudiobookDetailsView.swift
+//  AudiobookShelfAudiobookDetailsView.swift
 //  BookPlayer
 //
-//  Created by Lysann Tranvouez on 2024-11-24.
-//  Copyright © 2024 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 11/14/25.
+//  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
 import Kingfisher
 import SwiftUI
 
-struct JellyfinAudiobookDetailsView<
-  Model: JellyfinAudiobookDetailsViewModelProtocol
+struct AudiobookShelfAudiobookDetailsView<
+  Model: AudiobookShelfAudiobookDetailsViewModelProtocol
 >: View {
 
   @State private var isFilePathExpanded: Bool = false
@@ -26,11 +26,11 @@ struct JellyfinAudiobookDetailsView<
 
   var voiceOverBookInfo: String {
     guard let details = viewModel.details else {
-      return viewModel.item.name
+      return viewModel.item.title
     }
 
     return VoiceOverService.playerMetaText(
-      title: viewModel.item.name,
+      title: viewModel.item.title,
       author: details.artist ?? "voiceover_unknown_author".localized
     )
   }
@@ -38,12 +38,12 @@ struct JellyfinAudiobookDetailsView<
   var body: some View {
     ScrollView {
       VStack {
-        JellyfinLibraryItemImageView(item: viewModel.item)
-          .environment(\.jellyfinService, viewModel.connectionService)
+        AudiobookShelfLibraryItemImageView(item: viewModel.item)
+          .environment(\.audiobookshelfService, viewModel.connectionService)
           .accessibilityHidden(true)
           .padding(.horizontal, Spacing.L1)
 
-        Text(viewModel.item.name)
+        Text(viewModel.item.title)
           .font(.title)
           .accessibilityLabel(voiceOverBookInfo)
           .foregroundStyle(theme.primaryColor)
@@ -52,6 +52,14 @@ struct JellyfinAudiobookDetailsView<
         if let artist = viewModel.details?.artist {
           Text(artist)
             .font(.title2)
+            .foregroundStyle(theme.secondaryColor)
+            .lineLimit(1)
+            .accessibilityHidden(true)
+        }
+
+        if let narrator = viewModel.details?.narrator, !narrator.isEmpty {
+          Text("Narrated by \(narrator)")
+            .font(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .lineLimit(1)
             .accessibilityHidden(true)
@@ -100,7 +108,7 @@ struct JellyfinAudiobookDetailsView<
             !genres.isEmpty
           {
             DisclosureGroup("Genres", isExpanded: $isGenresExpanded) {
-              JellyfinTagsView(tags: genres)
+              AudiobookShelfTagsView(tags: genres)
             }
           }
 
@@ -114,7 +122,19 @@ struct JellyfinAudiobookDetailsView<
             !tags.isEmpty
           {
             DisclosureGroup("Tags", isExpanded: $isTagsExpanded) {
-              JellyfinTagsView(tags: tags)
+              AudiobookShelfTagsView(tags: tags)
+            }
+          }
+
+          if let series = details.series,
+            !series.isEmpty
+          {
+            DisclosureGroup("Series", isExpanded: .constant(true)) {
+              VStack(alignment: .leading, spacing: 8) {
+                ForEach(series, id: \.self) { item in
+                  Text(item.name)
+                }
+              }
             }
           }
         }
@@ -133,14 +153,14 @@ struct JellyfinAudiobookDetailsView<
   }
 }
 
-final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
-  var connectionService = JellyfinConnectionService()
+final class MockAudiobookShelfAudiobookDetailsViewModel: AudiobookShelfAudiobookDetailsViewModelProtocol {
+  var connectionService = AudiobookShelfConnectionService()
 
-  let item: JellyfinLibraryItem
-  let details: JellyfinAudiobookDetailsData?
+  let item: AudiobookShelfLibraryItem
+  let details: AudiobookShelfAudiobookDetailsData?
   var error: Error?
 
-  init(item: JellyfinLibraryItem, details: JellyfinAudiobookDetailsData?) {
+  init(item: AudiobookShelfLibraryItem, details: AudiobookShelfAudiobookDetailsData?) {
     self.item = item
     self.details = details
   }
@@ -152,23 +172,33 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
   func cancelFetchData() {}
 
   @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
+  func beginDownloadAudiobook(_ item: AudiobookShelfLibraryItem) {}
 }
 
 #Preview {
-  let item = JellyfinLibraryItem(id: "0", name: "Mock Audiobook", kind: .audiobook)
-  let details = JellyfinAudiobookDetailsData(
-    artist: "The Author's Name",
-    filePath:
-      "/path/to/file/which/might/be/very/very/very/very/very/very/very/very/very/very/very/very/very/very/long/actually.m4a",
-    fileSize: 18_967_839,
-    overview: "Overview",
-    runtimeInSeconds: 580.1737409,
-    genres: nil,
-    tags: nil
+  let item = AudiobookShelfLibraryItem(
+    id: "0.1",
+    title: "The Great Gatsby",
+    kind: .audiobook,
+    libraryId: "1"
   )
-  let parentData = JellyfinLibraryLevelData.topLevel(libraryName: "Mock Library")
-  let vm = MockJellyfinAudiobookDetailsViewModel(item: item, details: details)
-  JellyfinAudiobookDetailsView<MockJellyfinAudiobookDetailsViewModel>(viewModel: vm, onDownloadTap: {})
-    .environmentObject(MockJellyfinLibraryViewModel(data: parentData))
+  let details = AudiobookShelfAudiobookDetailsData(
+    artist: "F. Scott Fitzgerald",
+    narrator: "Jake Gyllenhaal",
+    filePath: "/audiobooks/The Great Gatsby/The Great Gatsby.m4b",
+    fileSize: 189_678_390,
+    overview:
+      "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, near New York City, the novel depicts first-person narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
+    runtimeInSeconds: 14580.5,
+    genres: ["Classic", "Fiction"],
+    tags: ["American Literature", "1920s"],
+    publishedYear: nil,
+    publisher: nil,
+    series: [.init(id: "1", name: "The Great American Novels", sequence: nil)]
+  )
+  let parentData = AudiobookShelfLibraryLevelData.topLevel(libraryName: "Mock Library")
+  let vm = MockAudiobookShelfAudiobookDetailsViewModel(item: item, details: details)
+  AudiobookShelfAudiobookDetailsView<MockAudiobookShelfAudiobookDetailsViewModel>(viewModel: vm, onDownloadTap: {})
+    .environmentObject(MockAudiobookShelfLibraryViewModel(data: parentData))
+    .environmentObject(ThemeViewModel())
 }
