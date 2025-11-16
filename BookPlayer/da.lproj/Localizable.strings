@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Administrer forbindelse";
 "integration_internal_error_invalid_url" = "Intern fejl: Anmodnings-URL er ugyldig: %@";
 "integration_internal_error_build_url" = "Intern fejl: Forespørgsels-URL kunne ikke oprettes";
-"integration_internal_error_no_client" = "Kan ikke kontakte Jellyfin-serveren. Tjek den angivne server-URL.";
+"integration_internal_error_no_client" = "Kan ikke kontakte %@-serveren. Tjek den angivne server-URL.";
 "integration_error_unexpected_response" = "Uventet serversvar";
 "integration_error_unexpected_response_with_code" = "Uventet serversvar (Kode: %d - %@ )";
 "integration_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";

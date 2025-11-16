@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Správa připojení";
 "integration_internal_error_invalid_url" = "Interní chyba: Adresa URL požadavku je neplatná: %@";
 "integration_internal_error_build_url" = "Interní chyba: Nepodařilo se vytvořit adresu URL požadavku";
-"integration_internal_error_no_client" = "Nelze kontaktovat server Jellyfin. Zkontrolujte zadanou adresu URL serveru.";
+"integration_internal_error_no_client" = "Nelze kontaktovat server %@. Zkontrolujte zadanou adresu URL serveru.";
 "integration_error_unexpected_response" = "Neočekávaná odpověď serveru";
 "integration_error_unexpected_response_with_code" = "Neočekávaná odpověď serveru (kód: %d – %@ )";
 "integration_error_unauthorized" = "Přihlášení se nezdařilo. Zkontrolujte své uživatelské jméno a heslo.";

@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Hallitse yhteyttä";
 "integration_internal_error_invalid_url" = "Sisäinen virhe: Pyynnön URL-osoite on virheellinen: %@";
 "integration_internal_error_build_url" = "Sisäinen virhe: Pyynnön URL-osoitteen luominen epäonnistui";
-"integration_internal_error_no_client" = "Ei saada yhteyttä Jellyfin-palvelimeen. Tarkista toimitettu palvelimen URL-osoite.";
+"integration_internal_error_no_client" = "Ei saada yhteyttä %@-palvelimeen. Tarkista toimitettu palvelimen URL-osoite.";
 "integration_error_unexpected_response" = "Odottamaton palvelimen vastaus";
 "integration_error_unexpected_response_with_code" = "Odottamaton palvelimen vastaus (Koodi: %d - %@ )";
 "integration_error_unauthorized" = "Kirjautuminen epäonnistui. Tarkista käyttäjätunnuksesi ja salasanasi.";

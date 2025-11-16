@@ -338,7 +338,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "settings_integration_manage_connection_title" = "Gestionar la connexió";
 "integration_internal_error_invalid_url" = "Error intern: l'URL de sol·licitud no és vàlid: %@";
 "integration_internal_error_build_url" = "Error intern: no s'ha pogut crear l'URL de la sol·licitud";
-"integration_internal_error_no_client" = "No es pot contactar amb el servidor Jellyfin. Comproveu l'URL del servidor proporcionat.";
+"integration_internal_error_no_client" = "No es pot contactar amb el servidor %@. Comproveu l'URL del servidor proporcionat.";
 "integration_error_unexpected_response" = "Resposta del servidor inesperada";
 "integration_error_unexpected_response_with_code" = "Resposta del servidor inesperada (Codi: %d - %@)";
 "integration_error_unauthorized" = "No s'ha pogut iniciar la sessió. Comproveu el vostre nom d'usuari i contrasenya.";

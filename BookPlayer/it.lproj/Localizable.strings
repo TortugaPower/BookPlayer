@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Gestisci connessione";
 "integration_internal_error_invalid_url" = "Errore interno: l'URL della richiesta non è valido: %@";
 "integration_internal_error_build_url" = "Errore interno: Impossibile creare l'URL della richiesta";
-"integration_internal_error_no_client" = "Impossibile contattare il server Jellyfin. Controllare l'URL del server fornito.";
+"integration_internal_error_no_client" = "Impossibile contattare il server %@. Controllare l'URL del server fornito.";
 "integration_error_unexpected_response" = "Risposta imprevista del server";
 "integration_error_unexpected_response_with_code" = "Risposta imprevista del server (codice: %d - %@ )";
 "integration_error_unauthorized" = "Accesso non riuscito. Controlla il tuo nome utente e la tua password.";

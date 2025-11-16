@@ -338,7 +338,7 @@
 "settings_integration_manage_connection_title" = "接続を管理";
 "integration_internal_error_invalid_url" = "内部エラー: リクエストURLが無効です: %@";
 "integration_internal_error_build_url" = "内部エラー: リクエストURLの構築に失敗しました";
-"integration_internal_error_no_client" = "Jellyfinサーバに接続できません。指定されたサーバのURLを確認してください。";
+"integration_internal_error_no_client" = "%@サーバに接続できません。指定されたサーバのURLを確認してください。";
 "integration_error_unexpected_response" = "サーバからの予期しない応答";
 "integration_error_unexpected_response_with_code" = "サーバからの予期しない応答（コード: %d - %@）";
 "integration_error_unauthorized" = "サインインできませんでした。ユーザ名とパスワードを確認してください。";

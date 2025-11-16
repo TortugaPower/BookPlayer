@@ -337,7 +337,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "settings_integration_manage_connection_title" = "Administrer tilkobling";
 "integration_internal_error_invalid_url" = "Intern feil: Forespørsels-URL er ugyldig: %@";
 "integration_internal_error_build_url" = "Intern feil: Kunne ikke lage forespørsels-URL";
-"integration_internal_error_no_client" = "Kan ikke kontakte Jellyfin-serveren. Sjekk den oppgitte server-URLen.";
+"integration_internal_error_no_client" = "Kan ikke kontakte %@-serveren. Sjekk den oppgitte server-URLen.";
 "integration_error_unexpected_response" = "Uventet serverrespons";
 "integration_error_unexpected_response_with_code" = "Uventet serverrespons (kode: %d - %@ )";
 "integration_error_unauthorized" = "Pålogging mislyktes. Sjekk brukernavnet og passordet ditt.";

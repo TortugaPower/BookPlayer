@@ -337,7 +337,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "settings_integration_manage_connection_title" = "Manage Connection";
 "integration_internal_error_invalid_url" = "Internal error: Request URL is invalid: %@";
 "integration_internal_error_build_url" = "Internal error: Failed to build request URL";
-"integration_internal_error_no_client" = "Cannot contact Jellyfin server. Check the provided server URL.";
+"integration_internal_error_no_client" = "Cannot contact %@ server. Check the provided server URL.";
 "integration_error_unexpected_response" = "Unexpected server response";
 "integration_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "integration_error_unauthorized" = "Sign In failed. Check your username and password.";

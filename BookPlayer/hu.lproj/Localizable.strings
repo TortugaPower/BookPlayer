@@ -338,7 +338,7 @@
 "settings_integration_manage_connection_title" = "Kapcsolat kezelése";
 "integration_internal_error_invalid_url" = "Belső hiba: A kérés URL-je érvénytelen: %@";
 "integration_internal_error_build_url" = "Belső hiba: Nem sikerült létrehozni a kérés URL-jét";
-"integration_internal_error_no_client" = "Nem lehet kapcsolatba lépni a Jellyfin szerverrel. Ellenőrizze a megadott szerver URL-t.";
+"integration_internal_error_no_client" = "Nem lehet kapcsolatba lépni a %@ szerverrel. Ellenőrizze a megadott szerver URL-t.";
 "integration_error_unexpected_response" = "Váratlan szerver válasz";
 "integration_error_unexpected_response_with_code" = "Váratlan szerverválasz (Kód: %d - %@ )";
 "integration_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";

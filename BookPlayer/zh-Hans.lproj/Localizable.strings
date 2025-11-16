@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "管理连接";
 "integration_internal_error_invalid_url" = "内部错误：请求 URL 无效： %@";
 "integration_internal_error_build_url" = "内部错误：无法构建请求 URL";
-"integration_internal_error_no_client" = "无法连接 Jellyfin 服务器。请检查提供的服务器 URL。";
+"integration_internal_error_no_client" = "无法连接 %@ 服务器。请检查提供的服务器 URL。";
 "integration_error_unexpected_response" = "意外的服务器响应";
 "integration_error_unexpected_response_with_code" = "意外的服务器响应（代码： %d - %@ ）";
 "integration_error_unauthorized" = "登录失败。请检查您的用户名和密码。";

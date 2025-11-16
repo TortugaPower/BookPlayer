@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Керувати підключенням";
 "integration_internal_error_invalid_url" = "Внутрішня помилка: URL-адреса запиту недійсна: %@";
 "integration_internal_error_build_url" = "Внутрішня помилка: не вдалося створити URL-адресу запиту";
-"integration_internal_error_no_client" = "Не вдається зв’язатися з сервером Jellyfin. Перевірте надану URL-адресу сервера.";
+"integration_internal_error_no_client" = "Не вдається зв’язатися з сервером %@. Перевірте надану URL-адресу сервера.";
 "integration_error_unexpected_response" = "Неочікувана відповідь сервера";
 "integration_error_unexpected_response_with_code" = "Неочікувана відповідь сервера (Код: %d - %@ )";
 "integration_error_unauthorized" = "Помилка входу. Перевірте своє ім'я користувача та пароль.";

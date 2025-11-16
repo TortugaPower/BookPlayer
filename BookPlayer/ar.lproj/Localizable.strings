@@ -338,7 +338,7 @@
 "settings_integration_manage_connection_title" = "إدارة الاتصال";
 "integration_internal_error_invalid_url" = "خطأ داخلي: عنوان URL للطلب غير صالح: %@";
 "integration_internal_error_build_url" = "خطأ داخلي: فشل في بناء عنوان URL للطلب";
-"integration_internal_error_no_client" = "لا يمكن الاتصال بخادم Jellyfin. تحقق من عنوان URL للخادم المقدم.";
+"integration_internal_error_no_client" = "لا يمكن الاتصال بخادم %@. تحقق من عنوان URL للخادم المقدم.";
 "integration_error_unexpected_response" = "استجابة غير متوقعة من الخادم";
 "integration_error_unexpected_response_with_code" = "استجابة غير متوقعة من الخادم (الرمز: %d - %@ )";
 "integration_error_unauthorized" = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";

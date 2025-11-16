@@ -338,7 +338,7 @@
 "settings_integration_manage_connection_title" = "Διαχείριση σύνδεσης";
 "integration_internal_error_invalid_url" = "Εσωτερικό σφάλμα: Η διεύθυνση URL αιτήματος δεν είναι έγκυρη: %@";
 "integration_internal_error_build_url" = "Εσωτερικό σφάλμα: Απέτυχε η δημιουργία διεύθυνσης URL αιτήματος";
-"integration_internal_error_no_client" = "Δεν είναι δυνατή η επικοινωνία με τον διακομιστή Jellyfin. Ελέγξτε τη διεύθυνση URL του διακομιστή που παρέχεται.";
+"integration_internal_error_no_client" = "Δεν είναι δυνατή η επικοινωνία με τον διακομιστή %@. Ελέγξτε τη διεύθυνση URL του διακομιστή που παρέχεται.";
 "integration_error_unexpected_response" = "Απροσδόκητη απόκριση διακομιστή";
 "integration_error_unexpected_response_with_code" = "Μη αναμενόμενη απόκριση διακομιστή (Κωδικός: %d - %@ )";
 "integration_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";

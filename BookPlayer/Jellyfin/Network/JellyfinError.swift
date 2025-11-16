@@ -22,7 +22,7 @@ enum JellyfinError: Error, LocalizedError {
     case .urlFromComponents:
       "integration_internal_error_build_url".localized
     case .noClient:
-      "integration_internal_error_no_client".localized
+      String(format: "integration_internal_error_no_client".localized, "Jellyfin")
     case .unexpectedResponse(let code):
       if let code {
         String(

@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Verbindung verwalten";
 "integration_internal_error_invalid_url" = "Interner Fehler: Anforderungs-URL ist ungültig: %@";
 "integration_internal_error_build_url" = "Interner Fehler: Anforderungs-URL konnte nicht erstellt werden";
-"integration_internal_error_no_client" = "Jellyfin-Server kann nicht kontaktiert werden. Überprüfe die angegebene Server-URL.";
+"integration_internal_error_no_client" = "%@-Server kann nicht kontaktiert werden. Überprüfe die angegebene Server-URL.";
 "integration_error_unexpected_response" = "Unerwartete Serverantwort";
 "integration_error_unexpected_response_with_code" = "Unerwartete Serverantwort (Code: %d - %@ )";
 "integration_error_unauthorized" = "Anmeldung fehlgeschlagen. Überprüfe deinen Benutzernamen und dein Passwort.";

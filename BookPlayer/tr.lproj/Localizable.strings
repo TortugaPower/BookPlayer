@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Bağlantıyı Yönet";
 "integration_internal_error_invalid_url" = "Dahili hata: İstek URL'si geçersiz: %@";
 "integration_internal_error_build_url" = "Dahili hata: İstek URL'si oluşturulamadı";
-"integration_internal_error_no_client" = "Jellyfin sunucusuna ulaşılamıyor. Sağlanan sunucu URL'sini kontrol edin.";
+"integration_internal_error_no_client" = "%@ sunucusuna ulaşılamıyor. Sağlanan sunucu URL'sini kontrol edin.";
 "integration_error_unexpected_response" = "Beklenmeyen sunucu yanıtı";
 "integration_error_unexpected_response_with_code" = "Beklenmeyen sunucu yanıtı (Kod: %d - %@ )";
 "integration_error_unauthorized" = "Giriş başarısız. Kullanıcı adınızı ve şifrenizi kontrol edin.";

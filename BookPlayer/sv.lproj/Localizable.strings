@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Hantera anslutning";
 "integration_internal_error_invalid_url" = "Internt fel: URL för begäran är ogiltig: %@";
 "integration_internal_error_build_url" = "Internt fel: Det gick inte att skapa webbadress för begäran";
-"integration_internal_error_no_client" = "Kan inte kontakta Jellyfin-servern. Kontrollera serverns URL.";
+"integration_internal_error_no_client" = "Kan inte kontakta %@-servern. Kontrollera serverns URL.";
 "integration_error_unexpected_response" = "Oväntat serversvar";
 "integration_error_unexpected_response_with_code" = "Oväntat serversvar (kod: %d - %@ )";
 "integration_error_unauthorized" = "Inloggning misslyckades. Kontrollera ditt användarnamn och lösenord.";

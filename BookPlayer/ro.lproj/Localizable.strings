@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Gestionați conexiunea";
 "integration_internal_error_invalid_url" = "Eroare internă: adresa URL a solicitării este nevalidă: %@";
 "integration_internal_error_build_url" = "Eroare internă: nu s-a putut crea adresa URL a solicitării";
-"integration_internal_error_no_client" = "Nu se poate contacta serverul Jellyfin. Verificați adresa URL a serverului furnizată.";
+"integration_internal_error_no_client" = "Nu se poate contacta serverul %@. Verificați adresa URL a serverului furnizată.";
 "integration_error_unexpected_response" = "Răspuns neașteptat al serverului";
 "integration_error_unexpected_response_with_code" = "Răspuns neașteptat al serverului (Cod: %d - %@ )";
 "integration_error_unauthorized" = "Conectarea a eșuat. Verificați-vă numele de utilizator și parola.";

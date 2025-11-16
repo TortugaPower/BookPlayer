@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Verbinding beheren";
 "integration_internal_error_invalid_url" = "Interne fout: Verzoek-URL is ongeldig: %@";
 "integration_internal_error_build_url" = "Interne fout: het is niet gelukt om de URL van het verzoek te bouwen";
-"integration_internal_error_no_client" = "Kan geen contact maken met Jellyfin-server. Controleer de opgegeven server-URL.";
+"integration_internal_error_no_client" = "Kan geen contact maken met %@-server. Controleer de opgegeven server-URL.";
 "integration_error_unexpected_response" = "Onverwachte serverreactie";
 "integration_error_unexpected_response_with_code" = "Onverwachte serverrespons (Code: %d - %@ )";
 "integration_error_unauthorized" = "Aanmelden mislukt. Controleer uw gebruikersnaam en wachtwoord.";

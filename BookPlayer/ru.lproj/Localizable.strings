@@ -337,7 +337,7 @@
 "settings_integration_manage_connection_title" = "Управление соединением";
 "integration_internal_error_invalid_url" = "Внутренняя ошибка: недопустимый URL-адрес запроса: %@";
 "integration_internal_error_build_url" = "Внутренняя ошибка: не удалось создать URL-адрес запроса";
-"integration_internal_error_no_client" = "Невозможно связаться с сервером Jellyfin. Проверьте указанный URL сервера.";
+"integration_internal_error_no_client" = "Невозможно связаться с сервером %@. Проверьте указанный URL сервера.";
 "integration_error_unexpected_response" = "Неожиданный ответ сервера";
 "integration_error_unexpected_response_with_code" = "Неожиданный ответ сервера (Код: %d - %@)";
 "integration_error_unauthorized" = "Ошибка входа. Проверьте имя пользователя и пароль.";
