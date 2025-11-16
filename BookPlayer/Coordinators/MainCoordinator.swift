@@ -27,6 +27,7 @@ class MainCoordinator: NSObject {
   var syncService: SyncService
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
+  let audiobookshelfConnectionService: AudiobookShelfConnectionService
   let hardcoverService: HardcoverService
 
   let playerState = PlayerState()
@@ -59,6 +60,10 @@ class MainCoordinator: NSObject {
     let jellyfinService = JellyfinConnectionService()
     jellyfinService.setup()
     self.jellyfinConnectionService = jellyfinService
+
+    let audiobookshelfService = AudiobookShelfConnectionService()
+    audiobookshelfService.setup()
+    self.audiobookshelfConnectionService = audiobookshelfService
 
     self.hardcoverService = coreServices.hardcoverService
 
@@ -95,6 +100,7 @@ class MainCoordinator: NSObject {
       .environment(\.accountService, accountService)
       .environment(\.syncService, syncService)
       .environment(\.jellyfinService, jellyfinConnectionService)
+      .environment(\.audiobookshelfService, audiobookshelfConnectionService)
       .environment(\.hardcoverService, hardcoverService)
       .environment(\.playerState, playerState)
       .environment(\.playerLoaderService, playerLoaderService)

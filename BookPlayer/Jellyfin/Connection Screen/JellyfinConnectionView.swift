@@ -125,7 +125,7 @@ struct JellyfinConnectionView: View {
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
     case .disconnected, .foundServer: "Jellyfin"
-    case .connected: "jellyfin_connection_details_title".localized
+    case .connected: "integration_connection_details_title".localized
     }
   }
 
@@ -134,7 +134,7 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var connectToolbarButton: some View {
     Button(
-      "jellyfin_connect_button".localized,
+      "integration_connect_button",
       action: onConnect
     )
     .foregroundStyle(theme.linkColor)
@@ -144,7 +144,7 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var signInToolbarButton: some View {
     Button(
-      "jellyfin_sign_in_button".localized,
+      "integration_sign_in_button",
       action: onSignIn
     )
     .foregroundStyle(theme.linkColor)
@@ -156,7 +156,7 @@ struct JellyfinConnectionView: View {
   @ViewBuilder
   private var goToLibraryToolbarButton: some View {
     Button(
-      "library_title".localized,
+      "library_title",
       systemImage: "chevron.forward",
       action: viewModel.handleGoToLibraryAction
     )

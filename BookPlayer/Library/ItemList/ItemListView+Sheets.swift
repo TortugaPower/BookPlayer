@@ -20,6 +20,8 @@ extension ItemListView {
       QueuedSyncTasksView()
     case .jellyfin:
       JellyfinRootView(connectionService: jellyfinService)
+    case .audiobookshelf:
+      AudiobookShelfRootView(connectionService: audiobookshelfService)
     case .foldersSelection:
       foldersSelectionSheet()
     }

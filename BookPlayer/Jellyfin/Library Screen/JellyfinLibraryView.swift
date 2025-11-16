@@ -17,7 +17,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
       return Text(
-        String(format: "jellyfin_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
+        String(format: "integration_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
       )
     } else {
       return Text(viewModel.navigationTitle)
