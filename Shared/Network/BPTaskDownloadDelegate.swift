@@ -13,6 +13,9 @@ public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
   public var didFinishDownloadingTask: ((URLSessionTask, URL?, Error?) -> Void)?
   /// Callback triggered when there's an update on the download progress
   public var downloadProgressUpdated: ((URLSessionDownloadTask, Double) -> Void)?
+  /// Callback triggered when the total size of the download is unknown,
+  /// and we can't compute a progress percentage
+  public var downloadBytesWrittenUpdated: ((URLSessionDownloadTask, Int64) -> Void)?
   /// Delegate callback when download finishes
   public func urlSession(
     _ session: URLSession,
@@ -46,7 +49,11 @@ public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
   ) {
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
 
-    downloadProgressUpdated?(downloadTask, Double(calculatedProgress))
+    if totalBytesExpectedToWrite == -1 {
+      downloadBytesWrittenUpdated?(downloadTask, totalBytesWritten)
+    } else {
+      downloadProgressUpdated?(downloadTask, Double(calculatedProgress))
+    }
   }
 
   private func parseErrorFromTask(_ task: URLSessionTask) -> Error? {

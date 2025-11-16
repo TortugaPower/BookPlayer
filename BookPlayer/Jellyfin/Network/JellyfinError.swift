@@ -18,28 +18,28 @@ enum JellyfinError: Error, LocalizedError {
   var errorDescription: String? {
     switch self {
     case .urlMalformed(let url):
-      String(format: "jellyfin_internal_error_invalid_url".localized, String(reflecting: url))
+      String(format: "integration_internal_error_invalid_url".localized, String(reflecting: url))
     case .urlFromComponents:
-      "jellyfin_internal_error_build_url".localized
+      "integration_internal_error_build_url".localized
     case .noClient:
-      "jellyfin_internal_error_no_client".localized
+      "integration_internal_error_no_client".localized
     case .unexpectedResponse(let code):
       if let code {
         String(
-          format: "jellyfin_error_unexpected_response_with_code".localized,
+          format: "integration_error_unexpected_response_with_code".localized,
           code,
           HTTPURLResponse.localizedString(forStatusCode: code)
         )
       } else {
-        "jellyfin_error_unexpected_response".localized
+        "integration_error_unexpected_response".localized
       }
     case .clientError(let code):
       switch code {
       case 401:
-        "jellyfin_error_unauthorized".localized
+        "integration_error_unauthorized".localized
       default:
         String(
-          format: "jellyfin_error_unexpected_response_with_code".localized,
+          format: "integration_error_unexpected_response_with_code".localized,
           code,
           HTTPURLResponse.localizedString(forStatusCode: code)
         )

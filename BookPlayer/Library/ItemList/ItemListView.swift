@@ -182,14 +182,18 @@ struct ItemListView: View {
         let percentage = String(format: "%.2f", progress * 100)
         let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
         let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
-        let subtitle: String
-        if progress >= 0 {
-          subtitle = "\("progress_title".localized) \(percentage)%"
-        } else {
-          /// If the server doesn't know the file size, it sends a -1 as the total size
-          let sizeDownloaded = ByteCountFormatter.string(fromByteCount: Int64(progress) * -1, countStyle: ByteCountFormatter.CountStyle.file)
-          subtitle = "\("progress_title".localized) \(sizeDownloaded)"
-        }
+        let subtitle = "\("progress_title".localized) \(percentage)%"
+
+        importOperationState.isOperationActive = true
+        importOperationState.processingTitle = "\(title)\n\(subtitle)"
+      case .bytesWritten(_, let bytesWritten):
+        let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
+        let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+        let sizeDownloaded = ByteCountFormatter.string(
+          fromByteCount: bytesWritten,
+          countStyle: ByteCountFormatter.CountStyle.file
+        )
+        let subtitle = "\("progress_title".localized) \(sizeDownloaded)"
 
         importOperationState.isOperationActive = true
         importOperationState.processingTitle = "\(title)\n\(subtitle)"
@@ -347,10 +351,22 @@ struct ItemListView: View {
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
     }
-    Button("download_from_jellyfin_title", image: .jellyfinIcon) {
+    Button(
+      String(format:
+              "download_from_integration_title".localized,
+        "Jellyfin"
+      ),
+      image: .jellyfinIcon
+    ) {
       activeSheet = .jellyfin
     }
-    Button("download_from_audiobookshelf_title", image: .audiobookshelfIcon) {
+    Button(
+      String(format:
+              "download_from_integration_title".localized,
+        "AudiobookShelf"
+      ),
+      image: .audiobookshelfIcon
+    ) {
       activeSheet = .audiobookshelf
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {

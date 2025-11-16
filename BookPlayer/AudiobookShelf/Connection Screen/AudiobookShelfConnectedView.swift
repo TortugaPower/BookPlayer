@@ -15,18 +15,18 @@ struct AudiobookShelfConnectedView: View {
   var body: some View {
     Section {
       HStack {
-        Text("audiobookshelf_username_placeholder".localized)
+        Text("integration_username_placeholder")
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(viewModel.form.username)
       }
     } header: {
-      Text("audiobookshelf_section_login".localized)
+      Text("integration_section_login")
         .foregroundStyle(theme.secondaryColor)
     }
 
     Section {
-      Button("logout_title".localized, role: .destructive) {
+      Button("logout_title", role: .destructive) {
         viewModel.handleSignOutAction()
       }
       .frame(maxWidth: .infinity)

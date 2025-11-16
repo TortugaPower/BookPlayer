@@ -25,7 +25,7 @@ struct AudiobookShelfServerFoundView: View {
   var body: some View {
     Section {
       ClearableTextField(
-        "audiobookshelf_username_placeholder".localized,
+        "integration_username_placeholder".localized,
         text: $username,
         onCommit: {
           focusedField = .password
@@ -36,7 +36,7 @@ struct AudiobookShelfServerFoundView: View {
       .focused($focusedField, selfKey: .username)
 
       SecureField(
-        "audiobookshelf_password_placeholder".localized,
+        "integration_password_placeholder",
         text: $password,
         onCommit: {
           if !username.isEmpty && !password.isEmpty {
@@ -47,7 +47,7 @@ struct AudiobookShelfServerFoundView: View {
       .textContentType(.password)
       .focused($focusedField, selfKey: .password)
     } header: {
-      Text("audiobookshelf_section_login".localized)
+      Text("integration_section_login")
         .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {

@@ -37,11 +37,16 @@ struct AudiobookShelfDisconnectedView: View {
       .autocapitalization(.none)
       .focused($focusedField, selfKey: .serverUrl)
     } header: {
-      Text("audiobookshelf_section_server_url".localized)
+      Text("integration_section_server_url")
         .foregroundStyle(theme.secondaryColor)
     } footer: {
-      Text("audiobookshelf_section_server_url_footer".localized)
-        .foregroundStyle(theme.secondaryColor)
+      Text(
+        String(
+          format: "integration_section_server_url_footer".localized,
+          "AudiobookShelf"
+        )
+      )
+      .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

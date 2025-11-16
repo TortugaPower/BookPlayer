@@ -17,7 +17,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
       return Text(
-        String(format: "audiobookshelf_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
+        String(format: "integration_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
       )
     } else {
       return Text(viewModel.navigationTitle)

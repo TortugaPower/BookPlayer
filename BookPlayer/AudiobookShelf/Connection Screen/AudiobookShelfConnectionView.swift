@@ -125,7 +125,7 @@ struct AudiobookShelfConnectionView: View {
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
     case .disconnected, .foundServer: "AudiobookShelf"
-    case .connected: "audiobookshelf_connection_details_title".localized
+    case .connected: "integration_connection_details_title".localized
     }
   }
 
@@ -134,7 +134,7 @@ struct AudiobookShelfConnectionView: View {
   @ViewBuilder
   private var connectToolbarButton: some View {
     Button(
-      "audiobookshelf_connect_button".localized,
+      "integration_connect_button",
       action: onConnect
     )
     .foregroundStyle(theme.linkColor)
@@ -144,7 +144,7 @@ struct AudiobookShelfConnectionView: View {
   @ViewBuilder
   private var signInToolbarButton: some View {
     Button(
-      "audiobookshelf_sign_in_button".localized,
+      "integration_sign_in_button",
       action: onSignIn
     )
     .foregroundStyle(theme.linkColor)

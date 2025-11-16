@@ -37,11 +37,16 @@ struct JellyfinDisconnectedView: View {
       .autocapitalization(.none)
       .focused($focusedField, selfKey: .serverUrl)
     } header: {
-      Text("jellyfin_section_server_url".localized)
+      Text("integration_section_server_url".localized)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
-      Text("jellyfin_section_server_url_footer".localized)
-        .foregroundStyle(theme.secondaryColor)
+      Text(
+        String(
+          format: "integration_section_server_url_footer".localized,
+          "Jellyfin"
+        )
+      )
+      .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

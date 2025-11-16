@@ -17,19 +17,19 @@ struct AudiobookShelfServerInformationSectionView: View {
   var body: some View {
     Section {
       HStack {
-        Text("audiobookshelf_server_name_label".localized)
+        Text("integration_server_name_label")
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverName)
       }
       HStack {
-        Text("audiobookshelf_server_url_label".localized)
+        Text("integration_server_url_label")
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverUrl)
       }
     } header: {
-      Text("audiobookshelf_section_server".localized)
+      Text("integration_section_server")
         .foregroundStyle(theme.secondaryColor)
     }
   }

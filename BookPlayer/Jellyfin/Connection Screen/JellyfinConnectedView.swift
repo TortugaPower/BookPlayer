@@ -15,13 +15,13 @@ struct JellyfinConnectedView: View {
   var body: some View {
     Section {
       HStack {
-        Text("jellyfin_username_placeholder".localized)
+        Text("integration_username_placeholder".localized)
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(viewModel.form.username)
       }
     } header: {
-      Text("jellyfin_section_login".localized)
+      Text("integration_section_login".localized)
         .foregroundStyle(theme.secondaryColor)
     }
 

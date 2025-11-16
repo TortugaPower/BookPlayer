@@ -17,6 +17,7 @@ final class SingleFileDownloadService: ObservableObject {
   public enum Events {
     case starting(url: URL)
     case progress(task: URLSessionTask, progress: Double)  // (0..1)
+    case bytesWritten(task: URLSessionTask, bytesWritten: Int64)
     case finished(task: URLSessionTask)
     case error(ErrorKind, task: URLSessionTask, underlyingError: Error?)
   }
@@ -88,6 +89,10 @@ final class SingleFileDownloadService: ObservableObject {
   private func bindObservers() {
     progressDelegate.downloadProgressUpdated = { [weak self] task, progress in
       self?.sendEvent(.progress(task: task, progress: progress))
+    }
+
+    progressDelegate.downloadBytesWrittenUpdated = { [weak self] task, bytesWritten in
+      self?.sendEvent(.bytesWritten(task: task, bytesWritten: bytesWritten))
     }
 
     progressDelegate.didFinishDownloadingTask = { [weak self] task, fileURL, error in
