@@ -17,19 +17,19 @@ struct JellyfinServerInformationSectionView: View {
   var body: some View {
     Section {
       HStack {
-        Text("jellyfin_server_name_label".localized)
+        Text("integration_server_name_label".localized)
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverName)
       }
       HStack {
-        Text("jellyfin_server_url_label".localized)
+        Text("integration_server_url_label".localized)
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Text(serverUrl)
       }
     } header: {
-      Text("jellyfin_section_server".localized)
+      Text("integration_section_server".localized)
         .foregroundStyle(theme.secondaryColor)
     }
   }

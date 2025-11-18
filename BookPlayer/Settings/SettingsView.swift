@@ -25,6 +25,7 @@ struct SettingsView: View {
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
+  @Environment(\.audiobookshelfService) private var audiobookshelfService
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
@@ -116,6 +117,16 @@ struct SettingsView: View {
             JellyfinSettingsView(
               viewModel: JellyfinConnectionViewModel(
                 connectionService: jellyfinService,
+                navigation: BPNavigation(),
+                mode: .viewDetails
+              )
+            )
+          )
+        case .audiobookshelf:
+          view = AnyView(
+            AudiobookShelfSettingsView(
+              viewModel: AudiobookShelfConnectionViewModel(
+                connectionService: audiobookshelfService,
                 navigation: BPNavigation(),
                 mode: .viewDetails
               )

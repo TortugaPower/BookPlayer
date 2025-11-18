@@ -32,6 +32,7 @@ struct ItemListView: View {
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.jellyfinService) var jellyfinService
+  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
@@ -182,6 +183,17 @@ struct ItemListView: View {
         let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
         let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
         let subtitle = "\("progress_title".localized) \(percentage)%"
+
+        importOperationState.isOperationActive = true
+        importOperationState.processingTitle = "\(title)\n\(subtitle)"
+      case .bytesWritten(_, let bytesWritten):
+        let totalFiles = model.singleFileDownloadService.downloadQueue.count + 1
+        let title = String.localizedStringWithFormat("downloading_file_title".localized, totalFiles)
+        let sizeDownloaded = ByteCountFormatter.string(
+          fromByteCount: bytesWritten,
+          countStyle: ByteCountFormatter.CountStyle.file
+        )
+        let subtitle = "\("progress_title".localized) \(sizeDownloaded)"
 
         importOperationState.isOperationActive = true
         importOperationState.processingTitle = "\(title)\n\(subtitle)"
@@ -339,8 +351,23 @@ struct ItemListView: View {
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
     }
-    Button("download_from_jellyfin_title", image: .jellyfinIcon) {
+    Button(
+      String(format:
+              "download_from_integration_title".localized,
+        "Jellyfin"
+      ),
+      image: .jellyfinIcon
+    ) {
       activeSheet = .jellyfin
+    }
+    Button(
+      String(format:
+              "download_from_integration_title".localized,
+        "AudiobookShelf"
+      ),
+      image: .audiobookshelfIcon
+    ) {
+      activeSheet = .audiobookshelf
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood

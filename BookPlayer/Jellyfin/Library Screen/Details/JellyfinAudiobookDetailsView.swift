@@ -47,6 +47,7 @@ struct JellyfinAudiobookDetailsView<
           .font(.title)
           .accessibilityLabel(voiceOverBookInfo)
           .foregroundStyle(theme.primaryColor)
+          .multilineTextAlignment(.center)
 
         if let artist = viewModel.details?.artist {
           Text(artist)

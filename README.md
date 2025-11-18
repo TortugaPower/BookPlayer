@@ -19,7 +19,7 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Using [AirDrop](https://support.apple.com/en-us/HT204144#receive) from your Mac or iOS device
 - From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
 - Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
-- Download audiobooks from your own [Jellyfin](https://jellyfin.org) server
+- Download audiobooks from your own [AudiobookShelf](https://www.audiobookshelf.org) or [Jellyfin](https://jellyfin.org) server
 - Zip archives are supported and can be turned into playlists automatically
 
 ### Manage

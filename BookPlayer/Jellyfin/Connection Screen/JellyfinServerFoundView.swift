@@ -25,7 +25,7 @@ struct JellyfinServerFoundView: View {
   var body: some View {
     Section {
       ClearableTextField(
-        "jellyfin_username_placeholder".localized,
+        "integration_username_placeholder".localized,
         text: $username,
         onCommit: {
           focusedField = .password
@@ -36,7 +36,7 @@ struct JellyfinServerFoundView: View {
       .focused($focusedField, selfKey: .username)
 
       SecureField(
-        "jellyfin_password_placeholder".localized,
+        "integration_password_placeholder".localized,
         text: $password,
         onCommit: {
           if !username.isEmpty && !password.isEmpty {
@@ -47,7 +47,7 @@ struct JellyfinServerFoundView: View {
       .textContentType(.password)
       .focused($focusedField, selfKey: .password)
     } header: {
-      Text("jellyfin_section_login".localized)
+      Text("integration_section_login".localized)
         .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {

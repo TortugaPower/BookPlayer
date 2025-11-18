@@ -72,6 +72,10 @@ public enum Constants {
     public static let jellyfinLibraryLayout = "jellyfinLibraryLayout"
     public static let jellyfinLibraryLayoutSortBy = "jellyfinLibraryLayoutSortBy"
 
+    /// AudiobookShelf
+    public static let audiobookshelfLibraryLayout = "audiobookshelfLibraryLayout"
+    public static let audiobookshelfLibraryLayoutSortBy = "audiobookshelfLibraryLayoutSortBy"
+
     /// Hardcover
     public static let hardcoverAutoMatch = "hardcoverAutoMatch"
     public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"

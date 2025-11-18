@@ -30,6 +30,8 @@ public enum KeychainKeys: String {
   case token = "access_token"
   /// Stores the Jellyfin connection information (JellyfinConnectionData)
   case jellyfinConnection = "jellyfin_connection"
+  /// Stores the AudiobookShelf connection information (AudiobookShelfConnectionData)
+  case audiobookshelfConnection = "audiobookshelf_connection"
   /// Stores Hardcover API access token
   case hardcoverToken = "hardcover_token"
 }
