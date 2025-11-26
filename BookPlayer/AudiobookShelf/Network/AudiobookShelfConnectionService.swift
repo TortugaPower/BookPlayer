@@ -157,30 +157,39 @@ class AudiobookShelfConnectionService: BPLogger {
     in libraryId: String,
     limit: Int? = nil,
     page: Int? = nil,
-    sortBy: String? = "media.metadata.title"
+    sortBy: String? = "media.metadata.title",
+    desc: Bool? = nil
   ) async throws -> (items: [AudiobookShelfLibraryItem], total: Int) {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
     }
 
-    var urlComponents = URLComponents(
-      url: connection.url
-        .appendingPathComponent("api")
-        .appendingPathComponent("libraries")
-        .appendingPathComponent(libraryId)
-        .appendingPathComponent("items"),
-      resolvingAgainstBaseURL: false
-    )!
+    guard
+      var urlComponents = URLComponents(
+        url: connection.url
+          .appendingPathComponent("api")
+          .appendingPathComponent("libraries")
+          .appendingPathComponent(libraryId)
+          .appendingPathComponent("items"),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw URLError(.badURL)
+    }
 
     var queryItems: [URLQueryItem] = []
-    if let limit = limit {
+
+    if let limit {
       queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
     }
-    if let page = page {
+    if let page {
       queryItems.append(URLQueryItem(name: "page", value: "\(page)"))
     }
-    if let sortBy = sortBy {
+    if let sortBy {
       queryItems.append(URLQueryItem(name: "sort", value: sortBy))
+      if let desc {
+        queryItems.append(URLQueryItem(name: "desc", value: desc ? "1" : "0"))
+      }
     }
 
     if !queryItems.isEmpty {
