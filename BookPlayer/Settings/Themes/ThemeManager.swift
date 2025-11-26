@@ -94,15 +94,17 @@ final class ThemeManager: ThemeProvider {
   }
 
   private func setNewTheme(_ newTheme: SimpleTheme) {
+    // Always create theme with current useDarkVariant flag
+    let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
+    
     guard
       let sceneDelegate = AppDelegate.shared?.activeSceneDelegate,
       let window = sceneDelegate.window
     else {
+      // No window yet, just set the value without animation
       self.theme.value = newTheme
       return
     }
-
-    let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
 
     // Moved from scene delegate
     UINavigationBar.appearance().titleTextAttributes = [
