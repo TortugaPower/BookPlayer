@@ -180,10 +180,12 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
       defer { self.fetchTask = nil }
 
       do {
+        var desc: Bool?
         let sortByParam: String
         switch sortBy {
         case .recent:
           sortByParam = "addedAt"
+          desc = true
         case .title:
           sortByParam = "media.metadata.title"
         }
@@ -192,7 +194,8 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
           in: libraryID,
           limit: Self.itemBatchSize,
           page: nextPage,
-          sortBy: sortByParam
+          sortBy: sortByParam,
+          desc: desc
         )
 
         self.nextPage += 1
