@@ -108,6 +108,17 @@ class MainCoordinator: NSObject {
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve
+    
+    // Set window interface style BEFORE presenting the view controller
+    // This ensures SwiftUI views are initialized with the correct colorScheme
+    if let window = navigationController.view.window ?? AppDelegate.shared?.activeSceneDelegate?.window {
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled) {
+        window.overrideUserInterfaceStyle = .unspecified
+      } else {
+        window.overrideUserInterfaceStyle = ThemeManager.shared.useDarkVariant ? .dark : .light
+      }
+    }
+    
     navigationController.present(vc, animated: false)
     mainController = vc
 
