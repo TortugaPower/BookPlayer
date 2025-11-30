@@ -13,7 +13,11 @@ import UIKit
 class LoadingViewController: UIViewController, MVVMControllerProtocol, Storyboarded, Themeable {
   var viewModel: LoadingViewModel!
   override func viewDidLoad() {
+    super.viewDidLoad()
     self.navigationController?.isNavigationBarHidden = true
+    
+    // Subscribe to theme changes to ensure proper initial rendering
+    setUpTheming()
   }
 
   override func viewWillAppear(_ animated: Bool) {

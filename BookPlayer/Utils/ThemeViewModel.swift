@@ -16,7 +16,8 @@ class ThemeViewModel: ObservableObject, Themeable {
   @Published var defaultArtwork: Image?
 
   init() {
-    theme = SimpleTheme.getDefaultTheme(useDarkVariant: UIScreen.main.traitCollection.userInterfaceStyle == .dark)
+    // Initialize with current theme from ThemeManager for consistency
+    theme = ThemeManager.shared.currentTheme
     setUpTheming()
   }
 
