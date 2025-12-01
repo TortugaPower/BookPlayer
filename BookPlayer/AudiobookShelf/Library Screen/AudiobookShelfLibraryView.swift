@@ -88,7 +88,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
     }
     Section {
       Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
-        Text("Recently Added".localized).tag(AudiobookShelfLayout.SortBy.recent)
+        Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
         Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
       }
     }
