@@ -17,9 +17,14 @@ struct DebugFileTransferable: Transferable {
 
       var remoteIdentifiers: [String]?
       var syncJobsInformation: String?
+      var syncError: String?
 
       if syncService.isActive {
-        remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
+        do {
+          remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
+        } catch {
+          syncError = "Error fetching remote identifiers: \(error.localizedDescription)"
+        }
         syncJobsInformation = await file.getSyncOperationsInformation()
       }
 
@@ -41,6 +46,10 @@ struct DebugFileTransferable: Transferable {
 
       if let syncJobsInformation {
         libraryRepresentation += syncJobsInformation
+      }
+
+      if let syncError {
+        libraryRepresentation += "\n\n⚠️ Sync Error:\n\(syncError)\n"
       }
 
       return libraryRepresentation.data(using: .utf8)!

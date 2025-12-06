@@ -16,6 +16,7 @@ struct QueuedSyncTasksView: View {
   @State private var queuedJobs = [SyncTaskReference]()
   @State private var jobsCount = 0
   @State private var showInfoAlert = false
+  @State private var networkMonitor = NetworkMonitor()
 
   @Environment(\.syncService) private var syncService
   @EnvironmentObject private var theme: ThemeViewModel
@@ -30,7 +31,7 @@ struct QueuedSyncTasksView: View {
           )
         }
       } header: {
-        if !allowsCellularData {
+        if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {
           HStack {
             Spacer()
             Image(systemName: "wifi")

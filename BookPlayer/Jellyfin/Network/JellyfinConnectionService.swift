@@ -118,18 +118,24 @@ class JellyfinConnectionService: BPLogger {
     sortBy: JellyfinLayout.SortBy
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
     let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
     switch sortBy {
+      case .recent:
+        orderBy = [.dateCreated]
+        sortOrder = [.descending]
       case .name:
         orderBy = [.name]
+        sortOrder = [.ascending]
       case .smart:
         orderBy = [.isFolder, .sortName]
+        sortOrder = [.ascending]
     }
 
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
       isRecursive: false,
-      sortOrder: [.ascending],
+      sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],
       includeItemTypes: [.audioBook, .folder],

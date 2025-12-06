@@ -101,6 +101,10 @@ struct SettingsTipView: View {
   }
 
   func purchaseProduct() async throws {
+    guard AppEnvironment.isPurchaseEnabled else {
+      throw PurchaseError.testFlightPurchasesDisabled
+    }
+    
     _ = await loadProductTask?.result
 
     guard let product else {

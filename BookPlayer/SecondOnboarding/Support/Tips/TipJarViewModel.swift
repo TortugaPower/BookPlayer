@@ -40,6 +40,17 @@ public final class TipJarViewModel: ObservableObject {
 
   @MainActor
   func donate(_ tip: TipOption) async {
+    guard AppEnvironment.isPurchaseEnabled else {
+      onTransition?(
+        .showAlert(
+          BPAlertContent.errorAlert(
+            message: PurchaseError.testFlightPurchasesDisabled.errorDescription!
+          )
+        )
+      )
+      return
+    }
+    
     onTransition?(.showLoader(true))
     do {
       let product = await Purchases.shared.products([tip.rawValue]).first!
@@ -66,6 +77,17 @@ public final class TipJarViewModel: ObservableObject {
 
   @MainActor
   func restorePurchases() async {
+    guard AppEnvironment.isPurchaseEnabled else {
+      onTransition?(
+        .showAlert(
+          BPAlertContent.errorAlert(
+            message: PurchaseError.testFlightPurchasesDisabled.errorDescription!
+          )
+        )
+      )
+      return
+    }
+    
     onTransition?(.showLoader(true))
     do {
       let customerInfo = try await Purchases.shared.restorePurchases()

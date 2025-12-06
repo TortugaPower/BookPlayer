@@ -16,7 +16,27 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
 
   var body: some View {
     if viewModel.showProgressIndicator {
-      ProgressView()
+      VStack(spacing: 16) {
+        if let progress = viewModel.fixProgress {
+          VStack(spacing: 8) {
+            ProgressView(value: progress.percentage)
+              .progressViewStyle(.linear)
+
+            Text("\(progress.processed) of \(progress.total)")
+              .font(.subheadline)
+              .foregroundStyle(theme.secondaryColor)
+
+            Button("cancel_button".localized) {
+              viewModel.cancelFixAll()
+            }
+            .foregroundStyle(theme.linkColor)
+            .padding(.top, 8)
+          }
+          .padding()
+        } else {
+          ProgressView()
+        }
+      }
     } else {
       Form {
         Section {
@@ -40,22 +60,19 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
         }
 
         Section {
-          LazyVStack(spacing: 0) {
+          List {
             ForEach(viewModel.publishedFiles) { file in
-              VStack(spacing: 0) {
-                StorageRowView(
-                  item: file,
-                  onDeleteTap: {
-                    viewModel.storageAlert = .delete(item: file)
-                    viewModel.showAlert = true
-                  },
-                  onWarningTap: {
-                    viewModel.storageAlert = .fix(item: file)
-                    viewModel.showAlert = true
-                  }
-                )
-              }
-
+              StorageRowView(
+                item: file,
+                onDeleteTap: {
+                  viewModel.storageAlert = .delete(item: file)
+                  viewModel.showAlert = true
+                },
+                onWarningTap: {
+                  viewModel.storageAlert = .fix(item: file)
+                  viewModel.showAlert = true
+                }
+              )
             }
           }
         } header: {
@@ -123,12 +140,14 @@ struct StorageView_Previews: PreviewProvider {
     var showFixAllButton: Bool = true
     var showAlert: Bool = false
     var showProgressIndicator: Bool = false
+    var fixProgress: FixProgress? = nil
     var alert: Alert { Alert(title: Text("")) }
     let fixButtonTitle = "Fix all"
 
     func getTotalFoldersSize() -> String { return "0 Kb" }
     func getArtworkFolderSize() -> String { return "0 Kb" }
     func dismiss() {}
+    func cancelFixAll() {}
   }
   static var previews: some View {
     StorageView(viewModel: MockStorageViewModel())
