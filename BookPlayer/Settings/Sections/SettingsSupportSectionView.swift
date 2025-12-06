@@ -58,6 +58,11 @@ struct SettingsSupportSectionView: View {
         openURL(url)
       }
       .foregroundStyle(theme.primaryColor)
+      Button("settings_support_discord_title") {
+        let url = URL(string: "https://discord.gg/RPPyhyMPXW")!
+        openURL(url)
+      }
+      .foregroundStyle(theme.primaryColor)
     } header: {
       Text("settings_support_title")
         .foregroundStyle(theme.secondaryColor)

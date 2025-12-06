@@ -38,7 +38,7 @@ final class ItemDetailsViewModel: ObservableObject {
   @Published var originalFileName: String
   /// Title of the item
   @Published var title: String
-  /// Author of the item (only applies for books)
+  /// Author of the item (applies for books and volumes)
   @Published var author: String
   /// Artwork image
   @Published var selectedImage: UIImage?
@@ -53,7 +53,7 @@ final class ItemDetailsViewModel: ObservableObject {
   /// Determines if there's an update for the artwork
   var artworkIsUpdated: Bool = false
   /// Flag to show the author field
-  var showAuthor: Bool { item.type == .book }
+  var showAuthor: Bool { item.type != .folder }
 
   @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
 

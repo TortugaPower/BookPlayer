@@ -62,7 +62,7 @@ enum JellyfinLayout {
   }
 
   enum SortBy: String {
-    case name, smart
+    case recent, name, smart
   }
 }
 

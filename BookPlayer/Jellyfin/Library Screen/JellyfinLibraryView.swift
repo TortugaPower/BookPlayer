@@ -103,6 +103,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Section {
       Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
         Text("Default".localized).tag(JellyfinLayout.SortBy.smart)
+        Label("sort_most_recent_button", systemImage: "clock").tag(JellyfinLayout.SortBy.recent)
         Label("Name".localized, systemImage: "textformat.abc").tag(JellyfinLayout.SortBy.name)
       }
     }
