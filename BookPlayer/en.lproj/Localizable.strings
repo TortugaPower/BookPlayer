@@ -392,3 +392,4 @@ We're working hard on providing a seamless experience, if possible, please conta
 "database_restore_failed_message" = "The database is corrupted and the backup restoration failed. The library will need to be reset and rebuilt from your audio files.";
 "database_no_backup_message" = "The database is corrupted and no backup is available. The library will need to be reset and rebuilt from your audio files.";
 "settings_smartrewind_max_interval_title" = "Smart Rewind Limit";
+"settings_support_discord_title" = "Join our Discord server";
