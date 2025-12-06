@@ -10,11 +10,27 @@ import BookPlayerKit
 import Foundation
 import RevenueCat
 
+enum PurchaseError: LocalizedError {
+  case testFlightPurchasesDisabled
+  
+  var errorDescription: String? {
+    switch self {
+    case .testFlightPurchasesDisabled:
+      return "In-app purchases are disabled in TestFlight builds. Please download the app from the App Store for donations or new subscriptions."
+    }
+  }
+}
+
 struct PurchasesManager {
   static func restoreTips(
     loadingState: LoadingOverlayState,
     onSuccess: @escaping () -> Void
   ) {
+    guard AppEnvironment.isPurchaseEnabled else {
+      loadingState.error = PurchaseError.testFlightPurchasesDisabled
+      return
+    }
+    
     loadingState.show = true
 
     Task { @MainActor in
@@ -39,6 +55,11 @@ struct PurchasesManager {
     loadingState: LoadingOverlayState,
     onSuccess: @escaping () -> Void
   ) {
+    guard AppEnvironment.isPurchaseEnabled else {
+      loadingState.error = PurchaseError.testFlightPurchasesDisabled
+      return
+    }
+    
     loadingState.show = true
 
     Task { @MainActor in

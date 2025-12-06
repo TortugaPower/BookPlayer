@@ -19,6 +19,8 @@ public enum AccountError: Error {
   case managementUnavailable
   /// Sign in with Apple didn't return identityToken
   case missingToken
+  /// In-app purchases are disabled in TestFlight builds
+  case testFlightPurchasesDisabled
 }
 
 public enum SecondOnboardingError: Error {
@@ -44,6 +46,8 @@ extension AccountError: LocalizedError {
     case .inactiveSubscription:
       return
         "We couldn't find an active subscription for your account. If you believe this is an error, please contact us at support@bookplayer.app"
+    case .testFlightPurchasesDisabled:
+      return "In-app purchases are disabled in TestFlight builds. Please download the app from the App Store for donations or new subscriptions."
     }
   }
 }
@@ -313,6 +317,10 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   private func subscribe(productId: String) async throws -> Bool {
+    guard AppEnvironment.isPurchaseEnabled else {
+      throw AccountError.testFlightPurchasesDisabled
+    }
+    
     let products = await Purchases.shared.products([productId])
 
     guard let product = products.first else {
@@ -329,6 +337,10 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func restorePurchases() async throws -> CustomerInfo {
+    guard AppEnvironment.isPurchaseEnabled else {
+      throw AccountError.testFlightPurchasesDisabled
+    }
+    
     return try await Purchases.shared.restorePurchases()
   }
 

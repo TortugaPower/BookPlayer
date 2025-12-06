@@ -20,11 +20,13 @@ protocol StorageViewModelProtocol: ObservableObject {
   var storageAlert: BPStorageAlert { get set }
   var showAlert: Bool { get set }
   var showProgressIndicator: Bool { get set }
+  var fixProgress: FixProgress? { get set }
   var alert: Alert { get }
   var fixButtonTitle: String { get }
 
   func getTotalFoldersSize() -> String
   func getArtworkFolderSize() -> String
+  func cancelFixAll()
 }
 
 enum BPStorageSortBy: Int {
@@ -58,6 +60,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   @Published var showFixAllButton = false
   @Published var showAlert = false
   @Published var showProgressIndicator = false
+  @Published var fixProgress: FixProgress?
 
   @Published var sortBy: BPStorageSortBy {
     didSet {
@@ -93,6 +96,8 @@ final class StorageViewModel: StorageViewModelProtocol {
   lazy var library: Library = {
     libraryService.getLibrary()
   }()
+
+  private var fixTask: Task<Void, Never>?
 
   init(
     libraryService: LibraryServiceProtocol,
@@ -232,16 +237,30 @@ final class StorageViewModel: StorageViewModelProtocol {
 
     guard !brokenItems.isEmpty else { return }
 
+    // Cancel any existing fix operation
+    fixTask?.cancel()
+
     showProgressIndicator = true
-    do {
-      try handleFix(for: brokenItems) { [weak self] in
-        self?.showProgressIndicator = false
+    fixProgress = FixProgress(total: brokenItems.count, processed: 0, succeeded: 0, failed: 0)
+
+    fixTask = Task { [weak self] in
+      guard let self = self else { return }
+      
+      await self.processItemsInBackground(brokenItems)
+      
+      await MainActor.run {
+        self.showProgressIndicator = false
+        self.fixProgress = nil
+        self.loadItems()
       }
-    } catch {
-      showProgressIndicator = false
-      storageAlert = .error(errorMessage: error.localizedDescription)
-      showAlert = true
     }
+  }
+
+  func cancelFixAll() {
+    fixTask?.cancel()
+    fixTask = nil
+    showProgressIndicator = false
+    fixProgress = nil
   }
 
   // MARK: - Private functions
@@ -385,20 +404,59 @@ final class StorageViewModel: StorageViewModelProtocol {
     return await syncService.hasUploadTask(for: item.path)
   }
 
-  private func handleFix(for items: [StorageItem], completion: @escaping () -> Void) throws {
+  private func processItemsInBackground(_ items: [StorageItem]) async {
+    await processItemsRecursively(items)
+  }
+
+  private func processItemsRecursively(_ items: [StorageItem]) async {
+    // Base case: no more items to process
     guard !items.isEmpty else {
-      loadItems()
-      completion()
       return
     }
+    
+    // Check for cancellation
+    if Task.isCancelled {
+      await MainActor.run {
+        self.storageAlert = .error(errorMessage: "Operation cancelled")
+        self.showAlert = true
+      }
+      return
+    }
+    
+    // Process the first item
+    var remainingItems = items
+    let currentItem = remainingItems.removeFirst()
+    
+    let result = await fixItemSafely(currentItem)
+    
+    // Update progress on main thread
+    await MainActor.run {
+      guard var progress = self.fixProgress else { return }
+      
+      progress.processed += 1
+      if result.success {
+        progress.succeeded += 1
+      } else {
+        progress.failed += 1
+      }
+      
+      self.fixProgress = progress
+    }
+    
+    // Recursively process remaining items
+    await processItemsRecursively(remainingItems)
+  }
 
-    var mutableItems = items
-
-    let currentItem = mutableItems.removeFirst()
-
-    try handleFix(for: currentItem, shouldReloadItems: false)
-
-    try handleFix(for: mutableItems, completion: completion)
+  private func fixItemSafely(_ item: StorageItem) async -> FixResult {
+    do {
+      try await Task.detached(priority: .userInitiated) {
+        try self.handleFix(for: item, shouldReloadItems: false)
+      }.value
+      
+      return FixResult(item: item, success: true, error: nil)
+    } catch {
+      return FixResult(item: item, success: false, error: error)
+    }
   }
 
   private var fixAllAlert: Alert {
@@ -470,4 +528,24 @@ final class StorageViewModel: StorageViewModelProtocol {
       dismissButton: .default(Text("ok_button".localized))
     )
   }
+}
+
+// MARK: - Supporting Types
+
+struct FixProgress {
+  let total: Int
+  var processed: Int
+  var succeeded: Int
+  var failed: Int
+  
+  var percentage: Double {
+    guard total > 0 else { return 0 }
+    return Double(processed) / Double(total)
+  }
+}
+
+struct FixResult {
+  let item: StorageItem
+  let success: Bool
+  let error: Error?
 }
