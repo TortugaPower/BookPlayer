@@ -19,8 +19,25 @@ struct SettingsTipView: View {
   @State private var loadProductTask: Task<(), Error>?
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.loadingState) var loadingState
+  @Environment(\.accountService) var accountService
 
   let purchaseCompleted: () -> Void
+
+  /// Whether this is the user's first donation (uses non-consumable) or a repeat donation (uses consumable)
+  private var isFirstDonation: Bool {
+    return accountService.getAccount()?.donationMade != true
+  }
+
+  /// Returns the appropriate product ID based on donation history
+  private var productId: String {
+    if isFirstDonation {
+      // First time donation uses non-consumable
+      return tipOption.rawValue
+    } else {
+      // Subsequent donations use consumable
+      return tipOption.rawValue + ".consumable"
+    }
+  }
 
   var buttonBackgroundColor: Color {
     switch tipOption {
@@ -93,7 +110,8 @@ struct SettingsTipView: View {
   func loadProduct() {
     loadProductTask = Task {
       self.isLoading = true
-      let products = await Purchases.shared.products([tipOption.rawValue])
+      // Use non-consumable for first donation, consumable for repeat donations
+      let products = await Purchases.shared.products([productId])
       self.product = products.first
       self.buttonTitle = self.product?.localizedPriceString ?? ""
       self.isLoading = false
@@ -104,7 +122,7 @@ struct SettingsTipView: View {
     guard AppEnvironment.isPurchaseEnabled else {
       throw PurchaseError.testFlightPurchasesDisabled
     }
-    
+
     _ = await loadProductTask?.result
 
     guard let product else {

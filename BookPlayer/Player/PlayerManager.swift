@@ -590,7 +590,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.nowPlayingInfo[MPMediaItemPropertyTitle] = chapter.title
 
     /// If the chapter title is the same as the current item, show the author instead
-    if chapter.title == currentItem.title {
+    if currentItem.isBoundBook || chapter.title == currentItem.title {
       self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentItem.author
     } else {
       self.nowPlayingInfo[MPMediaItemPropertyArtist] = currentItem.title
