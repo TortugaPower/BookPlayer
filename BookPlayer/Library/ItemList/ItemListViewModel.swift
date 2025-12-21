@@ -375,8 +375,14 @@ extension ItemListViewModel {
   func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedTitle.isEmpty else {
+          return
+        }
+        
         let folder = try libraryService.createFolder(
-          with: title,
+          with: trimmedTitle,
           inside: libraryNode.folderRelativePath
         )
         await syncService.scheduleUpload(items: [folder])

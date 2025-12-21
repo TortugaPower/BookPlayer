@@ -260,7 +260,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     return PlayableItem(
       title: folder.title,
-      author: chapters.first?.author ?? "voiceover_unknown_author".localized,
+      author: chapters.first?.author ?? folder.details,
       chapters: chapters,
       currentTime: folder.currentTime,
       duration: duration ?? folder.duration,
