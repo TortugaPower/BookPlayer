@@ -70,8 +70,9 @@ struct BookView: View {
   @Previewable var syncService: SyncService = {
     let syncService = SyncService()
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
+    let bookMetadataService = BookMetadataService()
     let libraryService = LibraryService()
-    libraryService.setup(dataManager: dataManager)
+    libraryService.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
     syncService.setup(
       isActive: true,
       libraryService: libraryService

@@ -523,7 +523,8 @@ extension AppDelegate {
     } else {
       let dataManager = DataManager(coreDataStack: stack)
       let accountService = makeAccountService(dataManager: dataManager)
-      let libraryService = makeLibraryService(dataManager: dataManager)
+      let bookMetadataService = makeBookMetadataService()
+      let libraryService = makeLibraryService(dataManager: dataManager, bookMetadataService: bookMetadataService)
       let syncService = makeSyncService(accountService: accountService, libraryService: libraryService)
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -571,9 +572,13 @@ extension AppDelegate {
     return service
   }
 
-  private func makeLibraryService(dataManager: DataManager) -> LibraryService {
+  private func makeBookMetadataService() -> BookMetadataService {
+    return BookMetadataService()
+  }
+
+  private func makeLibraryService(dataManager: DataManager, bookMetadataService: BookMetadataServiceProtocol) -> LibraryService {
     let service = LibraryService()
-    service.setup(dataManager: dataManager)
+    service.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
     return service
   }
 

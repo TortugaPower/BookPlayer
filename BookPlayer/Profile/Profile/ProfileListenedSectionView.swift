@@ -68,7 +68,8 @@ struct ProfileListenedSectionView: View {
   @Previewable var libraryService: LibraryService = {
     let libraryService = LibraryService()
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
-    libraryService.setup(dataManager: dataManager)
+    let bookMetadataService = BookMetadataService()
+    libraryService.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
 
     return libraryService
   }()

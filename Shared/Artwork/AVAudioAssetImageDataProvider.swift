@@ -66,21 +66,23 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
   }
 
   private func extractDataFrom(url: URL) async throws -> Data {
-    let asset = AVAsset(url: url)
+    let asset = AVURLAsset(url: url)
 
-    await asset.loadValues(forKeys: ["metadata"])
+    do {
+      let metadata = try await asset.load(.metadata)
 
-    switch asset.statusOfValue(forKey: "metadata", error: nil) {
-    case .loaded:
       var imageData: Data?
 
       if url.pathExtension == "mp3" {
-        imageData = self.getDataFromMP3(asset: asset)
-      } else if let data = AVMetadataItem.metadataItems(
-        from: asset.commonMetadata,
-        filteredByIdentifier: .commonIdentifierArtwork
-      ).first?.dataValue {
-        imageData = data
+        imageData = await self.getDataFromMP3(metadata: metadata)
+      } else {
+        let commonMetadata = try await asset.load(.commonMetadata)
+        if let artworkItem = AVMetadataItem.metadataItems(
+          from: commonMetadata,
+          filteredByIdentifier: .commonIdentifierArtwork
+        ).first {
+          imageData = try? await artworkItem.load(.dataValue)
+        }
       }
 
       if let imageData {
@@ -88,18 +90,23 @@ public struct AVAudioAssetImageDataProvider: ImageDataProvider {
       }
 
       throw ProviderError.missingImage
-    default:
+    } catch is CancellationError {
+      throw ProviderError.metadataFailed
+    } catch let error as ProviderError {
+      throw error
+    } catch {
       throw ProviderError.metadataFailed
     }
   }
 
-  private func getDataFromMP3(asset: AVAsset) -> Data? {
-    for item in asset.metadata {
+  private func getDataFromMP3(metadata: [AVMetadataItem]) async -> Data? {
+    for item in metadata {
       guard let key = item.commonKey?.rawValue,
-            key == "artwork",
-            let value = item.value as? Data else { continue }
+            key == "artwork" else { continue }
 
-      return value
+      if let value = try? await item.load(.dataValue) {
+        return value
+      }
     }
 
     return nil

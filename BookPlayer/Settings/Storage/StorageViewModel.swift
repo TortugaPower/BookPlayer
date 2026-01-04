@@ -166,10 +166,10 @@ final class StorageViewModel: StorageViewModelProtocol {
     publishedFiles.filter({ $0.showWarning })
   }
 
-  func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) throws {
+  func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) async throws {
     guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
       // create a new book
-      try self.createBook(from: item)
+      try await self.createBook(from: item)
       if shouldReloadItems {
         self.loadItems()
       }
@@ -224,11 +224,15 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   func fixSelectedItem(_ item: StorageItem) {
-    do {
-      try handleFix(for: item)
-    } catch {
-      storageAlert = .error(errorMessage: error.localizedDescription)
-      showAlert = true
+    Task {
+      do {
+        try await handleFix(for: item)
+      } catch {
+        await MainActor.run {
+          storageAlert = .error(errorMessage: error.localizedDescription)
+          showAlert = true
+        }
+      }
     }
   }
 
@@ -361,8 +365,8 @@ final class StorageViewModel: StorageViewModelProtocol {
     listState.reloadAll()
   }
 
-  private func createBook(from item: StorageItem) throws {
-    let book = self.libraryService.createBook(from: item.fileURL)
+  private func createBook(from item: StorageItem) async throws {
+    let book = await self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
     try libraryService.moveItems([book.relativePath], inside: nil)
     reloadLibraryItems()
@@ -450,7 +454,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   private func fixItemSafely(_ item: StorageItem) async -> FixResult {
     do {
       try await Task.detached(priority: .userInitiated) {
-        try self.handleFix(for: item, shouldReloadItems: false)
+        try await self.handleFix(for: item, shouldReloadItems: false)
       }.value
       
       return FixResult(item: item, success: true, error: nil)

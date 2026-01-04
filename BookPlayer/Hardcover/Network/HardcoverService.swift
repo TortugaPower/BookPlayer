@@ -48,7 +48,7 @@ protocol HardcoverServiceProtocol {
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private var keychain: KeychainServiceProtocol!
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
-  private var audioMetadataService: AudioMetadataServiceProtocol!
+  private var audioMetadataService: BookMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
 
   private var metadataSubscription: AnyCancellable?
@@ -72,7 +72,7 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   func setup(
     libraryService: LibraryServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
-    audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
+    audioMetadataService: BookMetadataServiceProtocol = BookMetadataService()
   ) {
     self.libraryService = libraryService
     self.keychain = keychain

@@ -179,7 +179,7 @@ class DataInitializerCoordinator: BPLogger {
 
     if shouldRebuildFromFiles {
       let files = getLibraryFiles()
-      coreServices.libraryService.insertItems(from: files)
+      await coreServices.libraryService.insertItems(from: files)
     }
 
     await MainActor.run {
