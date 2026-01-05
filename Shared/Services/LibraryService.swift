@@ -153,7 +153,7 @@ public protocol LibraryServiceProtocol: AnyObject {
 @Observable
 public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   var dataManager: DataManager!
-  var bookMetadataService: BookMetadataServiceProtocol!
+  var audioMetadataService: AudioMetadataServiceProtocol!
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
@@ -171,9 +171,9 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
 
   public init() {}
 
-  public func setup(dataManager: DataManager, bookMetadataService: BookMetadataServiceProtocol) {
+  public func setup(dataManager: DataManager, audioMetadataService: AudioMetadataServiceProtocol) {
     self.dataManager = dataManager
-    self.bookMetadataService = bookMetadataService
+    self.audioMetadataService = audioMetadataService
 
     metadataUpdatePublisher =
       metadataPassthroughPublisher
@@ -596,7 +596,7 @@ extension LibraryService {
         await self.handleDirectory(file)
       } else {
         // Extract metadata FIRST (includes chapters)
-        let metadata = await bookMetadataService.extractMetadata(from: file)
+        let metadata = await audioMetadataService.extractMetadata(from: file)
         
         // Create Book with metadata
         let book = createBook(from: file, metadata: metadata, context: context)
@@ -633,8 +633,10 @@ extension LibraryService {
     book.relativePath = url.relativePath(to: DataManager.getProcessedFolderURL())
     book.remoteURL = nil
     book.artworkURL = nil
-    book.title = metadata?.title ?? url.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-    book.details = metadata?.artist ?? "voiceover_unknown_author".localized
+    let title = metadata?.title ?? ""
+    book.title = title.isEmpty ? url.lastPathComponent.replacingOccurrences(of: "_", with: " ") : title
+    let artist = metadata?.artist ?? ""
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
     book.duration = metadata?.duration ?? 0
     book.originalFileName = url.lastPathComponent
     book.isFinished = false
@@ -1372,7 +1374,7 @@ extension LibraryService {
     let context = dataManager.getContext()
     
     // Extract metadata using the new service
-    let metadata = await bookMetadataService.extractMetadata(from: url)
+    let metadata = await audioMetadataService.extractMetadata(from: url)
     
     // Create book with extracted metadata
     let newBook = createBook(from: url, metadata: metadata, context: context)
@@ -1400,7 +1402,7 @@ extension LibraryService {
     guard needsChapters else { return }
     
     // Extract metadata outside of context.perform
-    guard let metadata = await bookMetadataService.extractMetadata(from: asset),
+    guard let metadata = await audioMetadataService.extractMetadata(from: asset),
           let chapters = metadata.chapters else {
       return
     }

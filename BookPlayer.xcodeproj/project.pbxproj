@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3F66408A2E162ABF00356522 /* BookMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* BookMetadataService.swift */; };
-		3F66408B2E162ABF00356522 /* BookMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* BookMetadataService.swift */; };
+		3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
+		3F66408B2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
 		3F66408D2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */; };
 		3F66408E2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */; };
 		3F66408F2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */; };
@@ -955,7 +955,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3F6640892E162ABF00356522 /* BookMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataService.swift; sourceTree = "<group>"; };
+		3F6640892E162ABF00356522 /* AudioMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMetadataService.swift; sourceTree = "<group>"; };
 		3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v9_to_v10.xcmappingmodel; sourceTree = "<group>"; };
 		3F6640932E17386400356522 /* DeleteUserBookData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteUserBookData.swift; sourceTree = "<group>"; };
 		3F7B64352E0F71E900299D97 /* HardcoverSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverSettingsView.swift; sourceTree = "<group>"; };
@@ -2448,7 +2448,7 @@
 		62AAE22F274AA6E9001EB9FF /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				3F6640892E162ABF00356522 /* BookMetadataService.swift */,
+				3F6640892E162ABF00356522 /* AudioMetadataService.swift */,
 				9F49072B2903663800054AD6 /* SortType.swift */,
 				9FC1E4742815C6A300522FA8 /* KeychainService.swift */,
 				62AAE22B274AA3EB001EB9FF /* LibraryService.swift */,
@@ -4027,7 +4027,7 @@
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				9F0872DC2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */,
 				9FF383D42A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
-				3F66408B2E162ABF00356522 /* BookMetadataService.swift in Sources */,
+				3F66408B2E162ABF00356522 /* AudioMetadataService.swift in Sources */,
 				4138CE1726E584B60014F11E /* BookmarkType.swift in Sources */,
 				9F9C7B5429F9672700E257B0 /* SyncableBookmark.swift in Sources */,
 				5126F123258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
@@ -4630,7 +4630,7 @@
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
 				63C6C30D2B538D8500FFE0D8 /* SyncTasksStorage.swift in Sources */,
-				3F66408A2E162ABF00356522 /* BookMetadataService.swift in Sources */,
+				3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */,
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				9F1345B62938DF070089B1DE /* Fonts.swift in Sources */,

@@ -31,9 +31,9 @@ class ImportOperationTests: XCTestCase {
     let promise = XCTestExpectation(description: "Process file")
     let promiseFile = expectation(forNotification: .processingFile, object: nil)
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let bookMetadataService = BookMetadataService()
+    let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
-    libraryService.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let operation = ImportOperation(files: [fileUrl],
                                     libraryService: libraryService)
 

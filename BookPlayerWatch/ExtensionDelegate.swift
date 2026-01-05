@@ -67,9 +67,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let dataManager = DataManager(coreDataStack: stack)
       let accountService = AccountService()
       accountService.setup(dataManager: dataManager)
-      let bookMetadataService = BookMetadataService()
+      let audioMetadataService = AudioMetadataService()
       let libraryService = LibraryService()
-      libraryService.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
+      libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
       let syncService = SyncService()
       syncService.setup(
         isActive: accountService.hasSyncEnabled(),

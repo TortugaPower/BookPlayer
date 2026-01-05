@@ -46,9 +46,9 @@ class ProcessFilesTests: DataManagerTests {
 
     let expectation = XCTestExpectation(description: "File import notification")
 
-    let bookMetadataService = BookMetadataService()
+    let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
-    libraryService.setup(dataManager: self.dataManager, bookMetadataService: bookMetadataService)
+    libraryService.setup(dataManager: self.dataManager, audioMetadataService: audioMetadataService)
     self.importManager = ImportManager(libraryService: libraryService)
 
     self.subscription = self.importManager.observeFiles().sink { files in

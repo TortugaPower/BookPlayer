@@ -20,9 +20,9 @@ class LibraryServiceTests: XCTestCase {
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
-    let bookMetadataService = BookMetadataService()
+    let audioMetadataService = AudioMetadataService()
     self.sut = LibraryService()
-    self.sut.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
+    self.sut.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     _ = self.sut.getLibrary()
   }
 

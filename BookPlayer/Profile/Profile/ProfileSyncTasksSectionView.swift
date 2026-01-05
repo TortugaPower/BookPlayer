@@ -91,9 +91,9 @@ struct ProfileSyncTasksSectionView: View {
 #Preview {
   @Previewable var syncService: SyncService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
-    let bookMetadataService = BookMetadataService()
+    let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
-    libraryService.setup(dataManager: dataManager, bookMetadataService: bookMetadataService)
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let syncService = SyncService()
     syncService.setup(isActive: true, libraryService: libraryService)
 

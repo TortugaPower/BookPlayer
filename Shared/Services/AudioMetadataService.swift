@@ -1,5 +1,5 @@
 //
-//  BookMetadataService.swift
+//  AudioMetadataService.swift
 //  BookPlayer
 //
 //  Created by Jeremy Grenier on 7/3/25.
@@ -50,19 +50,19 @@ public struct AudioMetadata {
   }
 }
 
-public protocol BookMetadataServiceProtocol {
+public protocol AudioMetadataServiceProtocol {
   /// Extract metadata from an audio file
   /// - Parameter fileURL: URL to the audio file
   /// - Returns: AudioMetadata if extraction succeeds, nil otherwise
   func extractMetadata(from fileURL: URL) async -> AudioMetadata?
-  
+
   /// Extract metadata from an AVAsset
   /// - Parameter asset: The AVAsset to extract metadata from
   /// - Returns: AudioMetadata if extraction succeeds, nil otherwise
   func extractMetadata(from asset: AVAsset) async -> AudioMetadata?
 }
 
-public class BookMetadataService: BPLogger, BookMetadataServiceProtocol {
+public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   
   public init() {}
   
@@ -80,7 +80,7 @@ public class BookMetadataService: BPLogger, BookMetadataServiceProtocol {
       let title = await extractTitle(from: metadata)
       let artist = await extractArtist(from: metadata)
       let artwork = await extractArtwork(from: metadata)
-      let chapters = await extractChapters(from: asset, duration: durationSeconds)
+      let chapters = await extractChapters(from: asset, metadata: metadata, duration: durationSeconds)
 
       return AudioMetadata(
         title: title,
@@ -147,19 +147,18 @@ public class BookMetadataService: BPLogger, BookMetadataServiceProtocol {
   
   // MARK: - Chapter Extraction
   
-  private func extractChapters(from asset: AVAsset, duration: TimeInterval) async -> [ChapterMetadata]? {
+  private func extractChapters(from asset: AVAsset, metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
     do {
-      let metadata = try await asset.load(.metadata)
       let availableChapterLocales = try await asset.load(.availableChapterLocales)
-      
+
       // First try: Native chapter support (works for M4B, some M4A, properly tagged files)
       if !availableChapterLocales.isEmpty {
         return await extractStandardChapters(from: asset, locales: availableChapterLocales)
       }
-      
+
       // Second try: Check what metadata identifiers exist
       let identifiers = metadata.compactMap { $0.identifier?.rawValue }
-      
+
       // FLAC/Vorbis chapters (CHAPTER tags)
       if identifiers.contains(where: { $0.contains("CHAPTER") && !$0.contains("NAME") }) {
         return await extractVorbisChapters(from: metadata, duration: duration)
