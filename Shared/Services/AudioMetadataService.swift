@@ -289,11 +289,13 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       guard let identifier = item.identifier?.rawValue,
             identifier.hasPrefix("id3/CHAP") else { continue }
 
-      // Extract chapter start time and title from CHAP frame
+      // Extract chapter start time and title from CHAP frame.
+      // CHAP timestamps are relative offsets from the start of the audio (not absolute dates).
       // Note: AVFoundation may not fully expose CHAP frame timing data currently,
       // but we attempt to load what's available for future compatibility.
-      if let dateValue = try? await item.load(.dateValue) {
-        let startTime = dateValue.timeIntervalSince1970
+      if let numberValue = try? await item.load(.numberValue),
+         numberValue.doubleValue >= 0 {
+        let startTime = numberValue.doubleValue
         let title = (try? await item.load(.stringValue)) ?? ""
         chapterData.append((start: startTime, title: title))
       }
