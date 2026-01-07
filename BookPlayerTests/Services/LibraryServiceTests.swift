@@ -20,8 +20,9 @@ class LibraryServiceTests: XCTestCase {
   override func setUp() {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let audioMetadataService = AudioMetadataService()
     self.sut = LibraryService()
-    self.sut.setup(dataManager: dataManager)
+    self.sut.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     _ = self.sut.getLibrary()
   }
 
@@ -71,14 +72,14 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(currentTheme?.title == "Default / Dark")
   }
 
-  func testCreateBook() {
+  func testCreateBook() async {
     let filename = "test-book.txt"
     let bookContents = "bookcontents".data(using: .utf8)!
     let processedFolder = DataManager.getProcessedFolderURL()
 
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
-    let newBook = self.sut.createBook(from: fileUrl)
+    let newBook = await self.sut.createBook(from: fileUrl)
     XCTAssert(newBook.title == "test-book.txt")
     XCTAssert(newBook.relativePath == "test-book.txt")
   }
@@ -657,7 +658,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(library.items?.count == 0)
   }
 
-  func testInsertOneBookInLibrary() throws {
+  func testInsertOneBookInLibrary() async throws {
     let library = self.sut.getLibrary()
 
     let filename = "file.txt"
@@ -667,13 +668,13 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl])
+    let processedItems = await self.sut.insertItems(from: [fileUrl])
 
     XCTAssert(library.items?.count == 1)
     XCTAssert(processedItems.count == 1)
   }
 
-  func testInsertMultipleBooksInLibrary() throws {
+  func testInsertMultipleBooksInLibrary() async throws {
     let library = self.sut.getLibrary()
 
     let filename1 = "file1.txt"
@@ -686,13 +687,13 @@ class InsertBooksTests: LibraryServiceTests {
     let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: processedFolder)
     let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [file1Url, file2Url])
+    let processedItems = await self.sut.insertItems(from: [file1Url, file2Url])
 
     XCTAssert(library.items?.count == 2)
     XCTAssert(processedItems.count == 2)
   }
 
-  func testInsertEmptyBooksIntoPlaylist() throws {
+  func testInsertEmptyBooksIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder", inside: nil)
@@ -703,7 +704,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(folder.items?.count == 0)
   }
 
-  func testInsertOneBookIntoPlaylist() throws {
+  func testInsertOneBookIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder", inside: nil)
@@ -718,7 +719,7 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = sut.insertItems(from: [fileUrl])
+    let processedItems = await sut.insertItems(from: [fileUrl])
       .map({ $0.relativePath })
     try sut.moveItems(processedItems, inside: folder.relativePath)
     XCTAssert(library.items?.count == 1)
@@ -726,7 +727,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(processedItems.count == 1)
   }
 
-  func testInsertMultipleBooksIntoPlaylist() throws {
+  func testInsertMultipleBooksIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder", inside: nil)
@@ -744,7 +745,7 @@ class InsertBooksTests: LibraryServiceTests {
     let file1Url = DataTestUtils.generateTestFile(name: filename1, contents: book1Contents, destinationFolder: processedFolder)
     let file2Url = DataTestUtils.generateTestFile(name: filename2, contents: book2Contents, destinationFolder: processedFolder)
 
-    let processedItems = sut.insertItems(from: [file1Url, file2Url])
+    let processedItems = await sut.insertItems(from: [file1Url, file2Url])
       .map({ $0.relativePath })
     try sut.moveItems(processedItems, inside: folder.relativePath)
 
@@ -753,7 +754,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(processedItems.count == 2)
   }
 
-  func testInsertExistingBookFromLibraryIntoPlaylist() throws {
+  func testInsertExistingBookFromLibraryIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder", inside: nil)
@@ -768,7 +769,7 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl])
+    let processedItems = await self.sut.insertItems(from: [fileUrl])
       .map({ $0.relativePath })
 
     XCTAssert(library.items?.count == 2)
@@ -780,7 +781,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(folder.items?.count == 1)
   }
 
-  func testInsertExistingBookFromPlaylistIntoLibrary() throws {
+  func testInsertExistingBookFromPlaylistIntoLibrary() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder", inside: nil)
@@ -795,7 +796,7 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Documents folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl])
+    let processedItems = await self.sut.insertItems(from: [fileUrl])
       .map({ $0.relativePath })
 
     try self.sut.moveItems(processedItems, inside: folder.relativePath)
@@ -810,7 +811,7 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(folder.items?.count == 0)
   }
 
-  func testInsertExistingBookFromPlaylistIntoPlaylist() throws {
+  func testInsertExistingBookFromPlaylistIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
     _ = try self.sut.createFolder(with: "test-folder1", inside: nil)
@@ -827,7 +828,7 @@ class InsertBooksTests: LibraryServiceTests {
     // Add test file to Processed folder
     let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: processedFolder)
 
-    let processedItems = self.sut.insertItems(from: [fileUrl])
+    let processedItems = await self.sut.insertItems(from: [fileUrl])
       .map({ $0.relativePath })
 
     try self.sut.moveItems(processedItems, inside: folder1.relativePath)

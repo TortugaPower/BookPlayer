@@ -68,6 +68,7 @@ extension ItemListView {
     }
     
     Button("existing_playlist_button") {
+      model.pendingMoveItemIdentifiers = alertParameters.itemIdentifiers
       model.selectedSetItems = Set(alertParameters.itemIdentifiers)
       activeSheet = .foldersSelection
     }

@@ -33,7 +33,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Set the last played book
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
-  func insertItems(from files: [URL]) -> [SimpleLibraryItem]
+  func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
   func moveItems(_ items: [String], inside relativePath: String?) throws
   /// Delete items
@@ -82,7 +82,7 @@ public protocol LibraryServiceProtocol: AnyObject {
 
   /// Update metadata
   /// Create book core data object
-  func createBook(from url: URL) -> Book
+  func createBook(from url: URL) async -> Book
   /// Load metadata chapters if needed
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
   /// Create folder
@@ -153,6 +153,7 @@ public protocol LibraryServiceProtocol: AnyObject {
 @Observable
 public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   var dataManager: DataManager!
+  var audioMetadataService: AudioMetadataServiceProtocol!
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
@@ -170,8 +171,9 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
 
   public init() {}
 
-  public func setup(dataManager: DataManager) {
+  public func setup(dataManager: DataManager, audioMetadataService: AudioMetadataServiceProtocol) {
     self.dataManager = dataManager
+    self.audioMetadataService = audioMetadataService
 
     metadataUpdatePublisher =
       metadataPassthroughPublisher
@@ -570,14 +572,14 @@ extension LibraryService {
   }
 
   @discardableResult
-  public func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
-    return insertItems(from: files, parentPath: nil)
+  public func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
+    return await insertItems(from: files, parentPath: nil)
   }
 
   /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
   /// as we don't want this method to throw, and the files are already in the processed folder
   @discardableResult
-  func insertItems(from files: [URL], parentPath: String? = nil) -> [SimpleLibraryItem] {
+  func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
     let context = dataManager.getContext()
     let library = getLibraryReference()
 
@@ -590,10 +592,20 @@ extension LibraryService {
         type == .typeDirectory
       {
         libraryItem = Folder(from: file, context: context)
-        /// Kick-off separate function to handle instatiating the folder contents
-        self.handleDirectory(file)
+        /// Handle folder contents and wait for completion to ensure proper metadata extraction
+        await self.handleDirectory(file)
       } else {
-        libraryItem = Book(from: file, context: context)
+        // Extract metadata FIRST (includes chapters)
+        let metadata = await audioMetadataService.extractMetadata(from: file)
+        
+        // Create Book with metadata
+        let book = createBook(from: file, metadata: metadata, context: context)
+        libraryItem = book
+        
+        // Create chapters immediately if available
+        if let chapters = metadata?.chapters {
+          storeChapters(chapters, for: book, context: context)
+        }
       }
 
       libraryItem.orderRank = getNextOrderRank(in: parentPath)
@@ -614,7 +626,45 @@ extension LibraryService {
     return processedFiles
   }
 
-  private func handleDirectory(_ folderURL: URL) {
+  private func createBook(from url: URL, metadata: AudioMetadata?, context: NSManagedObjectContext) -> Book {
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let book = Book(entity: entity, insertInto: context)
+    
+    book.relativePath = url.relativePath(to: DataManager.getProcessedFolderURL())
+    book.remoteURL = nil
+    book.artworkURL = nil
+    let title = metadata?.title ?? ""
+    book.title = title.isEmpty ? url.lastPathComponent.replacingOccurrences(of: "_", with: " ") : title
+    let artist = metadata?.artist ?? ""
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
+    book.duration = metadata?.duration ?? 0
+    book.originalFileName = url.lastPathComponent
+    book.isFinished = false
+    book.type = .book
+    
+    return book
+  }
+  
+  private func storeChapters(_ chapters: [ChapterMetadata], for book: Book, context: NSManagedObjectContext) {
+    for chapterMeta in chapters {
+      let chapter = Chapter(context: context)
+      chapter.title = chapterMeta.title
+      chapter.start = chapterMeta.start
+      chapter.duration = chapterMeta.duration
+      chapter.index = Int16(chapterMeta.index)
+      book.addToChapters(chapter)
+    }
+  }
+  
+  /// Overload for backwards compatibility when we need to query by relativePath
+  private func storeChapters(_ chapters: [ChapterMetadata], for relativePath: String, context: NSManagedObjectContext) {
+    guard let book = getItem(with: relativePath, context: context) as? Book else {
+      return
+    }
+    storeChapters(chapters, for: book, context: context)
+  }
+
+  private func handleDirectory(_ folderURL: URL) async {
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
       includingPropertiesForKeys: [.isDirectoryKey],
@@ -640,7 +690,7 @@ extension LibraryService {
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
 
     let parentPath = folderURL.relativePath(to: DataManager.getProcessedFolderURL())
-    insertItems(from: sortedFiles, parentPath: parentPath)
+    _ = await insertItems(from: sortedFiles, parentPath: parentPath)
     rebuildFolderDetails(parentPath)
   }
 
@@ -1320,31 +1370,51 @@ extension LibraryService {
 
 // MARK: - Metadata update
 extension LibraryService {
-  public func createBook(from url: URL) -> Book {
+  public func createBook(from url: URL) async -> Book {
     let context = dataManager.getContext()
-    let newBook = Book(from: url, context: context)
+    
+    // Extract metadata using the new service
+    let metadata = await audioMetadataService.extractMetadata(from: url)
+    
+    // Create book with extracted metadata
+    let newBook = createBook(from: url, metadata: metadata, context: context)
+    
+    // Store chapters if available
+    if let chapters = metadata?.chapters {
+      storeChapters(chapters, for: newBook, context: context)
+    }
+    
     self.dataManager.saveSyncContext(context)
     return newBook
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [unowned self, context] in
-        guard
-          let book = getItem(with: relativePath, context: context) as? Book
-        else {
-          continuation.resume()
-          return
-        }
+    let context = dataManager.getBackgroundContext()
 
-        let hadEmptyChapters = book.loadChaptersIfNeeded(from: asset, context: context)
-
-        if hadEmptyChapters {
-          dataManager.saveSyncContext(context)
-        }
-        continuation.resume()
+    // First, check if we need to load chapters
+    let needsChapters = await context.perform { [unowned self] in
+      guard let book = self.getItem(with: relativePath, context: context) as? Book else {
+        return false
       }
+      return book.chapters?.count == 0
+    }
+
+    guard needsChapters else { return }
+
+    // Extract metadata outside of context.perform
+    guard let metadata = await audioMetadataService.extractMetadata(from: asset),
+          let chapters = metadata.chapters else {
+      return
+    }
+
+    // Store chapters in the context, re-checking if still needed to avoid race conditions
+    await context.perform { [unowned self] in
+      guard let book = self.getItem(with: relativePath, context: context) as? Book,
+            book.chapters?.count == 0 else {
+        return
+      }
+      self.storeChapters(chapters, for: book, context: context)
+      self.dataManager.saveSyncContext(context)
     }
   }
 
