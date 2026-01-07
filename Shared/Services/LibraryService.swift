@@ -1390,7 +1390,7 @@ extension LibraryService {
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
     let context = dataManager.getBackgroundContext()
-    
+
     // First, check if we need to load chapters
     let needsChapters = await context.perform { [unowned self] in
       guard let book = self.getItem(with: relativePath, context: context) as? Book else {
@@ -1398,18 +1398,22 @@ extension LibraryService {
       }
       return book.chapters?.count == 0
     }
-    
+
     guard needsChapters else { return }
-    
+
     // Extract metadata outside of context.perform
     guard let metadata = await audioMetadataService.extractMetadata(from: asset),
           let chapters = metadata.chapters else {
       return
     }
-    
-    // Store chapters in the context
+
+    // Store chapters in the context, re-checking if still needed to avoid race conditions
     await context.perform { [unowned self] in
-      self.storeChapters(chapters, for: relativePath, context: context)
+      guard let book = self.getItem(with: relativePath, context: context) as? Book,
+            book.chapters?.count == 0 else {
+        return
+      }
+      self.storeChapters(chapters, for: book, context: context)
       self.dataManager.saveSyncContext(context)
     }
   }
