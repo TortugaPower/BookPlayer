@@ -145,6 +145,9 @@
 "siri_activity_title" = "متابعة آخر كتاب تم تشغيله";
 "watchapp_connect_error_title" = "خطأ في الاتصال";
 "watchapp_connect_error_description" = "هناك مشكلة في الاتصال بهاتفك، الرجاء المحاولة مرة أخرى لاحقًا";
+"watch_signin_with_iphone" = "تسجيل الدخول باستخدام iPhone";
+"watch_signin_phone_required" = "يرجى تسجيل الدخول على iPhone أولاً، ثم حاول مرة أخرى.";
+"watch_signin_failed" = "فشل تسجيل الدخول";
 "sleep_remaining_title" = "%@ المتبقي حتى النوم";
 "audio_source_title" = "مصدر الصوت";
 "speed_title" = "السرعة";
@@ -253,6 +256,10 @@
 "logout_title" = "تسجيل خروج";
 "delete_account_title" = "حذف الحساب";
 "account_title" = "حساب";
+"account_passkeys_title" = "مفاتيح المرور";
+"account_passkeys_description" = "تتيح لك مفاتيح المرور تسجيل الدخول بأمان باستخدام Face ID أو Touch ID بدلاً من كلمة المرور.";
+"account_passkey_configured" = "تتم مزامنة مفتاح المرور الخاص بك عبر سلسلة مفاتيح iCloud ويعمل على جميع أجهزة Apple الخاصة بك.";
+"account_add_passkey_title" = "إضافة مفتاح مرور";
 "benefits_cloudsync_title" = "المزامنة السحابية (Beta)";
 "benefits_themesicons_title" = "المظاهر والأيقونات";
 "benefits_supportus_title" = "ادعمنا";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ بواسطة %@، غلاف الكتاب";
 "voiceover_loading_book_cover" = "جاري تحميل غلاف الكتاب";
 "integrations_title" = "التكاملات";
+"File Path" = "مسار الملف";
+"Genres" = "الأنواع";
+"Overview" = "نظرة عامة";
+"Tags" = "الوسوم";
+"All" = "الكل";
+"Quick Action 1" = "إجراء سريع 1";
+"Quick Action 2" = "إجراء سريع 2";
+"Quick Action 3" = "إجراء سريع 3";
+"database_backup_available_message" = "قاعدة البيانات تالفة ولكن يتوفر نسخة احتياطية حديثة. هل تريد الاستعادة من أحدث نسخة احتياطية؟";
+"database_restore_button" = "استعادة من النسخة الاحتياطية";
+"database_reset_button" = "إعادة تعيين قاعدة البيانات";
+"database_restore_failed_message" = "قاعدة البيانات تالفة وفشلت استعادة النسخة الاحتياطية. ستحتاج المكتبة إلى إعادة التعيين وإعادة البناء من ملفاتك الصوتية.";
+"database_no_backup_message" = "قاعدة البيانات تالفة ولا تتوفر نسخة احتياطية. ستحتاج المكتبة إلى إعادة التعيين وإعادة البناء من ملفاتك الصوتية.";
 "settings_smartrewind_max_interval_title" = "حد التراجع الذكي";
 "settings_support_discord_title" = "انضم إلى خادم Discord الخاص بنا";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "جهاز بدون اسم";
+"passkey_delete_title" = "حذف مفتاح المرور";
+"passkey_delete_message" = "هل أنت متأكد أنك تريد حذف مفتاح المرور هذا؟ لن تتمكن من استخدامه لتسجيل الدخول بعد الآن.";
+"passkey_continue_button" = "المتابعة باستخدام مفتاح المرور";
+"passkey_signin_button" = "تسجيل الدخول باستخدام مفتاح المرور";
+"apple_signin_link" = "تسجيل الدخول باستخدام Apple";
+"apple_signin_title" = "تسجيل الدخول باستخدام Apple";
+"apple_signin_subtitle" = "استخدم معرف Apple الحالي لتسجيل الدخول أو إنشاء حساب.";
+"email_title" = "البريد الإلكتروني";
+"passkey_registration_title" = "إنشاء حساب";
+"auth_methods_section_title" = "طرق تسجيل الدخول";
+"passkey_created" = "تم الإنشاء";
+"auth_method_added" = "تمت الإضافة";
+"auth_method_primary" = "أساسي";
+
+/* Email Verification */
+"verify_email_title" = "تحقق من بريدك الإلكتروني";
+"verify_email_subtitle" = "أدخل الرمز المكون من 6 أرقام المرسل إلى %@";
+"verify_button" = "تحقق";
+"verify_didnt_receive" = "لم تستلم الرمز؟";
+"verify_resend_button" = "إعادة إرسال الرمز";
+"verify_resend_wait" = "إعادة الإرسال خلال %d ثانية";
+"continue_title" = "متابعة";
+"passkey_creating" = "جارٍ إنشاء مفتاح المرور...";
+"passkey_email_exists_title" = "الحساب موجود";
+"passkey_email_exists_message" = "يوجد حساب بهذا البريد الإلكتروني بالفعل. يرجى تسجيل الدخول باستخدام مفتاح المرور الحالي أو معرف Apple بدلاً من ذلك.";
+"passkey_signin_existing" = "تسجيل الدخول بمفتاح المرور الحالي";

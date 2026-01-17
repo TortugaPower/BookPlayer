@@ -145,6 +145,9 @@
 "siri_activity_title" = "前回再生していたブックを続きから再生";
 "watchapp_connect_error_title" = "接続エラー";
 "watchapp_connect_error_description" = "iPhoneとの接続に問題が発生しました。あとでやり直してください。";
+"watch_signin_with_iphone" = "iPhoneでサインイン";
+"watch_signin_phone_required" = "まずiPhoneでサインインしてから、もう一度お試しください。";
+"watch_signin_failed" = "サインインに失敗しました";
 "sleep_remaining_title" = "あと%@でスリープ";
 "audio_source_title" = "オーディオソース";
 "speed_title" = "再生速度";
@@ -253,6 +256,10 @@
 "logout_title" = "ログアウト";
 "delete_account_title" = "アカウントを削除";
 "account_title" = "アカウント";
+"account_passkeys_title" = "パスキー";
+"account_passkeys_description" = "パスキーを使用すると、パスワードの代わりにFace IDまたはTouch IDで安全にサインインできます。";
+"account_passkey_configured" = "パスキーはiCloudキーチェーンを通じて同期され、すべてのAppleデバイスで使用できます。";
+"account_add_passkey_title" = "パスキーを追加";
 "benefits_cloudsync_title" = "クラウド同期（ベータ版）";
 "benefits_themesicons_title" = "テーマとアイコン";
 "benefits_supportus_title" = "応援する";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ 著者%@、本の表紙";
 "voiceover_loading_book_cover" = "本の表紙を読み込み中";
 "integrations_title" = "統合";
+"File Path" = "ファイルパス";
+"Genres" = "ジャンル";
+"Overview" = "概要";
+"Tags" = "タグ";
+"All" = "すべて";
+"Quick Action 1" = "クイックアクション 1";
+"Quick Action 2" = "クイックアクション 2";
+"Quick Action 3" = "クイックアクション 3";
+"database_backup_available_message" = "データベースが破損していますが、最近のバックアップが利用可能です。最新のバックアップから復元しますか？";
+"database_restore_button" = "バックアップから復元";
+"database_reset_button" = "データベースをリセット";
+"database_restore_failed_message" = "データベースが破損しており、バックアップの復元に失敗しました。ライブラリをリセットしてオーディオファイルから再構築する必要があります。";
+"database_no_backup_message" = "データベースが破損しており、バックアップがありません。ライブラリをリセットしてオーディオファイルから再構築する必要があります。";
 "settings_smartrewind_max_interval_title" = "スマート巻き戻し制限";
 "settings_support_discord_title" = "Discordサーバーに参加する";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "名前のないデバイス";
+"passkey_delete_title" = "パスキーを削除";
+"passkey_delete_message" = "このパスキーを削除してもよろしいですか？削除すると、このパスキーでサインインできなくなります。";
+"passkey_continue_button" = "パスキーで続ける";
+"passkey_signin_button" = "パスキーでサインイン";
+"apple_signin_link" = "Appleでサインイン";
+"apple_signin_title" = "Appleでサインイン";
+"apple_signin_subtitle" = "既存のApple IDでサインインまたはアカウントを作成します。";
+"email_title" = "メールアドレス";
+"passkey_registration_title" = "アカウントを作成";
+"auth_methods_section_title" = "サインイン方法";
+"passkey_created" = "作成済み";
+"auth_method_added" = "追加済み";
+"auth_method_primary" = "メイン";
+
+/* Email Verification */
+"verify_email_title" = "メールアドレスを確認";
+"verify_email_subtitle" = "%@に送信された6桁のコードを入力してください";
+"verify_button" = "確認";
+"verify_didnt_receive" = "コードが届きませんか？";
+"verify_resend_button" = "コードを再送信";
+"verify_resend_wait" = "%d秒後に再送信";
+"continue_title" = "続ける";
+"passkey_creating" = "パスキーを作成中...";
+"passkey_email_exists_title" = "アカウントが存在します";
+"passkey_email_exists_message" = "このメールアドレスのアカウントは既に存在します。既存のパスキーまたはApple IDでサインインしてください。";
+"passkey_signin_existing" = "既存のパスキーでサインイン";

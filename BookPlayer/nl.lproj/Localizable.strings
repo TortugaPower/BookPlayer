@@ -145,6 +145,9 @@
 "siri_activity_title" = "Doorgaan met laatst afgespeelde boek";
 "watchapp_connect_error_title" = "Verbindingsfout";
 "watchapp_connect_error_description" = "Er is een probleem met het verbinden met je telefoon, probeer het later opnieuw";
+"watch_signin_with_iphone" = "Log in met iPhone";
+"watch_signin_phone_required" = "Log eerst in op je iPhone en probeer het opnieuw.";
+"watch_signin_failed" = "Inloggen mislukt";
 "sleep_remaining_title" = "%@ resterend tot slapen";
 "audio_source_title" = "Geluidsbron";
 "speed_title" = "snelheid";
@@ -253,6 +256,10 @@
 "logout_title" = "Uitloggen";
 "delete_account_title" = "Account verwijderen";
 "account_title" = "Rekening";
+"account_passkeys_title" = "Passkeys";
+"account_passkeys_description" = "Met passkeys kun je veilig inloggen met Face ID of Touch ID in plaats van een wachtwoord.";
+"account_passkey_configured" = "Je passkey wordt gesynchroniseerd via iCloud-sleutelhanger en werkt op al je Apple-apparaten.";
+"account_add_passkey_title" = "Voeg een passkey toe";
 "benefits_cloudsync_title" = "Cloud synchronisatie (Beta)";
 "benefits_themesicons_title" = "Thema's & Pictogrammen";
 "benefits_supportus_title" = "Steun ons";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ door %@, boekomslag";
 "voiceover_loading_book_cover" = "Boekomslag laden";
 "integrations_title" = "Integraties";
+"File Path" = "Bestandspad";
+"Genres" = "Genres";
+"Overview" = "Overzicht";
+"Tags" = "Tags";
+"All" = "Alles";
+"Quick Action 1" = "Snelle actie 1";
+"Quick Action 2" = "Snelle actie 2";
+"Quick Action 3" = "Snelle actie 3";
+"database_backup_available_message" = "De database is beschadigd maar een recente back-up is beschikbaar. Wil je herstellen vanaf de laatste back-up?";
+"database_restore_button" = "Herstel vanaf back-up";
+"database_reset_button" = "Database resetten";
+"database_restore_failed_message" = "De database is beschadigd en het herstellen van de back-up is mislukt. De bibliotheek moet worden gereset en opnieuw worden opgebouwd vanuit je audiobestanden.";
+"database_no_backup_message" = "De database is beschadigd en er is geen back-up beschikbaar. De bibliotheek moet worden gereset en opnieuw worden opgebouwd vanuit je audiobestanden.";
 "settings_smartrewind_max_interval_title" = "Slimme terugspoellimiet";
 "settings_support_discord_title" = "Word lid van onze Discord-server";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Naamloos apparaat";
+"passkey_delete_title" = "Passkey verwijderen";
+"passkey_delete_message" = "Weet je zeker dat je deze passkey wilt verwijderen? Je kunt deze niet meer gebruiken om in te loggen.";
+"passkey_continue_button" = "Doorgaan met passkey";
+"passkey_signin_button" = "Inloggen met passkey";
+"apple_signin_link" = "Inloggen met Apple";
+"apple_signin_title" = "Inloggen met Apple";
+"apple_signin_subtitle" = "Gebruik je bestaande Apple ID om in te loggen of een account aan te maken.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Account aanmaken";
+"auth_methods_section_title" = "Inlogmethoden";
+"passkey_created" = "Aangemaakt";
+"auth_method_added" = "Toegevoegd";
+"auth_method_primary" = "Primair";
+
+/* Email Verification */
+"verify_email_title" = "Verifieer je e-mail";
+"verify_email_subtitle" = "Voer de 6-cijferige code in die naar %@ is gestuurd";
+"verify_button" = "Verifiëren";
+"verify_didnt_receive" = "Code niet ontvangen?";
+"verify_resend_button" = "Code opnieuw verzenden";
+"verify_resend_wait" = "Opnieuw verzenden over %d seconden";
+"continue_title" = "Doorgaan";
+"passkey_creating" = "Je passkey wordt aangemaakt...";
+"passkey_email_exists_title" = "Account bestaat al";
+"passkey_email_exists_message" = "Er bestaat al een account met dit e-mailadres. Log in met je bestaande passkey of Apple ID.";
+"passkey_signin_existing" = "Inloggen met bestaande passkey";

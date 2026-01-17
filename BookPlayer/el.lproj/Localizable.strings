@@ -145,6 +145,9 @@
 "siri_activity_title" = "Συνέχεια τελευταίου βιβλίου που έπαιξε";
 "watchapp_connect_error_title" = "Σφάλμα συνδεσιμότητας";
 "watchapp_connect_error_description" = "Παρουσιάστηκε πρόβλημα με τη σύνδεση με το τηλέφωνό σας, δοκιμάστε ξανά αργότερα";
+"watch_signin_with_iphone" = "Σύνδεση με iPhone";
+"watch_signin_phone_required" = "Παρακαλώ συνδεθείτε πρώτα στο iPhone σας και δοκιμάστε ξανά.";
+"watch_signin_failed" = "Η σύνδεση απέτυχε";
 "sleep_remaining_title" = "%@ απομένει μέχρι τον ύπνο";
 "audio_source_title" = "Πηγή ήχου";
 "speed_title" = "Ταχύτητα";
@@ -253,6 +256,10 @@
 "logout_title" = "Αποσύνδεση";
 "delete_account_title" = "Διαγραφή λογαριασμού";
 "account_title" = "λογαριασμός";
+"account_passkeys_title" = "Κλειδιά πρόσβασης";
+"account_passkeys_description" = "Τα κλειδιά πρόσβασης σας επιτρέπουν να συνδεθείτε με ασφάλεια με Face ID ή Touch ID αντί για κωδικό πρόσβασης.";
+"account_passkey_configured" = "Το κλειδί πρόσβασής σας συγχρονίζεται μέσω του iCloud Keychain και λειτουργεί σε όλες τις συσκευές Apple σας.";
+"account_add_passkey_title" = "Προσθήκη κλειδιού πρόσβασης";
 "benefits_cloudsync_title" = "Cloud sync (Beta)";
 "benefits_themesicons_title" = "Θέματα & εικονίδια";
 "benefits_supportus_title" = "Υποστήριξε μας";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ από %@, εξώφυλλο βιβλίου";
 "voiceover_loading_book_cover" = "Φόρτωση εξώφυλλου βιβλίου";
 "integrations_title" = "Ενσωματώσεις";
+"File Path" = "Διαδρομή αρχείου";
+"Genres" = "Είδη";
+"Overview" = "Επισκόπηση";
+"Tags" = "Ετικέτες";
+"All" = "Όλα";
+"Quick Action 1" = "Γρήγορη ενέργεια 1";
+"Quick Action 2" = "Γρήγορη ενέργεια 2";
+"Quick Action 3" = "Γρήγορη ενέργεια 3";
+"database_backup_available_message" = "Η βάση δεδομένων είναι κατεστραμμένη αλλά υπάρχει διαθέσιμο ένα πρόσφατο αντίγραφο ασφαλείας. Θέλετε να επαναφέρετε από το τελευταίο αντίγραφο ασφαλείας;";
+"database_restore_button" = "Επαναφορά από αντίγραφο ασφαλείας";
+"database_reset_button" = "Επαναφορά βάσης δεδομένων";
+"database_restore_failed_message" = "Η βάση δεδομένων είναι κατεστραμμένη και η επαναφορά του αντιγράφου ασφαλείας απέτυχε. Η βιβλιοθήκη θα πρέπει να επαναφερθεί και να ανακατασκευαστεί από τα αρχεία ήχου σας.";
+"database_no_backup_message" = "Η βάση δεδομένων είναι κατεστραμμένη και δεν υπάρχει διαθέσιμο αντίγραφο ασφαλείας. Η βιβλιοθήκη θα πρέπει να επαναφερθεί και να ανακατασκευαστεί από τα αρχεία ήχου σας.";
 "settings_smartrewind_max_interval_title" = "Έξυπνο όριο επαναφοράς";
 "settings_support_discord_title" = "Συμμετάσχετε στον διακομιστή Discord μας";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Ανώνυμη συσκευή";
+"passkey_delete_title" = "Διαγραφή κλειδιού πρόσβασης";
+"passkey_delete_message" = "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το κλειδί πρόσβασης; Δεν θα μπορείτε πλέον να το χρησιμοποιήσετε για σύνδεση.";
+"passkey_continue_button" = "Συνέχεια με κλειδί πρόσβασης";
+"passkey_signin_button" = "Σύνδεση με κλειδί πρόσβασης";
+"apple_signin_link" = "Σύνδεση με Apple";
+"apple_signin_title" = "Σύνδεση με Apple";
+"apple_signin_subtitle" = "Χρησιμοποιήστε το υπάρχον Apple ID σας για σύνδεση ή δημιουργία λογαριασμού.";
+"email_title" = "Email";
+"passkey_registration_title" = "Δημιουργία λογαριασμού";
+"auth_methods_section_title" = "Μέθοδοι σύνδεσης";
+"passkey_created" = "Δημιουργήθηκε";
+"auth_method_added" = "Προστέθηκε";
+"auth_method_primary" = "Κύρια";
+
+/* Email Verification */
+"verify_email_title" = "Επαλήθευση email";
+"verify_email_subtitle" = "Εισάγετε τον 6ψήφιο κωδικό που στάλθηκε στο %@";
+"verify_button" = "Επαλήθευση";
+"verify_didnt_receive" = "Δεν λάβατε τον κωδικό;";
+"verify_resend_button" = "Επαναποστολή κωδικού";
+"verify_resend_wait" = "Επαναποστολή σε %d δευτερόλεπτα";
+"continue_title" = "Συνέχεια";
+"passkey_creating" = "Δημιουργία κλειδιού πρόσβασης...";
+"passkey_email_exists_title" = "Ο λογαριασμός υπάρχει";
+"passkey_email_exists_message" = "Υπάρχει ήδη λογαριασμός με αυτό το email. Παρακαλώ συνδεθείτε με το υπάρχον κλειδί πρόσβασης ή Apple ID σας.";
+"passkey_signin_existing" = "Σύνδεση με υπάρχον κλειδί πρόσβασης";

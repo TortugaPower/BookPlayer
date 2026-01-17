@@ -98,7 +98,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
-        playerLoaderService: playerLoaderService
+        playerLoaderService: playerLoaderService,
+        watchConnectivityService: ExtensionDelegate.contextManager.watchConnectivityService
       )
 
       self.coreServices = coreServices

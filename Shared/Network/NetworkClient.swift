@@ -52,7 +52,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
   /// Keychain service for the access token
   let keychain: KeychainServiceProtocol
   /// response decoder
-  private let decoder: JSONDecoder = JSONDecoder()
+  private let decoder: JSONDecoder = {
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    return decoder
+  }()
 
   public init(keychain: KeychainServiceProtocol = KeychainService()) {
     self.keychain = keychain
@@ -168,7 +172,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     switch httpURLResponse.statusCode {
     case 400...499:
       let error = try self.decoder.decode(ErrorResponse.self, from: data)
-      throw BookPlayerError.networkError(error.message)
+      if let code = error.error {
+        throw BookPlayerError.networkErrorWithCode(message: error.message, code: code)
+      } else {
+        throw BookPlayerError.networkError(error.message)
+      }
     default:
       guard !data.isEmpty else {
         guard
@@ -206,7 +214,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     if let parameters = parameters {
       switch method {
-      case .post, .put, .delete:
+      case .post, .put, .delete, .patch:
         request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
       case .get:
         break
@@ -251,4 +259,5 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 /// Default error message structure
 struct ErrorResponse: Decodable {
   let message: String
+  let error: String?
 }

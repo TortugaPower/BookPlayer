@@ -14,6 +14,7 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
+  var accountService: AccountServiceProtocol?
   /// Flag to avoid calling activate more than once from outside the service
   var didStartSession = false
   /// Flag used to register observers only once
@@ -31,6 +32,10 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
     self.playerManager = playerManager
 
     super.init()
+  }
+
+  public func setAccountService(_ accountService: AccountServiceProtocol) {
+    self.accountService = accountService
   }
 
   func bindObservers() {
@@ -212,8 +217,41 @@ extension PhoneWatchConnectivityService {
   }
 
   public func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+    // Handle auth request from Watch
+    if let command = message["command"] as? String, command == "requestAuth" {
+      handleAuthRequest(replyHandler: replyHandler)
+      return
+    }
+
     NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
     replyHandler(["success": true])
+  }
+
+  private func handleAuthRequest(replyHandler: @escaping ([String: Any]) -> Void) {
+    guard let accountService = accountService else {
+      replyHandler(["error": "serviceUnavailable"])
+      return
+    }
+
+    guard let account = accountService.getAccount(),
+          !account.id.isEmpty else {
+      replyHandler(["error": "notSignedIn"])
+      return
+    }
+
+    let keychain = KeychainService()
+    guard let token: String = try? keychain.get(.token) else {
+      replyHandler(["error": "noToken"])
+      return
+    }
+
+    replyHandler([
+      "token": token,
+      "email": account.email ?? "",
+      "accountId": account.id,
+      "hasSubscription": account.hasSubscription,
+      "donationMade": account.donationMade
+    ])
   }
 
   public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {

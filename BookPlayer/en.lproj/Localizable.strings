@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continue last played book";
 "watchapp_connect_error_title" = "Connectivity Error";
 "watchapp_connect_error_description" = "There's a problem connecting to your phone, please try again later";
+"watch_signin_with_iphone" = "Sign in with iPhone";
+"watch_signin_phone_required" = "Please sign in on your iPhone first, then try again.";
+"watch_signin_failed" = "Sign in failed";
 "sleep_remaining_title" = "%@ remaining until sleep";
 "audio_source_title" = "Audio Source";
 "speed_title" = "speed";
@@ -253,6 +256,13 @@
 "logout_title" = "Log out";
 "delete_account_title" = "Delete Account";
 "account_title" = "Account";
+"account_passkeys_title" = "Passkeys";
+"account_passkeys_description" = "Passkeys let you sign in securely with Face ID or Touch ID instead of a password.";
+"account_passkey_configured" = "Your passkey is synced via iCloud Keychain and works across all your Apple devices.";
+"account_add_passkey_title" = "Add a Passkey";
+"passkey_unnamed_device" = "Unnamed Device";
+"passkey_delete_title" = "Delete Passkey";
+"passkey_delete_message" = "Are you sure you want to remove this passkey? You won't be able to sign in with it anymore.";
 "benefits_cloudsync_title" = "Cloud sync (Beta)";
 "benefits_themesicons_title" = "Themes & Icons";
 "benefits_supportus_title" = "Support us";
@@ -393,3 +403,29 @@ We're working hard on providing a seamless experience, if possible, please conta
 "database_no_backup_message" = "The database is corrupted and no backup is available. The library will need to be reset and rebuilt from your audio files.";
 "settings_smartrewind_max_interval_title" = "Smart Rewind Limit";
 "settings_support_discord_title" = "Join our Discord server";
+
+// Passkey Authentication
+"passkey_continue_button" = "Continue with Passkey";
+"passkey_signin_button" = "Sign in with Passkey";
+"apple_signin_link" = "Sign in with Apple";
+"apple_signin_title" = "Sign in with Apple";
+"apple_signin_subtitle" = "Use your existing Apple ID to sign in or create an account.";
+"email_title" = "Email";
+"passkey_registration_title" = "Create Account";
+"auth_methods_section_title" = "Sign-in Methods";
+"passkey_created" = "Created";
+"auth_method_added" = "Added";
+"auth_method_primary" = "Primary";
+
+/* Email Verification */
+"verify_email_title" = "Verify Your Email";
+"verify_email_subtitle" = "Enter the 6-digit code sent to %@";
+"verify_button" = "Verify";
+"verify_didnt_receive" = "Didn't receive the code?";
+"verify_resend_button" = "Resend Code";
+"verify_resend_wait" = "Resend in %d seconds";
+"continue_title" = "Continue";
+"passkey_creating" = "Creating your passkey...";
+"passkey_email_exists_title" = "Account Exists";
+"passkey_email_exists_message" = "An account with this email already exists. Please sign in with your existing passkey or Apple ID instead.";
+"passkey_signin_existing" = "Sign in with existing passkey";

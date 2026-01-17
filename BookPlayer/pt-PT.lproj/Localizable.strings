@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continuar o último livro reproduzido";
 "watchapp_connect_error_title" = "Erro de ligação";
 "watchapp_connect_error_description" = "Há um problema de ligação ao seu telemóvel, tentar novamente mais tarde";
+"watch_signin_with_iphone" = "Iniciar sessão com iPhone";
+"watch_signin_phone_required" = "Por favor, inicie sessão primeiro no seu iPhone e tente novamente.";
+"watch_signin_failed" = "Falha ao iniciar sessão";
 "sleep_remaining_title" = "%@ restante até adormecer";
 "audio_source_title" = "Fonte de Áudio";
 "speed_title" = "velocidade";
@@ -253,6 +256,10 @@
 "logout_title" = "Sair";
 "delete_account_title" = "Apagar conta";
 "account_title" = "Conta";
+"account_passkeys_title" = "Chaves de acesso";
+"account_passkeys_description" = "As chaves de acesso permitem-lhe iniciar sessão de forma segura com Face ID ou Touch ID em vez de uma palavra-passe.";
+"account_passkey_configured" = "A sua chave de acesso é sincronizada através do Porta-chaves iCloud e funciona em todos os seus dispositivos Apple.";
+"account_add_passkey_title" = "Adicionar uma chave de acesso";
 "benefits_cloudsync_title" = "Sincronização na nuvem (Beta)";
 "benefits_themesicons_title" = "Temas e Ícones";
 "benefits_supportus_title" = "Apoie-nos";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ de %@, capa do livro";
 "voiceover_loading_book_cover" = "A carregar capa do livro";
 "integrations_title" = "Integrações";
+"File Path" = "Caminho do ficheiro";
+"Genres" = "Géneros";
+"Overview" = "Visão geral";
+"Tags" = "Etiquetas";
+"All" = "Tudo";
+"Quick Action 1" = "Ação rápida 1";
+"Quick Action 2" = "Ação rápida 2";
+"Quick Action 3" = "Ação rápida 3";
+"database_backup_available_message" = "A base de dados está corrompida mas existe uma cópia de segurança recente disponível. Deseja restaurar a partir da última cópia de segurança?";
+"database_restore_button" = "Restaurar da cópia de segurança";
+"database_reset_button" = "Repor base de dados";
+"database_restore_failed_message" = "A base de dados está corrompida e o restauro da cópia de segurança falhou. A biblioteca terá de ser reposta e reconstruída a partir dos seus ficheiros de áudio.";
+"database_no_backup_message" = "A base de dados está corrompida e não existe nenhuma cópia de segurança disponível. A biblioteca terá de ser reposta e reconstruída a partir dos seus ficheiros de áudio.";
 "settings_smartrewind_max_interval_title" = "Limite de retrocesso inteligente";
 "settings_support_discord_title" = "Junte-se ao nosso servidor Discord";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Dispositivo sem nome";
+"passkey_delete_title" = "Eliminar chave de acesso";
+"passkey_delete_message" = "Tem a certeza de que pretende remover esta chave de acesso? Não poderá iniciar sessão com ela.";
+"passkey_continue_button" = "Continuar com chave de acesso";
+"passkey_signin_button" = "Iniciar sessão com chave de acesso";
+"apple_signin_link" = "Iniciar sessão com a Apple";
+"apple_signin_title" = "Iniciar sessão com a Apple";
+"apple_signin_subtitle" = "Utilize o seu ID Apple existente para iniciar sessão ou criar uma conta.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Criar conta";
+"auth_methods_section_title" = "Métodos de início de sessão";
+"passkey_created" = "Criada";
+"auth_method_added" = "Adicionado";
+"auth_method_primary" = "Principal";
+
+/* Email Verification */
+"verify_email_title" = "Verifique o seu e-mail";
+"verify_email_subtitle" = "Introduza o código de 6 dígitos enviado para %@";
+"verify_button" = "Verificar";
+"verify_didnt_receive" = "Não recebeu o código?";
+"verify_resend_button" = "Reenviar código";
+"verify_resend_wait" = "Reenviar em %d segundos";
+"continue_title" = "Continuar";
+"passkey_creating" = "A criar a sua chave de acesso...";
+"passkey_email_exists_title" = "A conta já existe";
+"passkey_email_exists_message" = "Já existe uma conta com este e-mail. Inicie sessão com a sua chave de acesso ou ID Apple existente.";
+"passkey_signin_existing" = "Iniciar sessão com chave existente";

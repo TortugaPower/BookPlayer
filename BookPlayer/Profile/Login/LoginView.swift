@@ -13,6 +13,7 @@ import SwiftUI
 struct LoginView: View {
   @State private var loadingState = LoadingOverlayState()
   @State private var showCompleteAccount = false
+  @State private var showPasskeyRegistration = false
 
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
@@ -38,12 +39,17 @@ struct LoginView: View {
         LoginDisclaimerSectionView()
       }
       .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-      LoginSignInButton { hasSubscription in
-        if hasSubscription {
-          dismiss()
-        } else {
-          showCompleteAccount = true
+
+      VStack(spacing: Spacing.S) {
+        AppleSignInLink { hasSubscription in
+          handleSignInResult(hasSubscription: hasSubscription)
         }
+
+        // Continue with Passkey - goes to registration/sign-in screen
+        ContinueWithPasskeyButton {
+          showPasskeyRegistration = true
+        }
+        .padding(.bottom, Spacing.S)
       }
     }
     .environment(\.loadingState, loadingState)
@@ -60,6 +66,12 @@ struct LoginView: View {
       }
       .presentationDetents([.medium])
     }
+    .sheet(isPresented: $showPasskeyRegistration) {
+      PasskeyRegistrationView { hasSubscription in
+        showPasskeyRegistration = false
+        handleSignInResult(hasSubscription: hasSubscription)
+      }
+    }
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
         Button {
@@ -69,6 +81,14 @@ struct LoginView: View {
             .foregroundStyle(theme.linkColor)
         }
       }
+    }
+  }
+
+  private func handleSignInResult(hasSubscription: Bool) {
+    if hasSubscription {
+      dismiss()
+    } else {
+      showCompleteAccount = true
     }
   }
 }

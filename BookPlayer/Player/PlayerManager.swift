@@ -411,14 +411,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
       }
 
-      self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+      MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
         boundsSize: image.size,
         requestHandler: { (_) -> UIImage in
           image
         }
       )
-
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
     }
   }
 
@@ -534,7 +532,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return item.publisher(for: \.percentCompleted, options: [.initial, .new])
           .map { percentCompleted in
             let progress = item.isFinished ? 1.0 : percentCompleted / 100
-            return (item.relativePath, progress )
+            return (item.relativePath, progress)
           }
           .eraseToAnyPublisher()
       }

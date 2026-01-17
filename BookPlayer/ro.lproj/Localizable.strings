@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continuați ultima carte derulata";
 "watchapp_connect_error_title" = "Eroare de conectivitate";
 "watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
+"watch_signin_with_iphone" = "Autentificare cu iPhone";
+"watch_signin_phone_required" = "Te rugăm să te autentifici mai întâi pe iPhone, apoi încearcă din nou.";
+"watch_signin_failed" = "Autentificare eșuată";
 "sleep_remaining_title" = "%@Timp rămas pana la somn";
 "audio_source_title" = "Sursă audio";
 "speed_title" = "Viteza";
@@ -253,6 +256,10 @@
 "logout_title" = "Deconectați-vă";
 "delete_account_title" = "Șterge cont";
 "account_title" = "Cont";
+"account_passkeys_title" = "Chei de acces";
+"account_passkeys_description" = "Cheile de acces îți permit să te autentifici în siguranță cu Face ID sau Touch ID în loc de o parolă.";
+"account_passkey_configured" = "Cheia ta de acces este sincronizată prin Portchei iCloud și funcționează pe toate dispozitivele tale Apple.";
+"account_add_passkey_title" = "Adaugă o cheie de acces";
 "benefits_cloudsync_title" = "Sincronizare cloud (Beta)";
 "benefits_themesicons_title" = "Teme și icoane";
 "benefits_supportus_title" = "Ajuta-ne";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ de %@, coperta cărții";
 "voiceover_loading_book_cover" = "Se încarcă coperta cărții";
 "integrations_title" = "Integrări";
+"File Path" = "Cale fișier";
+"Genres" = "Genuri";
+"Overview" = "Prezentare generală";
+"Tags" = "Etichete";
+"All" = "Tot";
+"Quick Action 1" = "Acțiune rapidă 1";
+"Quick Action 2" = "Acțiune rapidă 2";
+"Quick Action 3" = "Acțiune rapidă 3";
+"database_backup_available_message" = "Baza de date este coruptă, dar o copie de rezervă recentă este disponibilă. Doriți să restaurați din ultima copie de rezervă?";
+"database_restore_button" = "Restaurare din copie de rezervă";
+"database_reset_button" = "Resetare bază de date";
+"database_restore_failed_message" = "Baza de date este coruptă și restaurarea copiei de rezervă a eșuat. Biblioteca va trebui resetată și reconstruită din fișierele audio.";
+"database_no_backup_message" = "Baza de date este coruptă și nu este disponibilă nicio copie de rezervă. Biblioteca va trebui resetată și reconstruită din fișierele audio.";
 "settings_smartrewind_max_interval_title" = "Limită de derulare înapoi inteligentă";
 "settings_support_discord_title" = "Alătură-te serverului nostru Discord";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Dispozitiv fără nume";
+"passkey_delete_title" = "Șterge cheia de acces";
+"passkey_delete_message" = "Sigur vrei să ștergi această cheie de acces? Nu o vei mai putea folosi pentru autentificare.";
+"passkey_continue_button" = "Continuă cu cheia de acces";
+"passkey_signin_button" = "Autentificare cu cheia de acces";
+"apple_signin_link" = "Autentificare cu Apple";
+"apple_signin_title" = "Autentificare cu Apple";
+"apple_signin_subtitle" = "Folosește ID-ul Apple existent pentru a te autentifica sau a crea un cont.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Creează cont";
+"auth_methods_section_title" = "Metode de autentificare";
+"passkey_created" = "Creat";
+"auth_method_added" = "Adăugat";
+"auth_method_primary" = "Principal";
+
+/* Email Verification */
+"verify_email_title" = "Verifică-ți e-mailul";
+"verify_email_subtitle" = "Introdu codul din 6 cifre trimis la %@";
+"verify_button" = "Verifică";
+"verify_didnt_receive" = "Nu ai primit codul?";
+"verify_resend_button" = "Retrimite codul";
+"verify_resend_wait" = "Retrimite în %d secunde";
+"continue_title" = "Continuă";
+"passkey_creating" = "Se creează cheia de acces...";
+"passkey_email_exists_title" = "Contul există";
+"passkey_email_exists_message" = "Un cont cu acest e-mail există deja. Te rugăm să te autentifici cu cheia de acces sau ID-ul Apple existent.";
+"passkey_signin_existing" = "Autentificare cu cheia de acces existentă";

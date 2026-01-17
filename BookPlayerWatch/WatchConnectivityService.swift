@@ -11,13 +11,27 @@ import WatchConnectivity
 
 public enum WatchConnectivityError: LocalizedError {
   case notReachable
+  case notSignedInOnPhone
+  case authTransferFailed(String)
 
   public var errorDescription: String? {
     switch self {
     case .notReachable:
       return "watchapp_connect_error_description".localized
+    case .notSignedInOnPhone:
+      return "watch_signin_phone_required".localized
+    case .authTransferFailed(let reason):
+      return "watch_signin_failed".localized + ": \(reason)"
     }
   }
+}
+
+public struct WatchAuthResponse {
+  public let token: String
+  public let email: String
+  public let accountId: String
+  public let hasSubscription: Bool
+  public let donationMade: Bool
 }
 
 public class WatchConnectivityService: NSObject, WCSessionDelegate {
@@ -115,5 +129,53 @@ extension WatchConnectivityService {
   /// Only used to receive books data on the watch via live messaging
   public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
     self.didReceiveData?(messageData)
+  }
+}
+
+// MARK: - Auth Transfer from iPhone
+
+extension WatchConnectivityService {
+  /// Request authentication credentials from iPhone
+  public func requestAuthFromiPhone() async throws -> WatchAuthResponse {
+    guard let session = validReachableSession,
+          session.activationState == .activated,
+          session.isReachable else {
+      throw WatchConnectivityError.notReachable
+    }
+
+    return try await withCheckedThrowingContinuation { continuation in
+      let message: [String: Any] = ["command": "requestAuth"]
+
+      session.sendMessage(message, replyHandler: { reply in
+        if let error = reply["error"] as? String {
+          switch error {
+          case "notSignedIn":
+            continuation.resume(throwing: WatchConnectivityError.notSignedInOnPhone)
+          default:
+            continuation.resume(throwing: WatchConnectivityError.authTransferFailed(error))
+          }
+          return
+        }
+
+        guard let token = reply["token"] as? String,
+              let email = reply["email"] as? String,
+              let accountId = reply["accountId"] as? String else {
+          continuation.resume(throwing: WatchConnectivityError.authTransferFailed("invalidResponse"))
+          return
+        }
+
+        let response = WatchAuthResponse(
+          token: token,
+          email: email,
+          accountId: accountId,
+          hasSubscription: reply["hasSubscription"] as? Bool ?? false,
+          donationMade: reply["donationMade"] as? Bool ?? false
+        )
+
+        continuation.resume(returning: response)
+      }, errorHandler: { error in
+        continuation.resume(throwing: WatchConnectivityError.authTransferFailed(error.localizedDescription))
+      })
+    }
   }
 }

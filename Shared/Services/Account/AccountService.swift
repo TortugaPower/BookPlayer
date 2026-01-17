@@ -90,6 +90,17 @@ public protocol AccountServiceProtocol {
   func logout() throws
   func deleteAccount() async throws -> String
 
+  func handlePasskeyLogin(response: PasskeyLoginResponse) async throws
+
+  /// Handle credentials transferred from iPhone to Watch
+  func loginWithTransferredCredentials(
+    token: String,
+    accountId: String,
+    email: String,
+    hasSubscription: Bool,
+    donationMade: Bool
+  ) async throws -> Account?
+
   func getSecondOnboarding<T: Decodable>() async throws -> T
 }
 
@@ -381,6 +392,49 @@ public final class AccountService: AccountServiceProtocol {
         hasSubscription: !customerInfo.activeSubscriptions.isEmpty
       )
     }
+
+    return self.getAccount()
+  }
+
+  public func handlePasskeyLogin(response: PasskeyLoginResponse) async throws {
+    // Store the token
+    try self.keychain.set(response.token, key: .token)
+
+    // Use revenuecat_id for RevenueCat (Apple ID if exists, otherwise public_id)
+    let userId = response.revenuecatId
+    let (customerInfo, _) = try await Purchases.shared.logIn(userId)
+    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
+
+    // Update local account with subscription status from server
+    let existingDonationMade = self.getAccount()?.donationMade ?? false
+    self.updateAccount(
+      id: userId,
+      email: response.email,
+      donationMade: existingDonationMade || !customerInfo.nonSubscriptions.isEmpty,
+      hasSubscription: !customerInfo.activeSubscriptions.isEmpty
+    )
+  }
+
+  public func loginWithTransferredCredentials(
+    token: String,
+    accountId: String,
+    email: String,
+    hasSubscription: Bool,
+    donationMade: Bool
+  ) async throws -> Account? {
+    // Store the token
+    try self.keychain.set(token, key: .token)
+    // Log in to RevenueCat
+    let (customerInfo, _) = try await Purchases.shared.logIn(accountId)
+    UserDefaults.sharedDefaults.set(accountId, forKey: "rcUserId")
+
+    // Update local account
+    self.updateAccount(
+      id: accountId,
+      email: email,
+      donationMade: donationMade || !customerInfo.nonSubscriptions.isEmpty,
+      hasSubscription: hasSubscription || !customerInfo.activeSubscriptions.isEmpty
+    )
 
     return self.getAccount()
   }

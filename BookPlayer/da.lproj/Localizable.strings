@@ -145,6 +145,9 @@
 "siri_activity_title" = "Fortsæt med seneste afspillede bog";
 "watchapp_connect_error_title" = "Forbindelsesfejl";
 "watchapp_connect_error_description" = "Der er et problem med at oprette forbindelse til din telefon. Prøv igen senere";
+"watch_signin_with_iphone" = "Log ind med iPhone";
+"watch_signin_phone_required" = "Log venligst ind på din iPhone først, og prøv derefter igen.";
+"watch_signin_failed" = "Login mislykkedes";
 "sleep_remaining_title" = "%@ tilbage indtil søvn";
 "audio_source_title" = "Lydkilde";
 "speed_title" = "Hastighed";
@@ -253,6 +256,10 @@
 "logout_title" = "Log ud";
 "delete_account_title" = "Slet konto";
 "account_title" = "Konto";
+"account_passkeys_title" = "Adgangsnøgler";
+"account_passkeys_description" = "Adgangsnøgler lader dig logge sikkert ind med Face ID eller Touch ID i stedet for en adgangskode.";
+"account_passkey_configured" = "Din adgangsnøgle synkroniseres via iCloud-nøglering og fungerer på alle dine Apple-enheder.";
+"account_add_passkey_title" = "Tilføj en adgangsnøgle";
 "benefits_cloudsync_title" = "Skysynkronisering (Beta)";
 "benefits_themesicons_title" = "Temaer og ikoner";
 "benefits_supportus_title" = "Støt os";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ af %@, bogomlaget";
 "voiceover_loading_book_cover" = "Indlæser bogomlaget";
 "integrations_title" = "Integrationer";
+"File Path" = "Filsti";
+"Genres" = "Genrer";
+"Overview" = "Oversigt";
+"Tags" = "Tags";
+"All" = "Alle";
+"Quick Action 1" = "Hurtig handling 1";
+"Quick Action 2" = "Hurtig handling 2";
+"Quick Action 3" = "Hurtig handling 3";
+"database_backup_available_message" = "Databasen er beskadiget, men en nylig sikkerhedskopi er tilgængelig. Vil du gendanne fra den seneste sikkerhedskopi?";
+"database_restore_button" = "Gendan fra sikkerhedskopi";
+"database_reset_button" = "Nulstil database";
+"database_restore_failed_message" = "Databasen er beskadiget, og gendannelsen af sikkerhedskopien mislykkedes. Biblioteket skal nulstilles og genopbygges fra dine lydfiler.";
+"database_no_backup_message" = "Databasen er beskadiget, og ingen sikkerhedskopi er tilgængelig. Biblioteket skal nulstilles og genopbygges fra dine lydfiler.";
 "settings_smartrewind_max_interval_title" = "Smart tilbagespolingsgrænse";
 "settings_support_discord_title" = "Deltag i vores Discord-server";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Unavngivet enhed";
+"passkey_delete_title" = "Slet adgangsnøgle";
+"passkey_delete_message" = "Er du sikker på, at du vil slette denne adgangsnøgle? Du vil ikke længere kunne bruge den til at logge ind.";
+"passkey_continue_button" = "Fortsæt med adgangsnøgle";
+"passkey_signin_button" = "Log ind med adgangsnøgle";
+"apple_signin_link" = "Log ind med Apple";
+"apple_signin_title" = "Log ind med Apple";
+"apple_signin_subtitle" = "Brug dit eksisterende Apple-id til at logge ind eller oprette en konto.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Opret konto";
+"auth_methods_section_title" = "Loginmetoder";
+"passkey_created" = "Oprettet";
+"auth_method_added" = "Tilføjet";
+"auth_method_primary" = "Primær";
+
+/* Email Verification */
+"verify_email_title" = "Bekræft din e-mail";
+"verify_email_subtitle" = "Indtast den 6-cifrede kode sendt til %@";
+"verify_button" = "Bekræft";
+"verify_didnt_receive" = "Modtog du ikke koden?";
+"verify_resend_button" = "Send kode igen";
+"verify_resend_wait" = "Send igen om %d sekunder";
+"continue_title" = "Fortsæt";
+"passkey_creating" = "Opretter din adgangsnøgle...";
+"passkey_email_exists_title" = "Konto findes";
+"passkey_email_exists_message" = "En konto med denne e-mail findes allerede. Log venligst ind med din eksisterende adgangsnøgle eller Apple-id i stedet.";
+"passkey_signin_existing" = "Log ind med eksisterende adgangsnøgle";

@@ -145,6 +145,9 @@
 "siri_activity_title" = "Продовжити відтворення попередньої книги";
 "watchapp_connect_error_title" = "Помилка з'єднання";
 "watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
+"watch_signin_with_iphone" = "Увійти через iPhone";
+"watch_signin_phone_required" = "Спочатку увійдіть на своєму iPhone, а потім спробуйте знову.";
+"watch_signin_failed" = "Помилка входу";
 "sleep_remaining_title" = "%@ залишилось до сну";
 "audio_source_title" = "Джерело аудіо";
 "speed_title" = "швидкість";
@@ -253,6 +256,10 @@
 "logout_title" = "Вийти";
 "delete_account_title" = "Видалити аккаунт";
 "account_title" = "Обліковий запис";
+"account_passkeys_title" = "Ключі доступу";
+"account_passkeys_description" = "Ключі доступу дозволяють безпечно входити за допомогою Face ID або Touch ID замість пароля.";
+"account_passkey_configured" = "Ваш ключ доступу синхронізується через Зв'язку ключів iCloud і працює на всіх ваших пристроях Apple.";
+"account_add_passkey_title" = "Додати ключ доступу";
 "benefits_cloudsync_title" = "Хмарна синхронізація (Beta)";
 "benefits_themesicons_title" = "Теми та значки";
 "benefits_supportus_title" = "Підтримайте нас";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ від %@, обкладинка книги";
 "voiceover_loading_book_cover" = "Завантаження обкладинки книги";
 "integrations_title" = "Інтеграції";
+"File Path" = "Шлях до файлу";
+"Genres" = "Жанри";
+"Overview" = "Огляд";
+"Tags" = "Теги";
+"All" = "Усе";
+"Quick Action 1" = "Швидка дія 1";
+"Quick Action 2" = "Швидка дія 2";
+"Quick Action 3" = "Швидка дія 3";
+"database_backup_available_message" = "База даних пошкоджена, але доступна нещодавня резервна копія. Бажаєте відновити з останньої резервної копії?";
+"database_restore_button" = "Відновити з резервної копії";
+"database_reset_button" = "Скинути базу даних";
+"database_restore_failed_message" = "База даних пошкоджена і відновлення з резервної копії не вдалося. Бібліотеку потрібно буде скинути та перебудувати з ваших аудіофайлів.";
+"database_no_backup_message" = "База даних пошкоджена і резервна копія недоступна. Бібліотеку потрібно буде скинути та перебудувати з ваших аудіофайлів.";
 "settings_smartrewind_max_interval_title" = "Розумне обмеження перемотування";
 "settings_support_discord_title" = "Приєднуйтесь до нашого Discord-сервера";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Пристрій без назви";
+"passkey_delete_title" = "Видалити ключ доступу";
+"passkey_delete_message" = "Ви впевнені, що хочете видалити цей ключ доступу? Ви більше не зможете використовувати його для входу.";
+"passkey_continue_button" = "Продовжити з ключем доступу";
+"passkey_signin_button" = "Увійти з ключем доступу";
+"apple_signin_link" = "Увійти через Apple";
+"apple_signin_title" = "Увійти через Apple";
+"apple_signin_subtitle" = "Використовуйте наявний Apple ID для входу або створення облікового запису.";
+"email_title" = "Ел. пошта";
+"passkey_registration_title" = "Створити обліковий запис";
+"auth_methods_section_title" = "Способи входу";
+"passkey_created" = "Створено";
+"auth_method_added" = "Додано";
+"auth_method_primary" = "Основний";
+
+/* Email Verification */
+"verify_email_title" = "Підтвердіть ел. пошту";
+"verify_email_subtitle" = "Введіть 6-значний код, надісланий на %@";
+"verify_button" = "Підтвердити";
+"verify_didnt_receive" = "Не отримали код?";
+"verify_resend_button" = "Надіслати код повторно";
+"verify_resend_wait" = "Повторити через %d сек.";
+"continue_title" = "Продовжити";
+"passkey_creating" = "Створення ключа доступу...";
+"passkey_email_exists_title" = "Обліковий запис існує";
+"passkey_email_exists_message" = "Обліковий запис з цією адресою ел. пошти вже існує. Увійдіть за допомогою наявного ключа доступу або Apple ID.";
+"passkey_signin_existing" = "Увійти з наявним ключем доступу";
