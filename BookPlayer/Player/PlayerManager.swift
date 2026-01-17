@@ -411,12 +411,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
       }
 
-      MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+      self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
         boundsSize: image.size,
         requestHandler: { (_) -> UIImage in
           image
         }
       )
+
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
     }
   }
 
