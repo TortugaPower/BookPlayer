@@ -131,13 +131,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var insertItemsFromReceivedFiles: [URL]?
     var insertItemsFromReceivedInvocations: [[URL]] = []
     var insertItemsFromReturnValue: [SimpleLibraryItem]!
-    var insertItemsFromClosure: (([URL]) -> [SimpleLibraryItem])?
-    func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
+    var insertItemsFromClosure: (([URL]) async -> [SimpleLibraryItem])?
+    func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
         insertItemsFromCallsCount += 1
         insertItemsFromReceivedFiles = files
         insertItemsFromReceivedInvocations.append(files)
         if let insertItemsFromClosure = insertItemsFromClosure {
-            return insertItemsFromClosure(files)
+            return await insertItemsFromClosure(files)
         } else {
             return insertItemsFromReturnValue
         }
@@ -465,13 +465,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookFromReceivedUrl: URL?
     var createBookFromReceivedInvocations: [URL] = []
     var createBookFromReturnValue: Book!
-    var createBookFromClosure: ((URL) -> Book)?
-    func createBook(from url: URL) -> Book {
+    var createBookFromClosure: ((URL) async -> Book)?
+    func createBook(from url: URL) async -> Book {
         createBookFromCallsCount += 1
         createBookFromReceivedUrl = url
         createBookFromReceivedInvocations.append(url)
         if let createBookFromClosure = createBookFromClosure {
-            return createBookFromClosure(url)
+            return await createBookFromClosure(url)
         } else {
             return createBookFromReturnValue
         }

@@ -145,6 +145,9 @@
 "siri_activity_title" = "Pokračovať v naposledy prehrávanej knihe";
 "watchapp_connect_error_title" = "Chyba pripojenia";
 "watchapp_connect_error_description" = "Pri pripojení k telefónu došlo k problémom, vyskúšajte to prosím neskôr";
+"watch_signin_with_iphone" = "Prihlásiť sa cez iPhone";
+"watch_signin_phone_required" = "Najprv sa prihláste na svojom iPhone a potom to skúste znova.";
+"watch_signin_failed" = "Prihlásenie zlyhalo";
 "sleep_remaining_title" = "Do spánku ostáva %@";
 "audio_source_title" = "Zdroj zvuku";
 "speed_title" = "rýchlosť";
@@ -253,6 +256,10 @@
 "logout_title" = "Odhlásiť sa";
 "delete_account_title" = "Odstránenie účtu";
 "account_title" = "Účet";
+"account_passkeys_title" = "Prístupové kľúče";
+"account_passkeys_description" = "Prístupové kľúče vám umožňujú bezpečne sa prihlásiť pomocou Face ID alebo Touch ID namiesto hesla.";
+"account_passkey_configured" = "Váš prístupový kľúč je synchronizovaný cez iCloud Keychain a funguje na všetkých vašich zariadeniach Apple.";
+"account_add_passkey_title" = "Pridať prístupový kľúč";
 "benefits_cloudsync_title" = "Cloudová synchronizácia (Beta)";
 "benefits_themesicons_title" = "Témy a ikony";
 "benefits_supportus_title" = "Podporte nás";
@@ -378,5 +385,47 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "voiceover_book_cover" = "%@ od %@, obálka knihy";
 "voiceover_loading_book_cover" = "Načítavam obálku knihy";
 "integrations_title" = "Integrácie";
+"File Path" = "Cesta k súboru";
+"Genres" = "Žánre";
+"Overview" = "Prehľad";
+"Tags" = "Štítky";
+"All" = "Všetko";
+"Quick Action 1" = "Rýchla akcia 1";
+"Quick Action 2" = "Rýchla akcia 2";
+"Quick Action 3" = "Rýchla akcia 3";
+"database_backup_available_message" = "Databáza je poškodená, ale je k dispozícii nedávna záloha. Chcete obnoviť z poslednej zálohy?";
+"database_restore_button" = "Obnoviť zo zálohy";
+"database_reset_button" = "Resetovať databázu";
+"database_restore_failed_message" = "Databáza je poškodená a obnovenie zo zálohy zlyhalo. Knižnica bude musieť byť resetovaná a znovu vytvorená z vašich audio súborov.";
+"database_no_backup_message" = "Databáza je poškodená a nie je k dispozícii žiadna záloha. Knižnica bude musieť byť resetovaná a znovu vytvorená z vašich audio súborov.";
 "settings_smartrewind_max_interval_title" = "Inteligentný limit pretáčania";
 "settings_support_discord_title" = "Pripojte sa k nášmu Discord serveru";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Nepomenované zariadenie";
+"passkey_delete_title" = "Odstrániť prístupový kľúč";
+"passkey_delete_message" = "Naozaj chcete odstrániť tento prístupový kľúč? Nebudete sa s ním môcť prihlásiť.";
+"passkey_continue_button" = "Pokračovať s prístupovým kľúčom";
+"passkey_signin_button" = "Prihlásiť sa prístupovým kľúčom";
+"apple_signin_link" = "Prihlásiť sa cez Apple";
+"apple_signin_title" = "Prihlásiť sa cez Apple";
+"apple_signin_subtitle" = "Použite svoje existujúce Apple ID na prihlásenie alebo vytvorenie účtu.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Vytvoriť účet";
+"auth_methods_section_title" = "Metódy prihlásenia";
+"passkey_created" = "Vytvorený";
+"auth_method_added" = "Pridané";
+"auth_method_primary" = "Primárna";
+
+/* Email Verification */
+"verify_email_title" = "Overte svoj e-mail";
+"verify_email_subtitle" = "Zadajte 6-miestny kód zaslaný na %@";
+"verify_button" = "Overiť";
+"verify_didnt_receive" = "Nedostali ste kód?";
+"verify_resend_button" = "Znovu odoslať kód";
+"verify_resend_wait" = "Znovu odoslať za %d sekúnd";
+"continue_title" = "Pokračovať";
+"passkey_creating" = "Vytváranie prístupového kľúča...";
+"passkey_email_exists_title" = "Účet existuje";
+"passkey_email_exists_message" = "Účet s týmto e-mailom už existuje. Prihláste sa pomocou existujúceho prístupového kľúča alebo Apple ID.";
+"passkey_signin_existing" = "Prihlásiť sa existujúcim prístupovým kľúčom";

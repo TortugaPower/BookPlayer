@@ -30,6 +30,7 @@ struct AccountView: View {
         }
       }
       AccountTermsConditionsSectionView()
+      AccountPasskeySectionView()
       AccountLogoutSectionView()
       AccountDeleteSectionView(showAlert: $showDeleteAlert)
     }

@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continuer le dernier livre lu";
 "watchapp_connect_error_title" = "Erreur de connexion";
 "watchapp_connect_error_description" = "Il y a un problème de connexion à votre téléphone, veuillez réessayer plus tard";
+"watch_signin_with_iphone" = "Se connecter avec l'iPhone";
+"watch_signin_phone_required" = "Veuillez d'abord vous connecter sur votre iPhone, puis réessayez.";
+"watch_signin_failed" = "Échec de la connexion";
 "sleep_remaining_title" = "%@ restant jusqu'à la mise en veille";
 "audio_source_title" = "Source audio";
 "speed_title" = "vitesse";
@@ -253,6 +256,10 @@
 "logout_title" = "Se déconnecter";
 "delete_account_title" = "Supprimer le compte";
 "account_title" = "Compte";
+"account_passkeys_title" = "Clés d'accès";
+"account_passkeys_description" = "Les clés d'accès vous permettent de vous connecter en toute sécurité avec Face ID ou Touch ID au lieu d'un mot de passe.";
+"account_passkey_configured" = "Votre clé d'accès est synchronisée via le trousseau iCloud et fonctionne sur tous vos appareils Apple.";
+"account_add_passkey_title" = "Ajouter une clé d'accès";
 "benefits_cloudsync_title" = "Synchronisation cloud (Beta)";
 "benefits_themesicons_title" = "Thèmes et icônes";
 "benefits_supportus_title" = "Soutenez-nous";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ par %@, couverture de livre";
 "voiceover_loading_book_cover" = "Chargement de la couverture";
 "integrations_title" = "Intégrations";
+"File Path" = "Chemin du fichier";
+"Genres" = "Genres";
+"Overview" = "Aperçu";
+"Tags" = "Tags";
+"All" = "Tout";
+"Quick Action 1" = "Action rapide 1";
+"Quick Action 2" = "Action rapide 2";
+"Quick Action 3" = "Action rapide 3";
+"database_backup_available_message" = "La base de données est corrompue mais une sauvegarde récente est disponible. Voulez-vous restaurer à partir de la dernière sauvegarde ?";
+"database_restore_button" = "Restaurer depuis la sauvegarde";
+"database_reset_button" = "Réinitialiser la base de données";
+"database_restore_failed_message" = "La base de données est corrompue et la restauration de la sauvegarde a échoué. La bibliothèque devra être réinitialisée et reconstruite à partir de vos fichiers audio.";
+"database_no_backup_message" = "La base de données est corrompue et aucune sauvegarde n'est disponible. La bibliothèque devra être réinitialisée et reconstruite à partir de vos fichiers audio.";
 "settings_smartrewind_max_interval_title" = "Limite de rembobinage intelligente";
 "settings_support_discord_title" = "Rejoignez notre serveur Discord";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Appareil sans nom";
+"passkey_delete_title" = "Supprimer la clé d'accès";
+"passkey_delete_message" = "Êtes-vous sûr de vouloir supprimer cette clé d'accès ? Vous ne pourrez plus vous connecter avec.";
+"passkey_continue_button" = "Continuer avec une clé d'accès";
+"passkey_signin_button" = "Se connecter avec une clé d'accès";
+"apple_signin_link" = "Se connecter avec Apple";
+"apple_signin_title" = "Se connecter avec Apple";
+"apple_signin_subtitle" = "Utilisez votre identifiant Apple existant pour vous connecter ou créer un compte.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Créer un compte";
+"auth_methods_section_title" = "Méthodes de connexion";
+"passkey_created" = "Créée";
+"auth_method_added" = "Ajoutée";
+"auth_method_primary" = "Principale";
+
+/* Email Verification */
+"verify_email_title" = "Vérifiez votre e-mail";
+"verify_email_subtitle" = "Entrez le code à 6 chiffres envoyé à %@";
+"verify_button" = "Vérifier";
+"verify_didnt_receive" = "Vous n'avez pas reçu le code ?";
+"verify_resend_button" = "Renvoyer le code";
+"verify_resend_wait" = "Renvoyer dans %d secondes";
+"continue_title" = "Continuer";
+"passkey_creating" = "Création de votre clé d'accès...";
+"passkey_email_exists_title" = "Le compte existe déjà";
+"passkey_email_exists_message" = "Un compte avec cet e-mail existe déjà. Veuillez vous connecter avec votre clé d'accès ou identifiant Apple existant.";
+"passkey_signin_existing" = "Se connecter avec une clé existante";

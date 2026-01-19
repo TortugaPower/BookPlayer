@@ -534,7 +534,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return item.publisher(for: \.percentCompleted, options: [.initial, .new])
           .map { percentCompleted in
             let progress = item.isFinished ? 1.0 : percentCompleted / 100
-            return (item.relativePath, progress )
+            return (item.relativePath, progress)
           }
           .eraseToAnyPublisher()
       }

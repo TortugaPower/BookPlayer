@@ -145,6 +145,9 @@
 "siri_activity_title" = "Folytassa a legutóbb lejátszott könyvet";
 "watchapp_connect_error_title" = "Kapcsolódási hiba";
 "watchapp_connect_error_description" = "Probléma a telefonhoz való csatlakozáskor, próbálkozzon később ismételten";
+"watch_signin_with_iphone" = "Bejelentkezés iPhone-nal";
+"watch_signin_phone_required" = "Kérjük, először jelentkezz be az iPhone-odon, majd próbáld újra.";
+"watch_signin_failed" = "Bejelentkezés sikertelen";
 "sleep_remaining_title" = "Alvó állapotig %@";
 "audio_source_title" = "Hangforrás";
 "speed_title" = "sebesség";
@@ -253,6 +256,10 @@
 "logout_title" = "Kijelentkezés";
 "delete_account_title" = "Fiók törlése";
 "account_title" = "Fiók";
+"account_passkeys_title" = "Jelkulcsok";
+"account_passkeys_description" = "A jelkulcsok lehetővé teszik a biztonságos bejelentkezést Face ID-vel vagy Touch ID-vel jelszó helyett.";
+"account_passkey_configured" = "A jelkulcsod szinkronizálva van az iCloud Kulcskarikán keresztül, és működik az összes Apple eszközödön.";
+"account_add_passkey_title" = "Jelkulcs hozzáadása";
 "benefits_cloudsync_title" = "Felhő szinkronizálás (Beta)";
 "benefits_themesicons_title" = "Témák és ikonok";
 "benefits_supportus_title" = "Támogass minket";
@@ -379,8 +386,46 @@
 "voiceover_loading_book_cover" = "Könyv borító betöltése";
 "integrations_title" = "Integrációk";
 "File Path" = "Fájl útvonal";
-"Genres" = "Stílusok";
+"Genres" = "Műfajok";
 "Overview" = "Áttekintés";
-"Tags" = "Cimkék";
+"Tags" = "Címkék";
+"All" = "Mind";
+"Quick Action 1" = "Gyors művelet 1";
+"Quick Action 2" = "Gyors művelet 2";
+"Quick Action 3" = "Gyors művelet 3";
+"database_backup_available_message" = "Az adatbázis sérült, de elérhető egy friss biztonsági mentés. Szeretné visszaállítani a legutóbbi biztonsági mentésből?";
+"database_restore_button" = "Visszaállítás biztonsági mentésből";
+"database_reset_button" = "Adatbázis visszaállítása";
+"database_restore_failed_message" = "Az adatbázis sérült, és a biztonsági mentés visszaállítása sikertelen volt. A könyvtárat alaphelyzetbe kell állítani és újra kell építeni a hangfájlokból.";
+"database_no_backup_message" = "Az adatbázis sérült, és nincs elérhető biztonsági mentés. A könyvtárat alaphelyzetbe kell állítani és újra kell építeni a hangfájlokból.";
 "settings_smartrewind_max_interval_title" = "Intelligens visszatekerés korlátozása";
 "settings_support_discord_title" = "Csatlakozz a Discord szerverünkhöz";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Névtelen eszköz";
+"passkey_delete_title" = "Jelszókulcs törlése";
+"passkey_delete_message" = "Biztosan törölni szeretnéd ezt a jelszókulcsot? Többé nem tudod használni a bejelentkezéshez.";
+"passkey_continue_button" = "Folytatás jelszókulccsal";
+"passkey_signin_button" = "Bejelentkezés jelszókulccsal";
+"apple_signin_link" = "Bejelentkezés Apple-lel";
+"apple_signin_title" = "Bejelentkezés Apple-lel";
+"apple_signin_subtitle" = "Használd meglévő Apple ID-dat a bejelentkezéshez vagy fiók létrehozásához.";
+"email_title" = "E-mail";
+"passkey_registration_title" = "Fiók létrehozása";
+"auth_methods_section_title" = "Bejelentkezési módok";
+"passkey_created" = "Létrehozva";
+"auth_method_added" = "Hozzáadva";
+"auth_method_primary" = "Elsődleges";
+
+/* Email Verification */
+"verify_email_title" = "E-mail megerősítése";
+"verify_email_subtitle" = "Add meg a(z) %@ címre küldött 6 számjegyű kódot";
+"verify_button" = "Megerősítés";
+"verify_didnt_receive" = "Nem kaptad meg a kódot?";
+"verify_resend_button" = "Kód újraküldése";
+"verify_resend_wait" = "Újraküldés %d másodperc múlva";
+"continue_title" = "Folytatás";
+"passkey_creating" = "Jelszókulcs létrehozása...";
+"passkey_email_exists_title" = "A fiók létezik";
+"passkey_email_exists_message" = "Ezzel az e-mail címmel már létezik fiók. Kérjük, jelentkezz be a meglévő jelszókulcsoddal vagy Apple ID-ddal.";
+"passkey_signin_existing" = "Bejelentkezés meglévő jelszókulccsal";

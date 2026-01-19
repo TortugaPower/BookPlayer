@@ -145,6 +145,9 @@
 "siri_activity_title" = "Jatka viimeksi toistettua kirjaa";
 "watchapp_connect_error_title" = "Yhteysvirhe";
 "watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
+"watch_signin_with_iphone" = "Kirjaudu iPhonella";
+"watch_signin_phone_required" = "Kirjaudu ensin iPhonellasi ja yritä uudelleen.";
+"watch_signin_failed" = "Kirjautuminen epäonnistui";
 "sleep_remaining_title" = "uniajastinta jäljellä %@";
 "audio_source_title" = "Äänilähde";
 "speed_title" = "nopeus";
@@ -253,6 +256,10 @@
 "logout_title" = "Kirjautua ulos";
 "delete_account_title" = "Poista tili";
 "account_title" = "Tili";
+"account_passkeys_title" = "Tunnusavaimet";
+"account_passkeys_description" = "Tunnusavaimilla voit kirjautua sisään turvallisesti Face ID:llä tai Touch ID:llä salasanan sijaan.";
+"account_passkey_configured" = "Tunnusavaimesi synkronoidaan iCloud-avainnipun kautta ja toimii kaikissa Apple-laitteissasi.";
+"account_add_passkey_title" = "Lisää tunnusavain";
 "benefits_cloudsync_title" = "Pilven synkronointi (Beta)";
 "benefits_themesicons_title" = "Teemat ja kuvakkeet";
 "benefits_supportus_title" = "Tue meitä";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ kirjoittaja %@, kirjan kansi";
 "voiceover_loading_book_cover" = "Ladataan kirjan kantta";
 "integrations_title" = "Integraatiot";
+"File Path" = "Tiedostopolku";
+"Genres" = "Genret";
+"Overview" = "Yleiskatsaus";
+"Tags" = "Tunnisteet";
+"All" = "Kaikki";
+"Quick Action 1" = "Pikatoiminto 1";
+"Quick Action 2" = "Pikatoiminto 2";
+"Quick Action 3" = "Pikatoiminto 3";
+"database_backup_available_message" = "Tietokanta on vioittunut, mutta tuore varmuuskopio on saatavilla. Haluatko palauttaa viimeisimmästä varmuuskopiosta?";
+"database_restore_button" = "Palauta varmuuskopiosta";
+"database_reset_button" = "Nollaa tietokanta";
+"database_restore_failed_message" = "Tietokanta on vioittunut ja varmuuskopion palautus epäonnistui. Kirjasto on nollattava ja rakennettava uudelleen äänitiedostoistasi.";
+"database_no_backup_message" = "Tietokanta on vioittunut eikä varmuuskopiota ole saatavilla. Kirjasto on nollattava ja rakennettava uudelleen äänitiedostoistasi.";
 "settings_smartrewind_max_interval_title" = "Älykäs kelausrajoitus";
 "settings_support_discord_title" = "Liity Discord-palvelimellemme";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Nimetön laite";
+"passkey_delete_title" = "Poista pääsyavain";
+"passkey_delete_message" = "Haluatko varmasti poistaa tämän pääsyavaimen? Et voi enää käyttää sitä kirjautumiseen.";
+"passkey_continue_button" = "Jatka pääsyavaimella";
+"passkey_signin_button" = "Kirjaudu pääsyavaimella";
+"apple_signin_link" = "Kirjaudu Applella";
+"apple_signin_title" = "Kirjaudu Applella";
+"apple_signin_subtitle" = "Käytä olemassa olevaa Apple ID:täsi kirjautumiseen tai tilin luomiseen.";
+"email_title" = "Sähköposti";
+"passkey_registration_title" = "Luo tili";
+"auth_methods_section_title" = "Kirjautumistavat";
+"passkey_created" = "Luotu";
+"auth_method_added" = "Lisätty";
+"auth_method_primary" = "Ensisijainen";
+
+/* Email Verification */
+"verify_email_title" = "Vahvista sähköpostisi";
+"verify_email_subtitle" = "Syötä 6-numeroinen koodi, joka lähetettiin osoitteeseen %@";
+"verify_button" = "Vahvista";
+"verify_didnt_receive" = "Etkö saanut koodia?";
+"verify_resend_button" = "Lähetä koodi uudelleen";
+"verify_resend_wait" = "Lähetä uudelleen %d sekunnin kuluttua";
+"continue_title" = "Jatka";
+"passkey_creating" = "Luodaan pääsyavainta...";
+"passkey_email_exists_title" = "Tili on olemassa";
+"passkey_email_exists_message" = "Tili tällä sähköpostilla on jo olemassa. Kirjaudu sisään olemassa olevalla pääsyavaimellasi tai Apple ID:lläsi.";
+"passkey_signin_existing" = "Kirjaudu olemassa olevalla pääsyavaimella";

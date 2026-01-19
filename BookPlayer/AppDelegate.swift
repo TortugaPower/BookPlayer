@@ -562,6 +562,9 @@ extension AppDelegate {
 
       self.coreServices = coreServices
 
+      // Wire up accountService for Watch auth transfer
+      watchService.setAccountService(accountService)
+
       return coreServices
     }
   }

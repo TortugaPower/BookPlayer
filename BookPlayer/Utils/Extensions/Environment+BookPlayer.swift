@@ -20,6 +20,7 @@ extension EnvironmentValues {
   @Entry var hardcoverService: HardcoverService = .init()
   @Entry var loadingState: LoadingOverlayState = .init()
   @Entry var playerState: PlayerState = .init()
+  @Entry var passkeyService: PasskeyServiceProtocol = PasskeyService()
 }
 
 extension EnvironmentValues {
