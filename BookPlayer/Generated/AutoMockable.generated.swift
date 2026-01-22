@@ -1747,6 +1747,38 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return getAllQueuedJobsReturnValue
         }
     }
+    //MARK: - getAllQueuedJobsWithParams
+
+    var getAllQueuedJobsWithParamsCallsCount = 0
+    var getAllQueuedJobsWithParamsCalled: Bool {
+        return getAllQueuedJobsWithParamsCallsCount > 0
+    }
+    var getAllQueuedJobsWithParamsReturnValue: [SyncTask]!
+    var getAllQueuedJobsWithParamsClosure: (() async -> [SyncTask])?
+    func getAllQueuedJobsWithParams() async -> [SyncTask] {
+        getAllQueuedJobsWithParamsCallsCount += 1
+        if let getAllQueuedJobsWithParamsClosure = getAllQueuedJobsWithParamsClosure {
+            return await getAllQueuedJobsWithParamsClosure()
+        } else {
+            return getAllQueuedJobsWithParamsReturnValue
+        }
+    }
+    //MARK: - getLastSyncError
+
+    var getLastSyncErrorCallsCount = 0
+    var getLastSyncErrorCalled: Bool {
+        return getLastSyncErrorCallsCount > 0
+    }
+    var getLastSyncErrorReturnValue: SyncErrorInfo?
+    var getLastSyncErrorClosure: (() -> SyncErrorInfo?)?
+    func getLastSyncError() -> SyncErrorInfo? {
+        getLastSyncErrorCallsCount += 1
+        if let getLastSyncErrorClosure = getLastSyncErrorClosure {
+            return getLastSyncErrorClosure()
+        } else {
+            return getLastSyncErrorReturnValue
+        }
+    }
     //MARK: - cancelAllJobs
 
     var cancelAllJobsCallsCount = 0

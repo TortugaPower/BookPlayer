@@ -76,6 +76,10 @@ public protocol SyncServiceProtocol {
 
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
+  /// Get all queued jobs with full parameters for debugging
+  func getAllQueuedJobsWithParams() async -> [SyncTask]
+  /// Get last sync error information for debugging
+  func getLastSyncError() -> SyncErrorInfo?
   /// Cancel all scheduled jobs
   func cancelAllJobs()
 
@@ -448,6 +452,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     return await jobManager.getAllQueuedJobs()
+  }
+
+  public func getAllQueuedJobsWithParams() async -> [SyncTask] {
+    return await jobManager.getAllQueuedJobsWithParams()
+  }
+
+  public func getLastSyncError() -> SyncErrorInfo? {
+    return jobManager.lastSyncError
   }
 
   public func cancelAllJobs() {

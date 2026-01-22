@@ -160,6 +160,37 @@ public actor SyncTasksStorage: ModelActor {
     }
   }
 
+  public func getAllTasksWithParams() async -> [SyncTask] {
+    do {
+      let descriptor = FetchDescriptor<SyncTasksContainer>()
+      let containers = try modelContext.fetch(descriptor)
+
+      guard let tasksContainer = containers.first else { return [] }
+
+      return tasksContainer.orderedTasks.compactMap { taskRef in
+        guard
+          let storedObject = tasksDataManager.getTaskModel(
+            with: taskRef.taskID,
+            jobType: taskRef.jobType,
+            in: modelContext
+          )
+        else {
+          return nil
+        }
+
+        return SyncTask(
+          id: taskRef.taskID,
+          relativePath: taskRef.relativePath,
+          jobType: taskRef.jobType,
+          parameters: storedObject.toDictionaryPayload()
+        )
+      }
+
+    } catch {
+      return []
+    }
+  }
+
   public func getTasksCount() -> Int {
     tasksDataManager.getTasksCount()
   }
