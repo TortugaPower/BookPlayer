@@ -6,7 +6,6 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import AuthenticationServices
 import BookPlayerWatchKit
 import SwiftUI
 
@@ -30,44 +29,6 @@ struct LoginView: View {
       Spacer(minLength: Spacing.S2)
         .listRowBackground(Color.clear)
 
-      SignInWithAppleButton(.signIn) { request in
-        request.requestedScopes = [.email]
-      } onCompletion: { result in
-        switch result {
-        case .success(let authorization):
-          Task {
-            do {
-              isLoading = true
-
-              guard
-                let creds = authorization.credential as? ASAuthorizationAppleIDCredential,
-                let tokenData = creds.identityToken,
-                let token = String(data: tokenData, encoding: .utf8)
-              else {
-                throw AccountError.missingToken
-              }
-
-              let account = try await coreServices.accountService.login(
-                with: token,
-                userId: creds.user
-              )
-
-              isLoading = false
-              self.account = account
-              coreServices.checkAndReloadIfSyncIsEnabled()
-            } catch {
-              isLoading = false
-              self.error = error
-            }
-          }
-        case .failure(let error):
-          self.error = error
-        }
-      }
-      .frame(maxHeight: 45)
-      .listRowBackground(Color.clear)
-      Spacer(minLength: Spacing.S2)
-        .listRowBackground(Color.clear)
       Button {
         signInWithiPhone()
       } label: {
