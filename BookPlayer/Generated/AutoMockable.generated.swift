@@ -131,13 +131,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var insertItemsFromReceivedFiles: [URL]?
     var insertItemsFromReceivedInvocations: [[URL]] = []
     var insertItemsFromReturnValue: [SimpleLibraryItem]!
-    var insertItemsFromClosure: (([URL]) -> [SimpleLibraryItem])?
-    func insertItems(from files: [URL]) -> [SimpleLibraryItem] {
+    var insertItemsFromClosure: (([URL]) async -> [SimpleLibraryItem])?
+    func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
         insertItemsFromCallsCount += 1
         insertItemsFromReceivedFiles = files
         insertItemsFromReceivedInvocations.append(files)
         if let insertItemsFromClosure = insertItemsFromClosure {
-            return insertItemsFromClosure(files)
+            return await insertItemsFromClosure(files)
         } else {
             return insertItemsFromReturnValue
         }
@@ -465,13 +465,13 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookFromReceivedUrl: URL?
     var createBookFromReceivedInvocations: [URL] = []
     var createBookFromReturnValue: Book!
-    var createBookFromClosure: ((URL) -> Book)?
-    func createBook(from url: URL) -> Book {
+    var createBookFromClosure: ((URL) async -> Book)?
+    func createBook(from url: URL) async -> Book {
         createBookFromCallsCount += 1
         createBookFromReceivedUrl = url
         createBookFromReceivedInvocations.append(url)
         if let createBookFromClosure = createBookFromClosure {
-            return createBookFromClosure(url)
+            return await createBookFromClosure(url)
         } else {
             return createBookFromReturnValue
         }
@@ -1745,6 +1745,38 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return await getAllQueuedJobsClosure()
         } else {
             return getAllQueuedJobsReturnValue
+        }
+    }
+    //MARK: - getAllQueuedJobsWithParams
+
+    var getAllQueuedJobsWithParamsCallsCount = 0
+    var getAllQueuedJobsWithParamsCalled: Bool {
+        return getAllQueuedJobsWithParamsCallsCount > 0
+    }
+    var getAllQueuedJobsWithParamsReturnValue: [SyncTask]!
+    var getAllQueuedJobsWithParamsClosure: (() async -> [SyncTask])?
+    func getAllQueuedJobsWithParams() async -> [SyncTask] {
+        getAllQueuedJobsWithParamsCallsCount += 1
+        if let getAllQueuedJobsWithParamsClosure = getAllQueuedJobsWithParamsClosure {
+            return await getAllQueuedJobsWithParamsClosure()
+        } else {
+            return getAllQueuedJobsWithParamsReturnValue
+        }
+    }
+    //MARK: - getLastSyncError
+
+    var getLastSyncErrorCallsCount = 0
+    var getLastSyncErrorCalled: Bool {
+        return getLastSyncErrorCallsCount > 0
+    }
+    var getLastSyncErrorReturnValue: SyncErrorInfo?
+    var getLastSyncErrorClosure: (() -> SyncErrorInfo?)?
+    func getLastSyncError() -> SyncErrorInfo? {
+        getLastSyncErrorCallsCount += 1
+        if let getLastSyncErrorClosure = getLastSyncErrorClosure {
+            return getLastSyncErrorClosure()
+        } else {
+            return getLastSyncErrorReturnValue
         }
     }
     //MARK: - cancelAllJobs

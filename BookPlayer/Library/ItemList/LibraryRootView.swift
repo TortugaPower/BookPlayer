@@ -181,7 +181,7 @@ struct LibraryRootView: View {
     guard !files.isEmpty else { return }
 
     Task { @MainActor in
-      let processedItems = libraryService.insertItems(from: files)
+      let processedItems = await libraryService.insertItems(from: files)
       var itemIdentifiers = processedItems.map({ $0.relativePath })
       do {
         await syncService.scheduleUpload(items: processedItems)

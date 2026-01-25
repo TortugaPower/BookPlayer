@@ -77,6 +77,9 @@ final class ItemListViewModel: ObservableObject {
     }
   }
   @Published var selectedItems = [SimpleLibraryItem]()
+  /// Stores item identifiers from import operations to avoid race condition
+  /// where items may not be loaded in the UI yet when moving to a folder
+  var pendingMoveItemIdentifiers: [String]?
 
   /// Search
   @Published var scope: ItemListSearchScope = .all
@@ -410,7 +413,15 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
-    let fetchedItems = selectedItems.compactMap({ $0.relativePath })
+    // Use pendingMoveItemIdentifiers if available (from import operations),
+    // otherwise fall back to selectedItems (from manual selection)
+    let fetchedItems: [String]
+    if let pendingItems = pendingMoveItemIdentifiers {
+      fetchedItems = pendingItems
+      pendingMoveItemIdentifiers = nil
+    } else {
+      fetchedItems = selectedItems.compactMap({ $0.relativePath })
+    }
 
     do {
       try libraryService.moveItems(fetchedItems, inside: folder.relativePath)

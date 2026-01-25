@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continuar con el último libro";
 "watchapp_connect_error_title" = "Error de conectividad";
 "watchapp_connect_error_description" = "Hay un problema de conexión con el teléfono, por favor, inténtelo de nuevo más tarde.";
+"watch_signin_with_iphone" = "Iniciar sesión con iPhone";
+"watch_signin_phone_required" = "Por favor, inicia sesión primero en tu iPhone e inténtalo de nuevo.";
+"watch_signin_failed" = "Error de inicio de sesión";
 "sleep_remaining_title" = "%@ restante hasta pausar";
 "audio_source_title" = "Fuente de audio";
 "speed_title" = "velocidad";
@@ -253,6 +256,10 @@
 "logout_title" = "Cerrar sesión";
 "delete_account_title" = "Borrar cuenta";
 "account_title" = "Cuenta";
+"account_passkeys_title" = "Llaves de acceso";
+"account_passkeys_description" = "Las llaves de acceso te permiten iniciar sesión de forma segura con Face ID o Touch ID en lugar de una contraseña.";
+"account_passkey_configured" = "Tu llave de acceso se sincroniza a través del llavero de iCloud y funciona en todos tus dispositivos Apple.";
+"account_add_passkey_title" = "Añadir una llave de acceso";
 "benefits_cloudsync_title" = "Sincronización en la nube (Beta)";
 "benefits_themesicons_title" = "Temas e iconos";
 "benefits_supportus_title" = "Apóyanos";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ de %@, portada del libro";
 "voiceover_loading_book_cover" = "Cargando portada del libro";
 "integrations_title" = "Integraciones";
+"File Path" = "Ruta del archivo";
+"Genres" = "Géneros";
+"Overview" = "Resumen";
+"Tags" = "Etiquetas";
+"All" = "Todo";
+"Quick Action 1" = "Acción rápida 1";
+"Quick Action 2" = "Acción rápida 2";
+"Quick Action 3" = "Acción rápida 3";
+"database_backup_available_message" = "La base de datos está dañada pero hay una copia de seguridad reciente disponible. ¿Desea restaurar desde la última copia de seguridad?";
+"database_restore_button" = "Restaurar desde copia";
+"database_reset_button" = "Restablecer base de datos";
+"database_restore_failed_message" = "La base de datos está dañada y la restauración de la copia de seguridad falló. La biblioteca deberá restablecerse y reconstruirse a partir de sus archivos de audio.";
+"database_no_backup_message" = "La base de datos está dañada y no hay copia de seguridad disponible. La biblioteca deberá restablecerse y reconstruirse a partir de sus archivos de audio.";
 "settings_smartrewind_max_interval_title" = "Límite de rebobinado inteligente";
 "settings_support_discord_title" = "Únete a nuestro servidor de Discord";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Dispositivo sin nombre";
+"passkey_delete_title" = "Eliminar llave de acceso";
+"passkey_delete_message" = "¿Estás seguro de que quieres eliminar esta llave de acceso? Ya no podrás iniciar sesión con ella.";
+"passkey_continue_button" = "Continuar con llave de acceso";
+"passkey_signin_button" = "Iniciar sesión con llave de acceso";
+"apple_signin_link" = "Iniciar sesión con Apple";
+"apple_signin_title" = "Iniciar sesión con Apple";
+"apple_signin_subtitle" = "Usa tu Apple ID existente para iniciar sesión o crear una cuenta.";
+"email_title" = "Correo electrónico";
+"passkey_registration_title" = "Crear cuenta";
+"auth_methods_section_title" = "Métodos de inicio de sesión";
+"passkey_created" = "Creado";
+"auth_method_added" = "Añadido";
+"auth_method_primary" = "Principal";
+
+/* Email Verification */
+"verify_email_title" = "Verifica tu correo";
+"verify_email_subtitle" = "Ingresa el código de 6 dígitos enviado a %@";
+"verify_button" = "Verificar";
+"verify_didnt_receive" = "¿No recibiste el código?";
+"verify_resend_button" = "Reenviar código";
+"verify_resend_wait" = "Reenviar en %d segundos";
+"continue_title" = "Continuar";
+"passkey_creating" = "Creando tu llave de acceso...";
+"passkey_email_exists_title" = "La cuenta ya existe";
+"passkey_email_exists_message" = "Ya existe una cuenta con este correo electrónico. Por favor, inicia sesión con tu llave de acceso o Apple ID existente.";
+"passkey_signin_existing" = "Iniciar sesión con llave existente";

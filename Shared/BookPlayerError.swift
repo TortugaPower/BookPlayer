@@ -11,6 +11,7 @@ import Foundation
 public enum BookPlayerError: Error {
   case runtimeError(String)
   case networkError(String)
+  case networkErrorWithCode(message: String, code: String)
   case cancelledTask
   case emptyResponse
 }
@@ -23,6 +24,8 @@ extension BookPlayerError: LocalizedError {
     case .emptyResponse:
       return "Empty network response"
     case .networkError(let message):
+      return message
+    case .networkErrorWithCode(let message, _):
       return message
     case .cancelledTask:
       return "Concurrent task was cancelled"

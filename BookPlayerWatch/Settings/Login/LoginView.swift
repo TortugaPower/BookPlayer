@@ -6,7 +6,6 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import AuthenticationServices
 import BookPlayerWatchKit
 import SwiftUI
 
@@ -15,7 +14,7 @@ struct LoginView: View {
   @Binding var account: Account?
   @State private var isLoading = false
   @State private var error: Error?
-  
+
   var body: some View {
     List {
       Text("BookPlayer Pro")
@@ -29,41 +28,18 @@ struct LoginView: View {
         .listRowBackground(Color.clear)
       Spacer(minLength: Spacing.S2)
         .listRowBackground(Color.clear)
-      SignInWithAppleButton(.signIn) { request in
-        request.requestedScopes = [.email]
-      } onCompletion: { result in
-        switch result {
-        case .success(let authorization):
-          Task {
-            do {
-              isLoading = true
 
-              guard
-                let creds = authorization.credential as? ASAuthorizationAppleIDCredential,
-                let tokenData = creds.identityToken,
-                let token = String(data: tokenData, encoding: .utf8)
-              else {
-                throw AccountError.missingToken
-              }
-
-              let account = try await coreServices.accountService.login(
-                with: token,
-                userId: creds.user
-              )
-
-              isLoading = false
-              self.account = account
-              coreServices.checkAndReloadIfSyncIsEnabled()
-            } catch {
-              isLoading = false
-              self.error = error
-            }
-          }
-        case .failure(let error):
-          self.error = error
+      Button {
+        signInWithiPhone()
+      } label: {
+        HStack {
+          Image(systemName: "iphone")
+          Text("watch_signin_with_iphone".localized)
         }
+        .frame(maxWidth: .infinity)
       }
-      .frame(maxHeight: 45)
+      .buttonStyle(.bordered)
+      .buttonBorderShape(.roundedRectangle)
       .listRowBackground(Color.clear)
       Spacer(minLength: Spacing.M)
         .listRowBackground(Color.clear)
@@ -82,6 +58,31 @@ struct LoginView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             )
         }
+      }
+    }
+  }
+
+  private func signInWithiPhone() {
+    Task {
+      do {
+        isLoading = true
+
+        let authResponse = try await coreServices.watchConnectivityService.requestAuthFromiPhone()
+
+        let account = try await coreServices.accountService.loginWithTransferredCredentials(
+          token: authResponse.token,
+          accountId: authResponse.accountId,
+          email: authResponse.email,
+          hasSubscription: authResponse.hasSubscription,
+          donationMade: authResponse.donationMade
+        )
+
+        isLoading = false
+        self.account = account
+        coreServices.checkAndReloadIfSyncIsEnabled()
+      } catch {
+        isLoading = false
+        self.error = error
       }
     }
   }

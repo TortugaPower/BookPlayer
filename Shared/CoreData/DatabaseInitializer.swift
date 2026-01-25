@@ -80,8 +80,9 @@ public class DatabaseInitializer: BPLogger {
           continuation.resume(throwing: error)
         } else {
           let dataManager = DataManager(coreDataStack: stack)
+          let audioMetadataService = AudioMetadataService()
           let libraryService = LibraryService()
-          libraryService.setup(dataManager: dataManager)
+          libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
           _ = libraryService.getLibrary()
 
           continuation.resume(returning: stack)

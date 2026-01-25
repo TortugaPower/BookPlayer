@@ -67,8 +67,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let dataManager = DataManager(coreDataStack: stack)
       let accountService = AccountService()
       accountService.setup(dataManager: dataManager)
+      let audioMetadataService = AudioMetadataService()
       let libraryService = LibraryService()
-      libraryService.setup(dataManager: dataManager)
+      libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
       let syncService = SyncService()
       syncService.setup(
         isActive: accountService.hasSyncEnabled(),
@@ -97,7 +98,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
-        playerLoaderService: playerLoaderService
+        playerLoaderService: playerLoaderService,
+        watchConnectivityService: ExtensionDelegate.contextManager.watchConnectivityService
       )
 
       self.coreServices = coreServices

@@ -35,14 +35,17 @@ struct LocalizedAlertError: LocalizedError {
   var recoverySuggestion: String?
 
   init?(error: Error?) {
-    if let localizedError = error as? LocalizedError {
-      self.errorDescription = localizedError.errorDescription
+    guard let error else { return nil }
+
+    if let localizedError = error as? LocalizedError,
+       let description = localizedError.errorDescription {
+      self.errorDescription = description
       self.recoverySuggestion = localizedError.recoverySuggestion
-    } else if let error {
+    } else {
+      // Fallback to localizedDescription for non-LocalizedError types
+      // or when errorDescription is nil
       self.errorDescription = error.localizedDescription
       self.recoverySuggestion = nil
-    } else {
-      return nil
     }
   }
 }

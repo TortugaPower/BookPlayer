@@ -11,6 +11,12 @@ import Foundation
 import RevenueCat
 
 class AccountServiceMock: AccountServiceProtocol {
+  func handlePasskeyLogin(response: BookPlayerKit.PasskeyLoginResponse) async throws { }
+
+  func loginWithTransferredCredentials(token: String, accountId: String, email: String, hasSubscription: Bool, donationMade: Bool) async throws -> BookPlayerKit.Account? {
+    return nil
+  }
+  
   func getAnonymousId() -> String? {
     return nil
   }

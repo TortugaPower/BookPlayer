@@ -10,6 +10,8 @@ import Combine
 import Foundation
 
 public protocol JobSchedulerProtocol {
+  /// Last sync error information for debugging
+  var lastSyncError: SyncErrorInfo? { get }
 
   func queuedJobsCount() async -> Int
   /// Uploads the metadata for the first time to the server
@@ -34,6 +36,8 @@ public protocol JobSchedulerProtocol {
   func scheduleArtworkUpload(with relativePath: String) async
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
+  /// Get all queued jobs with full parameters
+  func getAllQueuedJobsWithParams() async -> [SyncTask]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
   /// Check if there's an upload task queued for the item
@@ -52,6 +56,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   /// Reference to ongoing library fetch task
   private var initializeStoreTask: Task<(), Error>?
   private var taskStore: SyncTasksStorage!
+  /// Last sync error information for debugging
+  public private(set) var lastSyncError: SyncErrorInfo?
 
   public init(
     tasksDataManager: TasksDataManager,
@@ -241,6 +247,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     return await taskStore.getAllTasks()
   }
 
+  public func getAllQueuedJobsWithParams() async -> [SyncTask] {
+    _ = await initializeStoreTask?.result
+    return await taskStore.getAllTasksWithParams()
+  }
+
   public func cancelAllJobs() {
     Task {
       _ = await initializeStoreTask?.result
@@ -288,6 +299,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         operationTask.completionBlock = { [unowned self, unowned operationTask] in
           if let error = operationTask.error {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
+            self.lastSyncError = SyncErrorInfo(
+              taskId: task.id,
+              relativePath: task.relativePath,
+              jobType: task.jobType,
+              error: error.localizedDescription
+            )
             self.retryQueuedTask()
           } else {
             self.handleFinishedTask(task)

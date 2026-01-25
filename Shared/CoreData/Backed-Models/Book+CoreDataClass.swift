@@ -56,140 +56,19 @@ extension CodingUserInfoKey {
 }
 
 extension Book {
-  public func loadChaptersIfNeeded(from asset: AVAsset, context: NSManagedObjectContext) -> Bool {
-    guard chapters?.count == 0 else { return false }
-
-    setChapters(from: asset, context: context)
-    return true
-  }
-
-  public func setChapters(from asset: AVAsset, context: NSManagedObjectContext) {
-    if !asset.availableChapterLocales.isEmpty {
-      setStandardChapters(from: asset, context: context)
-    } else {
-      setOverdriveChapters(from: asset, context: context)
-    }
-  }
-
-  /// Store chapters that are automatically parsed by the native SDK
-  private func setStandardChapters(from asset: AVAsset, context: NSManagedObjectContext) {
-    for locale in asset.availableChapterLocales {
-      let chaptersMetadata = asset.chapterMetadataGroups(
-        withTitleLocale: locale, containingItemsWithCommonKeys: [AVMetadataKey.commonKeyArtwork]
-      )
-
-      for (index, chapterMetadata) in chaptersMetadata.enumerated() {
-        let chapterIndex = index + 1
-        let chapter = Chapter(context: context)
-
-        chapter.title = AVMetadataItem.metadataItems(
-          from: chapterMetadata.items,
-          withKey: AVMetadataKey.commonKeyTitle,
-          keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String ?? ""
-        chapter.start = CMTimeGetSeconds(chapterMetadata.timeRange.start)
-        chapter.duration = CMTimeGetSeconds(chapterMetadata.timeRange.duration)
-        chapter.index = Int16(chapterIndex)
-
-        self.addToChapters(chapter)
-      }
-    }
-  }
-
-  /// Try to store chapters info from the TXXX tag for mp3s (used by Overdrive)
-  /// Note: `XMLParser` does not have an async/await API, so I would rather use regex with
-  /// what was introduced in iOS 16 to parse the info
-  private func setOverdriveChapters(from asset: AVAsset, context: NSManagedObjectContext) {
-    guard
-      let fileURL,
-      fileURL.pathExtension == "mp3",
-      let overdriveMetadata = asset.metadata.first(where: { $0.identifier?.rawValue == "id3/TXXX" })?.value as? String
-    else { return }
-
-    let matches = overdriveMetadata.matches(of: /<Marker>(.+?)<\/Marker>/)
-    var chapters = [Chapter]()
-
-    for (index, match) in matches.enumerated() {
-      let (_, marker) = match.output
-
-      guard let (_, timeMatch) = marker.matches(of: /<Time>(.+?)<\/Time>/).first?.output else {
-        continue
-      }
-
-      let chapter = Chapter(context: context)
-      chapter.index = Int16(index + 1)
-      chapter.start = TimeParser.getDuration(from: String(timeMatch))
-
-      if let (_, nameMatch) = marker.matches(of: /<Name>(.+?)<\/Name>/).first?.output {
-        chapter.title = String(nameMatch)
-      } else {
-        chapter.title = ""
-      }
-
-      chapters.append(chapter)
-    }
-
-    /// Overdrive markers do not include the duration, we have to parse it from the next chapter over
-    for (index, chapter) in chapters.enumerated() {
-      if index == chapters.endIndex - 1 {
-        chapter.duration = self.duration - chapter.start
-      } else {
-        chapter.duration = chapters[index + 1].start - chapter.start
-      }
-
-      self.addToChapters(chapter)
-    }
-  }
-
-  private func loadMp3Data(from asset: AVAsset) {
-    for item in asset.metadata {
-      guard let key = item.commonKey?.rawValue,
-            let value = item.value else { continue }
-
-      switch key {
-      case "title":
-        self.title = value as? String
-      case "artist":
-        if self.details == "voiceover_unknown_author".localized {
-          self.details = value as? String
-        }
-      default:
-        continue
-      }
-    }
-  }
-
-  public convenience init(from bookUrl: URL, context: NSManagedObjectContext) {
-    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
-    self.init(entity: entity, insertInto: context)
-    let fileURL = bookUrl
-    self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
-    self.remoteURL = nil
-    self.artworkURL = nil
-    let asset = AVAsset(url: fileURL)
-
-    let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
-    let authorFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyArtist, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
-
-    self.title = titleFromMeta ?? bookUrl.lastPathComponent.replacingOccurrences(of: "_", with: " ")
-    self.details = authorFromMeta ?? "voiceover_unknown_author".localized
-    self.duration = CMTimeGetSeconds(asset.duration)
-    self.originalFileName = bookUrl.lastPathComponent
-    self.isFinished = false
-    self.type = .book
-
-    if fileURL.pathExtension == "mp3" {
-      self.loadMp3Data(from: asset)
-    }
-
-    self.setChapters(from: asset, context: context)
-  }
-
   public class func getBookTitle(from fileURL: URL) -> String {
     let asset = AVAsset(url: fileURL)
 
-    let titleFromMeta = AVMetadataItem.metadataItems(from: asset.metadata, withKey: AVMetadataKey.commonKeyTitle, keySpace: AVMetadataKeySpace.common).first?.value?.copy(with: nil) as? String
+    // Check all metadata items for title, regardless of format
+    for item in asset.metadata {
+      if let commonKey = item.commonKey?.rawValue,
+         commonKey == "title",
+         let title = item.value as? String {
+        return title
+      }
+    }
 
-    return titleFromMeta ?? fileURL.lastPathComponent
+    return fileURL.lastPathComponent
   }
 }
 

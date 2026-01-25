@@ -145,6 +145,9 @@
 "siri_activity_title" = "继续上次播放的有声书";
 "watchapp_connect_error_title" = "连接错误";
 "watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
+"watch_signin_with_iphone" = "使用 iPhone 登录";
+"watch_signin_phone_required" = "请先在 iPhone 上登录，然后重试。";
+"watch_signin_failed" = "登录失败";
 "sleep_remaining_title" = "剩余%@直到停止";
 "audio_source_title" = "音源";
 "speed_title" = "速度";
@@ -253,6 +256,10 @@
 "logout_title" = "登出";
 "delete_account_title" = "删除帐户";
 "account_title" = "帐户";
+"account_passkeys_title" = "通行密钥";
+"account_passkeys_description" = "通行密钥让您可以使用面容 ID 或触控 ID 安全登录，无需密码。";
+"account_passkey_configured" = "您的通行密钥通过 iCloud 钥匙串同步，可在所有 Apple 设备上使用。";
+"account_add_passkey_title" = "添加通行密钥";
 "benefits_cloudsync_title" = "云同步（Beta）";
 "benefits_themesicons_title" = "主题和图标";
 "benefits_supportus_title" = "支持我们";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ 作者 %@，图书封面";
 "voiceover_loading_book_cover" = "正在加载图书封面";
 "integrations_title" = "集成";
+"File Path" = "文件路径";
+"Genres" = "类型";
+"Overview" = "概览";
+"Tags" = "标签";
+"All" = "全部";
+"Quick Action 1" = "快捷操作 1";
+"Quick Action 2" = "快捷操作 2";
+"Quick Action 3" = "快捷操作 3";
+"database_backup_available_message" = "数据库已损坏，但有最近的备份可用。是否要从最新备份恢复？";
+"database_restore_button" = "从备份恢复";
+"database_reset_button" = "重置数据库";
+"database_restore_failed_message" = "数据库已损坏，备份恢复失败。资料库需要重置并从您的音频文件重新构建。";
+"database_no_backup_message" = "数据库已损坏且没有可用的备份。资料库需要重置并从您的音频文件重新构建。";
 "settings_smartrewind_max_interval_title" = "智能倒带限制";
 "settings_support_discord_title" = "加入我们的 Discord 服务器";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "未命名设备";
+"passkey_delete_title" = "删除通行密钥";
+"passkey_delete_message" = "确定要删除此通行密钥吗？删除后将无法使用它登录。";
+"passkey_continue_button" = "使用通行密钥继续";
+"passkey_signin_button" = "使用通行密钥登录";
+"apple_signin_link" = "通过 Apple 登录";
+"apple_signin_title" = "通过 Apple 登录";
+"apple_signin_subtitle" = "使用您现有的 Apple ID 登录或创建账户。";
+"email_title" = "电子邮件";
+"passkey_registration_title" = "创建账户";
+"auth_methods_section_title" = "登录方式";
+"passkey_created" = "已创建";
+"auth_method_added" = "已添加";
+"auth_method_primary" = "主要";
+
+/* Email Verification */
+"verify_email_title" = "验证您的电子邮件";
+"verify_email_subtitle" = "输入发送至 %@ 的6位验证码";
+"verify_button" = "验证";
+"verify_didnt_receive" = "没有收到验证码？";
+"verify_resend_button" = "重新发送验证码";
+"verify_resend_wait" = "%d 秒后重新发送";
+"continue_title" = "继续";
+"passkey_creating" = "正在创建通行密钥...";
+"passkey_email_exists_title" = "账户已存在";
+"passkey_email_exists_message" = "使用此电子邮件的账户已存在。请使用现有的通行密钥或 Apple ID 登录。";
+"passkey_signin_existing" = "使用现有通行密钥登录";

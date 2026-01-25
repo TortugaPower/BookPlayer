@@ -145,6 +145,9 @@
 "siri_activity_title" = "En son oynatılan kitaba devam et";
 "watchapp_connect_error_title" = "Bağlantı Hatası";
 "watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
+"watch_signin_with_iphone" = "iPhone ile giriş yap";
+"watch_signin_phone_required" = "Lütfen önce iPhone'unuzda oturum açın, ardından tekrar deneyin.";
+"watch_signin_failed" = "Oturum açma başarısız";
 "sleep_remaining_title" = "uykuya %@ kaldı";
 "audio_source_title" = "Ses Kaynağı";
 "speed_title" = "hız";
@@ -253,6 +256,10 @@
 "logout_title" = "Çıkış Yap";
 "delete_account_title" = "Hesabı sil";
 "account_title" = "Hesap";
+"account_passkeys_title" = "Geçiş anahtarları";
+"account_passkeys_description" = "Geçiş anahtarları, parola yerine Face ID veya Touch ID ile güvenli bir şekilde oturum açmanızı sağlar.";
+"account_passkey_configured" = "Geçiş anahtarınız iCloud Anahtar Zinciri aracılığıyla senkronize edilir ve tüm Apple cihazlarınızda çalışır.";
+"account_add_passkey_title" = "Geçiş anahtarı ekle";
 "benefits_cloudsync_title" = "Bulut senkronizasyonu (Beta)";
 "benefits_themesicons_title" = "Temalar ve Simgeler";
 "benefits_supportus_title" = "Bizi destekle";
@@ -378,5 +385,47 @@
 "voiceover_book_cover" = "%@ tarafından %@, kitap kapağı";
 "voiceover_loading_book_cover" = "Kitap kapağı yükleniyor";
 "integrations_title" = "Entegrasyonlar";
+"File Path" = "Dosya Yolu";
+"Genres" = "Türler";
+"Overview" = "Genel Bakış";
+"Tags" = "Etiketler";
+"All" = "Tümü";
+"Quick Action 1" = "Hızlı Eylem 1";
+"Quick Action 2" = "Hızlı Eylem 2";
+"Quick Action 3" = "Hızlı Eylem 3";
+"database_backup_available_message" = "Veritabanı bozuk ancak yakın tarihli bir yedek mevcut. En son yedekten geri yüklemek ister misiniz?";
+"database_restore_button" = "Yedekten Geri Yükle";
+"database_reset_button" = "Veritabanını Sıfırla";
+"database_restore_failed_message" = "Veritabanı bozuk ve yedek geri yükleme başarısız oldu. Kitaplığın sıfırlanması ve ses dosyalarınızdan yeniden oluşturulması gerekecek.";
+"database_no_backup_message" = "Veritabanı bozuk ve yedek mevcut değil. Kitaplığın sıfırlanması ve ses dosyalarınızdan yeniden oluşturulması gerekecek.";
 "settings_smartrewind_max_interval_title" = "Akıllı Geri Sarma Sınırı";
 "settings_support_discord_title" = "Discord sunucumuza katılın";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Adsız Cihaz";
+"passkey_delete_title" = "Geçiş anahtarını sil";
+"passkey_delete_message" = "Bu geçiş anahtarını silmek istediğinizden emin misiniz? Artık giriş yapmak için kullanamayacaksınız.";
+"passkey_continue_button" = "Geçiş anahtarıyla devam et";
+"passkey_signin_button" = "Geçiş anahtarıyla giriş yap";
+"apple_signin_link" = "Apple ile giriş yap";
+"apple_signin_title" = "Apple ile giriş yap";
+"apple_signin_subtitle" = "Giriş yapmak veya hesap oluşturmak için mevcut Apple Kimliğinizi kullanın.";
+"email_title" = "E-posta";
+"passkey_registration_title" = "Hesap oluştur";
+"auth_methods_section_title" = "Giriş yöntemleri";
+"passkey_created" = "Oluşturuldu";
+"auth_method_added" = "Eklendi";
+"auth_method_primary" = "Birincil";
+
+/* Email Verification */
+"verify_email_title" = "E-postanızı doğrulayın";
+"verify_email_subtitle" = "%@ adresine gönderilen 6 haneli kodu girin";
+"verify_button" = "Doğrula";
+"verify_didnt_receive" = "Kodu almadınız mı?";
+"verify_resend_button" = "Kodu tekrar gönder";
+"verify_resend_wait" = "%d saniye sonra tekrar gönder";
+"continue_title" = "Devam";
+"passkey_creating" = "Geçiş anahtarınız oluşturuluyor...";
+"passkey_email_exists_title" = "Hesap mevcut";
+"passkey_email_exists_message" = "Bu e-posta adresine sahip bir hesap zaten var. Lütfen mevcut geçiş anahtarınız veya Apple Kimliğiniz ile giriş yapın.";
+"passkey_signin_existing" = "Mevcut geçiş anahtarıyla giriş yap";

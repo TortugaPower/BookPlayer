@@ -40,6 +40,7 @@ struct NowPlayingMediaControlsView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .frame(width: geometry.size.width * 0.28)
+        .applyPrimaryHandGesture()
         Spacer()
         Button {
           contextManager.handleSkip(.forward)

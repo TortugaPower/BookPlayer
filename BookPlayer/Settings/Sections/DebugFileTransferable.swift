@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import RevenueCat
 import SwiftUI
 
 struct DebugFileTransferable: Transferable {
@@ -19,13 +20,15 @@ struct DebugFileTransferable: Transferable {
       var syncJobsInformation: String?
       var syncError: String?
 
+      // Always get sync state information regardless of isActive
+      syncJobsInformation = await file.getSyncOperationsInformation()
+
       if syncService.isActive {
         do {
           remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
         } catch {
           syncError = "Error fetching remote identifiers: \(error.localizedDescription)"
         }
-        syncJobsInformation = await file.getSyncOperationsInformation()
       }
 
       let localidentifiers = libraryService.fetchIdentifiers()
@@ -146,20 +149,109 @@ struct DebugFileTransferable: Transferable {
   }
 
   func getSyncOperationsInformation() async -> String {
-    var information = ""
+    var information = "\n\n--- Sync Debug Information ---\n"
 
-    if let syncEmail = accountService.getAccount()?.email {
-      information += "\n\nProfile: \(syncEmail)\n"
+    // Account information
+    if let account = accountService.getAccount() {
+      information += "\nProfile: \(account.email)\n"
+      information += "Account ID: \(account.id)\n"
+    } else {
+      information += "\nProfile: Not logged in\n"
     }
 
-    let jobs = await syncService.getAllQueuedJobs()
+    // RevenueCat information
+    information += getRevenueCatInformation()
 
-    information += "Queued jobs count: \(jobs.count)\n"
+    // Sync state
+    information += "\n-- Sync State --\n"
+    information += "Sync isActive: \(syncService.isActive)\n"
+    information += "Has account: \(accountService.hasAccount())\n"
+    information += "RevenueCat sync enabled: \(accountService.hasSyncEnabled())\n"
 
-    for job in jobs {
-      information += "[\(job.jobType.rawValue)] \(job.relativePath)\n"
+    // Auth token status
+    let keychain = KeychainService()
+    let hasToken = (try? keychain.get(.token) as String?) != nil
+    information += "Auth token present: \(hasToken ? "Yes" : "No")\n"
+
+    // Last sync timestamps
+    information += getLastSyncTimestamps()
+
+    // Last sync error
+    if let lastError = syncService.getLastSyncError() {
+      information += "\n-- Last Sync Error --\n"
+      information += "Task ID: \(lastError.taskId)\n"
+      information += "Path: \(lastError.relativePath)\n"
+      information += "Job Type: \(lastError.jobType.rawValue)\n"
+      information += "Error: \(lastError.error)\n"
+      information += "Timestamp: \(lastError.timestamp)\n"
+    }
+
+    // Queued jobs with parameters
+    let jobs = await syncService.getAllQueuedJobsWithParams()
+
+    information += "\n-- Queued Jobs (\(jobs.count)) --\n"
+
+    for (index, job) in jobs.enumerated() {
+      information += "\n[\(index + 1)] \(job.jobType.rawValue)\n"
+      information += "  Task ID: \(job.id)\n"
+      information += "  Path: \(job.relativePath)\n"
+      information += "  Parameters:\n"
+      for (key, value) in job.parameters.sorted(by: { $0.key < $1.key }) {
+        // Skip id and relativePath as they're already shown
+        if key == "id" || key == "relativePath" { continue }
+        information += "    \(key): \(value)\n"
+      }
     }
 
     return information
+  }
+
+  private func getRevenueCatInformation() -> String {
+    var info = "\n-- RevenueCat Info --\n"
+
+    guard let customerInfo = Purchases.shared.cachedCustomerInfo else {
+      info += "Customer info: Not available\n"
+      return info
+    }
+
+    info += "Original App User ID: \(customerInfo.originalAppUserId)\n"
+
+    // Check if current ID is different (indicates logged in state)
+    if customerInfo.originalAppUserId != Purchases.shared.appUserID {
+      info += "Current App User ID: \(Purchases.shared.appUserID)\n"
+    }
+
+    // Pro entitlement status
+    if let proEntitlement = customerInfo.entitlements["pro"] {
+      info += "Pro entitlement active: \(proEntitlement.isActive)\n"
+      if let expirationDate = proEntitlement.expirationDate {
+        info += "Pro expiration: \(expirationDate)\n"
+      }
+    } else {
+      info += "Pro entitlement: Not found\n"
+    }
+
+    return info
+  }
+
+  private func getLastSyncTimestamps() -> String {
+    var info = "\n-- Last Sync Timestamps --\n"
+
+    let libraryKey = "\(Constants.UserDefaults.lastSyncTimestamp)_library"
+    let lastLibrarySync = UserDefaults.standard.double(forKey: libraryKey)
+
+    if lastLibrarySync > 0 {
+      let date = Date(timeIntervalSince1970: lastLibrarySync)
+      info += "Library: \(date)\n"
+    } else {
+      info += "Library: Never\n"
+    }
+
+    let hasScheduledContents = UserDefaults.standard.bool(
+      forKey: Constants.UserDefaults.hasScheduledLibraryContents
+    )
+    info += "Has scheduled library contents: \(hasScheduledContents)\n"
+
+    return info
   }
 }

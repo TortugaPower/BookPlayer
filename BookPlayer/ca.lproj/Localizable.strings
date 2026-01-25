@@ -145,6 +145,9 @@
 "siri_activity_title" = "Continua l'últim llibre reproduït";
 "watchapp_connect_error_title" = "Error de connectivitat";
 "watchapp_connect_error_description" = "Hi ha un problema de connexió al telèfon, torneu-ho a provar més tard";
+"watch_signin_with_iphone" = "Iniciar sessió amb iPhone";
+"watch_signin_phone_required" = "Si us plau, inicia sessió primer al teu iPhone i torna-ho a provar.";
+"watch_signin_failed" = "Error d'inici de sessió";
 "sleep_remaining_title" = "%@ restant fins a dormir";
 "audio_source_title" = "Font d'àudio";
 "speed_title" = "velocitat";
@@ -253,6 +256,10 @@
 "logout_title" = "Tanca la sessió";
 "delete_account_title" = "Suprimeix el compte";
 "account_title" = "Compte";
+"account_passkeys_title" = "Claus d'accés";
+"account_passkeys_description" = "Les claus d'accés et permeten iniciar sessió de manera segura amb Face ID o Touch ID en lloc d'una contrasenya.";
+"account_passkey_configured" = "La teva clau d'accés es sincronitza mitjançant el clauer d'iCloud i funciona a tots els teus dispositius Apple.";
+"account_add_passkey_title" = "Afegir una clau d'accés";
 "benefits_cloudsync_title" = "Sincronització al núvol (beta)";
 "benefits_themesicons_title" = "Temes i icones";
 "benefits_supportus_title" = "Doneu-nos suport";
@@ -378,5 +385,47 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "voiceover_book_cover" = "%@ per %@, coberta del llibre";
 "voiceover_loading_book_cover" = "S'està carregant la coberta del llibre";
 "integrations_title" = "Integracions";
+"File Path" = "Ruta del fitxer";
+"Genres" = "Gèneres";
+"Overview" = "Resum";
+"Tags" = "Etiquetes";
+"All" = "Tot";
+"Quick Action 1" = "Acció ràpida 1";
+"Quick Action 2" = "Acció ràpida 2";
+"Quick Action 3" = "Acció ràpida 3";
+"database_backup_available_message" = "La base de dades està malmesa però hi ha disponible una còpia de seguretat recent. Vols restaurar des de l'última còpia de seguretat?";
+"database_restore_button" = "Restaurar des de la còpia";
+"database_reset_button" = "Restablir base de dades";
+"database_restore_failed_message" = "La base de dades està malmesa i la restauració de la còpia de seguretat ha fallat. La biblioteca s'haurà de restablir i reconstruir a partir dels teus fitxers d'àudio.";
+"database_no_backup_message" = "La base de dades està malmesa i no hi ha cap còpia de seguretat disponible. La biblioteca s'haurà de restablir i reconstruir a partir dels teus fitxers d'àudio.";
 "settings_smartrewind_max_interval_title" = "Límit de rebobinat intel·ligent";
 "settings_support_discord_title" = "Uneix-te al nostre servidor de Discord";
+
+// Passkey Authentication
+"passkey_unnamed_device" = "Dispositiu sense nom";
+"passkey_delete_title" = "Eliminar clau d'accés";
+"passkey_delete_message" = "Estàs segur que vols eliminar aquesta clau d'accés? Ja no la podràs utilitzar per iniciar sessió.";
+"passkey_continue_button" = "Continuar amb clau d'accés";
+"passkey_signin_button" = "Iniciar sessió amb clau d'accés";
+"apple_signin_link" = "Iniciar sessió amb Apple";
+"apple_signin_title" = "Iniciar sessió amb Apple";
+"apple_signin_subtitle" = "Utilitza el teu ID d'Apple existent per iniciar sessió o crear un compte.";
+"email_title" = "Correu electrònic";
+"passkey_registration_title" = "Crear compte";
+"auth_methods_section_title" = "Mètodes d'inici de sessió";
+"passkey_created" = "Creat";
+"auth_method_added" = "Afegit";
+"auth_method_primary" = "Principal";
+
+/* Email Verification */
+"verify_email_title" = "Verifica el teu correu";
+"verify_email_subtitle" = "Introdueix el codi de 6 dígits enviat a %@";
+"verify_button" = "Verificar";
+"verify_didnt_receive" = "No has rebut el codi?";
+"verify_resend_button" = "Reenviar codi";
+"verify_resend_wait" = "Reenviar en %d segons";
+"continue_title" = "Continuar";
+"passkey_creating" = "Creant la teva clau d'accés...";
+"passkey_email_exists_title" = "El compte ja existeix";
+"passkey_email_exists_message" = "Ja existeix un compte amb aquest correu electrònic. Si us plau, inicia sessió amb la teva clau d'accés o ID d'Apple existent.";
+"passkey_signin_existing" = "Iniciar sessió amb clau d'accés existent";
