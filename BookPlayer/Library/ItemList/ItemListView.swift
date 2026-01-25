@@ -466,43 +466,47 @@ struct ItemListView: View {
     let item = model.selectedItems.first
     let isSingle = model.selectedItems.count == 1
 
-    Spacer()
+    // Left group: Edit, Move, Delete
+    HStack {
+      Button {
+        activeSheet = .itemDetails(item!)
+      } label: {
+        Image(systemName: "square.and.pencil")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(!isSingle)
 
-    Button {
-      activeSheet = .itemDetails(item!)
-    } label: {
-      Image(systemName: "square.and.pencil")
+      Button {
+        activeAlert = .moveOptions
+      } label: {
+        Image(systemName: "folder")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(model.selectedItems.isEmpty)
+
+      Button {
+        activeAlert = .delete
+      } label: {
+        Image(systemName: "trash")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(model.selectedItems.isEmpty)
     }
-    .disabled(!isSingle)
+    .clipShape(Capsule())
 
     Spacer()
 
-    Button {
-      activeAlert = .moveOptions
-    } label: {
-      Image(systemName: "folder")
-    }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
-
-    Button {
-      activeAlert = .delete
-    } label: {
-      Image(systemName: "trash")
-    }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
-
-    Button {
-      activeConfirmationDialog = .itemOptions
-    } label: {
+    // Right: More options
+    if model.selectedItems.isEmpty {
       Image(systemName: "ellipsis")
+        .foregroundStyle(.secondary)
+    } else {
+      Menu {
+        itemOptionsMenu()
+      } label: {
+        Image(systemName: "ellipsis")
+      }
     }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
   }
 
   private func handleArtworkTap(for item: SimpleLibraryItem) {
@@ -657,8 +661,138 @@ extension ItemListView {
     Button("delete_button", role: .destructive) {
       activeAlert = .delete
     }
+  }
 
-    Button("cancel_button", role: .cancel) {}
+  /// Menu version with reversed order (Menu displays first item at bottom)
+  @ViewBuilder
+  // swiftlint:disable:next function_body_length
+  func itemOptionsMenu() -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+
+    let areAllFinished: Bool = model.selectedItems.allSatisfy { $0.isFinished }
+    let markTitle: String =
+      areAllFinished
+      ? "mark_unfinished_title".localized
+      : "mark_finished_title".localized
+    let markIcon: String = areAllFinished ? "circle" : "checkmark.circle"
+
+    let allAreBound: Bool = model.selectedItems.allSatisfy { $0.type == .bound }
+    let multipleBooks: Bool = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
+    let singleFolder: Bool = isSingle && (item?.type == .folder)
+    let canCreateBound: Bool = multipleBooks || singleFolder
+
+    // Reversed order for Menu (first in code = bottom of menu)
+
+    Button(role: .destructive) {
+      activeAlert = .delete
+    } label: {
+      Label("delete_button", systemImage: "trash")
+    }
+    .tint(.red)
+
+    if let item,
+      syncService.isActive
+    {
+      switch syncService.getDownloadState(for: item) {
+      case .notDownloaded:
+        Button {
+          model.startDownload(of: item)
+        } label: {
+          Label("download_title", systemImage: "arrow.down.circle")
+        }
+        .tint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0))
+        .disabled(!isSingle)
+      case .downloading:
+        Button {
+          activeAlert = .cancelDownload(item)
+        } label: {
+          Label("cancel_download_title", systemImage: "xmark.circle")
+        }
+        .tint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0))
+        .disabled(!isSingle)
+      case .downloaded:
+        Button {
+          Task {
+            if await syncService.hasUploadTask(for: item.relativePath) {
+              activeAlert = .warningOffload(item)
+            } else {
+              model.handleOffloading(of: item)
+            }
+          }
+        } label: {
+          Label("remove_downloaded_file_title", systemImage: "icloud.slash")
+        }
+        .tint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0))
+        .disabled(!isSingle)
+      }
+    }
+
+    if allAreBound {
+      Button {
+        model.updateFolders(model.selectedItems, type: .folder)
+      } label: {
+        Label("bound_books_undo_alert_title", systemImage: "rectangle.stack.badge.minus")
+      }
+      .tint(theme.primaryColor)
+    } else {
+      Button {
+        if isSingle {
+          model.updateFolders(model.selectedItems, type: .bound)
+        } else {
+          folderInput.prepareForBound(title: item?.title)
+          activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
+        }
+      } label: {
+        Label("bound_books_create_button", systemImage: "books.vertical")
+      }
+      .tint(theme.primaryColor.opacity(!canCreateBound ? 0.3 : 1.0))
+      .disabled(!canCreateBound)
+    }
+
+    Button {
+      model.handleMarkAsFinished(flag: !areAllFinished)
+    } label: {
+      Label(markTitle, systemImage: markIcon)
+    }
+    .tint(theme.primaryColor)
+
+    Button {
+      model.handleResetPlaybackPosition()
+    } label: {
+      Label("jump_start_title", systemImage: "backward.end")
+    }
+    .tint(theme.primaryColor)
+
+    if isSingle,
+      let item
+    {
+      ShareLink(
+        item: item,
+        preview: SharePreview(
+          item.relativePath,
+          image: Image(systemName: item.type == .book ? "waveform" : "folder")
+        )
+      ) {
+        Label("export_button", systemImage: "square.and.arrow.up")
+      }
+      .tint(theme.primaryColor)
+    }
+
+    Button {
+      activeAlert = .moveOptions
+    } label: {
+      Label("move_title", systemImage: "folder")
+    }
+    .tint(theme.primaryColor)
+
+    Button {
+      activeSheet = .itemDetails(item!)
+    } label: {
+      Label("details_title", systemImage: "info.circle")
+    }
+    .tint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0))
+    .disabled(!isSingle)
   }
 }
 

@@ -85,14 +85,14 @@ public struct PasskeyAuthenticationOptions: Decodable {
 public struct PasskeyLoginResponse: Decodable {
   public let email: String
   public let token: String
-  public let publicId: String
+  public let externalId: String
   public let revenuecatId: String
   public let hasSubscription: Bool
 
   enum CodingKeys: String, CodingKey {
     case email
     case token
-    case publicId = "public_id"
+    case externalId = "external_id"
     case revenuecatId = "revenuecat_id"
     case hasSubscription = "has_subscription"
   }
