@@ -61,6 +61,16 @@ extension View {
       .disabled(condition)
       .opacity(condition ? opacity : 1)
   }
+
+  /// Applies tint only when `enabled` is true (used for menu items)
+  @ViewBuilder
+  func menuTint(_ color: Color, enabled: Bool) -> some View {
+    if enabled {
+      self.tint(color)
+    } else {
+      self
+    }
+  }
 }
 
 struct ItemListSearchableModifier: ViewModifier {
