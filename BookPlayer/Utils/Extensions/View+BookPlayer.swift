@@ -7,7 +7,32 @@
 //
 
 import BookPlayerKit
+import Combine
 import SwiftUI
+
+// MARK: - Keyboard Observer
+
+final class KeyboardObserver: ObservableObject {
+  @Published var isKeyboardVisible = false
+
+  private var cancellables = Set<AnyCancellable>()
+
+  init() {
+    NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.isKeyboardVisible = true
+      }
+      .store(in: &cancellables)
+
+    NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.isKeyboardVisible = false
+      }
+      .store(in: &cancellables)
+  }
+}
 
 extension View {
   @ViewBuilder
@@ -84,31 +109,31 @@ extension View {
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
+  @StateObject private var keyboardObserver = KeyboardObserver()
+
+  private var spacerHeight: CGFloat {
+    // When keyboard is visible, let iOS handle the safe area adjustment
+    guard !keyboardObserver.isKeyboardVisible else { return 0 }
+
+    return playerState.loadedBookRelativePath != nil ? 80 : Spacing.M
+  }
 
   func body(content: Content) -> some View {
     if #available(iOS 26.1, *) {
       content
         .safeAreaInset(edge: .bottom) {
-          Spacer().frame(
-            height: playerState.loadedBookRelativePath != nil
-              ? 80
-              : Spacing.M
-          )
+          Spacer().frame(height: spacerHeight)
         }
     } else if #available(iOS 26.0, *) {
       /// New accessory view already insets the entire view
       content
         .safeAreaInset(edge: .bottom) {
-          Spacer().frame(height: Spacing.M)
+          Spacer().frame(height: keyboardObserver.isKeyboardVisible ? 0 : Spacing.M)
         }
     } else {
       content
         .safeAreaInset(edge: .bottom) {
-          Spacer().frame(
-            height: playerState.loadedBookRelativePath != nil
-              ? 80
-              : Spacing.M
-          )
+          Spacer().frame(height: spacerHeight)
         }
     }
   }
