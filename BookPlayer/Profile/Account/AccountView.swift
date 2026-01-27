@@ -36,6 +36,7 @@ struct AccountView: View {
     }
     .navigationTitle(accountService.account.email)
     .navigationBarTitleDisplayMode(.inline)
+    .miniPlayerSafeAreaInset()
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
     .errorAlert(error: $loadingState.error)
     .loadingOverlay(loadingState.show)
