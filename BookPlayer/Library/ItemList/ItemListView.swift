@@ -352,8 +352,9 @@ struct ItemListView: View {
       activeAlert = .downloadURL("")
     }
     Button(
-      String(format:
-              "download_from_integration_title".localized,
+      String(
+        format:
+          "download_from_integration_title".localized,
         "Jellyfin"
       ),
       image: .jellyfinIcon
@@ -361,8 +362,9 @@ struct ItemListView: View {
       activeSheet = .jellyfin
     }
     Button(
-      String(format:
-              "download_from_integration_title".localized,
+      String(
+        format:
+          "download_from_integration_title".localized,
         "AudiobookShelf"
       ),
       image: .audiobookshelfIcon
@@ -602,7 +604,7 @@ extension ItemListView {
     Button {
       activeSheet = .itemDetails(item!)
     } label: {
-      Label("details_title", systemImage: "info.circle")
+      Label("details_title", systemImage: "square.and.pencil")
     }
     .menuTint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0), enabled: forMenu)
     .disabled(!isSingle)
@@ -650,7 +652,8 @@ extension ItemListView {
   @ViewBuilder
   private func markFinishedOption(forMenu: Bool) -> some View {
     let areAllFinished = model.selectedItems.allSatisfy { $0.isFinished }
-    let markTitle = areAllFinished
+    let markTitle =
+      areAllFinished
       ? "mark_unfinished_title".localized
       : "mark_finished_title".localized
     let markIcon = areAllFinished ? "circle" : "checkmark.circle"
