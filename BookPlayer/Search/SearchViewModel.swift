@@ -79,10 +79,40 @@ class SearchViewModel: ObservableObject {
       offset: nil
     ) ?? []
 
+    // Process results to handle bound books properly
+    let processedResults = processBoundBookResults(allResults)
+
     // Group results by parent folder
-    let groupedResults = groupResultsByFolder(allResults)
-    
+    let groupedResults = groupResultsByFolder(processedResults)
+
     self.searchSections = groupedResults
+  }
+
+  /// When a book inside a bound folder matches, replace it with the bound folder itself.
+  /// Bound books should appear as single items, not as sections with their internal chapters.
+  private func processBoundBookResults(_ items: [SimpleLibraryItem]) -> [SimpleLibraryItem] {
+    var resultItems: [SimpleLibraryItem] = []
+    var addedBoundPaths: Set<String> = []
+
+    for item in items {
+      // Check if this item is inside a bound book
+      if let parentPath = item.parentFolder,
+         let parentType = libraryService.getItemProperty("type", relativePath: parentPath) as? Int16,
+         parentType == SimpleItemType.bound.rawValue {
+        // Parent is a bound book - add the parent instead (if not already added)
+        if !addedBoundPaths.contains(parentPath) {
+          if let boundItem = libraryService.getSimpleItem(with: parentPath) {
+            resultItems.append(boundItem)
+            addedBoundPaths.insert(parentPath)
+          }
+        }
+      } else {
+        // Regular item or bound book itself - add directly
+        resultItems.append(item)
+      }
+    }
+
+    return resultItems
   }
   
   private func groupResultsByFolder(_ items: [SimpleLibraryItem]) -> [SearchSection] {
