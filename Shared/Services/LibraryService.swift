@@ -1221,8 +1221,11 @@ extension LibraryService {
     if let query = query, !query.isEmpty {
       predicates.append(
         NSPredicate(
-          format: "title CONTAINS[cd] %@ OR details CONTAINS[cd] %@",
-          query, query
+          format: "%K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@",
+          #keyPath(LibraryItem.title),
+          query,
+          #keyPath(LibraryItem.details),
+          query
         )
       )
     }

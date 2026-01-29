@@ -106,8 +106,14 @@ class SearchViewModel: ObservableObject {
             addedBoundPaths.insert(parentPath)
           }
         }
+      } else if item.type == .bound {
+        // Bound book itself matched - add if not already added via child match
+        if !addedBoundPaths.contains(item.relativePath) {
+          resultItems.append(item)
+          addedBoundPaths.insert(item.relativePath)
+        }
       } else {
-        // Regular item or bound book itself - add directly
+        // Regular book or folder - add directly
         resultItems.append(item)
       }
     }
