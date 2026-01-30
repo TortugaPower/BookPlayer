@@ -1460,3 +1460,119 @@ class ModifyLibraryTests: LibraryServiceTests {
   }
   // swiftlint:enable force_cast
 }
+
+// MARK: - Search Tests
+
+class SearchTests: LibraryServiceTests {
+  func testSearchAllBooksReturnsEmptyForNoMatches() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    try self.sut.moveItems([book1.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "nonexistent", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 0)
+  }
+
+  func testSearchAllBooksByTitle() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "Swift Programming", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "Python Guide", duration: 100)
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "Swift", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.title == "Swift Programming")
+  }
+
+  func testSearchAllBooksByAuthorDetails() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    book1.details = "John Smith"
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    book2.details = "Jane Doe"
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "John", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.details == "John Smith")
+  }
+
+  func testSearchAllBooksMatchesBothTitleAndDetails() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "John's Adventures", duration: 100)
+    book1.details = "Unknown Author"
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "Mystery Book", duration: 100)
+    book2.details = "John Smith"
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "John", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 2)
+  }
+
+  func testSearchAllBooksExcludesFolders() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "test-book", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "test-folder")
+    try self.sut.moveItems([book1.relativePath, folder.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "test", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.type == .book)
+  }
+
+  func testSearchAllBooksIncludesBoundBooks() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "chapter1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "chapter2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "bound-book")
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: folder.relativePath)
+    try self.sut.moveItems([folder.relativePath], inside: nil)
+
+    // Convert folder to bound book
+    try self.sut.updateFolder(at: folder.relativePath, type: .bound)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.searchAllBooks(query: "bound", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.type == .bound)
+  }
+
+  func testSearchAllBooksFindsChildrenInsideBoundBooks() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "chapter1", duration: 100)
+    book1.details = "Famous Author"
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "chapter2", duration: 100)
+    book2.details = "Famous Author"
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "bound-book")
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: folder.relativePath)
+    try self.sut.moveItems([folder.relativePath], inside: nil)
+
+    // Convert folder to bound book
+    try self.sut.updateFolder(at: folder.relativePath, type: .bound)
+    self.sut.dataManager.saveContext()
+
+    // Search by author should find child books inside bound folder
+    let results = self.sut.searchAllBooks(query: "Famous Author", limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 2)
+    XCTAssert(results?.allSatisfy { $0.details == "Famous Author" } == true)
+  }
+
+  func testFilterContentsByAuthorDetails() throws {
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    book1.details = "Stephen King"
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    book2.details = "J.K. Rowling"
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    let results = self.sut.filterContents(at: nil, query: "Stephen", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.details == "Stephen King")
+  }
+}
