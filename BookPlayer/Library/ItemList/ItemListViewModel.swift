@@ -506,12 +506,17 @@ extension ItemListViewModel {
       let gotAccess = url.startAccessingSecurityScopedResource()
       if !gotAccess { return }
 
+      defer { url.stopAccessingSecurityScopedResource() }
+
+      // Prevent importing the app's own Documents folder or subfolders
+      if DataManager.isAppOwnFolder(url) {
+        return
+      }
+
       let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
       if !FileManager.default.fileExists(atPath: destinationURL.path) {
         try! FileManager.default.copyItem(at: url, to: destinationURL)
       }
-
-      url.stopAccessingSecurityScopedResource()
     }
   }
 }
