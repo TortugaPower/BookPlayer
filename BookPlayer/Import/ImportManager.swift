@@ -32,7 +32,7 @@ final class ImportManager: ObservableObject {
   public func process(_ fileUrl: URL) {
     // Avoid processing the creation of the Processed, Inbox and Backup folder
     if fileUrl.lastPathComponent == DataManager.processedFolderName
-        || fileUrl.lastPathComponent == "Inbox"
+        || fileUrl.lastPathComponent == DataManager.inboxFolderName
         || fileUrl.lastPathComponent == DataManager.backupFolderName { return }
 
     self.files.value.insert(fileUrl)
