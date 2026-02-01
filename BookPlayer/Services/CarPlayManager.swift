@@ -6,6 +6,7 @@
 //  Copyright © 2019 BookPlayer LLC. All rights reserved.
 //
 
+#if !targetEnvironment(macCatalyst)
 import BookPlayerKit
 import CarPlay
 import Combine
@@ -749,3 +750,4 @@ extension CarPlayManager: PlaybackSyncProgressDelegate {
     _ = await contentsFetchTask?.result
   }
 }
+#endif

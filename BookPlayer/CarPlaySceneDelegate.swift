@@ -6,6 +6,7 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+#if !targetEnvironment(macCatalyst)
 import BookPlayerKit
 import CarPlay
 
@@ -21,3 +22,4 @@ class CarPlaySceneDelegate: NSObject, CPTemplateApplicationSceneDelegate {
     manager.disconnect()
   }
 }
+#endif
