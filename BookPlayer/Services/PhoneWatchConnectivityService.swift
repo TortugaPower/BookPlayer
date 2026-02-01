@@ -6,6 +6,7 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+#if !targetEnvironment(macCatalyst)
 import BookPlayerKit
 import Combine
 import WatchConnectivity
@@ -276,3 +277,26 @@ extension PhoneWatchConnectivityService {
     replyHandler(applicationContextData)
   }
 }
+
+#else
+
+import BookPlayerKit
+
+/// Mac Catalyst stub - WatchConnectivity is not available on Mac
+public class PhoneWatchConnectivityService: NSObject {
+  public init(
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    playerManager: PlayerManagerProtocol
+  ) {
+    super.init()
+  }
+
+  public func setAccountService(_ accountService: AccountServiceProtocol) {}
+
+  public func startSession(_ delegate: Any? = nil) {}
+
+  public func sendApplicationContext() {}
+}
+
+#endif

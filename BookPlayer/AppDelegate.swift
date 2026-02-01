@@ -18,7 +18,9 @@ import RevenueCat
 import Sentry
 import StoreKit
 import UIKit
+#if !targetEnvironment(macCatalyst)
 import WatchConnectivity
+#endif
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
