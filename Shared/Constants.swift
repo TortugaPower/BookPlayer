@@ -85,6 +85,9 @@ public enum Constants {
     public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"
     public static let quickSpeedSecondPreference = "quickSpeedSecondPreference"
     public static let quickSpeedThirdPreference = "quickSpeedThirdPreference"
+
+    /// macOS text scaling
+    public static let macOSTextScale = "userSettingsMacOSTextScale"
   }
 
   public enum SmartRewind {

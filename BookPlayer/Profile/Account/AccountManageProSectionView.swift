@@ -13,14 +13,10 @@ import SwiftUI
 struct AccountManageProSectionView: View {
   @Environment(\.loadingState) private var loadingState
   @EnvironmentObject private var theme: ThemeViewModel
+
   var body: some View {
     Section {
       Button {
-        guard !ProcessInfo.processInfo.isiOSAppOnMac else {
-          loadingState.error = AccountError.managementUnavailable
-          return
-        }
-
         loadingState.show = true
         Task {
           do {
@@ -34,6 +30,7 @@ struct AccountManageProSectionView: View {
       } label: {
         Label {
           Text("manage_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "gearshape.2")
