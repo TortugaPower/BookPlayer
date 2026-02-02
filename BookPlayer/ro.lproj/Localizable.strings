@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Derulați înapoi cu interval";
 "Rewind ${interval}" = "Derulați înapoi ${interval}";
 "settings_lock_orientation_title" = "Orientare blocată";
+"settings_text_size_title" = "Dimensiunea textului";
 "more_title" = "Mai mult";
 "repeat_turn_on_title" = "Activați Repetare pentru această carte";
 "repeat_turn_off_title" = "Dezactivează Repetarea pentru această carte";

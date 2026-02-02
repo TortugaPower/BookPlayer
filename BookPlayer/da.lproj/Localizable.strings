@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Spol tilbage med interval";
 "Rewind ${interval}" = "Spol ${interval} tilbage";
 "settings_lock_orientation_title" = "Orientering låst";
+"settings_text_size_title" = "Tekststørrelse";
 "more_title" = "Mere";
 "repeat_turn_on_title" = "Slå Gentag til for denne bog";
 "repeat_turn_off_title" = "Slå Gentag fra for denne bog";

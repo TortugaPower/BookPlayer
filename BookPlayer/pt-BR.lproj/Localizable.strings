@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Retroceder com intervalo";
 "Rewind ${interval}" = "Retroceder ${interval}";
 "settings_lock_orientation_title" = "Orientação bloqueada";
+"settings_text_size_title" = "Tamanho do texto";
 "more_title" = "Mais";
 "repeat_turn_on_title" = "Ativar repetição para este livro";
 "repeat_turn_off_title" = "Desativar Repetir para este livro";
