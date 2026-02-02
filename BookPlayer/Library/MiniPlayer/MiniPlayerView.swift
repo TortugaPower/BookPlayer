@@ -37,14 +37,14 @@ struct MiniPlayerView: View {
         .accessibilityHidden(true)
         .padding(.leading, 8)
 
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
             .foregroundStyle(theme.primaryColor)
             .bpFont(.miniPlayerTitle)
             .lineLimit(1)
           Text(verbatim: playerManager.currentItem?.author ?? "")
             .foregroundStyle(theme.secondaryColor)
-            .bpFont(.miniPlayerTitle)
+            .bpFont(.miniPlayerAuthor)
             .lineLimit(1)
         }
         .accessibilityElement(children: .combine)
