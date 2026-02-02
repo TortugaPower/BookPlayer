@@ -73,7 +73,7 @@ struct AudiobookShelfConnectionView: View {
     .toolbar {
       ToolbarItem(placement: .principal) {
         Text(localizedNavigationTitle)
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .confirmationAction) {

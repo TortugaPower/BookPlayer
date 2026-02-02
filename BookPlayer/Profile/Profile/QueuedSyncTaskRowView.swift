@@ -24,7 +24,7 @@ struct QueuedSyncTaskRowView: View {
         .foregroundStyle(themeViewModel.secondaryColor)
         .padding([.trailing], 5)
       Text(title)
-        .font(Font(Fonts.body))
+        .bpFont(.body)
         .foregroundStyle(themeViewModel.primaryColor)
     }
     .padding([.vertical], 3)

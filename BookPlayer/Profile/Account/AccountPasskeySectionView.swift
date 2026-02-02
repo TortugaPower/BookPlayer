@@ -68,16 +68,16 @@ struct AccountPasskeySectionView: View {
   private func passkeyRow(_ passkey: PasskeyInfo) -> some View {
     HStack(spacing: Spacing.S) {
       Image(systemName: "person.badge.key")
-        .font(.title2)
+        .bpFont(.title2)
         .foregroundStyle(theme.linkColor)
 
       VStack(alignment: .leading, spacing: 4) {
         Text(passkey.deviceName ?? "passkey_unnamed_device".localized)
-          .font(.body)
+          .bpFont(.body)
           .foregroundStyle(theme.primaryColor)
 
         Text("passkey_created".localized + " " + passkey.createdAt.formatted(date: .abbreviated, time: .omitted))
-          .font(.caption)
+          .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
       }
 
@@ -92,7 +92,7 @@ struct AccountPasskeySectionView: View {
         .tint(.red)
       } label: {
         Image(systemName: "ellipsis.circle")
-          .font(.title2)
+          .bpFont(.title2)
           .foregroundStyle(theme.linkColor)
           .frame(width: 44, height: 44)
       }

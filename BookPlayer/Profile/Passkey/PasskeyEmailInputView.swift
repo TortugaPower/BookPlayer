@@ -44,6 +44,7 @@ struct PasskeyEmailInputView: View {
         }
       } header: {
         Text("email_title".localized)
+          .bpFont(.subheadline)
           .foregroundStyle(theme.secondaryColor)
       }
 
@@ -55,7 +56,7 @@ struct PasskeyEmailInputView: View {
 
         Button(action: onSignIn) {
           Text("passkey_signin_existing".localized)
-            .bpFont(Fonts.body)
+            .bpFont(.body)
             .frame(maxWidth: .infinity)
             .foregroundColor(theme.linkColor)
         }

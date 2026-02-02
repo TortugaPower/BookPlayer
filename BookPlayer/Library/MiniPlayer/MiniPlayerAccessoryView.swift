@@ -48,14 +48,14 @@ struct MiniPlayerAccessoryView: View {
             .foregroundStyle(
               reduceTransparency ? Color.primary : theme.primaryColor
             )
-            .bpFont(Fonts.miniPlayerTitle)
+            .bpFont(.miniPlayerTitle)
             .lineLimit(1)
 
           Text(verbatim: playerManager.currentItem?.author ?? "")
             .foregroundStyle(
               reduceTransparency ? Color.secondary : theme.secondaryColor
             )
-            .bpFont(Fonts.miniPlayerAuthor)
+            .bpFont(.miniPlayerAuthor)
             .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

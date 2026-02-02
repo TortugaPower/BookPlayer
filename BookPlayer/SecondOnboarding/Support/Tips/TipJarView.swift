@@ -21,7 +21,7 @@ struct TipJarView: View {
         if let disclaimer = viewModel.disclaimer {
           Text(disclaimer)
             .foregroundStyle(themeViewModel.primaryColor)
-            .font(Font(Fonts.titleRegular))
+            .bpFont(.titleRegular)
             .padding()
         }
 
@@ -51,7 +51,7 @@ struct TipJarView: View {
         }, label: {
           Text("donate_title".localized)
             .contentShape(Rectangle())
-            .font(Font(Fonts.headline))
+            .bpFont(.headline)
             .frame(height: 45)
             .frame(maxWidth: .infinity)
             .foregroundStyle(.white)

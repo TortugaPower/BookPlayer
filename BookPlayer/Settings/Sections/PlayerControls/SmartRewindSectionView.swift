@@ -33,20 +33,27 @@ struct SmartRewindSectionView: View {
 
   var body: some View {
     Section {
-      Toggle("settings_smartrewind_title", isOn: $smartRewindEnabled)
+      Toggle(isOn: $smartRewindEnabled) {
+        Text("settings_smartrewind_title")
+          .bpFont(.body)
+      }
       if smartRewindEnabled {
-        Picker("settings_smartrewind_max_interval_title", selection: $smartRewindMaxInterval) {
+        Picker(selection: $smartRewindMaxInterval) {
           ForEach(intervals, id: \.self) { interval in
-            Text(
-              TimeParser.formatDuration(interval)
-            ).tag(interval)
+            Text(TimeParser.formatDuration(interval))
+              .bpFont(.body)
+              .tag(interval)
               .foregroundStyle(theme.linkColor)
           }
+        } label: {
+          Text("settings_smartrewind_max_interval_title")
+            .bpFont(.body)
         }
         .pickerStyle(.menu)
       }
     } footer: {
       Text(String(format: "settings_smartrewind_description".localized, TimeParser.formatDuration(smartRewindMaxInterval)))
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

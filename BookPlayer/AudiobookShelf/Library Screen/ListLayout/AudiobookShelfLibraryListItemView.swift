@@ -19,7 +19,7 @@ struct AudiobookShelfLibraryListItemView: View {
         .frame(width: 50, height: 50)
         .accessibilityHidden(true)
       Text(item.title)
-        .font(Font(Fonts.titleRegular))
+        .bpFont(.titleRegular)
         .foregroundStyle(themeViewModel.primaryColor)
       Spacer()
       if item.kind == .library {

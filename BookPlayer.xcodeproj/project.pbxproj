@@ -596,6 +596,8 @@
 		63CD851D2CE2964900EDBEA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD851C2CE2964900EDBEA8 /* SettingsView.swift */; };
 		63CD851E2CE2EEBC00EDBEA8 /* UIFont+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */; };
 		63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE2D288CB1A900056FCD /* Fonts.swift */; };
+9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
+DCFC79BEBAEA628FB13F33A1 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
 		63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85222CE302D200EDBEA8 /* LoginView.swift */; };
 		63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85262CE3064600EDBEA8 /* BP+ErrorAlerts.swift */; };
 		63CD85432CE3105300EDBEA8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CD85422CE3105300EDBEA8 /* ProfileView.swift */; };
@@ -1581,6 +1583,7 @@
 		9F1C30FB2A2E593300D5BC81 /* PlayableItemMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemMock.swift; sourceTree = "<group>"; };
 		9F22DE2B288CAAB800056FCD /* ImageIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageIcons.swift; sourceTree = "<group>"; };
 		9F22DE2D288CB1A900056FCD /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		3ACFA02FA31A0CB0438C5228 /* BPFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPFont.swift; sourceTree = "<group>"; };
 		9F22DE36288CBCA400056FCD /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 		9F22DE38288CBE6A00056FCD /* FormButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormButton.swift; sourceTree = "<group>"; };
 		9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -3077,6 +3080,7 @@
 				9F22DE2B288CAAB800056FCD /* ImageIcons.swift */,
 				9F22DE36288CBCA400056FCD /* Spacing.swift */,
 				9F22DE2D288CB1A900056FCD /* Fonts.swift */,
+				3ACFA02FA31A0CB0438C5228 /* BPFont.swift */,
 			);
 			path = Styleguide;
 			sourceTree = "<group>";
@@ -4092,6 +4096,7 @@
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */,
+				9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				3FF5BA6A2E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
 				63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
@@ -4696,6 +4701,7 @@
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,
 				9F1345B62938DF070089B1DE /* Fonts.swift in Sources */,
+				DCFC79BEBAEA628FB13F33A1 /* BPFont.swift in Sources */,
 				63AD93D32E3C1BA70077E73A /* SimpleAccount.swift in Sources */,
 				41A1B127226F88C500EA0400 /* Library+CoreDataClass.swift in Sources */,
 				9F0872DB2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */,

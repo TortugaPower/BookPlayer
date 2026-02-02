@@ -21,6 +21,7 @@ struct AccountTermsConditionsSectionView: View {
       } label: {
         Label {
           Text("terms_conditions_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "doc.text")
@@ -34,6 +35,7 @@ struct AccountTermsConditionsSectionView: View {
       } label: {
         Label {
           Text("privacy_policy_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "doc.text")

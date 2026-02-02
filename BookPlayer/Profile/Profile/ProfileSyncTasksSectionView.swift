@@ -25,8 +25,10 @@ struct ProfileSyncTasksSectionView: View {
     NavigationLink(value: ProfileScreen.tasks) {
       VStack {
         Text(buttonText)
+          .bpFont(.body)
           .foregroundStyle(theme.linkColor)
         Text(statusMessage)
+          .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
       }
     }

@@ -44,11 +44,11 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         
         Group {
           Text("Create your profile")
-            .font(Font(Fonts.titleStory))
+            .bpFont(.titleStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .padding()
           Text("To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab")
-            .font(Font(Fonts.bodyStory))
+            .bpFont(.bodyStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .multilineTextAlignment(.center)
         }
@@ -72,7 +72,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         }, label: {
           Text("Not now")
             .underline()
-            .font(Font(Fonts.body))
+            .bpFont(.body)
             .foregroundStyle(themeViewModel.secondaryColor)
         })
         .padding([.top], Spacing.S5)

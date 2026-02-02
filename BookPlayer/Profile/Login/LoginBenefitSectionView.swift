@@ -29,9 +29,9 @@ struct LoginBenefitSectionView: View {
           .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 10) {
           Text(title)
-            .bpFont(Fonts.title)
+            .bpFont(.title)
           Text(subtitle)
-            .bpFont(Fonts.body)
+            .bpFont(.body)
             .foregroundStyle(theme.secondaryColor)
         }
         .accessibilityElement(children: .combine)

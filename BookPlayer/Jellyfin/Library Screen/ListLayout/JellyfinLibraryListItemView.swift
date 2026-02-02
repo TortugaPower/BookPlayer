@@ -19,7 +19,7 @@ struct JellyfinLibraryListItemView: View {
         .frame(width: 50, height: 50)
         .accessibilityHidden(true)
       Text(item.name)
-        .font(Font(Fonts.titleRegular))
+        .bpFont(.titleRegular)
         .foregroundStyle(themeViewModel.primaryColor)
       Spacer()
       if item.kind != .audiobook {

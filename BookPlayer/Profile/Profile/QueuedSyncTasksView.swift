@@ -41,7 +41,7 @@ struct QueuedSyncTasksView: View {
               .foregroundStyle(theme.linkColor)
               .padding([.trailing], 5)
             Text("upload_wifi_required_title".localized)
-              .font(Font(Fonts.body))
+              .bpFont(.body)
               .foregroundStyle(theme.secondaryColor)
             Spacer()
           }

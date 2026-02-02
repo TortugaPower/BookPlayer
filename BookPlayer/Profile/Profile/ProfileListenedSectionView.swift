@@ -18,9 +18,9 @@ struct ProfileListenedSectionView: View {
     Section {
       VStack {
         Text(formattedListeningTime)
-          .font(Font(Fonts.title))
+          .bpFont(.title)
         Text("total_listening_title".localized)
-          .font(Font(Fonts.subheadline))
+          .bpFont(.subheadline)
           .foregroundStyle(theme.secondaryColor)
       }
       .accessibilityElement(children: .combine)

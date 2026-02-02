@@ -21,6 +21,7 @@ struct AccountDeleteSectionView: View {
       } label: {
         Label {
           Text("delete_account_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "trash")

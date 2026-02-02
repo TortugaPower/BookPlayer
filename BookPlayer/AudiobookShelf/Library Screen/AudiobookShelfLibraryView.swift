@@ -41,7 +41,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {

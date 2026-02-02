@@ -52,7 +52,7 @@ struct StoryActionView: View {
       {
         VStack {
           Text(String(format: "$%.0f/mo", sliderValue))
-            .font(Font(Fonts.pricingTitle))
+            .bpFont(.pricingTitle)
             .foregroundStyle(.white)
             .accessibilityHidden(true)
           Slider(
@@ -63,19 +63,19 @@ struct StoryActionView: View {
             Text("Pay what you think is fair")
           } minimumValueLabel: {
             Text(String(format: "$%.0f", action.options.first!.price))
-              .font(Font(Fonts.title))
+              .bpFont(.title)
               .foregroundStyle(.white)
               .accessibilityHidden(true)
           } maximumValueLabel: {
             Text(String(format: "$%.0f", action.options.last!.price))
-              .font(Font(Fonts.title))
+              .bpFont(.title)
               .foregroundStyle(.white)
               .accessibilityHidden(true)
           }
 
           Text("Pay what you think is fair")
             .multilineTextAlignment(.center)
-            .font(Font(Fonts.title))
+            .bpFont(.title)
             .foregroundStyle(.white)
             .opacity(0.8)
             .accessibilityHidden(true)
@@ -104,7 +104,7 @@ struct StoryActionView: View {
               },
               label: {
                 Text("Choose custom amount")
-                  .font(Font(Fonts.title))
+                  .bpFont(.title)
                   .foregroundStyle(.white)
                   .underline()
                   .padding([.top], Spacing.S4)
@@ -128,7 +128,7 @@ struct StoryActionView: View {
         label: {
           Text(action.button)
             .contentShape(Rectangle())
-            .font(Font(Fonts.headline))
+            .bpFont(.headline)
             .frame(height: 45)
             .frame(maxWidth: .infinity)
             .foregroundStyle(Color(UIColor(hex: "334046")))
@@ -144,7 +144,7 @@ struct StoryActionView: View {
           label: {
             Text(dismiss)
               .underline()
-              .font(Font(Fonts.body))
+              .bpFont(.body)
               .foregroundStyle(.white)
           }
         )
@@ -158,7 +158,7 @@ struct StoryActionView: View {
           label: {
             Text(tipJar)
               .underline()
-              .font(Font(Fonts.body))
+              .bpFont(.body)
               .foregroundStyle(.white)
           }
         )

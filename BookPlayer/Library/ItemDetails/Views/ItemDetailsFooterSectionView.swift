@@ -29,7 +29,7 @@ struct ItemDetailsFooterSectionView: View {
             + Text(": " + lastPlayedDate)
         }
       }
-      .bpFont(Fonts.body)
+      .bpFont(.body)
       .foregroundStyle(theme.secondaryColor)
     }
   }

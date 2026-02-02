@@ -35,7 +35,7 @@ struct PricingRowView: View {
           .padding([.trailing], Spacing.S)
         Spacer()
         Text(title)
-          .bpFont(Fonts.titleRegular)
+          .bpFont(.titleRegular)
           .foregroundStyle(color)
         Spacer()
         Image(systemName: isSelected ? "checkmark.circle" : "circle")

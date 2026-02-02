@@ -33,7 +33,7 @@ struct PrimaryButtonStyle: ButtonStyle {
 
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .bpFont(Fonts.title)
+      .bpFont(.title)
       .frame(height: 48)
       .frame(maxWidth: .infinity)
       .background(

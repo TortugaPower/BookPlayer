@@ -18,13 +18,21 @@ struct SettingsPrivacySectionView: View {
   
   var body: some View {
     Section {
-      Toggle("settings_crash_reports_title", isOn: $crashReportsDisabled)
-      Toggle("settings_skan_attribution_title", isOn: $skanAttributionDisabled)
+      Toggle(isOn: $crashReportsDisabled) {
+        Text("settings_crash_reports_title")
+          .bpFont(.body)
+      }
+      Toggle(isOn: $skanAttributionDisabled) {
+        Text("settings_skan_attribution_title")
+          .bpFont(.body)
+      }
     } header: {
       Text("settings_privacy_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_skan_attribution_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

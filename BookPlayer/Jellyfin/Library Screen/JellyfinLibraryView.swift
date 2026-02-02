@@ -52,7 +52,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
