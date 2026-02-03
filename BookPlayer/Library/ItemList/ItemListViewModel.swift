@@ -315,8 +315,14 @@ extension ItemListViewModel {
   }
 
   func handleMarkAsFinished(flag: Bool) {
-    selectedItems.forEach {
-      libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
+    if flag {
+      selectedItems.forEach {
+        libraryService.markAsFinished(flag: flag, relativePath: $0.relativePath)
+      }
+    } else {
+      selectedItems.forEach {
+        libraryService.jumpToStart(relativePath: $0.relativePath)
+      }
     }
 
     if let parentFolder = libraryNode.folderRelativePath {
