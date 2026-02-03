@@ -110,7 +110,7 @@ struct HardcoverSettingsView: View {
   var navigationBar: some ToolbarContent {
     ToolbarItem(placement: .principal) {
       Text("hardcover_settings_title".localized)
-        .font(.headline)
+        .bpFont(.headline)
         .foregroundStyle(theme.primaryColor)
     }
     ToolbarItemGroup(placement: .confirmationAction) {

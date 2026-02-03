@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "間隔を指定して早戻し";
 "Rewind ${interval}" = "早戻し ${interval}";
 "settings_lock_orientation_title" = "画面の向きをロック";
+"settings_text_size_title" = "テキストサイズ";
 "more_title" = "さらに表示";
 "repeat_turn_on_title" = "このブックの繰り返しをオンにする";
 "repeat_turn_off_title" = "このブックの繰り返しをオフにする";

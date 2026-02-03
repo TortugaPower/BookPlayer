@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Visszatekerés időközzel";
 "Rewind ${interval}" = "Visszatekerés ${interval}";
 "settings_lock_orientation_title" = "Tájolás zárolása";
+"settings_text_size_title" = "Szövegméret";
 "more_title" = "Több";
 "repeat_turn_on_title" = "Kapcsolja be az Ismétlés funkciót ennél a könyvnél";
 "repeat_turn_off_title" = "Kapcsolja ki az Ismétlés funkciót ennél a könyvnél";

@@ -16,12 +16,12 @@ struct LoginDisclaimerSectionView: View {
     Section {
       VStack(alignment: .leading, spacing: 10) {
         Text("benefits_disclaimer_title")
-          .bpFont(Fonts.title)
+          .bpFont(.title)
         Text("benefits_disclaimer_account_description")
-          .bpFont(Fonts.body)
+          .bpFont(.body)
           .foregroundStyle(theme.secondaryColor)
         Text("benefits_disclaimer_subscription_description")
-          .bpFont(Fonts.body)
+          .bpFont(.body)
           .foregroundStyle(theme.secondaryColor)
       }
     }

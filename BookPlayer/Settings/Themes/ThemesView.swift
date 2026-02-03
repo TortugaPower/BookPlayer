@@ -23,7 +23,7 @@ struct ThemesView: View {
         ThemeShowcaseView(theme: item)
 
         Text(item.title)
-          .bpFont(Fonts.title)
+          .bpFont(.title)
           .foregroundStyle(theme.primaryColor)
 
         Spacer()

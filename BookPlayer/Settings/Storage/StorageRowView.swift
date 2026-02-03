@@ -33,17 +33,17 @@ struct StorageRowView: View {
 
       VStack(alignment: .leading, spacing: 2) {
         Text(item.title)
-          .font(Font(Fonts.title))
+          .bpFont(.title)
           .multilineTextAlignment(.leading)
           .foregroundStyle(themeViewModel.primaryColor)
 
         Text(item.path)
-          .font(.footnote)
+          .bpFont(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundStyle(themeViewModel.secondaryColor)
 
         Text(item.formattedSize)
-          .font(.footnote)
+          .bpFont(.footnote)
           .multilineTextAlignment(.leading)
           .foregroundStyle(themeViewModel.secondaryColor)
       }

@@ -33,26 +33,32 @@ struct SkipIntervalsSectionView: View {
 
   var body: some View {
     Section {
-      Picker("settings_skip_rewind_title", selection: $rewindInterval) {
+      Picker(selection: $rewindInterval) {
         ForEach(intervals, id: \.self) { interval in
-          Text(
-            TimeParser.formatDuration(interval)
-          ).tag(interval)
+          Text(TimeParser.formatDuration(interval))
+            .bpFont(.body)
+            .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+      } label: {
+        Text("settings_skip_rewind_title")
+          .bpFont(.body)
       }
       .pickerStyle(.menu)
       .onChange(of: rewindInterval) {
         MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [rewindInterval] as [NSNumber]
       }
 
-      Picker("settings_skip_forward_title", selection: $forwardInterval) {
+      Picker(selection: $forwardInterval) {
         ForEach(intervals, id: \.self) { interval in
-          Text(
-            TimeParser.formatDuration(interval)
-          ).tag(interval)
+          Text(TimeParser.formatDuration(interval))
+            .bpFont(.body)
+            .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+      } label: {
+        Text("settings_skip_forward_title")
+          .bpFont(.body)
       }
       .pickerStyle(.menu)
       .onChange(of: forwardInterval) {
@@ -60,9 +66,11 @@ struct SkipIntervalsSectionView: View {
       }
     } header: {
       Text("settings_skip_title".localized.capitalized)
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_skip_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

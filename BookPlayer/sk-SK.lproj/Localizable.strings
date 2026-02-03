@@ -324,6 +324,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_custom_skiprewind_title" = "Pretáčanie dozadu s intervalom";
 "Rewind ${interval}" = "Pretočiť ${interval}";
 "settings_lock_orientation_title" = "Orientácia uzamknutá";
+"settings_text_size_title" = "Veľkosť textu";
 "more_title" = "Viac";
 "repeat_turn_on_title" = "Zapnúť Opakovať pre túto knihu";
 "repeat_turn_off_title" = "Vypnúť Opakovať pre túto knihu";

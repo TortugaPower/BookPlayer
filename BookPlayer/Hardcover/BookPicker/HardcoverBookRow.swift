@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct HardcoverBookRow: View {
@@ -35,14 +36,14 @@ struct HardcoverBookRow: View {
 
       VStack(alignment: .leading, spacing: 4) {
         Text(viewModel.title)
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(themeViewModel.primaryColor)
           .lineLimit(2)
           .multilineTextAlignment(.leading)
           .frame(maxWidth: .infinity, alignment: .leading)
 
         Text(viewModel.author)
-          .font(.subheadline)
+          .bpFont(.subheadline)
           .foregroundStyle(themeViewModel.secondaryColor)
           .foregroundStyle(.secondary)
       }

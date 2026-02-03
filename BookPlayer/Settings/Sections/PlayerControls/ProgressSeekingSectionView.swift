@@ -17,12 +17,16 @@ struct ProgressSeekingSectionView: View {
 
   var body: some View {
     Section {
-      Toggle("settings_seekprogressbar_title", isOn: $seekEnabled)
-        .onChange(of: seekEnabled) {
-          MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = seekEnabled
-        }
+      Toggle(isOn: $seekEnabled) {
+        Text("settings_seekprogressbar_title")
+          .bpFont(.body)
+      }
+      .onChange(of: seekEnabled) {
+        MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = seekEnabled
+      }
     } footer: {
       Text("settings_seekprogressbar_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

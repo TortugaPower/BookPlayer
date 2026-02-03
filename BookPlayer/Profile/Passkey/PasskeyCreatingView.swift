@@ -17,10 +17,10 @@ struct PasskeyCreatingView: View {
   var body: some View {
     VStack(spacing: Spacing.M) {
       Text("passkey_creating".localized)
-        .font(.headline)
+        .bpFont(.headline)
         .padding(.top, Spacing.S2)
       Text(email)
-        .font(.subheadline)
+        .bpFont(.subheadline)
         .foregroundStyle(.secondary)
       ProgressView()
         .scaleEffect(1.5)

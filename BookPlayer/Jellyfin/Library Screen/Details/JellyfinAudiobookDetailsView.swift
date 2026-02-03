@@ -44,14 +44,14 @@ struct JellyfinAudiobookDetailsView<
           .padding(.horizontal, Spacing.L1)
 
         Text(viewModel.item.name)
-          .font(.title)
+          .bpFont(.titleLarge)
           .accessibilityLabel(voiceOverBookInfo)
           .foregroundStyle(theme.primaryColor)
           .multilineTextAlignment(.center)
 
         if let artist = viewModel.details?.artist {
           Text(artist)
-            .font(.title2)
+            .bpFont(.title2)
             .foregroundStyle(theme.secondaryColor)
             .lineLimit(1)
             .accessibilityHidden(true)
@@ -65,7 +65,7 @@ struct JellyfinAudiobookDetailsView<
             Text(details.fileSizeString)
           }
           .foregroundStyle(theme.primaryColor)
-          .font(.caption)
+          .bpFont(.caption)
         }
 
         Button {

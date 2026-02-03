@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Πίσω με μεσοδιάστημα";
 "Rewind ${interval}" = "Επαναφορά ${interval}";
 "settings_lock_orientation_title" = "Ο προσανατολισμός είναι κλειδωμένος";
+"settings_text_size_title" = "Μέγεθος κειμένου";
 "more_title" = "Περισσότερα";
 "repeat_turn_on_title" = "Ενεργοποιήστε το Repeat για αυτό το βιβλίο";
 "repeat_turn_off_title" = "Απενεργοποιήστε το Repeat για αυτό το βιβλίο";

@@ -41,10 +41,10 @@ struct AppIconView: View {
 
         VStack(alignment: .leading) {
           Text(icon.title)
-            .bpFont(Fonts.title)
+            .bpFont(.title)
             .foregroundStyle(theme.primaryColor)
           Text(icon.author)
-            .bpFont(Fonts.caption)
+            .bpFont(.caption)
             .foregroundStyle(theme.secondaryColor)
         }
 

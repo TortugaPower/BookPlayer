@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import Kingfisher
 import SwiftUI
 
@@ -29,7 +30,7 @@ struct AudiobookShelfLibraryGridItemView: View {
                 .background(isSelected ? .blue : .clear)
                 .clipShape(Circle())
                 .shadow(radius: 4.0)
-                .font(.title2)
+                .bpFont(.title2)
             }
           }
           .accessibilityHidden(true)

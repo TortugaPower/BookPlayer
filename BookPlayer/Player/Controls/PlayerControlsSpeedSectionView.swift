@@ -29,21 +29,21 @@ struct PlayerControlsSpeedSectionView: View {
     VStack(spacing: Spacing.S) {
       HStack {
         Text("player_speed_title")
-          .bpFont(Fonts.subheadline)
+          .bpFont(.subheadline)
           .bold()
           .foregroundStyle(theme.primaryColor)
 
         Spacer()
 
         Text(formatSpeed(currentSpeed))
-          .bpFont(Fonts.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
           .accessibilityHidden(true)
       }
 
       HStack(spacing: Spacing.S2) {
         Text(String(format: "%.1f", minimumSpeed))
-          .bpFont(Fonts.subheadline)
+          .bpFont(.subheadline)
           .foregroundStyle(theme.primaryColor)
           .frame(minWidth: 30)
           .accessibilityHidden(true)
@@ -71,7 +71,7 @@ struct PlayerControlsSpeedSectionView: View {
         }
 
         Text(String(format: "%.1f", maximumSpeed))
-          .bpFont(Fonts.subheadline)
+          .bpFont(.subheadline)
           .foregroundStyle(theme.primaryColor)
           .frame(minWidth: 30)
           .accessibilityHidden(true)
@@ -128,7 +128,7 @@ struct PlayerControlsSpeedSectionView: View {
       handleSpeedChange(speed)
     } label: {
       Text(formatSpeed(speed))
-        .bpFont(Fonts.subheadline)
+        .bpFont(.subheadline)
         .bold()
     }
     .buttonStyle(.bordered)

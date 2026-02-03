@@ -44,14 +44,14 @@ struct AudiobookShelfAudiobookDetailsView<
           .padding(.horizontal, Spacing.L1)
 
         Text(viewModel.item.title)
-          .font(.title)
+          .bpFont(.titleLarge)
           .accessibilityLabel(voiceOverBookInfo)
           .foregroundStyle(theme.primaryColor)
           .multilineTextAlignment(.center)
 
         if let artist = viewModel.details?.artist {
           Text(artist)
-            .font(.title2)
+            .bpFont(.title2)
             .foregroundStyle(theme.secondaryColor)
             .lineLimit(1)
             .accessibilityHidden(true)
@@ -59,7 +59,7 @@ struct AudiobookShelfAudiobookDetailsView<
 
         if let narrator = viewModel.details?.narrator, !narrator.isEmpty {
           Text("Narrated by \(narrator)")
-            .font(.subheadline)
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .lineLimit(1)
             .accessibilityHidden(true)
@@ -73,7 +73,7 @@ struct AudiobookShelfAudiobookDetailsView<
             Text(details.fileSizeString)
           }
           .foregroundStyle(theme.primaryColor)
-          .font(.caption)
+          .bpFont(.caption)
         }
 
         Button {

@@ -43,15 +43,15 @@ struct BookView: View {
       .accessibilityLabel("voiceover_continue_playback_title")
       VStack(alignment: .leading) {
         Text(verbatim: item.title)
-          .font(.subheadline)
+          .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)
         Text(verbatim: item.details)
           .foregroundStyle(theme.secondaryColor)
-          .font(.caption)
+          .bpFont(.caption)
         Text(verbatim: item.durationFormatted)
           .foregroundStyle(theme.secondaryColor)
-          .font(.caption)
+          .bpFont(.caption)
       }
       .padding(.leading, Spacing.S)
       Spacer()

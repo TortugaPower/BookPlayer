@@ -41,13 +41,13 @@ struct HardcoverBookPickerView: View {
         case .error(let message):
           VStack(spacing: Spacing.S) {
             Image(systemName: "exclamationmark.triangle")
-              .font(.system(size: 48))
+              .bpFont(.iconLarge)
               .foregroundStyle(.red)
               .accessibilityHidden(true)
-            
+
             Text("error_title".localized)
-              .font(.headline)
-            
+              .bpFont(.headline)
+
             Text(message)
               .foregroundStyle(.secondary)
               .multilineTextAlignment(.center)

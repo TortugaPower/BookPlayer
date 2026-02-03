@@ -56,7 +56,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
               String.localizedStringWithFormat("files_title".localized, viewModel.publishedFiles.count)
                 .localizedUppercase
             )
-            .font(Font(Fonts.subheadline))
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .accessibilityAddTraits(.isHeader)
 

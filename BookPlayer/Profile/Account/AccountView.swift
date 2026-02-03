@@ -22,12 +22,12 @@ struct AccountView: View {
 
   var body: some View {
     Form {
-      if accountService.account.hasSubscription {
-        AccountManageProSectionView()
-      } else {
+      if !accountService.account.hasSubscription {
         AccountPerksSectionView {
           showCompleteAccount = true
         }
+      } else if !ProcessInfo.processInfo.isiOSAppOnMac {
+        AccountManageProSectionView()
       }
       AccountTermsConditionsSectionView()
       AccountPasskeySectionView()

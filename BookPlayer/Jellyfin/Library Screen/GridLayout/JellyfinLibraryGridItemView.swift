@@ -6,6 +6,7 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import Kingfisher
 import SwiftUI
 
@@ -38,7 +39,7 @@ struct JellyfinLibraryGridItemView: View {
                 .background(isSelected ? .blue : .clear)
                 .clipShape(Circle())
                 .shadow(radius: 4.0)
-                .font(.title2)
+                .bpFont(.title2)
             }
           }
           .accessibilityHidden(true)

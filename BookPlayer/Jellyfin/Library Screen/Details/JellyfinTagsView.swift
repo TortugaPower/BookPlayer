@@ -18,7 +18,7 @@ struct JellyfinTagsView: View {
     TagsFlowLayout {
       ForEach(tags, id: \.self) { tag in
         Text(tag)
-          .font(.caption)
+          .bpFont(.caption)
           .padding(.horizontal, 10)
           .padding(.vertical, 5)
           .foregroundColor(theme.primaryColor)

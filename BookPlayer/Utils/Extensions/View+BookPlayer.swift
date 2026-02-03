@@ -41,17 +41,41 @@ extension View {
   }
 }
 
-struct UIFontModifier: ViewModifier {
-  let uiFont: UIFont
-
-  func body(content: Content) -> some View {
-    content.font(Font(uiFont))
+extension View {
+  /// Applies a BPFont style with automatic Dynamic Type support
+  /// On iOS: Uses native SwiftUI fonts that respond to system Dynamic Type
+  /// On macOS: Applies manual scaling based on user's text size preference
+  func bpFont(_ style: BPFont) -> some View {
+    self.modifier(BPFontModifier(style: style))
   }
 }
 
-extension View {
-  func bpFont(_ font: UIFont) -> some View {
-    self.modifier(UIFontModifier(uiFont: font))
+// MARK: - BPFont Modifier
+
+/// Applies BPFont with platform-specific scaling
+/// iOS: Native Dynamic Type via SwiftUI text styles
+/// macOS: Manual scaling using user preference from Settings
+struct BPFontModifier: ViewModifier {
+  let style: BPFont
+
+  @AppStorage(Constants.UserDefaults.macOSTextScale)
+  private var textScaleIndex: Double = 0.0
+
+  private var isMacOS: Bool {
+    ProcessInfo.processInfo.isiOSAppOnMac
+  }
+
+  /// Scale factor for macOS (1.0 to 1.6 based on slider position 0-6)
+  private var macOSScaleFactor: CGFloat {
+    1.0 + (textScaleIndex * 0.1)
+  }
+
+  func body(content: Content) -> some View {
+    if isMacOS {
+      content.font(style.scaledFont(by: macOSScaleFactor))
+    } else {
+      content.font(style.font)
+    }
   }
 }
 

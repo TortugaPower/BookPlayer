@@ -326,6 +326,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "intent_custom_skiprewind_title" = "Rewind with interval";
 "Rewind ${interval}" = "Rewind ${interval}";
 "settings_lock_orientation_title" = "Orientation Locked";
+"settings_text_size_title" = "Text Size";
 "more_title" = "More";
 "repeat_turn_on_title" = "Turn on Repeat for this book";
 "repeat_turn_off_title" = "Turn off Repeat for this book";

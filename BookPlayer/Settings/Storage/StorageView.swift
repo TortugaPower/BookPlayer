@@ -23,7 +23,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               .progressViewStyle(.linear)
 
             Text("\(progress.processed) of \(progress.total)")
-              .font(.subheadline)
+              .bpFont(.subheadline)
               .foregroundStyle(theme.secondaryColor)
 
             Button("cancel_button".localized) {
@@ -81,7 +81,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               String.localizedStringWithFormat("files_title".localized, viewModel.publishedFiles.count)
                 .localizedUppercase
             )
-            .font(Font(Fonts.subheadline))
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .accessibilityAddTraits(.isHeader)
 

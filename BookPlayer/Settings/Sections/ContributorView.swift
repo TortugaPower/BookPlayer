@@ -30,7 +30,7 @@ struct ContributorView: View {
           .mask(Circle())
         if let title {
           Text(title)
-            .bpFont(Fonts.caption)
+            .bpFont(.caption)
         }
       }
     }

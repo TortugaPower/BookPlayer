@@ -39,7 +39,7 @@ struct ButtonFreeView: View {
         VStack(alignment: .leading, spacing: Spacing.S1) {
           Text("screen_gestures_title")
             .frame(maxWidth: .infinity, alignment: .leading)
-            .bpFont(Fonts.title)
+            .bpFont(.title)
           Label("gesture_tap_title", systemImage: "hand.tap")
           Label("gesture_swipe_left_title", systemImage: "arrow.left")
           Label("gesture_swipe_right_title", systemImage: "arrow.right")
@@ -49,7 +49,7 @@ struct ButtonFreeView: View {
         }
         .padding(Spacing.M)
         .foregroundStyle(theme.primaryColor)
-        .bpFont(Fonts.titleRegular)
+        .bpFont(.titleRegular)
 
         if let message {
           Text(message)

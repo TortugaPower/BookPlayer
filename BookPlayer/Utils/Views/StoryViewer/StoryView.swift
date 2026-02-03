@@ -42,12 +42,12 @@ struct StoryView: View {
           }
           Text(model.title)
             .shadow(radius: 2, y: 3)
-            .font(Font(Fonts.titleStory))
+            .bpFont(.titleStory)
             .padding()
             .allowsHitTesting(false)
 
           Text(model.body)
-            .font(Font(Fonts.bodyStory))
+            .bpFont(.bodyStory)
             .padding([.bottom, .leading, .trailing])
             .multilineTextAlignment(.center)
             .allowsHitTesting(false)

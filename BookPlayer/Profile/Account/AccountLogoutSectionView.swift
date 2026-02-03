@@ -28,6 +28,7 @@ struct AccountLogoutSectionView: View {
       } label: {
         Label {
           Text("logout_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "rectangle.portrait.and.arrow.forward")

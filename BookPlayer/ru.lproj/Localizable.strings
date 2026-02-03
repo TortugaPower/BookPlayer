@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Перемотка назад с интервалом";
 "Rewind ${interval}" = "Перемотка назад ${interval}";
 "settings_lock_orientation_title" = "Ориентация заблокирована";
+"settings_text_size_title" = "Размер текста";
 "more_title" = "Больше";
 "repeat_turn_on_title" = "Включить повтор для этой книги";
 "repeat_turn_off_title" = "Отключить повтор для этой книги";

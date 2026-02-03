@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Rücklauf mit Pause";
 "Rewind ${interval}" = "Zurückspulen ${interval}";
 "settings_lock_orientation_title" = "Ausrichtung gesperrt";
+"settings_text_size_title" = "Textgröße";
 "more_title" = "Mehr";
 "repeat_turn_on_title" = "Aktiviere „Wiederholen“ für dieses Buch";
 "repeat_turn_off_title" = "Deaktiviere „Wiederholen“ für dieses Buch";
