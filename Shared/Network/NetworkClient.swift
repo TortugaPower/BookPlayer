@@ -177,6 +177,12 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       } else {
         throw BookPlayerError.networkError(error.message)
       }
+    case 500...599:
+      if let error = try? self.decoder.decode(ErrorResponse.self, from: data) {
+        throw BookPlayerError.networkError(error.message)
+      } else {
+        throw URLError(.badServerResponse)
+      }
     default:
       guard !data.isEmpty else {
         guard

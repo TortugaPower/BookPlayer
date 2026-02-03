@@ -16,6 +16,7 @@ struct MainView: View {
 
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
+  @StateObject private var keyboardObserver = KeyboardObserver()
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
@@ -60,7 +61,7 @@ struct MainView: View {
 
     }
     .miniPlayer {
-      if !listState.isSearching && !listState.isEditing,
+      if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
         let relativePath = playerState.loadedBookRelativePath
       {
         MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
@@ -68,7 +69,7 @@ struct MainView: View {
           .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
       }
     } accessoryContent: {
-      if !listState.isSearching && !listState.isEditing,
+      if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
         let relativePath = playerState.loadedBookRelativePath
       {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)

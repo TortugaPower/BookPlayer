@@ -352,8 +352,9 @@ struct ItemListView: View {
       activeAlert = .downloadURL("")
     }
     Button(
-      String(format:
-              "download_from_integration_title".localized,
+      String(
+        format:
+          "download_from_integration_title".localized,
         "Jellyfin"
       ),
       image: .jellyfinIcon
@@ -361,8 +362,9 @@ struct ItemListView: View {
       activeSheet = .jellyfin
     }
     Button(
-      String(format:
-              "download_from_integration_title".localized,
+      String(
+        format:
+          "download_from_integration_title".localized,
         "AudiobookShelf"
       ),
       image: .audiobookshelfIcon
@@ -466,43 +468,46 @@ struct ItemListView: View {
     let item = model.selectedItems.first
     let isSingle = model.selectedItems.count == 1
 
-    Spacer()
+    // Left group: Edit, Move, Delete
+    HStack {
+      Button {
+        activeSheet = .itemDetails(item!)
+      } label: {
+        Image(systemName: "square.and.pencil")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(!isSingle)
 
-    Button {
-      activeSheet = .itemDetails(item!)
-    } label: {
-      Image(systemName: "square.and.pencil")
+      Button {
+        activeAlert = .moveOptions
+      } label: {
+        Image(systemName: "folder")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(model.selectedItems.isEmpty)
+
+      Button {
+        activeAlert = .delete
+      } label: {
+        Image(systemName: "trash")
+          .frame(width: 44, height: 44)
+      }
+      .disabled(model.selectedItems.isEmpty)
     }
-    .disabled(!isSingle)
 
     Spacer()
 
-    Button {
-      activeAlert = .moveOptions
-    } label: {
-      Image(systemName: "folder")
-    }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
-
-    Button {
-      activeAlert = .delete
-    } label: {
-      Image(systemName: "trash")
-    }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
-
-    Button {
-      activeConfirmationDialog = .itemOptions
-    } label: {
+    // Right: More options
+    if model.selectedItems.isEmpty {
       Image(systemName: "ellipsis")
+        .foregroundStyle(.secondary)
+    } else {
+      Menu {
+        itemOptionsMenu()
+      } label: {
+        Image(systemName: "ellipsis")
+      }
     }
-    .disabled(model.selectedItems.isEmpty)
-
-    Spacer()
   }
 
   private func handleArtworkTap(for item: SimpleLibraryItem) {
@@ -562,34 +567,65 @@ extension ItemListView {
     return title
   }
 
+  // MARK: - Item Options (Dialog order: top to bottom)
+
   @ViewBuilder
-  // swiftlint:disable:next function_body_length
   func itemOptionsDialog() -> some View {
+    detailsOption(forMenu: false)
+    moveOption(forMenu: false)
+    shareOption(forMenu: false)
+    jumpToStartOption(forMenu: false)
+    markFinishedOption(forMenu: false)
+    boundBooksOption(forMenu: false)
+    downloadOption(forMenu: false)
+    deleteOption(forMenu: false)
+  }
+
+  /// Menu version with reversed order (Menu displays first item at bottom)
+  @ViewBuilder
+  func itemOptionsMenu() -> some View {
+    deleteOption(forMenu: true)
+    downloadOption(forMenu: true)
+    boundBooksOption(forMenu: true)
+    markFinishedOption(forMenu: true)
+    jumpToStartOption(forMenu: true)
+    shareOption(forMenu: true)
+    moveOption(forMenu: true)
+    detailsOption(forMenu: true)
+  }
+
+  // MARK: - Individual Option Builders
+
+  @ViewBuilder
+  private func detailsOption(forMenu: Bool) -> some View {
     let item = model.selectedItems.first
     let isSingle = model.selectedItems.count == 1
 
-    let areAllFinished: Bool = model.selectedItems.allSatisfy { $0.isFinished }
-    let markTitle: String =
-      areAllFinished
-      ? "mark_unfinished_title".localized
-      : "mark_finished_title".localized
-
-    let allAreBound: Bool = model.selectedItems.allSatisfy { $0.type == .bound }
-    let multipleBooks: Bool = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
-    let singleFolder: Bool = isSingle && (item?.type == .folder)
-    let canCreateBound: Bool = multipleBooks || singleFolder
-
-    Button("details_title") {
+    Button {
       activeSheet = .itemDetails(item!)
+    } label: {
+      Label("details_title", systemImage: "square.and.pencil")
     }
+    .menuTint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0), enabled: forMenu)
     .disabled(!isSingle)
-    Button("move_title") {
-      activeAlert = .moveOptions
-    }
+  }
 
-    if isSingle,
-      let item
-    {
+  @ViewBuilder
+  private func moveOption(forMenu: Bool) -> some View {
+    Button {
+      activeAlert = .moveOptions
+    } label: {
+      Label("move_title", systemImage: "folder")
+    }
+    .menuTint(theme.primaryColor, enabled: forMenu)
+  }
+
+  @ViewBuilder
+  private func shareOption(forMenu: Bool) -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+
+    if isSingle, let item {
       ShareLink(
         item: item,
         preview: SharePreview(
@@ -597,51 +633,96 @@ extension ItemListView {
           image: Image(systemName: item.type == .book ? "waveform" : "folder")
         )
       ) {
-        Text("export_button")
+        Label("export_button", systemImage: "square.and.arrow.up")
       }
-      .foregroundStyle(theme.primaryColor)
+      .menuTint(theme.primaryColor, enabled: forMenu)
     }
+  }
 
-    Button("jump_start_title") {
+  @ViewBuilder
+  private func jumpToStartOption(forMenu: Bool) -> some View {
+    Button {
       model.handleResetPlaybackPosition()
+    } label: {
+      Label("jump_start_title", systemImage: "backward.end")
     }
+    .menuTint(theme.primaryColor, enabled: forMenu)
+  }
 
-    Button(markTitle) {
+  @ViewBuilder
+  private func markFinishedOption(forMenu: Bool) -> some View {
+    let areAllFinished = model.selectedItems.allSatisfy { $0.isFinished }
+    let markTitle =
+      areAllFinished
+      ? "mark_unfinished_title".localized
+      : "mark_finished_title".localized
+    let markIcon = areAllFinished ? "circle" : "checkmark.circle"
+
+    Button {
       model.handleMarkAsFinished(flag: !areAllFinished)
+    } label: {
+      Label(markTitle, systemImage: markIcon)
     }
+    .menuTint(theme.primaryColor, enabled: forMenu)
+  }
+
+  @ViewBuilder
+  private func boundBooksOption(forMenu: Bool) -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+    let allAreBound = model.selectedItems.allSatisfy { $0.type == .bound }
+    let multipleBooks = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
+    let singleFolder = isSingle && (item?.type == .folder)
+    let canCreateBound = multipleBooks || singleFolder
 
     if allAreBound {
-      Button("bound_books_undo_alert_title") {
+      Button {
         model.updateFolders(model.selectedItems, type: .folder)
+      } label: {
+        Label("bound_books_undo_alert_title", systemImage: "rectangle.stack.badge.minus")
       }
+      .menuTint(theme.primaryColor, enabled: forMenu)
     } else {
-      Button("bound_books_create_button") {
+      Button {
         if isSingle {
           model.updateFolders(model.selectedItems, type: .bound)
         } else {
           folderInput.prepareForBound(title: item?.title)
           activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
         }
+      } label: {
+        Label("bound_books_create_button", systemImage: "books.vertical")
       }
+      .menuTint(theme.primaryColor.opacity(!canCreateBound ? 0.3 : 1.0), enabled: forMenu)
       .disabled(!canCreateBound)
     }
+  }
 
-    if let item,
-      syncService.isActive
-    {
+  @ViewBuilder
+  private func downloadOption(forMenu: Bool) -> some View {
+    let item = model.selectedItems.first
+    let isSingle = model.selectedItems.count == 1
+
+    if let item, syncService.isActive {
       switch syncService.getDownloadState(for: item) {
       case .notDownloaded:
-        Button("download_title") {
+        Button {
           model.startDownload(of: item)
+        } label: {
+          Label("download_title", systemImage: "arrow.down.circle")
         }
+        .menuTint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0), enabled: forMenu)
         .disabled(!isSingle)
       case .downloading:
-        Button("cancel_download_title") {
+        Button {
           activeAlert = .cancelDownload(item)
+        } label: {
+          Label("cancel_download_title", systemImage: "xmark.circle")
         }
+        .menuTint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0), enabled: forMenu)
         .disabled(!isSingle)
       case .downloaded:
-        Button("remove_downloaded_file_title") {
+        Button {
           Task {
             if await syncService.hasUploadTask(for: item.relativePath) {
               activeAlert = .warningOffload(item)
@@ -649,16 +730,23 @@ extension ItemListView {
               model.handleOffloading(of: item)
             }
           }
+        } label: {
+          Label("remove_downloaded_file_title", systemImage: "icloud.slash")
         }
+        .menuTint(theme.primaryColor.opacity(!isSingle ? 0.3 : 1.0), enabled: forMenu)
         .disabled(!isSingle)
       }
     }
+  }
 
-    Button("delete_button", role: .destructive) {
+  @ViewBuilder
+  private func deleteOption(forMenu: Bool) -> some View {
+    Button(role: .destructive) {
       activeAlert = .delete
+    } label: {
+      Label("delete_button", systemImage: "trash")
     }
-
-    Button("cancel_button", role: .cancel) {}
+    .menuTint(.red, enabled: forMenu)
   }
 }
 

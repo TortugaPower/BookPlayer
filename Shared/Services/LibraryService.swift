@@ -445,8 +445,10 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     {
       predicates.append(
         NSPredicate(
-          format: "%K CONTAINS[cd] %@",
+          format: "%K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@",
           #keyPath(LibraryItem.title),
+          query,
+          #keyPath(LibraryItem.details),
           query
         )
       )
@@ -1215,11 +1217,14 @@ extension LibraryService {
       NSPredicate(format: "type != 0")
     )
 
-    // Add search query predicate if provided
+    // Add search query predicate if provided (searches both title and author/details)
     if let query = query, !query.isEmpty {
       predicates.append(
         NSPredicate(
-          format: "title CONTAINS[cd] %@",
+          format: "%K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@",
+          #keyPath(LibraryItem.title),
+          query,
+          #keyPath(LibraryItem.details),
           query
         )
       )
