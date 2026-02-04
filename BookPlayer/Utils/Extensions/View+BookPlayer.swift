@@ -143,13 +143,14 @@ extension View {
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
+  @Environment(\.hoverHeight) private var hoverHeight
   @StateObject private var keyboardObserver = KeyboardObserver()
-
+  
   private var spacerHeight: CGFloat {
     // When keyboard is visible, let iOS handle the safe area adjustment
     guard !keyboardObserver.isKeyboardVisible else { return 0 }
 
-    return playerState.loadedBookRelativePath != nil ? 80 : Spacing.M
+    return playerState.loadedBookRelativePath != nil ? hoverHeight : Spacing.M
   }
 
   func body(content: Content) -> some View {
@@ -192,23 +193,70 @@ extension View {
   }
 }
 
+private struct HoverHeightKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 0
+}
+
+extension EnvironmentValues {
+    var hoverHeight: CGFloat {
+        get { self[HoverHeightKey.self] }
+        set { self[HoverHeightKey.self] = newValue }
+    }
+}
+
 // MARK: - Toolbar utils
+struct HoverHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
 
 struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   @ViewBuilder let regular: () -> Regular
   @ViewBuilder let accessory: () -> Accessory
-
+  
+  @State private var hoverHeight: CGFloat = 0
+  
   func body(content: Content) -> some View {
     if #available(iOS 26.1, *) {
-      content
-        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+        ZStack {
+            // Background (unclipped)
+          Color(.systemBackground)
+                .ignoresSafeArea()
+
+            // Scrollable content
+            content
+                .overlay(
+                    GeometryReader { _ in
+                        Color.clear
+                    }
+                )
+        }
+        .overlay(alignment: .bottom) {
+          regular()
+            .fixedSize(horizontal: false, vertical: true)
+            .overlay(
+                GeometryReader { geo in
+                    Color.clear.preference(
+                        key: HoverHeightPreferenceKey.self,
+                        value: geo.size.height
+                    )
+                }
+            )
+        }
+        .onPreferenceChange(HoverHeightPreferenceKey.self) {
+          var topPadding: CGFloat = 20
+          hoverHeight = $0 + topPadding
+        }
+        .environment(\.hoverHeight, hoverHeight)
     } else if #available(iOS 26.0, *) {
       content
         .tabBarMinimizeBehavior(.onScrollDown)
         .tabViewBottomAccessory(content: accessory)
     } else {
       content
-        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+        .safeAreaInset(edge: .bottom, spacing: 2000, content: regular)
     }
   }
 }

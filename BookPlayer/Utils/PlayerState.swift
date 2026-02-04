@@ -12,11 +12,19 @@ import SwiftUI
 class PlayerState {
   var loadedBookRelativePath: String?
   var showPlayer = false
+  var playerHeight: Float = 0
 
   var showPlayerBinding: Binding<Bool> {
     .init(
       get: { self.showPlayer },
       set: { self.showPlayer = $0 }
+    )
+  }
+  
+  var playerHeightBinding: Binding<Float> {
+    .init(
+      get: { self.playerHeight },
+      set: { self.playerHeight = $0 }
     )
   }
 
