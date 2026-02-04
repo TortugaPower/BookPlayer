@@ -143,14 +143,14 @@ extension View {
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
-  @Environment(\.hoverHeight) private var hoverHeight
+  @Environment(\.miniPlayerBottomInset) private var miniPlayerBottomInset
   @StateObject private var keyboardObserver = KeyboardObserver()
   
   private var spacerHeight: CGFloat {
     // When keyboard is visible, let iOS handle the safe area adjustment
     guard !keyboardObserver.isKeyboardVisible else { return 0 }
 
-    return playerState.loadedBookRelativePath != nil ? hoverHeight : Spacing.M
+    return playerState.loadedBookRelativePath != nil ? miniPlayerBottomInset : Spacing.M
   }
 
   func body(content: Content) -> some View {
@@ -193,20 +193,20 @@ extension View {
   }
 }
 
-private struct HoverHeightKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 0
+private struct MiniPlayerBottomInsetKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 80
 }
 
 extension EnvironmentValues {
-    var hoverHeight: CGFloat {
-        get { self[HoverHeightKey.self] }
-        set { self[HoverHeightKey.self] = newValue }
+    var miniPlayerBottomInset: CGFloat {
+        get { self[MiniPlayerBottomInsetKey.self] }
+        set { self[MiniPlayerBottomInsetKey.self] = newValue }
     }
 }
 
 // MARK: - Toolbar utils
-struct HoverHeightPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+struct MiniPlayerBottomInsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 80
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
     }
@@ -216,49 +216,50 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   @ViewBuilder let regular: () -> Regular
   @ViewBuilder let accessory: () -> Accessory
   
-  @State private var hoverHeight: CGFloat = 0
+  @Environment(\.horizontalSizeClass) var hSize
+  @State private var miniPlayerBottomInset: CGFloat = 80
   
   func body(content: Content) -> some View {
-    if #available(iOS 26.1, *) {
-        ZStack {
-            // Background (unclipped)
-          Color(.systemBackground)
-                .ignoresSafeArea()
-
-            // Scrollable content
-            content
+    iOSBody(content)
+  }
+  
+  @ViewBuilder
+  private func iOSBody(_ content: Content) -> some View {
+      if #available(iOS 26.1, *) {
+        defaultBody(content)
+      } else if #available(iOS 26.0, *) {
+          content
+              .tabBarMinimizeBehavior(.onScrollDown)
+              .tabViewBottomAccessory(content: accessory)
+      } else {
+        defaultBody(content)
+      }
+  }
+  
+  @ViewBuilder
+  private func defaultBody(_ content: Content) -> some View {
+      content
+        .overlay(alignment: .bottom) {
+          regular()
+              .fixedSize(horizontal: false, vertical: true)
                 .overlay(
-                    GeometryReader { _ in
-                        Color.clear
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: MiniPlayerBottomInsetPreferenceKey.self,
+                            value: geo.size.height
+                        )
                     }
                 )
         }
-        .overlay(alignment: .bottom) {
-          regular()
-            .fixedSize(horizontal: false, vertical: true)
-            .overlay(
-                GeometryReader { geo in
-                    Color.clear.preference(
-                        key: HoverHeightPreferenceKey.self,
-                        value: geo.size.height
-                    )
-                }
-            )
+        .onPreferenceChange(MiniPlayerBottomInsetPreferenceKey.self) {
+          let topPadding: CGFloat = 20
+          let reduceSize = hSize == .compact ? 44.0 : 0
+          let reduceTopPadding = $0 > reduceSize ? reduceSize : 0
+          miniPlayerBottomInset = $0 + topPadding - reduceTopPadding
         }
-        .onPreferenceChange(HoverHeightPreferenceKey.self) {
-          var topPadding: CGFloat = 20
-          hoverHeight = $0 + topPadding
-        }
-        .environment(\.hoverHeight, hoverHeight)
-    } else if #available(iOS 26.0, *) {
-      content
-        .tabBarMinimizeBehavior(.onScrollDown)
-        .tabViewBottomAccessory(content: accessory)
-    } else {
-      content
-        .safeAreaInset(edge: .bottom, spacing: 2000, content: regular)
-    }
+        .environment(\.miniPlayerBottomInset, miniPlayerBottomInset)
   }
+
 }
 extension View {
   func miniPlayer<Regular: View, Accessory: View>(
