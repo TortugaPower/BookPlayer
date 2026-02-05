@@ -1983,7 +1983,9 @@ extension LibraryService {
       book.currentTime.rounded(.up) == book.duration.rounded(.up)
     {
       book.currentTime = 0.0
+      book.percentCompleted = 0.0
       metadataUpdates[#keyPath(LibraryItem.currentTime)] = Double(0)
+      metadataUpdates[#keyPath(LibraryItem.percentCompleted)] = Double(0)
     }
 
     metadataPassthroughPublisher.send(metadataUpdates)
