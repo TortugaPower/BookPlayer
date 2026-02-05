@@ -205,9 +205,9 @@ extension EnvironmentValues {
 }
 
 // MARK: - Toolbar utils
-struct MiniPlayerBottomInsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 80
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+struct MiniPlayerSizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()
     }
 }
@@ -245,17 +245,18 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
                 .overlay(
                     GeometryReader { geo in
                         Color.clear.preference(
-                            key: MiniPlayerBottomInsetPreferenceKey.self,
-                            value: geo.size.height
+                            key: MiniPlayerSizePreferenceKey.self,
+                            value: geo.size
                         )
                     }
                 )
         }
-        .onPreferenceChange(MiniPlayerBottomInsetPreferenceKey.self) {
+        .onPreferenceChange(MiniPlayerSizePreferenceKey.self) {
+          let miniPlayerHeight = $0.height
           let topPadding: CGFloat = 20
           let reduceSize = hSize == .compact ? 44.0 : 0
-          let reduceTopPadding = $0 > reduceSize ? reduceSize : 0
-          miniPlayerBottomInset = $0 + topPadding - reduceTopPadding
+          let reduceTopPadding = miniPlayerHeight > reduceSize ? reduceSize : 0
+          miniPlayerBottomInset = miniPlayerHeight + topPadding - reduceTopPadding
         }
         .environment(\.miniPlayerBottomInset, miniPlayerBottomInset)
   }
