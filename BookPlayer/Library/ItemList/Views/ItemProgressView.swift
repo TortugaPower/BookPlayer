@@ -42,7 +42,8 @@ struct ItemProgressView: View {
     ) { params in
       if let percentCompleted = params["percentCompleted"] as? Double {
         self.progress = percentCompleted / 100
-      } else if let isFinished = params["isFinished"] as? Bool {
+      }
+      if let isFinished = params["isFinished"] as? Bool {
         self.isFinished = isFinished
       }
     }
