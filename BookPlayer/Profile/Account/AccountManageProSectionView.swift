@@ -38,6 +38,7 @@ struct AccountManageProSectionView: View {
         }
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

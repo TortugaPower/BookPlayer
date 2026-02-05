@@ -41,9 +41,10 @@ struct SettingsAutolockView: View {
         Text("settings_autolock_description".localized)
           .foregroundStyle(theme.secondaryColor)
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
   }

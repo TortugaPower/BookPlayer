@@ -35,6 +35,7 @@ struct AccountPasskeySectionView: View {
       Text("Passkey")
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
     .onAppear {
       Task {
         await loadPasskey()

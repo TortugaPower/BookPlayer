@@ -47,6 +47,7 @@ struct ListOptionsSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

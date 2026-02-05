@@ -11,7 +11,8 @@ import SwiftUI
 
 struct ProfileCardSectionView: View {
   @Environment(\.accountService) private var accountService
-
+  @EnvironmentObject private var theme: ThemeViewModel
+  
   var action: () -> Void
 
   var body: some View {
@@ -20,6 +21,7 @@ struct ProfileCardSectionView: View {
         ProfileCardView(email: accountService.account.email)
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

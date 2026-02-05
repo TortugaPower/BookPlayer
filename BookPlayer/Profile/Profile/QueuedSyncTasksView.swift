@@ -49,7 +49,7 @@ struct QueuedSyncTasksView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("tasks_title")
     .navigationBarTitleDisplayMode(.inline)

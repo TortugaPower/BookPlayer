@@ -31,6 +31,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
           }
           .accessibilityElement(children: .combine)
         }
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
 
         Section {
           LazyVStack(spacing: 0) {
@@ -71,9 +72,10 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
             }
           }
         }
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
       .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
+      .background(theme.systemBackgroundColor)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

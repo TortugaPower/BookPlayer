@@ -34,6 +34,7 @@ struct SettingsiCloudSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 
   func handleUpdate(_ flag: Bool) -> Bool {

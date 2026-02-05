@@ -53,7 +53,7 @@ struct AudiobookShelfConnectionView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .errorAlert(error: $error)
     .overlay {
       Group {

@@ -36,7 +36,7 @@ struct ProfileView: View {
         }
       }
       .miniPlayerSafeAreaInset()
-      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle("profile_title")
       .navigationBarTitleDisplayMode(.inline)
       .navigationDestination(for: ProfileScreen.self) { destination in
@@ -56,6 +56,7 @@ struct ProfileView: View {
     }
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
+    .environmentObject(theme)
   }
 
   func showLoginOrAccount() {
