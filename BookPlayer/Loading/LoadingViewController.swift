@@ -34,9 +34,4 @@ class LoadingViewController: UIViewController, MVVMControllerProtocol, Storyboar
   func applyTheme(_ theme: SimpleTheme) {
     self.view.backgroundColor = theme.systemBackgroundColor
   }
-  
-  override func accessibilityPerformEscape() -> Bool {
-      viewModel.dismiss()
-      return true
-  }
 }

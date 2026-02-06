@@ -239,8 +239,8 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 // MARK: - Observers
 extension PlayerViewController {
   override func accessibilityPerformEscape() -> Bool {
-      viewModel.dismiss()
-      return true
+    viewModel.dismiss()
+    return true
   }
   
   func bindProgressObservers() {
