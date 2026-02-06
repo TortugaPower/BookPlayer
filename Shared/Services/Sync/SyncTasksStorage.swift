@@ -16,7 +16,7 @@ public actor SyncTasksStorage: ModelActor {
   nonisolated public let modelExecutor: any ModelExecutor
 
   private let tasksDataManager: TasksDataManager
-
+  
   init(tasksDataManager: TasksDataManager) throws {
     self.modelContainer = tasksDataManager.container
     let modelContext = ModelContext(tasksDataManager.container)
@@ -140,7 +140,7 @@ public actor SyncTasksStorage: ModelActor {
     tasksDataManager.notifyTasksChanged(context: modelContext)
   }
 
-  public func getAllTasks() async -> [SyncTaskReference] {
+  public func getAllTasks(progress: [String: Double]) async -> [SyncTaskReference] {
     do {
       let descriptor = FetchDescriptor<SyncTasksContainer>()
       let containers = try modelContext.fetch(descriptor)
@@ -151,7 +151,8 @@ public actor SyncTasksStorage: ModelActor {
         SyncTaskReference(
           id: task.taskID,
           relativePath: task.relativePath,
-          jobType: task.jobType
+          jobType: task.jobType,
+          progress: progress[task.relativePath] ?? 0.0
         )
       }
 

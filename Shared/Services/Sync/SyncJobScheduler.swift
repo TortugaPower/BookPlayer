@@ -51,14 +51,16 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
+  private var progressObservation: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
   private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
   /// Reference to ongoing library fetch task
   private var initializeStoreTask: Task<(), Error>?
   private var taskStore: SyncTasksStorage!
+  private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?
-
+  
   public init(
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol = NetworkClient(),
@@ -244,7 +246,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
-    return await taskStore.getAllTasks()
+    return await taskStore.getAllTasks(progress: tasksProgress)
   }
 
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {
@@ -257,6 +259,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       _ = await initializeStoreTask?.result
       try await taskStore.clearAll()
       operationQueue.cancelAllOperations()
+      tasksProgress.removeAll()
     }
   }
 
@@ -295,6 +298,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           client: networkClient,
           task: task
         )
+        
+        let relativePath = task.relativePath
+        progressObservation = operationTask.progress.observe(
+            \.fractionCompleted,
+            options: [.new]
+        ) { [weak self] progress, _ in
+          self?.updateProgress(
+              for: relativePath,
+              value: progress.fractionCompleted
+          )
+        }
 
         operationTask.completionBlock = { [unowned self, unowned operationTask] in
           if let error = operationTask.error {
@@ -310,12 +324,19 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             self.handleFinishedTask(task)
           }
         }
-
+        
         operationQueue.addOperation(operationTask)
       } catch {
         Self.logger.error("\(error.localizedDescription)")
       }
     }
+  }
+  
+  func updateProgress(
+      for path: String,
+      value: Double
+  ) {
+      tasksProgress[path] = value
   }
 
   private func retryQueuedTask() {
@@ -331,6 +352,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
+        self.tasksProgress.removeValue(forKey: task.relativePath)
       }
     }
   }

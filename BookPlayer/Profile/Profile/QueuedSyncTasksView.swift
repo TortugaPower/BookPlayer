@@ -27,7 +27,9 @@ struct QueuedSyncTasksView: View {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
-            title: .constant(job.relativePath)
+            title: .constant(job.relativePath),
+            initialProgress: job.jobType == .upload ? job.progress : 0,
+            isUpload: job.jobType == .upload
           )
         }
       } header: {

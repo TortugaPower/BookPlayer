@@ -27,7 +27,7 @@ class BPURLSession {
     let delegate = BPTaskUploadDelegate()
     delegate.uploadProgressUpdated = { [progressPublisher] task, uploadProgress in
       guard let relativePath = task.taskDescription else { return }
-
+      
       progressPublisher.send((relativePath, uploadProgress))
     }
     delegate.didFinishTask = { [completionPublisher] task, error in
