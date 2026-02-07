@@ -16,7 +16,7 @@ struct ProgressSeekingSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $seekEnabled) {
         Text("settings_seekprogressbar_title")
           .bpFont(.body)
@@ -29,7 +29,6 @@ struct ProgressSeekingSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

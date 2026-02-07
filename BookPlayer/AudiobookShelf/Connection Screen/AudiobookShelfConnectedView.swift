@@ -13,7 +13,7 @@ struct AudiobookShelfConnectedView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Text("integration_username_placeholder")
           .foregroundStyle(theme.secondaryColor)
@@ -25,7 +25,7 @@ struct AudiobookShelfConnectedView: View {
         .foregroundStyle(theme.secondaryColor)
     }
 
-    Section {
+    ThemedSection {
       Button("logout_title", role: .destructive) {
         viewModel.handleSignOutAction()
       }

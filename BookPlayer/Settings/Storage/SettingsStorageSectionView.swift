@@ -14,7 +14,7 @@ struct SettingsStorageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink(value: SettingsScreen.storage) {
         Text("settings_storage_description")
           .bpFont(.body)
@@ -30,7 +30,6 @@ struct SettingsStorageSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

@@ -87,42 +87,46 @@ struct JellyfinAudiobookDetailsView<
           .background(theme.linkColor)
           .cornerRadius(10)
         }
+        .padding(.horizontal)
 
         if let details = viewModel.details {
-          if let filePath = details.filePath {
-            DisclosureGroup("File Path", isExpanded: $isFilePathExpanded) {
-              Text(filePath)
+          VStack {
+            if let filePath = details.filePath {
+              DisclosureGroup("File Path", isExpanded: $isFilePathExpanded) {
+                Text(filePath)
+              }
+              .accessibilityHidden(true)
             }
-            .accessibilityHidden(true)
-          }
 
-          if let genres = details.genres,
-            !genres.isEmpty
-          {
-            DisclosureGroup("Genres", isExpanded: $isGenresExpanded) {
-              JellyfinTagsView(tags: genres)
+            if let genres = details.genres,
+              !genres.isEmpty
+            {
+              DisclosureGroup("Genres", isExpanded: $isGenresExpanded) {
+                JellyfinTagsView(tags: genres)
+              }
             }
-          }
 
-          if let overview = details.overview {
-            DisclosureGroup("Overview", isExpanded: $isOverviewExpanded) {
-              Text(overview)
+            if let overview = details.overview {
+              DisclosureGroup("Overview", isExpanded: $isOverviewExpanded) {
+                Text(overview)
+              }
             }
-          }
 
-          if let tags = details.tags,
-            !tags.isEmpty
-          {
-            DisclosureGroup("Tags", isExpanded: $isTagsExpanded) {
-              JellyfinTagsView(tags: tags)
+            if let tags = details.tags,
+              !tags.isEmpty
+            {
+              DisclosureGroup("Tags", isExpanded: $isTagsExpanded) {
+                JellyfinTagsView(tags: tags)
+              }
             }
           }
+          .padding(.horizontal)
         }
       }
     }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .tint(theme.linkColor)
     .errorAlert(error: $viewModel.error)
-    .padding()
     .onAppear {
       viewModel.fetchData()
     }

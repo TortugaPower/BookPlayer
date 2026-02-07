@@ -32,7 +32,7 @@ struct SmartRewindSectionView: View {
   ]
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $smartRewindEnabled) {
         Text("settings_smartrewind_title")
           .bpFont(.body)
@@ -56,7 +56,6 @@ struct SmartRewindSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

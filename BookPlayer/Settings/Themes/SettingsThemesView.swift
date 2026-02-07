@@ -36,7 +36,7 @@ struct SettingsThemesView: View {
         SettingsProBannerSectionView(showPro: showPro)
       }
 
-      Section {
+      ThemedSection {
         Toggle(isOn: $systemModeEnabled) {
           Text("theme_system_title")
             .bpFont(.body)
@@ -86,9 +86,8 @@ struct SettingsThemesView: View {
             .foregroundStyle(theme.secondaryColor)
         }
       }
-      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
-      Section {
+      ThemedSection {
         ForEach(themes) { item in
           ThemesView(item: item)
         }
@@ -97,7 +96,6 @@ struct SettingsThemesView: View {
           .bpFont(.subheadline)
           .foregroundStyle(theme.secondaryColor)
       }
-      .listRowBackground(theme.tertiarySystemBackgroundColor)
     }
     .environment(\.loadingState, loadingState)
     .errorAlert(error: $loadingState.error)

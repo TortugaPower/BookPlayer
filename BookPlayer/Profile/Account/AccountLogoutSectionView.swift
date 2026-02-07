@@ -17,7 +17,7 @@ struct AccountLogoutSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         do {
           try accountService.logout()
@@ -36,7 +36,6 @@ struct AccountLogoutSectionView: View {
         }
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

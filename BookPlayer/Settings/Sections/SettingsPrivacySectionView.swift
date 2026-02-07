@@ -17,7 +17,7 @@ struct SettingsPrivacySectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $crashReportsDisabled) {
         Text("settings_crash_reports_title")
           .bpFont(.body)
@@ -35,7 +35,6 @@ struct SettingsPrivacySectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

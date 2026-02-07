@@ -32,7 +32,7 @@ struct SettingsAppearanceSectionView: View {
   }
 
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink(value: SettingsScreen.themes) {
         Text("settings_theme_title")
           .bpFont(.body)
@@ -103,7 +103,6 @@ struct SettingsAppearanceSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

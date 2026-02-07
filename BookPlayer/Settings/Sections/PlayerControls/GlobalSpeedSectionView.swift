@@ -23,7 +23,7 @@ struct GlobalSpeedSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Picker(selection: $quickSpeedFirstPreference) {
         ForEach(speedOptions, id: \.self) { interval in
           Text(formatSpeed(interval))
@@ -73,7 +73,6 @@ struct GlobalSpeedSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

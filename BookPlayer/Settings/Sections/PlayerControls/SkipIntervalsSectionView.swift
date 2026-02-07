@@ -32,7 +32,7 @@ struct SkipIntervalsSectionView: View {
   ]
 
   var body: some View {
-    Section {
+    ThemedSection {
       Picker(selection: $rewindInterval) {
         ForEach(intervals, id: \.self) { interval in
           Text(TimeParser.formatDuration(interval))
@@ -73,7 +73,6 @@ struct SkipIntervalsSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

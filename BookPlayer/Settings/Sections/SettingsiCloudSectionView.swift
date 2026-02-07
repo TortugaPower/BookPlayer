@@ -17,7 +17,7 @@ struct SettingsiCloudSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(
         isOn: Binding(
           get: { isEnabled },
@@ -34,7 +34,6 @@ struct SettingsiCloudSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 
   func handleUpdate(_ flag: Bool) -> Bool {

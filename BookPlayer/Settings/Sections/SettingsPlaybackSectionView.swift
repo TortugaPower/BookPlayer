@@ -13,7 +13,7 @@ struct SettingsPlaybackSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink(value: SettingsScreen.controls) {
         Text("settings_controls_title")
           .bpFont(.body)
@@ -31,7 +31,6 @@ struct SettingsPlaybackSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

@@ -6,15 +6,18 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct JellyfinLibraryListView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
     List(viewModel.items, selection: $viewModel.selectedItems) { item in
       row(item: item)
         .selectionDisabled(item.kind != .audiobook)
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
     }
   }
 

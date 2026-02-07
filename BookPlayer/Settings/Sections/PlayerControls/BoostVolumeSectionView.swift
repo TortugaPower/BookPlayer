@@ -16,7 +16,7 @@ struct BoostVolumeSectionView: View {
   @EnvironmentObject private var playerManager: PlayerManager
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $boostVolumeEnabled) {
         Text("settings_boostvolume_title")
           .bpFont(.body)
@@ -29,7 +29,6 @@ struct BoostVolumeSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

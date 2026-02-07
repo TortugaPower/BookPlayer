@@ -23,7 +23,7 @@ struct JellyfinServerFoundView: View {
   var onCommit: () -> Void = {}
 
   var body: some View {
-    Section {
+    ThemedSection {
       ClearableTextField(
         "integration_username_placeholder".localized,
         text: $username,

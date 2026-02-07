@@ -20,7 +20,7 @@ struct ListOptionsSectionView: View {
   }
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Image(systemName: "list.bullet")
           .foregroundStyle(theme.secondaryColor)
@@ -47,7 +47,6 @@ struct ListOptionsSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

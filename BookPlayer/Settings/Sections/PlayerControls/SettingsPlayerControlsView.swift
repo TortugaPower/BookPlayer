@@ -22,7 +22,6 @@ struct SettingsPlayerControlsView: View {
       ListOptionsSectionView()
       ProgressLabelsSectionView()
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
     .environmentObject(theme)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)

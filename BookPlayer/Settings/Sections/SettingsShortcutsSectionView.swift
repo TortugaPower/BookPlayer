@@ -14,7 +14,7 @@ struct SettingsShortcutsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    Section {
+    ThemedSection {
       ShortcutsLink()
         .shortcutsLinkStyle(theme.useDarkVariant ? .dark : .light)
     } header: {
@@ -22,7 +22,6 @@ struct SettingsShortcutsSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

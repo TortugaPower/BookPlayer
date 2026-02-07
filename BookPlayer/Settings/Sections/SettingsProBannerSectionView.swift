@@ -14,7 +14,7 @@ struct SettingsProBannerSectionView: View {
   var showPro: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack(spacing: Spacing.S) {
         Image(systemName: "applewatch.radiowaves.left.and.right")
           .resizable()
@@ -41,7 +41,6 @@ struct SettingsProBannerSectionView: View {
         }
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

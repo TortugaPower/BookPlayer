@@ -15,7 +15,7 @@ struct AccountManageProSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         loadingState.show = true
         Task {
@@ -38,7 +38,6 @@ struct AccountManageProSectionView: View {
         }
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

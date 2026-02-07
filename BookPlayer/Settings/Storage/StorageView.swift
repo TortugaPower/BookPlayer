@@ -39,7 +39,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
       }
     } else {
       Form {
-        Section {
+        ThemedSection {
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
               .foregroundStyle(theme.primaryColor)
@@ -58,9 +58,8 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
           }
           .accessibilityElement(children: .combine)
         }
-        .listRowBackground(theme.tertiarySystemBackgroundColor)
 
-        Section {
+        ThemedSection {
           List {
             ForEach(viewModel.publishedFiles) { file in
               StorageRowView(
@@ -97,7 +96,6 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
             }
           }
         }
-        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
       .scrollContentBackground(.hidden)
       .background(theme.systemBackgroundColor)

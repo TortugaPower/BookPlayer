@@ -51,7 +51,7 @@ struct BookmarksView: View {
         )
 
         // User bookmarks section
-        Section {
+        ThemedSection {
           ForEach(model.userBookmarks) { bookmark in
             bookmarkRow(bookmark)
               .swipeActions(edge: .trailing, allowsFullSwipe: false) {

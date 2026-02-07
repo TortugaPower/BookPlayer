@@ -11,7 +11,7 @@ import SwiftUI
 
 struct JellyfinLibraryListItemView: View {
   @State var item: JellyfinLibraryItem
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
     HStack {
@@ -20,11 +20,11 @@ struct JellyfinLibraryListItemView: View {
         .accessibilityHidden(true)
       Text(item.name)
         .bpFont(.titleRegular)
-        .foregroundStyle(themeViewModel.primaryColor)
+        .foregroundStyle(theme.primaryColor)
       Spacer()
       if item.kind != .audiobook {
         Image(systemName: "chevron.forward")
-          .foregroundStyle(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
     }
     .accessibilityElement(children: .combine)

@@ -24,7 +24,7 @@ struct SettingsSupportSectionView: View {
   var sendEmail: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink(value: SettingsScreen.tipjar) {
         Text("settings_tip_jar_title")
           .bpFont(.body)
@@ -83,7 +83,6 @@ struct SettingsSupportSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 
   private var appVersion: String {

@@ -13,7 +13,7 @@ struct JellyfinConnectedView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Text("integration_username_placeholder".localized)
           .foregroundStyle(theme.secondaryColor)
@@ -25,7 +25,7 @@ struct JellyfinConnectedView: View {
         .foregroundStyle(theme.secondaryColor)
     }
 
-    Section {
+    ThemedSection {
       Button("logout_title".localized, role: .destructive) {
         viewModel.handleSignOutAction()
       }

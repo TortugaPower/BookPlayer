@@ -22,7 +22,7 @@ struct JellyfinDisconnectedView: View {
   var onCommit: () -> Void = {}
 
   var body: some View {
-    Section {
+    ThemedSection {
       ClearableTextField(
         "http://jellyfin.example.com:8096",
         text: $serverUrl,
@@ -48,7 +48,6 @@ struct JellyfinDisconnectedView: View {
       )
       .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focusedField = .serverUrl

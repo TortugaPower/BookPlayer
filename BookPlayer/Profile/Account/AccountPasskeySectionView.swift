@@ -21,7 +21,7 @@ struct AccountPasskeySectionView: View {
   @Environment(\.passkeyService) private var passkeyService
 
   var body: some View {
-    Section {
+    ThemedSection {
       if isLoading {
         loadingView
       } else if let passkey = passkey {
@@ -35,7 +35,6 @@ struct AccountPasskeySectionView: View {
       Text("Passkey")
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
     .onAppear {
       Task {
         await loadPasskey()

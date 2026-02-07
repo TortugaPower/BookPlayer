@@ -16,7 +16,7 @@ struct ProgressLabelsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $prefersRemainingTime) {
         Text("settings_remainingtime_title")
           .bpFont(.body)
@@ -40,7 +40,6 @@ struct ProgressLabelsSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 
   func handleValueUpdated() {

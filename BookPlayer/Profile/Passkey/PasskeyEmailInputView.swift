@@ -26,7 +26,7 @@ struct PasskeyEmailInputView: View {
 
   var body: some View {
     Form {
-      Section {
+      ThemedSection {
         ClearableTextField(
           "email_title".localized,
           text: $email,

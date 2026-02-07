@@ -15,7 +15,7 @@ struct AccountDeleteSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         showAlert = true
       } label: {
@@ -29,6 +29,5 @@ struct AccountDeleteSectionView: View {
         }
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }

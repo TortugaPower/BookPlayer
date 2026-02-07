@@ -20,7 +20,7 @@ struct HardcoverSettingsView: View {
 
   var body: some View {
     Form {
-      Section {
+      ThemedSection {
         TextField(
           "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
           text: $viewModel.accessToken
@@ -45,9 +45,8 @@ struct HardcoverSettingsView: View {
             .foregroundStyle(theme.secondaryColor)
         }
       }
-      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
-      Section {
+      ThemedSection {
         Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
           .foregroundStyle(theme.primaryColor)
 
@@ -60,9 +59,8 @@ struct HardcoverSettingsView: View {
         Text("hardcover_automation_description".localized)
           .foregroundStyle(theme.secondaryColor)
       }
-      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
-      Section {
+      ThemedSection {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
             Text("hardcover_reading_threshold".localized)
@@ -88,11 +86,10 @@ struct HardcoverSettingsView: View {
         Text("hardcover_progress_tracking_footer".localized)
           .foregroundStyle(theme.secondaryColor)
       }
-      .listRowBackground(theme.tertiarySystemBackgroundColor)
       .navigationBarTitleDisplayMode(.inline)
 
       if viewModel.showUnlinkButton {
-        Section {
+        ThemedSection {
           Button("hardcover_unlink_button".localized, role: .destructive) {
             viewModel.onUnlinkTapped()
             dismiss()

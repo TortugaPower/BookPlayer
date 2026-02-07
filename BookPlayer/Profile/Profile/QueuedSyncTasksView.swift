@@ -23,7 +23,7 @@ struct QueuedSyncTasksView: View {
 
   var body: some View {
     List {
-      Section {
+      ThemedSection {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),

@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AudiobookShelfLibraryListItemView: View {
   @State var item: AudiobookShelfLibraryItem
-  @EnvironmentObject var themeViewModel: ThemeViewModel
+  @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
     HStack {
@@ -20,11 +20,11 @@ struct AudiobookShelfLibraryListItemView: View {
         .accessibilityHidden(true)
       Text(item.title)
         .bpFont(.titleRegular)
-        .foregroundStyle(themeViewModel.primaryColor)
+        .foregroundStyle(theme.primaryColor)
       Spacer()
       if item.kind == .library {
         Image(systemName: "chevron.forward")
-          .foregroundStyle(themeViewModel.secondaryColor)
+          .foregroundStyle(theme.secondaryColor)
       }
     }
     .accessibilityElement(children: .combine)

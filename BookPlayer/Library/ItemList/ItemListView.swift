@@ -424,7 +424,7 @@ struct ItemListView: View {
     }
 
     Menu {
-      Section {
+      ThemedSection {
         Button {
           withAnimation {
             model.selectedSetItems.removeAll()
@@ -435,13 +435,13 @@ struct ItemListView: View {
         }
       }
 
-      Section {
+      ThemedSection {
         addFilesOptions()
       } header: {
         Text("playlist_add_title")
       }
 
-      Section {
+      ThemedSection {
         sortOptions()
       } header: {
         Text("sort_files_title")

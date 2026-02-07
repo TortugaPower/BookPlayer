@@ -16,12 +16,11 @@ struct ProfileCardSectionView: View {
   var action: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button(action: action) {
         ProfileCardView(email: accountService.account.email)
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

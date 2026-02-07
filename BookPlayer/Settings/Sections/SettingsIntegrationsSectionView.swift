@@ -13,7 +13,7 @@ struct SettingsIntegrationsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink(value: SettingsScreen.jellyfin) {
         Text("Jellyfin")
           .bpFont(.body)
@@ -31,7 +31,6 @@ struct SettingsIntegrationsSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

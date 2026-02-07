@@ -15,7 +15,7 @@ struct SettingsDataUsageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(isOn: $isEnabled) {
         Text("datausage_upload_wifionly_title")
           .bpFont(.body)
@@ -25,7 +25,6 @@ struct SettingsDataUsageSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

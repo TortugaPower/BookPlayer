@@ -14,7 +14,7 @@ struct AccountTermsConditionsSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         let url = URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md")!
         openURL(url)
@@ -43,7 +43,6 @@ struct AccountTermsConditionsSectionView: View {
         }
       }
     }
-    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

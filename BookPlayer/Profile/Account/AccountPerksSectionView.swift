@@ -15,7 +15,7 @@ struct AccountPerksSectionView: View {
   var action: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       VStack(alignment: .leading, spacing: Spacing.S1) {
         Text("BookPlayer Pro")
           .bpFont(.title)
