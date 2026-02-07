@@ -26,11 +26,13 @@ public struct SyncTaskReference: Identifiable {
   public let id: String
   public let relativePath: String
   public let jobType: SyncJobType
+  public let progress: Double
 
-  public init(id: String, relativePath: String, jobType: SyncJobType) {
+  public init(id: String, relativePath: String, jobType: SyncJobType, progress: Double) {
     self.id = id
     self.relativePath = relativePath
     self.jobType = jobType
+    self.progress = progress
   }
 }
 
