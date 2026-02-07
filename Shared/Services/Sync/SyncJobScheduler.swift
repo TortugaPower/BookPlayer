@@ -51,7 +51,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
-  private var progressObservation: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
   private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
   /// Reference to ongoing library fetch task
@@ -257,7 +256,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
-    return await taskStore.getAllTasks(progress: tasksProgress)
+    let currentProgress = await MainActor.run { tasksProgress }
+    return await taskStore.getAllTasks(progress: currentProgress)
   }
 
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {
@@ -270,7 +270,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       _ = await initializeStoreTask?.result
       try await taskStore.clearAll()
       operationQueue.cancelAllOperations()
-      tasksProgress.removeAll()
+      await MainActor.run {
+        tasksProgress.removeAll()
+      }
     }
   }
 
@@ -332,11 +334,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     }
   }
   
-  func updateProgress(
-      for path: String,
-      value: Double
+  private func updateProgress(
+    for path: String,
+    value: Double
   ) {
-      tasksProgress[path] = value
+    tasksProgress[path] = value
   }
 
   private func retryQueuedTask() {
@@ -348,7 +350,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   private func handleFinishedTask(_ task: SyncTask) {
     lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
-      Task {
+      Task { @MainActor in
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()

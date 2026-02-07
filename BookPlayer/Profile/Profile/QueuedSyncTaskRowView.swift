@@ -14,6 +14,7 @@ struct QueuedSyncTaskRowView: View {
 
   @Binding var imageName: String
   @Binding var title: String
+  let relativePath: String
   var initialProgress: Double
   var isUpload: Bool
   
@@ -42,13 +43,13 @@ struct QueuedSyncTaskRowView: View {
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)
-        .receive(on: DispatchQueue.main)
+        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
     ) { notification in
       guard
         self.isUpload,
         let relativePath = notification.userInfo?["relativePath"] as? String,
         let progress = notification.userInfo?["progress"] as? Double,
-        relativePath == self.title
+        relativePath == self.relativePath
       else { return }
       self.progress = progress
     }
@@ -60,6 +61,7 @@ struct QueuedSyncTaskRowView_Previews: PreviewProvider {
     QueuedSyncTaskRowView(
       imageName: .constant("bookmark"),
       title: .constant("Task"),
+      relativePath: "path/to/file",
       initialProgress: 0,
       isUpload: false
     )
