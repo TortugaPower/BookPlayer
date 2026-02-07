@@ -56,7 +56,6 @@ struct ProfileView: View {
     }
     .foregroundStyle(theme.primaryColor)
     .tint(theme.linkColor)
-    .environmentObject(theme)
   }
 
   func showLoginOrAccount() {

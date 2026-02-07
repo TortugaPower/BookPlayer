@@ -26,7 +26,6 @@ struct SettingsPlayerControlsView: View {
     .environmentObject(theme)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
-    .listRowBackground(theme.systemBackgroundColor)
     .navigationTitle("settings_controls_title")
     .navigationBarTitleDisplayMode(.inline)
   }
