@@ -57,7 +57,6 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let jobType: SyncJobType
   let parameters: [String: Any]
   var error: Error?
-  let progress = Progress(totalUnitCount: 100)
   
   private var progressSubscriber: AnyCancellable?
   private var completionSubscriber: AnyCancellable?
@@ -242,7 +241,6 @@ extension LibraryItemSyncOperation {
   func bindUploadObservers() {
     progressSubscriber?.cancel()
     progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
-      self.progress.completedUnitCount = Int64(progress * 100)
       NotificationCenter.default.post(
         name: .uploadProgressUpdated,
         object: nil,

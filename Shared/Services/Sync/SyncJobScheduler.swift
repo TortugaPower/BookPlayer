@@ -60,7 +60,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?
-  
+
   public init(
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol = NetworkClient(),
@@ -88,6 +88,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         } catch {
           Self.logger.warning("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
         }
+      }
+      .store(in: &disposeBag)
+    
+    NotificationCenter.default.publisher(for: .uploadProgressUpdated)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] notification in
+        guard
+          let relativePath = notification.userInfo?["relativePath"] as? String,
+          let progress = notification.userInfo?["progress"] as? Double
+        else { return }
+        self?.updateProgress(for: relativePath, value: progress)
       }
       .store(in: &disposeBag)
 
@@ -298,17 +309,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           client: networkClient,
           task: task
         )
-        
-        let relativePath = task.relativePath
-        progressObservation = operationTask.progress.observe(
-            \.fractionCompleted,
-            options: [.new]
-        ) { [weak self] progress, _ in
-          self?.updateProgress(
-              for: relativePath,
-              value: progress.fractionCompleted
-          )
-        }
 
         operationTask.completionBlock = { [unowned self, unowned operationTask] in
           if let error = operationTask.error {
@@ -324,7 +324,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             self.handleFinishedTask(task)
           }
         }
-        
+
         operationQueue.addOperation(operationTask)
       } catch {
         Self.logger.error("\(error.localizedDescription)")

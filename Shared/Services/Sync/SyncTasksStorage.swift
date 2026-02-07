@@ -16,7 +16,7 @@ public actor SyncTasksStorage: ModelActor {
   nonisolated public let modelExecutor: any ModelExecutor
 
   private let tasksDataManager: TasksDataManager
-  
+
   init(tasksDataManager: TasksDataManager) throws {
     self.modelContainer = tasksDataManager.container
     let modelContext = ModelContext(tasksDataManager.container)
