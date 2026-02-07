@@ -36,6 +36,7 @@ struct AccountPasskeySectionView: View {
         .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {
+      guard passkey == nil, !isLoading else { return }
       Task {
         await loadPasskey()
       }

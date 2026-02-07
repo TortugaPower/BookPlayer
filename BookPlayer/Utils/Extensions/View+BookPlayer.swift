@@ -193,18 +193,8 @@ extension View {
   }
 }
 
-private struct MiniPlayerBottomInsetKey: EnvironmentKey {
-  static let defaultValue: CGFloat = 80
-}
+// MARK: - Mini Player Layout
 
-extension EnvironmentValues {
-  var miniPlayerBottomInset: CGFloat {
-    get { self[MiniPlayerBottomInsetKey.self] }
-    set { self[MiniPlayerBottomInsetKey.self] = newValue }
-  }
-}
-
-// MARK: - Toolbar utils
 struct MiniPlayerSizePreferenceKey: PreferenceKey {
   static var defaultValue: CGSize = .zero
   static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
@@ -252,9 +242,13 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
           )
       }
       .onPreferenceChange(MiniPlayerSizePreferenceKey.self) {
+        guard $0.height > 0 else { return }
         let miniPlayerHeight = $0.height
         let topPadding: CGFloat = 20
-        let reduceSize = hSize == .compact ? 44.0 : 0
+        // In compact width (iPhone, iPad split/slide-over), reduce inset by tab bar
+        // content height since the mini player's own bottom padding already clears it
+        let tabBarContentHeight: CGFloat = 44.0
+        let reduceSize = hSize == .compact ? tabBarContentHeight : 0
         let reduceTopPadding = miniPlayerHeight > reduceSize ? reduceSize : 0
         miniPlayerBottomInset = miniPlayerHeight + topPadding - reduceTopPadding
       }
