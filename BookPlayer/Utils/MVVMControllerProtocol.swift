@@ -13,13 +13,6 @@ protocol MVVMControllerProtocol: UIViewController {
   var viewModel: VM! { get set }
 }
 
-extension MVVMControllerProtocol {
-  func accessibilityPerformEscape() -> Bool {
-    self.viewModel.dismiss()
-    return true
-  }
-}
-
 protocol ViewModelProtocol {
   associatedtype C: Coordinator
   var coordinator: C! { get set }
