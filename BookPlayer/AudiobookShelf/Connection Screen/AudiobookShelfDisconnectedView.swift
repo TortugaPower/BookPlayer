@@ -48,6 +48,7 @@ struct AudiobookShelfDisconnectedView: View {
       )
       .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focusedField = .serverUrl

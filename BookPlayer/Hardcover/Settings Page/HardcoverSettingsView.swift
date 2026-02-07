@@ -45,6 +45,7 @@ struct HardcoverSettingsView: View {
             .foregroundStyle(theme.secondaryColor)
         }
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
       Section {
         Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
@@ -59,6 +60,7 @@ struct HardcoverSettingsView: View {
         Text("hardcover_automation_description".localized)
           .foregroundStyle(theme.secondaryColor)
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
       Section {
         VStack(alignment: .leading, spacing: 8) {
@@ -86,6 +88,7 @@ struct HardcoverSettingsView: View {
         Text("hardcover_progress_tracking_footer".localized)
           .foregroundStyle(theme.secondaryColor)
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
       .navigationBarTitleDisplayMode(.inline)
 
       if viewModel.showUnlinkButton {
@@ -100,7 +103,7 @@ struct HardcoverSettingsView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .toolbar {
       navigationBar
     }

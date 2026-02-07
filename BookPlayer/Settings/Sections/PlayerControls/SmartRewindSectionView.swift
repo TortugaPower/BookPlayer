@@ -56,6 +56,7 @@ struct SmartRewindSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

@@ -73,6 +73,7 @@ struct SkipIntervalsSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

@@ -86,6 +86,7 @@ struct SettingsThemesView: View {
             .foregroundStyle(theme.secondaryColor)
         }
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
 
       Section {
         ForEach(themes) { item in
@@ -96,11 +97,12 @@ struct SettingsThemesView: View {
           .bpFont(.subheadline)
           .foregroundStyle(theme.secondaryColor)
       }
+      .listRowBackground(theme.tertiarySystemBackgroundColor)
     }
     .environment(\.loadingState, loadingState)
     .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .navigationTitle("themes_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {

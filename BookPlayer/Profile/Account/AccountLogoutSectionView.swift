@@ -36,6 +36,7 @@ struct AccountLogoutSectionView: View {
         }
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

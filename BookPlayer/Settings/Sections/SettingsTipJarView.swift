@@ -66,7 +66,7 @@ struct SettingsTipJarView: View {
     }
     .errorAlert(error: $loadingState.error)
     .padding(.horizontal, Spacing.M)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .environment(\.loadingState, loadingState)
     .navigationTitle("settings_tip_jar_title")
     .navigationBarTitleDisplayMode(.inline)

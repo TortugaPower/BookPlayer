@@ -25,6 +25,7 @@ struct AutoSleepTimerSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

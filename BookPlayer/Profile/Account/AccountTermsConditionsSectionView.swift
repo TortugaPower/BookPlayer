@@ -43,6 +43,7 @@ struct AccountTermsConditionsSectionView: View {
         }
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

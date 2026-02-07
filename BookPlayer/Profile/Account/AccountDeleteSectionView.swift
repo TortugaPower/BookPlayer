@@ -29,5 +29,6 @@ struct AccountDeleteSectionView: View {
         }
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }

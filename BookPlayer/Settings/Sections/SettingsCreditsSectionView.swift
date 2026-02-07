@@ -15,6 +15,7 @@ struct SettingsCreditsSectionView: View {
     Section {
       NavigationLink("settings_credits_title", value: SettingsScreen.credits)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

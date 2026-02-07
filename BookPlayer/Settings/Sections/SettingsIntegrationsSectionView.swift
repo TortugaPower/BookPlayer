@@ -31,6 +31,7 @@ struct SettingsIntegrationsSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

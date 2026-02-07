@@ -41,6 +41,7 @@ struct SettingsProBannerSectionView: View {
         }
       }
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 }
 

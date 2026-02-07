@@ -83,6 +83,7 @@ struct SettingsSupportSectionView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
+    .listRowBackground(theme.tertiarySystemBackgroundColor)
   }
 
   private var appVersion: String {

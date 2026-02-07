@@ -58,6 +58,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
           }
           .accessibilityElement(children: .combine)
         }
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
 
         Section {
           List {
@@ -96,9 +97,10 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
             }
           }
         }
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
       .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
+      .background(theme.systemBackgroundColor)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
