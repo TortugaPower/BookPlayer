@@ -504,7 +504,9 @@ extension ItemListViewModel {
     let documentsFolder = DataManager.getDocumentsFolderURL()
     urls.forEach { url in
       let gotAccess = url.startAccessingSecurityScopedResource()
-      if !gotAccess { return }
+      if !gotAccess {
+        return
+      }
 
       defer { url.stopAccessingSecurityScopedResource() }
 

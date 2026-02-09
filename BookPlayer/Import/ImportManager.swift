@@ -33,7 +33,9 @@ final class ImportManager: ObservableObject {
     // Avoid processing the creation of the Processed, Inbox and Backup folder
     if fileUrl.lastPathComponent == DataManager.processedFolderName
         || fileUrl.lastPathComponent == DataManager.inboxFolderName
-        || fileUrl.lastPathComponent == DataManager.backupFolderName { return }
+        || fileUrl.lastPathComponent == DataManager.backupFolderName {
+      return
+    }
 
     self.files.value.insert(fileUrl)
   }
@@ -69,7 +71,9 @@ final class ImportManager: ObservableObject {
   }
 
   public func createOperation() {
-    guard !self.files.value.isEmpty else { return }
+    guard !self.files.value.isEmpty else {
+      return
+    }
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
     let orderedSet = NSOrderedSet(set: self.files.value)
@@ -121,7 +125,9 @@ final class ImportManager: ObservableObject {
 
     let urls = documentsURLs + sharedURLs + inboxURLs
 
-    guard !urls.isEmpty else { return }
+    guard !urls.isEmpty else {
+      return
+    }
 
     processFiles(urls: urls)
   }

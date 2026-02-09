@@ -33,7 +33,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Set the last played book
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
-  func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
+  @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
   func moveItems(_ items: [String], inside relativePath: String?) throws
   /// Delete items
@@ -297,7 +297,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     booleanExpression.expressionResultType = NSAttributeType.booleanAttributeType
     booleanExpression.expression = NSExpression(
       forConditional: NSPredicate(
-        format: "%@ != nil",
+        format: "%K != nil",
         property
       ),
       trueExpression: NSExpression(forConstantValue: true),
@@ -573,100 +573,45 @@ extension LibraryService {
     dataManager.saveSyncContext(context)
   }
 
+  @MainActor
   @discardableResult
   public func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
     return await insertItems(from: files, parentPath: nil)
   }
 
-  /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
-  /// as we don't want this method to throw, and the files are already in the processed folder
-  @discardableResult
-  func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
-    let context = dataManager.getContext()
-    let library = getLibraryReference()
+  // MARK: - Import data types
 
-    var processedFiles = [SimpleLibraryItem]()
+  /// Represents a file's pre-extracted data, computed off the main thread
+  private enum PreparedImportItem {
+    case book(url: URL, metadata: AudioMetadata?)
+    case directory(url: URL, sortedContents: [URL])
+  }
+
+  // MARK: - Phase 1: Background preparation (no CoreData)
+
+  /// Pre-processes files off the main thread: checks file types, enumerates directories, and extracts audio metadata.
+  /// None of this touches CoreData, so it's safe to run on any thread.
+  private func prepareItems(from files: [URL]) async -> [PreparedImportItem] {
+    var prepared = [PreparedImportItem]()
+
     for file in files {
-      let libraryItem: LibraryItem
-
       if let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
         let type = attributes[.type] as? FileAttributeType,
         type == .typeDirectory
       {
-        libraryItem = Folder(from: file, context: context)
-        /// Handle folder contents and wait for completion to ensure proper metadata extraction
-        await self.handleDirectory(file)
+        let sortedContents = enumerateAndSortDirectory(file)
+        prepared.append(.directory(url: file, sortedContents: sortedContents))
       } else {
-        // Extract metadata FIRST (includes chapters)
         let metadata = await audioMetadataService.extractMetadata(from: file)
-        
-        // Create Book with metadata
-        let book = createBook(from: file, metadata: metadata, context: context)
-        libraryItem = book
-        
-        // Create chapters immediately if available
-        if let chapters = metadata?.chapters {
-          storeChapters(chapters, for: book, context: context)
-        }
+        prepared.append(.book(url: file, metadata: metadata))
       }
-
-      libraryItem.orderRank = getNextOrderRank(in: parentPath)
-
-      if let parentPath,
-        let parentFolder = getItemReference(with: parentPath) as? Folder
-      {
-        parentFolder.addToItems(libraryItem)
-        /// update details on parent folder
-      } else {
-        library.addToItems(libraryItem)
-      }
-
-      processedFiles.append(SimpleLibraryItem(from: libraryItem))
-      dataManager.saveContext()
     }
 
-    return processedFiles
+    return prepared
   }
 
-  private func createBook(from url: URL, metadata: AudioMetadata?, context: NSManagedObjectContext) -> Book {
-    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
-    let book = Book(entity: entity, insertInto: context)
-    
-    book.relativePath = url.relativePath(to: DataManager.getProcessedFolderURL())
-    book.remoteURL = nil
-    book.artworkURL = nil
-    let title = metadata?.title ?? ""
-    book.title = title.isEmpty ? url.lastPathComponent.replacingOccurrences(of: "_", with: " ") : title
-    let artist = metadata?.artist ?? ""
-    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
-    book.duration = metadata?.duration ?? 0
-    book.originalFileName = url.lastPathComponent
-    book.isFinished = false
-    book.type = .book
-    
-    return book
-  }
-  
-  private func storeChapters(_ chapters: [ChapterMetadata], for book: Book, context: NSManagedObjectContext) {
-    for chapterMeta in chapters {
-      let chapter = Chapter(context: context)
-      chapter.title = chapterMeta.title
-      chapter.start = chapterMeta.start
-      chapter.duration = chapterMeta.duration
-      chapter.index = Int16(chapterMeta.index)
-      book.addToChapters(chapter)
-    }
-  }
-  
-  /// Overload for backwards compatibility when we need to query by relativePath
-  private func storeChapters(_ chapters: [ChapterMetadata], for relativePath: String, context: NSManagedObjectContext) {
-    guard let book = getItem(with: relativePath, context: context) as? Book else {
-      return
-    }
-    storeChapters(chapters, for: book, context: context)
-  }
-
-  private func handleDirectory(_ folderURL: URL) async {
+  /// Enumerates a directory's immediate contents and sorts them by path.
+  private func enumerateAndSortDirectory(_ folderURL: URL) -> [URL] {
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
       includingPropertiesForKeys: [.isDirectoryKey],
@@ -689,11 +634,148 @@ extension LibraryService {
     )
     let orderedSet = NSOrderedSet(array: files)
 
-    let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
+    // swiftlint:disable:next force_cast
+    return orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
+  }
 
-    let parentPath = folderURL.relativePath(to: DataManager.getProcessedFolderURL())
-    _ = await insertItems(from: sortedFiles, parentPath: parentPath)
-    rebuildFolderDetails(parentPath)
+  // MARK: - Phase 2: CoreData creation on MainActor
+
+  /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
+  /// as we don't want this method to throw, and the files are already in the processed folder
+  @MainActor
+  @discardableResult
+  func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
+    // Phase 1: Extract metadata and enumerate directories off the main thread
+    let preparedItems = await prepareItems(from: files)
+
+    // Phase 2: Create CoreData entities on the main thread using pre-extracted data
+    let context = dataManager.getContext()
+    let library = getLibraryReference()
+
+    var processedFiles = [SimpleLibraryItem]()
+    var nextOrderRank = getNextOrderRank(in: parentPath)
+    for preparedItem in preparedItems {
+      let libraryItem: LibraryItem
+
+      switch preparedItem {
+      case .directory(let url, let sortedContents):
+        libraryItem = Folder(from: url, context: context)
+        let folderPath = url.relativePath(to: DataManager.getProcessedFolderURL())
+        // Recursively prepare and insert directory contents
+        let childPreparedItems = await prepareItems(from: sortedContents)
+        _ = await insertPreparedItems(childPreparedItems, parentPath: folderPath)
+        rebuildFolderDetails(folderPath)
+
+      case .book(let url, let metadata):
+        let book = createBook(from: url, metadata: metadata, context: context)
+        libraryItem = book
+        if let chapters = metadata?.chapters {
+          storeChapters(chapters, for: book, context: context)
+        }
+      }
+
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
+
+      if let parentPath,
+        let parentFolder = getItemReference(with: parentPath) as? Folder
+      {
+        parentFolder.addToItems(libraryItem)
+      } else {
+        library.addToItems(libraryItem)
+      }
+
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
+    }
+
+    dataManager.saveContext()
+
+    return processedFiles
+  }
+
+  /// Inserts already-prepared items into CoreData. Used by directory handling to avoid re-preparing.
+  @MainActor
+  @discardableResult
+  private func insertPreparedItems(_ preparedItems: [PreparedImportItem], parentPath: String?) async -> [SimpleLibraryItem] {
+    let context = dataManager.getContext()
+    let library = getLibraryReference()
+
+    var processedFiles = [SimpleLibraryItem]()
+    var nextOrderRank = getNextOrderRank(in: parentPath)
+    for preparedItem in preparedItems {
+      let libraryItem: LibraryItem
+
+      switch preparedItem {
+      case .directory(let url, let sortedContents):
+        libraryItem = Folder(from: url, context: context)
+        let folderPath = url.relativePath(to: DataManager.getProcessedFolderURL())
+        let childPreparedItems = await prepareItems(from: sortedContents)
+        _ = await insertPreparedItems(childPreparedItems, parentPath: folderPath)
+        rebuildFolderDetails(folderPath)
+
+      case .book(let url, let metadata):
+        let book = createBook(from: url, metadata: metadata, context: context)
+        libraryItem = book
+        if let chapters = metadata?.chapters {
+          storeChapters(chapters, for: book, context: context)
+        }
+      }
+
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
+
+      if let parentPath,
+        let parentFolder = getItemReference(with: parentPath) as? Folder
+      {
+        parentFolder.addToItems(libraryItem)
+      } else {
+        library.addToItems(libraryItem)
+      }
+
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
+    }
+
+    dataManager.saveContext()
+
+    return processedFiles
+  }
+
+  private func createBook(from url: URL, metadata: AudioMetadata?, context: NSManagedObjectContext) -> Book {
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let book = Book(entity: entity, insertInto: context)
+
+    book.relativePath = url.relativePath(to: DataManager.getProcessedFolderURL())
+    book.remoteURL = nil
+    book.artworkURL = nil
+    let title = metadata?.title ?? ""
+    book.title = title.isEmpty ? url.lastPathComponent.replacingOccurrences(of: "_", with: " ") : title
+    let artist = metadata?.artist ?? ""
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
+    book.duration = metadata?.duration ?? 0
+    book.originalFileName = url.lastPathComponent
+    book.isFinished = false
+    book.type = .book
+
+    return book
+  }
+
+  private func storeChapters(_ chapters: [ChapterMetadata], for book: Book, context: NSManagedObjectContext) {
+    for chapterMeta in chapters {
+      let chapter = Chapter(context: context)
+      chapter.title = chapterMeta.title
+      chapter.start = chapterMeta.start
+      chapter.duration = chapterMeta.duration
+      chapter.index = Int16(chapterMeta.index)
+      book.addToChapters(chapter)
+    }
+  }
+
+  /// Overload for backwards compatibility when we need to query by relativePath
+  private func storeChapters(_ chapters: [ChapterMetadata], for relativePath: String, context: NSManagedObjectContext) {
+    guard let book = getItem(with: relativePath, context: context) as? Book else {
+      return
+    }
+    storeChapters(chapters, for: book, context: context)
   }
 
   private func moveFileIfNeeded(
@@ -762,7 +844,9 @@ extension LibraryService {
     let startingIndex = getNextOrderRank(in: relativePath, context: context)
 
     for (index, itemPath) in items.enumerated() {
-      guard let libraryItem = getItemReference(with: itemPath, context: context) else { continue }
+      guard let libraryItem = getItemReference(with: itemPath, context: context) else {
+        continue
+      }
 
       let sourceUrl =
         processedFolderURL
@@ -775,31 +859,46 @@ extension LibraryService {
       )
 
       libraryItem.orderRank = startingIndex + Int16(index)
-      rebuildRelativePaths(
-        for: libraryItem,
-        parentFolder: relativePath,
-        context: context
-      )
 
+      /// Perform relationship lookups BEFORE rebuildRelativePaths changes the entity's relativePath
       if let folder = folder {
-        /// Remove reference to Library if it exists
-        if hasItemProperty(
+        let hasLibraryRef = hasItemProperty(
           #keyPath(LibraryItem.library),
           relativePath: itemPath,
           context: context
-        ) {
+        )
+
+        rebuildRelativePaths(
+          for: libraryItem,
+          parentFolder: relativePath,
+          context: context
+        )
+
+        if hasLibraryRef {
           library.removeFromItems(libraryItem)
+          /// Explicitly clear the library relationship as safety net
+          libraryItem.library = nil
         }
         folder.addToItems(libraryItem)
       } else {
-        if let parentPath = getItemProperty(
+        let previousParentPath = getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
           relativePath: itemPath,
           context: context
-        ) as? String,
-          let parentFolder = getItemReference(with: parentPath, context: context) as? Folder
+        ) as? String
+
+        rebuildRelativePaths(
+          for: libraryItem,
+          parentFolder: relativePath,
+          context: context
+        )
+
+        if let previousParentPath,
+          let parentFolder = getItemReference(with: previousParentPath, context: context) as? Folder
         {
           parentFolder.removeFromItems(libraryItem)
+          /// Explicitly clear the folder relationship as safety net
+          libraryItem.folder = nil
         }
         library.addToItems(libraryItem)
       }
@@ -810,6 +909,24 @@ extension LibraryService {
     if let folder {
       rebuildFolderDetails(folder.relativePath)
     }
+
+    /// Also rebuild details for any moved folders to ensure correct counts
+    for itemPath in items {
+      let movedPath: String
+      if let relativePath {
+        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        movedPath = "\(relativePath)/\(itemName)"
+      } else {
+        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        movedPath = itemName
+      }
+      if let movedItem = getItemReference(with: movedPath, context: context),
+        movedItem is Folder
+      {
+        rebuildFolderDetails(movedPath, context: context)
+      }
+    }
+
     if let originalParentPath {
       rebuildOrderRank(in: originalParentPath)
     }
@@ -1638,7 +1755,9 @@ extension LibraryService {
         with: relativePath,
         context: context
       ) as? Folder
-    else { return }
+    else {
+      return
+    }
 
     let (progress, contentsCount) = calculateFolderProgress(at: relativePath, context: context)
     folder.percentCompleted = progress
