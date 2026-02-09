@@ -262,7 +262,7 @@ public class ImportOperation: Operation {
     self.processedFiles.append(destinationURL)
     self.processFile(from: mutableFiles)
   }
-  
+
   func shouldUnzip(_ file: URL) -> Bool {
     return file.pathExtension == "zip" || file.pathExtension == "lpf"
   }

@@ -33,7 +33,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Set the last played book
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
-  func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
+  @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
   func moveItems(_ items: [String], inside relativePath: String?) throws
   /// Delete items
@@ -297,7 +297,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     booleanExpression.expressionResultType = NSAttributeType.booleanAttributeType
     booleanExpression.expression = NSExpression(
       forConditional: NSPredicate(
-        format: "%@ != nil",
+        format: "%K != nil",
         property
       ),
       trueExpression: NSExpression(forConstantValue: true),
@@ -573,6 +573,7 @@ extension LibraryService {
     dataManager.saveSyncContext(context)
   }
 
+  @MainActor
   @discardableResult
   public func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
     return await insertItems(from: files, parentPath: nil)
@@ -580,6 +581,7 @@ extension LibraryService {
 
   /// This handles the Core Data objects creation from the Import operation. This method doesn't handle moving files on disk,
   /// as we don't want this method to throw, and the files are already in the processed folder
+  @MainActor
   @discardableResult
   func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
     let context = dataManager.getContext()
@@ -599,11 +601,11 @@ extension LibraryService {
       } else {
         // Extract metadata FIRST (includes chapters)
         let metadata = await audioMetadataService.extractMetadata(from: file)
-        
+
         // Create Book with metadata
         let book = createBook(from: file, metadata: metadata, context: context)
         libraryItem = book
-        
+
         // Create chapters immediately if available
         if let chapters = metadata?.chapters {
           storeChapters(chapters, for: book, context: context)
@@ -666,6 +668,7 @@ extension LibraryService {
     storeChapters(chapters, for: book, context: context)
   }
 
+  @MainActor
   private func handleDirectory(_ folderURL: URL) async {
     let enumerator = FileManager.default.enumerator(
       at: folderURL,
@@ -762,7 +765,9 @@ extension LibraryService {
     let startingIndex = getNextOrderRank(in: relativePath, context: context)
 
     for (index, itemPath) in items.enumerated() {
-      guard let libraryItem = getItemReference(with: itemPath, context: context) else { continue }
+      guard let libraryItem = getItemReference(with: itemPath, context: context) else {
+        continue
+      }
 
       let sourceUrl =
         processedFolderURL
@@ -775,31 +780,46 @@ extension LibraryService {
       )
 
       libraryItem.orderRank = startingIndex + Int16(index)
-      rebuildRelativePaths(
-        for: libraryItem,
-        parentFolder: relativePath,
-        context: context
-      )
 
+      /// Perform relationship lookups BEFORE rebuildRelativePaths changes the entity's relativePath
       if let folder = folder {
-        /// Remove reference to Library if it exists
-        if hasItemProperty(
+        let hasLibraryRef = hasItemProperty(
           #keyPath(LibraryItem.library),
           relativePath: itemPath,
           context: context
-        ) {
+        )
+
+        rebuildRelativePaths(
+          for: libraryItem,
+          parentFolder: relativePath,
+          context: context
+        )
+
+        if hasLibraryRef {
           library.removeFromItems(libraryItem)
+          /// Explicitly clear the library relationship as safety net
+          libraryItem.library = nil
         }
         folder.addToItems(libraryItem)
       } else {
-        if let parentPath = getItemProperty(
+        let previousParentPath = getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
           relativePath: itemPath,
           context: context
-        ) as? String,
-          let parentFolder = getItemReference(with: parentPath, context: context) as? Folder
+        ) as? String
+
+        rebuildRelativePaths(
+          for: libraryItem,
+          parentFolder: relativePath,
+          context: context
+        )
+
+        if let previousParentPath,
+          let parentFolder = getItemReference(with: previousParentPath, context: context) as? Folder
         {
           parentFolder.removeFromItems(libraryItem)
+          /// Explicitly clear the folder relationship as safety net
+          libraryItem.folder = nil
         }
         library.addToItems(libraryItem)
       }
@@ -810,6 +830,24 @@ extension LibraryService {
     if let folder {
       rebuildFolderDetails(folder.relativePath)
     }
+
+    /// Also rebuild details for any moved folders to ensure correct counts
+    for itemPath in items {
+      let movedPath: String
+      if let relativePath {
+        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        movedPath = "\(relativePath)/\(itemName)"
+      } else {
+        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        movedPath = itemName
+      }
+      if let movedItem = getItemReference(with: movedPath, context: context),
+        movedItem is Folder
+      {
+        rebuildFolderDetails(movedPath, context: context)
+      }
+    }
+
     if let originalParentPath {
       rebuildOrderRank(in: originalParentPath)
     }
@@ -1638,7 +1676,9 @@ extension LibraryService {
         with: relativePath,
         context: context
       ) as? Folder
-    else { return }
+    else {
+      return
+    }
 
     let (progress, contentsCount) = calculateFolderProgress(at: relativePath, context: context)
     folder.percentCompleted = progress
