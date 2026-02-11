@@ -56,12 +56,6 @@ class PlayerCoordinator: Coordinator {
     viewModel.coordinator = self
     vc.viewModel = viewModel
 
-    let playerView = NewPlayerView()
-    let hostingVC = UIHostingController(rootView: playerView)
-    hostingVC.modalPresentationStyle = .overFullScreen
-    hostingVC.view.backgroundColor = .clear
-    flow.startPresentation(hostingVC, animated: true)
-
     self.bindGeneralObservers()
     self.handleAutolockStatus()
   }

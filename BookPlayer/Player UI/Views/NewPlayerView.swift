@@ -11,15 +11,18 @@ import SwiftUI
 struct NewPlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
-  
+
+  @State private var viewModel: NewPlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   
   @State private var dragOffset: CGSize = .zero
   
+  init(initModel: @escaping () -> NewPlayerViewModel) {
+    self._viewModel = .init(wrappedValue: initModel())
+  }
+  
   var body: some View {
     VStack(spacing: 48) {
-      
-      // 1️⃣ Wide Touchable Area (Drag to dismiss)
       DismissableRegionView()
         .gesture(
           DragGesture()
@@ -30,20 +33,12 @@ struct NewPlayerView: View {
               handleDragEnded(gesture)
             }
         )
-      
-      // 2️⃣ Image with floating icons
       ArtworkView()
       Spacer()
-      // 3️⃣ Left actions - Text - Right actions
-      NavigationRowView()
-      
-      // 4️⃣ Progress + labels
+      NavigationRowView(playerTitle: viewModel.progressData.chapterTitle)
       ListeningProgressView()
-      
-      // 5️⃣ Action icons row
       PlayControlsRowView()
       Spacer()
-      // 6️⃣ Bubble icon buttons
       MediaActionsRowView()
     }
     .padding(.horizontal, 20)
@@ -79,6 +74,8 @@ struct NewPlayerView: View {
   }
 }
 
+/*
 #Preview {
-  NewPlayerView()
+  NewPlayerView(viewModel: NewPl)
 }
+*/

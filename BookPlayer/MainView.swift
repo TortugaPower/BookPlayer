@@ -17,10 +17,12 @@ struct MainView: View {
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
+  @State private var isShowingPlayer: Bool = false
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
+  @Environment(\.playbackService) private var playbackService
   @Environment(\.colorScheme) private var scheme
 
   @State private var tabBarContentHeight: CGFloat = 49
@@ -33,7 +35,7 @@ struct MainView: View {
       Tab("library_title", systemImage: "books.vertical") {
         LibraryRootView(
           showSecondOnboarding: showSecondOnboarding,
-          showPlayer: showPlayer,
+          showPlayer: showNewPlayer,
           showImport: showImport
         )
         .background {
@@ -73,7 +75,7 @@ struct MainView: View {
       if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
         let relativePath = playerState.loadedBookRelativePath
       {
-        MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
+        MiniPlayerView(relativePath: relativePath, showPlayer: showNewPlayer)
           .transition(.move(edge: .bottom).combined(with: .opacity))
           .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
       }
@@ -83,6 +85,17 @@ struct MainView: View {
       {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
+    }
+    .fullScreenCover(isPresented: $isShowingPlayer) {
+      NewPlayerView {
+        NewPlayerViewModel(
+          libraryService: libraryService,
+          playbackService: playbackService,
+          playerManager: playerManager,
+          syncService: syncService
+        )
+      }
+      .presentationBackground(.clear)
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
@@ -112,6 +125,10 @@ struct MainView: View {
         syncService.cancelAllJobs()
       }
     }
+  }
+  
+  func showNewPlayer() {
+    isShowingPlayer = true
   }
 
   func handleDrop(_ providers: [NSItemProvider]) {
