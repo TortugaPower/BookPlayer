@@ -20,15 +20,20 @@ struct ListOptionsSectionView: View {
   }
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Image(systemName: "list.bullet")
           .foregroundStyle(theme.secondaryColor)
-        Picker("settings_playerinterface_list_title", selection: $selectedOption) {
+        Picker(selection: $selectedOption) {
           ForEach(DisplayOption.allCases) { option in
-            Text(option.title).tag(option)
+            Text(option.title)
+              .bpFont(.body)
+              .tag(option)
               .foregroundStyle(theme.linkColor)
           }
+        } label: {
+          Text("settings_playerinterface_list_title")
+            .bpFont(.body)
         }
         .pickerStyle(.menu)
         .onChange(of: selectedOption) {
@@ -39,6 +44,7 @@ struct ListOptionsSectionView: View {
       }
     } footer: {
       Text("settings_playerinterface_list_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

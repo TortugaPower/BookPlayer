@@ -23,7 +23,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               .progressViewStyle(.linear)
 
             Text("\(progress.processed) of \(progress.total)")
-              .font(.subheadline)
+              .bpFont(.subheadline)
               .foregroundStyle(theme.secondaryColor)
 
             Button("cancel_button".localized) {
@@ -39,7 +39,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
       }
     } else {
       Form {
-        Section {
+        ThemedSection {
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
               .foregroundStyle(theme.primaryColor)
@@ -59,7 +59,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
           .accessibilityElement(children: .combine)
         }
 
-        Section {
+        ThemedSection {
           List {
             ForEach(viewModel.publishedFiles) { file in
               StorageRowView(
@@ -81,7 +81,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
               String.localizedStringWithFormat("files_title".localized, viewModel.publishedFiles.count)
                 .localizedUppercase
             )
-            .font(Font(Fonts.subheadline))
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .accessibilityAddTraits(.isHeader)
 
@@ -98,7 +98,7 @@ struct StorageView<Model: StorageViewModelProtocol>: View {
         }
       }
       .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
+      .background(theme.systemBackgroundColor)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

@@ -65,10 +65,10 @@ struct ChaptersView: View {
       HStack {
         VStack(alignment: .leading, spacing: Spacing.S4) {
           Text(title)
-            .bpFont(Fonts.titleRegular)
+            .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
           Text(subtitle)
-            .bpFont(Fonts.caption)
+            .bpFont(.caption)
             .foregroundStyle(theme.secondaryColor)
         }
         Spacer()

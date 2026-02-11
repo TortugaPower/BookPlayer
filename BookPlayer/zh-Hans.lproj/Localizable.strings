@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "间隔倒带";
 "Rewind ${interval}" = "后退 ${interval}";
 "settings_lock_orientation_title" = "方向已锁定";
+"settings_text_size_title" = "文字大小";
 "more_title" = "更多的";
 "repeat_turn_on_title" = "为这本书开启重复";
 "repeat_turn_off_title" = "关闭此书的重复功能";

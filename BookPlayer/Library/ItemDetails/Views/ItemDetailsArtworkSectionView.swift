@@ -18,7 +18,7 @@ struct ItemDetailsArtworkSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         if let image = image {
           Image(uiImage: image)

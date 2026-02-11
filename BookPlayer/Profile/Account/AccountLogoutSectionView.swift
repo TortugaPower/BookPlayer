@@ -17,7 +17,7 @@ struct AccountLogoutSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         do {
           try accountService.logout()
@@ -28,6 +28,7 @@ struct AccountLogoutSectionView: View {
       } label: {
         Label {
           Text("logout_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "rectangle.portrait.and.arrow.forward")

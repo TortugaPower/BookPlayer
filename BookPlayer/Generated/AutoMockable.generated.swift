@@ -132,7 +132,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var insertItemsFromReceivedInvocations: [[URL]] = []
     var insertItemsFromReturnValue: [SimpleLibraryItem]!
     var insertItemsFromClosure: (([URL]) async -> [SimpleLibraryItem])?
-    func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
+    @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
         insertItemsFromCallsCount += 1
         insertItemsFromReceivedFiles = files
         insertItemsFromReceivedInvocations.append(files)

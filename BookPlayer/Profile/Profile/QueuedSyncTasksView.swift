@@ -23,11 +23,14 @@ struct QueuedSyncTasksView: View {
 
   var body: some View {
     List {
-      Section {
+      ThemedSection {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
-            title: .constant(job.relativePath)
+            title: .constant(job.relativePath),
+            relativePath: job.relativePath,
+            initialProgress: job.jobType == .upload ? job.progress : 0,
+            isUpload: job.jobType == .upload
           )
         }
       } header: {
@@ -41,7 +44,7 @@ struct QueuedSyncTasksView: View {
               .foregroundStyle(theme.linkColor)
               .padding([.trailing], 5)
             Text("upload_wifi_required_title".localized)
-              .font(Font(Fonts.body))
+              .bpFont(.body)
               .foregroundStyle(theme.secondaryColor)
             Spacer()
           }
@@ -49,7 +52,7 @@ struct QueuedSyncTasksView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("tasks_title")
     .navigationBarTitleDisplayMode(.inline)

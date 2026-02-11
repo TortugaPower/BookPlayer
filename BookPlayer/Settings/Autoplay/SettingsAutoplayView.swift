@@ -21,7 +21,7 @@ struct SettingsAutoplayView: View {
 
   var formView: some View {
     Form {
-      Section {
+      ThemedSection {
         Toggle(
           isOn: $viewModel.autoplayLibraryEnabled,
           label: {
@@ -43,7 +43,7 @@ struct SettingsAutoplayView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .navigationTitle(viewModel.navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
   }

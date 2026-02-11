@@ -29,7 +29,7 @@ struct CompleteAccountView: View {
   var body: some View {
     VStack(spacing: Spacing.S1) {
       Text("choose_plan_title")
-        .font(Font(Fonts.body))
+        .bpFont(.body)
         .foregroundStyle(theme.secondaryColor)
         .padding(.top, Spacing.M)
 
@@ -64,7 +64,7 @@ struct CompleteAccountView: View {
       } label: {
         Text("subscribe_title")
           .contentShape(Rectangle())
-          .bpFont(Fonts.headline)
+          .bpFont(.headline)
           .frame(height: 45)
           .frame(maxWidth: .infinity)
           .foregroundStyle(.white)
@@ -129,7 +129,7 @@ struct CompleteAccountView: View {
     )
     .fixedSize(horizontal: false, vertical: true)
     .multilineTextAlignment(.center)
-    .bpFont(Fonts.body)
+    .bpFont(.body)
   }
 
   func showCongrats() {

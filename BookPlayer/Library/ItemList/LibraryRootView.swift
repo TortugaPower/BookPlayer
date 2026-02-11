@@ -178,7 +178,9 @@ struct LibraryRootView: View {
   }
 
   func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
-    guard !files.isEmpty else { return }
+    guard !files.isEmpty else {
+      return
+    }
 
     Task { @MainActor in
       let processedItems = await libraryService.insertItems(from: files)

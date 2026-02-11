@@ -23,37 +23,54 @@ struct GlobalSpeedSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
-      Picker("Quick Action 1", selection: $quickSpeedFirstPreference) {
+    ThemedSection {
+      Picker(selection: $quickSpeedFirstPreference) {
         ForEach(speedOptions, id: \.self) { interval in
           Text(formatSpeed(interval))
+            .bpFont(.body)
             .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+      } label: {
+        Text("Quick Action 1")
+          .bpFont(.body)
       }
       .pickerStyle(.menu)
-      Picker("Quick Action 2", selection: $quickSpeedSecondPreference) {
+      Picker(selection: $quickSpeedSecondPreference) {
         ForEach(speedOptions, id: \.self) { interval in
           Text(formatSpeed(interval))
+            .bpFont(.body)
             .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+      } label: {
+        Text("Quick Action 2")
+          .bpFont(.body)
       }
       .pickerStyle(.menu)
-      Picker("Quick Action 3", selection: $quickSpeedThirdPreference) {
+      Picker(selection: $quickSpeedThirdPreference) {
         ForEach(speedOptions, id: \.self) { interval in
           Text(formatSpeed(interval))
+            .bpFont(.body)
             .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+      } label: {
+        Text("Quick Action 3")
+          .bpFont(.body)
       }
       .pickerStyle(.menu)
-      Toggle("settings_globalspeed_title", isOn: $globalSpeedEnabled)
+      Toggle(isOn: $globalSpeedEnabled) {
+        Text("settings_globalspeed_title")
+          .bpFont(.body)
+      }
     } header: {
       Text("speed_title".localized.capitalized)
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_globalspeed_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

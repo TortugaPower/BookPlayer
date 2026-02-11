@@ -20,7 +20,7 @@ struct ContinueWithPasskeyButton: View {
         Image(systemName: "person.badge.key.fill")
         Text("passkey_continue_button".localized)
       }
-      .bpFont(Fonts.body)
+      .bpFont(.body)
       .frame(maxWidth: .infinity)
       .foregroundColor(theme.linkColor)
     }

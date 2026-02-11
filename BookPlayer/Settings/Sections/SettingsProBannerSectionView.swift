@@ -14,7 +14,7 @@ struct SettingsProBannerSectionView: View {
   var showPro: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack(spacing: Spacing.S) {
         Image(systemName: "applewatch.radiowaves.left.and.right")
           .resizable()
@@ -24,14 +24,14 @@ struct SettingsProBannerSectionView: View {
 
         VStack(alignment: .leading, spacing: 0) {
           Text("BookPlayer Pro")
-            .bpFont(Fonts.title)
+            .bpFont(.title)
             .padding(.bottom, Spacing.S5)
           Text("support_bookplayer_description")
-            .bpFont(Fonts.body)
+            .bpFont(.body)
             .padding(.bottom, Spacing.S1)
 
           Button("learn_more_title", action: showPro)
-            .bpFont(Fonts.buttonTextSmall)
+            .bpFont(.buttonTextSmall)
             .padding(.horizontal, Spacing.S)
             .padding(.vertical, Spacing.S3)
             .background(theme.linkColor)

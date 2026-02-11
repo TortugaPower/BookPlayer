@@ -23,14 +23,14 @@ struct SettingsProBannerSectionView: View {
 
       VStack(alignment: .leading, spacing: 0) {
         Text("BookPlayer Pro")
-          .bpFont(Fonts.title)
+          .bpFont(.title)
           .padding(.bottom, Spacing.S5)
         Text("support_bookplayer_description".localized)
-          .bpFont(Fonts.body)
+          .bpFont(.body)
           .padding(.bottom, Spacing.S1)
 
         Button("learn_more_title".localized, action: showPro)
-          .bpFont(Fonts.buttonTextSmall)
+          .bpFont(.buttonTextSmall)
           .padding(.horizontal, Spacing.S)
           .padding(.vertical, Spacing.S3)
           .background(theme.linkColor)

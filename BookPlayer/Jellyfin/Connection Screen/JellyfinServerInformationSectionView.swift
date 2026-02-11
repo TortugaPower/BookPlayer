@@ -15,7 +15,7 @@ struct JellyfinServerInformationSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Text("integration_server_name_label".localized)
           .foregroundStyle(theme.secondaryColor)

@@ -39,6 +39,10 @@ struct LoginView: View {
         LoginDisclaimerSectionView()
       }
       .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+      .safeAreaInset(edge: .bottom) {
+        Color.clear
+          .frame(height: 88)
+      }
 
       VStack(spacing: Spacing.S) {
         AppleSignInLink { hasSubscription in

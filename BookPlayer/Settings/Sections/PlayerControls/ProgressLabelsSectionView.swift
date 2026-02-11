@@ -16,20 +16,28 @@ struct ProgressLabelsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
-      Toggle("settings_remainingtime_title", isOn: $prefersRemainingTime)
-        .onChange(of: prefersRemainingTime) {
-          handleValueUpdated()
-        }
-      Toggle("settings_chaptercontext_title", isOn: $prefersChapterContext)
-        .onChange(of: prefersChapterContext) {
-          handleValueUpdated()
-        }
+    ThemedSection {
+      Toggle(isOn: $prefersRemainingTime) {
+        Text("settings_remainingtime_title")
+          .bpFont(.body)
+      }
+      .onChange(of: prefersRemainingTime) {
+        handleValueUpdated()
+      }
+      Toggle(isOn: $prefersChapterContext) {
+        Text("settings_chaptercontext_title")
+          .bpFont(.body)
+      }
+      .onChange(of: prefersChapterContext) {
+        handleValueUpdated()
+      }
     } header: {
       Text("settings_progresslabels_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_progresslabels_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

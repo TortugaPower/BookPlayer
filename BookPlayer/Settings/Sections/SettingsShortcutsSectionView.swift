@@ -7,17 +7,19 @@
 //
 
 import AppIntents
+import BookPlayerKit
 import SwiftUI
 
 struct SettingsShortcutsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    Section {
+    ThemedSection {
       ShortcutsLink()
         .shortcutsLinkStyle(theme.useDarkVariant ? .dark : .light)
     } header: {
       Text("settings_shortcuts_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
   }

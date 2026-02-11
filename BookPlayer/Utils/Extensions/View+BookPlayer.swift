@@ -41,17 +41,41 @@ extension View {
   }
 }
 
-struct UIFontModifier: ViewModifier {
-  let uiFont: UIFont
-
-  func body(content: Content) -> some View {
-    content.font(Font(uiFont))
+extension View {
+  /// Applies a BPFont style with automatic Dynamic Type support
+  /// On iOS: Uses native SwiftUI fonts that respond to system Dynamic Type
+  /// On macOS: Applies manual scaling based on user's text size preference
+  func bpFont(_ style: BPFont) -> some View {
+    self.modifier(BPFontModifier(style: style))
   }
 }
 
-extension View {
-  func bpFont(_ font: UIFont) -> some View {
-    self.modifier(UIFontModifier(uiFont: font))
+// MARK: - BPFont Modifier
+
+/// Applies BPFont with platform-specific scaling
+/// iOS: Native Dynamic Type via SwiftUI text styles
+/// macOS: Manual scaling using user preference from Settings
+struct BPFontModifier: ViewModifier {
+  let style: BPFont
+
+  @AppStorage(Constants.UserDefaults.macOSTextScale)
+  private var textScaleIndex: Double = 0.0
+
+  private var isMacOS: Bool {
+    ProcessInfo.processInfo.isiOSAppOnMac
+  }
+
+  /// Scale factor for macOS (1.0 to 1.6 based on slider position 0-6)
+  private var macOSScaleFactor: CGFloat {
+    1.0 + (textScaleIndex * 0.1)
+  }
+
+  func body(content: Content) -> some View {
+    if isMacOS {
+      content.font(style.scaledFont(by: macOSScaleFactor))
+    } else {
+      content.font(style.font)
+    }
   }
 }
 
@@ -119,13 +143,14 @@ extension View {
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
   @Environment(\.playerState) var playerState
+  @Environment(\.miniPlayerBottomInset) private var miniPlayerBottomInset
   @StateObject private var keyboardObserver = KeyboardObserver()
 
   private var spacerHeight: CGFloat {
     // When keyboard is visible, let iOS handle the safe area adjustment
     guard !keyboardObserver.isKeyboardVisible else { return 0 }
 
-    return playerState.loadedBookRelativePath != nil ? 80 : Spacing.M
+    return playerState.loadedBookRelativePath != nil ? miniPlayerBottomInset : Spacing.M
   }
 
   func body(content: Content) -> some View {
@@ -168,25 +193,68 @@ extension View {
   }
 }
 
-// MARK: - Toolbar utils
+// MARK: - Mini Player Layout
+
+struct MiniPlayerSizePreferenceKey: PreferenceKey {
+  static var defaultValue: CGSize = .zero
+  static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+    value = nextValue()
+  }
+}
 
 struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   @ViewBuilder let regular: () -> Regular
   @ViewBuilder let accessory: () -> Accessory
-
+  
+  @Environment(\.horizontalSizeClass) var hSize
+  @State private var miniPlayerBottomInset: CGFloat = 80
+  
   func body(content: Content) -> some View {
+    iOSBody(content)
+  }
+  
+  @ViewBuilder
+  private func iOSBody(_ content: Content) -> some View {
     if #available(iOS 26.1, *) {
-      content
-        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+      defaultBody(content)
     } else if #available(iOS 26.0, *) {
       content
         .tabBarMinimizeBehavior(.onScrollDown)
         .tabViewBottomAccessory(content: accessory)
     } else {
-      content
-        .safeAreaInset(edge: .bottom, spacing: 0, content: regular)
+      defaultBody(content)
     }
   }
+  
+  @ViewBuilder
+  private func defaultBody(_ content: Content) -> some View {
+    content
+      .overlay(alignment: .bottom) {
+        regular()
+          .fixedSize(horizontal: false, vertical: true)
+          .overlay(
+            GeometryReader { geo in
+              Color.clear.preference(
+                key: MiniPlayerSizePreferenceKey.self,
+                value: geo.size
+              )
+            }
+          )
+      }
+      .onPreferenceChange(MiniPlayerSizePreferenceKey.self) {
+        guard $0.height > 0 else { return }
+        let miniPlayerHeight = $0.height
+        let topPadding: CGFloat = 20
+        // In compact width (iPhone, iPad split/slide-over), reduce inset by tab bar
+        // content height since the mini player's own bottom padding already clears it
+        let tabBarContentHeight: CGFloat = 44.0
+        let reduceSize = hSize == .compact ? tabBarContentHeight : 0
+        let reduceTopPadding = miniPlayerHeight > reduceSize ? reduceSize : 0
+        miniPlayerBottomInset = miniPlayerHeight + topPadding - reduceTopPadding
+      }
+      .environment(\.miniPlayerBottomInset, miniPlayerBottomInset)
+  }
+  
 }
 extension View {
   func miniPlayer<Regular: View, Accessory: View>(

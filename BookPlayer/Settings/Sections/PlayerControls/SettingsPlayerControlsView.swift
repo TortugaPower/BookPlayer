@@ -12,7 +12,7 @@ struct SettingsPlayerControlsView: View {
   @StateObject var theme = ThemeViewModel()
 
   var body: some View {
-    Form {
+    List {
       SkipIntervalsSectionView()
       SmartRewindSectionView()
       AutoSleepTimerSectionView()
@@ -25,7 +25,6 @@ struct SettingsPlayerControlsView: View {
     .environmentObject(theme)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
-    .listRowBackground(theme.systemGroupedBackgroundColor)
     .navigationTitle("settings_controls_title")
     .navigationBarTitleDisplayMode(.inline)
   }

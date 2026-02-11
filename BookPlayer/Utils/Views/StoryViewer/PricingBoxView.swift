@@ -39,10 +39,10 @@ struct PricingBoxView: View {
           .padding([.trailing, .top], Spacing.S3)
       }
       Text(title)
-        .font(Font(Fonts.titleLarge))
+        .bpFont(.titleLarge)
         .foregroundStyle(foregroundColor)
       Text("/month")
-        .font(Font(Fonts.titleRegular))
+        .bpFont(.titleRegular)
         .foregroundStyle(foregroundColor.opacity(0.7))
     }
     .padding([.bottom])

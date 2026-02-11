@@ -19,7 +19,7 @@ struct ItemDetailsTitleSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       ClearableTextField(titlePlaceholder, text: $title)
       if showAuthor {
         ClearableTextField(authorPlaceholder, text: $author)

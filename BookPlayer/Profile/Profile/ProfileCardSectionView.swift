@@ -11,11 +11,12 @@ import SwiftUI
 
 struct ProfileCardSectionView: View {
   @Environment(\.accountService) private var accountService
-
+  @EnvironmentObject private var theme: ThemeViewModel
+  
   var action: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button(action: action) {
         ProfileCardView(email: accountService.account.email)
       }

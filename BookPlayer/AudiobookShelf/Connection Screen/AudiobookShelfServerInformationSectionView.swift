@@ -15,7 +15,7 @@ struct AudiobookShelfServerInformationSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       HStack {
         Text("integration_server_name_label")
           .foregroundStyle(theme.secondaryColor)

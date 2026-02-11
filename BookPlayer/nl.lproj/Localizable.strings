@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Terugspoelen met interval";
 "Rewind ${interval}" = "Terugspoelen ${interval}";
 "settings_lock_orientation_title" = "Oriëntatie vergrendeld";
+"settings_text_size_title" = "Tekstgrootte";
 "more_title" = "Meer";
 "repeat_turn_on_title" = "Schakel Herhalen in voor dit boek";
 "repeat_turn_off_title" = "Herhalen voor dit boek uitschakelen";

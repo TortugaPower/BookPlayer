@@ -20,7 +20,7 @@ struct HardcoverSettingsView: View {
 
   var body: some View {
     Form {
-      Section {
+      ThemedSection {
         TextField(
           "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
           text: $viewModel.accessToken
@@ -46,7 +46,7 @@ struct HardcoverSettingsView: View {
         }
       }
 
-      Section {
+      ThemedSection {
         Toggle("hardcover_auto_match_books".localized, isOn: $viewModel.autoMatch)
           .foregroundStyle(theme.primaryColor)
 
@@ -60,7 +60,7 @@ struct HardcoverSettingsView: View {
           .foregroundStyle(theme.secondaryColor)
       }
 
-      Section {
+      ThemedSection {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
             Text("hardcover_reading_threshold".localized)
@@ -89,7 +89,7 @@ struct HardcoverSettingsView: View {
       .navigationBarTitleDisplayMode(.inline)
 
       if viewModel.showUnlinkButton {
-        Section {
+        ThemedSection {
           Button("hardcover_unlink_button".localized, role: .destructive) {
             viewModel.onUnlinkTapped()
             dismiss()
@@ -100,7 +100,7 @@ struct HardcoverSettingsView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .toolbar {
       navigationBar
     }
@@ -110,7 +110,7 @@ struct HardcoverSettingsView: View {
   var navigationBar: some ToolbarContent {
     ToolbarItem(placement: .principal) {
       Text("hardcover_settings_title".localized)
-        .font(.headline)
+        .bpFont(.headline)
         .foregroundStyle(theme.primaryColor)
     }
     ToolbarItemGroup(placement: .confirmationAction) {

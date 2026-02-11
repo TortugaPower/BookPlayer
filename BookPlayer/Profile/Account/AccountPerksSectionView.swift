@@ -15,15 +15,15 @@ struct AccountPerksSectionView: View {
   var action: () -> Void
 
   var body: some View {
-    Section {
+    ThemedSection {
       VStack(alignment: .leading, spacing: Spacing.S1) {
         Text("BookPlayer Pro")
-          .bpFont(Fonts.title)
+          .bpFont(.title)
           .foregroundStyle(theme.primaryColor)
           .frame(maxWidth: .infinity)
         Label {
           Text("benefits_cloudsync_title")
-            .bpFont(Fonts.titleRegular)
+            .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "icloud.and.arrow.up.fill")
@@ -31,7 +31,7 @@ struct AccountPerksSectionView: View {
         }
         Label {
           Text("Apple Watch (Beta)")
-            .bpFont(Fonts.titleRegular)
+            .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "applewatch.radiowaves.left.and.right")
@@ -39,7 +39,7 @@ struct AccountPerksSectionView: View {
         }
         Label {
           Text("benefits_themesicons_title")
-            .bpFont(Fonts.titleRegular)
+            .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "paintpalette.fill")
@@ -49,7 +49,7 @@ struct AccountPerksSectionView: View {
         Button(action: action) {
           Text("completeaccount_title")
             .contentShape(Rectangle())
-            .bpFont(Fonts.headline)
+            .bpFont(.headline)
             .frame(height: 45)
             .frame(maxWidth: .infinity)
             .foregroundStyle(.white)

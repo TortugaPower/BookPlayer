@@ -56,10 +56,10 @@ struct ProfileCardView: View {
 
       VStack(alignment: .leading) {
         Text(verbatim: title)
-          .font(Font(Fonts.titleRegular))
+          .bpFont(.titleRegular)
         if let status {
           Text(status)
-            .font(Font(Fonts.subheadline))
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
         }
       }

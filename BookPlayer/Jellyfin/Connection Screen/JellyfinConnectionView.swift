@@ -53,7 +53,7 @@ struct JellyfinConnectionView: View {
       }
     }
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .errorAlert(error: $error)
     .overlay {
       Group {
@@ -73,7 +73,7 @@ struct JellyfinConnectionView: View {
     .toolbar {
       ToolbarItem(placement: .principal) {
         Text(localizedNavigationTitle)
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .confirmationAction) {

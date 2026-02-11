@@ -17,18 +17,21 @@ struct SettingsiCloudSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Toggle(
-        "settings_backup_files_title",
         isOn: Binding(
           get: { isEnabled },
           set: { newValue in
             isEnabled = handleUpdate(newValue)
           }
         )
-      )
+      ) {
+        Text("settings_backup_files_title")
+          .bpFont(.body)
+      }
     } header: {
       Text("settings_backup_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
   }

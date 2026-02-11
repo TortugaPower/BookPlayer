@@ -21,9 +21,9 @@ struct PasskeySignInButton: View {
     Button(action: signIn) {
       HStack(spacing: Spacing.S) {
         Image(systemName: "person.badge.key.fill")
-          .font(.title2)
+          .bpFont(.title2)
         Text("passkey_signin_button".localized)
-          .font(.headline)
+          .bpFont(.headline)
       }
       .frame(maxWidth: .infinity)
       .frame(height: 46)

@@ -35,11 +35,11 @@ struct TipOptionView: View {
           .padding([.trailing, .top], Spacing.S3)
       }
       Text(title)
-        .font(Font(Fonts.titleRegular))
+        .bpFont(.titleRegular)
         .foregroundStyle(foregroundColor.opacity(0.7))
         .multilineTextAlignment(.center)
       Text(price)
-        .font(Font(Fonts.titleLarge))
+        .bpFont(.titleLarge)
         .foregroundStyle(foregroundColor)
     }
     .padding([.bottom])

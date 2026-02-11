@@ -15,12 +15,13 @@ struct AccountDeleteSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       Button {
         showAlert = true
       } label: {
         Label {
           Text("delete_account_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         } icon: {
           Image(systemName: "trash")

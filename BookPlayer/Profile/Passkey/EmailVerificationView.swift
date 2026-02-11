@@ -26,7 +26,7 @@ struct EmailVerificationView: View {
   var body: some View {
     VStack(spacing: Spacing.S) {
       Text(String(format: "verify_email_subtitle".localized, email))
-        .bpFont(Fonts.subheadline)
+        .bpFont(.subheadline)
         .foregroundStyle(theme.primaryColor)
         .multilineTextAlignment(.center)
 
@@ -48,18 +48,18 @@ struct EmailVerificationView: View {
       // Resend section
       VStack(spacing: Spacing.S4) {
         Text("verify_didnt_receive".localized)
-          .bpFont(Fonts.caption)
+          .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
 
         if resendCooldown > 0 {
           Text(String(format: "verify_resend_wait".localized, resendCooldown))
-            .bpFont(Fonts.caption)
+            .bpFont(.caption)
             .foregroundStyle(theme.secondaryColor)
         } else {
           Button("verify_resend_button".localized) {
             resendCode()
           }
-          .bpFont(Fonts.caption)
+          .bpFont(.caption)
           .foregroundStyle(theme.linkColor)
           .disabled(loadingState.show)
         }

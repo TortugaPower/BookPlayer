@@ -31,7 +31,7 @@ struct SearchView: View {
         }
       }
       .miniPlayerSafeAreaInset()
-      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle("search_title".localized)
       .searchable(
         text: $viewModel.searchText,

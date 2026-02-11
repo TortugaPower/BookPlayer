@@ -17,11 +17,11 @@ struct ProfileProCalloutSectionView: View {
   var body: some View {
     VStack {
       Text("BookPlayer Pro")
-        .font(Font(Fonts.title))
+        .bpFont(.title)
         .accessibilityHidden(true)
       Button(action: action) {
         Text("learn_more_title")
-          .bpFont(Fonts.buttonTextSmall)
+          .bpFont(.buttonTextSmall)
           .padding(.horizontal, Spacing.S)
           .padding(.vertical, Spacing.S3)
           .background(theme.linkColor)

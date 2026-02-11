@@ -60,7 +60,7 @@ struct SettingsTipView: View {
     VStack(spacing: 0) {
       Text(tipOption.title)
         .foregroundStyle(theme.secondaryColor)
-        .bpFont(Fonts.captionMedium)
+        .bpFont(.captionMedium)
         .multilineTextAlignment(.center)
         .lineLimit(2)
         .padding(.bottom, Spacing.S3)
@@ -90,7 +90,7 @@ struct SettingsTipView: View {
             }
           }
         }
-        .bpFont(Fonts.caption)
+        .bpFont(.caption)
         .padding(.horizontal)
         .frame(width: 75, height: 28)
         .foregroundStyle(.white)

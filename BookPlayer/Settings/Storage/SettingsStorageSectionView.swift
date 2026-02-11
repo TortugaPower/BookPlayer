@@ -14,13 +14,20 @@ struct SettingsStorageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    Section {
-      NavigationLink("settings_storage_description", value: SettingsScreen.storage)
+    ThemedSection {
+      NavigationLink(value: SettingsScreen.storage) {
+        Text("settings_storage_description")
+          .bpFont(.body)
+      }
       if accessLevel == .pro {
-        NavigationLink("settings_storage_sync_deleted_description", value: SettingsScreen.syncbackup)
+        NavigationLink(value: SettingsScreen.syncbackup) {
+          Text("settings_storage_sync_deleted_description")
+            .bpFont(.body)
+        }
       }
     } header: {
       Text("settings_storage_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
   }

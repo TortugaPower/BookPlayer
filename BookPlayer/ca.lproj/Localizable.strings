@@ -324,6 +324,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "intent_custom_skiprewind_title" = "Rebobina amb interval";
 "Rewind ${interval}" = "Rebobina ${interval}";
 "settings_lock_orientation_title" = "Orientació bloquejada";
+"settings_text_size_title" = "Mida del text";
 "more_title" = "Més";
 "repeat_turn_on_title" = "Activa Repetició per a aquest llibre";
 "repeat_turn_off_title" = "Desactiva Repetició per a aquest llibre";

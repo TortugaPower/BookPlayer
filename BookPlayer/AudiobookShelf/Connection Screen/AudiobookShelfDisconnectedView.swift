@@ -22,7 +22,7 @@ struct AudiobookShelfDisconnectedView: View {
   var onCommit: () -> Void = {}
 
   var body: some View {
-    Section {
+    ThemedSection {
       ClearableTextField(
         "http://audiobookshelf.example.com",
         text: $serverUrl,

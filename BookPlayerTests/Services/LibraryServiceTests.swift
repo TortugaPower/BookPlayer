@@ -693,6 +693,47 @@ class InsertBooksTests: LibraryServiceTests {
     XCTAssert(processedItems.count == 2)
   }
 
+  /// Verify that items inserted via insertItems maintain their input order (sequential orderRank)
+  func testInsertedItemsPreserveOrder() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+
+    let file1 = DataTestUtils.generateTestFile(name: "alpha.txt", contents: bookContents, destinationFolder: processedFolder)
+    let file2 = DataTestUtils.generateTestFile(name: "beta.txt", contents: bookContents, destinationFolder: processedFolder)
+    let file3 = DataTestUtils.generateTestFile(name: "gamma.txt", contents: bookContents, destinationFolder: processedFolder)
+
+    // Insert in alphabetical order
+    _ = await self.sut.insertItems(from: [file1, file2, file3])
+
+    // fetchContents returns items sorted by orderRank — should match insertion order
+    let contents = self.sut.fetchContents(at: nil, limit: nil, offset: nil)
+    XCTAssertEqual(contents?.count, 3)
+    XCTAssertEqual(contents?[0].relativePath, "alpha.txt")
+    XCTAssertEqual(contents?[1].relativePath, "beta.txt")
+    XCTAssertEqual(contents?[2].relativePath, "gamma.txt")
+  }
+
+  /// Verify that items inserted into a folder via insertItems maintain their order
+  func testInsertedItemsPreserveOrderInFolder() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+
+    // Create a folder with files inside
+    let folderURL = try DataTestUtils.generateTestFolder(name: "ordered-folder", destinationFolder: processedFolder)
+    DataTestUtils.generateTestFile(name: "chapter1.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "chapter2.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "chapter3.txt", contents: bookContents, destinationFolder: folderURL)
+
+    _ = await self.sut.insertItems(from: [folderURL])
+
+    // Fetch folder contents — should be sorted by filename (enumerateAndSortDirectory sorts by path)
+    let contents = self.sut.fetchContents(at: "ordered-folder", limit: nil, offset: nil)
+    XCTAssertEqual(contents?.count, 3)
+    XCTAssertEqual(contents?[0].relativePath, "ordered-folder/chapter1.txt")
+    XCTAssertEqual(contents?[1].relativePath, "ordered-folder/chapter2.txt")
+    XCTAssertEqual(contents?[2].relativePath, "ordered-folder/chapter3.txt")
+  }
+
   func testInsertEmptyBooksIntoPlaylist() async throws {
     let library = self.sut.getLibrary()
 
@@ -1459,6 +1500,289 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedResults?.last?.relativePath == book3.relativePath)
   }
   // swiftlint:enable force_cast
+}
+
+// MARK: - Import Directory Tests
+
+class ImportDirectoryTests: LibraryServiceTests {
+  /// Test that importing a directory creates a Folder entity and attaches its file contents
+  func testImportDirectoryCreatesFolderWithContents() async throws {
+    let library = self.sut.getLibrary()
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    // Create a directory with files inside in the processed folder
+    let folderURL = try DataTestUtils.generateTestFolder(name: "test-audiobook", destinationFolder: processedFolder)
+    let bookContents = "bookcontents".data(using: .utf8)!
+    DataTestUtils.generateTestFile(name: "chapter1.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "chapter2.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "chapter3.txt", contents: bookContents, destinationFolder: folderURL)
+
+    let processedItems = await self.sut.insertItems(from: [folderURL])
+
+    // Should create 1 folder at library level
+    XCTAssertEqual(processedItems.count, 1)
+    XCTAssertEqual(processedItems.first?.type, .folder)
+    XCTAssertEqual(library.items?.count, 1)
+
+    // The folder should contain 3 books
+    let folder = self.sut.getItem(with: "test-audiobook") as? Folder
+    XCTAssertNotNil(folder)
+    XCTAssertEqual(folder?.items?.count, 3)
+
+    // Verify contents are fetchable
+    let contents = self.sut.fetchContents(at: "test-audiobook", limit: nil, offset: nil)
+    XCTAssertEqual(contents?.count, 3)
+  }
+
+  /// Test that importing a single directory with one file works correctly
+  func testImportDirectoryWithSingleFile() async throws {
+    let library = self.sut.getLibrary()
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    let folderURL = try DataTestUtils.generateTestFolder(name: "single-book-folder", destinationFolder: processedFolder)
+    let bookContents = "bookcontents".data(using: .utf8)!
+    DataTestUtils.generateTestFile(name: "book.txt", contents: bookContents, destinationFolder: folderURL)
+
+    let processedItems = await self.sut.insertItems(from: [folderURL])
+
+    XCTAssertEqual(processedItems.count, 1)
+    XCTAssertEqual(library.items?.count, 1)
+
+    let folder = self.sut.getItem(with: "single-book-folder") as? Folder
+    XCTAssertNotNil(folder)
+    XCTAssertEqual(folder?.items?.count, 1)
+  }
+
+  /// Test that importing a directory and then moving it into another folder works correctly
+  /// (no ghost folder at root, correct file count)
+  func testImportDirectoryThenMoveToFolder() async throws {
+    let library = self.sut.getLibrary()
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    // Create destination folder
+    _ = try self.sut.createFolder(with: "destination", inside: nil)
+    XCTAssertEqual(library.items?.count, 1)
+
+    // Import a directory with files
+    let folderURL = try DataTestUtils.generateTestFolder(name: "imported-folder", destinationFolder: processedFolder)
+    let bookContents = "bookcontents".data(using: .utf8)!
+    DataTestUtils.generateTestFile(name: "file1.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "file2.txt", contents: bookContents, destinationFolder: folderURL)
+
+    let processedItems = await self.sut.insertItems(from: [folderURL])
+    let itemIdentifiers = processedItems.map { $0.relativePath }
+
+    XCTAssertEqual(library.items?.count, 2) // destination + imported-folder
+
+    // Move imported items into destination folder
+    try self.sut.moveItems(itemIdentifiers, inside: "destination")
+
+    // Library should only have the destination folder (no ghost)
+    XCTAssertEqual(library.items?.count, 1)
+
+    let destination = self.sut.getItem(with: "destination") as? Folder
+    XCTAssertNotNil(destination)
+    XCTAssertEqual(destination?.items?.count, 1)
+
+    // The moved folder should still have its contents
+    let movedFolder = self.sut.getItem(with: "destination/imported-folder") as? Folder
+    XCTAssertNotNil(movedFolder)
+    XCTAssertEqual(movedFolder?.items?.count, 2)
+
+    // Verify folder details are rebuilt correctly
+    let contents = self.sut.fetchContents(at: "destination/imported-folder", limit: nil, offset: nil)
+    XCTAssertEqual(contents?.count, 2)
+  }
+
+  /// Test that importing multiple files and a directory together works correctly
+  func testImportMixedFilesAndDirectory() async throws {
+    let library = self.sut.getLibrary()
+    let processedFolder = DataManager.getProcessedFolderURL()
+
+    let bookContents = "bookcontents".data(using: .utf8)!
+
+    // Create a standalone file
+    let standaloneFile = DataTestUtils.generateTestFile(name: "standalone.txt", contents: bookContents, destinationFolder: processedFolder)
+
+    // Create a directory with files
+    let folderURL = try DataTestUtils.generateTestFolder(name: "album", destinationFolder: processedFolder)
+    DataTestUtils.generateTestFile(name: "track1.txt", contents: bookContents, destinationFolder: folderURL)
+    DataTestUtils.generateTestFile(name: "track2.txt", contents: bookContents, destinationFolder: folderURL)
+
+    let processedItems = await self.sut.insertItems(from: [standaloneFile, folderURL])
+
+    // Should have 2 items at library level: 1 book + 1 folder
+    XCTAssertEqual(processedItems.count, 2)
+    XCTAssertEqual(library.items?.count, 2)
+
+    let folder = self.sut.getItem(with: "album") as? Folder
+    XCTAssertNotNil(folder)
+    XCTAssertEqual(folder?.items?.count, 2)
+  }
+}
+
+// MARK: - Relationship Cleanup Tests
+
+class RelationshipCleanupTests: LibraryServiceTests {
+  /// Test that hasItemProperty correctly detects the library relationship
+  func testHasItemPropertyDetectsLibraryRelationship() {
+    let library = self.sut.getLibrary()
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    library.addToItems(book)
+    self.sut.dataManager.saveContext()
+
+    let context = self.sut.dataManager.getContext()
+    let hasLibrary = self.sut.hasItemProperty(
+      "library",
+      relativePath: book.relativePath,
+      context: context
+    )
+    XCTAssertTrue(hasLibrary)
+  }
+
+  /// Test that hasItemProperty correctly returns false when item has no library relationship
+  func testHasItemPropertyReturnsFalseWithoutLibraryRelationship() throws {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    folder.addToItems(book)
+    self.sut.dataManager.saveContext()
+
+    let context = self.sut.dataManager.getContext()
+    let hasLibrary = self.sut.hasItemProperty(
+      "library",
+      relativePath: book.relativePath,
+      context: context
+    )
+    XCTAssertFalse(hasLibrary)
+  }
+
+  /// Test that hasItemProperty correctly detects the folder relationship
+  func testHasItemPropertyDetectsFolderRelationship() throws {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    folder.addToItems(book)
+    self.sut.dataManager.saveContext()
+
+    let context = self.sut.dataManager.getContext()
+    let hasFolder = self.sut.hasItemProperty(
+      "folder",
+      relativePath: book.relativePath,
+      context: context
+    )
+    XCTAssertTrue(hasFolder)
+  }
+
+  /// Test that moving an item from library to folder clears the library relationship
+  func testMoveToFolderClearsLibraryRelationship() throws {
+    let library = self.sut.getLibrary()
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    library.addToItems(book)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    library.addToItems(folder)
+    self.sut.dataManager.saveContext()
+
+    XCTAssertNotNil(book.library)
+    XCTAssertEqual(library.items?.count, 2)
+
+    try self.sut.moveItems([book.relativePath], inside: folder.relativePath)
+
+    // Book should no longer have a library relationship
+    XCTAssertNil(book.library)
+    // Book should be inside the folder
+    XCTAssertNotNil(book.folder)
+    XCTAssertEqual(library.items?.count, 1)
+    XCTAssertEqual(folder.items?.count, 1)
+  }
+
+  /// Test that moving an item from folder back to library clears the folder relationship
+  func testMoveToLibraryClearsFolderRelationship() throws {
+    let library = self.sut.getLibrary()
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+
+    // Use moveItems to properly set up relationships and relativePaths
+    try self.sut.moveItems([book.relativePath, folder.relativePath], inside: nil)
+    try self.sut.moveItems([book.relativePath], inside: folder.relativePath)
+
+    XCTAssertNotNil(book.folder)
+    XCTAssertEqual(library.items?.count, 1)
+    XCTAssertEqual(folder.items?.count, 1)
+
+    try self.sut.moveItems(["folder/book1.txt"], inside: nil)
+
+    // Book should no longer have a folder relationship
+    XCTAssertNil(book.folder)
+    // Book should be in the library
+    XCTAssertNotNil(book.library)
+    XCTAssertEqual(library.items?.count, 2)
+    XCTAssertEqual(folder.items?.count, 0)
+  }
+
+  /// Test that moving a folder with contents into another folder rebuilds details correctly
+  func testMoveFolderRebuildsDetails() throws {
+    let library = self.sut.getLibrary()
+
+    let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
+    let innerFolder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "inner")
+    let outerFolder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "outer")
+
+    try self.sut.moveItems(
+      [book1.relativePath, book2.relativePath, innerFolder.relativePath, outerFolder.relativePath],
+      inside: nil
+    )
+    try self.sut.moveItems([book1.relativePath, book2.relativePath], inside: innerFolder.relativePath)
+
+    XCTAssertEqual(innerFolder.items?.count, 2)
+
+    // Move inner folder into outer folder
+    try self.sut.moveItems([innerFolder.relativePath], inside: outerFolder.relativePath)
+
+    XCTAssertEqual(library.items?.count, 1)
+    XCTAssertEqual(outerFolder.items?.count, 1)
+
+    // Verify that the moved folder's details were rebuilt
+    let movedFolder = self.sut.getItem(with: "outer/inner") as? Folder
+    XCTAssertNotNil(movedFolder)
+    XCTAssertNotNil(movedFolder?.details)
+    XCTAssert(movedFolder?.details?.contains("2") == true)
+  }
+
+  /// Test moving between folders doesn't create ghost items
+  func testMoveBetweenFoldersNoGhostItems() throws {
+    let library = self.sut.getLibrary()
+
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
+    let folder1 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder1")
+    let folder2 = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder2")
+
+    try self.sut.moveItems(
+      [book.relativePath, folder1.relativePath, folder2.relativePath],
+      inside: nil
+    )
+    try self.sut.moveItems([book.relativePath], inside: folder1.relativePath)
+
+    XCTAssertEqual(library.items?.count, 2)
+    XCTAssertEqual(folder1.items?.count, 1)
+    XCTAssertEqual(folder2.items?.count, 0)
+
+    // Move book from folder1 to folder2
+    try self.sut.moveItems(["folder1/book1.txt"], inside: folder2.relativePath)
+
+    // No ghost items — library should still have exactly 2 folders
+    XCTAssertEqual(library.items?.count, 2)
+    XCTAssertEqual(folder1.items?.count, 0)
+    XCTAssertEqual(folder2.items?.count, 1)
+
+    // Verify the book is not still linked to the library
+    let context = self.sut.dataManager.getContext()
+    let hasLibrary = self.sut.hasItemProperty(
+      "library",
+      relativePath: "folder2/book1.txt",
+      context: context
+    )
+    XCTAssertFalse(hasLibrary)
+  }
 }
 
 // MARK: - Search Tests

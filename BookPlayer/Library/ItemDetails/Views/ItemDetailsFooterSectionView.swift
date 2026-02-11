@@ -17,7 +17,7 @@ struct ItemDetailsFooterSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       EmptyView()
     } footer: {
       VStack(alignment: .leading) {
@@ -29,7 +29,7 @@ struct ItemDetailsFooterSectionView: View {
             + Text(": " + lastPlayedDate)
         }
       }
-      .bpFont(Fonts.body)
+      .bpFont(.body)
       .foregroundStyle(theme.secondaryColor)
     }
   }

@@ -51,7 +51,7 @@ struct BookmarksView: View {
         )
 
         // User bookmarks section
-        Section {
+        ThemedSection {
           ForEach(model.userBookmarks) { bookmark in
             bookmarkRow(bookmark)
               .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -152,12 +152,12 @@ struct BookmarksView: View {
       HStack(spacing: Spacing.S2) {
         Text(TimeParser.formatTime(bookmark.time))
           .frame(minWidth: 61)
-          .bpFont(Fonts.caption)
+          .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
 
         if let note = bookmark.note {
           Text(note)
-            .bpFont(Fonts.body)
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
         }
 

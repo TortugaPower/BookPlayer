@@ -10,9 +10,14 @@ import BookPlayerKit
 import SwiftUI
 
 struct QueuedSyncTaskRowView: View {
+  @State var progress: Double = 0.0
+
   @Binding var imageName: String
   @Binding var title: String
-
+  let relativePath: String
+  var initialProgress: Double
+  var isUpload: Bool
+  
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
@@ -24,10 +29,30 @@ struct QueuedSyncTaskRowView: View {
         .foregroundStyle(themeViewModel.secondaryColor)
         .padding([.trailing], 5)
       Text(title)
-        .font(Font(Fonts.body))
+        .bpFont(.body)
         .foregroundStyle(themeViewModel.primaryColor)
+        .frame(maxWidth: .infinity, alignment: .leading)
+      CircularProgressView(
+        progress: progress,
+        isHighlighted: true
+      )
     }
     .padding([.vertical], 3)
+    .onAppear {
+      self.progress = self.initialProgress
+    }
+    .onReceive(
+      NotificationCenter.default.publisher(for: .uploadProgressUpdated)
+        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+    ) { notification in
+      guard
+        self.isUpload,
+        let relativePath = notification.userInfo?["relativePath"] as? String,
+        let progress = notification.userInfo?["progress"] as? Double,
+        relativePath == self.relativePath
+      else { return }
+      self.progress = progress
+    }
   }
 }
 
@@ -35,7 +60,10 @@ struct QueuedSyncTaskRowView_Previews: PreviewProvider {
   static var previews: some View {
     QueuedSyncTaskRowView(
       imageName: .constant("bookmark"),
-      title: .constant("Task")
+      title: .constant("Task"),
+      relativePath: "path/to/file",
+      initialProgress: 0,
+      isUpload: false
     )
     .environmentObject(ThemeViewModel())
   }

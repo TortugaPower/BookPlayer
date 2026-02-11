@@ -56,6 +56,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   /// Reference to ongoing library fetch task
   private var initializeStoreTask: Task<(), Error>?
   private var taskStore: SyncTasksStorage!
+  private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?
 
@@ -86,6 +87,17 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         } catch {
           Self.logger.warning("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
         }
+      }
+      .store(in: &disposeBag)
+    
+    NotificationCenter.default.publisher(for: .uploadProgressUpdated)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] notification in
+        guard
+          let relativePath = notification.userInfo?["relativePath"] as? String,
+          let progress = notification.userInfo?["progress"] as? Double
+        else { return }
+        self?.updateProgress(for: relativePath, value: progress)
       }
       .store(in: &disposeBag)
 
@@ -244,7 +256,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
-    return await taskStore.getAllTasks()
+    let currentProgress = await MainActor.run { tasksProgress }
+    return await taskStore.getAllTasks(progress: currentProgress)
   }
 
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {
@@ -257,6 +270,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       _ = await initializeStoreTask?.result
       try await taskStore.clearAll()
       operationQueue.cancelAllOperations()
+      await MainActor.run {
+        tasksProgress.removeAll()
+      }
     }
   }
 
@@ -317,6 +333,13 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       }
     }
   }
+  
+  private func updateProgress(
+    for path: String,
+    value: Double
+  ) {
+    tasksProgress[path] = value
+  }
 
   private func retryQueuedTask() {
     /// Retry in 5 seconds
@@ -327,10 +350,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   private func handleFinishedTask(_ task: SyncTask) {
     lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
-      Task {
+      Task { @MainActor in
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
+        self.tasksProgress.removeValue(forKey: task.relativePath)
       }
     }
   }

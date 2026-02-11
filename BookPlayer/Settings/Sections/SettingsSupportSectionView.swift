@@ -24,14 +24,18 @@ struct SettingsSupportSectionView: View {
   var sendEmail: () -> Void
 
   var body: some View {
-    Section {
-      NavigationLink("settings_tip_jar_title", value: SettingsScreen.tipjar)
+    ThemedSection {
+      NavigationLink(value: SettingsScreen.tipjar) {
+        Text("settings_tip_jar_title")
+          .bpFont(.body)
+      }
       Button(action: sendEmail) {
         VStack(alignment: .leading) {
           Text("settings_support_email_title")
+            .bpFont(.body)
             .foregroundStyle(theme.primaryColor)
           Text(verbatim: supportEmail)
-            .font(.subheadline)
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -51,23 +55,32 @@ struct SettingsSupportSectionView: View {
         )
       ) {
         Text("settings_share_debug_information")
+          .bpFont(.body)
       }
       .foregroundStyle(theme.primaryColor)
-      Button("settings_support_project_title") {
+      Button {
         let url = URL(string: "https://github.com/TortugaPower/BookPlayer")!
         openURL(url)
+      } label: {
+        Text("settings_support_project_title")
+          .bpFont(.body)
       }
       .foregroundStyle(theme.primaryColor)
-      Button("settings_support_discord_title") {
+      Button {
         let url = URL(string: "https://discord.gg/RPPyhyMPXW")!
         openURL(url)
+      } label: {
+        Text("settings_support_discord_title")
+          .bpFont(.body)
       }
       .foregroundStyle(theme.primaryColor)
     } header: {
       Text("settings_support_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("BookPlayer \(appVersion) - \(systemVersion)")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

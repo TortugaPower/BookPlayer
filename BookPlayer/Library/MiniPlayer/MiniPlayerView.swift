@@ -15,6 +15,7 @@ struct MiniPlayerView: View {
 
   @State private var isPlaying: Bool = false
 
+  @Environment(\.horizontalSizeClass) private var hSize
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
 
@@ -37,14 +38,14 @@ struct MiniPlayerView: View {
         .accessibilityHidden(true)
         .padding(.leading, 8)
 
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
             .foregroundStyle(theme.primaryColor)
-            .bpFont(Fonts.miniPlayerTitle)
+            .bpFont(.miniPlayerTitle)
             .lineLimit(1)
           Text(verbatim: playerManager.currentItem?.author ?? "")
             .foregroundStyle(theme.secondaryColor)
-            .bpFont(Fonts.miniPlayerTitle)
+            .bpFont(.miniPlayerAuthor)
             .lineLimit(1)
         }
         .accessibilityElement(children: .combine)
@@ -94,7 +95,10 @@ struct MiniPlayerView: View {
       }
     }
     .padding(.horizontal, 12)
-    .padding(.bottom, 49 + 8)
+    // In compact width (iPhone, iPad split/slide-over) the tab bar is at the bottom,
+    // so add padding to clear it; in regular width (iPad full screen) the tab bar
+    // is at the top, so only add minimal spacing
+    .padding(.bottom, hSize == .compact ? 49 + 8 : Spacing.S1)
     .onReceive(
       playerManager.isPlayingPublisher()
         .receive(on: DispatchQueue.main)

@@ -22,7 +22,7 @@ struct JellyfinDisconnectedView: View {
   var onCommit: () -> Void = {}
 
   var body: some View {
-    Section {
+    ThemedSection {
       ClearableTextField(
         "http://jellyfin.example.com:8096",
         text: $serverUrl,

@@ -33,6 +33,8 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
         JellyfinLibraryListView(viewModel: viewModel)
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemBackgroundColor)
     .environment(\.jellyfinService, viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
@@ -52,7 +54,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
@@ -72,7 +74,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   var toolbarTrailing: some View {
     if !viewModel.editMode.isEditing {
       Menu {
-        Section {
+        ThemedSection {
           Button(action: viewModel.onEditToggleSelectTapped) {
             Label("select_title".localized, systemImage: "checkmark.circle")
           }
@@ -94,13 +96,13 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
 
   @ViewBuilder
   var layoutPreferences: some View {
-    Section {
+    ThemedSection {
       Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
         Label("Grid".localized, systemImage: "square.grid.2x2").tag(JellyfinLayout.Options.grid)
         Label("List".localized, systemImage: "list.bullet").tag(JellyfinLayout.Options.list)
       }
     }
-    Section {
+    ThemedSection {
       Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
         Text("Default".localized).tag(JellyfinLayout.SortBy.smart)
         Label("sort_most_recent_button", systemImage: "clock").tag(JellyfinLayout.SortBy.recent)

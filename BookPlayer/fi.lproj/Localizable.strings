@@ -324,6 +324,7 @@
 "intent_custom_skiprewind_title" = "Kelaa taaksepäin intervalleilla";
 "Rewind ${interval}" = "Kelaa taaksepäin ${interval}";
 "settings_lock_orientation_title" = "Suunta lukittu";
+"settings_text_size_title" = "Tekstin koko";
 "more_title" = "Lisää";
 "repeat_turn_on_title" = "Ota Toista käyttöön tälle kirjalle";
 "repeat_turn_off_title" = "Poista Toista käytöstä tästä kirjasta";

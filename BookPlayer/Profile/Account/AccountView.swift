@@ -22,12 +22,12 @@ struct AccountView: View {
 
   var body: some View {
     Form {
-      if accountService.account.hasSubscription {
-        AccountManageProSectionView()
-      } else {
+      if !accountService.account.hasSubscription {
         AccountPerksSectionView {
           showCompleteAccount = true
         }
+      } else if !ProcessInfo.processInfo.isiOSAppOnMac {
+        AccountManageProSectionView()
       }
       AccountTermsConditionsSectionView()
       AccountPasskeySectionView()
@@ -37,7 +37,7 @@ struct AccountView: View {
     .navigationTitle(accountService.account.email)
     .navigationBarTitleDisplayMode(.inline)
     .miniPlayerSafeAreaInset()
-    .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .errorAlert(error: $loadingState.error)
     .loadingOverlay(loadingState.show)
     .alert("Delete Account", isPresented: $showDeleteAlert) {

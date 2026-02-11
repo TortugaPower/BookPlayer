@@ -29,4 +29,6 @@ extension EnvironmentValues {
   @Entry var playingItemParentPath: String?
   @Entry var libraryNode: LibraryNode?
   @Entry var importOperationState: ImportOperationState = .init()
+  /// Dynamic bottom inset calculated from the actual mini player height
+  @Entry var miniPlayerBottomInset: CGFloat = 80
 }

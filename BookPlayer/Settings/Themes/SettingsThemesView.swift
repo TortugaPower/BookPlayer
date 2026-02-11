@@ -36,16 +36,22 @@ struct SettingsThemesView: View {
         SettingsProBannerSectionView(showPro: showPro)
       }
 
-      Section {
-        Toggle("theme_system_title", isOn: $systemModeEnabled)
-          .onChange(of: systemModeEnabled) {
-            handleSystemModeUpdate()
-          }
-        Toggle("theme_switch_title", isOn: $brightnessModeEnabled)
-          .onChange(of: brightnessModeEnabled) {
-            handleBrightnessModeUpdate()
-          }
-          .disabled(systemModeEnabled)
+      ThemedSection {
+        Toggle(isOn: $systemModeEnabled) {
+          Text("theme_system_title")
+            .bpFont(.body)
+        }
+        .onChange(of: systemModeEnabled) {
+          handleSystemModeUpdate()
+        }
+        Toggle(isOn: $brightnessModeEnabled) {
+          Text("theme_switch_title")
+            .bpFont(.body)
+        }
+        .onChange(of: brightnessModeEnabled) {
+          handleBrightnessModeUpdate()
+        }
+        .disabled(systemModeEnabled)
 
         if brightnessModeEnabled {
           ZStack {
@@ -64,32 +70,37 @@ struct SettingsThemesView: View {
             handleSliderUpdate()
           }
         } else {
-          Toggle("theme_dark_title", isOn: $darkModeEnabled)
-            .onChange(of: darkModeEnabled) {
-              handleDarkModeUpdate()
-            }
-            .disabled(systemModeEnabled)
+          Toggle(isOn: $darkModeEnabled) {
+            Text("theme_dark_title")
+              .bpFont(.body)
+          }
+          .onChange(of: darkModeEnabled) {
+            handleDarkModeUpdate()
+          }
+          .disabled(systemModeEnabled)
         }
       } footer: {
         if brightnessModeEnabled {
           Text("settings_theme_autobrightness")
+            .bpFont(.caption)
             .foregroundStyle(theme.secondaryColor)
         }
       }
 
-      Section {
+      ThemedSection {
         ForEach(themes) { item in
           ThemesView(item: item)
         }
       } header: {
         Text("themes_caps_title")
+          .bpFont(.subheadline)
           .foregroundStyle(theme.secondaryColor)
       }
     }
     .environment(\.loadingState, loadingState)
     .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
-    .background(theme.systemGroupedBackgroundColor)
+    .background(theme.systemBackgroundColor)
     .navigationTitle("themes_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("purchases_restored_title", isPresented: $showRestoredAlert) {

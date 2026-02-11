@@ -15,10 +15,14 @@ struct AutoSleepTimerSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
-      Toggle("settings_sleeptimer_auto_title", isOn: $autoTimerEnabled)
+    ThemedSection {
+      Toggle(isOn: $autoTimerEnabled) {
+        Text("settings_sleeptimer_auto_title")
+          .bpFont(.body)
+      }
     } footer: {
       Text("settings_sleeptimer_auto_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }

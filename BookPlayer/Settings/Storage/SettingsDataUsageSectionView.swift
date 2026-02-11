@@ -15,10 +15,14 @@ struct SettingsDataUsageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
-      Toggle("datausage_upload_wifionly_title", isOn: $isEnabled)
+    ThemedSection {
+      Toggle(isOn: $isEnabled) {
+        Text("datausage_upload_wifionly_title")
+          .bpFont(.body)
+      }
     } header: {
       Text("settings_datausage_title")
+        .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }
   }

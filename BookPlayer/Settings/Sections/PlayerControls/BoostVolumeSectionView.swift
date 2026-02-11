@@ -13,18 +13,20 @@ struct BoostVolumeSectionView: View {
   @AppStorage(Constants.UserDefaults.boostVolumeEnabled) var boostVolumeEnabled: Bool = false
 
   @EnvironmentObject var theme: ThemeViewModel
+  @EnvironmentObject private var playerManager: PlayerManager
 
   var body: some View {
-    Section {
-      Toggle("settings_boostvolume_title", isOn: $boostVolumeEnabled)
-        .onChange(of: boostVolumeEnabled) {
-          /// TODO: change when playerManager is avaialble in the environment
-          guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
-
-          playerManager.setBoostVolume(boostVolumeEnabled)
-        }
+    ThemedSection {
+      Toggle(isOn: $boostVolumeEnabled) {
+        Text("settings_boostvolume_title")
+          .bpFont(.body)
+      }
+      .onChange(of: boostVolumeEnabled) {
+        playerManager.setBoostVolume(boostVolumeEnabled)
+      }
     } footer: {
       Text("settings_boostvolume_description")
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
   }
@@ -36,4 +38,3 @@ struct BoostVolumeSectionView: View {
   }
   .environmentObject(ThemeViewModel())
 }
-

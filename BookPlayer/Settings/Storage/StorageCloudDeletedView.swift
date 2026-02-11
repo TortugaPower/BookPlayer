@@ -19,7 +19,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
       ProgressView()
     } else {
       Form {
-        Section {
+        ThemedSection {
           HStack(alignment: .center) {
             Text("storage_total_title".localized)
               .foregroundStyle(theme.primaryColor)
@@ -32,7 +32,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
           .accessibilityElement(children: .combine)
         }
 
-        Section {
+        ThemedSection {
           LazyVStack(spacing: 0) {
             ForEach(viewModel.publishedFiles) { file in
               VStack(spacing: 0) {
@@ -56,7 +56,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
               String.localizedStringWithFormat("files_title".localized, viewModel.publishedFiles.count)
                 .localizedUppercase
             )
-            .font(Font(Fonts.subheadline))
+            .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .accessibilityAddTraits(.isHeader)
 
@@ -73,7 +73,7 @@ struct StorageCloudDeletedView<Model: StorageCloudDeletedViewModelProtocol>: Vie
         }
       }
       .scrollContentBackground(.hidden)
-      .background(theme.systemGroupedBackgroundColor)
+      .background(theme.systemBackgroundColor)
       .navigationTitle(viewModel.navigationTitle)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

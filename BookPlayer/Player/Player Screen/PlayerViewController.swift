@@ -238,6 +238,11 @@ class PlayerViewController: UIViewController, MVVMControllerProtocol, Storyboard
 
 // MARK: - Observers
 extension PlayerViewController {
+  override func accessibilityPerformEscape() -> Bool {
+    viewModel.dismiss()
+    return true
+  }
+  
   func bindProgressObservers() {
     self.progressSlider.publisher(for: .touchDown)
       .sink { [weak self] _ in

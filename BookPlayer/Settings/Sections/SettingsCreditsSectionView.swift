@@ -12,7 +12,7 @@ struct SettingsCreditsSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    Section {
+    ThemedSection {
       NavigationLink("settings_credits_title", value: SettingsScreen.credits)
     }
   }

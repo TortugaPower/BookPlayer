@@ -17,14 +17,14 @@ struct PlayerControlsBoostVolumeSectionView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Spacing.S) {
       Toggle("settings_boostvolume_title", isOn: $boostVolumeEnabled)
-        .bpFont(Fonts.subheadline)
+        .bpFont(.subheadline)
         .bold()
         .foregroundStyle(theme.primaryColor)
         .tint(theme.linkColor)
         .accessibilityHint("settings_boostvolume_description")
 
       Text("settings_boostvolume_description")
-        .bpFont(Fonts.caption)
+        .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
         .fixedSize(horizontal: false, vertical: true)
         .frame(minWidth: 160, alignment: .leading)

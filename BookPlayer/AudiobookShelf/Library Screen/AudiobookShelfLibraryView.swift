@@ -33,6 +33,8 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
         AudiobookShelfLibraryListView(viewModel: viewModel)
       }
     }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemBackgroundColor)
     .environment(\.audiobookshelfService, viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
@@ -41,7 +43,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .topBarTrailing) {
@@ -61,7 +63,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
   var toolbarTrailing: some View {
     if !viewModel.editMode.isEditing {
       Menu {
-        Section {
+        ThemedSection {
           Button(action: viewModel.onEditToggleSelectTapped) {
             Label("select_title".localized, systemImage: "checkmark.circle")
           }
@@ -80,13 +82,13 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   @ViewBuilder
   var layoutPreferences: some View {
-    Section {
+    ThemedSection {
       Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
         Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
         Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
       }
     }
-    Section {
+    ThemedSection {
       Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
         Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
         Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
