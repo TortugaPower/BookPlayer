@@ -77,6 +77,7 @@ struct BookmarksView: View {
             .foregroundStyle(theme.primaryColor)
         }
       }
+      .environmentObject(theme)
       .listStyle(.sidebar)
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle("bookmarks_title")
