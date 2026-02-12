@@ -40,7 +40,7 @@ struct MiniPlayerView: View {
         .padding(.leading, 8)
 
         VStack(alignment: .leading, spacing: 0) {
-          Text(verbatim: playerManager.currentItem?.title ?? "")
+          Text(verbatim: relativePath)
             .foregroundStyle(theme.primaryColor)
             .bpFont(.miniPlayerTitle)
             .lineLimit(1)

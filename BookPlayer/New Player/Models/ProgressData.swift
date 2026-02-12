@@ -14,7 +14,7 @@ class ProgressData {
   var currentTime: TimeInterval = 0.0
   var progress: String? = nil
   var maxTime: TimeInterval? = nil
-  var sliderValue: Float = 0
+  var sliderValue: Double = 0.0
   var chapterTitle: String = ""
 
   var formattedCurrentTime: String {

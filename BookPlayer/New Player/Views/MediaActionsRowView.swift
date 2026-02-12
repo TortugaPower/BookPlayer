@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum BubbleAction: CaseIterable {
+enum MediaAction: CaseIterable {
   case speed
   case timer
   case bookmark
@@ -28,13 +28,17 @@ enum BubbleAction: CaseIterable {
 }
 
 struct MediaActionsRowView: View {
+  var action: ((MediaAction) -> Void)?
+  
   var body: some View {
     HStack(spacing: 16) {
       ForEach(
-        BubbleAction.allCases,
+        MediaAction.allCases,
         id: \.self
-      ) { bubbleAction in
-        BubbleButton(iconName: bubbleAction.iconName)
+      ) { mediaAction in
+        BubbleButton(iconName: mediaAction.iconName, action: {
+          action?(mediaAction)
+        })
       }
     }
   }
