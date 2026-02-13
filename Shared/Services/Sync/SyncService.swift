@@ -82,6 +82,8 @@ public protocol SyncServiceProtocol {
   func getLastSyncError() -> SyncErrorInfo?
   /// Cancel all scheduled jobs
   func cancelAllJobs()
+  /// Cancel all scheduled jobs and wait for completion
+  func resetAllJobs() async
 
   /// Cancel ongoing downloads for an item
   func cancelDownload(of item: SimpleLibraryItem) throws
@@ -250,9 +252,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
 
-    guard await queuedJobsCount() == 0 else {
-      Self.logger.trace("Can't sync library while there are sync operations in progress")
-      return
+    if await queuedJobsCount() > 0 {
+      Self.logger.trace("Clearing orphaned tasks before initial library sync")
+      await resetAllJobs()
     }
 
     Self.logger.trace("Fetching synced library identifiers")
@@ -464,6 +466,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func cancelAllJobs() {
     jobManager.cancelAllJobs()
+  }
+
+  public func resetAllJobs() async {
+    await jobManager.resetAllJobs()
   }
 }
 

@@ -40,6 +40,8 @@ public protocol JobSchedulerProtocol {
   func getAllQueuedJobsWithParams() async -> [SyncTask]
   /// Cancel all stored and ongoing jobs
   func cancelAllJobs()
+  /// Cancel all stored and ongoing jobs and wait for completion
+  func resetAllJobs() async
   /// Check if there's an upload task queued for the item
   func hasUploadTask(for relativePath: String) async -> Bool
 }
@@ -273,6 +275,15 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       await MainActor.run {
         tasksProgress.removeAll()
       }
+    }
+  }
+
+  public func resetAllJobs() async {
+    _ = await initializeStoreTask?.result
+    try? await taskStore.clearAll()
+    operationQueue.cancelAllOperations()
+    await MainActor.run {
+      tasksProgress.removeAll()
     }
   }
 
