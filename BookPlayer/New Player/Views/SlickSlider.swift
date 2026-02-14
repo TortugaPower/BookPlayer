@@ -15,13 +15,18 @@ struct SlickSlider: View {
   // The callback closure, mimicking the native Slider API
   var onEditingChanged: (Bool) -> Void = { _ in }
   
+  @State private var localValue: Double = 0
+  @State private var isDragging: Bool = false
+  
   // Style settings
   private let trackHeight: CGFloat = 4
   private let thumbSize: CGFloat = 18
-  private let accentColor = Color(red: 0.35, green: 0.6, blue: 0.9)
+  var accentColor = Color(red: 0.35, green: 0.6, blue: 0.9)
   
   var body: some View {
     GeometryReader { geometry in
+      let displayValue = isDragging ? localValue : value
+      
       ZStack(alignment: .leading) {
         // Background Track
         Capsule()
@@ -31,35 +36,52 @@ struct SlickSlider: View {
         // Active Track
         Capsule()
           .fill(accentColor)
-          .frame(width: max(0, CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width), height: trackHeight)
+          .frame(width: max(0, CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width), height: 4)
         
         // Thumb
         Circle()
           .fill(accentColor)
           .frame(width: thumbSize, height: thumbSize)
           .shadow(color: accentColor.opacity(0.6), radius: 6)
-          .offset(x: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - (thumbSize / 2))
+          .offset(x: CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - 9)
           .gesture(
             DragGesture(minimumDistance: 0)
               .onChanged { gesture in
-                // 1. Signal that editing has started
-                onEditingChanged(true)
-                updateValue(with: gesture, in: geometry)
+                if !isDragging {
+                  isDragging = true
+                  onEditingChanged(true)
+                }
+                // Update only the local UI state
+                updateLocalValue(with: gesture, in: geometry)
               }
               .onEnded { _ in
-                // 2. Signal that editing has finished
+                // 3. Push the final local value back to the Binding (Singleton)
+                value = localValue
                 onEditingChanged(false)
+                
+                // Delay the unlock slightly to allow the Singleton to "catch up"
+                // to the new seek position, preventing the 'jump-back'
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                  isDragging = false
+                }
               }
           )
       }
       .frame(height: thumbSize)
     }
     .frame(height: thumbSize)
+    .onAppear { localValue = value }
+    .onChange(of: value) { _, newValue in
+        if !isDragging {
+            localValue = newValue
+        }
+    }
   }
   
-  private func updateValue(with gesture: DragGesture.Value, in geometry: GeometryProxy) {
-    let newValue = Double(gesture.location.x / geometry.size.width) * (range.upperBound - range.lowerBound) + range.lowerBound
-    self.value = min(max(range.lowerBound, newValue), range.upperBound)
+  private func updateLocalValue(with gesture: DragGesture.Value, in geometry: GeometryProxy) {
+      let percent = Double(gesture.location.x / geometry.size.width)
+      let newValue = percent * (range.upperBound - range.lowerBound) + range.lowerBound
+      self.localValue = min(max(range.lowerBound, newValue), range.upperBound)
   }
 }
 

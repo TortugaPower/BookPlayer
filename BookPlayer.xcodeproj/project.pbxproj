@@ -676,6 +676,8 @@
 		99329DD32F3D7493003F8E73 /* BPAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */; };
 		99329DD52F3D83A4003F8E73 /* BPDialogModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */; };
 		99329DD72F3E8A04003F8E73 /* SlickSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD62F3E8A04003F8E73 /* SlickSlider.swift */; };
+		99329DD92F3ECEA2003F8E73 /* BPInputAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */; };
+		99329DDB2F3ED5E5003F8E73 /* DurationPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */; };
 		9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */; };
@@ -1600,6 +1602,8 @@
 		99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAlertModifier.swift; sourceTree = "<group>"; };
 		99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDialogModifier.swift; sourceTree = "<group>"; };
 		99329DD62F3E8A04003F8E73 /* SlickSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickSlider.swift; sourceTree = "<group>"; };
+		99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPInputAlertModifier.swift; sourceTree = "<group>"; };
+		99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerSheet.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsArtworkSectionView.swift; sourceTree = "<group>"; };
@@ -3095,6 +3099,8 @@
 				99329DCF2F3C282D003F8E73 /* AirplayPicker.swift */,
 				99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */,
 				99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */,
+				99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */,
+				99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */,
 				99329DD62F3E8A04003F8E73 /* SlickSlider.swift */,
 			);
 			path = Views;
@@ -4544,6 +4550,7 @@
 				99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */,
 				63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,
+				99329DD92F3ECEA2003F8E73 /* BPInputAlertModifier.swift in Sources */,
 				63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
@@ -4576,6 +4583,7 @@
 				3FF8EA4C2E11E2110054CD2C /* ItemDetailsHardcoverSectionView.swift in Sources */,
 				3FF8EA4D2E11E2110054CD2C /* HardcoverBookPickerViewModel.swift in Sources */,
 				3FF8EA4E2E11E2110054CD2C /* HardcoverBookPickerView.swift in Sources */,
+				99329DDB2F3ED5E5003F8E73 /* DurationPickerSheet.swift in Sources */,
 				637968812E76546D00D0FCB0 /* SearchView.swift in Sources */,
 				637968822E76546D00D0FCB0 /* SearchViewModel.swift in Sources */,
 				3FF8EA4F2E11E2110054CD2C /* HardcoverBookRow.swift in Sources */,

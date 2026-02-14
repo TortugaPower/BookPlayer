@@ -24,7 +24,7 @@ struct PlayerJumpView: View {
           .scaledToFill()
           .foregroundColor(tintColor)
           .accessibilityHidden(true)
-          .frame(width: 56, height: 56)
+          .frame(width: 46, height: 46)
         
         // Label
         Text(text)
@@ -33,7 +33,7 @@ struct PlayerJumpView: View {
           .multilineTextAlignment(.center)
           .lineLimit(1)
           .accessibilityHidden(true)
-          .padding(.top, 8)
+          .padding(.top, 7)
       }
     }
     .buttonStyle(.plain)

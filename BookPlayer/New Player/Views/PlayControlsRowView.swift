@@ -16,17 +16,17 @@ struct PlayControlsRowView: View {
   var body: some View {
     HStack(spacing: 0) {
       Spacer()
-      PlayerJumpView(backgroundImage: Image(systemName: "gobackward"), text: "-\(String(Int(PlayerManager.rewindInterval.rounded())))", tintColor: Color(theme.primaryColor)) {
+      PlayerJumpView(backgroundImage: Image(systemName: "gobackward"), text: "-\(String(Int(PlayerManager.rewindInterval.rounded())))", tintColor: Color(theme.linkColor)) {
         playerManager.rewind()
       }
       Spacer()
       Spacer()
-      PlayerJumpView(backgroundImage: Image(systemName: isPlaying ? "pause.fill" : "play.fill"), text: "", tintColor: Color(theme.primaryColor)) {
+      PlayerJumpView(backgroundImage: Image(systemName: isPlaying ? "pause.fill" : "play.fill"), text: "", tintColor: Color(theme.linkColor)) {
         playerManager.playPause()
       }
       Spacer()
       Spacer()
-      PlayerJumpView(backgroundImage: Image(systemName: "goforward"), text: "+\(String(Int(PlayerManager.forwardInterval.rounded())))", tintColor: Color(theme.primaryColor)) {
+      PlayerJumpView(backgroundImage: Image(systemName: "goforward"), text: "+\(String(Int(PlayerManager.forwardInterval.rounded())))", tintColor: Color(theme.linkColor)) {
         playerManager.forward()
       }
       Spacer()

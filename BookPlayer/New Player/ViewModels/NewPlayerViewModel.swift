@@ -10,17 +10,43 @@ import BookPlayerKit
 import Combine
 import SwiftUI
 
+enum PlayerSheetStyle {
+  case chapters
+  case controls
+  case buttonFree
+  case bookmark
+  case sleep
+}
+
+@Observable
+class PlayerSheetData {
+  var style: PlayerSheetStyle?
+  var display = false
+  
+  func displaySheet(style: PlayerSheetStyle) {
+    self.style = style
+    self.display = true
+  }
+  
+  func hideSheet() {
+    self.display = false
+    self.style = nil
+  }
+}
+
 @MainActor
 final class NewPlayerViewModel: ObservableObject {
+  var playerSheetData = PlayerSheetData()
   @State var progressData = ProgressData()
   @Published var isPlaying = false
+  @Published var playbackSpeed: Float = 1.0
   @Published var relativePath: String?
   @Published var currentAlert: BPAlertContent?
-  @Published var isShowingChapters: Bool = false
-  @Published var isShowingControls: Bool = false
-  @Published var isShowingButtonFree: Bool = false
-  @Published var isShowingBookmark: Bool = false
-  @Published var isShowingTimer: Bool = false
+  @Published var currentAlertOrigin: MediaAction?
+  @Published var sleepText: String?
+  @Published var hasNextChapter = false
+  @Published var hasPreviousChapter = false
+  @Published var isShowingNote: Bool = false
   
   let libraryService: LibraryService
   let playbackService: PlaybackService
@@ -30,7 +56,7 @@ final class NewPlayerViewModel: ObservableObject {
   private let sharedDefaults: UserDefaults
   private var prefersChapterContext: Bool
   private var prefersRemainingTime: Bool
-  
+  private var lastBookmark: SimpleBookmark?
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
@@ -62,6 +88,7 @@ final class NewPlayerViewModel: ObservableObject {
     self.sharedDefaults = sharedDefaults
     
     bindBookPlayingProgressEvents()
+    bindSleepTimerState()
   }
   
   func bindBookPlayingProgressEvents() {
@@ -73,6 +100,7 @@ final class NewPlayerViewModel: ObservableObject {
       }
     
     self.playerManager.isPlayingPublisher()
+      .removeDuplicates()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] isPlaying in
         self?.isPlaying = isPlaying
@@ -80,6 +108,7 @@ final class NewPlayerViewModel: ObservableObject {
       .store(in: &disposeBag)
     
     self.playerManager.currentItemPublisher()
+      .removeDuplicates()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         self?.currentChapterSubscriber?.cancel()
@@ -88,6 +117,52 @@ final class NewPlayerViewModel: ObservableObject {
         else { return }
         
         bindCurrentChapter(for: item)
+      }.store(in: &disposeBag)
+    
+    self.playerManager.currentSpeedPublisher()
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] speed in
+        guard let self = self else { return }
+
+        self.playbackSpeed = speed
+      }
+      .store(in: &disposeBag)
+  }
+  
+  private lazy var durationFormatter: DateComponentsFormatter = {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .positional
+    formatter.allowedUnits = [.minute, .second]
+    formatter.collapsesLargestUnit = true
+    return formatter
+  }()
+  
+  func bindSleepTimerState() {
+    SleepTimer.shared.$state
+      .map { [weak self] state -> String? in
+        switch state {
+        case .off:
+          return nil
+        case .endOfChapter:
+          return "active_title".localized
+        case .countdown(let seconds):
+          return self?.durationFormatter.string(from: seconds)
+        }
+      }
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
+      .sink { [weak self] toolbarDescription in
+        guard let self else { return }
+
+        if let timeFormatted = toolbarDescription {
+          let remainingTitle = String(
+            describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted)
+          )
+          sleepText = timeFormatted
+        } else {
+          sleepText = nil
+        }
       }.store(in: &disposeBag)
   }
   
@@ -176,7 +251,8 @@ final class NewPlayerViewModel: ObservableObject {
       sliderValue = Float(currentItem?.progressPercentage ?? 0)
     }
     
-    // Update local chapter
+    self.hasPreviousChapter = self.hasChapter(before: currentItem?.currentChapter)
+    self.hasNextChapter = self.hasChapter(after: currentItem?.currentChapter)
     self.chapterBeforeSliderValueChange = currentItem?.currentChapter
     
     progressData.chapterTitle = currentItem?.currentChapter?.title
@@ -199,9 +275,9 @@ final class NewPlayerViewModel: ObservableObject {
       case .more:
         setMoreAlert()
       case .chapters:
-        isShowingChapters = !isShowingChapters
+        playerSheetData.displaySheet(style: .chapters)
       case .speed:
-        isShowingControls = !isShowingControls
+        playerSheetData.displaySheet(style: .controls)
       case .timer:
         self.setSleepTimerAlert()
     }
@@ -251,15 +327,16 @@ final class NewPlayerViewModel: ObservableObject {
       BPActionItem(
         title: "sleeptimer_option_custom".localized,
         handler: { [weak self] in
-          print("NONES")
+          self?.playerSheetData.displaySheet(style: .sleep)
         }
       )
     )
 
     actions.append(BPActionItem.cancelAction)
   
+    currentAlertOrigin = .timer
     currentAlert = BPAlertContent(
-      title: "TEXT",
+      title: "",
       message: "sleep_alert_description".localized,
       style: .actionSheet,
       actionItems: actions
@@ -330,19 +407,16 @@ final class NewPlayerViewModel: ObservableObject {
   }
   
   func resetShowings() {
-    isShowingChapters = false
-    isShowingControls = false
-    isShowingButtonFree = false
-    isShowingBookmark = false
-    isShowingTimer = false
+    playerSheetData.hideSheet()
+    isShowingNote = false
   }
   
   func showListFromMoreAction() {
     resetShowings()
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
-      isShowingChapters = true
+      playerSheetData.displaySheet(style: .chapters)
     } else {
-      isShowingBookmark = true
+      playerSheetData.displaySheet(style: .bookmark)
     }
   }
   
@@ -391,6 +465,7 @@ final class NewPlayerViewModel: ObservableObject {
       )
     )
     
+    currentAlertOrigin = .more
     currentAlert = BPAlertContent(
       title: "",
       message: "",
@@ -400,7 +475,7 @@ final class NewPlayerViewModel: ObservableObject {
   }
   
   func showButtonFree() {
-    isShowingButtonFree = true
+    playerSheetData.displaySheet(style: .buttonFree)
   }
   
   func createBookmark() {
@@ -447,7 +522,9 @@ final class NewPlayerViewModel: ObservableObject {
         BPActionItem(
           title: "bookmark_note_action_title".localized,
           handler: {
-            //self?.showBookmarkNoteAlert(vc: vc, bookmark: bookmark)
+            self.lastBookmark = bookmark
+            self.resetShowings()
+            self.isShowingNote = true
           }
         )
       )
@@ -457,16 +534,29 @@ final class NewPlayerViewModel: ObservableObject {
       BPActionItem(
         title: "bookmarks_see_title".localized,
         handler: {
-          self.isShowingBookmark = true
+          self.playerSheetData.displaySheet(style: .bookmark)
         }
       )
     )
     
+    currentAlertOrigin = nil
     currentAlert = BPAlertContent(
       title: String.localizedStringWithFormat(titleKey.localized, formattedTime),
       message: "".localized,
       style: .alert,
       actionItems: actions
     )
+  }
+  
+  func saveNote(note: String) {
+    guard let myBookmark = lastBookmark else { return }
+    
+    self.libraryService.addNote(note, bookmark: myBookmark)
+    self.syncService.scheduleSetBookmark(
+      relativePath: myBookmark.relativePath,
+      time: myBookmark.time,
+      note: note
+    )
+    self.lastBookmark = nil
   }
 }

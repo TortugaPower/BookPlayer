@@ -10,28 +10,27 @@ import SwiftUI
 
 struct NavigationRowView: View {
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var theme: ThemeViewModel
   
   var playerTitle: String
+  var hasNextChapter: Bool = false
+  var hasPreviousChapter: Bool = false
   
   var body: some View {
-    HStack {
+    HStack(spacing: 4) {
       HStack(spacing: 16) {
         Button {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-          self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
-        } label: {
-          Image(systemName: "chevron.left.2")
-        }
-        Button {
-          UIImpactFeedbackGenerator(style: .medium).impactOccurred()
           if let currentChapter = self.playerManager.currentItem?.currentChapter,
-            let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
+            let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
           {
-            self.playerManager.jumpToChapter(nextChapter)
+            self.playerManager.jumpToChapter(previousChapter)
             //sendEvent(.updateProgress(getCurrentProgressState()))
+          } else {
+            self.playerManager.playPreviousItem()
           }
         } label: {
-          Image(systemName: "chevron.left")
+          Image(systemName: hasPreviousChapter ? "chevron.left" : "chevron.left.2").tint(theme.primaryColor)
         }
       }
       
@@ -39,8 +38,9 @@ struct NavigationRowView: View {
       
       Text(playerTitle)
         .bpFont(.headline)
+        .foregroundColor(theme.primaryColor)
         .multilineTextAlignment(.center)
-        .frame(height: 100)
+        .frame(height: 56)
       
       Spacer()
       
@@ -49,18 +49,15 @@ struct NavigationRowView: View {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
           if let currentChapter = self.playerManager.currentItem?.currentChapter,
-            let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
+            let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
           {
-            self.playerManager.jumpToChapter(previousChapter)
+            self.playerManager.jumpToChapter(nextChapter)
             //sendEvent(.updateProgress(getCurrentProgressState()))
+          } else {
+            self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
           }
         } label: {
-          Image(systemName: "chevron.right")
-        }
-        Button {
-          self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
-        } label: {
-          Image(systemName: "chevron.right.2")
+          Image(systemName: hasNextChapter ? "chevron.right" : "chevron.right.2").tint(theme.primaryColor)
         }
       }
     }

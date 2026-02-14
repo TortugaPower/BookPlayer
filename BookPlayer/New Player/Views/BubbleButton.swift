@@ -9,20 +9,34 @@
 import SwiftUI
 
 struct BubbleButton: View {
-  let iconName: String
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  let iconName: String?
+  var labelText: String?
   var action: (() -> Void)?
   
   var body: some View {
     Button {
       action?()
     } label: {
-      Image(systemName: iconName)
-        .bpFont(.titleRegular)
-        .foregroundColor(.primary)
-        .padding(14)
-        .frame(width: 44, height: 44)
+      HStack {
+        if let icon = iconName {
+          Image(systemName: icon)
+            .bpFont(.titleRegular)
+            .foregroundColor(theme.primaryColor)
+        }
+        
+        if let text = labelText {
+          Text(text)
+            .bpFont(.titleRegular)
+            .foregroundColor(theme.primaryColor)
+        }
+      }
+        .padding(12)
+        .frame(minWidth: 42)        // 2. Sets your "preferred" minimum width
+        .frame(height: 42)
         .liquidGlassBackground()
-        .clipShape(Circle())
+        .clipShape(Capsule())
     }
   }
 }

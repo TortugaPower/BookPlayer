@@ -9,11 +9,14 @@
 import SwiftUI
 
 struct ListeningProgressView: View {
+  @StateObject private var theme = ThemeViewModel()
   @Binding var progress: Double
   var remainigTime: String
   var currentTime: String
   var progressLabel: String
   var onSliderChange: ((Double) -> Void)?
+  var onProgresToggle: (() -> Void)?
+  var onRemainingToggle: (() -> Void)?
   
   var body: some View {
     VStack(spacing: 12) {
@@ -21,18 +24,29 @@ struct ListeningProgressView: View {
         value: $progress,
         range: 0...1,
         onEditingChanged: { editing in
-            if !editing {
-              onSliderChange?(progress)
-            }
-        }
+          if !editing {
+            onSliderChange?(progress)
+          }
+        },
+        accentColor: theme.linkColor
       )
       
       HStack {
         Text(currentTime)
+          .frame(width: 60, alignment: .leading)
         Spacer()
-        Text(progressLabel)
+        Button {
+          onProgresToggle?()
+        } label: {
+          Text(progressLabel)
+        }
         Spacer()
-        Text(remainigTime)
+        Button {
+          onRemainingToggle?()
+        } label: {
+          Text(remainigTime)
+            .frame(width: 60, alignment: .trailing)
+        }
       }
       .font(.caption)
       .foregroundColor(.secondary)
