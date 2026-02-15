@@ -502,24 +502,118 @@ extension ItemListViewModel {
 
   func handleFilePickerSelection(_ urls: [URL]) {
     let documentsFolder = DataManager.getDocumentsFolderURL()
-    urls.forEach { url in
+
+    // Acquire security-scoped access synchronously before URLs expire
+    var filesToCopy: [(source: URL, destination: URL)] = []
+    for url in urls {
       let gotAccess = url.startAccessingSecurityScopedResource()
-      if !gotAccess {
-        return
-      }
+      guard gotAccess else { continue }
 
-      defer { url.stopAccessingSecurityScopedResource() }
-
-      // Prevent importing the app's own Documents folder or subfolders
       if DataManager.isAppOwnFolder(url) {
-        return
+        url.stopAccessingSecurityScopedResource()
+        continue
       }
 
       let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
       if !FileManager.default.fileExists(atPath: destinationURL.path) {
-        try! FileManager.default.copyItem(at: url, to: destinationURL)
+        filesToCopy.append((source: url, destination: destinationURL))
+      } else {
+        url.stopAccessingSecurityScopedResource()
       }
     }
+
+    guard !filesToCopy.isEmpty else { return }
+
+    // Check if any files need downloading from the cloud
+    let pendingDownload = filesToCopy.reduce(
+      into: (count: 0, totalSize: Int64(0))
+    ) { result, file in
+      let info = notDownloadedContentInfo(file.source)
+      result.count += info.count
+      result.totalSize += info.totalSize
+    }
+
+    if pendingDownload.count > 0 {
+      let sizeString = ByteCountFormatter.string(
+        fromByteCount: pendingDownload.totalSize,
+        countStyle: .file
+      )
+      loadingState.message = String(
+        format: NSLocalizedString("import_preparing_detail_title", comment: ""),
+        pendingDownload.count,
+        sizeString
+      )
+      loadingState.show = true
+
+      // Yield the main thread so SwiftUI renders the overlay before the blocking copy
+      DispatchQueue.main.async {
+        self.performFileCopy(filesToCopy)
+      }
+    } else {
+      performFileCopy(filesToCopy)
+    }
+  }
+
+  private func performFileCopy(_ filesToCopy: [(source: URL, destination: URL)]) {
+    for file in filesToCopy {
+      do {
+        try FileManager.default.copyItem(at: file.source, to: file.destination)
+      } catch {
+        loadingState.error = error
+      }
+      file.source.stopAccessingSecurityScopedResource()
+    }
+
+    loadingState.show = false
+    loadingState.message = nil
+  }
+
+  /// Returns the count and total size of not-yet-downloaded cloud content for a URL.
+  private nonisolated func notDownloadedContentInfo(
+    _ url: URL
+  ) -> (count: Int, totalSize: Int64) {
+    let keys: Set<URLResourceKey> = [
+      .isDirectoryKey,
+      .ubiquitousItemDownloadingStatusKey,
+      .totalFileSizeKey,
+    ]
+
+    guard let values = try? url.resourceValues(forKeys: keys) else {
+      return (0, 0)
+    }
+
+    let isNotDownloaded = values.ubiquitousItemDownloadingStatus?.rawValue
+      == URLUbiquitousItemDownloadingStatus.notDownloaded.rawValue
+    let isDirectory = values.isDirectory ?? false
+
+    if !isDirectory {
+      if isNotDownloaded {
+        return (1, Int64(values.totalFileSize ?? 0))
+      }
+      return (0, 0)
+    }
+
+    // For directories, enumerate children
+    guard let enumerator = FileManager.default.enumerator(
+      at: url,
+      includingPropertiesForKeys: Array(keys),
+      options: [.skipsHiddenFiles]
+    ) else { return (0, 0) }
+
+    var count = 0
+    var totalSize: Int64 = 0
+
+    for case let fileURL as URL in enumerator {
+      let childValues = try? fileURL.resourceValues(forKeys: keys)
+      if childValues?.ubiquitousItemDownloadingStatus?.rawValue
+        == URLUbiquitousItemDownloadingStatus.notDownloaded.rawValue
+      {
+        count += 1
+        totalSize += Int64(childValues?.totalFileSize ?? 0)
+      }
+    }
+
+    return (count, totalSize)
   }
 }
 

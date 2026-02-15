@@ -81,7 +81,7 @@ struct LibraryRootView: View {
         .errorAlert(error: $loadingState.error)
       }
       .errorAlert(error: $loadingState.error)
-      .loadingOverlay(loadingState.show)
+      .loadingOverlay(loadingState.show, message: loadingState.message)
       .onAppear {
         guard isFirstLoad else { return }
 
