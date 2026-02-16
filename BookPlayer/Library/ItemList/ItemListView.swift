@@ -110,7 +110,8 @@ struct ItemListView: View {
       ) { result in
         switch result {
         case .success(let files):
-          model.handleFilePickerSelection(files)
+          let alreadyExisting = model.handleFilePickerSelection(files)
+          alreadyExisting.forEach { importManager.process($0) }
         case .failure(let error):
           loadingState.error = error
         }

@@ -500,11 +500,13 @@ extension ItemListViewModel {
     return availableFolders
   }
 
-  func handleFilePickerSelection(_ urls: [URL]) {
+  /// Returns destination URLs of files that already exist and were not copied.
+  func handleFilePickerSelection(_ urls: [URL]) -> [URL] {
     let documentsFolder = DataManager.getDocumentsFolderURL()
 
     // Acquire security-scoped access synchronously before URLs expire
     var filesToCopy: [(source: URL, destination: URL)] = []
+    var alreadyExisting: [URL] = []
     var skippedOwnFiles = 0
     for url in urls {
       let gotAccess = url.startAccessingSecurityScopedResource()
@@ -520,6 +522,7 @@ extension ItemListViewModel {
       if !FileManager.default.fileExists(atPath: destinationURL.path) {
         filesToCopy.append((source: url, destination: destinationURL))
       } else {
+        alreadyExisting.append(destinationURL)
         url.stopAccessingSecurityScopedResource()
       }
     }
@@ -530,7 +533,7 @@ extension ItemListViewModel {
           NSLocalizedString("import_already_loaded_title", comment: "")
         )
       }
-      return
+      return alreadyExisting
     }
 
     // Check if any files need downloading from the cloud
@@ -563,6 +566,8 @@ extension ItemListViewModel {
     } else {
       performFileCopy(filesToCopy)
     }
+
+    return alreadyExisting
   }
 
   private func performFileCopy(_ filesToCopy: [(source: URL, destination: URL)]) {
