@@ -152,6 +152,9 @@
 "audio_source_title" = "Sorgente Audio";
 "speed_title" = "velocità";
 "import_preparing_title" = "Preparazione per l'importazione dei file";
+"import_preparing_detail_title" = "Download di %d file in corso (%@)";
+"import_keep_app_open_title" = "Per favore, mantieni l'app aperta";
+"import_already_loaded_title" = "Gli elementi selezionati sono già nella tua libreria";
 "library_add_title" = "Aggiungi il tuo primo libro";
 "invalid_url_title" = "URL invalido: %@";
 "progress_title" = "Progresso";

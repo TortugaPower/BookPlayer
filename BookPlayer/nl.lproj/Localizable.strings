@@ -152,6 +152,9 @@
 "audio_source_title" = "Geluidsbron";
 "speed_title" = "snelheid";
 "import_preparing_title" = "Bestanden importeren voorbereiden";
+"import_preparing_detail_title" = "%d bestanden downloaden (%@)";
+"import_keep_app_open_title" = "Houd de app open";
+"import_already_loaded_title" = "De geselecteerde items staan al in je bibliotheek";
 "library_add_title" = "Voeg je eerste boek toe";
 "invalid_url_title" = "Ongeldige URL: %@";
 "progress_title" = "Voortgang";

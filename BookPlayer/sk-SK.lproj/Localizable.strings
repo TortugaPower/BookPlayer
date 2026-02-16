@@ -152,6 +152,9 @@
 "audio_source_title" = "Zdroj zvuku";
 "speed_title" = "rýchlosť";
 "import_preparing_title" = "Príprava importu súborov";
+"import_preparing_detail_title" = "Sťahovanie %d súborov (%@)";
+"import_keep_app_open_title" = "Prosím, nechajte aplikáciu otvorenú";
+"import_already_loaded_title" = "Vybrané položky sa už nachádzajú vo vašej knižnici";
 "library_add_title" = "Pridajte vašu prvú knihu";
 "invalid_url_title" = "Neplatná adresa URL: %@";
 "progress_title" = "Priebeh";

@@ -153,6 +153,8 @@
 "speed_title" = "speed";
 "import_preparing_title" = "Preparing to import files";
 "import_preparing_detail_title" = "Downloading %d files (%@)";
+"import_keep_app_open_title" = "Please keep the app open";
+"import_already_loaded_title" = "The selected items are already in your library";
 "library_add_title" = "Add your first book";
 "invalid_url_title" = "Invalid URL: %@";
 "progress_title" = "Progress";

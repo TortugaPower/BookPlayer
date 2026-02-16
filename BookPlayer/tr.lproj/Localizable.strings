@@ -152,6 +152,9 @@
 "audio_source_title" = "Ses Kaynağı";
 "speed_title" = "hız";
 "import_preparing_title" = "Dosyaları içeri aktarmaya hazırlanılıyor";
+"import_preparing_detail_title" = "%d dosya indiriliyor (%@)";
+"import_keep_app_open_title" = "Lütfen uygulamayı açık tutun";
+"import_already_loaded_title" = "Seçilen öğeler zaten kütüphanenizde bulunuyor";
 "library_add_title" = "İlk kitabınızı ekleyin";
 "invalid_url_title" = "Geçersiz URL: %@";
 "progress_title" = "İlerleme";

@@ -152,6 +152,9 @@
 "audio_source_title" = "音源";
 "speed_title" = "速度";
 "import_preparing_title" = "准备导入文件";
+"import_preparing_detail_title" = "正在下载 %d 个文件（%@）";
+"import_keep_app_open_title" = "请保持应用处于打开状态";
+"import_already_loaded_title" = "所选项目已在您的资料库中";
 "library_add_title" = "添加第一本书";
 "invalid_url_title" = "无效的网址： %@";
 "progress_title" = "进展";

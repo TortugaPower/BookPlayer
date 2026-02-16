@@ -505,11 +505,13 @@ extension ItemListViewModel {
 
     // Acquire security-scoped access synchronously before URLs expire
     var filesToCopy: [(source: URL, destination: URL)] = []
+    var skippedOwnFiles = 0
     for url in urls {
       let gotAccess = url.startAccessingSecurityScopedResource()
       guard gotAccess else { continue }
 
       if DataManager.isAppOwnFolder(url) {
+        skippedOwnFiles += 1
         url.stopAccessingSecurityScopedResource()
         continue
       }
@@ -522,7 +524,14 @@ extension ItemListViewModel {
       }
     }
 
-    guard !filesToCopy.isEmpty else { return }
+    guard !filesToCopy.isEmpty else {
+      if skippedOwnFiles > 0 {
+        loadingState.error = BookPlayerError.runtimeError(
+          NSLocalizedString("import_already_loaded_title", comment: "")
+        )
+      }
+      return
+    }
 
     // Check if any files need downloading from the cloud
     let pendingDownload = filesToCopy.reduce(
@@ -543,6 +552,8 @@ extension ItemListViewModel {
         pendingDownload.count,
         sizeString
       )
+        + "\n"
+        + NSLocalizedString("import_keep_app_open_title", comment: "")
       loadingState.show = true
 
       // Yield the main thread so SwiftUI renders the overlay before the blocking copy

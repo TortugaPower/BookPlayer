@@ -152,6 +152,9 @@
 "audio_source_title" = "Äänilähde";
 "speed_title" = "nopeus";
 "import_preparing_title" = "Valmistellaan tiedostojen tuontia";
+"import_preparing_detail_title" = "Ladataan %d tiedostoa (%@)";
+"import_keep_app_open_title" = "Pidä sovellus avoinna";
+"import_already_loaded_title" = "Valitut kohteet ovat jo kirjastossasi";
 "library_add_title" = "Lisää ensimmäinen kirjasi";
 "invalid_url_title" = "Virheellinen URL-osoite: %@";
 "progress_title" = "Edistyminen";
