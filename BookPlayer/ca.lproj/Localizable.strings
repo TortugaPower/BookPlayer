@@ -152,6 +152,9 @@
 "audio_source_title" = "Font d'àudio";
 "speed_title" = "velocitat";
 "import_preparing_title" = "Preparant la importació de fitxers";
+"import_preparing_detail_title" = "Descarregant %d fitxers (%@)";
+"import_keep_app_open_title" = "Si us plau, mantingueu l'aplicació oberta";
+"import_already_loaded_title" = "Els elements seleccionats ja són a la vostra biblioteca";
 "library_add_title" = "Afegeix el teu primer llibre";
 "invalid_url_title" = "URL no vàlida: %@";
 "progress_title" = "Progrés";

@@ -152,6 +152,9 @@
 "audio_source_title" = "Sursă audio";
 "speed_title" = "Viteza";
 "import_preparing_title" = "Pregătire pentru importarea fișierelor";
+"import_preparing_detail_title" = "Se descarcă %d fișiere (%@)";
+"import_keep_app_open_title" = "Vă rugăm să păstrați aplicația deschisă";
+"import_already_loaded_title" = "Elementele selectate sunt deja în biblioteca dumneavoastră";
 "library_add_title" = "Adaugați prima carte";
 "invalid_url_title" = "URL invalid: %@";
 "progress_title" = "Derulare";
