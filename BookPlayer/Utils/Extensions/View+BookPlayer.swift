@@ -212,15 +212,17 @@ struct TabBarHeightReader: UIViewControllerRepresentable {
 
   class TabBarHeightReaderController: UIViewController {
     var onHeightChange: ((CGFloat) -> Void)?
+    private var lastContentHeight: CGFloat = 0
 
     override func viewDidLayoutSubviews() {
       super.viewDidLayoutSubviews()
       guard let tabBar = tabBarController?.tabBar else { return }
       let windowBottomSafeArea = view.window?.safeAreaInsets.bottom ?? 0
       let contentHeight = tabBar.frame.height - windowBottomSafeArea
-      if contentHeight > 0 {
-        onHeightChange?(contentHeight)
-      }
+      guard contentHeight > 0,
+            abs(contentHeight - lastContentHeight) > 1 else { return }
+      lastContentHeight = contentHeight
+      onHeightChange?(contentHeight)
     }
   }
 }
