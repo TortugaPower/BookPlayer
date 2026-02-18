@@ -51,8 +51,10 @@ struct NewPlayerView: View {
         
         ListeningProgressView(
           progress: $data.sliderValue,
-          remainigTime: viewModel.progressData.formattedMaxTime ?? "00:00",
+          remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
+          remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
           currentTime: viewModel.progressData.formattedCurrentTime,
+          currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
           progressLabel: viewModel.progressData.progress ?? "") { progress in
             viewModel.handleSliderUpEvent(with: Float(progress))
           } onProgresToggle: {
@@ -72,7 +74,7 @@ struct NewPlayerView: View {
             BubbleButton(
               iconName: ma == .speed ? nil : ma.iconName,
               labelText: ma == .speed
-                ? "\(viewModel.playbackSpeed.formatted(.number.precision(.fractionLength(0...2))))x"
+                ? "\(viewModel.formattedSpeed())"
                 : ma == .timer && viewModel.sleepText != nil
                   ? viewModel.sleepText
                   : nil,
@@ -80,6 +82,11 @@ struct NewPlayerView: View {
                 viewModel.handleSleepTimerTap(media: ma)
               }
             )
+              .accessibilityLabel(
+                ma != .speed
+                  ? ma.accessibilityLabel
+                  : String(describing: viewModel.formattedSpeed() + " \("speed_title".localized)")
+              )
               .bpDialog(
                 $viewModel.currentAlert,
                 isOriginView: viewModel.currentAlertOrigin == ma
@@ -105,6 +112,9 @@ struct NewPlayerView: View {
     .animation(.interactiveSpring(), value: dragOffset)
     .onAppear {
       viewModel.recalculateProgress()
+    }
+    .accessibilityAction(.escape) {
+      dismiss()
     }
     .environmentObject(theme)
     .onChange(of: scheme) {

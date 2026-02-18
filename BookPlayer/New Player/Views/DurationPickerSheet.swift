@@ -36,8 +36,6 @@ struct DurationPicker: UIViewRepresentable {
   }
 }
 
-import SwiftUI
-
 struct DurationPickerSheet: View {
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject private var theme: ThemeViewModel

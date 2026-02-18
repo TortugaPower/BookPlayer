@@ -59,8 +59,43 @@ final class NewPlayerViewModel: ObservableObject {
   private var lastBookmark: SimpleBookmark?
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
+  private var listeningProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
   private var updateProgressObserver: NSKeyValueObservation?
+  
+  var currentTimeAccessLabel: String {
+    let prefix = self.prefersChapterContext
+      ? "voiceover_chapter_time_title".localized
+      : "book_time_current_title".localized
+    return String.localizedStringWithFormat(
+      prefix,
+      VoiceOverService.secondsToMinutes(progressData.currentTime)
+    )
+  }
+  
+  var remainingTimeAccessLabel: String {
+    guard let maxTime = progressData.maxTime else {
+      return "\(self.getMaxTimeVoiceOverPrefix())"
+    }
+    
+    return "\(self.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
+  }
+  
+  func formattedSpeed() -> String {
+    return (playbackSpeed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(playbackSpeed))" : "\(playbackSpeed)") + "×"
+  }
+  
+  func getMaxTimeVoiceOverPrefix() -> String {
+    if self.prefersChapterContext {
+      return self.prefersRemainingTime
+        ? "chapter_time_remaining_title".localized
+        : "chapter_duration_title".localized
+    }
+
+    return self.prefersRemainingTime
+      ? "book_time_remaining_title".localized
+      : "book_duration_title".localized
+  }
   
   func hasChapter(before chapter: PlayableChapter?) -> Bool {
     guard let chapter = chapter else { return false }
@@ -88,7 +123,6 @@ final class NewPlayerViewModel: ObservableObject {
     self.sharedDefaults = sharedDefaults
     
     bindBookPlayingProgressEvents()
-    bindSleepTimerState()
   }
   
   func bindBookPlayingProgressEvents() {
@@ -128,17 +162,7 @@ final class NewPlayerViewModel: ObservableObject {
         self.playbackSpeed = speed
       }
       .store(in: &disposeBag)
-  }
-  
-  private lazy var durationFormatter: DateComponentsFormatter = {
-    let formatter = DateComponentsFormatter()
-    formatter.unitsStyle = .positional
-    formatter.allowedUnits = [.minute, .second]
-    formatter.collapsesLargestUnit = true
-    return formatter
-  }()
-  
-  func bindSleepTimerState() {
+    
     SleepTimer.shared.$state
       .map { [weak self] state -> String? in
         switch state {
@@ -164,7 +188,23 @@ final class NewPlayerViewModel: ObservableObject {
           sleepText = nil
         }
       }.store(in: &disposeBag)
+    
+    self.listeningProgressSubscriber?.cancel()
+    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
   }
+  
+  private lazy var durationFormatter: DateComponentsFormatter = {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .positional
+    formatter.allowedUnits = [.minute, .second]
+    formatter.collapsesLargestUnit = true
+    return formatter
+  }()
   
   func bindCurrentChapter(for item: PlayableItem) {
     currentChapterSubscriber = item.$currentChapter
@@ -379,32 +419,6 @@ final class NewPlayerViewModel: ObservableObject {
       forKey: filename + Constants.UserDefaults.repeatEnabledSuffix
     )
   }
-
-  func handlePreviousChapterAction() {
-    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-
-    if let currentChapter = self.playerManager.currentItem?.currentChapter,
-      let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
-    {
-      self.playerManager.jumpToChapter(previousChapter)
-      //sendEvent(.updateProgress(getCurrentProgressState()))
-    } else {
-      self.playerManager.playPreviousItem()
-    }
-  }
-
-  func handleNextChapterAction() {
-    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-
-    if let currentChapter = self.playerManager.currentItem?.currentChapter,
-      let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
-    {
-      self.playerManager.jumpToChapter(nextChapter)
-      //sendEvent(.updateProgress(getCurrentProgressState()))
-    } else {
-      self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
-    }
-  }
   
   func resetShowings() {
     playerSheetData.hideSheet()
@@ -423,9 +437,9 @@ final class NewPlayerViewModel: ObservableObject {
   func setMoreAlert() {
     guard self.hasLoadedBook() else { return }
 
-
-    let markTitle =
-      self.isBookFinished() ? "mark_unfinished_title".localized : "mark_finished_title".localized
+    let markTitle = self.isBookFinished()
+      ? "mark_unfinished_title".localized
+      : "mark_finished_title".localized
     
     var actions = [BPActionItem]()
 

@@ -661,7 +661,6 @@
 		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		8AF18A352CF0C42E00238F8D /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
 		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
-		99329DB52F3A9BF6003F8E73 /* MediaActionsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB42F3A9BF6003F8E73 /* MediaActionsRowView.swift */; };
 		99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */; };
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
@@ -679,6 +678,7 @@
 		99329DD92F3ECEA2003F8E73 /* BPInputAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */; };
 		99329DDB2F3ED5E5003F8E73 /* DurationPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */; };
 		9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
+		99B367FA2F4575C900C38F7F /* MediaAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367F92F4575C600C38F7F /* MediaAction.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */; };
 		9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */; };
@@ -1587,7 +1587,6 @@
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A342CF0C42C00238F8D /* JellyfinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinError.swift; sourceTree = "<group>"; };
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
-		99329DB42F3A9BF6003F8E73 /* MediaActionsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActionsRowView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
@@ -1604,6 +1603,7 @@
 		99329DD62F3E8A04003F8E73 /* SlickSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickSlider.swift; sourceTree = "<group>"; };
 		99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPInputAlertModifier.swift; sourceTree = "<group>"; };
 		99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerSheet.swift; sourceTree = "<group>"; };
+		99B367F92F4575C600C38F7F /* MediaAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAction.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsArtworkSectionView.swift; sourceTree = "<group>"; };
@@ -3087,7 +3087,6 @@
 		99329DB22F3A9B9C003F8E73 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				99329DB42F3A9BF6003F8E73 /* MediaActionsRowView.swift */,
 				99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */,
 				99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */,
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
@@ -3117,6 +3116,7 @@
 		99329DCE2F3BFD5F003F8E73 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				99B367F92F4575C600C38F7F /* MediaAction.swift */,
 				99329DCC2F3BFD33003F8E73 /* ProgressData.swift */,
 			);
 			path = Models;
@@ -4622,9 +4622,9 @@
 				3F7B643D2E0FA0B800299D97 /* GraphQLClient.swift in Sources */,
 				63B4A3042E9182BB00784A22 /* FolderCreationInput.swift in Sources */,
 				637043522E2DE65A005353D1 /* CreditsView.swift in Sources */,
+				99B367FA2F4575C900C38F7F /* MediaAction.swift in Sources */,
 				9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */,
 				638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */,
-				99329DB52F3A9BF6003F8E73 /* MediaActionsRowView.swift in Sources */,
 				3F6640912E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				8ADD46242CF38F9F002E9C50 /* JellyfinAudiobookDetailsView.swift in Sources */,
 				99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */,

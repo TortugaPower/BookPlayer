@@ -17,18 +17,24 @@ struct PlayControlsRowView: View {
     HStack(spacing: 0) {
       Spacer()
       PlayerJumpView(backgroundImage: Image(systemName: "gobackward"), text: "-\(String(Int(PlayerManager.rewindInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.rewind()
       }
+        .accessibilityLabel(VoiceOverService.rewindText())
       Spacer()
       Spacer()
       PlayerJumpView(backgroundImage: Image(systemName: isPlaying ? "pause.fill" : "play.fill"), text: "", tintColor: Color(theme.linkColor)) {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.playPause()
       }
+        .accessibilityLabel(isPlaying ? "pause_title".localized : "play_title".localized)
       Spacer()
       Spacer()
       PlayerJumpView(backgroundImage: Image(systemName: "goforward"), text: "+\(String(Int(PlayerManager.forwardInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.forward()
       }
+        .accessibilityLabel(VoiceOverService.fastForwardText())
       Spacer()
     }
     .frame(maxWidth: 400)

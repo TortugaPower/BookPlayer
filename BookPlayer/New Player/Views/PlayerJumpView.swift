@@ -17,7 +17,6 @@ struct PlayerJumpView: View {
   var body: some View {
     Button(action: action) {
       ZStack {
-        // Background image
         backgroundImage
           .renderingMode(.template)
           .resizable()
@@ -26,7 +25,6 @@ struct PlayerJumpView: View {
           .accessibilityHidden(true)
           .frame(width: 46, height: 46)
         
-        // Label
         Text(text)
           .bpFont(.buttonTextSmall)
           .foregroundColor(tintColor)

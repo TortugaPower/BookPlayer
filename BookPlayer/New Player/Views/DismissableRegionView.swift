@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct DismissableRegionView: View {
+  @Environment(\.dismiss) var dismiss
+
   var body: some View {
     HStack {
         Spacer()
@@ -20,6 +22,13 @@ struct DismissableRegionView: View {
     }
     .contentShape(Rectangle())
     .frame(maxWidth: .infinity)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("voiceover_dismiss_player_title".localized)
+    .accessibilityAddTraits(.isButton)    
+    .accessibilityAction {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        dismiss()
+    }
   }
 }
 

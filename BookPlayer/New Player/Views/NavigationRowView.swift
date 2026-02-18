@@ -25,13 +25,14 @@ struct NavigationRowView: View {
             let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
           {
             self.playerManager.jumpToChapter(previousChapter)
-            //sendEvent(.updateProgress(getCurrentProgressState()))
           } else {
             self.playerManager.playPreviousItem()
           }
+          NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
         } label: {
           Image(systemName: hasPreviousChapter ? "chevron.left" : "chevron.left.2").tint(theme.primaryColor)
         }
+          .accessibilityLabel("chapters_previous_title".localized)
       }
       
       Spacer()
@@ -52,13 +53,15 @@ struct NavigationRowView: View {
             let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
           {
             self.playerManager.jumpToChapter(nextChapter)
-            //sendEvent(.updateProgress(getCurrentProgressState()))
+            NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
           } else {
             self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
           }
+          NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
         } label: {
           Image(systemName: hasNextChapter ? "chevron.right" : "chevron.right.2").tint(theme.primaryColor)
         }
+          .accessibilityLabel("chapters_next_title".localized)
       }
     }
   }

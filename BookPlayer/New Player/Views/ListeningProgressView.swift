@@ -11,8 +11,10 @@ import SwiftUI
 struct ListeningProgressView: View {
   @StateObject private var theme = ThemeViewModel()
   @Binding var progress: Double
-  var remainigTime: String
+  var remainingTime: String
+  var remainingTimeAccessLabel: String = ""
   var currentTime: String
+  var currentTimeAccessLabel: String = ""
   var progressLabel: String
   var onSliderChange: ((Double) -> Void)?
   var onProgresToggle: (() -> Void)?
@@ -25,6 +27,7 @@ struct ListeningProgressView: View {
         range: 0...1,
         onEditingChanged: { editing in
           if !editing {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
             onSliderChange?(progress)
           }
         },
@@ -34,6 +37,7 @@ struct ListeningProgressView: View {
       HStack {
         Text(currentTime)
           .frame(width: 60, alignment: .leading)
+          .accessibilityLabel(currentTimeAccessLabel)
         Spacer()
         Button {
           onProgresToggle?()
@@ -44,9 +48,10 @@ struct ListeningProgressView: View {
         Button {
           onRemainingToggle?()
         } label: {
-          Text(remainigTime)
+          Text(remainingTime)
             .frame(width: 60, alignment: .trailing)
         }
+        .accessibilityLabel(remainingTimeAccessLabel)
       }
       .font(.caption)
       .foregroundColor(.secondary)
@@ -55,5 +60,5 @@ struct ListeningProgressView: View {
 }
 
 #Preview {
-  ListeningProgressView(progress: .constant(0.4), remainigTime: "02:12", currentTime: "00:45", progressLabel: "Chapter 1 of 12")
+  ListeningProgressView(progress: .constant(0.4), remainingTime: "02:12", currentTime: "00:45", progressLabel: "Chapter 1 of 12")
 }

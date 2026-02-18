@@ -17,6 +17,7 @@ struct BubbleButton: View {
   
   var body: some View {
     Button {
+      UIImpactFeedbackGenerator(style: .light).impactOccurred()
       action?()
     } label: {
       HStack {
