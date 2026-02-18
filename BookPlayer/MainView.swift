@@ -23,6 +23,8 @@ struct MainView: View {
   @Environment(\.accountService) private var accountService
   @Environment(\.colorScheme) private var scheme
 
+  @State private var tabBarContentHeight: CGFloat = 49
+
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
 
@@ -34,6 +36,13 @@ struct MainView: View {
           showPlayer: showPlayer,
           showImport: showImport
         )
+        .background {
+          TabBarHeightReader { height in
+            if tabBarContentHeight != height {
+              tabBarContentHeight = height
+            }
+          }
+        }
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
         .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
@@ -78,6 +87,7 @@ struct MainView: View {
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
     }
+    .environment(\.tabBarContentHeight, tabBarContentHeight)
     .environmentObject(theme)
     .environment(\.listState, listState)
     .tint(theme.linkColor)

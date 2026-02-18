@@ -152,6 +152,9 @@
 "audio_source_title" = "Ljudkälla";
 "speed_title" = "hastighet";
 "import_preparing_title" = "Förbereder import av filer";
+"import_preparing_detail_title" = "Laddar ner %d filer (%@)";
+"import_keep_app_open_title" = "Vänligen håll appen öppen";
+"import_already_loaded_title" = "De valda objekten finns redan i ditt bibliotek";
 "library_add_title" = "Lägg till din första bok";
 "invalid_url_title" = "Ogiltig URL: %@";
 "progress_title" = "Framsteg";

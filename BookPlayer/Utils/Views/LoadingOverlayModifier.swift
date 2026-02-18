@@ -10,20 +10,29 @@ import SwiftUI
 
 struct LoadingOverlayModifier: ViewModifier {
   let isLoading: Bool
+  var message: String?
 
   func body(content: Content) -> some View {
     content
       .overlay {
         if isLoading {
-          ProgressView()
-            .tint(.white)
-            .padding()
-            .background(
-              Color.black
-                .opacity(0.9)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            )
-            .ignoresSafeArea(.all)
+          VStack(spacing: 12) {
+            ProgressView()
+              .tint(.white)
+            if let message {
+              Text(message)
+                .font(.caption)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            }
+          }
+          .padding()
+          .background(
+            Color.black
+              .opacity(0.9)
+              .clipShape(RoundedRectangle(cornerRadius: 10))
+          )
+          .ignoresSafeArea(.all)
         }
       }
   }
@@ -59,8 +68,8 @@ struct LoadingOverlayWithConfettiModifier: ViewModifier {
 }
 
 extension View {
-  func loadingOverlay(_ isLoading: Bool) -> some View {
-    modifier(LoadingOverlayModifier(isLoading: isLoading))
+  func loadingOverlay(_ isLoading: Bool, message: String? = nil) -> some View {
+    modifier(LoadingOverlayModifier(isLoading: isLoading, message: message))
   }
 
   func loadingOverlayWithConfetti(_ isLoading: Bool, showConfetti: Bool) -> some View {

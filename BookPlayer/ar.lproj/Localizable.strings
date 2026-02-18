@@ -152,6 +152,9 @@
 "audio_source_title" = "مصدر الصوت";
 "speed_title" = "السرعة";
 "import_preparing_title" = "التحضير لاستيراد الملفات";
+"import_preparing_detail_title" = "جارٍ تنزيل %d ملفات (%@)";
+"import_keep_app_open_title" = "يرجى إبقاء التطبيق مفتوحاً";
+"import_already_loaded_title" = "العناصر المحددة موجودة بالفعل في مكتبتك";
 "library_add_title" = "أضف كتابك الأول";
 "invalid_url_title" = "URL غير صالح: %@";
 "progress_title" = "التقدم";

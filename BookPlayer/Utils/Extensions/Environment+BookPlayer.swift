@@ -31,4 +31,6 @@ extension EnvironmentValues {
   @Entry var importOperationState: ImportOperationState = .init()
   /// Dynamic bottom inset calculated from the actual mini player height
   @Entry var miniPlayerBottomInset: CGFloat = 80
+  /// Actual tab bar content height read from UIKit (excludes device safe area)
+  @Entry var tabBarContentHeight: CGFloat = 49
 }

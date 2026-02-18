@@ -152,6 +152,9 @@
 "audio_source_title" = "オーディオソース";
 "speed_title" = "再生速度";
 "import_preparing_title" = "ファイルの読み込みの準備中";
+"import_preparing_detail_title" = "%d件のファイルをダウンロード中（%@）";
+"import_keep_app_open_title" = "アプリを開いたままにしてください";
+"import_already_loaded_title" = "選択した項目はすでにライブラリにあります";
 "library_add_title" = "最初のブックを追加";
 "invalid_url_title" = "無効なURL: %@";
 "progress_title" = "進捗状況";

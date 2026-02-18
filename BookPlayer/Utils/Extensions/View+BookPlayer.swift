@@ -193,6 +193,40 @@ extension View {
   }
 }
 
+// MARK: - Tab Bar Height Reader
+
+/// Reads the actual UITabBar height from UIKit to avoid hardcoding tab bar dimensions.
+/// On iOS 26+ with liquid glass, the tab bar can be taller than the traditional 49pt.
+struct TabBarHeightReader: UIViewControllerRepresentable {
+  let onHeightChange: (CGFloat) -> Void
+
+  func makeUIViewController(context: Context) -> TabBarHeightReaderController {
+    let controller = TabBarHeightReaderController()
+    controller.onHeightChange = onHeightChange
+    return controller
+  }
+
+  func updateUIViewController(_ controller: TabBarHeightReaderController, context: Context) {
+    controller.onHeightChange = onHeightChange
+  }
+
+  class TabBarHeightReaderController: UIViewController {
+    var onHeightChange: ((CGFloat) -> Void)?
+    private var lastContentHeight: CGFloat = 0
+
+    override func viewDidLayoutSubviews() {
+      super.viewDidLayoutSubviews()
+      guard let tabBar = tabBarController?.tabBar else { return }
+      let windowBottomSafeArea = view.window?.safeAreaInsets.bottom ?? 0
+      let contentHeight = tabBar.frame.height - windowBottomSafeArea
+      guard contentHeight > 0,
+            abs(contentHeight - lastContentHeight) > 1 else { return }
+      lastContentHeight = contentHeight
+      onHeightChange?(contentHeight)
+    }
+  }
+}
+
 // MARK: - Mini Player Layout
 
 struct MiniPlayerSizePreferenceKey: PreferenceKey {
@@ -205,14 +239,15 @@ struct MiniPlayerSizePreferenceKey: PreferenceKey {
 struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   @ViewBuilder let regular: () -> Regular
   @ViewBuilder let accessory: () -> Accessory
-  
+
   @Environment(\.horizontalSizeClass) var hSize
+  @Environment(\.tabBarContentHeight) var tabBarContentHeight
   @State private var miniPlayerBottomInset: CGFloat = 80
-  
+
   func body(content: Content) -> some View {
     iOSBody(content)
   }
-  
+
   @ViewBuilder
   private func iOSBody(_ content: Content) -> some View {
     if #available(iOS 26.1, *) {
@@ -225,7 +260,7 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
       defaultBody(content)
     }
   }
-  
+
   @ViewBuilder
   private func defaultBody(_ content: Content) -> some View {
     content
@@ -247,14 +282,13 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
         let topPadding: CGFloat = 20
         // In compact width (iPhone, iPad split/slide-over), reduce inset by tab bar
         // content height since the mini player's own bottom padding already clears it
-        let tabBarContentHeight: CGFloat = 44.0
         let reduceSize = hSize == .compact ? tabBarContentHeight : 0
         let reduceTopPadding = miniPlayerHeight > reduceSize ? reduceSize : 0
         miniPlayerBottomInset = miniPlayerHeight + topPadding - reduceTopPadding
       }
       .environment(\.miniPlayerBottomInset, miniPlayerBottomInset)
   }
-  
+
 }
 extension View {
   func miniPlayer<Regular: View, Accessory: View>(
