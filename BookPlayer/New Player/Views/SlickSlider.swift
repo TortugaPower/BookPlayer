@@ -76,6 +76,30 @@ struct SlickSlider: View {
             localValue = newValue
         }
     }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(String.localizedStringWithFormat("progress_complete_description".localized, Int(value * 100)))
+    .accessibilityAdjustableAction { direction in
+      isDragging = true
+      let step = (range.upperBound - range.lowerBound) * 0.05 // 5% jumps
+      var newTargetValue = localValue
+      
+      switch direction {
+      case .increment:
+        newTargetValue = min(localValue + step, range.upperBound)
+      case .decrement:
+        newTargetValue = max(localValue - step, range.lowerBound)
+      @unknown default:
+        break
+      }
+      
+      localValue = newTargetValue
+      value = newTargetValue
+      
+      onEditingChanged(false)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        isDragging = false
+      }
+    }
   }
   
   private func updateLocalValue(with gesture: DragGesture.Value, in geometry: GeometryProxy) {
