@@ -1,5 +1,5 @@
 //
-//  NewPlayerView.swift
+//  PlayerView.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 9/2/26.
@@ -9,15 +9,15 @@
 import SwiftUI
 import BookPlayerKit
 
-struct NewPlayerView: View {
+struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
   
-  @StateObject private var viewModel: NewPlayerViewModel
+  @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   @State private var dragOffset: CGSize = .zero
   
-  init(initModel: @escaping () -> NewPlayerViewModel) {
+  init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())
   }
   
@@ -37,7 +37,11 @@ struct NewPlayerView: View {
         )
       
       VStack {
-        ArtworkView(imagePath: viewModel.relativePath)
+        ArtworkView(
+          title: viewModel.title,
+          author: viewModel.author,
+          imagePath: viewModel.relativePath
+        )
         Spacer()
       }
       .frame(maxWidth: .infinity)
@@ -47,7 +51,9 @@ struct NewPlayerView: View {
           playerTitle: viewModel.progressData.chapterTitle,
           hasNextChapter: viewModel.hasNextChapter,
           hasPreviousChapter: viewModel.hasPreviousChapter
-        )
+        ) {
+          self.viewModel.processToggleProgressState()
+        }
         
         ListeningProgressView(
           progress: $data.sliderValue,
@@ -72,7 +78,11 @@ struct NewPlayerView: View {
         HStack {
           ForEach(MediaAction.allCases) { ma in
             BubbleButton(
-              iconName: ma == .speed ? nil : ma.iconName,
+              iconImage: ma == .speed
+                ? nil
+                : ma == .bookmark
+                  ? Image(.toolbarIconBookmark)
+                  : Image(systemName: ma.iconName),
               labelText: ma == .speed
                 ? "\(viewModel.formattedSpeed())"
                 : ma == .timer && viewModel.sleepText != nil
@@ -97,11 +107,12 @@ struct NewPlayerView: View {
             }
           }
         }
+        .frame(height: 48)
         .frame(maxWidth: .infinity)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    .padding(.horizontal, 24)
+    .padding(.horizontal, 8)
     .safeAreaPadding()
     .background(
       RoundedRectangle(cornerRadius: 24)
@@ -183,9 +194,3 @@ struct NewPlayerView: View {
     }
   }
 }
-
-/*
-#Preview {
-  NewPlayerView(viewModel: NewPl)
-}
-*/

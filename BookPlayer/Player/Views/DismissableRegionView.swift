@@ -17,7 +17,7 @@ struct DismissableRegionView: View {
         RoundedRectangle(cornerRadius: 3)
             .fill(Color.secondary.opacity(0.4))
             .frame(width: 60, height: 6)
-            .padding(.vertical, 16)
+            .padding(.bottom, 16)
         Spacer()
     }
     .contentShape(Rectangle())

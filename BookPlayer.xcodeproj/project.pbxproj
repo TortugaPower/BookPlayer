@@ -659,10 +659,10 @@
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
 		99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */; };
 		99329DC12F3AAB57003F8E73 /* DismissableRegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */; };
-		99329DC32F3AABC7003F8E73 /* NewPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC22F3AABC7003F8E73 /* NewPlayerView.swift */; };
+		99329DC32F3AABC7003F8E73 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC22F3AABC7003F8E73 /* PlayerView.swift */; };
 		99329DC52F3AE9C4003F8E73 /* PlayerJumpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */; };
 		99329DC72F3AF3B6003F8E73 /* BubbleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC62F3AF3B6003F8E73 /* BubbleButton.swift */; };
-		99329DCA2F3BF476003F8E73 /* NewPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC92F3BF476003F8E73 /* NewPlayerViewModel.swift */; };
+		99329DCA2F3BF476003F8E73 /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC92F3BF476003F8E73 /* PlayerViewModel.swift */; };
 		99329DCD2F3BFD33003F8E73 /* ProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DCC2F3BFD33003F8E73 /* ProgressData.swift */; };
 		99329DD02F3C282D003F8E73 /* AirplayPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DCF2F3C282D003F8E73 /* AirplayPicker.swift */; };
 		99329DD32F3D7493003F8E73 /* BPAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */; };
@@ -1574,10 +1574,10 @@
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
 		99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkView.swift; sourceTree = "<group>"; };
 		99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableRegionView.swift; sourceTree = "<group>"; };
-		99329DC22F3AABC7003F8E73 /* NewPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlayerView.swift; sourceTree = "<group>"; };
+		99329DC22F3AABC7003F8E73 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpView.swift; sourceTree = "<group>"; };
 		99329DC62F3AF3B6003F8E73 /* BubbleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleButton.swift; sourceTree = "<group>"; };
-		99329DC92F3BF476003F8E73 /* NewPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlayerViewModel.swift; sourceTree = "<group>"; };
+		99329DC92F3BF476003F8E73 /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
 		99329DCC2F3BFD33003F8E73 /* ProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressData.swift; sourceTree = "<group>"; };
 		99329DCF2F3C282D003F8E73 /* AirplayPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirplayPicker.swift; sourceTree = "<group>"; };
 		99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAlertModifier.swift; sourceTree = "<group>"; };
@@ -3051,7 +3051,7 @@
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
 				99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */,
 				99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */,
-				99329DC22F3AABC7003F8E73 /* NewPlayerView.swift */,
+				99329DC22F3AABC7003F8E73 /* PlayerView.swift */,
 				99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */,
 				99329DC62F3AF3B6003F8E73 /* BubbleButton.swift */,
 				99329DCF2F3C282D003F8E73 /* AirplayPicker.swift */,
@@ -3067,7 +3067,7 @@
 		99329DC82F3BF464003F8E73 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				99329DC92F3BF476003F8E73 /* NewPlayerViewModel.swift */,
+				99329DC92F3BF476003F8E73 /* PlayerViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -4354,7 +4354,7 @@
 				63C48D3E2E3E7F9E005FBB96 /* LoginViewModel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				637043502E2C0491005353D1 /* SettingsCreditsSectionView.swift in Sources */,
-				99329DCA2F3BF476003F8E73 /* NewPlayerViewModel.swift in Sources */,
+				99329DCA2F3BF476003F8E73 /* PlayerViewModel.swift in Sources */,
 				63C48D422E3E8189005FBB96 /* AccountDeleteSectionView.swift in Sources */,
 				631C75C72AB92BE20013E7E5 /* BPCoordinatorPresentationFlow.swift in Sources */,
 				6319089D2E33C63A009249C1 /* SettingsTipOptionsView.swift in Sources */,
@@ -4377,7 +4377,7 @@
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
 				9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */,
 				41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */,
-				99329DC32F3AABC7003F8E73 /* NewPlayerView.swift in Sources */,
+				99329DC32F3AABC7003F8E73 /* PlayerView.swift in Sources */,
 				99329DC72F3AF3B6003F8E73 /* BubbleButton.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,

@@ -87,8 +87,6 @@ class MainCoordinator: NSObject {
     let vc = AppHostingViewController(
       rootView: MainView {
         self.showSecondOnboarding()
-      } showPlayer: {
-        self.showPlayer()
       } showImport: {
         self.showImport()
       }

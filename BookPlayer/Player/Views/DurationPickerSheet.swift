@@ -54,8 +54,8 @@ struct DurationPickerSheet: View {
   
   var body: some View {
     VStack(spacing: 20) {
-      Text("Custom sleep timer")
-        .font(.headline)
+      Text("sleeptimer_custom_alert_title".localized)
+        .bpFont(.headline)
         .padding(.top, 24)
       
       // Reusing the DurationPicker from the previous step
@@ -88,9 +88,3 @@ struct DurationPickerSheet: View {
     .presentationDragIndicator(.hidden)
   }
 }
-
-/*
- #Preview {
- DurationPickerSheet()
- }
- */

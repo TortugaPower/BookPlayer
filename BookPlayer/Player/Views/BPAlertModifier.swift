@@ -50,10 +50,3 @@ extension View {
     modifier(BPAlertModifier(alertContent: alertContent))
   }
 }
-
-
-/*
- #Preview {
-  BPAlertModifier()
- }
-*/

@@ -1,5 +1,5 @@
 //
-//  NewPlayerViewModel.swift
+//  PlayerViewModel.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 10/2/26.
@@ -35,11 +35,13 @@ class PlayerSheetData {
 }
 
 @MainActor
-final class NewPlayerViewModel: ObservableObject {
+final class PlayerViewModel: ObservableObject {
   var playerSheetData = PlayerSheetData()
-  @State var progressData = ProgressData()
+  @Published var progressData = ProgressData()
   @Published var isPlaying = false
   @Published var playbackSpeed: Float = 1.0
+  @Published var title = "voiceover_unknown_title".localized
+  @Published var author = "voiceover_unknown_title".localized
   @Published var relativePath: String?
   @Published var currentAlert: BPAlertContent?
   @Published var currentAlertOrigin: MediaAction?
@@ -111,7 +113,7 @@ final class NewPlayerViewModel: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
-    syncService: SyncService,
+    syncService: SyncService
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -180,9 +182,6 @@ final class NewPlayerViewModel: ObservableObject {
         guard let self else { return }
 
         if let timeFormatted = toolbarDescription {
-          let remainingTitle = String(
-            describing: String.localizedStringWithFormat("sleep_remaining_title".localized, timeFormatted)
-          )
           sleepText = timeFormatted
         } else {
           sleepText = nil
@@ -211,6 +210,9 @@ final class NewPlayerViewModel: ObservableObject {
       .receive(on: DispatchQueue.main)
       .sink { [weak self, item] chapter in
         let relativePath: String
+        
+        self?.title = item.title
+        self?.author = item.author
         
         if let chapter,
            ArtworkService.isCached(relativePath: chapter.relativePath)

@@ -20,23 +20,23 @@ struct PlayerJumpView: View {
         backgroundImage
           .renderingMode(.template)
           .resizable()
-          .scaledToFill()
+          .aspectRatio(contentMode: .fit)
           .foregroundColor(tintColor)
           .accessibilityHidden(true)
-          .frame(width: 46, height: 46)
+          .frame(width: 56, height: 56)
         
         Text(text)
-          .bpFont(.buttonTextSmall)
+          .bpFont(.title)
           .foregroundColor(tintColor)
           .multilineTextAlignment(.center)
           .lineLimit(1)
           .accessibilityHidden(true)
-          .padding(.top, 7)
+          .padding(.top, 4)
       }
     }
     .buttonStyle(.plain)
     .background(Color.clear)
-    .frame(width: 56, height: 56)
+    .frame(width: 54, height: 48)
   }
 }
 

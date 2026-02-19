@@ -11,7 +11,6 @@ import SwiftUI
 
 struct MainView: View {
   let showSecondOnboarding: () -> Void
-  let showPlayer: () -> Void
   let showImport: () -> Void
 
   @State private var listState = ListStateManager()
@@ -35,7 +34,7 @@ struct MainView: View {
       Tab("library_title", systemImage: "books.vertical") {
         LibraryRootView(
           showSecondOnboarding: showSecondOnboarding,
-          showPlayer: showNewPlayer,
+          showPlayer: showPlayer,
           showImport: showImport
         )
         .background {
@@ -75,7 +74,7 @@ struct MainView: View {
       if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
         let relativePath = playerState.loadedBookRelativePath
       {
-        MiniPlayerView(relativePath: relativePath, showPlayer: showNewPlayer)
+        MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
           .transition(.move(edge: .bottom).combined(with: .opacity))
           .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
       }
@@ -87,8 +86,8 @@ struct MainView: View {
       }
     }
     .fullScreenCover(isPresented: $isShowingPlayer) {
-      NewPlayerView {
-        NewPlayerViewModel(
+      PlayerView {
+        PlayerViewModel(
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
@@ -127,7 +126,7 @@ struct MainView: View {
     }
   }
   
-  func showNewPlayer() {
+  func showPlayer() {
     isShowingPlayer = true
   }
   
@@ -177,7 +176,6 @@ struct MainView: View {
 
 #Preview {
   MainView {
-  } showPlayer: {
   } showImport: {
   }
 }

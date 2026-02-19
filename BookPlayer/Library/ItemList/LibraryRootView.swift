@@ -93,7 +93,6 @@ struct LibraryRootView: View {
       }
       .onChange(of: scenePhase) {
         guard scenePhase == .active else { return }
-
         showImport()
       }
       .onChange(of: playerState.showPlayer) {

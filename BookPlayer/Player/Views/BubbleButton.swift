@@ -11,7 +11,7 @@ import SwiftUI
 struct BubbleButton: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
-  let iconName: String?
+  let iconImage: Image?
   var labelText: String?
   var action: (() -> Void)?
   
@@ -21,21 +21,23 @@ struct BubbleButton: View {
       action?()
     } label: {
       HStack {
-        if let icon = iconName {
-          Image(systemName: icon)
-            .bpFont(.titleRegular)
+        if let myImage = iconImage {
+          myImage
+            .resizable()
+            .scaledToFit()
             .foregroundColor(theme.primaryColor)
+            .frame(width: 24, height: 24)
         }
         
         if let text = labelText {
           Text(text)
-            .bpFont(.titleRegular)
+            .bpFont(.headline)
             .foregroundColor(theme.primaryColor)
         }
       }
         .padding(12)
-        .frame(minWidth: 42)        // 2. Sets your "preferred" minimum width
-        .frame(height: 42)
+        .frame(minWidth: 48)        // 2. Sets your "preferred" minimum width
+        .frame(height: 48)
         .liquidGlassBackground()
         .clipShape(Capsule())
     }
@@ -43,5 +45,5 @@ struct BubbleButton: View {
 }
 
 #Preview {
-  BubbleButton(iconName: "user")
+  BubbleButton(iconImage: Image(systemName: MediaAction.timer.iconName))
 }

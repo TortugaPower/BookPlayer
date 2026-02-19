@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct ListeningProgressView: View {
   @StateObject private var theme = ThemeViewModel()
@@ -21,7 +22,7 @@ struct ListeningProgressView: View {
   var onRemainingToggle: (() -> Void)?
   
   var body: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: 8) {
       SlickSlider(
         value: $progress,
         range: 0...1,
@@ -36,24 +37,27 @@ struct ListeningProgressView: View {
       
       HStack {
         Text(currentTime)
-          .frame(width: 60, alignment: .leading)
+          .bpFont(.miniPlayerTitle)
+          .frame(width: 70, alignment: .leading)
           .accessibilityLabel(currentTimeAccessLabel)
         Spacer()
         Button {
           onProgresToggle?()
         } label: {
           Text(progressLabel)
+            .bpFont(.miniPlayerTitle)
         }
         Spacer()
         Button {
           onRemainingToggle?()
         } label: {
           Text(remainingTime)
-            .frame(width: 60, alignment: .trailing)
+            .bpFont(.miniPlayerTitle)
+            .frame(width: 70, alignment: .trailing)
         }
         .accessibilityLabel(remainingTimeAccessLabel)
       }
-      .font(.caption)
+      .bpFont(.caption)
       .foregroundColor(.secondary)
     }
   }

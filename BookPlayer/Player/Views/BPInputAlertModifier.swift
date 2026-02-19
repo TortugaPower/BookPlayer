@@ -6,6 +6,7 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 import SwiftUI
+import BookPlayerKit
 
 struct BPInputAlertContent: View {
   let title: String
@@ -21,10 +22,10 @@ struct BPInputAlertContent: View {
       // Title + field
       VStack(spacing: 12) {
         Text(title)
-          .font(.headline)
+          .bpFont(.headline)
           .multilineTextAlignment(.center)
         
-        TextField("Enter text", text: $text)
+        TextField("bookmark_note_action_title".localized, text: $text)
           .textFieldStyle(.roundedBorder)
           .focused($focused)
       }
@@ -35,7 +36,7 @@ struct BPInputAlertContent: View {
       // Buttons row
       HStack(spacing: 0) {
         
-        Button("Cancel") {
+        Button("cancel_button".localized) {
           onCancel()
         }
         .frame(maxWidth: .infinity)
@@ -43,7 +44,7 @@ struct BPInputAlertContent: View {
         
         Divider()
         
-        Button("OK") {
+        Button("ok_button".localized) {
           onOK(text)
         }
         .frame(maxWidth: .infinity)

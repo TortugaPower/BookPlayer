@@ -15,6 +15,7 @@ struct NavigationRowView: View {
   var playerTitle: String
   var hasNextChapter: Bool = false
   var hasPreviousChapter: Bool = false
+  var onTitleToggle: (() -> Void)?
   
   var body: some View {
     HStack(spacing: 4) {
@@ -30,18 +31,24 @@ struct NavigationRowView: View {
           }
           NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
         } label: {
-          Image(systemName: hasPreviousChapter ? "chevron.left" : "chevron.left.2").tint(theme.primaryColor)
+          Image(systemName: hasPreviousChapter ? "chevron.left" : "chevron.left.2")
+            .bpFont(.playerTitle)
+            .tint(theme.primaryColor)
         }
           .accessibilityLabel("chapters_previous_title".localized)
       }
       
       Spacer()
       
-      Text(playerTitle)
-        .bpFont(.headline)
-        .foregroundColor(theme.primaryColor)
-        .multilineTextAlignment(.center)
-        .frame(height: 56)
+      Button {
+        onTitleToggle?()
+      } label: {
+        Text(playerTitle)
+          .bpFont(.playerTitle)
+          .foregroundColor(theme.primaryColor)
+          .multilineTextAlignment(.center)
+          .frame(height: 56)
+      }
       
       Spacer()
       
@@ -53,13 +60,14 @@ struct NavigationRowView: View {
             let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
           {
             self.playerManager.jumpToChapter(nextChapter)
-            NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
           } else {
             self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
           }
           NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
         } label: {
-          Image(systemName: hasNextChapter ? "chevron.right" : "chevron.right.2").tint(theme.primaryColor)
+          Image(systemName: hasNextChapter ? "chevron.right" : "chevron.right.2")
+            .bpFont(.playerTitle)
+            .tint(theme.primaryColor)
         }
           .accessibilityLabel("chapters_next_title".localized)
       }

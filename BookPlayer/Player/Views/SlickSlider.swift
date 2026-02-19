@@ -43,7 +43,7 @@ struct SlickSlider: View {
           .fill(accentColor)
           .frame(width: thumbSize, height: thumbSize)
           .shadow(color: accentColor.opacity(0.6), radius: 6)
-          .offset(x: CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - 9)
+          .offset(x: CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - (thumbSize / 2))
           .gesture(
             DragGesture(minimumDistance: 0)
               .onChanged { gesture in
