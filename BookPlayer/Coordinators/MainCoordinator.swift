@@ -193,17 +193,17 @@ class MainCoordinator: NSObject {
   }
 
   func showPlayer() {
-    let playerCoordinator = PlayerCoordinator(
-      flow: .modalOnlyFlow(presentingController: mainController!, modalPresentationStyle: .overFullScreen),
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      syncService: self.syncService
-    )
-    playerCoordinator.start()
+    if let hostingController = mainController as? UIHostingController<MainView> {
+      hostingController.rootView.showPlayer()
+    }
   }
-
+  
   func hasPlayerShown() -> Bool {
-    return mainController?.presentedViewController is PlayerViewController
+    if let hostingController = mainController as? UIHostingController<MainView> {
+      return hostingController.rootView.hasPlayerShown()
+    }
+    
+    return false
   }
 
   func processFiles(urls: [URL]) {

@@ -130,6 +130,10 @@ struct MainView: View {
   func showNewPlayer() {
     isShowingPlayer = true
   }
+  
+  func hasPlayerShown() -> Bool {
+    return isShowingPlayer
+  }
 
   func handleDrop(_ providers: [NSItemProvider]) {
     for provider in providers {

@@ -356,8 +356,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       return
     }
 
-    if let mainCoordinator = activeSceneDelegate?.mainCoordinator,
-      !mainCoordinator.hasPlayerShown()
+    if let mainCoordinator = activeSceneDelegate?.mainCoordinator
     {
       mainCoordinator.showPlayer()
     }

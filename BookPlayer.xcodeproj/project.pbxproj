@@ -42,7 +42,6 @@
 		41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */; };
 		410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */; };
 		410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */; };
-		410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00FD26DDD2A900D11A45 /* ProgressObject.swift */; };
 		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */; };
 		4111FBE025EDEFBE0096954F /* forest-green-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */; };
@@ -111,7 +110,6 @@
 		4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */; };
 		4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DF26E4A17900E49DBE /* Coordinator.swift */; };
 		4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158387826EB8D8800F4A12B /* LoadingViewController.swift */; };
-		4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */; };
 		4158388B26EC2CC500F4A12B /* ImportCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */; };
 		415F0E6F244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415F0E6E244AAC5A00DD1D8B /* PlayMediaIntentHandler.swift */; };
 		4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 4160A09423F2DE130039166B /* Localizable.stringsdict */; };
@@ -148,7 +146,6 @@
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4197FAFB267E480100811CC8 /* ImportViewController.swift */; };
-		419B373923B8D0C600128A8F /* Player.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 419B373B23B8D0C600128A8F /* Player.storyboard */; };
 		419B375623B8D5A500128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
 		419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -255,10 +252,6 @@
 		41E56300223953EB00C06BC9 /* default-icon-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E562FF223953EB00C06BC9 /* default-icon-ipad@2x.png */; };
 		41E56302223956B800C06BC9 /* retro-icon-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E56301223956B800C06BC9 /* retro-icon-ipad@3x.png */; };
 		41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E563032239570100C06BC9 /* retro-icon-ipad@2x.png */; };
-		41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */; };
-		41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */; };
-		41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E79BEC26C61D2B00EA9FFF /* PlayPauseIconView.swift */; };
-		41E79BF526C6255C00EA9FFF /* PlayPauseIconView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41E79BF426C6255C00EA9FFF /* PlayPauseIconView.xib */; };
 		41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EB07142752F17B00EFEE13 /* PlayableItem.swift */; };
 		41EB07162752F17B00EFEE13 /* PlayableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EB07142752F17B00EFEE13 /* PlayableItem.swift */; };
 		41EB07182752F1BA00EFEE13 /* PlayableChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EB07172752F1BA00EFEE13 /* PlayableChapter.swift */; };
@@ -820,11 +813,7 @@
 		9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */; };
 		9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
 		9FFCC090289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
-		C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */ = {isa = PBXBuildFile; fileRef = C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */; };
-		C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */; };
 		C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */; };
-		C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C375AF1620DD81F800AC034D /* ProgressSlider.swift */; };
-		C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C375AF1820DD99E000AC034D /* ArtworkControl.swift */; };
 		C37A6873209F0F830063AEAC /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = C37A6872209F0F830063AEAC /* Credits.html */; };
 		C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39401E820DEE83100F3DC71 /* UIView+BookPlayer.swift */; };
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
@@ -1016,7 +1005,6 @@
 		41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedMediumView.swift; sourceTree = "<group>"; };
 		410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Combine+BookPlayer.swift"; sourceTree = "<group>"; };
 		410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersViewModel.swift; sourceTree = "<group>"; };
-		410D00FD26DDD2A900D11A45 /* ProgressObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressObject.swift; sourceTree = "<group>"; };
 		410D0FF01EDF659900A52EB9 /* PlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerManager.swift; sourceTree = "<group>"; };
 		4111FBB025EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = hu; path = hu.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4111FBB125EDD81C0096954F /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1073,7 +1061,6 @@
 		41546FF026F54F0600825180 /* PlaybackState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackState.swift; sourceTree = "<group>"; };
 		41546FF226F559CE00825180 /* SimpleItemType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleItemType.swift; sourceTree = "<group>"; };
 		4158387826EB8D8800F4A12B /* LoadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewController.swift; sourceTree = "<group>"; };
-		4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCoordinator.swift; sourceTree = "<group>"; };
 		4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportCoordinator.swift; sourceTree = "<group>"; };
 		415A9975264CCD3F002BFD35 /* Debug.template.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.template.xcconfig; path = BuildConfiguration/Debug.template.xcconfig; sourceTree = SOURCE_ROOT; };
 		415A9976264CCD3F002BFD35 /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = BuildConfiguration/Debug.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -1141,7 +1128,6 @@
 		4193E204243A98AB004D6A82 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419723FF21874D5F00AB1190 /* UserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActivityManager.swift; sourceTree = "<group>"; };
 		4197FAFB267E480100811CC8 /* ImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewController.swift; sourceTree = "<group>"; };
-		419B373A23B8D0C600128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Player.storyboard; sourceTree = "<group>"; };
 		419B375523B8D5A500128A8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419B375723B8D5B000128A8F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		419B377423B92CC100128A8F /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1228,10 +1214,6 @@
 		41E69F4B25A7CC1100C26920 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		41E73EFA241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = da; path = da.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		41E73EFB241D2EFC00D2C1D7 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
-		41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
-		41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
-		41E79BEC26C61D2B00EA9FFF /* PlayPauseIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayPauseIconView.swift; sourceTree = "<group>"; };
-		41E79BF426C6255C00EA9FFF /* PlayPauseIconView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlayPauseIconView.xib; sourceTree = "<group>"; };
 		41EB07142752F17B00EFEE13 /* PlayableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItem.swift; sourceTree = "<group>"; };
 		41EB07172752F1BA00EFEE13 /* PlayableChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableChapter.swift; sourceTree = "<group>"; };
 		41EB071A2752FA6B00EFEE13 /* PlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackService.swift; sourceTree = "<group>"; };
@@ -1724,17 +1706,13 @@
 		9FFCC08E289418CA00F4952E /* SimpleChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleChapter.swift; sourceTree = "<group>"; };
 		C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyCreatingView.swift; sourceTree = "<group>"; };
 		C30B085E209654E3003F325B /* UIColor+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+BookPlayer.swift"; sourceTree = "<group>"; };
-		C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArtworkControl.xib; sourceTree = "<group>"; };
 		C30CD2A0209791FA00258B09 /* UIColor+Sweetercolor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Sweetercolor.swift"; sourceTree = "<group>"; };
 		C30CD2A22097C49F00258B09 /* ColorCube.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ColorCube.framework; path = Carthage/Build/iOS/ColorCube.framework; sourceTree = "<group>"; };
-		C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpIcon.swift; sourceTree = "<group>"; };
 		C318DDBB20A48D4700C3A17B /* BPMarqueeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMarqueeLabel.swift; sourceTree = "<group>"; };
 		C318DDBE20A4DC7500C3A17B /* DeviceKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceKit.framework; path = Carthage/Build/iOS/DeviceKit.framework; sourceTree = "<group>"; };
 		C35BADE7206989E6007687C1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C35BADE8206989E6007687C1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C35BADE9206989E6007687C1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
-		C375AF1620DD81F800AC034D /* ProgressSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressSlider.swift; sourceTree = "<group>"; };
-		C375AF1820DD99E000AC034D /* ArtworkControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkControl.swift; sourceTree = "<group>"; };
 		C37A6872209F0F830063AEAC /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		C39401E820DEE83100F3DC71 /* UIView+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+BookPlayer.swift"; sourceTree = "<group>"; };
 		C3A479122094C8C300D92122 /* rubberBandDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rubberBandDistance.swift; sourceTree = "<group>"; };
@@ -1918,17 +1896,6 @@
 			path = TimeListened;
 			sourceTree = "<group>";
 		};
-		410D00FB26DDD24300D11A45 /* Player Screen */ = {
-			isa = PBXGroup;
-			children = (
-				41E79BE826C60BF600EA9FFF /* PlayerViewController.swift */,
-				41E79BEA26C60DC600EA9FFF /* PlayerViewModel.swift */,
-				410D00FD26DDD2A900D11A45 /* ProgressObject.swift */,
-				C3D3852820C1EA7A00A0ACC7 /* Views */,
-			);
-			path = "Player Screen";
-			sourceTree = "<group>";
-		};
 		410D00FC26DDD26000D11A45 /* Chapters */ = {
 			isa = PBXGroup;
 			children = (
@@ -2053,7 +2020,6 @@
 				4151A6DF26E4A17900E49DBE /* Coordinator.swift */,
 				4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */,
 				41188D2326ED2BA30017124E /* LoadingCoordinator.swift */,
-				4158388426EBEE9800F4A12B /* PlayerCoordinator.swift */,
 				4158388A26EC2CC500F4A12B /* ImportCoordinator.swift */,
 			);
 			path = Coordinators;
@@ -2139,7 +2105,6 @@
 				8AE4AAC32CCB9E3A00BAA927 /* Jellyfin */,
 				638487A12EC7722400DF442B /* AudiobookShelf */,
 				C35E04F1207E8D0F007D3370 /* Library */,
-				99329DB12F3A9B8F003F8E73 /* New Player */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
 				C35E04F2207E8D4C007D3370 /* Settings */,
 				9FBDDB9A27DD1346005FB447 /* Profile */,
@@ -3074,19 +3039,13 @@
 			path = "Connection Screen";
 			sourceTree = "<group>";
 		};
-		99329DB12F3A9B8F003F8E73 /* New Player */ = {
-			isa = PBXGroup;
-			children = (
-				99329DCE2F3BFD5F003F8E73 /* Models */,
-				99329DC82F3BF464003F8E73 /* ViewModels */,
-				99329DB22F3A9B9C003F8E73 /* Views */,
-			);
-			path = "New Player";
-			sourceTree = "<group>";
-		};
 		99329DB22F3A9B9C003F8E73 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				410D00FC26DDD26000D11A45 /* Chapters */,
+				4138CE1A26E5B4020014F11E /* Bookmarks */,
+				9F64C6222793C37C00B2493C /* Controls */,
+				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
 				99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */,
 				99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */,
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
@@ -3454,19 +3413,6 @@
 			path = CoreData;
 			sourceTree = "<group>";
 		};
-		C3D3852820C1EA7A00A0ACC7 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				C318D3AC208CF624000666F8 /* PlayerJumpIcon.swift */,
-				41E79BEC26C61D2B00EA9FFF /* PlayPauseIconView.swift */,
-				41E79BF426C6255C00EA9FFF /* PlayPauseIconView.xib */,
-				C375AF1620DD81F800AC034D /* ProgressSlider.swift */,
-				C375AF1820DD99E000AC034D /* ArtworkControl.swift */,
-				C30B66AD20E2D8CF00FC0030 /* ArtworkControl.xib */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
 		C3D3852D20C1F0CA00A0ACC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -3504,11 +3450,9 @@
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
-				410D00FB26DDD24300D11A45 /* Player Screen */,
-				410D00FC26DDD26000D11A45 /* Chapters */,
-				4138CE1A26E5B4020014F11E /* Bookmarks */,
-				9F64C6222793C37C00B2493C /* Controls */,
-				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
+				99329DCE2F3BFD5F003F8E73 /* Models */,
+				99329DC82F3BF464003F8E73 /* ViewModels */,
+				99329DB22F3A9B9C003F8E73 /* Views */,
 				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
 				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
 				63E893912CAFA89000946CD4 /* BPPlayerError.swift */,
@@ -3517,7 +3461,6 @@
 				9F5011F82A6580800075FEBA /* ShakeMotionService.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
-				419B373B23B8D0C600128A8F /* Player.storyboard */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -3951,7 +3894,6 @@
 				4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */,
 				41E563042239570100C06BC9 /* retro-icon-ipad@2x.png in Resources */,
 				41AD3D9C221C737F00DC41E1 /* retro-icon@3x.png in Resources */,
-				419B373923B8D0C600128A8F /* Player.storyboard in Resources */,
 				41E562CE22394F5200C06BC9 /* ayu-light@2x.png in Resources */,
 				4149539A21F0D456003C5D27 /* Themes.json in Resources */,
 				C37A6873209F0F830063AEAC /* Credits.html in Resources */,
@@ -3979,13 +3921,11 @@
 				634E16252E6EA00E00ED9589 /* music-ipad-26@3x.png in Resources */,
 				634E16282E6EA0FC00ED9589 /* fruit-based-26@2x.png in Resources */,
 				634E16292E6EA0FC00ED9589 /* fruit-based-26@3x.png in Resources */,
-				41E79BF526C6255C00EA9FFF /* PlayPauseIconView.xib in Resources */,
 				63F1C7892BB91260006B164C /* PrivacyInfo.xcprivacy in Resources */,
 				41E562ED2239531E00C06BC9 /* neon-ipad@3x.png in Resources */,
 				41E562E222394FB900C06BC9 /* songs@3x.png in Resources */,
 				634E16302E6EA73E00ED9589 /* Platinum@2x.png in Resources */,
 				634E16312E6EA73E00ED9589 /* Platinum@3x.png in Resources */,
-				C30B66AE20E2D8CF00FC0030 /* ArtworkControl.xib in Resources */,
 				41E562DE22394FA800C06BC9 /* retro-modern@2x.png in Resources */,
 				9F665ED92A4894FC004BFE27 /* heart-of-glass@2x.png in Resources */,
 				41E562DF22394FA800C06BC9 /* retro-modern@3x.png in Resources */,
@@ -4384,7 +4324,6 @@
 				41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */,
 				634FF79F2DF6932E005D1C0D /* JellyfinSettingsView.swift in Sources */,
 				C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */,
-				41E79BE926C60BF600EA9FFF /* PlayerViewController.swift in Sources */,
 				636E777F2DF33BF100D4DC0A /* JellyfinDisconnectedView.swift in Sources */,
 				63717EAA2B792E350006291E /* RefreshTaskOperation.swift in Sources */,
 				637043442E2C0000005353D1 /* SettingsShortcutsSectionView.swift in Sources */,
@@ -4402,7 +4341,6 @@
 				99329DD02F3C282D003F8E73 /* AirplayPicker.swift in Sources */,
 				6338C7932E4AA4BA008016E5 /* LibraryNode.swift in Sources */,
 				C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */,
-				4158388526EBEE9800F4A12B /* PlayerCoordinator.swift in Sources */,
 				99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */,
 				638487BE2EC7765000DF442B /* AudiobookShelfLibraryGridView.swift in Sources */,
 				638487BF2EC7765000DF442B /* AudiobookShelfLibraryGridItemView.swift in Sources */,
@@ -4424,7 +4362,6 @@
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				99329DCD2F3BFD33003F8E73 /* ProgressData.swift in Sources */,
 				63C48C7C2E3DAD6E005FBB96 /* LoginBenefitSectionView.swift in Sources */,
-				C375AF1920DD99E000AC034D /* ArtworkControl.swift in Sources */,
 				636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */,
 				63D561392E5A8C9900615522 /* ItemProgressView.swift in Sources */,
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
@@ -4435,7 +4372,6 @@
 				6319089B2E335196009249C1 /* ContributorsListView.swift in Sources */,
 				63AD93DF2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift in Sources */,
 				6356F9C12AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift in Sources */,
-				410D00FE26DDD2A900D11A45 /* ProgressObject.swift in Sources */,
 				C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */,
 				63E1FF8D2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift in Sources */,
 				418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */,
@@ -4463,7 +4399,6 @@
 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
-				C318D3AD208CF624000666F8 /* PlayerJumpIcon.swift in Sources */,
 				631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */,
 				D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */,
 				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
@@ -4520,7 +4455,6 @@
 				3F7B64492E0FB2C100299D97 /* InsertUserBookData.swift in Sources */,
 				636E77802DF33DA200D4DC0A /* BP+ErrorAlerts.swift in Sources */,
 				63C48D442E3E9338005FBB96 /* AccountLogoutSectionView.swift in Sources */,
-				C375AF1720DD81F800AC034D /* ProgressSlider.swift in Sources */,
 				636E77862DF34F1900D4DC0A /* JellyfinConnectedView.swift in Sources */,
 				6338C7872E48DA5F008016E5 /* LibraryRootView.swift in Sources */,
 				63FCAB1D2E3BBEA0005EB9DE /* TagsFlowLayout.swift in Sources */,
@@ -4543,7 +4477,6 @@
 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
 				631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */,
 				634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */,
-				41E79BED26C61D2B00EA9FFF /* PlayPauseIconView.swift in Sources */,
 				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */,
@@ -4631,7 +4564,6 @@
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
-				41E79BEB26C60DC600EA9FFF /* PlayerViewModel.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
@@ -4959,14 +4891,6 @@
 				418B6D071D2707F800F974FB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		419B373B23B8D0C600128A8F /* Player.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				419B373A23B8D0C600128A8F /* Base */,
-			);
-			name = Player.storyboard;
 			sourceTree = "<group>";
 		};
 		419B375423B8D5A500128A8F /* Localizable.strings */ = {
