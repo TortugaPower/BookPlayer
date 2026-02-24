@@ -83,6 +83,7 @@ struct PlayerView: View {
                 : ma == .bookmark
                   ? Image(.toolbarIconBookmark)
                   : Image(systemName: ma.iconName),
+              imageOffset: ma.iconOffset,
               labelText: ma == .speed
                 ? "\(viewModel.formattedSpeed())"
                 : ma == .timer && viewModel.sleepText != nil
@@ -128,7 +129,7 @@ struct PlayerView: View {
       dismiss()
     }
     .environmentObject(theme)
-    .onChange(of: scheme) {
+    .onChange(of: scheme) { 
       ThemeManager.shared.checkSystemMode()
     }
     .bpAlert($viewModel.currentAlert)

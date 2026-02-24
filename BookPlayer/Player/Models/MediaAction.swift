@@ -25,6 +25,13 @@ enum MediaAction: CaseIterable, Identifiable {
     }
   }
   
+  var iconOffset: CGPoint? {
+    switch self {
+    case .bookmark: return .init(x: 2, y: -1)
+    default: return nil
+    }
+  }
+  
   var accessibilityLabel: String {
     switch self {
     case .speed: 

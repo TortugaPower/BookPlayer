@@ -36,7 +36,7 @@ class PlayerSheetData {
 
 @MainActor
 final class PlayerViewModel: ObservableObject {
-  var playerSheetData = PlayerSheetData()
+  @Published var playerSheetData = PlayerSheetData()
   @Published var progressData = ProgressData()
   @Published var isPlaying = false
   @Published var playbackSpeed: Float = 1.0

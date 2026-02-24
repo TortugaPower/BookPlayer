@@ -26,6 +26,9 @@ struct SlickSlider: View {
   var body: some View {
     GeometryReader { geometry in
       let displayValue = isDragging ? localValue : value
+      let horizontalBaseRatio = range.upperBound != range.lowerBound
+        ? CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound))
+        : 0.0
       
       ZStack(alignment: .leading) {
         // Background Track
@@ -36,14 +39,14 @@ struct SlickSlider: View {
         // Active Track
         Capsule()
           .fill(accentColor)
-          .frame(width: max(0, CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width), height: 4)
+          .frame(width: max(0, horizontalBaseRatio * geometry.size.width), height: 4)
         
         // Thumb
         Circle()
           .fill(accentColor)
           .frame(width: thumbSize, height: thumbSize)
           .shadow(color: accentColor.opacity(0.6), radius: 6)
-          .offset(x: CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - (thumbSize / 2))
+          .offset(x: horizontalBaseRatio * geometry.size.width - (thumbSize / 2))
           .gesture(
             DragGesture(minimumDistance: 0)
               .onChanged { gesture in
@@ -77,9 +80,11 @@ struct SlickSlider: View {
         }
     }
     .accessibilityElement(children: .combine)
-    .accessibilityLabel(String.localizedStringWithFormat("progress_complete_description".localized, Int(value * 100)))
+    .accessibilityValue(getAccessibilityLabel(localValue))
     .accessibilityAdjustableAction { direction in
       isDragging = true
+      onEditingChanged(true)
+      
       let step = (range.upperBound - range.lowerBound) * 0.05 // 5% jumps
       var newTargetValue = localValue
       
@@ -106,6 +111,11 @@ struct SlickSlider: View {
       let percent = Double(gesture.location.x / geometry.size.width)
       let newValue = percent * (range.upperBound - range.lowerBound) + range.lowerBound
       self.localValue = min(max(range.lowerBound, newValue), range.upperBound)
+  }
+  
+  private func getAccessibilityLabel(_ myValue: Double? = nil) -> String {
+    let percentageValue = Int(((myValue ?? value) * 100 / (range.upperBound == 0 ? 1 : range.upperBound)).rounded(.up))
+    return String.localizedStringWithFormat("progress_complete_description".localized, percentageValue)
   }
 }
 

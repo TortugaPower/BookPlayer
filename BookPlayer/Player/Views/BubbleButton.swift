@@ -12,6 +12,7 @@ struct BubbleButton: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   let iconImage: Image?
+  var imageOffset: CGPoint?
   var labelText: String?
   var action: (() -> Void)?
   
@@ -27,6 +28,7 @@ struct BubbleButton: View {
             .scaledToFit()
             .foregroundColor(theme.primaryColor)
             .frame(width: 24, height: 24)
+            .offset(x: imageOffset?.x ?? 0, y: imageOffset?.y ?? 0)
         }
         
         if let text = labelText {

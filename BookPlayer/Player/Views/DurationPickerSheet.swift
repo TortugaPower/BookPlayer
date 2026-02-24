@@ -6,6 +6,7 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import UIKit
 import SwiftUI
 
 struct DurationPicker: UIViewRepresentable {
@@ -67,7 +68,7 @@ struct DurationPickerSheet: View {
           onConfirm(selectedDuration)
           dismiss()
         } label: {
-          Text("OK")
+          Text("ok_button".localized)
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity)
             .padding()
@@ -76,7 +77,7 @@ struct DurationPickerSheet: View {
             .cornerRadius(12)
         }
         
-        Button("Cancel") {
+        Button("cancel_button".localized) {
           dismiss()
         }
         .foregroundColor(theme.primaryColor)

@@ -10,7 +10,7 @@ import SwiftUI
 import BookPlayerKit
 
 struct ListeningProgressView: View {
-  @StateObject private var theme = ThemeViewModel()
+  @EnvironmentObject private var theme: ThemeViewModel
   @Binding var progress: Double
   var remainingTime: String
   var remainingTimeAccessLabel: String = ""
@@ -37,8 +37,8 @@ struct ListeningProgressView: View {
       
       HStack {
         Text(currentTime)
-          .bpFont(.miniPlayerTitle)
-          .frame(width: 70, alignment: .leading)
+          .bpFont(.miniPlayerTitle).monospacedDigit()
+          .frame(width: 120, alignment: .leading)
           .accessibilityLabel(currentTimeAccessLabel)
         Spacer()
         Button {
@@ -52,8 +52,8 @@ struct ListeningProgressView: View {
           onRemainingToggle?()
         } label: {
           Text(remainingTime)
-            .bpFont(.miniPlayerTitle)
-            .frame(width: 70, alignment: .trailing)
+            .bpFont(.miniPlayerTitle).monospacedDigit()
+            .frame(width: 120, alignment: .trailing)
         }
         .accessibilityLabel(remainingTimeAccessLabel)
       }

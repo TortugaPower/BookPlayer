@@ -38,12 +38,25 @@ struct ArtworkView: View {
           .aspectRatio(contentMode: .fit)
           .cornerRadius(12)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .accessibilityLabel(VoiceOverService.playerMetaText(
+            title: title,
+            author: author
+          ))
+          .accessibilityAddTraits(.isStaticText)
+          .accessibilityRemoveTraits(.isImage)
       } else {
         theme.defaultArtwork?
           .resizable()
           .aspectRatio(contentMode: .fit)
           .cornerRadius(12)
+          .accessibilityHidden(true)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .accessibilityLabel(VoiceOverService.playerMetaText(
+            title: title,
+            author: author
+          ))
+          .accessibilityAddTraits(.isStaticText)
+          .accessibilityRemoveTraits(.isImage)
       }
       
       if !imageLoaded {
@@ -59,6 +72,7 @@ struct ArtworkView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .accessibilityHidden(true)
       }
       
       HStack(spacing: 12) {
@@ -74,6 +88,7 @@ struct ArtworkView: View {
       .frame(maxWidth: .infinity)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    
   }
   
   func floatingIcon(_ name: String) -> some View {
@@ -86,5 +101,5 @@ struct ArtworkView: View {
 }
 
 #Preview {
-  ArtworkView(title: "Uknown Book", author: "Unknown Artist")
+  ArtworkView(title: "Unknown Book", author: "Unknown Artist")
 }

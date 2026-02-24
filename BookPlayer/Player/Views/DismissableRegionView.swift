@@ -12,23 +12,23 @@ struct DismissableRegionView: View {
   @Environment(\.dismiss) var dismiss
 
   var body: some View {
-    HStack {
-        Spacer()
-        RoundedRectangle(cornerRadius: 3)
-            .fill(Color.secondary.opacity(0.4))
-            .frame(width: 60, height: 6)
-            .padding(.bottom, 16)
-        Spacer()
+    Button {
+      UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+      dismiss()
+    } label: {
+      HStack {
+          Spacer()
+          RoundedRectangle(cornerRadius: 3)
+              .fill(Color.secondary.opacity(0.4))
+              .frame(width: 60, height: 6)
+              .padding(.bottom, 16)
+          Spacer()
+      }
     }
     .contentShape(Rectangle())
     .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("voiceover_dismiss_player_title".localized)
-    .accessibilityAddTraits(.isButton)    
-    .accessibilityAction {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        dismiss()
-    }
   }
 }
 
