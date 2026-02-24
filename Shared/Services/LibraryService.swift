@@ -1002,9 +1002,17 @@ extension LibraryService {
   ) throws {
     // Delete file item if it exists
     let fileURL = item.fileURL
-    if FileManager.default.fileExists(atPath: fileURL.path) {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let resolvedFileURL = fileURL.standardized
+    let resolvedProcessedURL = processedFolderURL.standardized
+
+    if !item.relativePath.isEmpty,
+       resolvedFileURL.path.hasPrefix(resolvedProcessedURL.path + "/"),
+       FileManager.default.fileExists(atPath: fileURL.path)
+    {
       try FileManager.default.removeItem(at: fileURL)
     }
+
     if let bookReference = getItemReference(
       with: item.relativePath,
       context: context
