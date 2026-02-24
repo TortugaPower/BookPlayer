@@ -43,6 +43,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var title = "voiceover_unknown_title".localized
   @Published var author = "voiceover_unknown_title".localized
   @Published var relativePath: String?
+  @Published var artworkUrl: URL?
   @Published var currentAlert: BPAlertContent?
   @Published var currentAlertOrigin: MediaAction?
   @Published var sleepText: String?
@@ -310,7 +311,7 @@ final class PlayerViewModel: ObservableObject {
     return self.playerManager.hasLoadedBook()
   }
   
-  func handleSleepTimerTap(media: MediaAction) {
+  func handleButtonTap(media: MediaAction) {
     switch media {
       case .bookmark:
         createBookmark()
@@ -519,8 +520,6 @@ final class PlayerViewModel: ObservableObject {
         note: nil
       )
       self.showBookmarkSuccessAlert(bookmark: bookmark, existed: false)
-    } else {
-      //vc.showAlert("error_title".localized, message: "file_missing_title".localized)
     }
   }
   
@@ -551,6 +550,16 @@ final class PlayerViewModel: ObservableObject {
         title: "bookmarks_see_title".localized,
         handler: {
           self.playerSheetData.displaySheet(style: .bookmark)
+        }
+      )
+    )
+    
+    actions.append(
+      BPActionItem(
+        title: "ok_button".localized,
+        style: .cancel,
+        handler: {
+          self.currentAlert = nil
         }
       )
     )

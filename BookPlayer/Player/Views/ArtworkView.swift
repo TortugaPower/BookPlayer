@@ -30,6 +30,7 @@ struct ArtworkView: View {
           .overlay(
             KFImage
               .dataProvider(ArtworkService.getArtworkProvider(for: imagePath ?? ""))
+              .targetCache(ArtworkService.cache)
               .resizable()
               .scaledToFill() // Fill the entire square
               .blur(radius: 20) // Adjust for more/less blur
@@ -74,6 +75,7 @@ struct ArtworkView: View {
               .frame(maxWidth: .infinity, maxHeight: .infinity)
               .background(Color.green)
           }
+          .targetCache(ArtworkService.cache)
           .resizable()
           .scaledToFit()
           .accessibilityLabel(VoiceOverService.playerMetaText(title: title, author: author))

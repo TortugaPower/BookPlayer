@@ -27,7 +27,7 @@ struct PlayerView: View {
     VStack {
       DismissableRegionView()
         .simultaneousGesture(
-          DragGesture()
+          DragGesture(minimumDistance: 15)
             .onChanged { gesture in
               handleDragChanged(gesture)
             }
@@ -41,6 +41,15 @@ struct PlayerView: View {
           title: viewModel.title,
           author: viewModel.author,
           imagePath: viewModel.relativePath
+        )
+        .simultaneousGesture(
+          DragGesture(minimumDistance: 15)
+            .onChanged { gesture in
+              handleDragChanged(gesture)
+            }
+            .onEnded { gesture in
+              handleDragEnded(gesture)
+            }
         )
         
         Spacer()
@@ -69,6 +78,7 @@ struct PlayerView: View {
           } onRemainingToggle: {
             self.viewModel.processToggleMaxTime()
           }
+          .contentShape(Rectangle())
         
         Spacer()
         
@@ -91,7 +101,7 @@ struct PlayerView: View {
                   ? viewModel.sleepText
                   : nil,
               action: {
-                viewModel.handleSleepTimerTap(media: ma)
+                viewModel.handleButtonTap(media: ma)
               }
             )
               .accessibilityLabel(
@@ -120,13 +130,13 @@ struct PlayerView: View {
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)
         .ignoresSafeArea()
+        .gesture(
+            DragGesture(minimumDistance: 15)
+                .onChanged(handleDragChanged)
+                .onEnded(handleDragEnded)
+        )
     )
     .contentShape(Rectangle())
-    .gesture(
-        DragGesture()
-            .onChanged(handleDragChanged)
-            .onEnded(handleDragEnded)
-    )
     .offset(y: dragOffset.height)
     .animation(.interactiveSpring(), value: dragOffset)
     .onAppear {
