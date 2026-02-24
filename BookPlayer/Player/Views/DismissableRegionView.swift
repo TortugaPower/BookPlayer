@@ -27,7 +27,6 @@ struct DismissableRegionView: View {
     }
     .contentShape(Rectangle())
     .frame(maxWidth: .infinity)
-    .accessibilityElement(children: .ignore)
     .accessibilityLabel("voiceover_dismiss_player_title".localized)
   }
 }

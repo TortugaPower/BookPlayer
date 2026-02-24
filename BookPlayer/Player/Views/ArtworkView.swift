@@ -19,84 +19,88 @@ struct ArtworkView: View {
   
   var body: some View {
     ZStack(alignment: .top) {
-      
-      if let myImagePath = imagePath {
-        KFImage
-          .dataProvider(ArtworkService.getArtworkProvider(for: myImagePath))
-          .placeholder {
-            theme.defaultArtwork?
+      ZStack {
+        // 1. Create the square "box"
+        Color.clear
+          .aspectRatio(1, contentMode: .fit)
+        
+        Rectangle()
+          .fill(Color.secondary.opacity(0.1)) // A base color for while things load
+          .aspectRatio(1, contentMode: .fit)   // This locks it into a square
+          .overlay(
+            KFImage
+              .dataProvider(ArtworkService.getArtworkProvider(for: imagePath ?? ""))
               .resizable()
-              .aspectRatio(contentMode: .fit)
-              .cornerRadius(12)
+              .scaledToFill() // Fill the entire square
+              .blur(radius: 20) // Adjust for more/less blur
+              .opacity(0.6)    // Soften it so it doesn't distract
               .frame(maxWidth: .infinity, maxHeight: .infinity)
-          }
-          .targetCache(ArtworkService.cache)
-          .onSuccess { _ in
-            imageLoaded = true
-          }
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .cornerRadius(12)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .accessibilityLabel(VoiceOverService.playerMetaText(
-            title: title,
-            author: author
-          ))
-          .accessibilityAddTraits(.isStaticText)
-          .accessibilityRemoveTraits(.isImage)
-      } else {
-        theme.defaultArtwork?
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .cornerRadius(12)
+              .accessibilityHidden(true)
+          )
           .accessibilityHidden(true)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .accessibilityLabel(VoiceOverService.playerMetaText(
-            title: title,
-            author: author
-          ))
+        
+        // 2. Place the image inside
+        KFImage
+          .dataProvider(ArtworkService.getArtworkProvider(for: imagePath ?? ""))
+          .placeholder {
+            Rectangle()
+              .overlay(
+                ZStack {
+                  theme.defaultArtwork?
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  
+                  VStack(alignment: .leading) {
+                    Spacer()
+                    
+                    Text(author)
+                      .lineLimit(1)
+                      .bpFont(.title2)
+                      .opacity(0.6)
+                      .accessibilityHidden(true)
+                    Text(title)
+                      .lineLimit(2)
+                      .bpFont(.title2)
+                      .padding(.vertical, 4)
+                      .accessibilityHidden(true)
+                  }
+                  .padding()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                  .accessibilityHidden(true)
+                }
+              )
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .background(Color.green)
+          }
+          .resizable()
+          .scaledToFit()
+          .accessibilityLabel(VoiceOverService.playerMetaText(title: title, author: author))
           .accessibilityAddTraits(.isStaticText)
           .accessibilityRemoveTraits(.isImage)
-      }
-      
-      if !imageLoaded {
-        VStack(alignment: .leading) {
-          Text(author)
-            .bpFont(.title2)
-            .opacity(0.6)
-            .accessibilityHidden(true)
-          Text(title)
-            .bpFont(.title2)
-            .padding(.vertical, 4)
-            .accessibilityHidden(true)
+        
+        VStack {
+          HStack(spacing: 12) {
+            Spacer()
+            AirplayPicker()
+              .frame(width: 44, height: 44) // Standard touch target size
+              .padding(.trailing, 5)
+              .padding(.top, 5)
+              .shadow(color: .black.opacity(1.0), radius: 3, x: 0, y: 2)
+              .accessibilityElement(children: .combine)
+              .accessibilityLabel(Text("audio_source_title"))
+          }
+          .frame(maxWidth: .infinity)
+          
+          Spacer()
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-        .accessibilityHidden(true)
       }
-      
-      HStack(spacing: 12) {
-        Spacer()
-        AirplayPicker()
-          .frame(width: 44, height: 44) // Standard touch target size
-          .padding(.trailing, 5)
-          .padding(.top, 5)
-          .shadow(color: .black.opacity(1.0), radius: 3, x: 0, y: 2)
-          .accessibilityElement(children: .combine)
-          .accessibilityLabel(Text("audio_source_title"))
-      }
-      .frame(maxWidth: .infinity)
+      .aspectRatio(1, contentMode: .fit)
+      .cornerRadius(12)
+      .clipped()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    
-  }
-  
-  func floatingIcon(_ name: String) -> some View {
-    Image(systemName: name)
-      .foregroundColor(.primary)
-      .padding(8)
-      .background(.ultraThinMaterial)
-      .clipShape(Circle())
   }
 }
 

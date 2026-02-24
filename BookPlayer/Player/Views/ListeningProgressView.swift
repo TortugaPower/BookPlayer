@@ -45,6 +45,7 @@ struct ListeningProgressView: View {
           onProgresToggle?()
         } label: {
           Text(progressLabel)
+            .lineLimit(1)
             .bpFont(.miniPlayerTitle)
         }
         Spacer()

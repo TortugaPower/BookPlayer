@@ -26,7 +26,7 @@ struct PlayerView: View {
     
     VStack {
       DismissableRegionView()
-        .gesture(
+        .simultaneousGesture(
           DragGesture()
             .onChanged { gesture in
               handleDragChanged(gesture)
@@ -42,6 +42,7 @@ struct PlayerView: View {
           author: viewModel.author,
           imagePath: viewModel.relativePath
         )
+        
         Spacer()
       }
       .frame(maxWidth: .infinity)
@@ -119,6 +120,12 @@ struct PlayerView: View {
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)
         .ignoresSafeArea()
+    )
+    .contentShape(Rectangle())
+    .gesture(
+        DragGesture()
+            .onChanged(handleDragChanged)
+            .onEnded(handleDragEnded)
     )
     .offset(y: dragOffset.height)
     .animation(.interactiveSpring(), value: dragOffset)
