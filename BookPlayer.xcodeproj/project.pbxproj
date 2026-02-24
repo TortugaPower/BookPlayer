@@ -709,7 +709,6 @@
 		9F4A33E0292B0C710034CD4C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A33DF292B0C710034CD4C /* ShareViewController.swift */; };
 		9F4A33E3292B0C710034CD4C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */; };
 		9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5011F62A620D140075FEBA /* PlayerViewModelTests.swift */; };
 		9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5011F82A6580800075FEBA /* ShakeMotionService.swift */; };
 		9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
 		9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
@@ -1625,7 +1624,6 @@
 		9F4A33E4292B0C710034CD4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F5011F32A62027C0075FEBA /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = nb; path = nb.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9F5011F42A62027C0075FEBA /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
-		9F5011F62A620D140075FEBA /* PlayerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModelTests.swift; sourceTree = "<group>"; };
 		9F5011F82A6580800075FEBA /* ShakeMotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeMotionService.swift; sourceTree = "<group>"; };
 		9F56C84C287B734C00EA9751 /* BPLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPLogger.swift; sourceTree = "<group>"; };
 		9F5F12DA2976E8CD00F061A0 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -2142,7 +2140,6 @@
 				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
-				9F5011F62A620D140075FEBA /* PlayerViewModelTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
@@ -4613,7 +4610,6 @@
 				62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
-				9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
@@ -5656,9 +5652,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = S7TJSJXWUZ;
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5669,6 +5666,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Dev XC: *";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookPlayer.app/BookPlayer";
@@ -6137,9 +6135,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "$(inherited)";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = S7TJSJXWUZ;
 				INFOPLIST_FILE = BookPlayerTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6150,6 +6149,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tortugapower.Audiobook-PlayerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Dev XC: *";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookPlayer.app/BookPlayer";
