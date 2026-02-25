@@ -157,12 +157,13 @@ struct PlayerView: View {
       self.viewModel.saveNote(note: text)
     }
     .sheet(isPresented: $viewModel.playerSheetData.display) {
-      switch viewModel.playerSheetData.style {
+      Group {
+        switch viewModel.playerSheetData.style {
         case .controls:
           PlayerControlsView{
             PlayerControlsViewModel(playerManager: viewModel.playerManager)
           }
-            .presentationDetents([.medium])
+          .presentationDetents([.medium])
         case .chapters:
           ChaptersView{
             ChaptersViewModel(playerManager: viewModel.playerManager)
@@ -192,7 +193,9 @@ struct PlayerView: View {
           }
         case .none:
           Text("N/A")
+        }
       }
+      .environmentObject(theme)
     }
   }
   

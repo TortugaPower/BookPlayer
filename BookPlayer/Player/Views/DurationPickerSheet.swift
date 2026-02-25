@@ -6,35 +6,52 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
 
-struct DurationPicker: UIViewRepresentable {
-  @Binding var duration: TimeInterval
-  
-  func makeUIView(context: Context) -> UIDatePicker {
-    let picker = UIDatePicker()
-    picker.datePickerMode = .countDownTimer
-    picker.addTarget(context.coordinator, action: #selector(Coordinator.updateDuration), for: .valueChanged)
-    return picker
-  }
-  
-  func updateUIView(_ uiView: UIDatePicker, context: Context) {
-    uiView.countDownDuration = duration
-  }
-  
-  func makeCoordinator() -> Coordinator {
-    Coordinator(self)
-  }
-  
-  class Coordinator: NSObject {
-    let parent: DurationPicker
-    init(_ parent: DurationPicker) { self.parent = parent }
+struct NativeDurationPicker: View {
+    @Binding var duration: TimeInterval
     
-    @objc func updateDuration(sender: UIDatePicker) {
-      parent.duration = sender.countDownDuration
+    // Computed properties to translate TimeInterval into hours and minutes
+    private var hours: Int {
+        Int(duration) / 3600
     }
-  }
+    
+    private var minutes: Int {
+        (Int(duration) % 3600) / 60
+    }
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            // Hours Picker
+            Picker("Hours", selection: Binding(
+                get: { self.hours },
+                set: { newValue in updateDuration(newHours: newValue, newMinutes: self.minutes) }
+            )) {
+                ForEach(0..<24, id: \.self) { i in
+                    Text("\(i) hours").tag(i)
+                }
+            }
+            .pickerStyle(.wheel)
+            .clipped()
+            
+            // Minutes Picker
+            Picker("Minutes", selection: Binding(
+                get: { self.minutes },
+                set: { newValue in updateDuration(newHours: self.hours, newMinutes: newValue) }
+            )) {
+                ForEach(0..<60, id: \.self) { i in
+                    Text("\(i) min").tag(i)
+                }
+            }
+            .pickerStyle(.wheel)
+            .clipped()
+        }
+    }
+    
+    private func updateDuration(newHours: Int, newMinutes: Int) {
+        // Convert back to TimeInterval (seconds)
+        duration = TimeInterval((newHours * 3600) + (newMinutes * 60))
+    }
 }
 
 struct DurationPickerSheet: View {
@@ -60,7 +77,7 @@ struct DurationPickerSheet: View {
         .padding(.top, 24)
       
       // Reusing the DurationPicker from the previous step
-      DurationPicker(duration: $selectedDuration)
+      NativeDurationPicker(duration: $selectedDuration)
         .frame(height: 200)
       
       VStack(spacing: 12) {

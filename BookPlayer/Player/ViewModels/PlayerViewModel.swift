@@ -318,7 +318,11 @@ final class PlayerViewModel: ObservableObject {
       case .more:
         setMoreAlert()
       case .chapters:
-        playerSheetData.displaySheet(style: .chapters)
+        if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
+          playerSheetData.displaySheet(style: .bookmark)
+        } else {
+          playerSheetData.displaySheet(style: .chapters)
+        }
       case .speed:
         playerSheetData.displaySheet(style: .controls)
       case .timer:
