@@ -38,9 +38,11 @@ struct ListeningProgressView: View {
       HStack {
         Text(currentTime)
           .bpFont(.miniPlayerTitle).monospacedDigit()
-          .frame(width: 120, alignment: .leading)
+          .frame(maxWidth: .infinity, alignment: .leading)
           .accessibilityLabel(currentTimeAccessLabel)
+        
         Spacer()
+        
         Button {
           onProgresToggle?()
         } label: {
@@ -48,13 +50,16 @@ struct ListeningProgressView: View {
             .lineLimit(1)
             .bpFont(.miniPlayerTitle)
         }
+        .layoutPriority(1)
+        
         Spacer()
+        
         Button {
           onRemainingToggle?()
         } label: {
           Text(remainingTime)
             .bpFont(.miniPlayerTitle).monospacedDigit()
-            .frame(width: 120, alignment: .trailing)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .accessibilityLabel(remainingTimeAccessLabel)
       }

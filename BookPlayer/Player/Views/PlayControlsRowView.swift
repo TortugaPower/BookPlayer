@@ -6,9 +6,12 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct PlayControlsRowView: View {
+  @AppStorage(Constants.UserDefaults.rewindInterval) var rewindInterval: TimeInterval = 30
+  @AppStorage(Constants.UserDefaults.forwardInterval) var forwardInterval: TimeInterval = 30
   var isPlaying: Bool
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
@@ -16,7 +19,7 @@ struct PlayControlsRowView: View {
   var body: some View {
     HStack(spacing: 0) {
       Spacer()
-      PlayerJumpView(backgroundImage: Image(.playerIconRewind), text: "-\(String(Int(PlayerManager.rewindInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+      PlayerJumpView(backgroundImage: Image(.playerIconRewind), text: "-\(String(Int(rewindInterval.rounded())))", tintColor: Color(theme.linkColor)) {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.rewind()
       }
@@ -30,7 +33,7 @@ struct PlayControlsRowView: View {
         .accessibilityLabel(isPlaying ? "pause_title".localized : "play_title".localized)
       Spacer()
       Spacer()
-      PlayerJumpView(backgroundImage: Image(.playerIconForward), text: "+\(String(Int(PlayerManager.forwardInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+      PlayerJumpView(backgroundImage: Image(.playerIconForward), text: "+\(String(Int(forwardInterval.rounded())))", tintColor: Color(theme.linkColor)) {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.forward()
       }

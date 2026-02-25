@@ -64,7 +64,7 @@ final class PlayerViewModel: ObservableObject {
   private var playingProgressSubscriber: AnyCancellable?
   private var listeningProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
-  private var updateProgressObserver: NSKeyValueObservation?
+  private var progressUpdateObserver: NSKeyValueObservation?
   
   var currentTimeAccessLabel: String {
     let prefix = self.prefersChapterContext
@@ -126,9 +126,34 @@ final class PlayerViewModel: ObservableObject {
     self.sharedDefaults = sharedDefaults
     
     bindBookPlayingProgressEvents()
+    bindBookProgressSubscribers()
+    bindBookSharedObservers()
   }
   
-  func bindBookPlayingProgressEvents() {
+  func bindBookSharedObservers() {
+    UserDefaults.standard.set(false, forKey: Constants.UserDefaults.updateProgress)
+    
+    progressUpdateObserver = UserDefaults.standard.observe(
+      \.userSettingsUpdateProgress,
+       options: [.new]
+    ) { [weak self] object, change in
+
+      guard let self,
+            let newValue = change.newValue,
+            newValue == true
+      else { return }
+      
+      Task { @MainActor in
+        self.prefersChapterContext = UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
+        self.prefersRemainingTime = UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+        self.recalculateProgress()
+      }
+      
+      object.set(false, forKey: Constants.UserDefaults.updateProgress)
+    }
+  }
+  
+  func bindBookProgressSubscribers() {
     self.playingProgressSubscriber?.cancel()
     self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
       .sink { [weak self] _ in
@@ -136,6 +161,16 @@ final class PlayerViewModel: ObservableObject {
         self.recalculateProgress()
       }
     
+    self.listeningProgressSubscriber?.cancel()
+    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
+  }
+  
+  func bindBookPlayingProgressEvents() {
     self.playerManager.isPlayingPublisher()
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
@@ -163,6 +198,7 @@ final class PlayerViewModel: ObservableObject {
         guard let self = self else { return }
 
         self.playbackSpeed = speed
+        self.recalculateProgress()
       }
       .store(in: &disposeBag)
     
@@ -188,14 +224,6 @@ final class PlayerViewModel: ObservableObject {
           sleepText = nil
         }
       }.store(in: &disposeBag)
-    
-    self.listeningProgressSubscriber?.cancel()
-    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-        self.recalculateProgress()
-      }
   }
   
   private lazy var durationFormatter: DateComponentsFormatter = {
