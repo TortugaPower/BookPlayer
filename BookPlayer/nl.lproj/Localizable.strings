@@ -404,6 +404,8 @@
 "database_no_backup_message" = "De database is beschadigd en er is geen back-up beschikbaar. De bibliotheek moet worden gereset en opnieuw worden opgebouwd vanuit je audiobestanden.";
 "settings_smartrewind_max_interval_title" = "Slimme terugspoellimiet";
 "settings_support_discord_title" = "Word lid van onze Discord-server";
+"hours" = "Uren";
+"minutes" = "Minuten";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Naamloos apparaat";

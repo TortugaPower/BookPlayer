@@ -31,6 +31,7 @@ struct ArtworkView: View {
             KFImage
               .dataProvider(ArtworkService.getArtworkProvider(for: imagePath ?? ""))
               .targetCache(ArtworkService.cache)
+              .downsampling(size: CGSize(width: 100, height: 100))
               .resizable()
               .scaledToFill() // Fill the entire square
               .blur(radius: 20) // Adjust for more/less blur
@@ -73,7 +74,6 @@ struct ArtworkView: View {
                 }
               )
               .frame(maxWidth: .infinity, maxHeight: .infinity)
-              .background(Color.green)
           }
           .targetCache(ArtworkService.cache)
           .resizable()

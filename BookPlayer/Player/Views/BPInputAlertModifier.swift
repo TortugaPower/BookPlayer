@@ -15,6 +15,7 @@ struct BPInputAlertContent: View {
   
   @State private var text = ""
   @FocusState private var focused: Bool
+  @AccessibilityFocusState private var isTextfieldFocused: Bool
   
   var body: some View {
     VStack(spacing: 0) {
@@ -26,7 +27,12 @@ struct BPInputAlertContent: View {
           .multilineTextAlignment(.center)
         
         TextField("bookmark_note_action_title".localized, text: $text)
-          .textFieldStyle(.roundedBorder)
+          .textFieldStyle(.plain) // Removes the default border
+          .padding(12) // Space between text and background
+          .background(
+              RoundedRectangle(cornerRadius: 10)
+                  .fill(Color(.systemGray6))
+          )
           .focused($focused)
       }
       .padding(20)
@@ -54,11 +60,14 @@ struct BPInputAlertContent: View {
       .fixedSize(horizontal: false, vertical: true)
       
     }
-    .frame(width: 270)
+    .frame(maxWidth: 270)
     .background(.regularMaterial)
     .clipShape(RoundedRectangle(cornerRadius: 14))
     .shadow(radius: 20)
     .onAppear { focused = true }
+    .accessibilityAction(.escape) { onCancel() }
+    .accessibilityAddTraits(.isModal)
+    .accessibilityFocused($isTextfieldFocused)
   }
 }
 
@@ -77,6 +86,7 @@ struct BPInputAlertModifier: ViewModifier {
             .onTapGesture {
               dismiss()
             }
+            .accessibilityHidden(true)
           
           BPInputAlertContent(
             title: title,

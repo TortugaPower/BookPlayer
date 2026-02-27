@@ -404,6 +404,8 @@
 "database_no_backup_message" = "La base de données est corrompue et aucune sauvegarde n'est disponible. La bibliothèque devra être réinitialisée et reconstruite à partir de vos fichiers audio.";
 "settings_smartrewind_max_interval_title" = "Limite de rembobinage intelligente";
 "settings_support_discord_title" = "Rejoignez notre serveur Discord";
+"hours" = "Heures";
+"minutes" = "Minutes";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Appareil sans nom";

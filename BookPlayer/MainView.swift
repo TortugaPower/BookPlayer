@@ -16,7 +16,6 @@ struct MainView: View {
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
-  @State private var isShowingPlayer: Bool = false
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
@@ -34,7 +33,6 @@ struct MainView: View {
       Tab("library_title", systemImage: "books.vertical") {
         LibraryRootView(
           showSecondOnboarding: showSecondOnboarding,
-          showPlayer: showPlayer,
           showImport: showImport
         )
         .background {
@@ -85,7 +83,7 @@ struct MainView: View {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
-    .fullScreenCover(isPresented: $isShowingPlayer) {
+    .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {
       PlayerView {
         PlayerViewModel(
           libraryService: libraryService,
@@ -105,6 +103,12 @@ struct MainView: View {
     .tint(theme.linkColor)
     .onChange(of: scheme) {
       ThemeManager.shared.checkSystemMode()
+    }
+    .onChange(of: playerState.showPlayer) {
+      if playerState.showPlayer {
+        showPlayer()
+        playerState.showPlayer = false
+      }
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
@@ -127,11 +131,11 @@ struct MainView: View {
   }
   
   func showPlayer() {
-    isShowingPlayer = true
+    playerState.isShowingPlayer = true
   }
   
   func hasPlayerShown() -> Bool {
-    return isShowingPlayer
+    return playerState.isShowingPlayer
   }
 
   func handleDrop(_ providers: [NSItemProvider]) {

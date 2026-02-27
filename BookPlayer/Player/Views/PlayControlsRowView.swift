@@ -41,6 +41,7 @@ struct PlayControlsRowView: View {
       Spacer()
     }
     .frame(maxWidth: 400)
+    .environment(\.layoutDirection, .leftToRight)
   }
 }
 

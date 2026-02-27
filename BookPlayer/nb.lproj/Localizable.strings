@@ -404,6 +404,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "database_no_backup_message" = "Databasen er skadet og ingen sikkerhetskopi er tilgjengelig. Biblioteket må tilbakestilles og gjenoppbygges fra lydfilene dine.";
 "settings_smartrewind_max_interval_title" = "Smart tilbakespolingsgrense";
 "settings_support_discord_title" = "Bli med på vår Discord-server";
+"hours" = "Timer";
+"minutes" = "Minutter";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Enhet uten navn";

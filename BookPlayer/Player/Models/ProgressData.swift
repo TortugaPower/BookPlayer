@@ -9,11 +9,10 @@
 import Foundation
 import BookPlayerKit
 
-@Observable
-class ProgressData {
+struct ProgressData {
   var currentTime: TimeInterval = 0.0
-  var progress: String? = nil
-  var maxTime: TimeInterval? = nil
+  var progress: String?
+  var maxTime: TimeInterval?
   var sliderValue: Double = 0.0
   var chapterTitle: String = ""
 

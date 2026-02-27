@@ -44,7 +44,7 @@ struct MiniPlayerAccessoryView: View {
         .padding(.leading, 8)
 
         VStack(alignment: .leading) {
-          Text(verbatim: relativePath ?? "")
+          Text(verbatim: playerManager.currentItem?.title ?? "")
             .foregroundStyle(
               reduceTransparency ? Color.primary : theme.primaryColor
             )

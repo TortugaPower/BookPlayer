@@ -25,7 +25,7 @@ struct SlickSlider: View {
   
   var body: some View {
     GeometryReader { geometry in
-      let displayValue = isDragging ? localValue : value
+      let displayValue = min(max(isDragging ? localValue : value, range.lowerBound), range.upperBound)
       let horizontalBaseRatio = range.upperBound != range.lowerBound
         ? CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound))
         : 0.0
@@ -47,7 +47,7 @@ struct SlickSlider: View {
           .frame(width: thumbSize, height: thumbSize)
           .shadow(color: accentColor.opacity(0.6), radius: 6)
           .offset(x: horizontalBaseRatio * geometry.size.width - (thumbSize / 2))
-          .gesture(
+          .highPriorityGesture(
             DragGesture(minimumDistance: 0)
               .onChanged { gesture in
                 if !isDragging {

@@ -18,7 +18,7 @@ struct ListeningProgressView: View {
   var currentTimeAccessLabel: String = ""
   var progressLabel: String
   var onSliderChange: ((Double) -> Void)?
-  var onProgresToggle: (() -> Void)?
+  var onProgressToggle: (() -> Void)?
   var onRemainingToggle: (() -> Void)?
   
   var body: some View {
@@ -44,7 +44,7 @@ struct ListeningProgressView: View {
         Spacer()
         
         Button {
-          onProgresToggle?()
+          onProgressToggle?()
         } label: {
           Text(progressLabel)
             .lineLimit(1)
@@ -63,7 +63,6 @@ struct ListeningProgressView: View {
         }
         .accessibilityLabel(remainingTimeAccessLabel)
       }
-      .bpFont(.caption)
       .foregroundColor(.secondary)
     }
   }

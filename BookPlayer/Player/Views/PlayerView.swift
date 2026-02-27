@@ -12,6 +12,7 @@ import BookPlayerKit
 struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
@@ -21,9 +22,7 @@ struct PlayerView: View {
     self._viewModel = .init(wrappedValue: initModel())
   }
   
-  var body: some View {
-    @Bindable var data = viewModel.progressData
-    
+  var body: some View {    
     VStack {
       DismissableRegionView()
         .simultaneousGesture(
@@ -60,20 +59,21 @@ struct PlayerView: View {
         NavigationRowView(
           playerTitle: viewModel.progressData.chapterTitle,
           hasNextChapter: viewModel.hasNextChapter,
-          hasPreviousChapter: viewModel.hasPreviousChapter
-        ) {
-          self.viewModel.processToggleProgressState()
-        }
+          hasPreviousChapter: viewModel.hasPreviousChapter,
+          onNextTap: viewModel.handleNextTap,
+          onTitleToggle: viewModel.processToggleProgressState,
+          onPreviousTap: viewModel.handlePreviousTap
+        )
         
         ListeningProgressView(
-          progress: $data.sliderValue,
+          progress: $viewModel.progressData.sliderValue,
           remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
           remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
           currentTime: viewModel.progressData.formattedCurrentTime,
           currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
           progressLabel: viewModel.progressData.progress ?? "") { progress in
             viewModel.handleSliderUpEvent(with: Float(progress))
-          } onProgresToggle: {
+          } onProgressToggle: {
             self.viewModel.processToggleProgressState()
           } onRemainingToggle: {
             self.viewModel.processToggleMaxTime()
@@ -86,39 +86,13 @@ struct PlayerView: View {
         
         Spacer()
         
-        HStack {
-          ForEach(MediaAction.allCases) { ma in
-            BubbleButton(
-              iconImage: ma == .speed
-                ? nil
-                : ma == .bookmark
-                  ? Image(.toolbarIconBookmark)
-                  : Image(systemName: ma.iconName),
-              imageOffset: ma.iconOffset,
-              labelText: ma == .speed
-                ? "\(viewModel.formattedSpeed())"
-                : ma == .timer && viewModel.sleepText != nil
-                  ? viewModel.sleepText
-                  : nil,
-              action: {
-                viewModel.handleButtonTap(media: ma)
-              }
-            )
-              .accessibilityLabel(
-                ma != .speed
-                  ? ma.accessibilityLabel
-                  : String(describing: viewModel.formattedSpeed() + " \("speed_title".localized)")
-              )
-              .bpDialog(
-                $viewModel.currentAlert,
-                isOriginView: viewModel.currentAlertOrigin == ma
-              )
-            
-            if ma != MediaAction.allCases.last {
-                Spacer()
-            }
-          }
-        }
+        MediaActionRow(
+          speedText: viewModel.formattedSpeed(),
+          sleepText: viewModel.sleepText,
+          currentAlert: $viewModel.currentAlert,
+          currentAlertOrigin: viewModel.currentAlertOrigin,
+          onActionTapped: { viewModel.handleButtonTap(media: $0) }
+        )
         .frame(height: 48)
         .frame(maxWidth: .infinity)
       }
@@ -138,8 +112,10 @@ struct PlayerView: View {
     )
     .contentShape(Rectangle())
     .offset(y: dragOffset.height)
-    .animation(.interactiveSpring(), value: dragOffset)
+    .animation(reduceMotion ? .none : .interactiveSpring(), value: dragOffset)
     .onAppear {
+      viewModel.bindBookObservers()
+      viewModel.handleAutolockStatus(forceDisable: false)
       viewModel.recalculateProgress()
     }
     .accessibilityAction(.escape) {
@@ -156,46 +132,46 @@ struct PlayerView: View {
     ) { text in
       self.viewModel.saveNote(note: text)
     }
-    .sheet(isPresented: $viewModel.playerSheetData.display) {
-      Group {
-        switch viewModel.playerSheetData.style {
-        case .controls:
-          PlayerControlsView{
-            PlayerControlsViewModel(playerManager: viewModel.playerManager)
-          }
-          .presentationDetents([.medium])
-        case .chapters:
-          ChaptersView{
-            ChaptersViewModel(playerManager: viewModel.playerManager)
-          }
-        case .bookmark:
-          BookmarksView{
-            BookmarksViewModel(
-              playerManager: viewModel.playerManager,
-              libraryService: viewModel.libraryService,
-              syncService: viewModel.syncService
-            )
-          }
-        case .buttonFree:
-          ButtonFreeView{
-            ButtonFreeViewModel(
-              playerManager: viewModel.playerManager,
-              libraryService: viewModel.libraryService,
-              syncService: viewModel.syncService
-            )
-          }
-        case .sleep:
-          DurationPickerSheet(
-            initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
-          ) { seconds in
-            UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
-            SleepTimer.shared.setTimer(.countdown(seconds))
-          }
-        case .none:
-          Text("N/A")
+    .sheet(item: $viewModel.sheetStyle) { style in
+      switch style {
+      case .controls:
+        PlayerControlsView{
+          PlayerControlsViewModel(playerManager: viewModel.playerManager)
         }
+        .presentationDetents([.medium])
+        .environmentObject(theme)
+      case .chapters:
+        ChaptersView{
+          ChaptersViewModel(playerManager: viewModel.playerManager)
+        }
+        .environmentObject(theme)
+      case .bookmark:
+        BookmarksView{
+          BookmarksViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService,
+            syncService: viewModel.syncService
+          )
+        }
+        .environmentObject(theme)
+      case .buttonFree:
+        ButtonFreeView{
+          ButtonFreeViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService,
+            syncService: viewModel.syncService
+          )
+        }
+        .environmentObject(theme)
+      case .sleep:
+        DurationPickerSheet(
+          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+        ) { seconds in
+          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+          SleepTimer.shared.setTimer(.countdown(seconds))
+        }
+        .environmentObject(theme)
       }
-      .environmentObject(theme)
     }
   }
   

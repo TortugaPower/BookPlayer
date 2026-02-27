@@ -33,7 +33,7 @@ struct BubbleButton: View {
         
         if let text = labelText {
           Text(text)
-            .bpFont(.headline)
+            .bpFont(.headline).monospacedDigit()
             .foregroundColor(theme.primaryColor)
         }
       }

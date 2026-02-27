@@ -404,6 +404,8 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "database_no_backup_message" = "La base de dades està malmesa i no hi ha cap còpia de seguretat disponible. La biblioteca s'haurà de restablir i reconstruir a partir dels teus fitxers d'àudio.";
 "settings_smartrewind_max_interval_title" = "Límit de rebobinat intel·ligent";
 "settings_support_discord_title" = "Uneix-te al nostre servidor de Discord";
+"hours" = "Hores";
+"minutes" = "Minuts";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispositiu sense nom";

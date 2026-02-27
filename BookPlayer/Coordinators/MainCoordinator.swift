@@ -191,17 +191,11 @@ class MainCoordinator: NSObject {
   }
 
   func showPlayer() {
-    if let hostingController = mainController as? UIHostingController<MainView> {
-      hostingController.rootView.showPlayer()
-    }
+    playerState.showPlayer = true
   }
   
   func hasPlayerShown() -> Bool {
-    if let hostingController = mainController as? UIHostingController<MainView> {
-      return hostingController.rootView.hasPlayerShown()
-    }
-    
-    return false
+    return playerState.isShowingPlayer
   }
 
   func processFiles(urls: [URL]) {

@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Baza danych jest uszkodzona i nie jest dostępna żadna kopia zapasowa. Biblioteka będzie musiała zostać zresetowana i odbudowana z plików audio.";
 "settings_smartrewind_max_interval_title" = "Limit inteligentnego przewijania";
 "settings_support_discord_title" = "Dołącz do naszego serwera Discord";
+"hours" = "Godziny";
+"minutes" = "Minuty";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Urządzenie bez nazwy";
