@@ -209,6 +209,7 @@ class MainCoordinator: NSObject {
         let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
         if !FileManager.default.fileExists(atPath: destinationURL.path) {
           try! FileManager.default.copyItem(at: url, to: destinationURL)
+          destinationURL.disableFileProtection()
         }
       } else {
         importManager.process(url)
