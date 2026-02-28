@@ -1,0 +1,193 @@
+//
+//  PlayerView.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 9/2/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import SwiftUI
+import BookPlayerKit
+
+struct PlayerView: View {
+  @Environment(\.colorScheme) private var scheme
+  @Environment(\.dismiss) private var dismiss
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  
+  @StateObject private var viewModel: PlayerViewModel
+  @StateObject private var theme = ThemeViewModel()
+  @State private var dragOffset: CGSize = .zero
+  
+  init(initModel: @escaping () -> PlayerViewModel) {
+    self._viewModel = .init(wrappedValue: initModel())
+  }
+  
+  var body: some View {    
+    VStack {
+      DismissableRegionView()
+        .simultaneousGesture(
+          DragGesture(minimumDistance: 15)
+            .onChanged { gesture in
+              handleDragChanged(gesture)
+            }
+            .onEnded { gesture in
+              handleDragEnded(gesture)
+            }
+        )
+      
+      VStack {
+        ArtworkView(
+          title: viewModel.title,
+          author: viewModel.author,
+          imagePath: viewModel.relativePath
+        )
+        .simultaneousGesture(
+          DragGesture(minimumDistance: 15)
+            .onChanged { gesture in
+              handleDragChanged(gesture)
+            }
+            .onEnded { gesture in
+              handleDragEnded(gesture)
+            }
+        )
+        
+        Spacer()
+      }
+      .frame(maxWidth: .infinity)
+
+      VStack(spacing: 4) {
+        NavigationRowView(
+          playerTitle: viewModel.progressData.chapterTitle,
+          hasNextChapter: viewModel.hasNextChapter,
+          hasPreviousChapter: viewModel.hasPreviousChapter,
+          onNextTap: viewModel.handleNextTap,
+          onTitleToggle: viewModel.processToggleProgressState,
+          onPreviousTap: viewModel.handlePreviousTap
+        )
+        
+        ListeningProgressView(
+          progress: $viewModel.progressData.sliderValue,
+          remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
+          remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
+          currentTime: viewModel.progressData.formattedCurrentTime,
+          currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
+          progressLabel: viewModel.progressData.progress ?? "") { progress in
+            viewModel.handleSliderUpEvent(with: Float(progress))
+          } onProgressToggle: {
+            self.viewModel.processToggleProgressState()
+          } onRemainingToggle: {
+            self.viewModel.processToggleMaxTime()
+          }
+          .contentShape(Rectangle())
+        
+        Spacer()
+        
+        PlayControlsRowView(isPlaying: viewModel.isPlaying)
+        
+        Spacer()
+        
+        MediaActionRow(
+          speedText: viewModel.formattedSpeed(),
+          sleepText: viewModel.sleepText,
+          currentAlert: $viewModel.currentAlert,
+          currentAlertOrigin: viewModel.currentAlertOrigin,
+          onActionTapped: { viewModel.handleButtonTap(media: $0) }
+        )
+        .frame(height: 48)
+        .frame(maxWidth: .infinity)
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    .padding(.horizontal, 8)
+    .safeAreaPadding()
+    .background(
+      RoundedRectangle(cornerRadius: 24)
+        .fill(theme.systemBackgroundColor)
+        .ignoresSafeArea()
+        .gesture(
+            DragGesture(minimumDistance: 15)
+                .onChanged(handleDragChanged)
+                .onEnded(handleDragEnded)
+        )
+    )
+    .contentShape(Rectangle())
+    .offset(y: dragOffset.height)
+    .animation(reduceMotion ? .none : .interactiveSpring(), value: dragOffset)
+    .onAppear {
+      viewModel.bindBookObservers()
+      viewModel.handleAutolockStatus(forceDisable: false)
+      viewModel.recalculateProgress()
+    }
+    .accessibilityAction(.escape) {
+      dismiss()
+    }
+    .environmentObject(theme)
+    .onChange(of: scheme) { 
+      ThemeManager.shared.checkSystemMode()
+    }
+    .bpAlert($viewModel.currentAlert)
+    .bpInputAlert(
+        isPresented: $viewModel.isShowingNote,
+        title: "bookmark_note_action_title".localized
+    ) { text in
+      self.viewModel.saveNote(note: text)
+    }
+    .sheet(item: $viewModel.sheetStyle) { style in
+      switch style {
+      case .controls:
+        PlayerControlsView{
+          PlayerControlsViewModel(playerManager: viewModel.playerManager)
+        }
+        .presentationDetents([.medium])
+        .environmentObject(theme)
+      case .chapters:
+        ChaptersView{
+          ChaptersViewModel(playerManager: viewModel.playerManager)
+        }
+        .environmentObject(theme)
+      case .bookmark:
+        BookmarksView{
+          BookmarksViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService,
+            syncService: viewModel.syncService
+          )
+        }
+        .environmentObject(theme)
+      case .buttonFree:
+        ButtonFreeView{
+          ButtonFreeViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService,
+            syncService: viewModel.syncService
+          )
+        }
+        .environmentObject(theme)
+      case .sleep:
+        DurationPickerSheet(
+          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+        ) { seconds in
+          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+          SleepTimer.shared.setTimer(.countdown(seconds))
+        }
+        .environmentObject(theme)
+      }
+    }
+  }
+  
+  private func handleDragChanged(_ gesture: DragGesture.Value) {
+    if gesture.translation.height > 0 {
+      dragOffset = gesture.translation
+    }
+  }
+  
+  private func handleDragEnded(_ gesture: DragGesture.Value) {
+    let threshold: CGFloat = 150
+    
+    if gesture.translation.height > threshold {
+      dismiss()
+    } else {
+      dragOffset = .zero
+    }
+  }
+}

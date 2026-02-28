@@ -12,11 +12,19 @@ import SwiftUI
 class PlayerState {
   var loadedBookRelativePath: String?
   var showPlayer = false
+  var isShowingPlayer = false
 
   var showPlayerBinding: Binding<Bool> {
     .init(
       get: { self.showPlayer },
       set: { self.showPlayer = $0 }
+    )
+  }
+  
+  var isShowingPlayerBinding: Binding<Bool> {
+    .init(
+      get: { self.isShowingPlayer },
+      set: { self.isShowingPlayer = $0 }
     )
   }
 

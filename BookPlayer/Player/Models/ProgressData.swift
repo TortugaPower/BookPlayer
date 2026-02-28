@@ -1,22 +1,20 @@
 //
-//  ProgressObject.swift
+//  ProgressData.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 30/8/21.
-//  Copyright © 2021 BookPlayer LLC. All rights reserved.
+//  Created by Pedro Iñiguez on 10/2/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
+import BookPlayerKit
 
-struct ProgressObject {
-  let currentTime: TimeInterval
-  let progress: String?
-  let maxTime: TimeInterval?
-  let sliderValue: Float
-  let prevChapterImageName: String
-  let nextChapterImageName: String
-  let chapterTitle: String
+struct ProgressData {
+  var currentTime: TimeInterval = 0.0
+  var progress: String?
+  var maxTime: TimeInterval?
+  var sliderValue: Double = 0.0
+  var chapterTitle: String = ""
 
   var formattedCurrentTime: String {
     return TimeParser.formatTime(self.currentTime)

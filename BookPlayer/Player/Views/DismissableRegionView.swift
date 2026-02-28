@@ -1,0 +1,36 @@
+//
+//  DismissableRegionView.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 9/2/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import SwiftUI
+
+struct DismissableRegionView: View {
+  @Environment(\.dismiss) var dismiss
+
+  var body: some View {
+    Button {
+      UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+      dismiss()
+    } label: {
+      HStack {
+          Spacer()
+          RoundedRectangle(cornerRadius: 3)
+              .fill(Color.secondary.opacity(0.4))
+              .frame(width: 60, height: 6)
+              .padding(.bottom, 16)
+          Spacer()
+      }
+    }
+    .contentShape(Rectangle())
+    .frame(maxWidth: .infinity)
+    .accessibilityLabel("voiceover_dismiss_player_title".localized)
+  }
+}
+
+#Preview {
+  DismissableRegionView()
+}

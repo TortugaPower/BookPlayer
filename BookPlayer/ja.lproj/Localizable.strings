@@ -404,6 +404,8 @@
 "database_no_backup_message" = "データベースが破損しており、バックアップがありません。ライブラリをリセットしてオーディオファイルから再構築する必要があります。";
 "settings_smartrewind_max_interval_title" = "スマート巻き戻し制限";
 "settings_support_discord_title" = "Discordサーバーに参加する";
+"hours" = "時間";
+"minutes" = "分";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "名前のないデバイス";

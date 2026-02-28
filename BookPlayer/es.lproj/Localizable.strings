@@ -404,6 +404,8 @@
 "database_no_backup_message" = "La base de datos está dañada y no hay copia de seguridad disponible. La biblioteca deberá restablecerse y reconstruirse a partir de sus archivos de audio.";
 "settings_smartrewind_max_interval_title" = "Límite de rebobinado inteligente";
 "settings_support_discord_title" = "Únete a nuestro servidor de Discord";
+"hours" = "Horas";
+"minutes" = "Minutos";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispositivo sin nombre";

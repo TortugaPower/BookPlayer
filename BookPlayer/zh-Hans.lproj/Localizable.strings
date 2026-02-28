@@ -404,6 +404,8 @@
 "database_no_backup_message" = "数据库已损坏且没有可用的备份。资料库需要重置并从您的音频文件重新构建。";
 "settings_smartrewind_max_interval_title" = "智能倒带限制";
 "settings_support_discord_title" = "加入我们的 Discord 服务器";
+"hours" = "小时";
+"minutes" = "分钟";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "未命名设备";

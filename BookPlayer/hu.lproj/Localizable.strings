@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Az adatbázis sérült, és nincs elérhető biztonsági mentés. A könyvtárat alaphelyzetbe kell állítani és újra kell építeni a hangfájlokból.";
 "settings_smartrewind_max_interval_title" = "Intelligens visszatekerés korlátozása";
 "settings_support_discord_title" = "Csatlakozz a Discord szerverünkhöz";
+"hours" = "Órák";
+"minutes" = "Percek";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Névtelen eszköz";
