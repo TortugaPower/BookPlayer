@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */; };
+		14CB3D4E2F55CB9C00337011 /* TranscriptFeatureUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB3D4A2F55CB9C00337011 /* TranscriptFeatureUITests.swift */; };
+		14CB3D4F2F55CB9C00337011 /* TranscriptImporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB3D4B2F55CB9C00337011 /* TranscriptImporterTests.swift */; };
+		14CB3D502F55CB9C00337011 /* LRCServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB3D492F55CB9C00337011 /* LRCServiceTests.swift */; };
+		14CB3D512F55CB9C00337011 /* TranscriptViewerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB3D4C2F55CB9C00337011 /* TranscriptViewerViewModelTests.swift */; };
+		14CB3D522F55CB9C00337011 /* LRCParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CB3D482F55CB9C00337011 /* LRCParserTests.swift */; };
 		14E6903E2F55998600C9BDF4 /* TranscriptLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */; };
 		14E690402F55998F00C9BDF4 /* LRCParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903F2F55998F00C9BDF4 /* LRCParser.swift */; };
 		14E690422F55999600C9BDF4 /* TranscriptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690412F55999600C9BDF4 /* TranscriptStore.swift */; };
@@ -982,6 +987,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		14CB3D482F55CB9C00337011 /* LRCParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRCParserTests.swift; sourceTree = "<group>"; };
+		14CB3D492F55CB9C00337011 /* LRCServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRCServiceTests.swift; sourceTree = "<group>"; };
+		14CB3D4A2F55CB9C00337011 /* TranscriptFeatureUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFeatureUITests.swift; sourceTree = "<group>"; };
+		14CB3D4B2F55CB9C00337011 /* TranscriptImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptImporterTests.swift; sourceTree = "<group>"; };
+		14CB3D4C2F55CB9C00337011 /* TranscriptViewerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptViewerViewModelTests.swift; sourceTree = "<group>"; };
 		14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptLine.swift; sourceTree = "<group>"; };
 		14E6903F2F55998F00C9BDF4 /* LRCParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRCParser.swift; sourceTree = "<group>"; };
 		14E690412F55999600C9BDF4 /* TranscriptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStore.swift; sourceTree = "<group>"; };
@@ -1825,6 +1835,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		14CB3D4D2F55CB9C00337011 /* unit_test */ = {
+			isa = PBXGroup;
+			children = (
+				14CB3D482F55CB9C00337011 /* LRCParserTests.swift */,
+				14CB3D492F55CB9C00337011 /* LRCServiceTests.swift */,
+				14CB3D4A2F55CB9C00337011 /* TranscriptFeatureUITests.swift */,
+				14CB3D4B2F55CB9C00337011 /* TranscriptImporterTests.swift */,
+				14CB3D4C2F55CB9C00337011 /* TranscriptViewerViewModelTests.swift */,
+			);
+			path = unit_test;
+			sourceTree = "<group>";
+		};
 		14E6903C2F55998000C9BDF4 /* Transcript */ = {
 			isa = PBXGroup;
 			children = (
@@ -2153,6 +2175,7 @@
 		418B6D111D2707F800F974FB /* BookPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
+				14CB3D4D2F55CB9C00337011 /* unit_test */,
 				63833DF62AAC127900496246 /* Unit Tests.xctestplan */,
 				63833DF72AAC12AB00496246 /* Performance Tests.xctestplan */,
 				62AAE22827492D6E001EB9FF /* Mocks */,
@@ -4646,6 +4669,11 @@
 				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
+				14CB3D4E2F55CB9C00337011 /* TranscriptFeatureUITests.swift in Sources */,
+				14CB3D4F2F55CB9C00337011 /* TranscriptImporterTests.swift in Sources */,
+				14CB3D502F55CB9C00337011 /* LRCServiceTests.swift in Sources */,
+				14CB3D512F55CB9C00337011 /* TranscriptViewerViewModelTests.swift in Sources */,
+				14CB3D522F55CB9C00337011 /* LRCParserTests.swift in Sources */,
 				63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */,
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,

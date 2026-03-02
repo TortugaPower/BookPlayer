@@ -1,0 +1,773 @@
+diff --git a/BookPlayer.xcodeproj/project.pbxproj b/BookPlayer.xcodeproj/project.pbxproj
+index 439d3721..4e8020b0 100644
+--- a/BookPlayer.xcodeproj/project.pbxproj
++++ b/BookPlayer.xcodeproj/project.pbxproj
+@@ -8,6 +8,11 @@
+ 
+ /* Begin PBXBuildFile section */
+ 		07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */; };
++		14E6903E2F55998600C9BDF4 /* TranscriptLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */; };
++		14E690402F55998F00C9BDF4 /* LRCParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903F2F55998F00C9BDF4 /* LRCParser.swift */; };
++		14E690422F55999600C9BDF4 /* TranscriptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690412F55999600C9BDF4 /* TranscriptStore.swift */; };
++		14E690442F5599A300C9BDF4 /* TranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690432F5599A300C9BDF4 /* TranscriptView.swift */; };
++		14E690462F5599AC00C9BDF4 /* PlaybackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */; };
+ 		3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
+ 		3F66408B2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
+ 		3F66408D2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */; };
+@@ -977,6 +982,11 @@
+ /* End PBXCopyFilesBuildPhase section */
+ 
+ /* Begin PBXFileReference section */
++		14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptLine.swift; sourceTree = "<group>"; };
++		14E6903F2F55998F00C9BDF4 /* LRCParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRCParser.swift; sourceTree = "<group>"; };
++		14E690412F55999600C9BDF4 /* TranscriptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStore.swift; sourceTree = "<group>"; };
++		14E690432F5599A300C9BDF4 /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
++		14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackCardView.swift; sourceTree = "<group>"; };
+ 		3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyEmailInputView.swift; sourceTree = "<group>"; };
+ 		3ACFA02FA31A0CB0438C5228 /* BPFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPFont.swift; sourceTree = "<group>"; };
+ 		3F6640892E162ABF00356522 /* AudioMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMetadataService.swift; sourceTree = "<group>"; };
+@@ -1815,6 +1825,17 @@
+ /* End PBXFrameworksBuildPhase section */
+ 
+ /* Begin PBXGroup section */
++		14E6903C2F55998000C9BDF4 /* Transcript */ = {
++			isa = PBXGroup;
++			children = (
++				14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */,
++				14E6903F2F55998F00C9BDF4 /* LRCParser.swift */,
++				14E690412F55999600C9BDF4 /* TranscriptStore.swift */,
++				14E690432F5599A300C9BDF4 /* TranscriptView.swift */,
++			);
++			path = Transcript;
++			sourceTree = "<group>";
++		};
+ 		3F7B64332E0F713200299D97 /* Hardcover */ = {
+ 			isa = PBXGroup;
+ 			children = (
+@@ -3058,6 +3079,7 @@
+ 				99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */,
+ 				99329DD62F3E8A04003F8E73 /* SlickSlider.swift */,
+ 				99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */,
++				14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */,
+ 			);
+ 			path = Views;
+ 			sourceTree = "<group>";
+@@ -3459,6 +3481,7 @@
+ 				9F5011F82A6580800075FEBA /* ShakeMotionService.swift */,
+ 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
+ 				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
++				14E6903C2F55998000C9BDF4 /* Transcript */,
+ 			);
+ 			path = Player;
+ 			sourceTree = "<group>";
+@@ -4330,6 +4353,7 @@
+ 				63C48D4A2E3F008F005FBB96 /* AccountPerksSectionView.swift in Sources */,
+ 				63C48D522E50AAA1005FBB96 /* AccountPasskeySectionView.swift in Sources */,
+ 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
++				14E690462F5599AC00C9BDF4 /* PlaybackCardView.swift in Sources */,
+ 				63C48D3C2E3E7D29005FBB96 /* SettingsCompleteAccountView.swift in Sources */,
+ 				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
+ 				63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */,
+@@ -4393,6 +4417,7 @@
+ 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
+ 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
+ 				634BA5A12C174F9D0015314D /* StoryViewerViewModel.swift in Sources */,
++				14E690442F5599A300C9BDF4 /* TranscriptView.swift in Sources */,
+ 				63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
+ 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
+ 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
+@@ -4476,6 +4501,7 @@
+ 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
+ 				631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */,
+ 				634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */,
++				14E690422F55999600C9BDF4 /* TranscriptStore.swift in Sources */,
+ 				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
+ 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
+ 				635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */,
+@@ -4509,6 +4535,7 @@
+ 				3F7B64422E0FB27000299D97 /* AnyCodable.swift in Sources */,
+ 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
+ 				6399EA252F12B1870077BB13 /* PasskeyRegistrationView.swift in Sources */,
++				14E690402F55998F00C9BDF4 /* LRCParser.swift in Sources */,
+ 				6399EA9B2F12B1870077BB13 /* EmailVerificationView.swift in Sources */,
+ 				6399EA272F12B1870077BB13 /* PasskeySignInButton.swift in Sources */,
+ 				637043462E2C0199005353D1 /* SettingsiCloudSectionView.swift in Sources */,
+@@ -4585,6 +4612,7 @@
+ 				63C48C7A2E3DAC9D005FBB96 /* LoginView.swift in Sources */,
+ 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
+ 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
++				14E6903E2F55998600C9BDF4 /* TranscriptLine.swift in Sources */,
+ 				3F6640942E17386400356522 /* DeleteUserBookData.swift in Sources */,
+ 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
+ 				636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */,
+diff --git a/BookPlayer/Player/Transcript/LRCParser.swift b/BookPlayer/Player/Transcript/LRCParser.swift
+new file mode 100644
+index 00000000..95b98448
+--- /dev/null
++++ b/BookPlayer/Player/Transcript/LRCParser.swift
+@@ -0,0 +1,73 @@
++//
++//  LRCParser.swift
++//  BookPlayer
++//
++//  Created by Codex on 3/2/26.
++//
++
++import Foundation
++
++enum LRCParserError: LocalizedError {
++    case noTimedLines
++
++    var errorDescription: String? {
++        switch self {
++        case .noTimedLines:
++            return "Unable to find any timed lines in this LRC file."
++        }
++    }
++}
++
++enum LRCParser {
++    static func parse(_ contents: String) throws -> [TranscriptLine] {
++        var lines = [TranscriptLine]()
++
++        for rawLine in contents.split(whereSeparator: \.isNewline) {
++            let line = String(rawLine)
++            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
++            guard !trimmedLine.isEmpty else { continue }
++
++            var timestamps = [TimeInterval]()
++            var remainder = trimmedLine
++
++            while remainder.first == "[" {
++                guard let closingIndex = remainder.firstIndex(of: "]") else { break }
++                let tag = String(remainder[remainder.index(after: remainder.startIndex)..<closingIndex])
++                if let time = parseTimestamp(tag) {
++                    timestamps.append(time)
++                }
++                remainder = String(remainder[remainder.index(after: closingIndex)...])
++            }
++
++            let text = remainder.trimmingCharacters(in: .whitespacesAndNewlines)
++            guard !timestamps.isEmpty, !text.isEmpty else { continue }
++
++            for time in timestamps {
++                lines.append(TranscriptLine(time: time, text: text))
++            }
++        }
++
++        guard !lines.isEmpty else {
++            throw LRCParserError.noTimedLines
++        }
++
++        return lines.sorted { $0.time < $1.time }
++    }
++
++    private static func parseTimestamp(_ token: String) -> TimeInterval? {
++        let cleanToken = token.replacingOccurrences(of: ",", with: ".")
++        let parts = cleanToken.split(separator: ":")
++        guard parts.count == 2 || parts.count == 3 else { return nil }
++
++        let secondsPart = parts.last ?? ""
++        guard let seconds = Double(secondsPart) else { return nil }
++
++        if parts.count == 2 {
++            guard let minutes = Double(parts[0]) else { return nil }
++            return (minutes * 60) + seconds
++        }
++
++        guard let hours = Double(parts[0]), let minutes = Double(parts[1]) else { return nil }
++        return (hours * 3600) + (minutes * 60) + seconds
++    }
++}
+diff --git a/BookPlayer/Player/Transcript/TranscriptLine.swift b/BookPlayer/Player/Transcript/TranscriptLine.swift
+new file mode 100644
+index 00000000..7e823c4c
+--- /dev/null
++++ b/BookPlayer/Player/Transcript/TranscriptLine.swift
+@@ -0,0 +1,13 @@
++//
++//  TranscriptLine.swift
++//  BookPlayer
++//
++//  Created by Codex on 3/2/26.
++//
++
++import Foundation
++
++struct TranscriptLine: Equatable {
++    let time: TimeInterval
++    let text: String
++}
+diff --git a/BookPlayer/Player/Transcript/TranscriptStore.swift b/BookPlayer/Player/Transcript/TranscriptStore.swift
+new file mode 100644
+index 00000000..532cf7a8
+--- /dev/null
++++ b/BookPlayer/Player/Transcript/TranscriptStore.swift
+@@ -0,0 +1,72 @@
++//
++//  TranscriptStore.swift
++//  BookPlayer
++//
++//  Created by Codex on 3/2/26.
++//
++
++import BookPlayerKit
++import Foundation
++
++struct TranscriptStore {
++    private let transcriptsFolderName = "Transcripts"
++
++    func loadTranscript(for relativePath: String) throws -> String? {
++        let url = transcriptURL(for: relativePath)
++        if FileManager.default.fileExists(atPath: url.path) {
++            return try String(contentsOf: url, encoding: .utf8)
++        }
++
++        let legacyURL = legacyTranscriptURL(for: relativePath)
++        guard FileManager.default.fileExists(atPath: legacyURL.path) else { return nil }
++
++        let contents = try String(contentsOf: legacyURL, encoding: .utf8)
++        try saveTranscript(contents, for: relativePath)
++        try? FileManager.default.removeItem(at: legacyURL)
++        removeLegacyFolderIfEmpty()
++        return contents
++    }
++
++    func saveTranscript(_ contents: String, for relativePath: String) throws {
++        let url = transcriptURL(for: relativePath)
++        try FileManager.default.createDirectory(
++            at: url.deletingLastPathComponent(),
++            withIntermediateDirectories: true,
++            attributes: nil
++        )
++        try contents.write(to: url, atomically: true, encoding: .utf8)
++        url.disableFileProtection()
++    }
++
++    private func transcriptURL(for relativePath: String) -> URL {
++        let sanitized = sanitizeFileName(relativePath)
++        let folder = applicationSupportFolder().appendingPathComponent(transcriptsFolderName, isDirectory: true)
++        return folder.appendingPathComponent("\(sanitized).lrc")
++    }
++
++    private func legacyTranscriptURL(for relativePath: String) -> URL {
++        let sanitized = sanitizeFileName(relativePath)
++        let folder = DataManager.getDocumentsFolderURL().appendingPathComponent(transcriptsFolderName, isDirectory: true)
++        return folder.appendingPathComponent("\(sanitized).lrc")
++    }
++
++    private func applicationSupportFolder() -> URL {
++        let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
++        return (urls.first ?? FileManager.default.temporaryDirectory)
++            .appendingPathComponent("BookPlayer", isDirectory: true)
++    }
++
++    private func removeLegacyFolderIfEmpty() {
++        let legacyFolder = DataManager.getDocumentsFolderURL().appendingPathComponent(transcriptsFolderName, isDirectory: true)
++        guard let contents = try? FileManager.default.contentsOfDirectory(at: legacyFolder, includingPropertiesForKeys: nil), contents.isEmpty else { return }
++        try? FileManager.default.removeItem(at: legacyFolder)
++    }
++
++    private func sanitizeFileName(_ name: String) -> String {
++        let replaced = name
++            .replacingOccurrences(of: "/", with: "_")
++            .replacingOccurrences(of: ":", with: "_")
++            .replacingOccurrences(of: "\\", with: "_")
++        return replaced
++    }
++}
+diff --git a/BookPlayer/Player/Transcript/TranscriptView.swift b/BookPlayer/Player/Transcript/TranscriptView.swift
+new file mode 100644
+index 00000000..10948b92
+--- /dev/null
++++ b/BookPlayer/Player/Transcript/TranscriptView.swift
+@@ -0,0 +1,79 @@
++//
++//  TranscriptView.swift
++//  BookPlayer
++//
++//  Created by Codex on 3/2/26.
++//
++
++import SwiftUI
++
++struct TranscriptView: View {
++    @EnvironmentObject private var theme: ThemeViewModel
++
++    let lines: [TranscriptLine]
++    let activeIndex: Int?
++    let onLineTap: (TranscriptLine) -> Void
++    let scrollRequest: Int
++
++    var body: some View {
++        ScrollViewReader { proxy in
++            ScrollView {
++                LazyVStack(alignment: .leading, spacing: 12) {
++                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
++                        transcriptRow(index: index, line: line)
++                            .id(index)
++                    }
++                }
++                .padding(16)
++            }
++            .onAppear {
++                scrollToActiveLine(using: proxy)
++            }
++            .onChange(of: scrollRequest) { _ in
++                scrollToActiveLine(using: proxy)
++            }
++        }
++        .background(theme.secondarySystemBackgroundColor)
++        .accessibilityElement(children: .contain)
++    }
++
++    private func transcriptRow(index: Int, line: TranscriptLine) -> some View {
++        let isActive = index == activeIndex
++
++        return Text(line.text)
++            .bpFont(isActive ? .title2 : .body)
++            .foregroundColor(isActive ? theme.linkColor : theme.primaryColor)
++            .frame(maxWidth: .infinity, alignment: .leading)
++            .padding(.vertical, 4)
++            .padding(.horizontal, 8)
++            .background(
++                RoundedRectangle(cornerRadius: 8)
++                    .fill(isActive ? theme.tertiarySystemBackgroundColor : Color.clear)
++            )
++            .contentShape(Rectangle())
++            .onTapGesture {
++                onLineTap(line)
++            }
++    }
++
++    private func scrollToActiveLine(using proxy: ScrollViewProxy) {
++        guard let activeIndex else { return }
++        withAnimation(.easeInOut(duration: 0.25)) {
++            proxy.scrollTo(activeIndex, anchor: .center)
++        }
++    }
++}
++
++#Preview {
++    TranscriptView(
++        lines: [
++            TranscriptLine(time: 0, text: "Chapter one"),
++            TranscriptLine(time: 4, text: "It was a bright cold day in April."),
++            TranscriptLine(time: 9, text: "The clocks were striking thirteen."),
++        ],
++        activeIndex: 1,
++        onLineTap: { _ in },
++        scrollRequest: 0
++    )
++    .environmentObject(ThemeViewModel())
++}
+diff --git a/BookPlayer/Player/ViewModels/PlayerViewModel.swift b/BookPlayer/Player/ViewModels/PlayerViewModel.swift
+index a9dac6b6..2bc0684f 100644
+--- a/BookPlayer/Player/ViewModels/PlayerViewModel.swift
++++ b/BookPlayer/Player/ViewModels/PlayerViewModel.swift
+@@ -20,6 +20,20 @@ enum PlayerSheetStyle: String, Identifiable {
+     var id: String { self.rawValue }
+ }
+ 
++enum BPTranscriptError: LocalizedError {
++    case noBookLoaded
++    case durationMismatch
++
++    var errorDescription: String? {
++        switch self {
++        case .noBookLoaded:
++            return "No book is currently loaded."
++        case .durationMismatch:
++            return "File format not supported or the LRC file does not match this audio."
++        }
++    }
++}
++
+ @MainActor
+ final class PlayerViewModel: ObservableObject {
+   @Published var progressData = ProgressData()
+@@ -37,6 +51,10 @@ final class PlayerViewModel: ObservableObject {
+   @Published var isShowingNote: Bool = false
+   @Published var sheetStyle: PlayerSheetStyle?
+   @Published var displaySheet = false
++  @Published var transcriptLines = [TranscriptLine]()
++  @Published var activeTranscriptIndex: Int?
++  @Published var isShowingTranscript = false
++  @Published var transcriptScrollRequest = 0
+   
+   let libraryService: LibraryServiceProtocol
+   let playbackService: PlaybackServiceProtocol
+@@ -53,6 +71,7 @@ final class PlayerViewModel: ObservableObject {
+   private var listeningProgressSubscriber: AnyCancellable?
+   private var currentChapterSubscriber: AnyCancellable?
+   private var progressUpdateObserver: NSKeyValueObservation?
++  private let transcriptStore = TranscriptStore()
+   
+   var currentTimeAccessLabel: String {
+     let prefix = self.prefersChapterContext
+@@ -71,6 +90,10 @@ final class PlayerViewModel: ObservableObject {
+     
+     return "\(self.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
+   }
++
++  var hasTranscript: Bool {
++    return !transcriptLines.isEmpty
++  }
+   
+   func formattedSpeed() -> String {
+     return (playbackSpeed.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(playbackSpeed))" : "\(playbackSpeed)") + "×"
+@@ -204,10 +227,14 @@ final class PlayerViewModel: ObservableObject {
+       .receive(on: DispatchQueue.main)
+       .sink { [weak self] item in
+         self?.currentChapterSubscriber?.cancel()
+-        guard let self = self,
+-              let item = item
+-        else { return }
+-        
++        guard let self = self else { return }
++
++        guard let item else {
++          self.resetTranscriptState()
++          return
++        }
++
++        self.loadTranscriptIfAvailable(for: item)
+         bindCurrentChapter(for: item)
+       }.store(in: &disposeBag)
+     
+@@ -228,6 +255,7 @@ final class PlayerViewModel: ObservableObject {
+       .sink { [weak self] _ in
+         guard let self = self else { return }
+         self.recalculateProgress()
++        self.updateTranscriptPosition()
+       }
+     
+     self.listeningProgressSubscriber?.cancel()
+@@ -236,6 +264,7 @@ final class PlayerViewModel: ObservableObject {
+       .sink { [weak self] _ in
+         guard let self = self else { return }
+         self.recalculateProgress()
++        self.updateTranscriptPosition()
+       }
+   }
+   
+@@ -306,7 +335,9 @@ final class PlayerViewModel: ObservableObject {
+   
+   func handleSliderUpEvent(with value: Float) {
+     let newTime = getBookTimeFromSlider(value: value)
+-    
++
++    updateTranscriptPosition(for: newTime)
++    requestTranscriptScroll()
+     self.playerManager.jumpTo(newTime, recordBookmark: true)
+   }
+   
+@@ -357,6 +388,126 @@ final class PlayerViewModel: ObservableObject {
+     progressData.currentTime = currentTime
+     progressData.sliderValue = Double(sliderValue)
+   }
++
++  func importTranscript(from url: URL) {
++    guard let currentItem = playerManager.currentItem else {
++      presentTranscriptImportError(BPTranscriptError.noBookLoaded)
++      return
++    }
++
++    let canAccess = url.startAccessingSecurityScopedResource()
++    defer {
++      if canAccess {
++        url.stopAccessingSecurityScopedResource()
++      }
++    }
++
++    do {
++      let contents = try String(contentsOf: url, encoding: .utf8)
++      let lines = try LRCParser.parse(contents)
++      try validateTranscript(lines, duration: currentItem.duration)
++      try transcriptStore.saveTranscript(contents, for: currentItem.relativePath)
++      transcriptLines = lines
++      isShowingTranscript = true
++      updateTranscriptPosition()
++    } catch {
++      presentTranscriptImportError(error)
++    }
++  }
++
++  func presentTranscriptImportError(_ error: Error) {
++    let message = error.localizedDescription
++    currentAlert = BPAlertContent.errorAlert(title: "Transcript Import Failed", message: message)
++  }
++
++  func seekToTranscriptTime(_ time: TimeInterval) {
++    updateTranscriptPosition(for: time)
++    requestTranscriptScroll()
++    playerManager.jumpTo(time, recordBookmark: true)
++  }
++
++  func refreshTranscriptPosition() {
++    updateTranscriptPosition()
++    requestTranscriptScroll()
++  }
++
++  private func resetTranscriptState() {
++    transcriptLines = []
++    activeTranscriptIndex = nil
++    isShowingTranscript = false
++  }
++
++  private func loadTranscriptIfAvailable(for item: PlayableItem) {
++    do {
++      if let contents = try transcriptStore.loadTranscript(for: item.relativePath) {
++        transcriptLines = try LRCParser.parse(contents)
++      } else {
++        transcriptLines = []
++      }
++    } catch {
++      transcriptLines = []
++    }
++
++    activeTranscriptIndex = nil
++    isShowingTranscript = false
++  }
++
++  private func updateTranscriptPosition() {
++    let currentTime = playerManager.currentItem?.currentTime ?? 0
++    updateTranscriptPosition(for: currentTime)
++  }
++
++  private func updateTranscriptPosition(for time: TimeInterval) {
++    guard !transcriptLines.isEmpty else {
++      activeTranscriptIndex = nil
++      return
++    }
++
++    let newIndex = transcriptIndex(for: time)
++    if newIndex != activeTranscriptIndex {
++      activeTranscriptIndex = newIndex
++      if isShowingTranscript {
++        requestTranscriptScroll()
++      }
++    }
++  }
++
++  private func requestTranscriptScroll() {
++    transcriptScrollRequest += 1
++  }
++
++  private func transcriptIndex(for time: TimeInterval) -> Int? {
++    guard !transcriptLines.isEmpty else { return nil }
++
++    if time < transcriptLines[0].time {
++      return nil
++    }
++
++    var low = 0
++    var high = transcriptLines.count - 1
++    var result = 0
++
++    while low <= high {
++      let mid = (low + high) / 2
++      if transcriptLines[mid].time <= time {
++        result = mid
++        low = mid + 1
++      } else {
++        high = mid - 1
++      }
++    }
++
++    return result
++  }
++
++  private func validateTranscript(_ lines: [TranscriptLine], duration: TimeInterval) throws {
++    guard duration > 0, let lastTime = lines.last?.time else { return }
++
++    let tolerance: TimeInterval = 2.0
++    if lastTime > duration + tolerance {
++      throw BPTranscriptError.durationMismatch
++    }
++  }
+   
+   func handleNextTap() {
+     if let currentChapter = self.playerManager.currentItem?.currentChapter,
+diff --git a/BookPlayer/Player/Views/PlaybackCardView.swift b/BookPlayer/Player/Views/PlaybackCardView.swift
+new file mode 100644
+index 00000000..989c607d
+--- /dev/null
++++ b/BookPlayer/Player/Views/PlaybackCardView.swift
+@@ -0,0 +1,82 @@
++//
++//  PlaybackCardView.swift
++//  BookPlayer
++//
++//  Created by Codex on 3/2/26.
++//
++
++import SwiftUI
++
++struct PlaybackCardView: View {
++    let title: String
++    let author: String
++    let imagePath: String?
++    let transcriptLines: [TranscriptLine]
++    let activeTranscriptIndex: Int?
++    let isShowingTranscript: Bool
++    let transcriptScrollRequest: Int
++    let onTranscriptToggle: () -> Void
++    let onTranscriptLineTap: (TranscriptLine) -> Void
++
++    var body: some View {
++        ZStack(alignment: .topLeading) {
++            Group {
++                if isShowingTranscript, !transcriptLines.isEmpty {
++                    TranscriptView(
++                        lines: transcriptLines,
++                        activeIndex: activeTranscriptIndex,
++                        onLineTap: onTranscriptLineTap,
++                        scrollRequest: transcriptScrollRequest
++                    )
++                } else {
++                    ArtworkView(
++                        title: title,
++                        author: author,
++                        imagePath: imagePath
++                    )
++                }
++            }
++            .aspectRatio(1, contentMode: .fit)
++            .cornerRadius(12)
++            .clipped()
++
++            transcriptButton
++        }
++        .frame(maxWidth: .infinity, maxHeight: .infinity)
++    }
++
++    private var transcriptButton: some View {
++        Button(action: onTranscriptToggle) {
++            Image(systemName: "note.text")
++                .font(.system(size: 18, weight: .semibold))
++                .foregroundStyle(.white)
++                .frame(width: 36, height: 36)
++                .background(
++                    Circle()
++                        .fill(Color.black.opacity(isShowingTranscript ? 0.6 : 0.35))
++                )
++                .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 2)
++        }
++        .padding(.leading, 8)
++        .padding(.top, 8)
++        .accessibilityLabel(Text("Read along"))
++    }
++}
++
++#Preview {
++    PlaybackCardView(
++        title: "Sample",
++        author: "Author",
++        imagePath: nil,
++        transcriptLines: [
++            TranscriptLine(time: 0, text: "Line one"),
++            TranscriptLine(time: 5, text: "Line two"),
++        ],
++        activeTranscriptIndex: 1,
++        isShowingTranscript: true,
++        transcriptScrollRequest: 0,
++        onTranscriptToggle: {},
++        onTranscriptLineTap: { _ in }
++    )
++    .environmentObject(ThemeViewModel())
++}
+diff --git a/BookPlayer/Player/Views/PlayerView.swift b/BookPlayer/Player/Views/PlayerView.swift
+index d2060c70..e9726551 100644
+--- a/BookPlayer/Player/Views/PlayerView.swift
++++ b/BookPlayer/Player/Views/PlayerView.swift
+@@ -8,6 +8,7 @@
+ 
+ import SwiftUI
+ import BookPlayerKit
++import UniformTypeIdentifiers
+ 
+ struct PlayerView: View {
+   @Environment(\.colorScheme) private var scheme
+@@ -18,6 +19,7 @@ struct PlayerView: View {
+   @StateObject private var theme = ThemeViewModel()
+   @State private var dragOffset: CGSize = .zero
+   @State private var dragThresholdReached = false
++  @State private var isShowingTranscriptImporter = false
+   let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+   
+   init(initModel: @escaping () -> PlayerViewModel) {
+@@ -38,10 +40,18 @@ struct PlayerView: View {
+         )
+       
+       VStack {
+-        ArtworkView(
++        PlaybackCardView(
+           title: viewModel.title,
+           author: viewModel.author,
+-          imagePath: viewModel.relativePath
++          imagePath: viewModel.relativePath,
++          transcriptLines: viewModel.transcriptLines,
++          activeTranscriptIndex: viewModel.activeTranscriptIndex,
++          isShowingTranscript: viewModel.isShowingTranscript,
++          transcriptScrollRequest: viewModel.transcriptScrollRequest,
++          onTranscriptToggle: handleTranscriptToggle,
++          onTranscriptLineTap: { line in
++            viewModel.seekToTranscriptTime(line.time)
++          }
+         )
+         .simultaneousGesture(
+           DragGesture(minimumDistance: 15)
+@@ -52,6 +62,7 @@ struct PlayerView: View {
+               handleDragEnded(gesture)
+             }
+         )
++        .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: viewModel.isShowingTranscript)
+         
+         Spacer()
+       }
+@@ -139,6 +150,19 @@ struct PlayerView: View {
+     ) { text in
+       self.viewModel.saveNote(note: text)
+     }
++    .fileImporter(
++      isPresented: $isShowingTranscriptImporter,
++      allowedContentTypes: [UTType(filenameExtension: "lrc") ?? .plainText, .plainText],
++      allowsMultipleSelection: false
++    ) { result in
++      switch result {
++      case .success(let urls):
++        guard let url = urls.first else { return }
++        viewModel.importTranscript(from: url)
++      case .failure(let error):
++        viewModel.presentTranscriptImportError(error)
++      }
++    }
+     .sheet(item: $viewModel.sheetStyle) { style in
+       switch style {
+       case .controls:
+@@ -202,4 +226,24 @@ struct PlayerView: View {
+       dragOffset = .zero
+     }
+   }
++
++  private func handleTranscriptToggle() {
++    guard viewModel.hasLoadedBook() else { return }
++
++    if viewModel.hasTranscript {
++      if reduceMotion {
++        viewModel.isShowingTranscript.toggle()
++      } else {
++        withAnimation(.easeInOut(duration: 0.2)) {
++          viewModel.isShowingTranscript.toggle()
++        }
++      }
++
++      if viewModel.isShowingTranscript {
++        viewModel.refreshTranscriptPosition()
++      }
++    } else {
++      isShowingTranscriptImporter = true
++    }
++  }
+ }
