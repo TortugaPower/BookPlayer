@@ -14,6 +14,7 @@ struct PlaybackCardView: View {
     let transcriptLines: [TranscriptLine]
     let activeTranscriptIndex: Int?
     let isShowingTranscript: Bool
+    let transcriptScrollRequest: Int
     let onTranscriptToggle: () -> Void
     let onTranscriptLineTap: (TranscriptLine) -> Void
 
@@ -24,7 +25,8 @@ struct PlaybackCardView: View {
                     TranscriptView(
                         lines: transcriptLines,
                         activeIndex: activeTranscriptIndex,
-                        onLineTap: onTranscriptLineTap
+                        onLineTap: onTranscriptLineTap,
+                        scrollRequest: transcriptScrollRequest
                     )
                 } else {
                     ArtworkView(
@@ -72,6 +74,7 @@ struct PlaybackCardView: View {
         ],
         activeTranscriptIndex: 1,
         isShowingTranscript: true,
+        transcriptScrollRequest: 0,
         onTranscriptToggle: {},
         onTranscriptLineTap: { _ in }
     )

@@ -13,6 +13,7 @@ struct TranscriptView: View {
     let lines: [TranscriptLine]
     let activeIndex: Int?
     let onLineTap: (TranscriptLine) -> Void
+    let scrollRequest: Int
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -29,6 +30,9 @@ struct TranscriptView: View {
                 scrollToActiveLine(using: proxy)
             }
             .onChange(of: activeIndex) { _ in
+                scrollToActiveLine(using: proxy)
+            }
+            .onChange(of: scrollRequest) { _ in
                 scrollToActiveLine(using: proxy)
             }
         }
@@ -71,7 +75,8 @@ struct TranscriptView: View {
             TranscriptLine(time: 9, text: "The clocks were striking thirteen."),
         ],
         activeIndex: 1,
-        onLineTap: { _ in }
+        onLineTap: { _ in },
+        scrollRequest: 0
     )
     .environmentObject(ThemeViewModel())
 }

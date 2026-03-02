@@ -47,6 +47,7 @@ struct PlayerView: View {
           transcriptLines: viewModel.transcriptLines,
           activeTranscriptIndex: viewModel.activeTranscriptIndex,
           isShowingTranscript: viewModel.isShowingTranscript,
+          transcriptScrollRequest: viewModel.transcriptScrollRequest,
           onTranscriptToggle: handleTranscriptToggle,
           onTranscriptLineTap: { line in
             viewModel.seekToTranscriptTime(line.time)

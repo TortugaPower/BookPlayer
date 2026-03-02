@@ -54,6 +54,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var transcriptLines = [TranscriptLine]()
   @Published var activeTranscriptIndex: Int?
   @Published var isShowingTranscript = false
+  @Published var transcriptScrollRequest = 0
   
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -336,6 +337,7 @@ final class PlayerViewModel: ObservableObject {
     let newTime = getBookTimeFromSlider(value: value)
 
     updateTranscriptPosition(for: newTime)
+    requestTranscriptScroll()
     self.playerManager.jumpTo(newTime, recordBookmark: true)
   }
   
@@ -420,11 +422,13 @@ final class PlayerViewModel: ObservableObject {
 
   func seekToTranscriptTime(_ time: TimeInterval) {
     updateTranscriptPosition(for: time)
+    requestTranscriptScroll()
     playerManager.jumpTo(time, recordBookmark: true)
   }
 
   func refreshTranscriptPosition() {
     updateTranscriptPosition()
+    requestTranscriptScroll()
   }
 
   private func resetTranscriptState() {
@@ -463,6 +467,10 @@ final class PlayerViewModel: ObservableObject {
     if newIndex != activeTranscriptIndex {
       activeTranscriptIndex = newIndex
     }
+  }
+
+  private func requestTranscriptScroll() {
+    transcriptScrollRequest += 1
   }
 
   private func transcriptIndex(for time: TimeInterval) -> Int? {
