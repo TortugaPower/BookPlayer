@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Baza de date este coruptă și nu este disponibilă nicio copie de rezervă. Biblioteca va trebui resetată și reconstruită din fișierele audio.";
 "settings_smartrewind_max_interval_title" = "Limită de derulare înapoi inteligentă";
 "settings_support_discord_title" = "Alătură-te serverului nostru Discord";
+"hours" = "Ore";
+"minutes" = "Minute";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispozitiv fără nume";

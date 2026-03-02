@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Die Datenbank ist beschädigt und kein Backup ist verfügbar. Die Bibliothek muss zurückgesetzt und aus Ihren Audiodateien neu aufgebaut werden.";
 "settings_smartrewind_max_interval_title" = "Intelligentes Rückspullimit";
 "settings_support_discord_title" = "Tritt unserem Discord-Server bei";
+"hours" = "Stunden";
+"minutes" = "Minuten";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Unbenanntes Gerät";

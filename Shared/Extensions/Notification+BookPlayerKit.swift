@@ -21,4 +21,6 @@ extension Notification.Name {
   public static let folderProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).folder.progress.update")
   public static let uploadProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.progress.update")
   public static let uploadCompleted = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.completed")
+  public static let listeningProgressChanged = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).listening.progress.changed")
+  
 }

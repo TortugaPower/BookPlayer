@@ -1,16 +1,34 @@
 {
   "images" : [
     {
+      "alignment-insets" : {
+        "bottom" : 10,
+        "left" : 10,
+        "right" : 0,
+        "top" : 0
+      },
       "filename" : "toolbarIconBookmark.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "alignment-insets" : {
+        "bottom" : 20,
+        "left" : 20,
+        "right" : 0,
+        "top" : 0
+      },
       "filename" : "toolbarIconBookmark@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "alignment-insets" : {
+        "bottom" : 30,
+        "left" : 30,
+        "right" : 0,
+        "top" : 0
+      },
       "filename" : "toolbarIconBookmark@3x.png",
       "idiom" : "universal",
       "scale" : "3x"

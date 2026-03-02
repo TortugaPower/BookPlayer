@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Databasen er beskadiget, og ingen sikkerhedskopi er tilgængelig. Biblioteket skal nulstilles og genopbygges fra dine lydfiler.";
 "settings_smartrewind_max_interval_title" = "Smart tilbagespolingsgrænse";
 "settings_support_discord_title" = "Deltag i vores Discord-server";
+"hours" = "Timer";
+"minutes" = "Minutter";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Unavngivet enhed";

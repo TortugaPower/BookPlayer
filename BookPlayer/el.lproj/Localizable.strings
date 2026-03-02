@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Η βάση δεδομένων είναι κατεστραμμένη και δεν υπάρχει διαθέσιμο αντίγραφο ασφαλείας. Η βιβλιοθήκη θα πρέπει να επαναφερθεί και να ανακατασκευαστεί από τα αρχεία ήχου σας.";
 "settings_smartrewind_max_interval_title" = "Έξυπνο όριο επαναφοράς";
 "settings_support_discord_title" = "Συμμετάσχετε στον διακομιστή Discord μας";
+"hours" = "Ώρες";
+"minutes" = "Λεπτά";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Ανώνυμη συσκευή";

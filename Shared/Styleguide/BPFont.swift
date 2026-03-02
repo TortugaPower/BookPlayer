@@ -37,6 +37,8 @@ public enum BPFont {
   // Mini player
   case miniPlayerTitle   // 14pt semibold
   case miniPlayerAuthor  // 13pt regular
+  
+  case playerTitle // 18pt semibold
 
   // Special
   case iconLarge      // 48pt for large icons
@@ -78,6 +80,8 @@ public enum BPFont {
       return .footnote
     case .iconLarge:
       return .system(size: 48)
+    case .playerTitle:
+      return .system(size: 18).weight(.semibold)
     }
   }
 
@@ -101,6 +105,7 @@ public enum BPFont {
     case .miniPlayerTitle: return 15
     case .miniPlayerAuthor: return 13
     case .iconLarge: return 48
+    case .playerTitle: return 18
     }
   }
 
@@ -124,6 +129,7 @@ public enum BPFont {
     case .miniPlayerTitle: return .semibold
     case .miniPlayerAuthor: return .regular
     case .iconLarge: return .regular
+    case .playerTitle: return .semibold
     }
   }
 

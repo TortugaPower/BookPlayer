@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Tietokanta on vioittunut eikä varmuuskopiota ole saatavilla. Kirjasto on nollattava ja rakennettava uudelleen äänitiedostoistasi.";
 "settings_smartrewind_max_interval_title" = "Älykäs kelausrajoitus";
 "settings_support_discord_title" = "Liity Discord-palvelimellemme";
+"hours" = "Tunnit";
+"minutes" = "Minuutit";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Nimetön laite";
