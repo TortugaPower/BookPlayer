@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Veritabanı bozuk ve yedek mevcut değil. Kitaplığın sıfırlanması ve ses dosyalarınızdan yeniden oluşturulması gerekecek.";
 "settings_smartrewind_max_interval_title" = "Akıllı Geri Sarma Sınırı";
 "settings_support_discord_title" = "Discord sunucumuza katılın";
+"hours" = "Saatler";
+"minutes" = "Dakikalar";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Adsız Cihaz";

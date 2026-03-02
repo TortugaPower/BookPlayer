@@ -404,6 +404,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "database_no_backup_message" = "Databáza je poškodená a nie je k dispozícii žiadna záloha. Knižnica bude musieť byť resetovaná a znovu vytvorená z vašich audio súborov.";
 "settings_smartrewind_max_interval_title" = "Inteligentný limit pretáčania";
 "settings_support_discord_title" = "Pripojte sa k nášmu Discord serveru";
+"hours" = "Hodiny";
+"minutes" = "Minúty";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Nepomenované zariadenie";

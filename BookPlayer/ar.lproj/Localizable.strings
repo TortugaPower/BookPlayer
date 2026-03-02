@@ -404,6 +404,8 @@
 "database_no_backup_message" = "قاعدة البيانات تالفة ولا تتوفر نسخة احتياطية. ستحتاج المكتبة إلى إعادة التعيين وإعادة البناء من ملفاتك الصوتية.";
 "settings_smartrewind_max_interval_title" = "حد التراجع الذكي";
 "settings_support_discord_title" = "انضم إلى خادم Discord الخاص بنا";
+"hours" = "ساعات";
+"minutes" = "دقائق";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "جهاز بدون اسم";

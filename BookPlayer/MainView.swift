@@ -11,7 +11,6 @@ import SwiftUI
 
 struct MainView: View {
   let showSecondOnboarding: () -> Void
-  let showPlayer: () -> Void
   let showImport: () -> Void
 
   @State private var listState = ListStateManager()
@@ -21,6 +20,7 @@ struct MainView: View {
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
+  @Environment(\.playbackService) private var playbackService
   @Environment(\.colorScheme) private var scheme
 
   @State private var tabBarContentHeight: CGFloat = 49
@@ -33,7 +33,6 @@ struct MainView: View {
       Tab("library_title", systemImage: "books.vertical") {
         LibraryRootView(
           showSecondOnboarding: showSecondOnboarding,
-          showPlayer: showPlayer,
           showImport: showImport
         )
         .background {
@@ -84,6 +83,17 @@ struct MainView: View {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
+    .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {
+      PlayerView {
+        PlayerViewModel(
+          libraryService: libraryService,
+          playbackService: playbackService,
+          playerManager: playerManager,
+          syncService: syncService
+        )
+      }
+      .presentationBackground(.clear)
+    }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
     }
@@ -93,6 +103,12 @@ struct MainView: View {
     .tint(theme.linkColor)
     .onChange(of: scheme) {
       ThemeManager.shared.checkSystemMode()
+    }
+    .onChange(of: playerState.showPlayer) {
+      if playerState.showPlayer {
+        showPlayer()
+        playerState.showPlayer = false
+      }
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
@@ -112,6 +128,14 @@ struct MainView: View {
         syncService.cancelAllJobs()
       }
     }
+  }
+  
+  func showPlayer() {
+    playerState.isShowingPlayer = true
+  }
+  
+  func hasPlayerShown() -> Bool {
+    return playerState.isShowingPlayer
   }
 
   func handleDrop(_ providers: [NSItemProvider]) {
@@ -156,7 +180,6 @@ struct MainView: View {
 
 #Preview {
   MainView {
-  } showPlayer: {
   } showImport: {
   }
 }

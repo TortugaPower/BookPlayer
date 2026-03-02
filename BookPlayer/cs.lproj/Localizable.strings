@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Databáze je poškozená a není k dispozici žádná záloha. Knihovna bude muset být resetována a znovu vytvořena z vašich audio souborů.";
 "settings_smartrewind_max_interval_title" = "Chytrý limit převíjení";
 "settings_support_discord_title" = "Připojte se k našemu Discord serveru";
+"hours" = "Hodiny";
+"minutes" = "Minuty";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Nepojmenované zařízení";

@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Foundation
 import IDZSwiftCommonCrypto
+import Sentry
 import ZipArchive
 
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
@@ -184,14 +185,23 @@ public class ImportOperation: Operation {
         try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
       }
 
-      if accessGranted {
-        try FileManager.default.copyItem(at: fileURL, to: existingFileURL)
-      } else {
-        try FileManager.default.moveItem(at: fileURL, to: existingFileURL)
+      try FileManager.default.copyItem(at: fileURL, to: existingFileURL)
+
+      if DataManager.isAppOwnFolder(fileURL) {
+        fileURL.disableFileProtection()
+        try? FileManager.default.removeItem(at: fileURL)
       }
 
       existingFileURL.disableFileProtection()
     } catch {
+      SentrySDK.capture(error: error) { scope in
+        scope.setContext(value: [
+          "source": fileURL.path,
+          "destination": existingFileURL.path,
+          "securityScopedAccess": accessGranted
+        ], key: "import")
+      }
+      SentrySDK.flush(timeout: 2)
       fatalError("Existing book, fail to move file from \(fileURL) to \(existingFileURL). Error: \(error.localizedDescription)")
     }
 
@@ -248,14 +258,23 @@ public class ImportOperation: Operation {
     let destinationURL = self.getNextAvailableURL(for: currentFile)
 
     do {
-      if accessGranted {
-        try FileManager.default.copyItem(at: currentFile, to: destinationURL)
-      } else {
-        try FileManager.default.moveItem(at: currentFile, to: destinationURL)
+      try FileManager.default.copyItem(at: currentFile, to: destinationURL)
+
+      if DataManager.isAppOwnFolder(currentFile) {
+        currentFile.disableFileProtection()
+        try FileManager.default.removeItem(at: currentFile)
       }
 
       destinationURL.disableFileProtection()
     } catch {
+      SentrySDK.capture(error: error) { scope in
+        scope.setContext(value: [
+          "source": currentFile.path,
+          "destination": destinationURL.path,
+          "securityScopedAccess": accessGranted
+        ], key: "import")
+      }
+      SentrySDK.flush(timeout: 2)
       fatalError("Fail to move file from \(currentFile) to \(destinationURL). Error: \(error.localizedDescription)")
     }
 

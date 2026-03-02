@@ -404,6 +404,8 @@
 "database_no_backup_message" = "Il database è danneggiato e nessun backup è disponibile. La libreria dovrà essere reimpostata e ricostruita dai tuoi file audio.";
 "settings_smartrewind_max_interval_title" = "Limite di riavvolgimento intelligente";
 "settings_support_discord_title" = "Unisciti al nostro server Discord";
+"hours" = "Ore";
+"minutes" = "Minuti";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispositivo senza nome";

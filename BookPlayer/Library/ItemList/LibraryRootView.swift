@@ -12,7 +12,6 @@ import SwiftUI
 
 struct LibraryRootView: View {
   let showSecondOnboarding: () -> Void
-  let showPlayer: () -> Void
   let showImport: () -> Void
 
   @State private var path = [LibraryNode]()
@@ -93,14 +92,7 @@ struct LibraryRootView: View {
       }
       .onChange(of: scenePhase) {
         guard scenePhase == .active else { return }
-
         showImport()
-      }
-      .onChange(of: playerState.showPlayer) {
-        if playerState.showPlayer {
-          showPlayer()
-          playerState.showPlayer = false
-        }
       }
       .onReceive(syncService.downloadErrorPublisher) { (relativePath, error) in
         let errorMessage = "\(relativePath)\n\(error.localizedDescription)"
@@ -170,7 +162,7 @@ struct LibraryRootView: View {
 
       if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
-        showPlayer()
+        playerState.showPlayer = true
       }
     } catch {
       loadingState.error = error
@@ -248,7 +240,6 @@ extension LibraryRootView {
 
 #Preview {
   LibraryRootView {
-  } showPlayer: {
   } showImport: {
   }
 }

@@ -404,6 +404,8 @@
 "database_no_backup_message" = "База данных повреждена, и резервная копия недоступна. Библиотеку придётся сбросить и перестроить из ваших аудиофайлов.";
 "settings_smartrewind_max_interval_title" = "Ограничение смарт-перемотки";
 "settings_support_discord_title" = "Присоединяйтесь к нашему Discord-серверу";
+"hours" = "Часы";
+"minutes" = "Минуты";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Устройство без имени";

@@ -87,8 +87,6 @@ class MainCoordinator: NSObject {
     let vc = AppHostingViewController(
       rootView: MainView {
         self.showSecondOnboarding()
-      } showPlayer: {
-        self.showPlayer()
       } showImport: {
         self.showImport()
       }
@@ -193,17 +191,11 @@ class MainCoordinator: NSObject {
   }
 
   func showPlayer() {
-    let playerCoordinator = PlayerCoordinator(
-      flow: .modalOnlyFlow(presentingController: mainController!, modalPresentationStyle: .overFullScreen),
-      playerManager: self.playerManager,
-      libraryService: self.libraryService,
-      syncService: self.syncService
-    )
-    playerCoordinator.start()
+    playerState.showPlayer = true
   }
-
+  
   func hasPlayerShown() -> Bool {
-    return mainController?.presentedViewController is PlayerViewController
+    return playerState.isShowingPlayer
   }
 
   func processFiles(urls: [URL]) {
@@ -217,6 +209,7 @@ class MainCoordinator: NSObject {
         let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
         if !FileManager.default.fileExists(atPath: destinationURL.path) {
           try! FileManager.default.copyItem(at: url, to: destinationURL)
+          destinationURL.disableFileProtection()
         }
       } else {
         importManager.process(url)

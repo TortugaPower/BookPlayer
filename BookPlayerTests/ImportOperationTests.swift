@@ -40,11 +40,7 @@ class ImportOperationTests: XCTestCase {
     operation.completionBlock = {
       // Test file should no longer be in the Documents folder,
       // but when testing on simulator, the security scope is resolved
-#if targetEnvironment(simulator)
-      XCTAssert(FileManager.default.fileExists(atPath: fileUrl.path))
-#else
       XCTAssert(!FileManager.default.fileExists(atPath: fileUrl.path))
-#endif
 
       XCTAssertNotNil(operation.files.first)
       XCTAssertNotNil(operation.processedFiles.first)

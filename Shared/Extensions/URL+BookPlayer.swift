@@ -22,6 +22,7 @@ public extension URL {
   // Disable file protection for file and descendants if it's a directory
   func disableFileProtection() {
     try? (self as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+    try? (self as NSURL).setResourceValue(false, forKey: .isUserImmutableKey)
 
     guard self.isDirectoryFolder else { return }
 
@@ -34,6 +35,7 @@ public extension URL {
 
     for case let fileURL as URL in enumerator {
       try? (fileURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+      try? (fileURL as NSURL).setResourceValue(false, forKey: .isUserImmutableKey)
     }
   }
 
