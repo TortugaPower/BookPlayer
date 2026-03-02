@@ -33,7 +33,7 @@ struct SlickSlider: View {
       ZStack(alignment: .leading) {
         // Background Track
         Capsule()
-          .fill(Color.white.opacity(0.15))
+          .fill(Color.secondary.opacity(0.2))
           .frame(height: trackHeight)
         
         // Active Track

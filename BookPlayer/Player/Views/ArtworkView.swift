@@ -89,7 +89,7 @@ struct ArtworkView: View {
               .frame(width: 44, height: 44) // Standard touch target size
               .padding(.trailing, 5)
               .padding(.top, 5)
-              .shadow(color: .black.opacity(1.0), radius: 3, x: 0, y: 2)
+              .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
               .accessibilityElement(children: .combine)
               .accessibilityLabel(Text("audio_source_title"))
           }

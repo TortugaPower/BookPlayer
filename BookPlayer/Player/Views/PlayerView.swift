@@ -18,6 +18,7 @@ struct PlayerView: View {
   @StateObject private var theme = ThemeViewModel()
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
+  let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
   
   init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())
@@ -183,18 +184,16 @@ struct PlayerView: View {
       dragOffset = gesture.translation
     }
 
-    let threshold: CGFloat = 150
-    if gesture.translation.height > threshold, !dragThresholdReached {
+    if gesture.translation.height > dismissThreshold, !dragThresholdReached {
       dragThresholdReached = true
       UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
   }
 
   private func handleDragEnded(_ gesture: DragGesture.Value) {
-    let threshold: CGFloat = 150
     dragThresholdReached = false
 
-    if gesture.translation.height > threshold {
+    if gesture.translation.height > dismissThreshold {
       dismiss()
     } else {
       dragOffset = .zero
