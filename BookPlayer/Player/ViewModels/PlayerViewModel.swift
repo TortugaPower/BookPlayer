@@ -466,6 +466,9 @@ final class PlayerViewModel: ObservableObject {
     let newIndex = transcriptIndex(for: time)
     if newIndex != activeTranscriptIndex {
       activeTranscriptIndex = newIndex
+      if isShowingTranscript {
+        requestTranscriptScroll()
+      }
     }
   }
 

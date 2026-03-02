@@ -29,9 +29,6 @@ struct TranscriptView: View {
             .onAppear {
                 scrollToActiveLine(using: proxy)
             }
-            .onChange(of: activeIndex) { _ in
-                scrollToActiveLine(using: proxy)
-            }
             .onChange(of: scrollRequest) { _ in
                 scrollToActiveLine(using: proxy)
             }
