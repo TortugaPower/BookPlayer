@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */; };
+		14E6903E2F55998600C9BDF4 /* TranscriptLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */; };
+		14E690402F55998F00C9BDF4 /* LRCParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E6903F2F55998F00C9BDF4 /* LRCParser.swift */; };
+		14E690422F55999600C9BDF4 /* TranscriptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690412F55999600C9BDF4 /* TranscriptStore.swift */; };
+		14E690442F5599A300C9BDF4 /* TranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690432F5599A300C9BDF4 /* TranscriptView.swift */; };
+		14E690462F5599AC00C9BDF4 /* PlaybackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */; };
 		3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
 		3F66408B2E162ABF00356522 /* AudioMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6640892E162ABF00356522 /* AudioMetadataService.swift */; };
 		3F66408D2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */; };
@@ -977,6 +982,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptLine.swift; sourceTree = "<group>"; };
+		14E6903F2F55998F00C9BDF4 /* LRCParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRCParser.swift; sourceTree = "<group>"; };
+		14E690412F55999600C9BDF4 /* TranscriptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStore.swift; sourceTree = "<group>"; };
+		14E690432F5599A300C9BDF4 /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
+		14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackCardView.swift; sourceTree = "<group>"; };
 		3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyEmailInputView.swift; sourceTree = "<group>"; };
 		3ACFA02FA31A0CB0438C5228 /* BPFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPFont.swift; sourceTree = "<group>"; };
 		3F6640892E162ABF00356522 /* AudioMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMetadataService.swift; sourceTree = "<group>"; };
@@ -1815,6 +1825,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		14E6903C2F55998000C9BDF4 /* Transcript */ = {
+			isa = PBXGroup;
+			children = (
+				14E6903D2F55998600C9BDF4 /* TranscriptLine.swift */,
+				14E6903F2F55998F00C9BDF4 /* LRCParser.swift */,
+				14E690412F55999600C9BDF4 /* TranscriptStore.swift */,
+				14E690432F5599A300C9BDF4 /* TranscriptView.swift */,
+			);
+			path = Transcript;
+			sourceTree = "<group>";
+		};
 		3F7B64332E0F713200299D97 /* Hardcover */ = {
 			isa = PBXGroup;
 			children = (
@@ -3058,6 +3079,7 @@
 				99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */,
 				99329DD62F3E8A04003F8E73 /* SlickSlider.swift */,
 				99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */,
+				14E690452F5599AC00C9BDF4 /* PlaybackCardView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3459,6 +3481,7 @@
 				9F5011F82A6580800075FEBA /* ShakeMotionService.swift */,
 				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
 				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
+				14E6903C2F55998000C9BDF4 /* Transcript */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -4330,6 +4353,7 @@
 				63C48D4A2E3F008F005FBB96 /* AccountPerksSectionView.swift in Sources */,
 				63C48D522E50AAA1005FBB96 /* AccountPasskeySectionView.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
+				14E690462F5599AC00C9BDF4 /* PlaybackCardView.swift in Sources */,
 				63C48D3C2E3E7D29005FBB96 /* SettingsCompleteAccountView.swift in Sources */,
 				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
 				63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */,
@@ -4393,6 +4417,7 @@
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
 				634BA5A12C174F9D0015314D /* StoryViewerViewModel.swift in Sources */,
+				14E690442F5599A300C9BDF4 /* TranscriptView.swift in Sources */,
 				63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
@@ -4476,6 +4501,7 @@
 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
 				631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */,
 				634FF7A22DF73DDE005D1C0D /* JellyfinLibraryListView.swift in Sources */,
+				14E690422F55999600C9BDF4 /* TranscriptStore.swift in Sources */,
 				8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */,
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */,
@@ -4509,6 +4535,7 @@
 				3F7B64422E0FB27000299D97 /* AnyCodable.swift in Sources */,
 				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				6399EA252F12B1870077BB13 /* PasskeyRegistrationView.swift in Sources */,
+				14E690402F55998F00C9BDF4 /* LRCParser.swift in Sources */,
 				6399EA9B2F12B1870077BB13 /* EmailVerificationView.swift in Sources */,
 				6399EA272F12B1870077BB13 /* PasskeySignInButton.swift in Sources */,
 				637043462E2C0199005353D1 /* SettingsiCloudSectionView.swift in Sources */,
@@ -4585,6 +4612,7 @@
 				63C48C7A2E3DAC9D005FBB96 /* LoginView.swift in Sources */,
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
+				14E6903E2F55998600C9BDF4 /* TranscriptLine.swift in Sources */,
 				3F6640942E17386400356522 /* DeleteUserBookData.swift in Sources */,
 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
 				636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */,

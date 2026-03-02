@@ -8,6 +8,7 @@
 
 import SwiftUI
 import BookPlayerKit
+import UniformTypeIdentifiers
 
 struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
@@ -18,6 +19,7 @@ struct PlayerView: View {
   @StateObject private var theme = ThemeViewModel()
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
+  @State private var isShowingTranscriptImporter = false
   let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
   
   init(initModel: @escaping () -> PlayerViewModel) {
@@ -38,10 +40,17 @@ struct PlayerView: View {
         )
       
       VStack {
-        ArtworkView(
+        PlaybackCardView(
           title: viewModel.title,
           author: viewModel.author,
-          imagePath: viewModel.relativePath
+          imagePath: viewModel.relativePath,
+          transcriptLines: viewModel.transcriptLines,
+          activeTranscriptIndex: viewModel.activeTranscriptIndex,
+          isShowingTranscript: viewModel.isShowingTranscript,
+          onTranscriptToggle: handleTranscriptToggle,
+          onTranscriptLineTap: { line in
+            viewModel.seekToTranscriptTime(line.time)
+          }
         )
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
@@ -52,6 +61,7 @@ struct PlayerView: View {
               handleDragEnded(gesture)
             }
         )
+        .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: viewModel.isShowingTranscript)
         
         Spacer()
       }
@@ -139,6 +149,19 @@ struct PlayerView: View {
     ) { text in
       self.viewModel.saveNote(note: text)
     }
+    .fileImporter(
+      isPresented: $isShowingTranscriptImporter,
+      allowedContentTypes: [UTType(filenameExtension: "lrc") ?? .plainText, .plainText],
+      allowsMultipleSelection: false
+    ) { result in
+      switch result {
+      case .success(let urls):
+        guard let url = urls.first else { return }
+        viewModel.importTranscript(from: url)
+      case .failure(let error):
+        viewModel.presentTranscriptImportError(error)
+      }
+    }
     .sheet(item: $viewModel.sheetStyle) { style in
       switch style {
       case .controls:
@@ -200,6 +223,22 @@ struct PlayerView: View {
       dismiss()
     } else {
       dragOffset = .zero
+    }
+  }
+
+  private func handleTranscriptToggle() {
+    guard viewModel.hasLoadedBook() else { return }
+
+    if viewModel.hasTranscript {
+      if reduceMotion {
+        viewModel.isShowingTranscript.toggle()
+      } else {
+        withAnimation(.easeInOut(duration: 0.2)) {
+          viewModel.isShowingTranscript.toggle()
+        }
+      }
+    } else {
+      isShowingTranscriptImporter = true
     }
   }
 }

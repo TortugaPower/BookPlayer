@@ -20,6 +20,17 @@ enum PlayerSheetStyle: String, Identifiable {
     var id: String { self.rawValue }
 }
 
+enum BPTranscriptError: LocalizedError {
+    case noBookLoaded
+
+    var errorDescription: String? {
+        switch self {
+        case .noBookLoaded:
+            return "No book is currently loaded."
+        }
+    }
+}
+
 @MainActor
 final class PlayerViewModel: ObservableObject {
   @Published var progressData = ProgressData()
@@ -37,6 +48,9 @@ final class PlayerViewModel: ObservableObject {
   @Published var isShowingNote: Bool = false
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
+  @Published var transcriptLines = [TranscriptLine]()
+  @Published var activeTranscriptIndex: Int?
+  @Published var isShowingTranscript = false
   
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -53,6 +67,7 @@ final class PlayerViewModel: ObservableObject {
   private var listeningProgressSubscriber: AnyCancellable?
   private var currentChapterSubscriber: AnyCancellable?
   private var progressUpdateObserver: NSKeyValueObservation?
+  private let transcriptStore = TranscriptStore()
   
   var currentTimeAccessLabel: String {
     let prefix = self.prefersChapterContext
@@ -70,6 +85,10 @@ final class PlayerViewModel: ObservableObject {
     }
     
     return "\(self.getMaxTimeVoiceOverPrefix()) \(VoiceOverService.secondsToMinutes(maxTime))"
+  }
+
+  var hasTranscript: Bool {
+    return !transcriptLines.isEmpty
   }
   
   func formattedSpeed() -> String {
@@ -204,10 +223,14 @@ final class PlayerViewModel: ObservableObject {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         self?.currentChapterSubscriber?.cancel()
-        guard let self = self,
-              let item = item
-        else { return }
-        
+        guard let self = self else { return }
+
+        guard let item else {
+          self.resetTranscriptState()
+          return
+        }
+
+        self.loadTranscriptIfAvailable(for: item)
         bindCurrentChapter(for: item)
       }.store(in: &disposeBag)
     
@@ -228,6 +251,7 @@ final class PlayerViewModel: ObservableObject {
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
+        self.updateTranscriptPosition()
       }
     
     self.listeningProgressSubscriber?.cancel()
@@ -236,6 +260,7 @@ final class PlayerViewModel: ObservableObject {
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
+        self.updateTranscriptPosition()
       }
   }
   
@@ -356,6 +381,99 @@ final class PlayerViewModel: ObservableObject {
     progressData.maxTime = maxTimeInContext
     progressData.currentTime = currentTime
     progressData.sliderValue = Double(sliderValue)
+  }
+
+  func importTranscript(from url: URL) {
+    guard let currentItem = playerManager.currentItem else {
+      presentTranscriptImportError(BPTranscriptError.noBookLoaded)
+      return
+    }
+
+    let canAccess = url.startAccessingSecurityScopedResource()
+    defer {
+      if canAccess {
+        url.stopAccessingSecurityScopedResource()
+      }
+    }
+
+    do {
+      let contents = try String(contentsOf: url, encoding: .utf8)
+      let lines = try LRCParser.parse(contents)
+      try transcriptStore.saveTranscript(contents, for: currentItem.relativePath)
+      transcriptLines = lines
+      isShowingTranscript = true
+      updateTranscriptPosition()
+    } catch {
+      presentTranscriptImportError(error)
+    }
+  }
+
+  func presentTranscriptImportError(_ error: Error) {
+    let message = error.localizedDescription
+    currentAlert = BPAlertContent.errorAlert(title: "Transcript Import Failed", message: message)
+  }
+
+  func seekToTranscriptTime(_ time: TimeInterval) {
+    playerManager.jumpTo(time, recordBookmark: true)
+    updateTranscriptPosition()
+  }
+
+  private func resetTranscriptState() {
+    transcriptLines = []
+    activeTranscriptIndex = nil
+    isShowingTranscript = false
+  }
+
+  private func loadTranscriptIfAvailable(for item: PlayableItem) {
+    do {
+      if let contents = try transcriptStore.loadTranscript(for: item.relativePath) {
+        transcriptLines = try LRCParser.parse(contents)
+      } else {
+        transcriptLines = []
+      }
+    } catch {
+      transcriptLines = []
+    }
+
+    activeTranscriptIndex = nil
+    isShowingTranscript = false
+  }
+
+  private func updateTranscriptPosition() {
+    guard !transcriptLines.isEmpty else {
+      activeTranscriptIndex = nil
+      return
+    }
+
+    let currentTime = playerManager.currentItem?.currentTime ?? 0
+    let newIndex = transcriptIndex(for: currentTime)
+    if newIndex != activeTranscriptIndex {
+      activeTranscriptIndex = newIndex
+    }
+  }
+
+  private func transcriptIndex(for time: TimeInterval) -> Int? {
+    guard !transcriptLines.isEmpty else { return nil }
+
+    if time < transcriptLines[0].time {
+      return nil
+    }
+
+    var low = 0
+    var high = transcriptLines.count - 1
+    var result = 0
+
+    while low <= high {
+      let mid = (low + high) / 2
+      if transcriptLines[mid].time <= time {
+        result = mid
+        low = mid + 1
+      } else {
+        high = mid - 1
+      }
+    }
+
+    return result
   }
   
   func handleNextTap() {
