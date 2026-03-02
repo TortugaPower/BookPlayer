@@ -17,6 +17,7 @@ struct PlayerView: View {
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   @State private var dragOffset: CGSize = .zero
+  @State private var dragThresholdReached = false
   
   init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())
@@ -64,7 +65,7 @@ struct PlayerView: View {
           onTitleToggle: viewModel.processToggleProgressState,
           onPreviousTap: viewModel.handlePreviousTap
         )
-        
+
         ListeningProgressView(
           progress: $viewModel.progressData.sliderValue,
           remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
@@ -79,27 +80,29 @@ struct PlayerView: View {
             self.viewModel.processToggleMaxTime()
           }
           .contentShape(Rectangle())
-        
+
         Spacer()
-        
+
         PlayControlsRowView(isPlaying: viewModel.isPlaying)
         
         Spacer()
-        
-        MediaActionRow(
-          speedText: viewModel.formattedSpeed(),
-          sleepText: viewModel.sleepText,
-          currentAlert: $viewModel.currentAlert,
-          currentAlertOrigin: viewModel.currentAlertOrigin,
-          onActionTapped: { viewModel.handleButtonTap(media: $0) }
-        )
-        .frame(height: 48)
-        .frame(maxWidth: .infinity)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .padding(.horizontal, 8)
-    .safeAreaPadding()
+    .safeAreaPadding([.top, .horizontal])
+    .safeAreaInset(edge: .bottom) {
+      MediaActionRow(
+        speedText: viewModel.formattedSpeed(),
+        sleepText: viewModel.sleepText,
+        currentAlert: $viewModel.currentAlert,
+        currentAlertOrigin: viewModel.currentAlertOrigin,
+        onActionTapped: { viewModel.handleButtonTap(media: $0) }
+      )
+      .frame(height: 48)
+      .frame(maxWidth: .infinity)
+      .padding(.horizontal, 8)
+    }
     .background(
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)
@@ -179,11 +182,18 @@ struct PlayerView: View {
     if gesture.translation.height > 0 {
       dragOffset = gesture.translation
     }
+
+    let threshold: CGFloat = 150
+    if gesture.translation.height > threshold, !dragThresholdReached {
+      dragThresholdReached = true
+      UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
   }
-  
+
   private func handleDragEnded(_ gesture: DragGesture.Value) {
     let threshold: CGFloat = 150
-    
+    dragThresholdReached = false
+
     if gesture.translation.height > threshold {
       dismiss()
     } else {

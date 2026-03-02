@@ -453,11 +453,19 @@ final class PlayerViewModel: ObservableObject {
     )
 
     actions.append(BPActionItem.cancelAction)
-  
+
+    let message: String
+    switch SleepTimer.shared.state {
+    case .off, .countdown:
+      message = "player_sleep_title".localized
+    case .endOfChapter:
+      message = "sleep_alert_description".localized
+    }
+
     currentAlertOrigin = .timer
     currentAlert = BPAlertContent(
       title: "",
-      message: "sleep_alert_description".localized,
+      message: message,
       style: .actionSheet,
       actionItems: actions
     )

@@ -18,11 +18,13 @@ struct MediaActionRow: View {
   let onActionTapped: (MediaAction) -> Void
     
   func iconImage(_ ma: MediaAction) -> Image? {
-    return ma == .speed
-      ? nil
-      : ma == .bookmark
-        ? Image(.toolbarIconBookmark)
-        : Image(systemName: ma.iconName)
+    switch ma {
+    case .speed: return nil
+    case .bookmark: return Image(.toolbarIconBookmark)
+    case .timer: return Image(.toolbarIconTimer)
+    case .more: return Image(.toolbarIconMore)
+    default: return Image(systemName: ma.iconName)
+    }
   }
   
   func labelText(_ ma: MediaAction) -> String? {
@@ -41,6 +43,7 @@ struct MediaActionRow: View {
   
   var body: some View {
     HStack {
+      Spacer()
       ForEach(MediaAction.allCases) { ma in
         BubbleButton(
           iconImage: iconImage(ma),
@@ -55,10 +58,8 @@ struct MediaActionRow: View {
           $currentAlert,
           isOriginView: currentAlertOrigin == ma
         )
-        
-        if ma != MediaAction.allCases.last {
-          Spacer()
-        }
+
+        Spacer()
       }
     }
   }
