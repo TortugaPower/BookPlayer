@@ -18,22 +18,8 @@ struct TranscriptView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
-                    ForEach(lines.indices, id: \.self) { index in
-                        let line = lines[index]
-                        Text(line.text)
-                            .bpFont(index == activeIndex ? .title3 : .body)
-                            .foregroundColor(index == activeIndex ? theme.linkColor : theme.primaryColor)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(index == activeIndex ? theme.tertiarySystemBackgroundColor : Color.clear)
-                            )
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                onLineTap(line)
-                            }
+                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                        transcriptRow(index: index, line: line)
                             .id(index)
                     }
                 }
@@ -48,6 +34,25 @@ struct TranscriptView: View {
         }
         .background(theme.secondarySystemBackgroundColor)
         .accessibilityElement(children: .contain)
+    }
+
+    private func transcriptRow(index: Int, line: TranscriptLine) -> some View {
+        let isActive = index == activeIndex
+
+        return Text(line.text)
+            .bpFont(isActive ? .title2 : .body)
+            .foregroundColor(isActive ? theme.linkColor : theme.primaryColor)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 4)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isActive ? theme.tertiarySystemBackgroundColor : Color.clear)
+            )
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onLineTap(line)
+            }
     }
 }
 
