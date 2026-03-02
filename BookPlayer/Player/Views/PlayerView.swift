@@ -122,6 +122,9 @@ struct PlayerView: View {
       viewModel.handleAutolockStatus(forceDisable: false)
       viewModel.recalculateProgress()
     }
+    .onDisappear {
+      viewModel.handleAutolockStatus(forceDisable: true)
+    }
     .accessibilityAction(.escape) {
       dismiss()
     }
