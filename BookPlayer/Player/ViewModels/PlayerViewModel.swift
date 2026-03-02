@@ -334,7 +334,8 @@ final class PlayerViewModel: ObservableObject {
   
   func handleSliderUpEvent(with value: Float) {
     let newTime = getBookTimeFromSlider(value: value)
-    
+
+    updateTranscriptPosition(for: newTime)
     self.playerManager.jumpTo(newTime, recordBookmark: true)
   }
   
@@ -418,8 +419,8 @@ final class PlayerViewModel: ObservableObject {
   }
 
   func seekToTranscriptTime(_ time: TimeInterval) {
+    updateTranscriptPosition(for: time)
     playerManager.jumpTo(time, recordBookmark: true)
-    updateTranscriptPosition()
   }
 
   func refreshTranscriptPosition() {
@@ -448,13 +449,17 @@ final class PlayerViewModel: ObservableObject {
   }
 
   private func updateTranscriptPosition() {
+    let currentTime = playerManager.currentItem?.currentTime ?? 0
+    updateTranscriptPosition(for: currentTime)
+  }
+
+  private func updateTranscriptPosition(for time: TimeInterval) {
     guard !transcriptLines.isEmpty else {
       activeTranscriptIndex = nil
       return
     }
 
-    let currentTime = playerManager.currentItem?.currentTime ?? 0
-    let newIndex = transcriptIndex(for: currentTime)
+    let newIndex = transcriptIndex(for: time)
     if newIndex != activeTranscriptIndex {
       activeTranscriptIndex = newIndex
     }
