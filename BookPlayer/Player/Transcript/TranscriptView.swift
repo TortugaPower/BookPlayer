@@ -25,11 +25,11 @@ struct TranscriptView: View {
                 }
                 .padding(16)
             }
-            .onChange(of: activeIndex) { newValue in
-                guard let newValue else { return }
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    proxy.scrollTo(newValue, anchor: .center)
-                }
+            .onAppear {
+                scrollToActiveLine(using: proxy)
+            }
+            .onChange(of: activeIndex) { _ in
+                scrollToActiveLine(using: proxy)
             }
         }
         .background(theme.secondarySystemBackgroundColor)
@@ -53,6 +53,13 @@ struct TranscriptView: View {
             .onTapGesture {
                 onLineTap(line)
             }
+    }
+
+    private func scrollToActiveLine(using proxy: ScrollViewProxy) {
+        guard let activeIndex else { return }
+        withAnimation(.easeInOut(duration: 0.25)) {
+            proxy.scrollTo(activeIndex, anchor: .center)
+        }
     }
 }
 

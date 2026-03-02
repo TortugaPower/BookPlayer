@@ -13,8 +13,18 @@ struct TranscriptStore {
 
     func loadTranscript(for relativePath: String) throws -> String? {
         let url = transcriptURL(for: relativePath)
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-        return try String(contentsOf: url, encoding: .utf8)
+        if FileManager.default.fileExists(atPath: url.path) {
+            return try String(contentsOf: url, encoding: .utf8)
+        }
+
+        let legacyURL = legacyTranscriptURL(for: relativePath)
+        guard FileManager.default.fileExists(atPath: legacyURL.path) else { return nil }
+
+        let contents = try String(contentsOf: legacyURL, encoding: .utf8)
+        try saveTranscript(contents, for: relativePath)
+        try? FileManager.default.removeItem(at: legacyURL)
+        removeLegacyFolderIfEmpty()
+        return contents
     }
 
     func saveTranscript(_ contents: String, for relativePath: String) throws {
@@ -30,8 +40,26 @@ struct TranscriptStore {
 
     private func transcriptURL(for relativePath: String) -> URL {
         let sanitized = sanitizeFileName(relativePath)
+        let folder = applicationSupportFolder().appendingPathComponent(transcriptsFolderName, isDirectory: true)
+        return folder.appendingPathComponent("\(sanitized).lrc")
+    }
+
+    private func legacyTranscriptURL(for relativePath: String) -> URL {
+        let sanitized = sanitizeFileName(relativePath)
         let folder = DataManager.getDocumentsFolderURL().appendingPathComponent(transcriptsFolderName, isDirectory: true)
         return folder.appendingPathComponent("\(sanitized).lrc")
+    }
+
+    private func applicationSupportFolder() -> URL {
+        let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+        return (urls.first ?? FileManager.default.temporaryDirectory)
+            .appendingPathComponent("BookPlayer", isDirectory: true)
+    }
+
+    private func removeLegacyFolderIfEmpty() {
+        let legacyFolder = DataManager.getDocumentsFolderURL().appendingPathComponent(transcriptsFolderName, isDirectory: true)
+        guard let contents = try? FileManager.default.contentsOfDirectory(at: legacyFolder, includingPropertiesForKeys: nil), contents.isEmpty else { return }
+        try? FileManager.default.removeItem(at: legacyFolder)
     }
 
     private func sanitizeFileName(_ name: String) -> String {

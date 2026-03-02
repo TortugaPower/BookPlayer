@@ -22,11 +22,14 @@ enum PlayerSheetStyle: String, Identifiable {
 
 enum BPTranscriptError: LocalizedError {
     case noBookLoaded
+    case durationMismatch
 
     var errorDescription: String? {
         switch self {
         case .noBookLoaded:
             return "No book is currently loaded."
+        case .durationMismatch:
+            return "File format not supported or the LRC file does not match this audio."
         }
     }
 }
@@ -399,6 +402,7 @@ final class PlayerViewModel: ObservableObject {
     do {
       let contents = try String(contentsOf: url, encoding: .utf8)
       let lines = try LRCParser.parse(contents)
+      try validateTranscript(lines, duration: currentItem.duration)
       try transcriptStore.saveTranscript(contents, for: currentItem.relativePath)
       transcriptLines = lines
       isShowingTranscript = true
@@ -415,6 +419,10 @@ final class PlayerViewModel: ObservableObject {
 
   func seekToTranscriptTime(_ time: TimeInterval) {
     playerManager.jumpTo(time, recordBookmark: true)
+    updateTranscriptPosition()
+  }
+
+  func refreshTranscriptPosition() {
     updateTranscriptPosition()
   }
 
@@ -474,6 +482,15 @@ final class PlayerViewModel: ObservableObject {
     }
 
     return result
+  }
+
+  private func validateTranscript(_ lines: [TranscriptLine], duration: TimeInterval) throws {
+    guard duration > 0, let lastTime = lines.last?.time else { return }
+
+    let tolerance: TimeInterval = 2.0
+    if lastTime > duration + tolerance {
+      throw BPTranscriptError.durationMismatch
+    }
   }
   
   func handleNextTap() {

@@ -237,6 +237,10 @@ struct PlayerView: View {
           viewModel.isShowingTranscript.toggle()
         }
       }
+
+      if viewModel.isShowingTranscript {
+        viewModel.refreshTranscriptPosition()
+      }
     } else {
       isShowingTranscriptImporter = true
     }
