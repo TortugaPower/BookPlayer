@@ -226,6 +226,7 @@ struct ItemListView: View {
 
       Task {
         await model.syncList()
+        await model.syncUuids()
       }
     }
     .onChange(of: listState.token(for: .all), initial: false) {

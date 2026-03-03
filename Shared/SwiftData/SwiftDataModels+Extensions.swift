@@ -136,3 +136,10 @@ extension ArtworkUploadTaskModel: DictionaryConvertible {
   }
 }
 
+extension MatchUuidsTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id
+    ]
+  }
+}

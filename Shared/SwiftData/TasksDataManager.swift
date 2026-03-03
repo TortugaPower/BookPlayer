@@ -25,7 +25,8 @@ public final class TasksDataManager {
       DeleteBookmarkTaskModel.self,
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
-      ArtworkUploadTaskModel.self
+      ArtworkUploadTaskModel.self,
+      MatchUuidsTaskModel.self
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
@@ -68,9 +69,10 @@ public final class TasksDataManager {
     try context.delete(model: SetBookmarkTaskModel.self)
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
+    try context.delete(model: MatchUuidsTaskModel.self)
     try context.delete(model: SyncTaskReferenceModel.self)
     try context.delete(model: SyncTasksContainer.self)
-
+    
     try context.save()
   }
 
@@ -139,6 +141,13 @@ public final class TasksDataManager {
     case .uploadArtwork:
       let descriptor = FetchDescriptor<ArtworkUploadTaskModel>(
         predicate: #Predicate<ArtworkUploadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .matchUuid:
+      let descriptor = FetchDescriptor<MatchUuidsTaskModel>(
+        predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
       )
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
@@ -248,6 +257,12 @@ public final class TasksDataManager {
         relativePath: parameters["relativePath"] as! String
       )
       context.insert(task)
+    case .matchUuid:
+      let task = MatchUuidsTaskModel(
+        id: parameters["id"] as! String,
+        uuids: parameters["uuids"] as! [String: String]
+      )
+      context.insert(task)
     }
   }
 
@@ -305,6 +320,11 @@ public final class TasksDataManager {
       case .uploadArtwork:
         let descriptor = FetchDescriptor<ArtworkUploadTaskModel>(
           predicate: #Predicate<ArtworkUploadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .matchUuid:
+        let descriptor = FetchDescriptor<MatchUuidsTaskModel>(
+          predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
       }

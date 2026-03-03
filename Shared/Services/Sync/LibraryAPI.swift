@@ -22,6 +22,7 @@ public enum LibraryAPI {
   case bookmarks(path: String)
   case setBookmark(path: String, note: String?, time: Double, isActive: Bool)
   case uploadArtwork(path: String, filename: String, uploaded: Bool?)
+  case matchUuids(uuidsDictionary: [String: Any])
 }
 
 extension LibraryAPI: Endpoint {
@@ -53,6 +54,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/bookmark"
     case .uploadArtwork:
       return "/v1/library/thumbnail_set"
+    case .matchUuids:
+      return "/v1/library/uuids"
     }
   }
 
@@ -83,6 +86,8 @@ extension LibraryAPI: Endpoint {
     case .setBookmark:
       return .put
     case .uploadArtwork:
+      return .post
+    case .matchUuids:
       return .post
     }
   }
@@ -149,6 +154,8 @@ extension LibraryAPI: Endpoint {
       }
 
       return params
+    case .matchUuids(let uuidsDictionary):
+      return uuidsDictionary
     }
   }
 }
