@@ -73,6 +73,8 @@ public protocol SyncServiceProtocol {
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
   func scheduleUploadArtwork(relativePath: String)
+  
+  func scheduleMatchUuid(params: [String: Any]) async
 
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
@@ -502,6 +504,14 @@ extension SyncService {
 
       await jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
     }
+  }
+  
+  public func scheduleMatchUuid(params: [String: Any]) async {
+    guard isActive else { return }
+    
+    let uuidsDict = await libraryService.generateMissingUuids()
+    
+    await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": uuidsDict])
   }
 }
 

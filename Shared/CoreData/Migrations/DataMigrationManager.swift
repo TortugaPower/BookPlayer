@@ -203,6 +203,10 @@ public final class DataMigrationManager: BPLogger {
         self.populateIsFinished(dataManager: dataManager)
         self.populateFolderDetails(dataManager: dataManager)
       }
+      
+      if currentVersion == .v10 {
+        self.populateMissingUUIDs(dataManager: dataManager)
+      }
 
       completionHandler()
     }

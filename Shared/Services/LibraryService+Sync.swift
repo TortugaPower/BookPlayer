@@ -45,9 +45,38 @@ public protocol LibrarySyncProtocol {
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
+  
+  func generateMissingUuids() async -> [String: String]
 }
 
 extension LibraryService: LibrarySyncProtocol {
+  public func generateMissingUuids() async -> [String : String] {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        var uuidsDict: [String: String] = [:]
+        let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
+        // Fetch only items where the UUID hasn't been set yet
+        fetchRequest.predicate = NSPredicate(format: "uuid == nil")
+        fetchRequest.fetchLimit = 200
+        
+        guard let itemsToUpdate = try? context.fetch(fetchRequest) else {
+          return continuation.resume(returning: uuidsDict)
+        }
+        
+        for item in itemsToUpdate {
+          // Generate a string representation of the UUID
+          let myUuid = UUID().uuidString
+          item.uuid = myUuid
+          uuidsDict[item.relativePath] = myUuid
+        }
+        
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: uuidsDict)
+      }
+    }
+  }
+  
   public func updateLibraryLastBook(with relativePath: String?) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
