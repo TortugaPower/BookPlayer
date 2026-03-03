@@ -114,6 +114,8 @@ struct QueuedSyncTasksView: View {
       return "bookmark.slash"
     case .uploadArtwork:
       return "photo"
+    case .matchUuid:
+      return "app.connected.to.app.below.fill"
     }
   }
 }

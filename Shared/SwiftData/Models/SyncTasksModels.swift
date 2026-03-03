@@ -225,3 +225,14 @@ public class ArtworkUploadTaskModel {
     self.relativePath = relativePath
   }
 }
+
+@Model
+public class MatchUuidsTaskModel {
+  @Attribute(.unique) public var id: String
+  var uuids: [String: String]
+  
+  public init(id: String, uuids: [String: String]) {
+    self.id = id
+    self.uuids = uuids
+  }
+}

@@ -135,6 +135,8 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .uploadArtwork:
           try await handleUploadArtwork()
           finish()
+        case .matchUuid:
+          try await handleMatchUuids()
         }
       } catch {
         self.error = error
@@ -364,6 +366,20 @@ extension LibraryItemSyncOperation {
 
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
+    )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  func handleMatchUuids() async throws {
+    guard
+      let uuidsDictionary = parameters["uuids"] as? [String: String]
+    else {
+      throw BookPlayerError.runtimeError("Missing parameters for deleting a bookmark")
+    }
+
+    let _: Empty = try await self.provider.request(
+      .matchUuids(uuidsDictionary: uuidsDictionary)
     )
   }
 }
