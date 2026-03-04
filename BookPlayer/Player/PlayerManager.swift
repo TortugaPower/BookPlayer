@@ -1262,8 +1262,7 @@ extension PlayerManager {
 extension PlayerManager {
   private func showErrorAlert(title: String, _ message: String?) {
     DispatchQueue.main.async {
-      AppDelegate.shared?.activeSceneDelegate?
-        .startingNavigationController
+      WindowHelper.activeWindow?.rootViewController?
         .getTopVisibleViewController()?
         .showAlert(title, message: message)
     }

@@ -26,7 +26,7 @@ class LoadingCoordinatorTests: XCTestCase {
 
   @MainActor
   func testFinishedLoadingSequence() async {
-    _ = await AppDelegate.shared?.setupCoreServicesTask?.result
+    _ = await AppServices.shared.setupCoreServicesTask?.result
     self.loadingCoordinator.didFinishLoadingSequence()
     XCTAssertNotNil(self.loadingCoordinator.getMainCoordinator())
   }

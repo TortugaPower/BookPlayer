@@ -26,7 +26,7 @@ class LoadingCoordinator: Coordinator, AlertPresenter {
   }
 
   func didFinishLoadingSequence() {
-    let coreServices = AppDelegate.shared!.coreServices!
+    let coreServices = AppServices.shared.coreServices!
 
     let coordinator = MainCoordinator(
       navigationController: flow.navigationController,

@@ -86,6 +86,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 extension SceneDelegate {
   func playLastBook() {
-    AppDelegate.shared?.playLastBook()
+    AppServices.shared.playLastBook()
   }
 }

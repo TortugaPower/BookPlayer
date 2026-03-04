@@ -49,14 +49,14 @@ class CarPlayManager: NSObject {
   @MainActor
   func initializeDataIfNeeded() {
     guard
-      AppDelegate.shared?.activeSceneDelegate == nil
+      WindowHelper.activeWindow == nil
     else { return }
 
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
     dataInitializerCoordinator.onFinish = { [weak self] in
       self?.setRootTemplate()
-      if let coreServices = AppDelegate.shared?.coreServices {
+      if let coreServices = AppServices.shared.coreServices {
         coreServices.watchService.startSession()
         let listRefreshService = ListSyncRefreshService(
           playerManager: coreServices.playerManager,
@@ -79,7 +79,7 @@ class CarPlayManager: NSObject {
 
   func syncList() async {
     guard
-      let syncService = await AppDelegate.shared?.coreServices?.syncService,
+      let syncService = await AppServices.shared.coreServices?.syncService,
       await syncService.canSyncListContents(
         at: nil,
         ignoreLastTimestamp: false
@@ -157,7 +157,7 @@ class CarPlayManager: NSObject {
 
   func loadLibraryItems(at relativePath: String?) -> [SimpleLibraryItem] {
     guard
-      let libraryService = AppDelegate.shared?.coreServices?.libraryService
+      let libraryService = AppServices.shared.coreServices?.libraryService
     else { return [] }
 
     return libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
@@ -166,7 +166,7 @@ class CarPlayManager: NSObject {
   // swiftlint:disable:next function_body_length
   func setupNowPlayingTemplate() {
     guard
-      let coreServices = AppDelegate.shared?.coreServices
+      let coreServices = AppServices.shared.coreServices
     else { return }
 
     let libraryService = coreServices.libraryService
@@ -265,7 +265,7 @@ class CarPlayManager: NSObject {
   /// Returns the library contents at a specified level
   func getLibraryContents(at relativePath: String? = nil) -> [CPListItem] {
     guard
-      let libraryService = AppDelegate.shared?.coreServices?.libraryService
+      let libraryService = AppServices.shared.coreServices?.libraryService
     else { return [] }
 
     let items = libraryService.fetchContents(at: relativePath, limit: nil, offset: nil) ?? []
@@ -299,7 +299,7 @@ class CarPlayManager: NSObject {
   /// Reloads the recent items tab
   func reloadRecentItems() {
     guard
-      let libraryService = AppDelegate.shared?.coreServices?.libraryService
+      let libraryService = AppServices.shared.coreServices?.libraryService
     else { return }
 
     let items = libraryService.getLastPlayedItems(limit: 20) ?? []
@@ -317,7 +317,7 @@ class CarPlayManager: NSObject {
     Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
-        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+        try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
           autoplay: true
         )
@@ -352,7 +352,7 @@ class CarPlayManager: NSObject {
 extension CarPlayManager {
   func hasChapter(before chapter: PlayableChapter?) -> Bool {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
+      let playerManager = AppServices.shared.coreServices?.playerManager,
       let chapter = chapter
     else { return false }
 
@@ -361,7 +361,7 @@ extension CarPlayManager {
 
   func hasChapter(after chapter: PlayableChapter?) -> Bool {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
+      let playerManager = AppServices.shared.coreServices?.playerManager,
       let chapter = chapter
     else { return false }
 
@@ -370,14 +370,14 @@ extension CarPlayManager {
 
   func getPreviousChapterButton() -> CPNowPlayingImageButton {
     let prevChapterImageName =
-      self.hasChapter(before: AppDelegate.shared?.coreServices?.playerManager.currentItem?.currentChapter)
+      self.hasChapter(before: AppServices.shared.coreServices?.playerManager.currentItem?.currentChapter)
       ? "carplay.chevron.left"
       : "carplay.chevron.left.2"
 
     return CPNowPlayingImageButton(
       image: UIImage(named: prevChapterImageName)!
     ) { _ in
-      guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
         let previousChapter = playerManager.currentItem?.previousChapter(before: currentChapter)
@@ -391,14 +391,14 @@ extension CarPlayManager {
 
   func getNextChapterButton() -> CPNowPlayingImageButton {
     let nextChapterImageName =
-      self.hasChapter(after: AppDelegate.shared?.coreServices?.playerManager.currentItem?.currentChapter)
+      self.hasChapter(after: AppServices.shared.coreServices?.playerManager.currentItem?.currentChapter)
       ? "carplay.chevron.right"
       : "carplay.chevron.right.2"
 
     return CPNowPlayingImageButton(
       image: UIImage(named: nextChapterImageName)!
     ) { _ in
-      guard let playerManager = AppDelegate.shared?.coreServices?.playerManager else { return }
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return }
 
       if let currentChapter = playerManager.currentItem?.currentChapter,
         let nextChapter = playerManager.currentItem?.nextChapter(after: currentChapter)
@@ -416,7 +416,7 @@ extension CarPlayManager {
 extension CarPlayManager {
   func showChapterListTemplate() {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager,
+      let playerManager = AppServices.shared.coreServices?.playerManager,
       let chapters = playerManager.currentItem?.chapters
     else { return }
 
@@ -494,7 +494,7 @@ extension CarPlayManager {
 
   func showBookmarkListTemplate() {
     guard
-      let coreServices = AppDelegate.shared?.coreServices,
+      let coreServices = AppServices.shared.coreServices,
         let currentItem = coreServices.playerManager.currentItem
     else { return }
 
@@ -544,7 +544,7 @@ extension CarPlayManager {
 
     let section1 = CPListSection(items: [boostVolumeItem])
 
-    let currentSpeed = AppDelegate.shared?.coreServices?.playerManager.currentSpeed ?? 1
+    let currentSpeed = AppServices.shared.coreServices?.playerManager.currentSpeed ?? 1
     let formattedSpeed = formatSpeed(currentSpeed)
 
     let speedItems = self.getSpeedOptions()
