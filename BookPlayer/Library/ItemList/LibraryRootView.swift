@@ -183,12 +183,13 @@ struct LibraryRootView: View {
     Task { @MainActor in
       let processedItems = await libraryService.insertItems(from: files)
       var itemIdentifiers = processedItems.map({ $0.relativePath })
+      var itemIdentifiersPairs = processedItems.map({ PathUuidPair(relativePath: $0.relativePath, uuid: $0.uuid) })
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them
         if let folderRelativePath = path.last?.folderRelativePath {
-          try libraryService.moveItems(itemIdentifiers, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiers, to: folderRelativePath)
+          try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
+          syncService.scheduleMove(items: itemIdentifiersPairs, to: PathUuidPair(relativePath: folderRelativePath))
           /// Update identifiers after moving for the follow up action alert
           itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
         }

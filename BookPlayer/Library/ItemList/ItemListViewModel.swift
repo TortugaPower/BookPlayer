@@ -351,7 +351,7 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoLibrary() {
-    let selectedItemPaths = selectedItems.compactMap({ $0.relativePath })
+    let selectedItemPaths = selectedItems.compactMap({ PathUuidPair(relativePath: $0.relativePath, uuid: $0.uuid) })
     let parentFolder = selectedItems.first?.parentFolder
 
     do {
@@ -370,8 +370,8 @@ extension ItemListViewModel {
 
   func importIntoLibrary(_ items: [String]) {
     do {
-      try libraryService.moveItems(items, inside: nil)
-      syncService.scheduleMove(items: items, to: nil)
+      try libraryService.moveItems(items.map({ PathUuidPair(relativePath: $0) }), inside: nil)
+      syncService.scheduleMove(items: items.map({ PathUuidPair(relativePath: $0) }), to: nil)
     } catch {
       loadingState.error = error
     }
@@ -394,8 +394,8 @@ extension ItemListViewModel {
         )
         await syncService.scheduleUpload(items: [folder])
         if let fetchedItems = items {
-          try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+          try libraryService.moveItems(fetchedItems.map({ PathUuidPair(relativePath: $0) }), inside: folder.relativePath)
+          syncService.scheduleMove(items: fetchedItems.map({ PathUuidPair(relativePath: $0) }), to: PathUuidPair(relativePath: folder.relativePath))
         }
         try libraryService.updateFolder(at: folder.relativePath, type: type)
         libraryService.rebuildFolderDetails(folder.relativePath)
@@ -428,8 +428,8 @@ extension ItemListViewModel {
     }
 
     do {
-      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+      try libraryService.moveItems(fetchedItems.map({ PathUuidPair(relativePath: $0) }), inside: folder.relativePath)
+      syncService.scheduleMove(items: fetchedItems.map({ PathUuidPair(relativePath: $0) }), to: PathUuidPair(relativePath: folder.relativePath))
     } catch {
       loadingState.error = error
     }

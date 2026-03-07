@@ -35,6 +35,7 @@ struct ItemCellView_Previews: PreviewProvider {
         currentTime: 0,
         duration: 0,
         relativePath: "book 1",
+        uuid: UUID().uuidString,
         parentFolder: nil,
         percentCompleted: 0,
         lastPlayDate: nil,

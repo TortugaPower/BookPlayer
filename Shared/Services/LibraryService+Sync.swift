@@ -63,7 +63,6 @@ extension LibraryService: LibrarySyncProtocol {
         guard let itemsToUpdate = try? context.fetch(fetchRequest) else {
           return continuation.resume(returning: uuidsDict)
         }
-        
         for item in itemsToUpdate {
           // Generate a string representation of the UUID
           let myUuid = UUID().uuidString
@@ -339,7 +338,8 @@ extension LibraryService: LibrarySyncProtocol {
         isFinished: isFinished,
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
-        type: type
+        type: type,
+        uuid: dictionary["uuid"] as? String
       )
     })
   }
