@@ -827,6 +827,8 @@
 		D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */; };
 		DCFC79BEBAEA628FB13F33A1 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
 		F906EF4FC85B1CCE138B230D /* PasskeyEmailInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */; };
+		5163037679ED3EE0D1866A8F /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC8B923A5506F865253B97C /* AppServices.swift */; };
+		F50163BEFB92FB6B1B778C5E /* WindowHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1725,6 +1727,8 @@
 		D367F7671FA2A6F000FEDB37 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageRowView.swift; sourceTree = "<group>"; };
 		D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageView.swift; sourceTree = "<group>"; };
+		0FC8B923A5506F865253B97C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
+		4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3394,6 +3398,8 @@
 				63344BFF2EA708F800B90DF7 /* BackupDatabaseOperation.swift */,
 				63B914A02EE49079000918D8 /* NetworkMonitor.swift */,
 				635771D52F378EE800BB5F59 /* ThemedSection.swift */,
+				0FC8B923A5506F865253B97C /* AppServices.swift */,
+				4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -4488,6 +4494,8 @@
 				63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,
+				5163037679ED3EE0D1866A8F /* AppServices.swift in Sources */,
+				F50163BEFB92FB6B1B778C5E /* WindowHelper.swift in Sources */,
 				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
 				63AD93DD2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift in Sources */,
 				638487B72EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift in Sources */,

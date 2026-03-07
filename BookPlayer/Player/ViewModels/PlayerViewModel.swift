@@ -516,7 +516,7 @@ final class PlayerViewModel: ObservableObject {
     guard UIApplication.shared.applicationState == .active else { return }
     
 #if RELEASE
-    AppDelegate.shared?.requestReview()
+    AppServices.shared.requestReview()
 #endif
     
     UserDefaults.standard.set(false, forKey: "ask_review")

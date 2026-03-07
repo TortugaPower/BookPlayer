@@ -399,6 +399,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       pathForArtwork = currentItem.relativePath
     }
 
+    let fallbackColor = MainActor.assumeIsolated { ThemeManager.shared.currentTheme.linkColor }
     ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
       guard let self else { return }
 
@@ -408,7 +409,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       case .success(let value):
         image = value.image
       case .failure:
-        image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
+        image = ArtworkService.generateDefaultArtwork(from: fallbackColor)!
       }
 
       self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
@@ -1262,8 +1263,7 @@ extension PlayerManager {
 extension PlayerManager {
   private func showErrorAlert(title: String, _ message: String?) {
     DispatchQueue.main.async {
-      AppDelegate.shared?.activeSceneDelegate?
-        .startingNavigationController
+      WindowHelper.activeWindow?.rootViewController?
         .getTopVisibleViewController()?
         .showAlert(title, message: message)
     }

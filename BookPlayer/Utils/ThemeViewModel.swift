@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 import Themeable
 
+@MainActor
 class ThemeViewModel: ObservableObject, Themeable {
   @Published var theme: SimpleTheme
   @Published var defaultArtwork: Image?

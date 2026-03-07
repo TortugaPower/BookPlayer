@@ -137,10 +137,10 @@ struct LibraryRootView: View {
     importManager.notifyPendingFiles()
     showSecondOnboarding()
 
-    if let appDelegate = AppDelegate.shared {
-      for action in appDelegate.pendingURLActions {
-        ActionParserService.handleAction(action)
-      }
+    let pendingActions = AppServices.shared.pendingURLActions
+    AppServices.shared.pendingURLActions.removeAll()
+    for action in pendingActions {
+      ActionParserService.handleAction(action)
     }
   }
 
@@ -150,7 +150,7 @@ struct LibraryRootView: View {
     else { return }
 
     do {
-      try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+      try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
         libraryItem.relativePath,
         autoplay: false,
         recordAsLastBook: false

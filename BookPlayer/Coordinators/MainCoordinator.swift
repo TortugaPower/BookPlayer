@@ -13,6 +13,7 @@ import SwiftUI
 import Themeable
 import UIKit
 
+@MainActor
 class MainCoordinator: NSObject {
   var mainController: UIViewController?
 
@@ -30,7 +31,7 @@ class MainCoordinator: NSObject {
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
   let hardcoverService: HardcoverService
 
-  let playerState = PlayerState()
+  var playerState: PlayerState { AppServices.shared.playerState }
 
   /// Reference to know if the import screen is already being shown (or in the process of showing)
   weak var importCoordinator: ImportCoordinator?
@@ -109,7 +110,7 @@ class MainCoordinator: NSObject {
     
     // Set window interface style BEFORE presenting the view controller
     // This ensures SwiftUI views are initialized with the correct colorScheme
-    if let window = navigationController.view.window ?? AppDelegate.shared?.activeSceneDelegate?.window {
+    if let window = navigationController.view.window ?? WindowHelper.activeWindow {
       if UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled) {
         window.overrideUserInterfaceStyle = .unspecified
       } else {
@@ -120,7 +121,7 @@ class MainCoordinator: NSObject {
     navigationController.present(vc, animated: false)
     mainController = vc
 
-    AppDelegate.shared?.coreServices?.watchService.startSession()
+    AppServices.shared.coreServices?.watchService.startSession()
   }
 
   func showSecondOnboarding() {
@@ -142,7 +143,7 @@ class MainCoordinator: NSObject {
     guard
       importManager.hasPendingFiles(),
       importCoordinator == nil,
-      let topVC = AppDelegate.shared?.activeSceneDelegate?.startingNavigationController.getTopVisibleViewController()
+      let topVC = WindowHelper.activeWindow?.rootViewController?.getTopVisibleViewController()
     else { return }
 
     let coordinator = ImportCoordinator(
@@ -166,7 +167,7 @@ class MainCoordinator: NSObject {
     Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
-        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+        try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
           autoplay: autoplay
         )
@@ -229,11 +230,11 @@ extension MainCoordinator: Themeable {
     guard
       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.systemThemeVariantEnabled)
     else {
-      AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle = .unspecified
+      WindowHelper.activeWindow?.overrideUserInterfaceStyle = .unspecified
       return
     }
     // This fixes native components like alerts having the proper color theme
-    AppDelegate.shared?.activeSceneDelegate?.window?.overrideUserInterfaceStyle =
+    WindowHelper.activeWindow?.overrideUserInterfaceStyle =
       theme.useDarkVariant
       ? .dark
       : .light

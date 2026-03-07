@@ -55,7 +55,7 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
 
     Task { @MainActor in
       do {
-        try await AppDelegate.shared?.coreServices?.playerLoaderService.loadPlayer(
+        try await playerLoaderService.loadPlayer(
           relativePath,
           autoplay: wasPlaying
         )
