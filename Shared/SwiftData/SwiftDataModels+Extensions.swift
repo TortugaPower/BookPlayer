@@ -42,6 +42,8 @@ extension UploadTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
     
+    if let uuid = uuid { dict["uuid"] = uuid }
+    
     return dict
   }
 }
@@ -65,7 +67,7 @@ extension UpdateTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
     if let type = type { dict["type"] = type }
-    
+    if let myUuid = uuid { dict["uuid"] = myUuid }
     return dict
   }
 }
@@ -76,7 +78,8 @@ extension MoveTaskModel: DictionaryConvertible {
       "id": id,
       "relativePath": relativePath,
       "origin": origin,
-      "destination": destination
+      "destination": destination,
+      "uuid": uuid as Any
     ]
   }
 }
@@ -86,7 +89,8 @@ extension DeleteTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "relativePath": relativePath,
-      "jobType": jobType.rawValue
+      "jobType": jobType.rawValue,
+      "uuid": uuid as Any
     ]
   }
 }
@@ -96,7 +100,8 @@ extension DeleteBookmarkTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "relativePath": relativePath,
-      "time": time
+      "time": time,
+      "uuid": uuid as Any
     ]
   }
 }
@@ -113,6 +118,10 @@ extension SetBookmarkTaskModel: DictionaryConvertible {
       dict["note"] = note
     }
     
+    if let myUuid = uuid {
+      dict["uuid"] = myUuid
+    }
+    
     return dict
   }
 }
@@ -122,7 +131,8 @@ extension RenameFolderTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "relativePath": relativePath,
-      "name": name
+      "name": name,
+      "uuid": uuid as Any
     ]
   }
 }
@@ -131,8 +141,17 @@ extension ArtworkUploadTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
-      "relativePath": relativePath
+      "relativePath": relativePath,
+      "uuid": uuid as Any
     ]
   }
 }
 
+extension MatchUuidsTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuids": uuids
+    ]
+  }
+}

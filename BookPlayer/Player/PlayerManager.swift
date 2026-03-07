@@ -192,7 +192,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       isFetchingRemoteURL = true
       fileURL =
         try await syncService
-        .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+        .getRemoteFileURLs(of: chapter.relativePath, for: currentItem?.uuid, type: .book)[0].url
       isFetchingRemoteURL = false
     }
 
@@ -667,6 +667,7 @@ extension PlayerManager {
       self.createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
+        uuid: currentItem.uuid,
         type: .skip
       )
     }
@@ -791,6 +792,7 @@ extension PlayerManager {
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
+        uuid: currentItem.uuid,
         type: .play
       )
 
@@ -1245,14 +1247,14 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, type: BookmarkType) {
+  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) {
     /// Clean up old bookmark
     if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
       libraryService.deleteBookmark(bookmark)
     }
 
     guard
-      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, type: type)
+      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, uuid: uuid, type: type)
     else { return }
 
     libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
@@ -1291,6 +1293,7 @@ extension PlayerManager {
     createOrUpdateAutomaticBookmark(
       at: currentItem.currentTime,
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .sleep
     )
   }

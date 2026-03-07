@@ -13,15 +13,16 @@ public enum LibraryAPI {
   case contents(path: String)
   case upload(params: [String: Any])
   case update(params: [String: Any])
-  case move(origin: String, destination: String)
-  case renameFolder(path: String, name: String)
-  case remoteFileURL(path: String)
-  case remoteContentsURL(path: String)
-  case delete(path: String)
-  case shallowDelete(path: String)
-  case bookmarks(path: String)
-  case setBookmark(path: String, note: String?, time: Double, isActive: Bool)
-  case uploadArtwork(path: String, filename: String, uploaded: Bool?)
+  case move(origin: String, destination: String, uuid: String?)
+  case renameFolder(path: String, name: String, uuid: String?)
+  case remoteFileURL(path: String, uuid: String?)
+  case remoteContentsURL(path: String, uuid: String?)
+  case delete(path: String, uuid: String?)
+  case shallowDelete(path: String, uuid: String?)
+  case bookmarks(path: String, uuid: String?)
+  case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String?)
+  case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String?)
+  case matchUuids(uuidsDictionary: [String: Any])
 }
 
 extension LibraryAPI: Endpoint {
@@ -53,6 +54,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/bookmark"
     case .uploadArtwork:
       return "/v1/library/thumbnail_set"
+    case .matchUuids:
+      return "/v1/library/uuids"
     }
   }
 
@@ -84,6 +87,8 @@ extension LibraryAPI: Endpoint {
       return .put
     case .uploadArtwork:
       return .post
+    case .matchUuids:
+      return .post
     }
   }
 
@@ -100,45 +105,53 @@ extension LibraryAPI: Endpoint {
       return params
     case .update(let params):
       return params
-    case .move(let origin, let destination):
+    case .move(let origin, let destination, let uuid):
       return [
         "origin": origin,
-        "destination": destination
+        "destination": destination,
+        "uuid": uuid as Any
       ]
-    case .renameFolder(let path, let name):
+    case .renameFolder(let path, let name, let uuid):
       return [
         "relativePath": path,
-        "newName": name
+        "newName": name,
+        "uuid": uuid as Any
       ]
-    case .remoteFileURL(let path):
+    case .remoteFileURL(let path, let uuid):
       return [
         "relativePath": path,
-        "sign": true
+        "sign": true,
+        "uuid": uuid as Any
       ]
-    case .remoteContentsURL(let path):
+    case .remoteContentsURL(let path, let uuid):
       return [
         "relativePath": "\(path)/",
-        "sign": true
+        "sign": true,
+        "uuid": uuid as Any
       ]
-    case .delete(let path):
-      return ["relativePath": path]
-    case .shallowDelete(let path):
-      return ["relativePath": path]
-    case .bookmarks(let path):
-      return ["relativePath": path]
-    case .setBookmark(let path, let note, let time, let isActive):
+    case .delete(let path, let uuid):
+      return ["relativePath": path, "uuid": uuid as Any]
+    case .shallowDelete(let path, let uuid):
+      return ["relativePath": path, "uuid": uuid as Any]
+    case .bookmarks(let path, let uuid):
+      return ["relativePath": path, "uuid": uuid as Any]
+    case .setBookmark(let path, let note, let time, let isActive, let uuid):
       var params: [String: Any] = [
         "key": path,
         "time": time,
-        "active": isActive
+        "active": isActive,
       ]
+      
+      if let myUuid = uuid {
+        params["uuid"] = myUuid
+      }
 
       if let note {
         params["note"] = note
       }
 
       return params
-    case .uploadArtwork(let path, let filename, let uploaded):
+    case .uploadArtwork(let path, let filename, let uploaded, let uuid):
       var params: [String: Any] = [
         "relativePath": path,
         "thumbnail_name": filename
@@ -147,8 +160,14 @@ extension LibraryAPI: Endpoint {
       if let uploaded {
         params["uploaded"] = uploaded
       }
+      
+      if let myUuid = uuid {
+        params["uuid"] = myUuid
+      }
 
       return params
+    case .matchUuids(let uuidsDictionary):
+      return uuidsDictionary
     }
   }
 }

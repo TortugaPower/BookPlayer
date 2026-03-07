@@ -25,7 +25,8 @@ public final class TasksDataManager {
       DeleteBookmarkTaskModel.self,
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
-      ArtworkUploadTaskModel.self
+      ArtworkUploadTaskModel.self,
+      MatchUuidsTaskModel.self
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
@@ -68,9 +69,10 @@ public final class TasksDataManager {
     try context.delete(model: SetBookmarkTaskModel.self)
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
+    try context.delete(model: MatchUuidsTaskModel.self)
     try context.delete(model: SyncTaskReferenceModel.self)
     try context.delete(model: SyncTasksContainer.self)
-
+    
     try context.save()
   }
 
@@ -143,6 +145,13 @@ public final class TasksDataManager {
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
       }
+    case .matchUuid:
+      let descriptor = FetchDescriptor<MatchUuidsTaskModel>(
+        predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
     }
   }
 
@@ -180,7 +189,8 @@ public final class TasksDataManager {
         isFinished: parameters["isFinished"] as! Bool,
         orderRank: parameters["orderRank"] as! Int,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        type: parameters["type"] as! Int16
+        type: parameters["type"] as! Int16,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
@@ -197,7 +207,8 @@ public final class TasksDataManager {
         isFinished: parameters["isFinished"] as? Bool,
         orderRank: parameters["orderRank"] as? Int16,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        type: parameters["type"] as? Int16
+        type: parameters["type"] as? Int16,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
@@ -206,7 +217,8 @@ public final class TasksDataManager {
         id: parameters["id"] as! String,
         relativePath: parameters["relativePath"] as! String,
         origin: parameters["origin"] as! String,
-        destination: parameters["destination"] as! String
+        destination: parameters["destination"] as! String,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
@@ -214,14 +226,16 @@ public final class TasksDataManager {
       let task = DeleteTaskModel(
         id: parameters["id"] as! String,
         relativePath: parameters["relativePath"] as! String,
-        jobType: SyncJobType(rawValue: parameters["jobType"] as! String)!
+        jobType: SyncJobType(rawValue: parameters["jobType"] as! String)!,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
     case .deleteBookmark:
       let task = DeleteBookmarkTaskModel(
         relativePath: parameters["relativePath"] as! String,
-        time: parameters["time"] as! Double
+        time: parameters["time"] as! Double,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
@@ -230,7 +244,8 @@ public final class TasksDataManager {
         id: parameters["id"] as! String,
         relativePath: parameters["relativePath"] as! String,
         time: parameters["time"] as! Double,
-        note: parameters["note"] as? String
+        note: parameters["note"] as? String,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
@@ -238,14 +253,22 @@ public final class TasksDataManager {
       let task = RenameFolderTaskModel(
         id: parameters["id"] as! String,
         relativePath: parameters["relativePath"] as! String,
-        name: parameters["name"] as! String
+        name: parameters["name"] as! String,
+        uuid: parameters["uuid"] as? String
       )
       context.insert(task)
 
     case .uploadArtwork:
       let task = ArtworkUploadTaskModel(
         id: parameters["id"] as! String,
-        relativePath: parameters["relativePath"] as! String
+        relativePath: parameters["relativePath"] as! String,
+        uuid: parameters["uuid"] as? String
+      )
+      context.insert(task)
+    case .matchUuid:
+      let task = MatchUuidsTaskModel(
+        id: parameters["id"] as! String,
+        uuids: parameters["uuids"] as! [String: String]
       )
       context.insert(task)
     }
@@ -305,6 +328,11 @@ public final class TasksDataManager {
       case .uploadArtwork:
         let descriptor = FetchDescriptor<ArtworkUploadTaskModel>(
           predicate: #Predicate<ArtworkUploadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .matchUuid:
+        let descriptor = FetchDescriptor<MatchUuidsTaskModel>(
+          predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
       }

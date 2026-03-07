@@ -19,6 +19,7 @@ public final class PlayableItem: NSObject, Identifiable {
   public var currentTime: TimeInterval
   public let duration: TimeInterval
   @objc dynamic public let relativePath: String
+  @objc dynamic public let uuid: String?
   public let parentFolder: String?
   @objc dynamic public var percentCompleted: Double
   @objc dynamic public var lastPlayDate: Date?
@@ -44,7 +45,7 @@ public final class PlayableItem: NSObject, Identifiable {
 
   enum CodingKeys: String, CodingKey {
     case title, author, chapters, currentTime, duration,
-      relativePath, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
+      relativePath, uuid, parentFolder, percentCompleted, lastPlayDate, isFinished, isBoundBook
   }
 
   public init(
@@ -54,6 +55,7 @@ public final class PlayableItem: NSObject, Identifiable {
     currentTime: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
+    uuid: String?,
     parentFolder: String?,
     percentCompleted: Double,
     lastPlayDate: Date?,
@@ -71,7 +73,8 @@ public final class PlayableItem: NSObject, Identifiable {
     self.lastPlayDate = lastPlayDate
     self.isFinished = isFinished
     self.isBoundBook = isBoundBook
-
+    self.uuid = uuid
+    
     super.init()
 
     self.currentChapter = self.getChapter(at: self.currentTime) ?? chapters[0]
@@ -202,6 +205,7 @@ extension PlayableItem: Codable {
     try container.encode(self.currentTime, forKey: .currentTime)
     try container.encode(self.duration, forKey: .duration)
     try container.encode(self.relativePath, forKey: .relativePath)
+    try? container.encode(self.uuid, forKey: .uuid)
     try? container.encode(self.parentFolder, forKey: .parentFolder)
     try container.encode(self.percentCompleted, forKey: .percentCompleted)
     try? container.encode(self.lastPlayDate, forKey: .lastPlayDate)
@@ -218,6 +222,7 @@ extension PlayableItem: Codable {
       currentTime: try values.decode(TimeInterval.self, forKey: .currentTime),
       duration: try values.decode(TimeInterval.self, forKey: .duration),
       relativePath: try values.decode(String.self, forKey: .relativePath),
+      uuid: try values.decode(String.self, forKey: .uuid),
       parentFolder: try? values.decode(String?.self, forKey: .parentFolder),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
       lastPlayDate: try? values.decode(Date.self, forKey: .lastPlayDate),

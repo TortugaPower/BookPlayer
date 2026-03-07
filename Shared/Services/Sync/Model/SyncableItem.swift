@@ -23,6 +23,7 @@ public struct SyncableItem {
   let orderRank: Int
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
+  let uuid: String?
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -38,7 +39,8 @@ public struct SyncableItem {
     "isFinished",
     "orderRank",
     "lastPlayDate",
-    "type"
+    "type",
+    "uuid"
   ]
 }
 
@@ -58,6 +60,7 @@ extension SyncableItem: Decodable {
     case orderRank
     case lastPlayDateTimestamp
     case type
+    case uuid
   }
 
   public init(from decoder: Decoder) throws {
@@ -76,6 +79,7 @@ extension SyncableItem: Decodable {
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
+    self.uuid = try? container.decode(String.self, forKey: .uuid)
   }
 }
 
@@ -95,5 +99,6 @@ extension SyncableItem {
     self.orderRank = Int(item.orderRank)
     self.lastPlayDateTimestamp = item.lastPlayDate?.timeIntervalSince1970
     self.type = item.type
+    self.uuid = item.uuid
   }
 }

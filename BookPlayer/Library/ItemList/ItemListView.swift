@@ -297,6 +297,7 @@ struct ItemListView: View {
     .onAppear {
       Task {
         await model.prefetchIfNeeded(for: item)
+        await model.syncUuids()
       }
     }
     .swipeActions(edge: .trailing) {

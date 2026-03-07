@@ -94,7 +94,8 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           parentFolder: item.parentFolder,
           originalFileName: item.originalFileName,
           lastPlayDate: item.lastPlayDate,
-          type: item.type
+          type: item.type,
+          uuid: item.uuid,
         )
         
         accessibilityLabel = VoiceOverService.getAccessibilityLabel(for: updatedItem)
@@ -134,7 +135,8 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           parentFolder: item.parentFolder,
           originalFileName: item.originalFileName,
           lastPlayDate: item.lastPlayDate,
-          type: item.type
+          type: item.type,
+          uuid: item.uuid,
         )
         
         accessibilityLabel = VoiceOverService.getAccessibilityLabel(for: updatedItem)
