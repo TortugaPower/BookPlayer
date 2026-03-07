@@ -28,7 +28,8 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public let originalFileName: String
   public let lastPlayDate: Date?
   public let type: SimpleItemType
-
+  public let uuid: String?
+  
   public var progress: Double {
     if type == .folder,
        duration == 0 {
@@ -50,6 +51,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     && lhs.isFinished == rhs.isFinished
     && lhs.type.rawValue == rhs.type.rawValue
     && lhs.orderRank == rhs.orderRank
+    && lhs.uuid == rhs.uuid
   }
 
   static var fetchRequestProperties = [
@@ -68,6 +70,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     "originalFileName",
     "lastPlayDate",
     "type",
+    "uuid",
   ]
 
   public func hash(into hasher: inout Hasher) {
@@ -93,7 +96,8 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     parentFolder: String?,
     originalFileName: String,
     lastPlayDate: Date?,
-    type: SimpleItemType
+    type: SimpleItemType,
+    uuid: String?
   ) {
     self.title = title
     self.details = details
@@ -111,6 +115,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     self.originalFileName = originalFileName
     self.lastPlayDate = lastPlayDate
     self.type = type
+    self.uuid = uuid
   }
 }
 
@@ -131,6 +136,7 @@ extension SimpleLibraryItem {
     self.parentFolder = item.folder?.relativePath
     self.originalFileName = item.originalFileName
     self.lastPlayDate = item.lastPlayDate
+    self.uuid = item.uuid
 
     switch item.type {
     case .folder:

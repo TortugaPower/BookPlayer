@@ -41,24 +41,4 @@ extension DataMigrationManager {
 
     dataManager.saveContext()
   }
-  
-  func populateMissingUUIDs(dataManager: DataManager) {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "uuid == nil")
-    
-    guard
-      let items = try? dataManager.getContext().fetch(fetchRequest) as [LibraryItem]
-    else { return }
-    
-    guard let unassignedItems = try? dataManager.getContext().fetch(fetchRequest),
-          !unassignedItems.isEmpty else { return } // Nothing to update
-    
-    for item in unassignedItems {
-      item.uuid = UUID().uuidString
-    }
-    
-    
-    dataManager.saveContext()
-    print("Successfully populated \(unassignedItems.count) missing UUIDs.")
-  }
 }

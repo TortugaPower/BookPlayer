@@ -53,6 +53,7 @@ struct CreateBookmarkIntent: AppIntent {
     if let bookmark = libraryService.createBookmark(
       at: floor(currentTime),
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .user
     ) {
 
@@ -68,7 +69,8 @@ struct CreateBookmarkIntent: AppIntent {
       playerLoaderService.syncService.scheduleSetBookmark(
         relativePath: currentItem.relativePath,
         time: floor(currentTime),
-        note: note
+        note: note,
+        uuid: currentItem.uuid
       )
 
       let formattedTime = TimeParser.formatTime(bookmark.time)

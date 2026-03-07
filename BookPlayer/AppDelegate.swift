@@ -525,7 +525,7 @@ extension AppDelegate {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService)
+      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService, dataManager: dataManager)
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
@@ -585,9 +585,9 @@ extension AppDelegate {
     return service
   }
 
-  private func makeSyncService(accountService: AccountService, libraryService: LibraryService) -> SyncService {
+  private func makeSyncService(accountService: AccountService, libraryService: LibraryService, dataManager: DataManager) -> SyncService {
     let service = SyncService()
-    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService)
+    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService, dataManager: dataManager)
     return service
   }
 

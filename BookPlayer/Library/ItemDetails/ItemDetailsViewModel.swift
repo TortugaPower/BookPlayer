@@ -162,7 +162,7 @@ final class ItemDetailsViewModel: ObservableObject {
 
       await ArtworkService.removeCache(for: item.relativePath)
       await ArtworkService.storeInCache(imageData, for: cacheKey)
-      syncService.scheduleUploadArtwork(relativePath: cacheKey)
+      syncService.scheduleUploadArtwork(relativePath: cacheKey, uuid: item.uuid)
 
       loadingState.show = false
       listState.reload(.path(item.parentFolder ?? ""))
