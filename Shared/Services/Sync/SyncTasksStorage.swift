@@ -67,6 +67,7 @@ public actor SyncTasksStorage: ModelActor {
       // Create task reference
       let taskReference = SyncTaskReferenceModel(
         relativePath: relativePath,
+        uuid: parameters["uuid"] as? String,
         taskID: taskId,
         jobType: jobType,
         position: nextPosition
@@ -107,6 +108,7 @@ public actor SyncTasksStorage: ModelActor {
 
     return SyncTask(
       id: firstTask.taskID,
+      uuid: firstTask.uuid,
       relativePath: firstTask.relativePath,
       jobType: firstTask.jobType,
       parameters: storedObject.toDictionaryPayload()
@@ -181,6 +183,7 @@ public actor SyncTasksStorage: ModelActor {
 
         return SyncTask(
           id: taskRef.taskID,
+          uuid: taskRef.uuid,
           relativePath: taskRef.relativePath,
           jobType: taskRef.jobType,
           parameters: storedObject.toDictionaryPayload()

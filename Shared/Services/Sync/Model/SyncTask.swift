@@ -13,12 +13,14 @@ public struct SyncTask: Identifiable {
   public let relativePath: String
   public let jobType: SyncJobType
   public let parameters: [String: Any]
+  public let uuid: String?
 
-  public init(id: String, relativePath: String, jobType: SyncJobType, parameters: [String: Any]) {
+  public init(id: String, uuid: String?, relativePath: String, jobType: SyncJobType, parameters: [String: Any]) {
     self.id = id
     self.relativePath = relativePath
     self.jobType = jobType
     self.parameters = parameters
+    self.uuid = uuid
   }
 }
 

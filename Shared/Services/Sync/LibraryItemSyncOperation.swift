@@ -9,6 +9,20 @@
 import Foundation
 import Combine
 
+struct ItemSyncResponse: Decodable {
+    // Array of string keys that were successfully applied
+    let applied: [String]
+    // Array of the conflict objects
+    let conflicts: [ItemConflict]
+}
+
+struct ItemConflict: Decodable {
+    // Maps to the "key" in your JSON ("Jim Butcher - Ghost Story - 17.mp3")
+    let key: String
+    // Maps to the "uuid" in your JSON
+    let uuid: String
+}
+
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
 class LibraryItemSyncOperation: Operation, BPLogger {
   // MARK: - Async operation properties
@@ -54,8 +68,10 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let client: NetworkClientProtocol
   let provider: NetworkProvider<LibraryAPI>
   let relativePath: String
+  let uuid: String?
   let jobType: SyncJobType
   let parameters: [String: Any]
+  var results: ItemSyncResponse?
   var error: Error?
   
   private var progressSubscriber: AnyCancellable?
@@ -74,6 +90,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.relativePath = task.relativePath
     self.jobType = task.jobType
     self.parameters = task.parameters
+    self.uuid = task.uuid
   }
 
   override func start() {
@@ -111,20 +128,20 @@ class LibraryItemSyncOperation: Operation, BPLogger {
           else {
             throw BookPlayerError.runtimeError("Missing parameters for moving")
           }
-          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination))
+          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination, uuid: uuid))
           finish()
         case .renameFolder:
           guard let name = parameters["name"] as? String else {
             throw BookPlayerError.runtimeError("Missing parameters for renaming")
           }
 
-          let _: Empty = try await provider.request(.renameFolder(path: self.relativePath, name: name))
+          let _: Empty = try await provider.request(.renameFolder(path: self.relativePath, name: name, uuid: uuid))
           finish()
         case .delete:
-          let _: Empty = try await provider.request(.delete(path: self.relativePath))
+          let _: Empty = try await provider.request(.delete(path: self.relativePath, uuid: uuid))
           finish()
         case .shallowDelete:
-          let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath))
+          let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath, uuid: uuid))
           finish()
         case .setBookmark:
           try await handleSetBookmark()
@@ -137,6 +154,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
           finish()
         case .matchUuid:
           try await handleMatchUuids()
+          finish()
         }
       } catch {
         self.error = error
@@ -325,7 +343,8 @@ extension LibraryItemSyncOperation {
         path: self.relativePath,
         note: parameters["note"] as? String,
         time: time,
-        isActive: true
+        isActive: true,
+        uuid: uuid
       )
     )
   }
@@ -342,7 +361,8 @@ extension LibraryItemSyncOperation {
         path: self.relativePath,
         note: nil,
         time: time,
-        isActive: false
+        isActive: false,
+        uuid: uuid
       )
     )
   }
@@ -359,13 +379,13 @@ extension LibraryItemSyncOperation {
 
     let filename = "\(UUID().uuidString)-\(Int(Date().timeIntervalSince1970)).jpg"
     let response: ArtworkResponse = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil)
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil, uuid: uuid)
     )
 
     try await client.upload(data, remoteURL: response.thumbnailURL)
 
     let _: Empty = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
     )
   }
 }
@@ -373,13 +393,16 @@ extension LibraryItemSyncOperation {
 extension LibraryItemSyncOperation {
   func handleMatchUuids() async throws {
     guard
-      let uuidsDictionary = parameters["uuids"] as? [String: String]
+      let uuidsDictionary = parameters["uuids"] as? [String: String],
+      uuidsDictionary.count > 0
     else {
-      throw BookPlayerError.runtimeError("Missing parameters for deleting a bookmark")
+      return
     }
-
-    let _: Empty = try await self.provider.request(
+    let response: ItemSyncResponse = try await self.provider.request(
       .matchUuids(uuidsDictionary: uuidsDictionary)
     )
+    
+    self.results = response
+    print(response)
   }
 }

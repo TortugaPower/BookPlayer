@@ -35,7 +35,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Import and insert items
   @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
-  func moveItems(_ items: [String], inside relativePath: String?) throws
+  func moveItems(_ items: [PathUuidPair], inside relativePath: String?) throws
   /// Delete items
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 
@@ -136,7 +136,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Fetch a bookmark at a specific time
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
   /// Create a bookmark at the given time
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
+  func createBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) -> SimpleBookmark?
   /// Add a note to a bookmark
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
@@ -383,7 +383,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         parentFolder: dictionary["folder.relativePath"] as? String,
         originalFileName: originalFileName,
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
-        type: type
+        type: type,
+        uuid: dictionary["uuid"] as? String,
       )
     })
   }
@@ -755,7 +756,8 @@ extension LibraryService {
     book.originalFileName = url.lastPathComponent
     book.isFinished = false
     book.type = .book
-
+    book.uuid = UUID().uuidString
+    
     return book
   }
 
@@ -809,14 +811,14 @@ extension LibraryService {
     )
   }
 
-  public func moveItems(_ items: [String], inside relativePath: String?) throws {
+  public func moveItems(_ items: [PathUuidPair], inside relativePath: String?) throws {
     let context = dataManager.getContext()
 
     try moveItems(items, inside: relativePath, context: context)
   }
 
   public func moveItems(
-    _ items: [String],
+    _ items: [PathUuidPair],
     inside relativePath: String?,
     context: NSManagedObjectContext
   ) throws {
@@ -835,7 +837,7 @@ extension LibraryService {
       originalParentPath =
         getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
-          relativePath: firstPath,
+          relativePath: firstPath.relativePath,
           context: context
         ) as? String
     }
@@ -844,13 +846,13 @@ extension LibraryService {
     let startingIndex = getNextOrderRank(in: relativePath, context: context)
 
     for (index, itemPath) in items.enumerated() {
-      guard let libraryItem = getItemReference(with: itemPath, context: context) else {
+      guard let libraryItem = getItemReference(with: itemPath.relativePath, context: context) else {
         continue
       }
 
       let sourceUrl =
         processedFolderURL
-        .appendingPathComponent(itemPath)
+        .appendingPathComponent(itemPath.relativePath)
 
       try moveFileIfNeeded(
         from: sourceUrl,
@@ -864,7 +866,7 @@ extension LibraryService {
       if let folder = folder {
         let hasLibraryRef = hasItemProperty(
           #keyPath(LibraryItem.library),
-          relativePath: itemPath,
+          relativePath: itemPath.relativePath,
           context: context
         )
 
@@ -883,7 +885,7 @@ extension LibraryService {
       } else {
         let previousParentPath = getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
-          relativePath: itemPath,
+          relativePath: itemPath.relativePath,
           context: context
         ) as? String
 
@@ -914,10 +916,10 @@ extension LibraryService {
     for itemPath in items {
       let movedPath: String
       if let relativePath {
-        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
         movedPath = "\(relativePath)/\(itemName)"
       } else {
-        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
         movedPath = itemName
       }
       if let movedItem = getItemReference(with: movedPath, context: context),
@@ -975,7 +977,7 @@ extension LibraryService {
           try deleteFolderContents(item, context: context)
         case .shallow:
           // Move children to parent folder or library
-          if let items = getItemIdentifiers(in: item.relativePath, context: context),
+          if let items = getItemPair(in: item.relativePath, context: context),
             !items.isEmpty
           {
             try moveItems(items, inside: item.parentFolder, context: context)
@@ -1279,6 +1281,18 @@ extension LibraryService {
 
   func getItemIdentifiers(in parentFolder: String?) -> [String]? {
     return getItemIdentifiers(in: parentFolder, context: dataManager.getContext())
+  }
+  
+  func getItemPair(in parentFolder: String?, context: NSManagedObjectContext) -> [PathUuidPair]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: ["relativePath"],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil
+    )
+
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+    return results?.compactMap({ PathUuidPair(relativePath: $0["relativePath"] as? String ?? "", uuid: $0["uuid"] as? String) })
   }
 
   func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
@@ -2280,7 +2294,8 @@ extension LibraryService {
         time: time,
         note: dictionary["note"] as? String,
         type: type,
-        relativePath: relativePath
+        relativePath: relativePath,
+        uuid: dictionary["item.uuid"] as? String
       )
     })
   }
@@ -2335,7 +2350,7 @@ extension LibraryService {
     return parseFetchedBookmarks(from: results)?.first
   }
 
-  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+  public func createBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) -> SimpleBookmark? {
     let finalTime = floor(time)
 
     if let bookmark = self.getBookmark(at: finalTime, relativePath: relativePath, type: type) {
@@ -2353,7 +2368,8 @@ extension LibraryService {
       time: finalTime,
       note: nil,
       type: type,
-      relativePath: relativePath
+      relativePath: relativePath,
+      uuid: uuid
     )
   }
 

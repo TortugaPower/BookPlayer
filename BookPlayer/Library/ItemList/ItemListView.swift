@@ -226,7 +226,6 @@ struct ItemListView: View {
 
       Task {
         await model.syncList()
-        await model.syncUuids()
       }
     }
     .onChange(of: listState.token(for: .all), initial: false) {
@@ -298,6 +297,7 @@ struct ItemListView: View {
     .onAppear {
       Task {
         await model.prefetchIfNeeded(for: item)
+        await model.syncUuids()
       }
     }
     .swipeActions(edge: .trailing) {

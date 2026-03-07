@@ -199,21 +199,24 @@ extension BookmarksView {
     time: 123.45,
     note: "Important scene",
     type: .user,
-    relativePath: "book1.m4b"
+    relativePath: "book1.m4b",
+    uuid: UUID().uuidString
   )
 
   @Previewable var bookmark2 = SimpleBookmark(
     time: 456.78,
     note: nil,
     type: .user,
-    relativePath: "book1.m4b"
+    relativePath: "book1.m4b",
+    uuid: UUID().uuidString
   )
 
   @Previewable var automaticBookmark = SimpleBookmark(
     time: 789.12,
     note: "bookmark_automatic_play_title".localized,
     type: .play,
-    relativePath: "book1.m4b"
+    relativePath: "book1.m4b",
+    uuid: UUID().uuidString
   )
 
   BookmarksView {

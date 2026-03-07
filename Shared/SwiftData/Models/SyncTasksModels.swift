@@ -28,18 +28,20 @@ public class SyncTaskReferenceModel {
   public var taskID: String
   public var jobType: SyncJobType
   public var position: Int
-
+  public var uuid: String?
   public var container: SyncTasksContainer?
 
   public init(
     id: String = UUID().uuidString,
     relativePath: String,
+    uuid: String?,
     taskID: String,
     jobType: SyncJobType,
     position: Int
   ) {
     self.id = id
     self.relativePath = relativePath
+    self.uuid = uuid
     self.taskID = taskID
     self.jobType = jobType
     self.position = position
@@ -61,6 +63,7 @@ public class UploadTaskModel {
   public var orderRank: Int
   public var lastPlayDateTimestamp: Double?
   public var type: Int16
+  public var uuid: String?
 
   public init(
     id: String,
@@ -75,7 +78,8 @@ public class UploadTaskModel {
     isFinished: Bool,
     orderRank: Int,
     lastPlayDateTimestamp: Double? = nil,
-    type: Int16
+    type: Int16,
+    uuid: String? = nil
   ) {
     self.id = id
     self.relativePath = relativePath
@@ -94,6 +98,7 @@ public class UploadTaskModel {
     self.orderRank = orderRank
     self.lastPlayDateTimestamp = lastPlayDateTimestamp
     self.type = type
+    self.uuid = uuid
   }
 }
 
@@ -111,6 +116,7 @@ public class UpdateTaskModel {
   public var orderRank: Int16?
   public var lastPlayDateTimestamp: Double?
   public var type: Int16?
+  public var uuid: String?
 
   public init(
     id: String,
@@ -124,7 +130,8 @@ public class UpdateTaskModel {
     isFinished: Bool? = nil,
     orderRank: Int16? = nil,
     lastPlayDateTimestamp: Double? = nil,
-    type: Int16? = nil
+    type: Int16? = nil,
+    uuid: String? = nil
   ) {
     self.id = id
     self.relativePath = relativePath
@@ -142,6 +149,7 @@ public class UpdateTaskModel {
     self.orderRank = orderRank
     self.lastPlayDateTimestamp = lastPlayDateTimestamp
     self.type = type
+    self.uuid = uuid
   }
 }
 
@@ -151,12 +159,14 @@ public class MoveTaskModel {
   public var relativePath: String
   public var origin: String
   public var destination: String
+  public var uuid: String?
 
-  public init(id: String, relativePath: String, origin: String, destination: String) {
+  public init(id: String, relativePath: String, origin: String, destination: String, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
     self.origin = origin
     self.destination = destination
+    self.uuid = uuid
   }
 }
 
@@ -166,11 +176,13 @@ public class DeleteTaskModel {
   public var relativePath: String
   /// Can only be `delete` or `shallowDelete`
   public var jobType: SyncJobType
+  public var uuid: String?
 
-  public init(id: String, relativePath: String, jobType: SyncJobType) {
+  public init(id: String, relativePath: String, jobType: SyncJobType, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
     self.jobType = jobType
+    self.uuid = uuid
   }
 }
 
@@ -179,11 +191,13 @@ public class DeleteBookmarkTaskModel {
   @Attribute(.unique) public var id: String
   public var relativePath: String
   public var time: Double
+  public var uuid: String?
 
-  public init(id: String = UUID().uuidString, relativePath: String, time: Double) {
+  public init(id: String = UUID().uuidString, relativePath: String, time: Double, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
     self.time = time
+    self.uuid = uuid
   }
 }
 
@@ -193,12 +207,14 @@ public class SetBookmarkTaskModel {
   public var relativePath: String
   public var time: Double
   public var note: String?
+  public var uuid: String?
 
-  public init(id: String, relativePath: String, time: Double, note: String? = nil) {
+  public init(id: String, relativePath: String, time: Double, note: String? = nil, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
     self.time = time
     self.note = note
+    self.uuid = uuid
   }
 }
 
@@ -207,11 +223,13 @@ public class RenameFolderTaskModel {
   @Attribute(.unique) public var id: String
   public var relativePath: String
   public var name: String
+  public var uuid: String?
 
-  public init(id: String, relativePath: String, name: String) {
+  public init(id: String, relativePath: String, name: String, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
     self.name = name
+    self.uuid = uuid
   }
 }
 
@@ -219,17 +237,19 @@ public class RenameFolderTaskModel {
 public class ArtworkUploadTaskModel {
   @Attribute(.unique) public var id: String
   public var relativePath: String
+  public var uuid: String?
 
-  public init(id: String, relativePath: String) {
+  public init(id: String, relativePath: String, uuid: String?) {
     self.id = id
     self.relativePath = relativePath
+    self.uuid = uuid
   }
 }
 
 @Model
 public class MatchUuidsTaskModel {
   @Attribute(.unique) public var id: String
-  var uuids: [String: String]
+  public var uuids: [String: String]
   
   public init(id: String, uuids: [String: String]) {
     self.id = id

@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import CoreData
 
 public protocol JobSchedulerProtocol {
   /// Last sync error information for debugging
@@ -21,21 +22,22 @@ public protocol JobSchedulerProtocol {
   
   func scheduleMatchUuidsJob(parameters: [String: Any]) async
   /// Move item to destination
-  func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) async
+  func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async
   /// Delete item
-  func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) async
+  func scheduleDeleteJob(with relativePath: String, mode: DeleteMode, for uuid: String?) async
   /// Create or update a bookmark
   func scheduleSetBookmarkJob(
     with relativePath: String,
     time: Double,
-    note: String?
+    note: String?,
+    for uuid: String?
   ) async
   /// Delete a bookmark
-  func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) async
+  func scheduleDeleteBookmarkJob(with relativePath: String, time: Double, for uuid: String?) async
   /// Rename a folder
-  func scheduleRenameFolderJob(with relativePath: String, name: String) async
+  func scheduleRenameFolderJob(with relativePath: String, name: String, for uuid: String?) async
   /// Upload current cached artwork
-  func scheduleArtworkUpload(with relativePath: String) async
+  func scheduleArtworkUpload(with relativePath: String, for uuid: String?) async
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters
@@ -52,7 +54,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let networkClient: NetworkClientProtocol
   let operationQueue: OperationQueue
   let tasksDataManager: TasksDataManager
-
+  let dataManager: DataManager
+  
   /// Reference for observer
   private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
@@ -67,13 +70,15 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   public init(
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol = NetworkClient(),
-    operationQueue: OperationQueue = OperationQueue()
+    operationQueue: OperationQueue = OperationQueue(),
+    dataManager: DataManager
   ) {
     operationQueue.maxConcurrentOperationCount = 1
     self.operationQueue = operationQueue
     self.networkClient = networkClient
     self.tasksDataManager = tasksDataManager
-
+    self.dataManager = dataManager
+    
     bindObservers()
   }
 
@@ -163,19 +168,32 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     if let speed = item.speed {
       parameters["speed"] = speed
     }
+    
+    if let uuid = item.uuid {
+      parameters["uuid"] = uuid
+    }
 
     await persistTask(parameters: parameters)
   }
 
-  public func scheduleMoveItemJob(with relativePath: String, to parentFolder: String?) async {
-    let parameters: [String: Any] = [
+  public func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async {
+    var parameters: [String: Any] = [
       "id": UUID().uuidString,
-      "relativePath": relativePath,
-      "origin": relativePath,
-      "destination": parentFolder ?? "",
+      "relativePath": itemOrigin.relativePath,
+      "origin": itemOrigin.relativePath,
+      "destination": parentFolder?.relativePath ?? "",
       "jobType": SyncJobType.move.rawValue,
     ]
 
+    if let uuid = itemOrigin.uuid {
+      parameters["uuid"] = uuid
+      parameters["originUuid"] = uuid
+    }
+    
+    if let destinationUuid = parentFolder?.uuid {
+      parameters["destinationUuid"] = destinationUuid
+    }
+    
     await persistTask(parameters: parameters)
   }
 
@@ -193,11 +211,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     parameters["jobType"] = SyncJobType.matchUuid.rawValue
     parameters["id"] = UUID().uuidString
     parameters["relativePath"] = ""
-
     await persistTask(parameters: parameters)
   }
 
-  public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode) async {
+  public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode, for uuid: String?) async {
     let jobType: SyncJobType
 
     switch mode {
@@ -207,22 +224,26 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       jobType = SyncJobType.shallowDelete
     }
 
-    let parameters: [String: Any] = [
+    var parameters: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "jobType": jobType.rawValue,
     ]
+    
+    if let uuid = uuid { parameters["uuid"] = uuid }
 
     await persistTask(parameters: parameters)
   }
 
-  public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double) async {
-    let parameters: [String: Any] = [
+  public func scheduleDeleteBookmarkJob(with relativePath: String, time: Double, for uuid: String?) async {
+    var parameters: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "time": time,
       "jobType": SyncJobType.deleteBookmark.rawValue,
     ]
+    
+    if let uuid = uuid { parameters["uuid"] = uuid }
 
     await persistTask(parameters: parameters)
   }
@@ -230,7 +251,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   public func scheduleSetBookmarkJob(
     with relativePath: String,
     time: Double,
-    note: String?
+    note: String?,
+    for uuid: String?
   ) async {
     var params: [String: Any] = [
       "id": UUID().uuidString,
@@ -242,27 +264,35 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     if let note {
       params["note"] = note
     }
+    
+    if let uuid = uuid { params["uuid"] = uuid }
 
     await persistTask(parameters: params)
   }
 
-  public func scheduleRenameFolderJob(with relativePath: String, name: String) async {
-    let params: [String: Any] = [
+  public func scheduleRenameFolderJob(with relativePath: String, name: String, for uuid: String?) async {
+    var params: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "name": name,
       "jobType": SyncJobType.renameFolder.rawValue,
     ]
+    
+    if let uuid = uuid { params["uuid"] = uuid }
 
     await persistTask(parameters: params)
   }
 
-  public func scheduleArtworkUpload(with relativePath: String) async {
-    let params: [String: Any] = [
+  public func scheduleArtworkUpload(with relativePath: String, for uuid: String?) async {
+    var params: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "jobType": SyncJobType.uploadArtwork.rawValue,
     ]
+    
+    if let uuid = uuid {
+      params["uuid"] = uuid
+    }
 
     await persistTask(parameters: params)
   }
@@ -328,7 +358,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           self.retryQueuedTask()
           return
         }
-
+        
         let operationTask = LibraryItemSyncOperation(
           client: networkClient,
           task: task
@@ -345,6 +375,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             )
             self.retryQueuedTask()
           } else {
+            if let results = operationTask.results {
+              switch(task.jobType) {
+              case .matchUuid:
+                self.handleMatchUuidsResponse(results)
+              default:
+                break
+              }
+            }
             self.handleFinishedTask(task)
           }
         }
@@ -377,6 +415,26 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
         self.tasksProgress.removeValue(forKey: task.relativePath)
+      }
+    }
+  }
+  
+  private func handleMatchUuidsResponse(_ results: ItemSyncResponse) {
+    let context = dataManager.getBackgroundContext()
+    context.perform { [unowned self, context] in
+      let uuidsToUpdate = results.conflicts.map { $0.key }
+      let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "uuid IN %@", uuidsToUpdate)
+      guard let matchingItems = try? context.fetch(fetchRequest) else {
+        return
+      }
+      let uuidMap = Dictionary(uniqueKeysWithValues: results.conflicts.map { ($0.key, $0.uuid) })
+      
+      for item in matchingItems {
+        if let itemUuid = item.uuid, let newUUID = uuidMap[itemUuid] {
+          item.uuid = newUUID
+          print("Updated \(itemUuid) with new UUID: \(newUUID)")
+        }
       }
     }
   }

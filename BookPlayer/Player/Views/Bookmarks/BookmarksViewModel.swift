@@ -74,7 +74,8 @@ final class BookmarksViewModel: BookmarksView.Model {
     syncService.scheduleSetBookmark(
       relativePath: bookmark.relativePath,
       time: bookmark.time,
-      note: note
+      note: note,
+      uuid: bookmark.uuid
     )
   }
 
