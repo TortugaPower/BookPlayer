@@ -137,7 +137,9 @@ struct LibraryRootView: View {
     importManager.notifyPendingFiles()
     showSecondOnboarding()
 
-    for action in AppServices.shared.pendingURLActions {
+    let pendingActions = AppServices.shared.pendingURLActions
+    AppServices.shared.pendingURLActions.removeAll()
+    for action in pendingActions {
       ActionParserService.handleAction(action)
     }
   }

@@ -13,6 +13,7 @@ import SwiftUI
 import Themeable
 import UIKit
 
+@MainActor
 class MainCoordinator: NSObject {
   var mainController: UIViewController?
 

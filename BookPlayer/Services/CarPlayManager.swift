@@ -10,6 +10,7 @@ import BookPlayerKit
 import CarPlay
 import Combine
 
+@MainActor
 class CarPlayManager: NSObject {
   var interfaceController: CPInterfaceController?
   var listSyncRefreshService: ListSyncRefreshService?

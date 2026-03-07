@@ -25,7 +25,7 @@ class LoadingCoordinator: Coordinator, AlertPresenter {
     flow.startPresentation(vc, animated: false)
   }
 
-  func didFinishLoadingSequence() {
+  @MainActor func didFinishLoadingSequence() {
     let coreServices = AppServices.shared.coreServices!
 
     let coordinator = MainCoordinator(

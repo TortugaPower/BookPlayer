@@ -10,6 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
+@MainActor
 final class ThemeManager: ThemeProvider {
   static let shared = ThemeManager()
 

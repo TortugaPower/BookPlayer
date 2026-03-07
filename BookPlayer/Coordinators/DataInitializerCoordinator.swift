@@ -13,7 +13,7 @@ import Foundation
 
 @MainActor
 class DataInitializerCoordinator: BPLogger {
-  let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
+  var databaseInitializer: DatabaseInitializer { AppServices.shared.databaseInitializer }
   let alertPresenter: AlertPresenter
 
   var onFinish: (() -> Void)?

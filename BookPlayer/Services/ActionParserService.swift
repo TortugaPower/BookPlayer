@@ -14,6 +14,7 @@ public enum BPParseError: Error {
   case unrecognizedIntent
 }
 
+@MainActor
 class ActionParserService {
   public class func process(_ url: URL) {
     guard let action = CommandParser.parse(url) else { return }
@@ -38,11 +39,12 @@ class ActionParserService {
   public class func handleAction(_ action: Action) {
     let appServices = AppServices.shared
 
-    appServices.pendingURLActions.append(action)
-
     guard
       let watchConnectivityService = appServices.coreServices?.watchService
-    else { return }
+    else {
+      appServices.pendingURLActions.append(action)
+      return
+    }
 
     switch action.command {
     case .play:

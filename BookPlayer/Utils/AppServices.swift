@@ -14,8 +14,9 @@ import Foundation
 import StoreKit
 import UIKit
 
+@MainActor
 final class AppServices: BPLogger {
-  @MainActor static let shared = AppServices()
+  static let shared = AppServices()
 
   let databaseInitializer = DatabaseInitializer()
   var coreServices: CoreServices?
@@ -131,7 +132,7 @@ final class AppServices: BPLogger {
     playerState.showPlayer = true
   }
 
-  @MainActor func requestReview() {
+  func requestReview() {
     if let scene = UIApplication.shared.connectedScenes.first(where: {
       $0.activationState == .foregroundActive
     }) as? UIWindowScene {
