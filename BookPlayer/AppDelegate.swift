@@ -334,8 +334,10 @@ extension AppDelegate {
       object: nil,
       queue: nil
     ) { _ in
-      if AppServices.shared.coreServices?.playerManager.isPlaying != true {
-        self.scheduleAppRefresh()
+      Task { @MainActor in
+        if AppServices.shared.coreServices?.playerManager.isPlaying != true {
+          self.scheduleAppRefresh()
+        }
       }
     }
 
