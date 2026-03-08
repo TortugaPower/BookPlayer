@@ -287,9 +287,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
       readyObserver = NotificationCenter.default.addObserver(
         forName: .bookReady, object: nil, queue: .main
-      ) { _ in
-        cleanup()
-        continuation.resume()
+      ) { notification in
+        if notification.userInfo?["loaded"] as? Bool == false {
+          cleanup()
+          continuation.resume()
+        }
       }
 
       timeoutTask = Task { @MainActor in
