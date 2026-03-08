@@ -12,6 +12,7 @@ import Foundation
 @testable import BookPlayerKit
 import XCTest
 
+@MainActor
 class LoadingCoordinatorTests: XCTestCase {
   var loadingCoordinator: LoadingCoordinator!
   var presentingController: UINavigationController!
