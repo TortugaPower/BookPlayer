@@ -35,7 +35,9 @@ struct CustomSkipForwardIntent: AudioPlaybackIntent {
       try await playerLoaderService.loadPlayer(book.relativePath, autoplay: false)
     }
 
-    playerLoaderService.playerManager.skip(seconds)
+    await MainActor.run {
+      playerLoaderService.playerManager.skip(seconds)
+    }
 
     return .result()
   }

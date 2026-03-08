@@ -12,6 +12,7 @@ import RevenueCat
 import SwiftUI
 
 /// Handle second onboarding flows
+@MainActor
 class SecondOnboardingCoordinator: Coordinator {
   let anonymousId: String
   let accountService: AccountServiceProtocol

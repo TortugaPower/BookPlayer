@@ -220,8 +220,10 @@ class MainCoordinator: NSObject {
 }
 
 extension MainCoordinator: PurchasesDelegate {
-  public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-    self.accountService.updateAccount(from: customerInfo)
+  nonisolated public func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+    Task { @MainActor in
+      self.accountService.updateAccount(from: customerInfo)
+    }
   }
 }
 

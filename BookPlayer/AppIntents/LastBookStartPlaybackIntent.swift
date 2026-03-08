@@ -11,7 +11,6 @@ import BookPlayerKit
 import Foundation
 #if MAIN_APP
 import UIKit
-import WidgetKit
 #endif
 
 @available(macOS 14.0, watchOS 10.0, *)
@@ -48,7 +47,19 @@ struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
       forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
     )
 
-    try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
+    do {
+      try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
+    } catch {
+      UserDefaults.sharedDefaults.removeObject(
+        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+      )
+      if bgTaskID != .invalid {
+        await MainActor.run {
+          UIApplication.shared.endBackgroundTask(bgTaskID)
+        }
+      }
+      throw error
+    }
 
     Task { @MainActor in
       await playerLoaderService.playerManager.awaitCurrentLoad()

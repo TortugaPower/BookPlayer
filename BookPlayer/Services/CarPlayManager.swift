@@ -80,7 +80,7 @@ class CarPlayManager: NSObject {
 
   func syncList() async {
     guard
-      let syncService = await AppServices.shared.coreServices?.syncService,
+      let syncService = AppServices.shared.coreServices?.syncService,
       await syncService.canSyncListContents(
         at: nil,
         ignoreLastTimestamp: false

@@ -268,8 +268,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     await withCheckedContinuation { continuation in
       var playedObserver: NSObjectProtocol?
       var readyObserver: NSObjectProtocol?
+      var timeoutTask: Task<Void, Never>?
 
       func cleanup() {
+        timeoutTask?.cancel()
         if let playedObserver { NotificationCenter.default.removeObserver(playedObserver) }
         if let readyObserver { NotificationCenter.default.removeObserver(readyObserver) }
       }
@@ -283,11 +285,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
       readyObserver = NotificationCenter.default.addObserver(
         forName: .bookReady, object: nil, queue: .main
-      ) { notification in
-        if notification.userInfo?["loaded"] as? Bool == false {
-          cleanup()
-          continuation.resume()
-        }
+      ) { _ in
+        cleanup()
+        continuation.resume()
+      }
+
+      timeoutTask = Task {
+        try? await Task.sleep(nanoseconds: 30_000_000_000)
+        guard !Task.isCancelled else { return }
+        cleanup()
+        continuation.resume()
       }
     }
   }

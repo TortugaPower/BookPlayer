@@ -12,7 +12,6 @@ import BookPlayerKit
 import Foundation
 #if MAIN_APP
 import UIKit
-import WidgetKit
 #endif
 
 @available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
@@ -59,8 +58,8 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
 
   #if MAIN_APP
   /// Starts playback and keeps the app alive for streaming setup via a background task.
-  /// Returns immediately so the widget UI can update, while a detached task
-  /// waits for playback to start before ending the background task.
+  /// Returns after the player load is initiated. A detached task waits for playback
+  /// to actually start before ending the background task.
   @MainActor
   private static func loadAndKeepAlive(
     relativePath: String,
@@ -74,7 +73,17 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
       forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
     )
 
-    try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+    do {
+      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+    } catch {
+      UserDefaults.sharedDefaults.removeObject(
+        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+      )
+      if bgTaskID != .invalid {
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+      }
+      throw error
+    }
 
     Task { @MainActor in
       await playerLoaderService.playerManager.awaitCurrentLoad()
