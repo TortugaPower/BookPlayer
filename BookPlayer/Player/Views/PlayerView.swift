@@ -16,6 +16,7 @@ struct PlayerView: View {
   
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
+  @State private var noteText: String = ""
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
   let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -133,11 +134,20 @@ struct PlayerView: View {
       ThemeManager.shared.checkSystemMode()
     }
     .bpAlert($viewModel.currentAlert)
-    .bpInputAlert(
-        isPresented: $viewModel.isShowingNote,
-        title: "bookmark_note_action_title".localized
-    ) { text in
-      self.viewModel.saveNote(note: text)
+    .alert(
+        "bookmark_note_action_title",
+        isPresented: .constant(viewModel.lastBookmark != nil),
+        presenting: viewModel.lastBookmark
+    ) { bookmark in
+      TextField("note_title", text: $noteText)
+      Button("cancel_button", role: .cancel) {
+        viewModel.lastBookmark = nil
+        noteText = ""
+      }
+      Button("ok_button") {
+        viewModel.saveNote(note: noteText)
+        noteText = ""
+      }
     }
     .sheet(item: $viewModel.sheetStyle) { style in
       switch style {

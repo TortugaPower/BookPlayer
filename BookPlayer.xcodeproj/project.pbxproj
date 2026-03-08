@@ -669,7 +669,6 @@
 		99329DD32F3D7493003F8E73 /* BPAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */; };
 		99329DD52F3D83A4003F8E73 /* BPDialogModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */; };
 		99329DD72F3E8A04003F8E73 /* SlickSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD62F3E8A04003F8E73 /* SlickSlider.swift */; };
-		99329DD92F3ECEA2003F8E73 /* BPInputAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */; };
 		99329DDB2F3ED5E5003F8E73 /* DurationPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */; };
 		9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
 		99B367FA2F4575C900C38F7F /* MediaAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367F92F4575C600C38F7F /* MediaAction.swift */; };
@@ -1587,7 +1586,6 @@
 		99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAlertModifier.swift; sourceTree = "<group>"; };
 		99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDialogModifier.swift; sourceTree = "<group>"; };
 		99329DD62F3E8A04003F8E73 /* SlickSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickSlider.swift; sourceTree = "<group>"; };
-		99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPInputAlertModifier.swift; sourceTree = "<group>"; };
 		99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerSheet.swift; sourceTree = "<group>"; };
 		99B367F92F4575C600C38F7F /* MediaAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAction.swift; sourceTree = "<group>"; };
 		99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActionRow.swift; sourceTree = "<group>"; };
@@ -3060,7 +3058,6 @@
 				99329DCF2F3C282D003F8E73 /* AirplayPicker.swift */,
 				99329DD22F3D7493003F8E73 /* BPAlertModifier.swift */,
 				99329DD42F3D83A4003F8E73 /* BPDialogModifier.swift */,
-				99329DD82F3ECE9A003F8E73 /* BPInputAlertModifier.swift */,
 				99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */,
 				99329DD62F3E8A04003F8E73 /* SlickSlider.swift */,
 				99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */,
@@ -4490,7 +4487,6 @@
 				99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */,
 				63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,
-				99329DD92F3ECEA2003F8E73 /* BPInputAlertModifier.swift in Sources */,
 				63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */,
 				9F2681B628898A7300359BD3 /* LoginDisclaimerView.swift in Sources */,
 				9FD8D95829DC53750074C2D8 /* CoreServices.swift in Sources */,

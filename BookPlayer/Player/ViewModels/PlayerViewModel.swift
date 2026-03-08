@@ -34,7 +34,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var sleepText: String?
   @Published var hasNextChapter = false
   @Published var hasPreviousChapter = false
-  @Published var isShowingNote: Bool = false
+  @Published var lastBookmark: SimpleBookmark?
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
   
@@ -47,7 +47,6 @@ final class PlayerViewModel: ObservableObject {
   private let sharedDefaults: UserDefaults
   private var prefersChapterContext: Bool
   private var prefersRemainingTime: Bool
-  private var lastBookmark: SimpleBookmark?
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var listeningProgressSubscriber: AnyCancellable?
@@ -550,7 +549,7 @@ final class PlayerViewModel: ObservableObject {
   
   func resetShowings() {
     hideSheet()
-    isShowingNote = false
+    lastBookmark = nil
   }
   
   func showListFromMoreAction() {
@@ -662,9 +661,8 @@ final class PlayerViewModel: ObservableObject {
         BPActionItem(
           title: "bookmark_note_action_title".localized,
           handler: { [weak self] in
-            self?.lastBookmark = bookmark
             self?.resetShowings()
-            self?.isShowingNote = true
+            self?.lastBookmark = bookmark
           }
         )
       )
