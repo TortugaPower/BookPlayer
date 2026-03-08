@@ -59,8 +59,8 @@ struct BookmarksView: View {
                   bookmarkToDelete = bookmark
                 } label: {
                   Image(systemName: "trash")
-                    .foregroundStyle(Color.red)
                 }
+                .tint(.red)
                 .accessibilityLabel("delete_button")
 
                 Button {
