@@ -44,6 +44,7 @@ final class PlayerViewModel: ObservableObject {
   let syncService: SyncServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
+  private var isSliderDragging = false
   private let sharedDefaults: UserDefaults
   private var prefersChapterContext: Bool
   private var prefersRemainingTime: Bool
@@ -221,21 +222,7 @@ final class PlayerViewModel: ObservableObject {
       }
       .store(in: &disposeBag)
     
-    self.playingProgressSubscriber?.cancel()
-    self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-        self.recalculateProgress()
-      }
-    
-    self.listeningProgressSubscriber?.cancel()
-    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-        self.recalculateProgress()
-      }
+    bindProgressSubscribers()
   }
   
   private lazy var durationFormatter: DateComponentsFormatter = {
@@ -303,12 +290,80 @@ final class PlayerViewModel: ObservableObject {
     self.recalculateProgress()
   }
   
-  func handleSliderUpEvent(with value: Float) {
-    let newTime = getBookTimeFromSlider(value: value)
-    
-    self.playerManager.jumpTo(newTime, recordBookmark: true)
+  func handleSliderDragChanged(value: Double) {
+    if !isSliderDragging {
+      isSliderDragging = true
+      playingProgressSubscriber?.cancel()
+      listeningProgressSubscriber?.cancel()
+    }
+    let absoluteTime = getBookTimeFromSlider(value: Float(value))
+    guard let currentItem = playerManager.currentItem else { return }
+
+    if prefersChapterContext,
+       let chapter = chapterBeforeSliderValueChange {
+      // In chapter context, show time relative to chapter start
+      progressData.currentTime = absoluteTime - chapter.start
+
+      if prefersRemainingTime {
+        let elapsed = TimeInterval(value) * chapter.duration
+        progressData.maxTime = (elapsed - chapter.duration) / Double(playerManager.currentSpeed)
+      }
+
+      hasPreviousChapter = hasChapter(before: chapter)
+      hasNextChapter = hasChapter(after: chapter)
+    } else {
+      // In book context, show absolute time
+      progressData.currentTime = absoluteTime
+
+      if prefersRemainingTime {
+        progressData.maxTime = (absoluteTime - currentItem.duration) / Double(playerManager.currentSpeed)
+      }
+
+      // Update progress percentage
+      let percentage = currentItem.duration > 0
+        ? absoluteTime / currentItem.duration
+        : 0
+      progressData.progress = "\(Int(round(percentage * 100)))%"
+
+      // Update chapter title and chevrons if dragging across chapters
+      if let chapter = currentItem.getChapter(at: absoluteTime) {
+        progressData.chapterTitle = chapter.title
+        hasPreviousChapter = hasChapter(before: chapter)
+        hasNextChapter = hasChapter(after: chapter)
+      }
+    }
   }
-  
+
+  func handleSliderUpEvent(with value: Float) {
+    isSliderDragging = false
+    let newTime = getBookTimeFromSlider(value: value)
+
+    self.playerManager.jumpTo(newTime, recordBookmark: true)
+    // Delay re-binding to allow the player to seek to the new position,
+    // preventing the labels from flashing back to the old time
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+      self?.bindProgressSubscribers()
+    }
+  }
+
+  private func bindProgressSubscribers() {
+    self.playingProgressSubscriber?.cancel()
+    self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
+
+    self.listeningProgressSubscriber?.cancel()
+    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
+  }
+
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
     var newTimeToDisplay = TimeInterval(value) * (self.playerManager.currentItem?.duration ?? 0)
     

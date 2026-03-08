@@ -14,6 +14,7 @@ struct SlickSlider: View {
   
   // The callback closure, mimicking the native Slider API
   var onEditingChanged: (Bool) -> Void = { _ in }
+  var onDragValueChanged: ((Double) -> Void)? = nil
   
   @State private var localValue: Double = 0
   @State private var isDragging: Bool = false
@@ -56,6 +57,7 @@ struct SlickSlider: View {
                 }
                 // Update only the local UI state
                 updateLocalValue(with: gesture, in: geometry)
+                onDragValueChanged?(localValue)
               }
               .onEnded { _ in
                 // 3. Push the final local value back to the Binding (Singleton)
@@ -98,6 +100,7 @@ struct SlickSlider: View {
       }
       
       localValue = newTargetValue
+      onDragValueChanged?(localValue)
       value = newTargetValue
       
       onEditingChanged(false)

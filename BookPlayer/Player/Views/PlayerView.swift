@@ -74,13 +74,20 @@ struct PlayerView: View {
           remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
           currentTime: viewModel.progressData.formattedCurrentTime,
           currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
-          progressLabel: viewModel.progressData.progress ?? "") { progress in
+          progressLabel: viewModel.progressData.progress ?? "",
+          onSliderDragChanged: { value in
+            viewModel.handleSliderDragChanged(value: value)
+          },
+          onSliderChange: { progress in
             viewModel.handleSliderUpEvent(with: Float(progress))
-          } onProgressToggle: {
-            self.viewModel.processToggleProgressState()
-          } onRemainingToggle: {
-            self.viewModel.processToggleMaxTime()
+          },
+          onProgressToggle: {
+            viewModel.processToggleProgressState()
+          },
+          onRemainingToggle: {
+            viewModel.processToggleMaxTime()
           }
+        )
           .contentShape(Rectangle())
 
         Spacer()

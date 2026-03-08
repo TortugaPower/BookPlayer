@@ -17,6 +17,7 @@ struct ListeningProgressView: View {
   var currentTime: String
   var currentTimeAccessLabel: String = ""
   var progressLabel: String
+  var onSliderDragChanged: ((Double) -> Void)? = nil
   var onSliderChange: ((Double) -> Void)?
   var onProgressToggle: (() -> Void)?
   var onRemainingToggle: (() -> Void)?
@@ -32,6 +33,7 @@ struct ListeningProgressView: View {
             onSliderChange?(progress)
           }
         },
+        onDragValueChanged: onSliderDragChanged,
         accentColor: theme.linkColor
       )
       
