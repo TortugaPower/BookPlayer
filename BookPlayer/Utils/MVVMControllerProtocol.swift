@@ -13,6 +13,7 @@ protocol MVVMControllerProtocol: UIViewController {
   var viewModel: VM! { get set }
 }
 
+@MainActor
 protocol ViewModelProtocol {
   associatedtype C: Coordinator
   var coordinator: C! { get set }

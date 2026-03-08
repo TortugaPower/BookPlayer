@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 protocol AlertPresenter: AnyObject {
   func showAlert(_ title: String?, message: String?, completion: (() -> Void)?)
   func showAlert(_ content: BPAlertContent)

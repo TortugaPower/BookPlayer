@@ -15,6 +15,7 @@ protocol LoginViewModelProtocol: ObservableObject {
   func dismiss()
 }
 
+@MainActor
 class LoginViewModel: LoginViewModelProtocol {
   enum Routes {
     case completeAccount

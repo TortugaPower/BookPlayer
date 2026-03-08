@@ -146,6 +146,7 @@ struct LibraryRootView: View {
 
   func loadLastBookIfNeeded() async {
     guard
+      playerManager.currentItem == nil,
       let libraryItem = libraryService.getLibraryLastItem()
     else { return }
 

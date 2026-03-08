@@ -54,6 +54,19 @@ final class AppServices: BPLogger {
     setupCoreServices()
   }
 
+  func awaitCoreServices() async throws -> CoreServices {
+    _ = await setupCoreServicesTask?.result
+    if let error = errorCoreServicesSetup { throw error }
+    guard let coreServices else {
+      throw NSError(
+        domain: "BookPlayer",
+        code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Core services not available"]
+      )
+    }
+    return coreServices
+  }
+
   func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
     if let coreServices = self.coreServices {
       return coreServices
@@ -137,6 +150,45 @@ final class AppServices: BPLogger {
       $0.activationState == .foregroundActive
     }) as? UIWindowScene {
       AppStore.requestReview(in: scene)
+    }
+  }
+
+  // MARK: - Background Playback
+
+  /// Loads a book and keeps the app alive via a background task until playback starts.
+  func loadAndKeepAlive(
+    relativePath: String,
+    playerLoaderService: PlayerLoaderService
+  ) async throws {
+    var bgTaskID: UIBackgroundTaskIdentifier = .invalid
+    bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "streaming-playback") {
+      UIApplication.shared.endBackgroundTask(bgTaskID)
+      bgTaskID = .invalid
+    }
+
+    UserDefaults.sharedDefaults.set(
+      relativePath,
+      forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+    )
+
+    do {
+      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+    } catch {
+      UserDefaults.sharedDefaults.removeObject(
+        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+      )
+      if bgTaskID != .invalid {
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+        bgTaskID = .invalid
+      }
+      throw error
+    }
+
+    Task { @MainActor [bgTaskID] in
+      await playerLoaderService.playerManager.awaitCurrentLoad()
+      if bgTaskID != .invalid {
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+      }
     }
   }
 

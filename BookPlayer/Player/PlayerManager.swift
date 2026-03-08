@@ -266,6 +266,43 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
 
+  func awaitCurrentLoad() async {
+    await withCheckedContinuation { continuation in
+      var playedObserver: NSObjectProtocol?
+      var readyObserver: NSObjectProtocol?
+      var timeoutTask: Task<Void, Never>?
+
+      func cleanup() {
+        timeoutTask?.cancel()
+        if let playedObserver { NotificationCenter.default.removeObserver(playedObserver) }
+        if let readyObserver { NotificationCenter.default.removeObserver(readyObserver) }
+      }
+
+      playedObserver = NotificationCenter.default.addObserver(
+        forName: .bookPlayed, object: nil, queue: .main
+      ) { _ in
+        cleanup()
+        continuation.resume()
+      }
+
+      readyObserver = NotificationCenter.default.addObserver(
+        forName: .bookReady, object: nil, queue: .main
+      ) { notification in
+        if notification.userInfo?["loaded"] as? Bool == false {
+          cleanup()
+          continuation.resume()
+        }
+      }
+
+      timeoutTask = Task { @MainActor in
+        try? await Task.sleep(nanoseconds: 30_000_000_000)
+        guard !Task.isCancelled else { return }
+        cleanup()
+        continuation.resume()
+      }
+    }
+  }
+
   private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task
     playTask?.cancel()

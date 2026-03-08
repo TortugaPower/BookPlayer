@@ -10,6 +10,7 @@ import UIKit
 
 public typealias BPTransition<T> = ((T) -> Void)
 
+@MainActor
 protocol Coordinator: AnyObject {
   var flow: BPCoordinatorPresentationFlow { get }
   func start()
