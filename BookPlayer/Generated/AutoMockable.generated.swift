@@ -1105,6 +1105,17 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         loadAutoplayReceivedInvocations.append((item: item, autoplay: autoplay))
         loadAutoplayClosure?(item, autoplay)
     }
+    //MARK: - awaitCurrentLoad
+
+    var awaitCurrentLoadCallsCount = 0
+    var awaitCurrentLoadCalled: Bool {
+        return awaitCurrentLoadCallsCount > 0
+    }
+    var awaitCurrentLoadClosure: (() async -> Void)?
+    func awaitCurrentLoad() async {
+        awaitCurrentLoadCallsCount += 1
+        await awaitCurrentLoadClosure?()
+    }
     //MARK: - hasLoadedBook
 
     var hasLoadedBookCallsCount = 0

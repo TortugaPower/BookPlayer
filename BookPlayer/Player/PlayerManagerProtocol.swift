@@ -22,6 +22,7 @@ public protocol PlayerManagerProtocol: AnyObject {
   var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
 
   func load(_ item: PlayableItem, autoplay: Bool)
+  func awaitCurrentLoad() async
   func hasLoadedBook() -> Bool
 
   func playPreviousItem()

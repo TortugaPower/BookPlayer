@@ -24,17 +24,13 @@ struct CustomSkipForwardIntent: AudioPlaybackIntent {
     Summary("Skip forward \(\.$interval)")
   }
 
-  @Dependency
-  var playerLoaderService: PlayerLoaderService
-
-  @Dependency
-  var libraryService: LibraryService
-
   func perform() async throws -> some IntentResult {
+    let coreServices = try await AppServices.shared.awaitCoreServices()
+    let playerLoaderService = coreServices.playerLoaderService
     let seconds = interval.converted(to: .seconds).value
 
     if !playerLoaderService.playerManager.hasLoadedBook(),
-      let book = libraryService.getLastPlayedItems(limit: 1)?.first
+      let book = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
     {
       try await playerLoaderService.loadPlayer(book.relativePath, autoplay: false)
     }

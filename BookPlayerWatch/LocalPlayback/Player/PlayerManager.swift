@@ -264,6 +264,34 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
+  func awaitCurrentLoad() async {
+    await withCheckedContinuation { continuation in
+      var playedObserver: NSObjectProtocol?
+      var readyObserver: NSObjectProtocol?
+
+      func cleanup() {
+        if let playedObserver { NotificationCenter.default.removeObserver(playedObserver) }
+        if let readyObserver { NotificationCenter.default.removeObserver(readyObserver) }
+      }
+
+      playedObserver = NotificationCenter.default.addObserver(
+        forName: .bookPlayed, object: nil, queue: .main
+      ) { _ in
+        cleanup()
+        continuation.resume()
+      }
+
+      readyObserver = NotificationCenter.default.addObserver(
+        forName: .bookReady, object: nil, queue: .main
+      ) { notification in
+        if notification.userInfo?["loaded"] as? Bool == false {
+          cleanup()
+          continuation.resume()
+        }
+      }
+    }
+  }
+
   @MainActor
   private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task

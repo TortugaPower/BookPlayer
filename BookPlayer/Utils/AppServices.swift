@@ -54,6 +54,19 @@ final class AppServices: BPLogger {
     setupCoreServices()
   }
 
+  func awaitCoreServices() async throws -> CoreServices {
+    _ = await setupCoreServicesTask?.result
+    if let error = errorCoreServicesSetup { throw error }
+    guard let coreServices else {
+      throw NSError(
+        domain: "BookPlayer",
+        code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Core services not available"]
+      )
+    }
+    return coreServices
+  }
+
   func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
     if let coreServices = self.coreServices {
       return coreServices
