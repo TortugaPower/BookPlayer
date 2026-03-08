@@ -21,8 +21,6 @@ struct BookPlayerBundle {
 #if os(iOS)
     if #available(iOSApplicationExtension 18.0, *) {
       IOSWidgetsBundle18.main()
-    } else if #available(iOSApplicationExtension 16.1, *) {
-      IOSWidgetsBundle16.main()
     } else {
       IOSWidgetsBundle.main()
     }
@@ -36,16 +34,6 @@ struct BookPlayerBundle {
     var body: some Widget {
       LastPlayedWidget()
       TimeListenedWidget()
-    }
-  }
-
-  @available(iOSApplicationExtension 16.1, *)
-  struct IOSWidgetsBundle16: WidgetBundle {
-    var body: some Widget {
-      LastPlayedWidget()
-      TimeListenedWidget()
-      SharedWidget()
-      SharedIconWidget()
     }
   }
 
