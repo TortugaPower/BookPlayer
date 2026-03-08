@@ -153,6 +153,45 @@ final class AppServices: BPLogger {
     }
   }
 
+  // MARK: - Background Playback
+
+  /// Loads a book and keeps the app alive via a background task until playback starts.
+  func loadAndKeepAlive(
+    relativePath: String,
+    playerLoaderService: PlayerLoaderService
+  ) async throws {
+    var bgTaskID: UIBackgroundTaskIdentifier = .invalid
+    bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "streaming-playback") {
+      UIApplication.shared.endBackgroundTask(bgTaskID)
+      bgTaskID = .invalid
+    }
+
+    UserDefaults.sharedDefaults.set(
+      relativePath,
+      forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+    )
+
+    do {
+      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+    } catch {
+      UserDefaults.sharedDefaults.removeObject(
+        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+      )
+      if bgTaskID != .invalid {
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+        bgTaskID = .invalid
+      }
+      throw error
+    }
+
+    Task { @MainActor [bgTaskID] in
+      await playerLoaderService.playerManager.awaitCurrentLoad()
+      if bgTaskID != .invalid {
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+      }
+    }
+  }
+
   // MARK: - Factory Methods
 
   private func makeAccountService(dataManager: DataManager) -> AccountService {

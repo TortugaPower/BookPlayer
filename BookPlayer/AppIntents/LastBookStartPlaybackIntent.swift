@@ -9,9 +9,6 @@
 import AppIntents
 import BookPlayerKit
 import Foundation
-#if MAIN_APP
-import UIKit
-#endif
 
 @available(macOS 14.0, watchOS 10.0, *)
 struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
@@ -37,36 +34,10 @@ struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
     }
 
     #if MAIN_APP
-    let bgTaskID = await MainActor.run {
-      UIApplication.shared.beginBackgroundTask(withName: "streaming-playback")
-    }
-
-    /// Optimistically mark as playing so widgets show the pause icon
-    UserDefaults.sharedDefaults.set(
-      book.relativePath,
-      forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
+    try await AppServices.shared.loadAndKeepAlive(
+      relativePath: book.relativePath,
+      playerLoaderService: playerLoaderService
     )
-
-    do {
-      try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
-    } catch {
-      UserDefaults.sharedDefaults.removeObject(
-        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
-      )
-      if bgTaskID != .invalid {
-        await MainActor.run {
-          UIApplication.shared.endBackgroundTask(bgTaskID)
-        }
-      }
-      throw error
-    }
-
-    Task { @MainActor in
-      await playerLoaderService.playerManager.awaitCurrentLoad()
-      if bgTaskID != .invalid {
-        UIApplication.shared.endBackgroundTask(bgTaskID)
-      }
-    }
     #else
     try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
     #endif

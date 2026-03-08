@@ -292,7 +292,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         continuation.resume()
       }
 
-      timeoutTask = Task {
+      timeoutTask = Task { @MainActor in
         try? await Task.sleep(nanoseconds: 30_000_000_000)
         guard !Task.isCancelled else { return }
         cleanup()

@@ -25,7 +25,7 @@ struct CreateBookmarkIntent: AppIntent {
     let playerLoaderService = coreServices.playerLoaderService
     let libraryService = coreServices.libraryService
 
-    guard let currentItem = playerLoaderService.playerManager.currentItem else {
+    guard let currentItem = await MainActor.run(body: { playerLoaderService.playerManager.currentItem }) else {
       return .result(
         value: "",
         dialog: IntentDialog(stringLiteral: "intent_lastbook_empty_error".localized)

@@ -10,9 +10,6 @@ import AVFoundation
 import AppIntents
 import BookPlayerKit
 import Foundation
-#if MAIN_APP
-import UIKit
-#endif
 
 @available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
 struct BookPlaybackToggleIntent: AudioPlaybackIntent {
@@ -47,7 +44,10 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
       }
     } else {
       #if MAIN_APP
-      try await Self.loadAndKeepAlive(relativePath: relativePath, playerLoaderService: playerLoaderService)
+      try await AppServices.shared.loadAndKeepAlive(
+        relativePath: relativePath,
+        playerLoaderService: playerLoaderService
+      )
       #else
       try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
       #endif
@@ -55,42 +55,4 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
 
     return .result()
   }
-
-  #if MAIN_APP
-  /// Starts playback and keeps the app alive for streaming setup via a background task.
-  /// Returns after the player load is initiated. A detached task waits for playback
-  /// to actually start before ending the background task.
-  @MainActor
-  private static func loadAndKeepAlive(
-    relativePath: String,
-    playerLoaderService: PlayerLoaderService
-  ) async throws {
-    let bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "streaming-playback")
-
-    /// Optimistically mark as playing so widgets show the pause icon
-    UserDefaults.sharedDefaults.set(
-      relativePath,
-      forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
-    )
-
-    do {
-      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
-    } catch {
-      UserDefaults.sharedDefaults.removeObject(
-        forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath
-      )
-      if bgTaskID != .invalid {
-        UIApplication.shared.endBackgroundTask(bgTaskID)
-      }
-      throw error
-    }
-
-    Task { @MainActor in
-      await playerLoaderService.playerManager.awaitCurrentLoad()
-      if bgTaskID != .invalid {
-        UIApplication.shared.endBackgroundTask(bgTaskID)
-      }
-    }
-  }
-  #endif
 }
