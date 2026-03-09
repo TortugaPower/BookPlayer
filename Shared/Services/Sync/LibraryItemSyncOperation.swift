@@ -403,6 +403,5 @@ extension LibraryItemSyncOperation {
     )
     
     self.results = response
-    print(response)
   }
 }
