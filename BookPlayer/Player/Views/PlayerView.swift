@@ -16,6 +16,7 @@ struct PlayerView: View {
   
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
+  @State private var noteText: String = ""
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
   let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
@@ -73,13 +74,20 @@ struct PlayerView: View {
           remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
           currentTime: viewModel.progressData.formattedCurrentTime,
           currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
-          progressLabel: viewModel.progressData.progress ?? "") { progress in
+          progressLabel: viewModel.progressData.progress ?? "",
+          onSliderDragChanged: { value in
+            viewModel.handleSliderDragChanged(value: value)
+          },
+          onSliderChange: { progress in
             viewModel.handleSliderUpEvent(with: Float(progress))
-          } onProgressToggle: {
-            self.viewModel.processToggleProgressState()
-          } onRemainingToggle: {
-            self.viewModel.processToggleMaxTime()
+          },
+          onProgressToggle: {
+            viewModel.processToggleProgressState()
+          },
+          onRemainingToggle: {
+            viewModel.processToggleMaxTime()
           }
+        )
           .contentShape(Rectangle())
 
         Spacer()
@@ -133,11 +141,19 @@ struct PlayerView: View {
       ThemeManager.shared.checkSystemMode()
     }
     .bpAlert($viewModel.currentAlert)
-    .bpInputAlert(
-        isPresented: $viewModel.isShowingNote,
-        title: "bookmark_note_action_title".localized
-    ) { text in
-      self.viewModel.saveNote(note: text)
+    .alert(
+        "bookmark_note_action_title",
+        isPresented: Binding(
+          get: { viewModel.lastBookmark != nil },
+          set: { if !$0 { viewModel.lastBookmark = nil; noteText = "" } }
+        ),
+        presenting: viewModel.lastBookmark
+    ) { _ in
+      TextField("note_title", text: $noteText)
+      Button("cancel_button", role: .cancel) {}
+      Button("ok_button") {
+        viewModel.saveNote(note: noteText)
+      }
     }
     .sheet(item: $viewModel.sheetStyle) { style in
       switch style {

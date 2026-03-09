@@ -318,9 +318,10 @@ class CarPlayManager: NSObject {
     Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
-        try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
-          relativePath,
-          autoplay: true
+        let coreServices = try await AppServices.shared.awaitCoreServices()
+        try await AppServices.shared.loadAndKeepAlive(
+          relativePath: relativePath,
+          playerLoaderService: coreServices.playerLoaderService
         )
         /// Avoid trying to show the now playing screen if it's already shown
         if self.interfaceController?.topTemplate != CPNowPlayingTemplate.shared {

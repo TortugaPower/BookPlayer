@@ -247,7 +247,7 @@ extension PhoneWatchConnectivityService {
 
     replyHandler([
       "token": token,
-      "email": account.email ?? "",
+      "email": account.email,
       "accountId": account.id,
       "hasSubscription": account.hasSubscription,
       "donationMade": account.donationMade

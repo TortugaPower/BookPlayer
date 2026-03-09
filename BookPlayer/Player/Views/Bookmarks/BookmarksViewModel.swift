@@ -91,7 +91,9 @@ final class BookmarksViewModel: BookmarksView.Model {
         let bookmarks = try await self.syncService.syncBookmarksList(relativePath: relativePath)
       else { return }
 
-      self.userBookmarks = bookmarks
+      await MainActor.run {
+        self.userBookmarks = bookmarks
+      }
     }
   }
 }

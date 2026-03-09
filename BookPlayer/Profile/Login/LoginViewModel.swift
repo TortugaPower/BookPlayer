@@ -10,6 +10,7 @@ import AuthenticationServices
 import BookPlayerKit
 import Foundation
 
+@MainActor
 protocol LoginViewModelProtocol: ObservableObject {
   func handleSignIn(authorization: ASAuthorization)
   func dismiss()
