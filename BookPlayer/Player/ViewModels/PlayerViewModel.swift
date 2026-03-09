@@ -222,7 +222,21 @@ final class PlayerViewModel: ObservableObject {
       }
       .store(in: &disposeBag)
     
-    bindProgressSubscribers()
+    self.playingProgressSubscriber?.cancel()
+    self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
+
+    self.listeningProgressSubscriber?.cancel()
+    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        self.recalculateProgress()
+      }
   }
   
   private lazy var durationFormatter: DateComponentsFormatter = {
@@ -291,13 +305,9 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func handleSliderDragChanged(value: Double) {
-    if !isSliderDragging {
-      isSliderDragging = true
-      playingProgressSubscriber?.cancel()
-      listeningProgressSubscriber?.cancel()
-    }
-    let absoluteTime = getBookTimeFromSlider(value: Float(value))
     guard let currentItem = playerManager.currentItem else { return }
+    isSliderDragging = true
+    let absoluteTime = getBookTimeFromSlider(value: Float(value))
 
     if prefersChapterContext,
        let chapter = chapterBeforeSliderValueChange {
@@ -339,29 +349,6 @@ final class PlayerViewModel: ObservableObject {
     let newTime = getBookTimeFromSlider(value: value)
 
     self.playerManager.jumpTo(newTime, recordBookmark: true)
-    // Delay re-binding to allow the player to seek to the new position,
-    // preventing the labels from flashing back to the old time
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-      self?.bindProgressSubscribers()
-    }
-  }
-
-  private func bindProgressSubscribers() {
-    self.playingProgressSubscriber?.cancel()
-    self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-        self.recalculateProgress()
-      }
-
-    self.listeningProgressSubscriber?.cancel()
-    self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self = self else { return }
-        self.recalculateProgress()
-      }
   }
 
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
@@ -377,6 +364,7 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func recalculateProgress() {
+    guard !isSliderDragging else { return }
     let currentTime = self.getBookCurrentTime()
     let maxTimeInContext = self.getBookMaxTime()
     let progress: String

@@ -143,17 +143,16 @@ struct PlayerView: View {
     .bpAlert($viewModel.currentAlert)
     .alert(
         "bookmark_note_action_title",
-        isPresented: .constant(viewModel.lastBookmark != nil),
+        isPresented: Binding(
+          get: { viewModel.lastBookmark != nil },
+          set: { if !$0 { viewModel.lastBookmark = nil; noteText = "" } }
+        ),
         presenting: viewModel.lastBookmark
-    ) { bookmark in
+    ) { _ in
       TextField("note_title", text: $noteText)
-      Button("cancel_button", role: .cancel) {
-        viewModel.lastBookmark = nil
-        noteText = ""
-      }
+      Button("cancel_button", role: .cancel) {}
       Button("ok_button") {
         viewModel.saveNote(note: noteText)
-        noteText = ""
       }
     }
     .sheet(item: $viewModel.sheetStyle) { style in

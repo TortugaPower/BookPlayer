@@ -112,31 +112,29 @@ struct BookmarksView: View {
       }
       .alert(
         "bookmark_note_action_title",
-        isPresented: .constant(showingNoteAlert != nil),
+        isPresented: Binding(
+          get: { showingNoteAlert != nil },
+          set: { if !$0 { showingNoteAlert = nil; noteText = "" } }
+        ),
         presenting: showingNoteAlert
       ) { bookmark in
         TextField("note_title", text: $noteText)
-        Button("cancel_button", role: .cancel) {
-          showingNoteAlert = nil
-          noteText = ""
-        }
+        Button("cancel_button", role: .cancel) {}
         Button("ok_button") {
           model.addNote(noteText, bookmark: bookmark)
-          showingNoteAlert = nil
-          noteText = ""
         }
       }
       .alert(
         "",
-        isPresented: .constant(bookmarkToDelete != nil),
+        isPresented: Binding(
+          get: { bookmarkToDelete != nil },
+          set: { if !$0 { bookmarkToDelete = nil } }
+        ),
         presenting: bookmarkToDelete
       ) { bookmark in
-        Button("cancel_button", role: .cancel) {
-          bookmarkToDelete = nil
-        }
+        Button("cancel_button", role: .cancel) {}
         Button("delete_button", role: .destructive) {
           model.deleteBookmark(bookmark)
-          bookmarkToDelete = nil
         }
       } message: { bookmark in
         Text(String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)))
