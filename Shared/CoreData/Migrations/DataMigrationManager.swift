@@ -184,26 +184,26 @@ public final class DataMigrationManager: BPLogger {
     self.storeModel = destinationModel
 
     // Only continue if there's extra work to be done
-    guard currentVersion == .v8 else {
-      completionHandler()
-      return
-    }
+    switch currentVersion {
+    case .v8:
+      let stack = self.getCoreDataStack()
+      stack.loadStore { _, error in
+        /// Only continue if there weren't any errors when loading the store
+        guard error == nil else {
+          completionHandler()
+          return
+        }
 
-    let stack = self.getCoreDataStack()
-    stack.loadStore { _, error in
-      /// Only continue if there weren't any errors when loading the store
-      guard error == nil else {
+        let dataManager = DataManager(coreDataStack: stack)
+
+        if currentVersion == .v8 {
+          self.populateIsFinished(dataManager: dataManager)
+          self.populateFolderDetails(dataManager: dataManager)
+        }
+
         completionHandler()
-        return
       }
-
-      let dataManager = DataManager(coreDataStack: stack)
-
-      if currentVersion == .v8 {
-        self.populateIsFinished(dataManager: dataManager)
-        self.populateFolderDetails(dataManager: dataManager)
-      }
-
+    default:
       completionHandler()
     }
   }
