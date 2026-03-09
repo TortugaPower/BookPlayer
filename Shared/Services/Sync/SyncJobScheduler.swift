@@ -433,7 +433,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       for item in matchingItems {
         if let itemUuid = item.uuid, let newUUID = uuidMap[itemUuid] {
           item.uuid = newUUID
-          print("Updated \(itemUuid) with new UUID: \(newUUID)")
         }
       }
     }
