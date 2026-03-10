@@ -23,7 +23,7 @@ public struct SyncableItem {
   let orderRank: Int
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
-  let uuid: String?
+  let uuid: String
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -79,7 +79,7 @@ extension SyncableItem: Decodable {
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
-    self.uuid = try? container.decode(String.self, forKey: .uuid)
+    self.uuid = try container.decode(String.self, forKey: .uuid)
   }
 }
 

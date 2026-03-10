@@ -180,7 +180,7 @@ struct DebugFileTransferable: Transferable {
     if let lastError = syncService.getLastSyncError() {
       information += "\n-- Last Sync Error --\n"
       information += "Task ID: \(lastError.taskId)\n"
-      information += "Path: \(lastError.relativePath)\n"
+      information += "Uuid: \(lastError.uuid)\n"
       information += "Job Type: \(lastError.jobType.rawValue)\n"
       information += "Error: \(lastError.error)\n"
       information += "Timestamp: \(lastError.timestamp)\n"
@@ -194,11 +194,11 @@ struct DebugFileTransferable: Transferable {
     for (index, job) in jobs.enumerated() {
       information += "\n[\(index + 1)] \(job.jobType.rawValue)\n"
       information += "  Task ID: \(job.id)\n"
-      information += "  Path: \(job.relativePath)\n"
+      information += "  Uuid: \(job.uuid)\n"
       information += "  Parameters:\n"
       for (key, value) in job.parameters.sorted(by: { $0.key < $1.key }) {
         // Skip id and relativePath as they're already shown
-        if key == "id" || key == "relativePath" { continue }
+        if key == "id" || key == "uuid" { continue }
         information += "    \(key): \(value)\n"
       }
     }

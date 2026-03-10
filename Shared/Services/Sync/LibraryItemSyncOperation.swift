@@ -68,7 +68,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let client: NetworkClientProtocol
   let provider: NetworkProvider<LibraryAPI>
   let relativePath: String
-  let uuid: String?
+  let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
   var results: ItemSyncResponse?
@@ -87,7 +87,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
-    self.relativePath = task.relativePath
+    self.relativePath = task.parameters["relativePath"] as? String ?? ""
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
@@ -177,7 +177,7 @@ extension LibraryItemSyncOperation {
 
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
-      try await markUploadAsSynced(relativePath: self.relativePath)
+      try await markUploadAsSynced(uuid: self.uuid)
       finish()
       return
     }
@@ -189,7 +189,7 @@ extension LibraryItemSyncOperation {
         parameters: nil,
         useKeychain: false
       )
-      try await markUploadAsSynced(relativePath: self.relativePath)
+      try await markUploadAsSynced(uuid: self.uuid)
       finish()
       return
     }
@@ -309,7 +309,7 @@ extension LibraryItemSyncOperation {
     Task { [task] in
       do {
         if let relativePath = task.taskDescription {
-          try await markUploadAsSynced(relativePath: relativePath)
+          try await markUploadAsSynced(uuid: uuid)
         }
         NotificationCenter.default.post(name: .uploadCompleted, object: task)
         finish()
@@ -320,9 +320,9 @@ extension LibraryItemSyncOperation {
     }
   }
 
-  func markUploadAsSynced(relativePath: String) async throws {
+  func markUploadAsSynced(uuid: String) async throws {
     let _: UploadItemResponse = try await self.provider.request(.update(params: [
-      "relativePath": relativePath,
+      "uuid": uuid,
       "synced": true
     ]))
   }
