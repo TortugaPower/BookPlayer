@@ -146,6 +146,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
     var parameters: [String: Any] = [
       "id": UUID().uuidString,
+      "uuid": item.uuid,
       "relativePath": item.relativePath,
       "originalFileName": item.originalFileName,
       "title": item.title,
@@ -167,10 +168,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
     if let speed = item.speed {
       parameters["speed"] = speed
-    }
-    
-    if let uuid = item.uuid {
-      parameters["uuid"] = uuid
     }
 
     await persistTask(parameters: parameters)
@@ -369,7 +366,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
             self.lastSyncError = SyncErrorInfo(
               taskId: task.id,
-              relativePath: task.relativePath,
+              uuid: task.uuid,
               jobType: task.jobType,
               error: error.localizedDescription
             )
@@ -414,7 +411,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
-        self.tasksProgress.removeValue(forKey: task.relativePath)
+        self.tasksProgress.removeValue(forKey: task.uuid)
       }
     }
   }
@@ -431,7 +428,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       let uuidMap = Dictionary(uniqueKeysWithValues: results.conflicts.map { ($0.key, $0.uuid) })
       
       for item in matchingItems {
-        if let itemUuid = item.uuid, let newUUID = uuidMap[itemUuid] {
+        if let newUUID = uuidMap[item.uuid] {
           item.uuid = newUUID
         }
       }

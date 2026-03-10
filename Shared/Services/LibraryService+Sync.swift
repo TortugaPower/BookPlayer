@@ -46,31 +46,27 @@ public protocol LibrarySyncProtocol {
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
   
-  func generateMissingUuids() async -> [String: String]
+  func generateMissingUuids(offset: Int) async -> [String: String]
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func generateMissingUuids() async -> [String : String] {
+  public func generateMissingUuids(offset: Int) async -> [String : String] {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         var uuidsDict: [String: String] = [:]
         let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
         // Fetch only items where the UUID hasn't been set yet
-        fetchRequest.predicate = NSPredicate(format: "uuid == nil")
         fetchRequest.fetchLimit = 200
+        fetchRequest.fetchOffset = offset
         
         guard let itemsToUpdate = try? context.fetch(fetchRequest) else {
           return continuation.resume(returning: uuidsDict)
         }
         for item in itemsToUpdate {
-          // Generate a string representation of the UUID
-          let myUuid = UUID().uuidString
-          item.uuid = myUuid
-          uuidsDict[item.relativePath] = myUuid
+          uuidsDict[item.relativePath] = item.uuid
         }
         
-        dataManager.saveSyncContext(context)
         continuation.resume(returning: uuidsDict)
       }
     }
@@ -304,6 +300,7 @@ extension LibraryService: LibrarySyncProtocol {
   func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
+        let uuid = dictionary["uuid"] as? String,
         let relativePath = dictionary["relativePath"] as? String,
         let originalFileName = dictionary["originalFileName"] as? String,
         let title = dictionary["title"] as? String,
@@ -339,7 +336,7 @@ extension LibraryService: LibrarySyncProtocol {
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
         type: type,
-        uuid: dictionary["uuid"] as? String
+        uuid: uuid
       )
     })
   }

@@ -349,6 +349,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   func parseFetchedItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SimpleLibraryItem]? {
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
+        let uuid = dictionary["uuid"] as? String,
         let title = dictionary["title"] as? String,
         let speed = dictionary["speed"] as? Float,
         let currentTime = dictionary["currentTime"] as? Double,
@@ -384,7 +385,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         originalFileName: originalFileName,
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
         type: type,
-        uuid: dictionary["uuid"] as? String,
+        uuid: uuid,
       )
     })
   }

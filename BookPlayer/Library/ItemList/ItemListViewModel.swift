@@ -207,7 +207,7 @@ final class ItemListViewModel: ObservableObject {
   }
   
   func syncUuids() async {
-    await syncService.scheduleMatchUuid(params: [:])
+    await syncService.scheduleMatchUuid()
   }
 
   func refreshListState() async throws {

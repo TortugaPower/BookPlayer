@@ -76,7 +76,7 @@ public protocol SyncServiceProtocol {
 
   func scheduleUploadArtwork(relativePath: String, uuid: String?)
   
-  func scheduleMatchUuid(params: [String: Any]) async
+  func scheduleMatchUuid() async
 
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
@@ -510,13 +510,20 @@ extension SyncService {
     }
   }
   
-  public func scheduleMatchUuid(params: [String: Any]) async {
+  public func scheduleMatchUuid() async {
     guard isActive else { return }
     
-    let uuidsDict = await libraryService.generateMissingUuids()
-    guard uuidsDict.count > 0 else { return }
-    
-    await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": uuidsDict])
+    var previousOffset = 0
+    var loopShouldContinue: Bool = true
+    repeat {
+      let uuidsDict = await libraryService.generateMissingUuids(offset: previousOffset)
+      if uuidsDict.count > 0 {
+        await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": uuidsDict])
+      } else {
+        loopShouldContinue = false
+      }
+      previousOffset += uuidsDict.count
+    } while loopShouldContinue
   }
 }
 
