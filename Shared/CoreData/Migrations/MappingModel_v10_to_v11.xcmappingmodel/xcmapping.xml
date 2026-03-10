@@ -206,8 +206,8 @@
         <attribute name="destinationname" type="string">Book</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z132"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z106 z157 z146 z175 z186 z170 z129 z182 z158 z187 z150 z133 z147 z189 z118"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z110 z121 z196 z172 z185 z125"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z189 z118 z187 z129 z146 z106 z157 z158 z182 z175 z133 z170 z147 z150 z186"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z110 z185 z121 z172 z196 z125"></relationship>
     </object>
     <object type="XDDEVMAPPINGMODEL" id="z132">
         <attribute name="sourcemodelpath" type="string">Shared/CoreData/BookPlayer.xcdatamodeld/Audiobook Player 10.xcdatamodel</attribute>
@@ -237,6 +237,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEIGgALAAwAGQA1ADYANwBRAFIAUwBU
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z188"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z137">
+        <attribute name="migrationpolicyclassname" type="string"></attribute>
         <attribute name="sourcename" type="string">Library</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">6</attribute>
@@ -244,7 +245,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEIGgALAAwAGQA1ADYANwBRAFIAUwBU
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z132"></relationship>
         <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z161 z153 z139 z169"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z169 z153 z161 z139"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z138">
         <attribute name="name" type="string">lightSecondarySystemFillHex</attribute>
@@ -463,14 +464,15 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEIGgALAAwAGQA1ADYANwBRAFIAUwBU
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z131"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z188">
+        <attribute name="migrationpolicyclassname" type="string">BookPlayer.UUIDMigrationPolicy</attribute>
         <attribute name="sourcename" type="string">Folder</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">3</attribute>
         <attribute name="destinationname" type="string">Folder</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z132"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z142 z128 z122 z144 z107 z159 z162 z168 z109 z102 z136 z124 z140 z171 z178"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z127 z176 z151 z103 z112 z173"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z168 z140 z178 z122 z102 z107 z159 z124 z171 z162 z128 z142 z144 z136 z109"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z173 z151 z176 z112 z127 z103"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z189">
         <attribute name="name" type="string">relativePath</attribute>

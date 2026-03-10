@@ -49,18 +49,20 @@ public enum SchemaV2: VersionedSchema {
     public var taskID: String
     public var jobType: SyncJobType
     public var position: Int
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
     public var container: SyncTasksContainer?
     
     public init(
       id: String = UUID().uuidString,
+      uuid: String,
       relativePath: String,
       taskID: String,
       jobType: SyncJobType,
       position: Int
     ) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.taskID = taskID
       self.jobType = jobType
@@ -83,10 +85,11 @@ public enum SchemaV2: VersionedSchema {
     public var orderRank: Int
     public var lastPlayDateTimestamp: Double?
     public var type: Int16
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
     public init(
       id: String,
+      uuid: String,
       relativePath: String,
       originalFileName: String,
       title: String,
@@ -101,6 +104,7 @@ public enum SchemaV2: VersionedSchema {
       type: Int16
     ) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.originalFileName = originalFileName
       self.title = title
@@ -134,10 +138,11 @@ public enum SchemaV2: VersionedSchema {
     public var orderRank: Int16?
     public var lastPlayDateTimestamp: Double?
     public var type: Int16?
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
     public init(
       id: String,
+      uuid: String,
       relativePath: String,
       title: String? = nil,
       details: String? = nil,
@@ -151,6 +156,7 @@ public enum SchemaV2: VersionedSchema {
       type: Int16? = nil
     ) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.title = title
       self.details = details
@@ -175,10 +181,11 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     public var origin: String
     public var destination: String
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String, relativePath: String, origin: String, destination: String) {
+    public init(id: String, uuid: String, relativePath: String, origin: String, destination: String) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.origin = origin
       self.destination = destination
@@ -191,10 +198,11 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     /// Can only be `delete` or `shallowDelete`
     public var jobType: SyncJobType
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String, relativePath: String, jobType: SyncJobType) {
+    public init(id: String, uuid: String, relativePath: String, jobType: SyncJobType) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.jobType = jobType
     }
@@ -205,10 +213,11 @@ public enum SchemaV2: VersionedSchema {
     @Attribute(.unique) public var id: String
     public var relativePath: String
     public var time: Double
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String = UUID().uuidString, relativePath: String, time: Double) {
+    public init(id: String = UUID().uuidString, uuid: String, relativePath: String, time: Double) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.time = time
     }
@@ -220,10 +229,11 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     public var time: Double
     public var note: String?
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String, relativePath: String, time: Double, note: String? = nil) {
+    public init(id: String, uuid: String, relativePath: String, time: Double, note: String? = nil) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.time = time
       self.note = note
@@ -235,10 +245,11 @@ public enum SchemaV2: VersionedSchema {
     @Attribute(.unique) public var id: String
     public var relativePath: String
     public var name: String
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String, relativePath: String, name: String) {
+    public init(id: String, uuid: String, relativePath: String, name: String) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
       self.name = name
     }
@@ -248,11 +259,23 @@ public enum SchemaV2: VersionedSchema {
   public class ArtworkUploadTaskModel {
     @Attribute(.unique) public var id: String
     public var relativePath: String
-    public var uuid: String? = nil
+    public var uuid: String = UUID().uuidString
     
-    public init(id: String, relativePath: String) {
+    public init(id: String, uuid: String, relativePath: String) {
       self.id = id
+      self.uuid = uuid
       self.relativePath = relativePath
+    }
+  }
+  
+  @Model
+  public class MatchUuidsTaskModel {
+    @Attribute(.unique) public var id: String
+    public var uuids: [String: String]
+    
+    public init(id: String, uuids: [String: String]) {
+      self.id = id
+      self.uuids = uuids
     }
   }
 }

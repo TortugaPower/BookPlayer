@@ -30,7 +30,8 @@ public actor SyncTasksStorage: ModelActor {
       let taskId = parameters["id"] as? String,
       let rawJobType = parameters["jobType"] as? String,
       let jobType = SyncJobType(rawValue: rawJobType),
-      let uuid = parameters["uuid"] as? String
+      let uuid = parameters["uuid"] as? String,
+      let relativePath = parameters["relativePath"] as? String
     else {
       throw BookPlayerError.runtimeError("Missing id or job type when creating task")
     }
@@ -67,6 +68,7 @@ public actor SyncTasksStorage: ModelActor {
       // Create task reference
       let taskReference = SyncTaskReferenceModel(
         uuid: uuid,
+        relativePath: relativePath,
         taskID: taskId,
         jobType: jobType,
         position: nextPosition
