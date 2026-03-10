@@ -178,6 +178,7 @@ public final class TasksDataManager {
     case .upload:
       let task = UploadTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
         relativePath: parameters["relativePath"] as! String,
         originalFileName: parameters["originalFileName"] as! String,
         title: parameters["title"] as! String,
@@ -190,13 +191,13 @@ public final class TasksDataManager {
         orderRank: parameters["orderRank"] as! Int,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as! Int16,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .update:
       let task = UpdateTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
         relativePath: parameters["relativePath"] as! String,
         title: parameters["title"] as? String,
         details: parameters["details"] as? String,
@@ -208,56 +209,60 @@ public final class TasksDataManager {
         orderRank: parameters["orderRank"] as? Int16,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as? Int16,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .move:
       let task = MoveTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
         relativePath: parameters["relativePath"] as! String,
         origin: parameters["origin"] as! String,
         destination: parameters["destination"] as! String,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .delete, .shallowDelete:
       let task = DeleteTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
         jobType: SyncJobType(rawValue: parameters["jobType"] as! String)!,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .deleteBookmark:
       let task = DeleteBookmarkTaskModel(
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
         time: parameters["time"] as! Double,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .setBookmark:
       let task = SetBookmarkTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
         time: parameters["time"] as! Double,
         note: parameters["note"] as? String,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .renameFolder:
       let task = RenameFolderTaskModel(
         id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
         name: parameters["name"] as! String,
-        uuid: parameters["uuid"] as! String
       )
       context.insert(task)
 
     case .uploadArtwork:
       let task = ArtworkUploadTaskModel(
         id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
       )
       context.insert(task)
     case .matchUuid:
