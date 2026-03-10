@@ -28,7 +28,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public let originalFileName: String
   public let lastPlayDate: Date?
   public let type: SimpleItemType
-  public let uuid: String?
+  public let uuid: String
   
   public var progress: Double {
     if type == .folder,
@@ -97,7 +97,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     originalFileName: String,
     lastPlayDate: Date?,
     type: SimpleItemType,
-    uuid: String?
+    uuid: String
   ) {
     self.title = title
     self.details = details
