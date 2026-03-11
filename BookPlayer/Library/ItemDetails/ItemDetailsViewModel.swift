@@ -196,7 +196,7 @@ final class ItemDetailsViewModel: ObservableObject {
     case .bound, .folder:
       let newRelativePath = try libraryService.renameFolder(at: relativePath, with: cleanedTitle)
       cacheKey = newRelativePath
-      syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle)
+      syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle, for: item.uuid)
     }
 
     return cacheKey

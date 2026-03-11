@@ -110,6 +110,7 @@ public actor SyncTasksStorage: ModelActor {
     return SyncTask(
       id: firstTask.taskID,
       uuid: firstTask.uuid,
+      relativePath: firstTask.relativePath,
       jobType: firstTask.jobType,
       parameters: storedObject.toDictionaryPayload()
     )
@@ -153,6 +154,7 @@ public actor SyncTasksStorage: ModelActor {
         SyncTaskReference(
           id: task.taskID,
           uuid: task.uuid,
+          relativePath: task.relativePath,
           jobType: task.jobType,
           progress: progress[task.uuid] ?? 0.0
         )
@@ -184,6 +186,7 @@ public actor SyncTasksStorage: ModelActor {
         return SyncTask(
           id: taskRef.taskID,
           uuid: taskRef.uuid,
+          relativePath: taskRef.relativePath,
           jobType: taskRef.jobType,
           parameters: storedObject.toDictionaryPayload()
         )

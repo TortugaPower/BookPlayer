@@ -42,7 +42,7 @@ struct BookView: View {
       .buttonStyle(.plain)
       .accessibilityLabel("voiceover_continue_playback_title")
       VStack(alignment: .leading) {
-        Text(verbatim: item.uuid)
+        Text(verbatim: item.title)
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)

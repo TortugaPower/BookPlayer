@@ -693,6 +693,8 @@
 		99F3C2052F5FC76D00AC91A2 /* MigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2032F5FC76700AC91A2 /* MigrationPlan.swift */; };
 		99F3C2072F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2062F5FD40C00AC91A2 /* SchemaV2SyncTasksModels.swift */; };
 		99F3C2082F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2062F5FD40C00AC91A2 /* SchemaV2SyncTasksModels.swift */; };
+		99F3C20A2F62285800AC91A2 /* ApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2092F62285500AC91A2 /* ApiResponse.swift */; };
+		99F3C20B2F62285800AC91A2 /* ApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2092F62285500AC91A2 /* ApiResponse.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */; };
 		9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */; };
@@ -1614,6 +1616,7 @@
 		99F3C1FD2F5FC2E600AC91A2 /* SchemaV1SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV1SyncTasksModels.swift; sourceTree = "<group>"; };
 		99F3C2032F5FC76700AC91A2 /* MigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPlan.swift; sourceTree = "<group>"; };
 		99F3C2062F5FD40C00AC91A2 /* SchemaV2SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV2SyncTasksModels.swift; sourceTree = "<group>"; };
+		99F3C2092F62285500AC91A2 /* ApiResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiResponse.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsArtworkSectionView.swift; sourceTree = "<group>"; };
@@ -3366,6 +3369,7 @@
 			children = (
 				9FBDBC7B287940AD00D315A2 /* Model */,
 				9FC1E46A2815A8A800522FA8 /* LibraryAPI.swift */,
+				99F3C2092F62285500AC91A2 /* ApiResponse.swift */,
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
 				63C6C30B2B538B7A00FFE0D8 /* SyncTasksStorage.swift */,
@@ -4145,6 +4149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9FC1E46D2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
+				99F3C20B2F62285800AC91A2 /* ApiResponse.swift in Sources */,
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
 				4140EA71227289A20009F794 /* UIColor+BookPlayer.swift in Sources */,
 				9F0872DC2A19867C00B7FD4A /* ArtworkResponse.swift in Sources */,
@@ -4780,6 +4785,7 @@
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
+				99F3C20A2F62285800AC91A2 /* ApiResponse.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,

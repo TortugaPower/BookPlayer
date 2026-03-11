@@ -1286,14 +1286,14 @@ extension LibraryService {
   
   func getItemPair(in parentFolder: String?, context: NSManagedObjectContext) -> [PathUuidPair]? {
     let fetchRequest = buildListContentsFetchRequest(
-      properties: ["relativePath"],
+      properties: ["relativePath", "uuid"],
       relativePath: parentFolder,
       limit: nil,
       offset: nil
     )
 
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-    return results?.compactMap({ PathUuidPair(relativePath: $0["relativePath"] as? String ?? "", uuid: $0["uuid"] as? String) })
+    return results?.compactMap({ PathUuidPair(relativePath: $0["relativePath"] as? String ?? "", uuid: $0["uuid"] as? String ?? "") })
   }
 
   func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
@@ -1669,6 +1669,7 @@ extension LibraryService {
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.type): type.rawValue,
+      #keyPath(LibraryItem.uuid): folder.uuid,
     ]
 
     switch type {
@@ -1688,6 +1689,7 @@ extension LibraryService {
       for item in items {
         item.lastPlayDate = nil
         metadataPassthroughPublisher.send([
+          #keyPath(LibraryItem.uuid): item.uuid,
           #keyPath(LibraryItem.relativePath): item.relativePath!,
           #keyPath(LibraryItem.lastPlayDate): 0,
         ])
@@ -1792,6 +1794,7 @@ extension LibraryService {
       #keyPath(LibraryItem.percentCompleted): progress,
       #keyPath(LibraryItem.duration): folder.duration,
       #keyPath(LibraryItem.details): folder.details!,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
 
     dataManager.saveSyncContext(context)
@@ -1814,6 +1817,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.percentCompleted): progress,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
     /// TODO: verify if necessary to mark the folder as finished
 
@@ -1823,6 +1827,7 @@ extension LibraryService {
       userInfo: [
         "relativePath": relativePath,
         "progress": progress,
+        "uuid": folder.uuid
       ]
     )
 
@@ -1842,6 +1847,7 @@ extension LibraryService {
     item.title = newTitle
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): item.uuid,
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.title): newTitle,
     ])
@@ -1909,6 +1915,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.details): details,
+      #keyPath(LibraryItem.uuid): item.uuid
     ])
     self.dataManager.saveContext()
   }
@@ -1954,6 +1961,7 @@ extension LibraryService {
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.orderRank),
+          #keyPath(LibraryItem.uuid)
         ]
       )
     else { return }
@@ -1966,6 +1974,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid
       ])
     }
 
@@ -1997,6 +2006,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid
       ])
     }
 
@@ -2017,6 +2027,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 
@@ -2050,6 +2061,7 @@ extension LibraryService {
       #keyPath(LibraryItem.currentTime): time,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
+      #keyPath(LibraryItem.uuid): item.uuid
     ])
   }
 
@@ -2061,6 +2073,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
 
     if let parentFolderPath = getItemProperty(
@@ -2080,6 +2093,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.speed): speed,
+      #keyPath(LibraryItem.uuid): item.uuid,
     ])
 
     if let folder = item.folder,
@@ -2088,6 +2102,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): folderPath,
         #keyPath(LibraryItem.speed): speed,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 
@@ -2117,6 +2132,7 @@ extension LibraryService {
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
+      #keyPath(LibraryItem.uuid): book.uuid,
     ]
 
     book.isFinished = flag
@@ -2139,6 +2155,7 @@ extension LibraryService {
     folder.isFinished = flag
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): folder.uuid,
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
     ])
@@ -2167,6 +2184,7 @@ extension LibraryService {
     book.isFinished = false
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): book.uuid,
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.currentTime): Double(0),
       #keyPath(LibraryItem.percentCompleted): Double(0),
@@ -2182,6 +2200,7 @@ extension LibraryService {
     folder.isFinished = false
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): folder.uuid,
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.currentTime): Double(0),
       #keyPath(LibraryItem.percentCompleted): Double(0),

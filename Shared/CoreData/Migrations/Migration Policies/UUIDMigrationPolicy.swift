@@ -15,14 +15,12 @@ class UUIDMigrationPolicy: NSEntityMigrationPolicy {
     in mapping: NSEntityMapping,
     manager: NSMigrationManager
   ) throws {
-    print("HEY HO HERE 1")
     // 1. Create the new destination object in the destination context
     guard let destinationEntityName = mapping.destinationEntityName else { return }
     let destinationInstance = NSEntityDescription.insertNewObject(
       forEntityName: destinationEntityName,
       into: manager.destinationContext
     )
-    print("HEY HO HERE 2")
     // 2. Copy over all the existing attributes from the old record
     let destinationKeys = destinationInstance.entity.attributesByName.keys
     for key in sInstance.entity.attributesByName.keys {
@@ -30,10 +28,8 @@ class UUIDMigrationPolicy: NSEntityMigrationPolicy {
         destinationInstance.setValue(sInstance.value(forKey: key), forKey: key)
       }
     }
-    print("HEY HO HERE 3")
     // 3. Generate and assign the new required UUID
     destinationInstance.setValue(UUID().uuidString, forKey: "uuid")
-    print("HEY HO HERE 4 \(destinationInstance.value(forKey: "relativePath") ?? "NONES")")
     // 4. Tell the migration manager to associate the old record with the new one
     manager.associate(
       sourceInstance: sInstance,
