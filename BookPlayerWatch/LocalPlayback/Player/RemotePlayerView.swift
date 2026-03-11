@@ -23,7 +23,7 @@ struct RemotePlayerView: View {
       
       if let currentItem = playerManager.currentItem {
         LinearProgressView(
-          value: currentItem.currentTime / currentItem.duration,
+          value: playerManager.currentPlaybackTime / currentItem.duration,
           fillColor: .accentColor
         )
         .accessibilityHidden(true)
