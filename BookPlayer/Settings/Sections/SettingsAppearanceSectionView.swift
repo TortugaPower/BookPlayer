@@ -94,7 +94,7 @@ struct SettingsAppearanceSectionView: View {
             UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.orientationLock)
           }
 
-          AppDelegate.shared?.activeSceneDelegate?.startingNavigationController
+          WindowHelper.activeWindow?.rootViewController?
             .setNeedsUpdateOfSupportedInterfaceOrientations()
         }
       }

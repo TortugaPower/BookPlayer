@@ -23,12 +23,8 @@ import WatchConnectivity
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   static weak var shared: AppDelegate?
-  var pendingURLActions = [Action]()
 
   var window: UIWindow?
-
-  let databaseInitializer = DatabaseInitializer()
-  var coreServices: CoreServices?
 
   /// Internal property used as a fallback in ``activeSceneDelegate``
   var lastSceneToResignActive: SceneDelegate?
@@ -53,10 +49,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   private lazy var databaseBackupTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
 
-  /// Reference to the task that creates the core services
-  var setupCoreServicesTask: Task<(), Error>?
-  var errorCoreServicesSetup: Error?
-
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -79,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Setup Sentry
     self.setupSentry()
     // Setup core services
-    self.setupCoreServices()
+    AppServices.shared.setupCoreServices()
 
     return true
   }
@@ -114,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
 
   override func accessibilityPerformMagicTap() -> Bool {
     guard
-      let playerManager = self.coreServices?.playerManager,
+      let playerManager = AppServices.shared.coreServices?.playerManager,
       playerManager.currentItem != nil
     else {
       UIAccessibility.post(
@@ -128,6 +120,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     return true
   }
 
+  // MARK: - Media Player Remote Commands
+
   func setupMPRemoteCommands() {
     Task {
       self.setupMPPlaybackRemoteCommands()
@@ -139,8 +133,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     let center = MPRemoteCommandCenter.shared()
     // Play / Pause
     center.togglePlayPauseCommand.isEnabled = true
-    center.togglePlayPauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else {
+    center.togglePlayPauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else {
         return .commandFailed
       }
 
@@ -150,14 +144,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       if wasPlaying,
         UIApplication.shared.applicationState == .background
       {
-        self?.scheduleAppRefresh()
+        self.scheduleAppRefresh()
       }
       return .success
     }
 
     center.playCommand.isEnabled = true
-    center.playCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else {
+    center.playCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else {
         return .commandFailed
       }
 
@@ -167,21 +161,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       if wasPlaying,
         UIApplication.shared.applicationState == .background
       {
-        self?.scheduleAppRefresh()
+        self.scheduleAppRefresh()
       }
       return .success
     }
 
     center.pauseCommand.isEnabled = true
-    center.pauseCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else {
+    center.pauseCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else {
         return .commandFailed
       }
 
       playerManager.pause()
 
       if UIApplication.shared.applicationState == .background {
-        self?.scheduleAppRefresh()
+        self.scheduleAppRefresh()
       }
 
       return .success
@@ -195,9 +189,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     center.changePlaybackPositionCommand.isEnabled = UserDefaults.standard.bool(
       forKey: Constants.UserDefaults.seekProgressBarEnabled
     )
-    center.changePlaybackPositionCommand.addTarget { [weak self] remoteEvent in
+    center.changePlaybackPositionCommand.addTarget { remoteEvent in
       guard
-        let playerManager = self?.coreServices?.playerManager,
+        let playerManager = AppServices.shared.coreServices?.playerManager,
         let currentItem = playerManager.currentItem,
         let event = remoteEvent as? MPChangePlaybackPositionCommandEvent
       else { return .commandFailed }
@@ -221,28 +215,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     let center = MPRemoteCommandCenter.shared()
     // Forward
     center.skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
-    center.skipForwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
+    center.skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 
       playerManager.forward()
       return .success
     }
 
-    center.nextTrackCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
+    center.nextTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 
       playerManager.forward()
       return .success
     }
 
-    center.seekForwardCommand.addTarget { [weak self] (commandEvent) -> MPRemoteCommandHandlerStatus in
+    center.seekForwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
       guard let cmd = commandEvent as? MPSeekCommandEvent,
         cmd.type == .endSeeking
       else {
         return .success
       }
 
-      guard let playerManager = self?.coreServices?.playerManager else { return .success }
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .success }
 
       // End seeking
       playerManager.forward()
@@ -251,21 +245,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
 
     // Rewind
     center.skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
-    center.skipBackwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
+    center.skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 
       playerManager.rewind()
       return .success
     }
 
-    center.previousTrackCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
-      guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
+    center.previousTrackCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 
       playerManager.rewind()
       return .success
     }
 
-    center.seekBackwardCommand.addTarget { [weak self] (commandEvent) -> MPRemoteCommandHandlerStatus in
+    center.seekBackwardCommand.addTarget { (commandEvent) -> MPRemoteCommandHandlerStatus in
       guard
         let cmd = commandEvent as? MPSeekCommandEvent,
         cmd.type == .endSeeking
@@ -273,13 +267,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
         return .success
       }
 
-      guard let playerManager = self?.coreServices?.playerManager else { return .success }
+      guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .success }
 
       // End seeking
       playerManager.rewind()
       return .success
     }
   }
+
+  // MARK: - Third-party SDKs
 
   func setupRevenueCat() {
     let revenueCatApiKey: String = Bundle.main.configurationValue(
@@ -326,42 +322,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.tracesSampleRate = 0.5
     }
   }
-
-  func requestReview() {
-    if let scene = UIApplication.shared.connectedScenes.first(where: {
-      $0.activationState == .foregroundActive
-    }) as? UIWindowScene {
-      AppStore.requestReview(in: scene)
-    }
-  }
-
-  func playLastBook() {
-    guard
-      let playerManager = coreServices?.playerManager,
-      playerManager.hasLoadedBook()
-    else {
-      UserDefaults.standard.set(true, forKey: Constants.UserActivityPlayback)
-      return
-    }
-
-    playerManager.play()
-  }
-
-  func showPlayer() {
-    guard
-      let playerManager = coreServices?.playerManager,
-      playerManager.hasLoadedBook()
-    else {
-      UserDefaults.standard.set(true, forKey: Constants.UserDefaults.showPlayer)
-      return
-    }
-
-    if let mainCoordinator = activeSceneDelegate?.mainCoordinator,
-       !mainCoordinator.hasPlayerShown()
-    {
-      mainCoordinator.showPlayer()
-    }
-  }
 }
 
 // MARK: - Background tasks
@@ -374,8 +334,10 @@ extension AppDelegate {
       object: nil,
       queue: nil
     ) { _ in
-      if self.coreServices?.playerManager.isPlaying != true {
-        self.scheduleAppRefresh()
+      Task { @MainActor in
+        if AppServices.shared.coreServices?.playerManager.isPlaying != true {
+          self.scheduleAppRefresh()
+        }
       }
     }
 
@@ -409,7 +371,7 @@ extension AppDelegate {
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    guard let syncService = coreServices?.syncService else { return }
+    guard let syncService = AppServices.shared.coreServices?.syncService else { return }
 
     let refreshOperation = RefreshTaskOperation(syncService: syncService)
 
@@ -490,132 +452,5 @@ extension AppDelegate {
     queue.maxConcurrentOperationCount = 1
 
     queue.addOperation(backupOperation)
-  }
-}
-
-// - MARK: Core services
-
-extension AppDelegate {
-  func setupCoreServices() {
-    setupCoreServicesTask = Task {
-      do {
-        let stack = try await databaseInitializer.loadCoreDataStack()
-        let coreServices = createCoreServicesIfNeeded(from: stack)
-
-        AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
-        AppDependencyManager.shared.add(dependency: coreServices.libraryService)
-      } catch {
-        errorCoreServicesSetup = error
-      }
-    }
-  }
-
-  func resetCoreServices() {
-    setupCoreServicesTask?.cancel()
-    setupCoreServicesTask = nil
-    errorCoreServicesSetup = nil
-    setupCoreServices()
-  }
-
-  func createCoreServicesIfNeeded(from stack: CoreDataStack) -> CoreServices {
-    if let coreServices = self.coreServices {
-      return coreServices
-    } else {
-      let dataManager = DataManager(coreDataStack: stack)
-      let accountService = makeAccountService(dataManager: dataManager)
-      let audioMetadataService = makeAudioMetadataService()
-      let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService)
-      let playbackService = makePlaybackService(libraryService: libraryService)
-      let playerManager = PlayerManager(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        syncService: syncService,
-        speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
-      )
-      let watchService = PhoneWatchConnectivityService(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
-      let playerLoaderService = makePlayerLoaderService(
-        syncService: syncService,
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService)
-
-      let coreServices = CoreServices(
-        accountService: accountService,
-        dataManager: dataManager,
-        hardcoverService: hardcoverService,
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerLoaderService: playerLoaderService,
-        playerManager: playerManager,
-        syncService: syncService,
-        watchService: watchService
-      )
-
-      self.coreServices = coreServices
-
-      // Wire up accountService for Watch auth transfer
-      watchService.setAccountService(accountService)
-
-      return coreServices
-    }
-  }
-
-  private func makeAccountService(dataManager: DataManager) -> AccountService {
-    let service = AccountService()
-    service.setup(dataManager: dataManager)
-    return service
-  }
-
-  private func makeAudioMetadataService() -> AudioMetadataService {
-    return AudioMetadataService()
-  }
-
-  private func makeLibraryService(dataManager: DataManager, audioMetadataService: AudioMetadataServiceProtocol) -> LibraryService {
-    let service = LibraryService()
-    service.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
-    return service
-  }
-
-  private func makeSyncService(accountService: AccountService, libraryService: LibraryService) -> SyncService {
-    let service = SyncService()
-    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService)
-    return service
-  }
-
-  private func makePlaybackService(libraryService: LibraryService) -> PlaybackService {
-    let service = PlaybackService()
-    service.setup(libraryService: libraryService)
-    return service
-  }
-
-  private func makePlayerLoaderService(
-    syncService: SyncService,
-    libraryService: LibraryService,
-    playbackService: PlaybackService,
-    playerManager: PlayerManager
-  ) -> PlayerLoaderService {
-    let service = PlayerLoaderService()
-    service.setup(
-      syncService: syncService,
-      libraryService: libraryService,
-      playbackService: playbackService,
-      playerManager: playerManager
-    )
-    return service
-  }
-
-  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
-    let service = HardcoverService()
-    service.setup(libraryService: libraryService)
-    return service
   }
 }

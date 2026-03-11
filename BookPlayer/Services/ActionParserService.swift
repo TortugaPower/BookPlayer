@@ -14,6 +14,7 @@ public enum BPParseError: Error {
   case unrecognizedIntent
 }
 
+@MainActor
 class ActionParserService {
   public class func process(_ url: URL) {
     guard let action = CommandParser.parse(url) else { return }
@@ -36,13 +37,14 @@ class ActionParserService {
   }
 
   public class func handleAction(_ action: Action) {
-    guard let appDelegate = AppDelegate.shared else { return }
-
-    appDelegate.pendingURLActions.append(action)
+    let appServices = AppServices.shared
 
     guard
-      let watchConnectivityService = appDelegate.coreServices?.watchService
-    else { return }
+      let watchConnectivityService = appServices.coreServices?.watchService
+    else {
+      appServices.pendingURLActions.append(action)
+      return
+    }
 
     switch action.command {
     case .play:
@@ -77,7 +79,7 @@ class ActionParserService {
 
   private class func handleRewindAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -93,7 +95,7 @@ class ActionParserService {
 
   private class func handleForwardAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -111,7 +113,7 @@ class ActionParserService {
     guard
       let valueString = action.getQueryValue(for: "start"),
       let chapterStart = Double(valueString),
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -130,7 +132,7 @@ class ActionParserService {
     let roundedValue = round(speedRate * 100) / 100.0
 
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -144,7 +146,7 @@ class ActionParserService {
     let isOn = valueString == "true"
 
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -188,7 +190,7 @@ class ActionParserService {
 
   private class func handlePlaybackToggleAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -212,7 +214,7 @@ class ActionParserService {
 
   private class func handlePauseAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -223,7 +225,7 @@ class ActionParserService {
 
   private class func handlePlayAction(_ action: Action) {
     guard
-      let playerManager = AppDelegate.shared?.coreServices?.playerManager
+      let playerManager = AppServices.shared.coreServices?.playerManager
     else {
       return
     }
@@ -232,7 +234,7 @@ class ActionParserService {
       let showPlayer = Bool(value),
       showPlayer
     {
-      AppDelegate.shared?.showPlayer()
+      AppServices.shared.showPlayer()
     }
 
     if let value = action.getQueryValue(for: "autoplay"),
@@ -244,7 +246,7 @@ class ActionParserService {
 
     guard let bookIdentifier = action.getQueryValue(for: "identifier") else {
       self.removeAction(action)
-      AppDelegate.shared?.playLastBook()
+      AppServices.shared.playLastBook()
       return
     }
 
@@ -309,12 +311,11 @@ class ActionParserService {
 
   public class func removeAction(_ action: Action) {
     guard
-      let appDelegate = AppDelegate.shared,
-      let index = appDelegate.pendingURLActions.firstIndex(of: action)
+      let index = AppServices.shared.pendingURLActions.firstIndex(of: action)
     else {
       return
     }
 
-    appDelegate.pendingURLActions.remove(at: index)
+    AppServices.shared.pendingURLActions.remove(at: index)
   }
 }

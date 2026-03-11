@@ -13,7 +13,7 @@ import Foundation
 
 @MainActor
 class DataInitializerCoordinator: BPLogger {
-  let databaseInitializer: DatabaseInitializer = DatabaseInitializer()
+  var databaseInitializer: DatabaseInitializer { AppServices.shared.databaseInitializer }
   let alertPresenter: AlertPresenter
 
   var onFinish: (() -> Void)?
@@ -32,10 +32,10 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func initializeLibrary(shouldRebuildFromFiles: Bool) async {
-    let appDelegate = AppDelegate.shared!
-    _ = await appDelegate.setupCoreServicesTask?.result
+    let appServices = AppServices.shared
+    _ = await appServices.setupCoreServicesTask?.result
 
-    if let errorCoreServicesSetup = appDelegate.errorCoreServicesSetup {
+    if let errorCoreServicesSetup = appServices.errorCoreServicesSetup {
       await handleError(errorCoreServicesSetup as NSError)
       return
     }
@@ -152,7 +152,7 @@ class DataInitializerCoordinator: BPLogger {
     let restoreSuccess = await databaseInitializer.restoreFromLatestBackup()
 
     if restoreSuccess {
-      AppDelegate.shared?.resetCoreServices()
+      AppServices.shared.resetCoreServices()
       await initializeLibrary(shouldRebuildFromFiles: false)
     } else {
       await presentFinalRecoveryAlert(originalError)
@@ -163,14 +163,14 @@ class DataInitializerCoordinator: BPLogger {
     Task {
       databaseInitializer.cleanupStoreFiles()
       // Reset core services to start fresh
-      AppDelegate.shared?.resetCoreServices()
+      AppServices.shared.resetCoreServices()
       // Rebuild library from files since database is empty
       await initializeLibrary(shouldRebuildFromFiles: true)
     }
   }
 
   func finishLibrarySetup(shouldRebuildFromFiles: Bool) async {
-    let coreServices = AppDelegate.shared!.coreServices!
+    let coreServices = AppServices.shared.coreServices!
 
     setupDefaultState(
       libraryService: coreServices.libraryService,

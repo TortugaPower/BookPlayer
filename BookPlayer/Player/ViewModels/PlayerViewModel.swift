@@ -34,7 +34,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var sleepText: String?
   @Published var hasNextChapter = false
   @Published var hasPreviousChapter = false
-  @Published var isShowingNote: Bool = false
+  @Published var lastBookmark: SimpleBookmark?
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
   
@@ -44,10 +44,10 @@ final class PlayerViewModel: ObservableObject {
   let syncService: SyncServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
+  private var isSliderDragging = false
   private let sharedDefaults: UserDefaults
   private var prefersChapterContext: Bool
   private var prefersRemainingTime: Bool
-  private var lastBookmark: SimpleBookmark?
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var listeningProgressSubscriber: AnyCancellable?
@@ -229,7 +229,7 @@ final class PlayerViewModel: ObservableObject {
         guard let self = self else { return }
         self.recalculateProgress()
       }
-    
+
     self.listeningProgressSubscriber?.cancel()
     self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
       .receive(on: DispatchQueue.main)
@@ -304,12 +304,53 @@ final class PlayerViewModel: ObservableObject {
     self.recalculateProgress()
   }
   
+  func handleSliderDragChanged(value: Double) {
+    guard let currentItem = playerManager.currentItem else { return }
+    isSliderDragging = true
+    let absoluteTime = getBookTimeFromSlider(value: Float(value))
+
+    if prefersChapterContext,
+       let chapter = chapterBeforeSliderValueChange {
+      // In chapter context, show time relative to chapter start
+      progressData.currentTime = absoluteTime - chapter.start
+
+      if prefersRemainingTime {
+        let elapsed = TimeInterval(value) * chapter.duration
+        progressData.maxTime = (elapsed - chapter.duration) / Double(playerManager.currentSpeed)
+      }
+
+      hasPreviousChapter = hasChapter(before: chapter)
+      hasNextChapter = hasChapter(after: chapter)
+    } else {
+      // In book context, show absolute time
+      progressData.currentTime = absoluteTime
+
+      if prefersRemainingTime {
+        progressData.maxTime = (absoluteTime - currentItem.duration) / Double(playerManager.currentSpeed)
+      }
+
+      // Update progress percentage
+      let percentage = currentItem.duration > 0
+        ? absoluteTime / currentItem.duration
+        : 0
+      progressData.progress = "\(Int(round(percentage * 100)))%"
+
+      // Update chapter title and chevrons if dragging across chapters
+      if let chapter = currentItem.getChapter(at: absoluteTime) {
+        progressData.chapterTitle = chapter.title
+        hasPreviousChapter = hasChapter(before: chapter)
+        hasNextChapter = hasChapter(after: chapter)
+      }
+    }
+  }
+
   func handleSliderUpEvent(with value: Float) {
+    isSliderDragging = false
     let newTime = getBookTimeFromSlider(value: value)
-    
+
     self.playerManager.jumpTo(newTime, recordBookmark: true)
   }
-  
+
   func getBookTimeFromSlider(value: Float) -> TimeInterval {
     var newTimeToDisplay = TimeInterval(value) * (self.playerManager.currentItem?.duration ?? 0)
     
@@ -323,6 +364,7 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func recalculateProgress() {
+    guard !isSliderDragging else { return }
     let currentTime = self.getBookCurrentTime()
     let maxTimeInContext = self.getBookMaxTime()
     let progress: String
@@ -516,7 +558,7 @@ final class PlayerViewModel: ObservableObject {
     guard UIApplication.shared.applicationState == .active else { return }
     
 #if RELEASE
-    AppDelegate.shared?.requestReview()
+    AppServices.shared.requestReview()
 #endif
     
     UserDefaults.standard.set(false, forKey: "ask_review")
@@ -550,7 +592,7 @@ final class PlayerViewModel: ObservableObject {
   
   func resetShowings() {
     hideSheet()
-    isShowingNote = false
+    lastBookmark = nil
   }
   
   func showListFromMoreAction() {
@@ -662,9 +704,8 @@ final class PlayerViewModel: ObservableObject {
         BPActionItem(
           title: "bookmark_note_action_title".localized,
           handler: { [weak self] in
-            self?.lastBookmark = bookmark
             self?.resetShowings()
-            self?.isShowingNote = true
+            self?.lastBookmark = bookmark
           }
         )
       )

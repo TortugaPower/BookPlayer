@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GianniCarlo/Themeable.git",
       "state" : {
-        "revision" : "28156cf724c6621be2b8916b0f04d43a763e830a",
-        "version" : "1.1.0"
+        "revision" : "7e11c9771e4c3a9ea41a4dfb24b492a2e787e436",
+        "version" : "3.0.0"
       }
     },
     {

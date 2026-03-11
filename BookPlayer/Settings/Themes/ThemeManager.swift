@@ -10,6 +10,7 @@ import BookPlayerKit
 import Themeable
 import UIKit
 
+@MainActor
 final class ThemeManager: ThemeProvider {
   static let shared = ThemeManager()
 
@@ -98,8 +99,7 @@ final class ThemeManager: ThemeProvider {
     let newTheme = SimpleTheme(with: newTheme, useDarkVariant: self.useDarkVariant)
     
     guard
-      let sceneDelegate = AppDelegate.shared?.activeSceneDelegate,
-      let window = sceneDelegate.window
+      let window = WindowHelper.activeWindow
     else {
       // No window yet, just set the value without animation
       self.theme.value = newTheme

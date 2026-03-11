@@ -20,14 +20,12 @@ struct CreateBookmarkIntent: AppIntent {
   )
   var note: String?
 
-  @Dependency
-  var playerLoaderService: PlayerLoaderService
-
-  @Dependency
-  var libraryService: LibraryService
-
   func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
-    guard let currentItem = playerLoaderService.playerManager.currentItem else {
+    let coreServices = try await AppServices.shared.awaitCoreServices()
+    let playerLoaderService = coreServices.playerLoaderService
+    let libraryService = coreServices.libraryService
+
+    guard let currentItem = await MainActor.run(body: { playerLoaderService.playerManager.currentItem }) else {
       return .result(
         value: "",
         dialog: IntentDialog(stringLiteral: "intent_lastbook_empty_error".localized)
@@ -36,7 +34,7 @@ struct CreateBookmarkIntent: AppIntent {
 
     let currentTime = currentItem.currentTime
 
-    if let bookmark = self.libraryService.getBookmark(
+    if let bookmark = libraryService.getBookmark(
       at: currentTime,
       relativePath: currentItem.relativePath,
       type: .user

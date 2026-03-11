@@ -14,18 +14,33 @@ import Foundation
 struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = "intent_lastbook_play_title"
 
+  #if !MAIN_APP
   @Dependency
   var playerLoaderService: PlayerLoaderService
 
   @Dependency
   var libraryService: LibraryService
+  #endif
 
   func perform() async throws -> some IntentResult {
+    #if MAIN_APP
+    let coreServices = try await AppServices.shared.awaitCoreServices()
+    let playerLoaderService = coreServices.playerLoaderService
+    let libraryService = coreServices.libraryService
+    #endif
+
     guard let book = libraryService.getLastPlayedItems(limit: 1)?.first else {
       throw "intent_lastbook_empty_error".localized
     }
 
+    #if MAIN_APP
+    try await AppServices.shared.loadAndKeepAlive(
+      relativePath: book.relativePath,
+      playerLoaderService: playerLoaderService
+    )
+    #else
     try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
+    #endif
 
     return .result()
   }

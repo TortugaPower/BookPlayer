@@ -266,6 +266,43 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
 
+  func awaitCurrentLoad() async {
+    await withCheckedContinuation { continuation in
+      var playedObserver: NSObjectProtocol?
+      var readyObserver: NSObjectProtocol?
+      var timeoutTask: Task<Void, Never>?
+
+      func cleanup() {
+        timeoutTask?.cancel()
+        if let playedObserver { NotificationCenter.default.removeObserver(playedObserver) }
+        if let readyObserver { NotificationCenter.default.removeObserver(readyObserver) }
+      }
+
+      playedObserver = NotificationCenter.default.addObserver(
+        forName: .bookPlayed, object: nil, queue: .main
+      ) { _ in
+        cleanup()
+        continuation.resume()
+      }
+
+      readyObserver = NotificationCenter.default.addObserver(
+        forName: .bookReady, object: nil, queue: .main
+      ) { notification in
+        if notification.userInfo?["loaded"] as? Bool == false {
+          cleanup()
+          continuation.resume()
+        }
+      }
+
+      timeoutTask = Task { @MainActor in
+        try? await Task.sleep(nanoseconds: 30_000_000_000)
+        guard !Task.isCancelled else { return }
+        cleanup()
+        continuation.resume()
+      }
+    }
+  }
+
   private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing load task
     playTask?.cancel()
@@ -399,6 +436,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       pathForArtwork = currentItem.relativePath
     }
 
+    let fallbackColor = MainActor.assumeIsolated { ThemeManager.shared.currentTheme.linkColor }
     ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
       guard let self else { return }
 
@@ -408,7 +446,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       case .success(let value):
         image = value.image
       case .failure:
-        image = ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)!
+        image = ArtworkService.generateDefaultArtwork(from: fallbackColor)!
       }
 
       self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
@@ -1262,8 +1300,7 @@ extension PlayerManager {
 extension PlayerManager {
   private func showErrorAlert(title: String, _ message: String?) {
     DispatchQueue.main.async {
-      AppDelegate.shared?.activeSceneDelegate?
-        .startingNavigationController
+      WindowHelper.activeWindow?.rootViewController?
         .getTopVisibleViewController()?
         .showAlert(title, message: message)
     }

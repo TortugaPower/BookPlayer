@@ -19,9 +19,6 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
   @Parameter(title: "relativePath")
   var relativePath: String
 
-  @Dependency
-  var playerLoaderService: PlayerLoaderService
-
   init() {
     self.relativePath = ""
   }
@@ -30,11 +27,30 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
     self.relativePath = relativePath
   }
 
+  #if !MAIN_APP
+  @Dependency
+  var playerLoaderService: PlayerLoaderService
+  #endif
+
   func perform() async throws -> some IntentResult {
+    #if MAIN_APP
+    let coreServices = try await AppServices.shared.awaitCoreServices()
+    let playerLoaderService = coreServices.playerLoaderService
+    #endif
+
     if playerLoaderService.playerManager.currentItem?.relativePath == relativePath {
-      playerLoaderService.playerManager.playPause()
+      await MainActor.run {
+        playerLoaderService.playerManager.playPause()
+      }
     } else {
+      #if MAIN_APP
+      try await AppServices.shared.loadAndKeepAlive(
+        relativePath: relativePath,
+        playerLoaderService: playerLoaderService
+      )
+      #else
       try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+      #endif
     }
 
     return .result()
