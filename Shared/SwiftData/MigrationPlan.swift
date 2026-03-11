@@ -57,7 +57,7 @@ public enum MigrationPlan: SchemaMigrationPlan {
             }
           }
         }
-        print("HEY HO AQUI \(uuidsDict.count) AND \(previousOffset)")
+
         if uuidsDict.count > 0 {
           var parameters = [
             "id": UUID().uuidString,

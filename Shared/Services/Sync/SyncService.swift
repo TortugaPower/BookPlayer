@@ -63,7 +63,7 @@ public protocol SyncServiceProtocol {
 
   func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?)
 
-  func scheduleRenameFolder(at relativePath: String, name: String)
+  func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String)
 
   func scheduleSetBookmark(
     relativePath: String,
@@ -290,7 +290,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     guard !response.content.isEmpty else { return }
 
-    let completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    var completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    var missingUuidsDict: [String: SyncableItem] = [:]
+    
+    response.content.forEach {
+      if $0.uuid.isEmpty {
+        let newUuid = UUID().uuidString
+        completeItemsDict.updateValue($0.copy(uuid: newUuid), forKey: $0.relativePath)
+        missingUuidsDict[$0.relativePath] = $0
+      }
+    }
 
     var filteredItemsDict = completeItemsDict
     /// Avoid updating the last played info preemptively
@@ -312,6 +321,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     {
       try await handleSyncedLastPlayed(item: lastItemPlayed)
     }
+    
+    await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": missingUuidsDict])
   }
 
   func handleSyncedLastPlayed(item: SyncableItem) async throws {
@@ -619,11 +630,11 @@ extension SyncService {
     }
   }
 
-  public func scheduleRenameFolder(at relativePath: String, name: String) {
+  public func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String) {
     guard isActive else { return }
 
     Task {
-      await jobManager.scheduleRenameFolderJob(with: relativePath, name: name, for: nil)
+      await jobManager.scheduleRenameFolderJob(with: relativePath, name: name, for: uuid)
     }
   }
 }
