@@ -13,7 +13,6 @@ import SwiftUI
 enum PlayerSheetStyle: String, Identifiable {
     case chapters
     case controls
-    case buttonFree
     case bookmark
     case sleep
 
@@ -37,6 +36,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var lastBookmark: SimpleBookmark?
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
+  @Published var showButtonFreeScreen = false
   
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -112,6 +112,7 @@ final class PlayerViewModel: ObservableObject {
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
     self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
     self.sharedDefaults = sharedDefaults
+    self.playbackSpeed = playerManager.currentSpeed
   }
   
   func bindBookObservers() {
@@ -659,7 +660,7 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func showButtonFree() {
-    displaySheet(style: .buttonFree)
+    showButtonFreeScreen = true
   }
   
   func createBookmark() {
