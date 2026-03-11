@@ -50,7 +50,7 @@ public protocol LibrarySyncProtocol {
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func generateMissingUuids(offset: Int) async -> [String : String] {
+  public func generateMissingUuids(offset: Int) async -> [String: String] {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in

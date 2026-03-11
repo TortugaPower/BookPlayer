@@ -208,6 +208,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     parameters["jobType"] = SyncJobType.matchUuid.rawValue
     parameters["id"] = UUID().uuidString
     parameters["relativePath"] = ""
+    parameters["uuid"] = ""
     await persistTask(parameters: parameters)
   }
 
@@ -335,7 +336,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       _ = await initializeStoreTask?.result
       try await taskStore.appendTask(parameters: parameters)
     } catch {
-      Self.logger.error("Failed to persist task")
+      Self.logger.error("Failed to persist task \(error): \(parameters.description)")
     }
   }
 

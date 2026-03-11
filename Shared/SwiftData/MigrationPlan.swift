@@ -24,9 +24,7 @@ public enum MigrationPlan: SchemaMigrationPlan {
   static let v1ToV2 = MigrationStage.custom(
     fromVersion: SchemaV1.self,
     toVersion: SchemaV2.self,
-    willMigrate: { context in
-      
-      
+    willMigrate: { _ in
     },
     didMigrate: { context in
       guard let coreDataContext = injectedCoreDataContext else {
@@ -34,23 +32,65 @@ public enum MigrationPlan: SchemaMigrationPlan {
       }
       // 1. Fetch all V2 models (which have both path and optional uuid)
       let items = try context.fetch(FetchDescriptor<SchemaV2.SyncTaskReferenceModel>())
-      print("HEY HO PLAN \(items.count)")
       for item in items {
-        var foundUUID: String?
-        
-        // Use the injected context to fetch
+        item.uuid = "LEGACY_UUID_PLACEHOLDER"
+      }
+      
+      let descriptor = FetchDescriptor<SchemaV2.SyncTasksContainer>()
+      let containers = try context.fetch(descriptor)
+      let tasksContainer = containers.first ?? SchemaV2.SyncTasksContainer()
+      
+      var previousOffset = 0
+      var loopShouldContinue = true
+      repeat {
+        var uuidsDict: [String: String] = [:]
         coreDataContext.performAndWait {
-          let request = NSFetchRequest<NSManagedObject>(entityName: "LibraryItem")
-          request.predicate = NSPredicate(format: "relativePath == %@", item.relativePath)
-          request.fetchLimit = 1
+          let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
+          // Fetch only items where the UUID hasn't been set yet
+          fetchRequest.fetchLimit = 200
+          fetchRequest.fetchOffset = previousOffset
+          fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LibraryItem.relativePath, ascending: true)]
           
-          if let result = try? coreDataContext.fetch(request).first {
-            foundUUID = result.value(forKey: "uuid") as? String
+          if let itemsToUpdate = try? coreDataContext.fetch(fetchRequest) {
+            for item in itemsToUpdate {
+              uuidsDict[item.relativePath] = item.uuid
+            }
           }
         }
-        
-        item.uuid = foundUUID ?? UUID().uuidString
-      }
+        print("HEY HO AQUI \(uuidsDict.count) AND \(previousOffset)")
+        if uuidsDict.count > 0 {
+          var parameters = [
+            "id": UUID().uuidString,
+            "jobType": SyncJobType.matchUuid.rawValue,
+            "uuids": uuidsDict,
+            "relativePath": "",
+            "uuid": ""
+          ]
+          
+          let task = SchemaV2.MatchUuidsTaskModel(
+            id: parameters["id"] as? String ?? "",
+            uuids: uuidsDict
+          )
+          context.insert(task)
+          
+          let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
+          let taskReference = SchemaV2.SyncTaskReferenceModel(
+            uuid: "",
+            relativePath: "",
+            taskID: task.id,
+            jobType: SyncJobType.matchUuid,
+            position: nextPosition
+          )
+
+          tasksContainer.tasks.append(taskReference)
+          taskReference.container = tasksContainer
+        } else {
+          loopShouldContinue = false
+        }
+        previousOffset += uuidsDict.count
+        try context.save()
+      } while loopShouldContinue
+      
       try context.save()
     }
   )
