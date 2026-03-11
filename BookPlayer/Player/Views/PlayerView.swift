@@ -140,6 +140,7 @@ struct PlayerView: View {
     .onChange(of: scheme) { 
       ThemeManager.shared.checkSystemMode()
     }
+    .buttonStyle(.plain)
     .bpAlert($viewModel.currentAlert)
     .alert(
         "bookmark_note_action_title",
