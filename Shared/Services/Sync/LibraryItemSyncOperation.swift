@@ -9,20 +9,6 @@
 import Foundation
 import Combine
 
-struct ItemSyncResponse: Decodable {
-    // Array of string keys that were successfully applied
-    let applied: [String]
-    // Array of the conflict objects
-    let conflicts: [ItemConflict]
-}
-
-struct ItemConflict: Decodable {
-    // Maps to the "key" in your JSON ("Jim Butcher - Ghost Story - 17.mp3")
-    let key: String
-    // Maps to the "uuid" in your JSON
-    let uuid: String
-}
-
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
 class LibraryItemSyncOperation: Operation, BPLogger {
   // MARK: - Async operation properties
@@ -71,7 +57,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
-  var results: ItemSyncResponse?
+  var results: ApiResponse?
   var error: Error?
   
   private var progressSubscriber: AnyCancellable?
@@ -87,7 +73,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
-    self.relativePath = task.parameters["relativePath"] as? String ?? ""
+    self.relativePath = task.relativePath
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
@@ -398,10 +384,10 @@ extension LibraryItemSyncOperation {
     else {
       return
     }
-    let response: ItemSyncResponse = try await self.provider.request(
+    let response: MatchUuidsResponse = try await self.provider.request(
       .matchUuids(uuidsDictionary: uuidsDictionary)
     )
     
-    self.results = response
+    self.results = .matchUuid(response)
   }
 }

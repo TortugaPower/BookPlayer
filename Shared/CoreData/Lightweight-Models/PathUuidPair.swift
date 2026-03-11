@@ -10,9 +10,9 @@ import Foundation
 
 public struct PathUuidPair {
   public var relativePath: String
-  public var uuid: String?
+  public var uuid: String
   
-  public init(relativePath: String, uuid: String? = nil) {
+  public init(relativePath: String, uuid: String = "") {
     self.relativePath = relativePath
     self.uuid = uuid
   }

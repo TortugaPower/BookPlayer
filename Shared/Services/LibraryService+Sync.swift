@@ -171,6 +171,10 @@ extension LibraryService: LibrarySyncProtocol {
     storedItem.artworkURL = item.artworkURL
     storedItem.type = item.type.itemType
     storedItem.speed = Float(item.speed ?? 1.0)
+    
+    if !item.uuid.isEmpty {
+      storedItem.uuid = item.uuid
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
