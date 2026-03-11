@@ -112,6 +112,7 @@ final class PlayerViewModel: ObservableObject {
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
     self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
     self.sharedDefaults = sharedDefaults
+    self.playbackSpeed = playerManager.currentSpeed
   }
   
   func bindBookObservers() {
