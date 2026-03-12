@@ -93,7 +93,7 @@ public actor SyncTasksStorage: ModelActor {
     else {
       return nil
     }
-
+    
     guard
       let storedObject = tasksDataManager.getTaskModel(
         with: firstTask.taskID,

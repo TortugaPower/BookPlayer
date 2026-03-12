@@ -8,11 +8,11 @@
 
 import Foundation
 
-public struct PathUuidPair {
+public struct PathUuidPair: Equatable {
   public var relativePath: String
   public var uuid: String
   
-  public init(relativePath: String, uuid: String = "") {
+  public init(relativePath: String, uuid: String) {
     self.relativePath = relativePath
     self.uuid = uuid
   }

@@ -291,13 +291,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     guard !response.content.isEmpty else { return }
 
     var completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
-    var missingUuidsDict: [String: SyncableItem] = [:]
+    var missingUuidsDict: [String: String] = [:]
     
     response.content.forEach {
       if $0.uuid.isEmpty {
         let newUuid = UUID().uuidString
         completeItemsDict.updateValue($0.copy(uuid: newUuid), forKey: $0.relativePath)
-        missingUuidsDict[$0.relativePath] = $0
+        missingUuidsDict[$0.relativePath] = newUuid
       }
     }
 
@@ -322,7 +322,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       try await handleSyncedLastPlayed(item: lastItemPlayed)
     }
     
-    await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": missingUuidsDict])
+    await jobManager.scheduleMatchUuidsJob(uuidsDict: missingUuidsDict)
   }
 
   func handleSyncedLastPlayed(item: SyncableItem) async throws {
@@ -493,7 +493,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 extension SyncService {
   public func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?) {
     guard isActive else { return }
-
+    
     Task {
       for relativePath in items {
         await jobManager.scheduleMoveItemJob(with: relativePath, to: parentFolder)
@@ -529,7 +529,7 @@ extension SyncService {
     repeat {
       let uuidsDict = await libraryService.generateMissingUuids(offset: previousOffset)
       if uuidsDict.count > 0 {
-        await jobManager.scheduleMatchUuidsJob(parameters: ["uuids": uuidsDict])
+        await jobManager.scheduleMatchUuidsJob(uuidsDict: uuidsDict)
       } else {
         loopShouldContinue = false
       }
