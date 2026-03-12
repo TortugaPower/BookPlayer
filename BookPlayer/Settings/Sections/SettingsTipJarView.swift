@@ -84,6 +84,7 @@ struct SettingsTipJarView: View {
         dismiss()
       }
     }
+    .buttonStyle(.plain)
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
         Button("restore_title".localized) {

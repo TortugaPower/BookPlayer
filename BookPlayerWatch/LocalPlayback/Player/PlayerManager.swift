@@ -62,6 +62,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let decoder = JSONDecoder()
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
+  @Published private(set) var currentPlaybackTime: TimeInterval = 0
   @Published var error: Error?
 
   var nowPlayingInfo = [String: Any]()
@@ -322,6 +323,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
 
     self.currentItem = item
+    self.currentPlaybackTime = item.currentTime
 
     self.playableChapterSubscription?.cancel()
     self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
@@ -459,13 +461,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   func updateTime() {
     guard
       let currentItem,
-      let playerItem,
-      playerItem.status == .readyToPlay
+      playerItem != nil
     else {
       return
     }
 
     var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
+
+    guard currentTime.isFinite else { return }
 
     // When using devices with AirPlay 1,
     // `currentTime` can be negative when switching chapters
@@ -488,6 +491,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     updatePlaybackTime(item: currentItem, time: currentTime)
 
+    self.currentPlaybackTime = currentTime
+
     self.userActivityManager.recordTime()
 
     self.setNowPlayingBookTime()
@@ -501,7 +506,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
 
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
-    objectWillChange.send()
   }
 
   // MARK: - Player states
@@ -686,6 +690,7 @@ extension PlayerManager {
 
     let chapterBeforeSkip = currentItem.currentChapter
     updatePlaybackTime(item: currentItem, time: boundedTime)
+    self.currentPlaybackTime = boundedTime
     if let chapterAfterSkip = currentItem.getChapter(at: boundedTime),
       chapterBeforeSkip != chapterAfterSkip
     {

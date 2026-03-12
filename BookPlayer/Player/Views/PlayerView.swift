@@ -140,6 +140,7 @@ struct PlayerView: View {
     .onChange(of: scheme) { 
       ThemeManager.shared.checkSystemMode()
     }
+    .buttonStyle(.plain)
     .bpAlert($viewModel.currentAlert)
     .alert(
         "bookmark_note_action_title",
@@ -177,15 +178,6 @@ struct PlayerView: View {
           )
         }
         .environmentObject(theme)
-      case .buttonFree:
-        ButtonFreeView{
-          ButtonFreeViewModel(
-            playerManager: viewModel.playerManager,
-            libraryService: viewModel.libraryService,
-            syncService: viewModel.syncService
-          )
-        }
-        .environmentObject(theme)
       case .sleep:
         DurationPickerSheet(
           initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
@@ -195,6 +187,16 @@ struct PlayerView: View {
         }
         .environmentObject(theme)
       }
+    }
+    .fullScreenCover(isPresented: $viewModel.showButtonFreeScreen) {
+      ButtonFreeView{
+        ButtonFreeViewModel(
+          playerManager: viewModel.playerManager,
+          libraryService: viewModel.libraryService,
+          syncService: viewModel.syncService
+        )
+      }
+      .environmentObject(theme)
     }
   }
   
