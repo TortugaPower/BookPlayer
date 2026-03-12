@@ -15,7 +15,7 @@ struct FolderView: View {
 
   var body: some View {
     NavigationLink(
-      value: LibraryNode.folder(title: item.title, relativePath: item.relativePath)
+      value: LibraryNode.folder(title: item.title, relativePath: item.relativePath, uuid: item.uuid)
     ) {
       BookView(item: item, artworkTap: artworkTap)
     }

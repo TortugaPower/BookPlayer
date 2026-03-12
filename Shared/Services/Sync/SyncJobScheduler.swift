@@ -21,7 +21,7 @@ public protocol JobSchedulerProtocol {
   /// Update existing metadata in the server
   func scheduleMetadataUpdateJob(with relativePath: String, parameters: [String: Any]) async
   
-  func scheduleMatchUuidsJob(parameters: [String: Any]) async
+  func scheduleMatchUuidsJob(uuidsDict: [String: String]) async
   /// Move item to destination
   func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async
   /// Delete item
@@ -198,12 +198,16 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleMatchUuidsJob(parameters: [String: Any]) async {
-    var parameters = parameters
-    parameters["jobType"] = SyncJobType.matchUuid.rawValue
-    parameters["id"] = UUID().uuidString
-    parameters["relativePath"] = ""
-    parameters["uuid"] = ""
+  public func scheduleMatchUuidsJob(uuidsDict: [String: String]) async {
+    guard uuidsDict.count > 0 else { return }
+    
+    let parameters: [String: Any] = [
+      "jobType": SyncJobType.matchUuid.rawValue,
+      "id": UUID().uuidString,
+      "relativePath": "",
+      "uuid": "",
+      "uuids": uuidsDict
+    ]
     await persistTask(parameters: parameters)
   }
   

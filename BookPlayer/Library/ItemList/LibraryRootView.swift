@@ -187,9 +187,10 @@ struct LibraryRootView: View {
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them
-        if let folderRelativePath = path.last?.folderRelativePath {
+        if let lastItem = path.last,
+           let folderRelativePath = lastItem.folderRelativePath {
           try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiersPairs, to: PathUuidPair(relativePath: folderRelativePath))
+          syncService.scheduleMove(items: itemIdentifiersPairs, to: PathUuidPair(relativePath: folderRelativePath, uuid: lastItem.uuid ))
           /// Update identifiers after moving for the follow up action alert
           itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
         }
@@ -227,7 +228,7 @@ struct LibraryRootView: View {
       }
 
       importOperationState.alertParameters = .init(
-        itemIdentifiers: itemIdentifiers,
+        itemIdentifiers: itemIdentifiersPairs,
         hasOnlyBooks: hasOnlyBooks,
         singleFolder: singleFolder,
         availableFolders: availableFolders,
