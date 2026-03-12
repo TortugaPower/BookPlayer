@@ -233,6 +233,7 @@ public final class TasksDataManager {
 
     case .deleteBookmark:
       let task = DeleteBookmarkTaskModel(
+        id: parameters["id"] as! String,
         uuid: parameters["uuid"] as! String,
         relativePath: parameters["relativePath"] as! String,
         time: parameters["time"] as! Double,
