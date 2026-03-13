@@ -27,7 +27,7 @@ struct QueuedSyncTasksView: View {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
-            title: job.jobType == .matchUuid ? .constant("match_uuid".localized) : .constant(job.uuid),
+            title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
             relativePath: job.uuid,
             initialProgress: job.jobType == .upload ? job.progress : 0,
             isUpload: job.jobType == .upload
