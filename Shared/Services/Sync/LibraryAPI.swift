@@ -161,7 +161,9 @@ extension LibraryAPI: Endpoint {
 
       return params
     case .matchUuids(let uuidsDictionary):
-      return uuidsDictionary
+      return [
+        "items": uuidsDictionary
+      ]
     }
   }
 }
