@@ -695,6 +695,12 @@
 		99F3C2082F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2062F5FD40C00AC91A2 /* SchemaV2SyncTasksModels.swift */; };
 		99F3C20A2F62285800AC91A2 /* ApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2092F62285500AC91A2 /* ApiResponse.swift */; };
 		99F3C20B2F62285800AC91A2 /* ApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2092F62285500AC91A2 /* ApiResponse.swift */; };
+		99F3C20E2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C20D2F650EEB00AC91A2 /* ExternalResource+CoreDataClass.swift */; };
+		99F3C20F2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C20D2F650EEB00AC91A2 /* ExternalResource+CoreDataClass.swift */; };
+		99F3C2112F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2102F650F0C00AC91A2 /* ExternalResource+CoreDataProperties.swift */; };
+		99F3C2122F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2102F650F0C00AC91A2 /* ExternalResource+CoreDataProperties.swift */; };
+		99F3C2142F65174700AC91A2 /* SimpleExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2132F65174000AC91A2 /* SimpleExternalResource.swift */; };
+		99F3C2152F65174700AC91A2 /* SimpleExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C2132F65174000AC91A2 /* SimpleExternalResource.swift */; };
 		9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */; };
 		9F00A5FC294F9B9A005EA316 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */; };
 		9F00A600295001C0005EA316 /* ItemDetailsArtworkSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */; };
@@ -1617,6 +1623,10 @@
 		99F3C2032F5FC76700AC91A2 /* MigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPlan.swift; sourceTree = "<group>"; };
 		99F3C2062F5FD40C00AC91A2 /* SchemaV2SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV2SyncTasksModels.swift; sourceTree = "<group>"; };
 		99F3C2092F62285500AC91A2 /* ApiResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiResponse.swift; sourceTree = "<group>"; };
+		99F3C20C2F64ED1900AC91A2 /* Audiobook Player 12.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 12.xcdatamodel"; sourceTree = "<group>"; };
+		99F3C20D2F650EEB00AC91A2 /* ExternalResource+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExternalResource+CoreDataClass.swift"; sourceTree = "<group>"; };
+		99F3C2102F650F0C00AC91A2 /* ExternalResource+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExternalResource+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		99F3C2132F65174000AC91A2 /* SimpleExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleExternalResource.swift; sourceTree = "<group>"; };
 		9F00A5F9294F8BFE005EA316 /* ClearableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearableTextField.swift; sourceTree = "<group>"; };
 		9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
 		9F00A5FF295001C0005EA316 /* ItemDetailsArtworkSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsArtworkSectionView.swift; sourceTree = "<group>"; };
@@ -2437,6 +2447,7 @@
 				41546FF026F54F0600825180 /* PlaybackState.swift */,
 				9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */,
 				9FFCC08E289418CA00F4952E /* SimpleChapter.swift */,
+				99F3C2132F65174000AC91A2 /* SimpleExternalResource.swift */,
 				3FA43BF72E110B4400DF9B1F /* SimpleHardcoverBook.swift */,
 				41546FF226F559CE00825180 /* SimpleItemType.swift */,
 				41188D3026ED715D0017124E /* SimpleLibraryItem.swift */,
@@ -2460,6 +2471,8 @@
 				4138CE1526E584B60014F11E /* BookmarkType.swift */,
 				41A1B111226F88C500EA0400 /* Chapter+CoreDataClass.swift */,
 				41A1B112226F88C500EA0400 /* Chapter+CoreDataProperties.swift */,
+				99F3C20D2F650EEB00AC91A2 /* ExternalResource+CoreDataClass.swift */,
+				99F3C2102F650F0C00AC91A2 /* ExternalResource+CoreDataProperties.swift */,
 				41A1B11B226F88C500EA0400 /* Folder+CoreDataClass.swift */,
 				41A1B11C226F88C500EA0400 /* Folder+CoreDataProperties.swift */,
 				3FF5BA682E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift */,
@@ -4189,6 +4202,7 @@
 				4140EA76227289B50009F794 /* Chapter+CoreDataClass.swift in Sources */,
 				41A359C6276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
 				63CD851E2CE2EEBC00EDBEA8 /* UIFont+BookPlayer.swift in Sources */,
+				99F3C2142F65174700AC91A2 /* SimpleExternalResource.swift in Sources */,
 				62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				412AB71627017ABE00969618 /* DBVersion.swift in Sources */,
 				9FC1E45A2814E0B000522FA8 /* NetworkUtils.swift in Sources */,
@@ -4258,8 +4272,10 @@
 				99F3C2042F5FC76D00AC91A2 /* MigrationPlan.swift in Sources */,
 				41A8942B2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
+				99F3C2112F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */,
 				41EB07162752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
+				99F3C20E2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */,
 				99F3C2072F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */,
 				412AB70A2701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				63B9149E2EE47951000918D8 /* AppEnvironment.swift in Sources */,
@@ -4725,6 +4741,7 @@
 				9FDDD2DE289BEE590020C428 /* SyncJobScheduler.swift in Sources */,
 				41A8942A2652A7DF0032E972 /* Bundle+BookPlayer.swift in Sources */,
 				41A1B0F2226E9D1200EA0400 /* BookPlayer.xcdatamodeld in Sources */,
+				99F3C2152F65174700AC91A2 /* SimpleExternalResource.swift in Sources */,
 				3F66408D2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				99F3C1F82F5F873900AC91A2 /* UUIDMigrationPolicy.swift in Sources */,
 				41A359C5276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
@@ -4760,6 +4777,7 @@
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				412AB71527017ABE00969618 /* DBVersion.swift in Sources */,
+				99F3C2122F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */,
 				9F6BC86627E6D03D002CF2A6 /* WatchApplicationContext.swift in Sources */,
 				4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
 				41A1B123226F88C500EA0400 /* Book+CoreDataClass.swift in Sources */,
@@ -4789,6 +4807,7 @@
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
+				99F3C20F2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */,
 				41A90C4527563F5A00C30394 /* ItemType.swift in Sources */,
 				41A1B129226F88C500EA0400 /* Folder+CoreDataClass.swift in Sources */,
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
@@ -6482,6 +6501,7 @@
 		4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				99F3C20C2F64ED1900AC91A2 /* Audiobook Player 12.xcdatamodel */,
 				995787DD2F56674400BF0814 /* Audiobook Player 11.xcdatamodel */,
 				3FF8EA3D2E11C7980054CD2C /* Audiobook Player 10.xcdatamodel */,
 				9F7B646F28031E9300895ECC /* Audiobook Player 9.xcdatamodel */,

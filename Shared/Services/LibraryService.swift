@@ -147,6 +147,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
+  
+  func setExternalResource(_ hardcoverBook: SimpleHardcoverBook?, for uuid: String) async
 }
 
 // swiftlint:disable force_cast
@@ -2488,4 +2490,6 @@ extension LibraryService {
     }
   }
 }
+
+
 // swiftlint:enable force_cast

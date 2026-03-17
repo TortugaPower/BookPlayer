@@ -51,6 +51,7 @@ extension DataMigrationManager {
     else { return }
     
     items.forEach { item in
+      let newExternalSource = ExternalResource(context: dataManager.getContext())
       item.uuid = UUID().uuidString
     }
 
