@@ -1,0 +1,43 @@
+//
+//  ExternalResource+CoreDataProperties.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 13/3/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import Foundation
+import CoreData
+
+@objc(ExternalResource)
+public class ExternalResource: NSManagedObject {
+  @nonobjc public class func fetchRequest() -> NSFetchRequest<ExternalResource> {
+    return NSFetchRequest<ExternalResource>(entityName: "ExternalResource")
+  }
+
+  @NSManaged public var id: Int32
+  @NSManaged public var providerName: String?
+  @NSManaged public var providerItemId: String?
+  @NSManaged public var syncStatus: Bool
+  @NSManaged public var lastSyncedAt: Date?
+  @NSManaged public var processedFile: Bool
+  
+  @NSManaged public var libraryItem: LibraryItem?
+  
+  @nonobjc public class func create(
+    _ item: SimpleExternalResource,
+    in context: NSManagedObjectContext
+  ) -> HardcoverBook {
+    // swiftlint:disable:next force_cast
+    let entity = NSEntityDescription.insertNewObject(forEntityName: "ExternalResource", into: context) as! ExternalResource
+
+    entity.id = Int32(item.id)
+    entity.providerName = item.providerName
+    entity.providerItemId = item.providerItemId
+    entity.lastSyncedAt = item.lastSyncedAt
+    entity.syncStatus = item.syncStatus
+    entity.libraryItem = Int32(item.userBookID ?? 0)
+
+    return entity
+  }
+}
