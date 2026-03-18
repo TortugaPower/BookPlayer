@@ -88,14 +88,19 @@ struct PlayerView: View {
             viewModel.processToggleMaxTime()
           }
         )
-          .contentShape(Rectangle())
 
         Spacer()
 
         PlayControlsRowView(isPlaying: viewModel.isPlaying)
-        
+
         Spacer()
       }
+      .contentShape(Rectangle())
+      .simultaneousGesture(
+        DragGesture(minimumDistance: 15)
+          .onChanged(handleDragChanged)
+          .onEnded(handleDragEnded)
+      )
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .padding(.horizontal, 8)
@@ -116,13 +121,7 @@ struct PlayerView: View {
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)
         .ignoresSafeArea()
-        .gesture(
-            DragGesture(minimumDistance: 15)
-                .onChanged(handleDragChanged)
-                .onEnded(handleDragEnded)
-        )
     )
-    .contentShape(Rectangle())
     .offset(y: dragOffset.height)
     .animation(reduceMotion ? .none : .interactiveSpring(), value: dragOffset)
     .onAppear {
