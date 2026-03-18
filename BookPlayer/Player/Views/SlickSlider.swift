@@ -7,118 +7,224 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
-struct SlickSlider: View {
+// MARK: - UISlider subclass for custom track height
+
+class ThinTrackSlider: UISlider {
+  var trackHeight: CGFloat = 4
+  var thumbShadowColor: UIColor = .clear {
+    didSet { updateThumbShadow() }
+  }
+
+  private let shadowLayer = CALayer()
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    shadowLayer.shadowOffset = .zero
+    shadowLayer.shadowRadius = 6
+    shadowLayer.shadowOpacity = 1
+    layer.insertSublayer(shadowLayer, at: 0)
+  }
+
+  required init?(coder: NSCoder) {
+    super.init(coder: coder)
+  }
+
+  override func trackRect(forBounds bounds: CGRect) -> CGRect {
+    let center = bounds.midY
+    return CGRect(
+      x: bounds.minX,
+      y: center - trackHeight / 2,
+      width: bounds.width,
+      height: trackHeight
+    )
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    let thumbFrame = thumbRect(
+      forBounds: bounds,
+      trackRect: trackRect(forBounds: bounds),
+      value: value
+    )
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
+    shadowLayer.frame = thumbFrame
+    shadowLayer.shadowPath = UIBezierPath(ovalIn: thumbFrame.offsetBy(
+      dx: -thumbFrame.origin.x,
+      dy: -thumbFrame.origin.y
+    )).cgPath
+    CATransaction.commit()
+  }
+
+  private func updateThumbShadow() {
+    shadowLayer.shadowColor = thumbShadowColor.cgColor
+  }
+}
+
+// MARK: - SwiftUI wrapper
+
+struct SlickSlider: UIViewRepresentable {
   @Binding var value: Double
   var range: ClosedRange<Double> = 0...100
-  
-  // The callback closure, mimicking the native Slider API
   var onEditingChanged: (Bool) -> Void = { _ in }
-  var onDragValueChanged: ((Double) -> Void)? = nil
-  
-  @State private var localValue: Double = 0
-  @State private var isDragging: Bool = false
-  
-  // Style settings
+  var onDragValueChanged: ((Double) -> Void)?
+  var accentColor = Color(red: 0.35, green: 0.6, blue: 0.9)
+
   private let trackHeight: CGFloat = 4
   private let thumbSize: CGFloat = 18
-  var accentColor = Color(red: 0.35, green: 0.6, blue: 0.9)
-  
-  var body: some View {
-    GeometryReader { geometry in
-      let displayValue = min(max(isDragging ? localValue : value, range.lowerBound), range.upperBound)
-      let horizontalBaseRatio = range.upperBound != range.lowerBound
-        ? CGFloat((displayValue - range.lowerBound) / (range.upperBound - range.lowerBound))
-        : 0.0
-      
-      ZStack(alignment: .leading) {
-        // Background Track
-        Capsule()
-          .fill(Color.secondary.opacity(0.2))
-          .frame(height: trackHeight)
-        
-        // Active Track
-        Capsule()
-          .fill(accentColor)
-          .frame(width: max(0, horizontalBaseRatio * geometry.size.width), height: 4)
-        
-        // Thumb
-        Circle()
-          .fill(accentColor)
-          .frame(width: thumbSize, height: thumbSize)
-          .shadow(color: accentColor.opacity(0.6), radius: 6)
-          .offset(x: horizontalBaseRatio * geometry.size.width - (thumbSize / 2))
-          .highPriorityGesture(
-            DragGesture(minimumDistance: 0)
-              .onChanged { gesture in
-                if !isDragging {
-                  isDragging = true
-                  onEditingChanged(true)
-                }
-                // Update only the local UI state
-                updateLocalValue(with: gesture, in: geometry)
-                onDragValueChanged?(localValue)
-              }
-              .onEnded { _ in
-                // 3. Push the final local value back to the Binding (Singleton)
-                value = localValue
-                onEditingChanged(false)
-                
-                // Delay the unlock slightly to allow the Singleton to "catch up"
-                // to the new seek position, preventing the 'jump-back'
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                  isDragging = false
-                }
-              }
-          )
-      }
-      .frame(height: thumbSize)
+
+  func makeCoordinator() -> Coordinator {
+    Coordinator(self)
+  }
+
+  func makeUIView(context: Context) -> ThinTrackSlider {
+    let slider = ThinTrackSlider()
+    slider.trackHeight = trackHeight
+    slider.minimumValue = Float(range.lowerBound)
+    slider.maximumValue = Float(range.upperBound)
+    slider.value = Float(value)
+    slider.isContinuous = true
+
+    let uiColor = UIColor(accentColor)
+    slider.setMinimumTrackImage(
+      Self.makeTrackImage(color: uiColor, height: trackHeight),
+      for: .normal
+    )
+    slider.setMaximumTrackImage(
+      Self.makeTrackImage(
+        color: UIColor.secondaryLabel.withAlphaComponent(0.2),
+        height: trackHeight
+      ),
+      for: .normal
+    )
+    slider.setThumbImage(
+      Self.makeThumbImage(size: thumbSize, color: uiColor),
+      for: .normal
+    )
+    slider.thumbShadowColor = uiColor.withAlphaComponent(0.6)
+
+    slider.addTarget(
+      context.coordinator,
+      action: #selector(Coordinator.valueChanged(_:event:)),
+      for: .valueChanged
+    )
+
+
+    return slider
+  }
+
+  func updateUIView(_ slider: ThinTrackSlider, context: Context) {
+    if !context.coordinator.isDragging {
+      slider.value = Float(value)
     }
-    .frame(height: thumbSize)
-    .onAppear { localValue = value }
-    .onChange(of: value) { _, newValue in
-        if !isDragging {
-            localValue = newValue
+
+    let uiColor = UIColor(accentColor)
+    slider.setMinimumTrackImage(
+      Self.makeTrackImage(color: uiColor, height: trackHeight),
+      for: .normal
+    )
+    slider.setMaximumTrackImage(
+      Self.makeTrackImage(
+        color: UIColor.secondaryLabel.withAlphaComponent(0.2),
+        height: trackHeight
+      ),
+      for: .normal
+    )
+    slider.setThumbImage(
+      Self.makeThumbImage(size: thumbSize, color: uiColor),
+      for: .normal
+    )
+    slider.thumbShadowColor = uiColor.withAlphaComponent(0.6)
+  }
+
+  private static func makeThumbImage(size: CGFloat, color: UIColor) -> UIImage {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+    return renderer.image { ctx in
+      color.setFill()
+      ctx.cgContext.fillEllipse(in: CGRect(x: 0, y: 0, width: size, height: size))
+    }
+  }
+
+  private static func makeTrackImage(color: UIColor, height: CGFloat) -> UIImage {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: height, height: height))
+    let image = renderer.image { ctx in
+      let rect = CGRect(x: 0, y: 0, width: height, height: height)
+      let path = UIBezierPath(roundedRect: rect, cornerRadius: height / 2)
+      color.setFill()
+      path.fill()
+    }
+    let capInset = height / 2
+    return image.resizableImage(withCapInsets: UIEdgeInsets(
+      top: 0, left: capInset, bottom: 0, right: capInset
+    ), resizingMode: .stretch)
+  }
+
+  // MARK: - Coordinator
+
+  class Coordinator: NSObject {
+    var parent: SlickSlider
+    var isDragging = false
+    var accessibilityStep: Float = 0.01
+
+    init(_ parent: SlickSlider) {
+      self.parent = parent
+    }
+
+    @objc func valueChanged(_ slider: UISlider, event: UIEvent) {
+      let value = Double(slider.value)
+
+      if let touch = event.allTouches?.first {
+        switch touch.phase {
+        case .began:
+          isDragging = true
+          parent.onEditingChanged(true)
+          parent.onDragValueChanged?(value)
+        case .moved:
+          parent.onDragValueChanged?(value)
+        case .ended, .cancelled:
+          parent.value = value
+          parent.onEditingChanged(false)
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.isDragging = false
+          }
+        default:
+          break
         }
-    }
-    .accessibilityElement(children: .combine)
-    .accessibilityValue(getAccessibilityLabel(localValue))
-    .accessibilityAdjustableAction { direction in
-      isDragging = true
-      onEditingChanged(true)
-      
-      let step = (range.upperBound - range.lowerBound) * 0.05 // 5% jumps
-      var newTargetValue = localValue
-      
-      switch direction {
-      case .increment:
-        newTargetValue = min(localValue + step, range.upperBound)
-      case .decrement:
-        newTargetValue = max(localValue - step, range.lowerBound)
-      @unknown default:
-        break
-      }
-      
-      localValue = newTargetValue
-      onDragValueChanged?(localValue)
-      value = newTargetValue
-      
-      onEditingChanged(false)
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-        isDragging = false
+      } else {
+        // VoiceOver adjustments have no touch event
+        parent.value = value
+        parent.onDragValueChanged?(value)
+        parent.onEditingChanged(false)
       }
     }
   }
-  
-  private func updateLocalValue(with gesture: DragGesture.Value, in geometry: GeometryProxy) {
-      let percent = Double(gesture.location.x / geometry.size.width)
-      let newValue = percent * (range.upperBound - range.lowerBound) + range.lowerBound
-      self.localValue = min(max(range.lowerBound, newValue), range.upperBound)
+}
+
+// MARK: - Accessibility
+
+extension ThinTrackSlider {
+  override func accessibilityIncrement() {
+    value = min(value + accessibilityStep, maximumValue)
+    sendActions(for: .valueChanged)
   }
-  
-  private func getAccessibilityLabel(_ myValue: Double? = nil) -> String {
-    let percentageValue = Int(((myValue ?? value) * 100 / (range.upperBound == 0 ? 1 : range.upperBound)).rounded(.up))
-    return String.localizedStringWithFormat("progress_complete_description".localized, percentageValue)
+
+  override func accessibilityDecrement() {
+    value = max(value - accessibilityStep, minimumValue)
+    sendActions(for: .valueChanged)
+  }
+
+  private var accessibilityStep: Float {
+    (maximumValue - minimumValue) * 0.01
+  }
+
+  override var accessibilityValue: String? {
+    get {
+      let percent = Int(((Double(value) * 100) / Double(maximumValue == 0 ? 1 : maximumValue)).rounded(.up))
+      return String.localizedStringWithFormat("progress_complete_description".localized, percent)
+    }
+    set {}
   }
 }
 
