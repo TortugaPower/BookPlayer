@@ -111,7 +111,6 @@ struct SlickSlider: UIViewRepresentable {
       for: .valueChanged
     )
 
-
     return slider
   }
 
@@ -121,22 +120,25 @@ struct SlickSlider: UIViewRepresentable {
     }
 
     let uiColor = UIColor(accentColor)
-    slider.setMinimumTrackImage(
-      Self.makeTrackImage(color: uiColor, height: trackHeight),
-      for: .normal
-    )
-    slider.setMaximumTrackImage(
-      Self.makeTrackImage(
-        color: UIColor.secondaryLabel.withAlphaComponent(0.2),
-        height: trackHeight
-      ),
-      for: .normal
-    )
-    slider.setThumbImage(
-      Self.makeThumbImage(size: thumbSize, color: uiColor),
-      for: .normal
-    )
-    slider.thumbShadowColor = uiColor.withAlphaComponent(0.6)
+    if context.coordinator.cachedAccentColor != uiColor {
+      context.coordinator.cachedAccentColor = uiColor
+      slider.setMinimumTrackImage(
+        Self.makeTrackImage(color: uiColor, height: trackHeight),
+        for: .normal
+      )
+      slider.setMaximumTrackImage(
+        Self.makeTrackImage(
+          color: UIColor.secondaryLabel.withAlphaComponent(0.2),
+          height: trackHeight
+        ),
+        for: .normal
+      )
+      slider.setThumbImage(
+        Self.makeThumbImage(size: thumbSize, color: uiColor),
+        for: .normal
+      )
+      slider.thumbShadowColor = uiColor.withAlphaComponent(0.6)
+    }
   }
 
   private static func makeThumbImage(size: CGFloat, color: UIColor) -> UIImage {
@@ -166,7 +168,7 @@ struct SlickSlider: UIViewRepresentable {
   class Coordinator: NSObject {
     var parent: SlickSlider
     var isDragging = false
-    var accessibilityStep: Float = 0.01
+    var cachedAccentColor: UIColor?
 
     init(_ parent: SlickSlider) {
       self.parent = parent
@@ -221,7 +223,8 @@ extension ThinTrackSlider {
 
   override var accessibilityValue: String? {
     get {
-      let percent = Int(((Double(value) * 100) / Double(maximumValue == 0 ? 1 : maximumValue)).rounded(.up))
+      let range = Double(maximumValue - minimumValue)
+      let percent = range == 0 ? 0 : Int(((Double(value - minimumValue) / range) * 100).rounded(.up))
       return String.localizedStringWithFormat("progress_complete_description".localized, percent)
     }
     set {}
