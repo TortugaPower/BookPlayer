@@ -36,6 +36,7 @@ struct ListeningProgressView: View {
         onDragValueChanged: onSliderDragChanged,
         accentColor: theme.linkColor
       )
+      .frame(height: 18)
       
       HStack {
         Text(currentTime)

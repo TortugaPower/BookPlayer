@@ -56,7 +56,7 @@ struct ArtworkView: View {
                   
                   VStack(alignment: .leading) {
                     Spacer()
-                    
+
                     Text(author)
                       .lineLimit(1)
                       .bpFont(.title2)
@@ -68,6 +68,7 @@ struct ArtworkView: View {
                       .padding(.vertical, 4)
                       .accessibilityHidden(true)
                   }
+                  .foregroundColor(.white)
                   .padding()
                   .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                   .accessibilityHidden(true)

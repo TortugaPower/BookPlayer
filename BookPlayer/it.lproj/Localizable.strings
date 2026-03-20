@@ -206,7 +206,7 @@
 "voiceover_default_speed_title" = "Imposta la velocità predefinita";
 "error_loading_chapters" = "Impossibile caricare i capitoli da: \n %@";
 "error_empty_chapters" = "I capitoli sono vuoti, verifica il contenuto della cartella: %@";
-"sleeptimer_option_custom" = "Costume";
+"sleeptimer_option_custom" = "Personalizza";
 "sleeptimer_custom_alert_title" = "Timer di spegnimento personalizzato";
 "settings_progresslabels_title" = "Etichette di avanzamento";
 "settings_playerinterface_list_title" = "Si apre";

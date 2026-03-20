@@ -15,7 +15,7 @@ struct BubbleButton: View {
   var imageOffset: CGPoint?
   var labelText: String?
   var action: (() -> Void)?
-  
+
   var body: some View {
     Button {
       UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -30,18 +30,19 @@ struct BubbleButton: View {
             .frame(width: 24, height: 24)
             .offset(x: imageOffset?.x ?? 0, y: imageOffset?.y ?? 0)
         }
-        
+
         if let text = labelText {
           Text(text)
             .bpFont(.headline).monospacedDigit()
             .foregroundColor(theme.primaryColor)
         }
       }
-        .padding(12)
-        .frame(minWidth: 48)        // 2. Sets your "preferred" minimum width
-        .frame(height: 48)
-        .liquidGlassBackground()
-        .clipShape(Capsule())
+      .padding(12)
+      .frame(minWidth: 48)
+      .frame(height: 48)
+      .contentShape(Capsule())
+      .liquidGlassBackground()
+      .clipShape(Capsule())
     }
   }
 }

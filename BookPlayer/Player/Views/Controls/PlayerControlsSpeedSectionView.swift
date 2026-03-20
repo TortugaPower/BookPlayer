@@ -90,7 +90,7 @@ struct PlayerControlsSpeedSectionView: View {
             .imageScale(.large)
         }
         .foregroundStyle(theme.primaryColor)
-        .frame(width: 32, height: 32)
+        .frame(width: 44, height: 44)
         .accessibilityLabel("➖")
 
         Spacer()
@@ -115,10 +115,10 @@ struct PlayerControlsSpeedSectionView: View {
             .imageScale(.large)
         }
         .foregroundStyle(theme.primaryColor)
-        .frame(width: 32, height: 32)
+        .frame(width: 44, height: 44)
         .accessibilityLabel("➕")
       }
-      .frame(height: 32)
+      .frame(height: 44)
     }
   }
 
@@ -134,7 +134,7 @@ struct PlayerControlsSpeedSectionView: View {
     .buttonStyle(.bordered)
     .tint(theme.primaryColor)
     .clipShape(RoundedRectangle(cornerRadius: 5))
-    .frame(minWidth: 70, minHeight: 32)
+    .frame(minWidth: 70, minHeight: 44)
   }
 }
 
