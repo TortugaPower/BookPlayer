@@ -25,15 +25,19 @@ struct AudiobookShelfLibraryGridView<Model: AudiobookShelfLibraryViewModelProtoc
     )
   }
 
+  private var columns: [GridItem] {
+    [GridItem(
+      .adaptive(
+        minimum: itemMinSizeBase.width,
+        maximum: itemMaxSizeBase.width
+      ),
+      spacing: itemSpacingBase * accessabilityScale
+    )]
+  }
+
   var body: some View {
-    GeometryReader { geometry in
-      AdaptiveVGrid(
-        numItems: viewModel.items.count,
-        itemMinSize: adjustSize(itemMinSizeBase, availableSize: geometry.size),
-        itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
-        itemSpacing: itemSpacingBase * accessabilityScale
-      ) {
-        ForEach(viewModel.items, id: \.id) { item in
+    LazyVGrid(columns: columns, spacing: itemSpacingBase * accessabilityScale) {
+      ForEach(viewModel.items, id: \.id) { item in
           AudiobookShelfLibraryGridItemView(item: item, isSelected: viewModel.selectedItems.contains(item.id))
             .accessibilityAddTraits(.isButton)
             .onTapGesture {
@@ -52,15 +56,8 @@ struct AudiobookShelfLibraryGridView<Model: AudiobookShelfLibraryViewModelProtoc
             .onAppear {
               viewModel.fetchMoreItemsIfNeeded(currentItem: item)
             }
-            .frame(
-              minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
-              maxWidth: CGFloat.greatestFiniteMagnitude,
-              minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
-              maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
-            )
         }
       }
-    }
   }
 }
 
@@ -70,6 +67,9 @@ final class MockAudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelPr
   var connectionService = AudiobookShelfConnectionService()
 
   let data: AudiobookShelfLibraryLevelData
+
+  var searchQuery: String = ""
+  var isSearchable: Bool { false }
 
   var layout = AudiobookShelfLayout.Options.grid
   var sortBy = AudiobookShelfLayout.SortBy.recent

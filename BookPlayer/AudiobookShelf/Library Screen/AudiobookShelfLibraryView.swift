@@ -27,15 +27,18 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
   var body: some View {
     Group {
       if viewModel.layout == .grid {
-        AudiobookShelfLibraryGridView(viewModel: viewModel)
-          .padding()
+        ScrollView {
+          AudiobookShelfLibraryGridView(viewModel: viewModel)
+            .padding()
+        }
       } else {
         AudiobookShelfLibraryListView(viewModel: viewModel)
+          .scrollContentBackground(.hidden)
       }
     }
-    .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .environment(\.audiobookshelfService, viewModel.connectionService)
+    .modifier(ConditionalSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
@@ -108,5 +111,18 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
       Image(systemName: "arrow.down.to.line")
     }
     .disabled(viewModel.selectedItems.isEmpty)
+  }
+}
+
+private struct ConditionalSearchableModifier: ViewModifier {
+  let isSearchable: Bool
+  @Binding var text: String
+
+  func body(content: Content) -> some View {
+    if isSearchable {
+      content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
+    } else {
+      content
+    }
   }
 }
