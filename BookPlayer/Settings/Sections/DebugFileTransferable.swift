@@ -47,6 +47,8 @@ struct DebugFileTransferable: Transferable {
         libraryRepresentation += remoteOnlyInfo
       }
 
+      libraryRepresentation += file.getStorageBreakdown()
+
       if let syncJobsInformation {
         libraryRepresentation += syncJobsInformation
       }
@@ -146,6 +148,136 @@ struct DebugFileTransferable: Transferable {
     }
 
     return remoteInfo
+  }
+
+  func getStorageBreakdown() -> String {
+    var info = "\n\n--- Storage Breakdown ---\n"
+    let fm = FileManager.default
+
+    let processedURL = DataManager.getProcessedFolderURL()
+    let artworkCacheURL = ArtworkService.cacheDirectoryURL
+    let backupURL = DataManager.getBackupFolderURL()
+    let inboxURL = DataManager.getInboxFolderURL()
+    let dbBackupURL = DataManager.getDatabaseBackupFolderURL()
+    let syncTasksSwiftDataURL = DataManager.getSyncTasksSwiftDataURL()
+
+    let containerURL = fm.containerURL(
+      forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
+    )
+    let coreDataURL = containerURL?.appendingPathComponent("BookPlayer.sqlite")
+
+    let documentsURL = DataManager.getDocumentsFolderURL()
+    let appSupportURL = DataManager.getApplicationSupportFolderURL()
+    let cachesURL = fm.urls(for: .cachesDirectory, in: .userDomainMask).first
+    let tmpURL = URL(fileURLWithPath: NSTemporaryDirectory())
+
+    // Audiobooks (Processed folder, including hidden files like .dbRealm)
+    let processedSize = getFolderSize(processedURL, skipHidden: false)
+    let processedVisibleSize = getFolderSize(processedURL, skipHidden: true)
+    info += "\nAudiobooks (Processed):       \(formatSize(processedVisibleSize))\n"
+    if processedSize != processedVisibleSize {
+      info += "  Hidden files in Processed:  \(formatSize(processedSize - processedVisibleSize))\n"
+    }
+
+    // Artwork cache
+    let artworkSize = getFolderSize(artworkCacheURL, skipHidden: false)
+    info += "Artwork cache:                \(formatSize(artworkSize))\n"
+
+    // Backup folder (cloud-deleted files)
+    let backupSize = getFolderSize(backupURL, skipHidden: false)
+    info += "Backup (cloud-deleted):       \(formatSize(backupSize))\n"
+
+    // Inbox
+    let inboxSize = getFolderSize(inboxURL, skipHidden: false)
+    info += "Inbox (pending import):       \(formatSize(inboxSize))\n"
+
+    // CoreData
+    let coreDataSize = getFileGroupSize(coreDataURL)
+    info += "CoreData database:            \(formatSize(coreDataSize))\n"
+
+    // Database backups
+    let dbBackupSize = getFolderSize(dbBackupURL, skipHidden: false)
+    info += "Database backups:             \(formatSize(dbBackupSize))\n"
+
+    // SwiftData
+    let swiftDataSize = getFileGroupSize(syncTasksSwiftDataURL)
+    info += "SwiftData (sync tasks):       \(formatSize(swiftDataSize))\n"
+
+    // Caches directory
+    if let cachesURL {
+      let cachesSize = getFolderSize(cachesURL, skipHidden: false)
+      info += "Library/Caches:               \(formatSize(cachesSize))\n"
+    }
+
+    // Temp directory
+    let tmpSize = getFolderSize(tmpURL, skipHidden: false)
+    info += "Temporary files:              \(formatSize(tmpSize))\n"
+
+    // Full container sizes
+    info += "\n-- Container Totals --\n"
+    let documentsSize = getFolderSize(documentsURL, skipHidden: false)
+    info += "Documents folder:             \(formatSize(documentsSize))\n"
+
+    let appSupportSize = getFolderSize(appSupportURL, skipHidden: false)
+    info += "Application Support:          \(formatSize(appSupportSize))\n"
+
+    if let containerURL {
+      let appGroupSize = getFolderSize(containerURL, skipHidden: false)
+      info += "App Group container:          \(formatSize(appGroupSize))\n"
+    }
+
+    // What the storage view shows vs total
+    let storageViewTotal = processedVisibleSize + artworkSize
+    let knownTotal = processedSize + artworkSize + backupSize + inboxSize
+      + coreDataSize + dbBackupSize + swiftDataSize + tmpSize
+    info += "\nStorage view shows:           \(formatSize(storageViewTotal))\n"
+    info += "Known total:                  \(formatSize(knownTotal))\n"
+
+    return info
+  }
+
+  /// Get the size of a folder's contents
+  private func getFolderSize(_ url: URL, skipHidden: Bool) -> Int64 {
+    let fm = FileManager.default
+    guard fm.fileExists(atPath: url.path) else { return 0 }
+
+    var options: FileManager.DirectoryEnumerationOptions = []
+    if skipHidden {
+      options.insert(.skipsHiddenFiles)
+    }
+
+    guard let enumerator = fm.enumerator(
+      at: url,
+      includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey],
+      options: options
+    ) else { return 0 }
+
+    var size: Int64 = 0
+    for case let fileURL as URL in enumerator {
+      guard let values = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey]),
+            values.isRegularFile == true else { continue }
+      size += Int64(values.fileSize ?? 0)
+    }
+    return size
+  }
+
+  /// Get the size of a sqlite file and its associated -wal and -shm files
+  private func getFileGroupSize(_ url: URL?) -> Int64 {
+    guard let url else { return 0 }
+    let fm = FileManager.default
+    var size: Int64 = 0
+    for suffix in ["", "-wal", "-shm"] {
+      let fileURL = URL(fileURLWithPath: url.path + suffix)
+      if let attrs = try? fm.attributesOfItem(atPath: fileURL.path),
+         let fileSize = attrs[.size] as? Int64 {
+        size += fileSize
+      }
+    }
+    return size
+  }
+
+  private func formatSize(_ bytes: Int64) -> String {
+    ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
   }
 
   func getSyncOperationsInformation() async -> String {
