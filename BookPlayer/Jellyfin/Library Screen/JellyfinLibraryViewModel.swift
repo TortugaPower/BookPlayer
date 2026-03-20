@@ -33,6 +33,9 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
   var showingDownloadConfirmation: Bool { get set }
 
+  var searchQuery: String { get set }
+  var isSearchable: Bool { get }
+
   var connectionService: JellyfinConnectionService { get }
 
   func fetchInitialItems()
@@ -87,6 +90,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
   }
 
+  @Published var searchQuery = ""
   @Published var items: [JellyfinLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
@@ -94,6 +98,8 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
   @Published var showingDownloadConfirmation = false
+
+  var isSearchable: Bool { folderID != nil }
 
   var onTransition: BPTransition<Routes>?
 
@@ -125,6 +131,15 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+
+    $searchQuery
+      .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] _ in
+        self?.onSearchQueryChanged()
+      }
+      .store(in: &disposeBag)
   }
 
   func fetchInitialItems() {
@@ -173,16 +188,28 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
   }
 
+  private func onSearchQueryChanged() {
+    guard let folderID else { return }
+    fetchTask?.cancel()
+    fetchTask = nil
+    items = []
+    nextStartItemIndex = 0
+    totalItems = Int.max
+    fetchFolderItems(folderID: folderID)
+  }
+
   private func fetchFolderItems(folderID: String) {
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
       do {
+        let searchParam: String? = searchQuery.isEmpty ? nil : searchQuery
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
           in: folderID,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
-          sortBy: sortBy
+          sortBy: sortBy,
+          searchTerm: searchParam
         )
 
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)

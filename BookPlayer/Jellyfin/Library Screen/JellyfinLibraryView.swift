@@ -27,15 +27,18 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   var body: some View {
     Group {
       if viewModel.layout == .grid {
-        JellyfinLibraryGridView(viewModel: viewModel)
-          .padding()
+        ScrollView {
+          JellyfinLibraryGridView(viewModel: viewModel)
+            .padding()
+        }
       } else {
         JellyfinLibraryListView(viewModel: viewModel)
+          .scrollContentBackground(.hidden)
       }
     }
-    .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .environment(\.jellyfinService, viewModel.connectionService)
+    .modifier(JellyfinSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
@@ -123,5 +126,18 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       Image(systemName: "arrow.down.to.line")
     }
     .disabled(viewModel.selectedItems.isEmpty)
+  }
+}
+
+private struct JellyfinSearchableModifier: ViewModifier {
+  let isSearchable: Bool
+  @Binding var text: String
+
+  func body(content: Content) -> some View {
+    if isSearchable {
+      content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
+    } else {
+      content
+    }
   }
 }

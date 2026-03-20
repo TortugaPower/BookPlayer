@@ -18,47 +18,37 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   private let itemMaxSizeBase = CGSize(width: 250, height: 250)
   private let itemSpacingBase = 20.0
 
-  private func adjustSize(_ size: CGSize, availableSize: CGSize) -> CGSize {
-    CGSize(
-      width: min(size.width, availableSize.width),
-      height: min(size.height * accessabilityScale, availableSize.height)
-    )
+  private var columns: [GridItem] {
+    [GridItem(
+      .adaptive(
+        minimum: itemMinSizeBase.width,
+        maximum: itemMaxSizeBase.width
+      ),
+      spacing: itemSpacingBase * accessabilityScale
+    )]
   }
 
   var body: some View {
-    GeometryReader { geometry in
-      AdaptiveVGrid(
-        numItems: viewModel.items.count,
-        itemMinSize: adjustSize(itemMinSizeBase, availableSize: geometry.size),
-        itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
-        itemSpacing: itemSpacingBase * accessabilityScale
-      ) {
-        ForEach(viewModel.items, id: \.id) { item in
-          JellyfinLibraryGridItemView(item: item, isSelected: viewModel.selectedItems.contains(item.id))
-            .accessibilityAddTraits(.isButton)
-            .onTapGesture {
-              if viewModel.editMode.isEditing {
-                guard case .audiobook = item.kind else { return }
-                viewModel.onSelectTapped(for: item)
-              } else {
-                switch item.kind {
-                case .audiobook:
-                  viewModel.navigation.path.append(JellyfinLibraryLevelData.details(data: item))
-                case .userView, .folder:
-                  viewModel.navigation.path.append(JellyfinLibraryLevelData.folder(data: item))
-                }
+    LazyVGrid(columns: columns, spacing: itemSpacingBase * accessabilityScale) {
+      ForEach(viewModel.items, id: \.id) { item in
+        JellyfinLibraryGridItemView(item: item, isSelected: viewModel.selectedItems.contains(item.id))
+          .accessibilityAddTraits(.isButton)
+          .onTapGesture {
+            if viewModel.editMode.isEditing {
+              guard case .audiobook = item.kind else { return }
+              viewModel.onSelectTapped(for: item)
+            } else {
+              switch item.kind {
+              case .audiobook:
+                viewModel.navigation.path.append(JellyfinLibraryLevelData.details(data: item))
+              case .userView, .folder:
+                viewModel.navigation.path.append(JellyfinLibraryLevelData.folder(data: item))
               }
             }
-            .onAppear {
-              viewModel.fetchMoreItemsIfNeeded(currentItem: item)
-            }
-            .frame(
-              minWidth: adjustSize(itemMinSizeBase, availableSize: geometry.size).width,
-              maxWidth: CGFloat.greatestFiniteMagnitude,
-              minHeight: adjustSize(itemMinSizeBase, availableSize: geometry.size).height,
-              maxHeight: adjustSize(itemMaxSizeBase, availableSize: geometry.size).height
-            )
-        }
+          }
+          .onAppear {
+            viewModel.fetchMoreItemsIfNeeded(currentItem: item)
+          }
       }
     }
   }
@@ -70,6 +60,9 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   var connectionService = JellyfinConnectionService()
 
   let data: JellyfinLibraryLevelData
+
+  var searchQuery: String = ""
+  var isSearchable: Bool { false }
 
   var layout = JellyfinLayout.Options.grid
   var sortBy = JellyfinLayout.SortBy.smart
