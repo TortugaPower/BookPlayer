@@ -29,6 +29,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public let lastPlayDate: Date?
   public let type: SimpleItemType
   public let uuid: String
+  public let externalResources: [SimpleExternalResource]?
   
   public var progress: Double {
     if type == .folder,
@@ -70,7 +71,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     "originalFileName",
     "lastPlayDate",
     "type",
-    "uuid",
+    "uuid"
   ]
 
   public func hash(into hasher: inout Hasher) {
@@ -97,7 +98,8 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     originalFileName: String,
     lastPlayDate: Date?,
     type: SimpleItemType,
-    uuid: String
+    uuid: String,
+    externalResources: [SimpleExternalResource]? = nil
   ) {
     self.title = title
     self.details = details
@@ -116,6 +118,7 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     self.lastPlayDate = lastPlayDate
     self.type = type
     self.uuid = uuid
+    self.externalResources = externalResources
   }
 }
 
@@ -137,6 +140,8 @@ extension SimpleLibraryItem {
     self.originalFileName = item.originalFileName
     self.lastPlayDate = item.lastPlayDate
     self.uuid = item.uuid
+
+    self.externalResources = item.resourcesArray.map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
 
     switch item.type {
     case .folder:

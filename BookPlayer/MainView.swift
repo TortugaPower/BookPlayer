@@ -28,6 +28,7 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -106,6 +107,14 @@ struct MainView: View {
         )
       }
       .presentationBackground(.clear)
+    }
+    .sheet(isPresented: $importManager.isShowingExternalImportView) {
+      ExternalImportView(
+        viewModel: ExternalImportViewModel(importManager: importManager)
+      )
+      .presentationBackground(.clear)
+      .environmentObject(importManager)
+      .environmentObject(ThemeViewModel())
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

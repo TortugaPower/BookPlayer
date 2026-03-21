@@ -2,28 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.pkware.zip-archive</string>
-			</array>
-			<key>UTTypeIdentifier</key>
-			<string>com.pkware.lpf-zip-archive</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.mime-type</key>
-				<array>
-					<string>application/lpf+zip</string>
-				</array>
-				<key>public.filename-extension</key>
-				<array>
-					<string>lpf</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
@@ -106,41 +84,6 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>Fruit Based26</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>fruit-based-26</string>
-				</array>
-			</dict>
-			<key>Music</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>music-26</string>
-				</array>
-			</dict>
-			<key>Platinum</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>Platinum</string>
-				</array>
-			</dict>
-			<key>Pride26</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>pride-26</string>
-				</array>
-			</dict>
-			<key>Pride</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>pride</string>
-				</array>
-			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -169,6 +112,13 @@
 					<string>fruit-based</string>
 				</array>
 			</dict>
+			<key>Fruit Based26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based-26</string>
+				</array>
+			</dict>
 			<key>Heart of Glass</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -190,11 +140,39 @@
 					<string>heart-of-glass-forest</string>
 				</array>
 			</dict>
+			<key>Music</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>music-26</string>
+				</array>
+			</dict>
 			<key>Neon</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>neon</string>
+				</array>
+			</dict>
+			<key>Platinum</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Platinum</string>
+				</array>
+			</dict>
+			<key>Pride</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride</string>
+				</array>
+			</dict>
+			<key>Pride26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride-26</string>
 				</array>
 			</dict>
 			<key>Retro</key>
@@ -225,8 +203,6 @@
 			<array>
 				<string></string>
 			</array>
-			<key>UIPrerenderedIcon</key>
-			<false/>
 			<key>NSAppIconActionTintColorName</key>
 			<string>ShortcutsForegroundColor</string>
 			<key>NSAppIconComplementingColorNames</key>
@@ -234,47 +210,14 @@
 				<string>ShortcutsBackgroundColor1</string>
 				<string>ShortcutsBackgroundColor2</string>
 			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
 		</dict>
 	</dict>
 	<key>CFBundleIcons~ipad</key>
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>Fruit Based26</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>fruit-based-ipad-26</string>
-				</array>
-			</dict>
-			<key>Music</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>music-ipad-26</string>
-				</array>
-			</dict>
-			<key>Platinum</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>Platinum-ipad</string>
-				</array>
-			</dict>
-			<key>Pride26</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>pride-ipad-26</string>
-				</array>
-			</dict>
-			<key>Pride</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>pride-ipad</string>
-				</array>
-			</dict>
 			<key>Ayu Light</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -303,6 +246,13 @@
 					<string>fruit-based-ipad</string>
 				</array>
 			</dict>
+			<key>Fruit Based26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>fruit-based-ipad-26</string>
+				</array>
+			</dict>
 			<key>Heart of Glass</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -324,11 +274,39 @@
 					<string>heart-of-glass-forest-ipad</string>
 				</array>
 			</dict>
+			<key>Music</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>music-ipad-26</string>
+				</array>
+			</dict>
 			<key>Neon</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>neon-ipad</string>
+				</array>
+			</dict>
+			<key>Platinum</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Platinum-ipad</string>
+				</array>
+			</dict>
+			<key>Pride</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride-ipad</string>
+				</array>
+			</dict>
+			<key>Pride26</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>pride-ipad-26</string>
 				</array>
 			</dict>
 			<key>Retro</key>
@@ -399,6 +377,8 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
@@ -474,6 +454,28 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.pkware.zip-archive</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.pkware.lpf-zip-archive</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>lpf</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/lpf+zip</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 </dict>
 </plist>

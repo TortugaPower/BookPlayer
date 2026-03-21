@@ -58,7 +58,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let dataManager: DataManager
   
   /// Reference for observer
-  private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
   private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
   /// Reference to ongoing library fetch task

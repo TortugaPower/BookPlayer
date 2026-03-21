@@ -22,8 +22,12 @@ final class ImportManager: ObservableObject {
   private var subscription: AnyCancellable?
   private var timer: Timer?
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
-
+  
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
+  public var externalOperationPublisher = PassthroughSubject<[SimpleExternalResource], Never>()
+  
+  @Published var externalFiles: [SimpleExternalResource] = []
+  @Published var isShowingExternalImportView: Bool = false
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -149,5 +153,14 @@ final class ImportManager: ObservableObject {
         process(url)
       }
     }
+  }
+  
+  func processExternalFiles() async {
+    guard self.externalFiles.count > 0 else {
+      return
+    }
+    let myExternalFiles = self.externalFiles
+    self.externalFiles = []
+    self.externalOperationPublisher.send(myExternalFiles)
   }
 }

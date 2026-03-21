@@ -26,7 +26,10 @@ public final class TasksDataManager {
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self
+      MatchUuidsTaskModel.self,
+      ExternalSyncTasksContainer.self,
+      ExternalSyncTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
