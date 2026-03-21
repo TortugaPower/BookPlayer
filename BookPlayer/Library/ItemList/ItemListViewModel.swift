@@ -295,7 +295,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
-    return nextPlayableItem?.relativePath
+    return nextPlayableItem?.uuid
   }
 }
 

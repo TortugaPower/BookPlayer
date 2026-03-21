@@ -217,6 +217,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
     chapters = chapters.filter { $0.duration > 0 }
 
     guard !chapters.isEmpty else {
+      let externalResource = book.externalResources?.first
+      let keychainService = KeychainService()
+      let storedConnection: JellyfinConnectionData? = try? keychainService.get(.jellyfinConnection)
+      let urlString = (storedConnection != nil && externalResource != nil) ? "\(storedConnection!.url.absoluteString)/items/\(externalResource!.providerId)/Download?api_key=\(storedConnection!.accessToken)" : ""
+      print("HEY HO \(urlString)")
       return [
         PlayableChapter(
           title: book.title,
@@ -224,7 +229,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           start: 0.0,
           duration: book.duration,
           relativePath: book.relativePath,
-          remoteURL: book.remoteURL,
+          remoteURL: !urlString.isEmpty ? URL(string: urlString) : book.remoteURL,
           index: 1
         )
       ]

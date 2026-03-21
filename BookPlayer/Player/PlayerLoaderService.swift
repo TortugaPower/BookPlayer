@@ -36,44 +36,46 @@ final class PlayerLoaderService: @unchecked Sendable {
 
   @MainActor
   func loadPlayer(
-    _ relativePath: String,
+    _ uuid: String,
     autoplay: Bool,
     recordAsLastBook: Bool = true
   ) async throws {
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
-    if syncService.isActive == false,
-      !FileManager.default.fileExists(atPath: fileURL.path)
+    guard let libraryItem = self.libraryService.getSimpleItem(for: uuid)
+    else { return }
+    
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
+    let externalResources = self.libraryService.findResource(for: libraryItem.uuid)
+    
+    print("External Resources \(externalResources.debugDescription)")
+    if //syncService.isActive == false,
+       !FileManager.default.fileExists(atPath: fileURL.path),
+       (libraryItem.externalResources?.isEmpty ?? true)
     {
-      throw BPPlayerError.fileMissing(relativePath: relativePath)
+      throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)
     }
-
+    
     // Only load if loaded book is a different one
     if playerManager.hasLoadedBook() == true,
-      relativePath == playerManager.currentItem?.relativePath
+       libraryItem.uuid == playerManager.currentItem?.uuid
     {
       if autoplay {
         playerManager.play()
       }
       return
     }
-
-    guard
-      let libraryItem = self.libraryService.getSimpleItem(with: relativePath)
-    else { return }
-
+    
     /// If the selected item is a bound book, check that the contents are loaded
     if syncService.isActive == true,
-      libraryItem.type == .bound,
-      libraryService.getMaxItemsCount(at: relativePath) == 0
+       libraryItem.type == .bound,
+       libraryService.getMaxItemsCount(at: libraryItem.relativePath) == 0
     {
-      _ = try await syncService.syncListContents(at: relativePath)
+      _ = try await syncService.syncListContents(at: libraryItem.relativePath)
     }
-
+    
     let item = try self.playbackService.getPlayableItem(from: libraryItem)
-
+    
     playerManager.load(item, autoplay: autoplay)
-
+    
     if recordAsLastBook {
       libraryService.setLibraryLastBook(with: item.relativePath)
     }

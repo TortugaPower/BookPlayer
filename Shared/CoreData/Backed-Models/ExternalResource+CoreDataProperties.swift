@@ -16,9 +16,9 @@ public class ExternalResource: NSManagedObject {
   }
 
   @NSManaged public var id: Int32
-  @NSManaged public var providerName: String?
-  @NSManaged public var providerItemId: String?
-  @NSManaged public var syncStatus: Bool
+  @NSManaged public var providerName: String
+  @NSManaged public var providerId: String
+  @NSManaged public var syncStatus: String
   @NSManaged public var lastSyncedAt: Date?
   @NSManaged public var processedFile: Bool
   
@@ -26,17 +26,22 @@ public class ExternalResource: NSManagedObject {
   
   @nonobjc public class func create(
     _ item: SimpleExternalResource,
+    libraryItem: LibraryItem?,
     in context: NSManagedObjectContext
-  ) -> HardcoverBook {
+  ) -> ExternalResource {
     // swiftlint:disable:next force_cast
     let entity = NSEntityDescription.insertNewObject(forEntityName: "ExternalResource", into: context) as! ExternalResource
 
     entity.id = Int32(item.id)
     entity.providerName = item.providerName
-    entity.providerItemId = item.providerItemId
+    entity.providerId = item.providerId
     entity.lastSyncedAt = item.lastSyncedAt
     entity.syncStatus = item.syncStatus
-    entity.libraryItem = Int32(item.userBookID ?? 0)
+    entity.processedFile = false
+    
+    if let item = libraryItem {
+      entity.libraryItem = item
+    }
 
     return entity
   }

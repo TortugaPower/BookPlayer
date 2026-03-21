@@ -22,13 +22,13 @@
         <attribute name="title" attributeType="String"/>
         <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="Book" inverseName="chapters" inverseEntity="Book"/>
     </entity>
-    <entity name="ExternalSource" representedClassName="ExternalSource" syncable="YES" codeGenerationType="class">
+    <entity name="ExternalResource" representedClassName="ExternalResource" syncable="YES">
         <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastSyncedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="processedFile" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="providerId" optional="YES" attributeType="String"/>
         <attribute name="providerName" optional="YES" attributeType="String"/>
-        <attribute name="syncStatus" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="syncStatus" optional="YES" attributeType="String"/>
         <relationship name="libraryItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="externalResources" inverseEntity="LibraryItem"/>
     </entity>
     <entity name="Folder" representedClassName="Folder" parentEntity="LibraryItem" elementID="PlaylistV3" syncable="YES">
@@ -65,7 +65,7 @@
         <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="uuid" optional="YES" attributeType="String"/>
         <relationship name="bookmarks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Bookmark" inverseName="item" inverseEntity="Bookmark"/>
-        <relationship name="externalResources" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ExternalSource" inverseName="libraryItem" inverseEntity="ExternalSource"/>
+        <relationship name="externalResources" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ExternalResource" inverseName="libraryItem" inverseEntity="ExternalResource"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
         <relationship name="hardcoverBook" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="HardcoverBook"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedItem" inverseEntity="Library"/>

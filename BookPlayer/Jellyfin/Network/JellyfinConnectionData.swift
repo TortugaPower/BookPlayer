@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct JellyfinConnectionData: Codable {
+public struct JellyfinConnectionData: Codable {
   let url: URL
   let serverName: String
   let userID: String
@@ -52,7 +52,7 @@ struct JellyfinConnectionData: Codable {
 }
 
 extension JellyfinConnectionData: CustomDebugStringConvertible {
-  var debugDescription: String {
+  public var debugDescription: String {
     let accessTokenDebugDesc = accessToken.isEmpty ? "<empty>" : "<redacted>"
     return "JellyfinConnectionData(\(url), \(serverName), \(userID), \(userName), \(accessTokenDebugDesc))"
   }
