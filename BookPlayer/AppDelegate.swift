@@ -22,7 +22,7 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
-  static weak var shared: AppDelegate?
+  static weak var shared: AppDelegate?    
   var pendingURLActions = [Action]()
 
   var window: UIWindow?

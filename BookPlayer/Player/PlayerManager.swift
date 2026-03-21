@@ -63,7 +63,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let decoder = JSONDecoder()
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
-
+  
+  var storedConnection: JellyfinConnectionData?
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -183,7 +184,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @MainActor
   func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
-
     if !forceRefresh,
       let chapterURL = chapter.remoteURL
     {
@@ -244,10 +244,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     let asset: AVURLAsset
 
-    if syncService.isActive,
-      !FileManager.default.fileExists(atPath: fileURL.path)
+    if !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
+      if syncService.isActive {
+        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
+      } else if let remoteUrl = chapter.remoteURL {
+        asset = AVURLAsset(url: remoteUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+      } else {
+        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+      }
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }

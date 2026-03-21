@@ -41,14 +41,36 @@ struct BookView: View {
       }
       .buttonStyle(.plain)
       .accessibilityLabel("voiceover_continue_playback_title")
-      VStack(alignment: .leading) {
-        Text(verbatim: item.title)
+      VStack(alignment: .leading, spacing: 2) {
+        Text(verbatim: "\(item.title)")
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)
-        Text(verbatim: item.details)
-          .foregroundStyle(theme.secondaryColor)
-          .bpFont(.caption)
+        HStack {
+          if let resources = item.externalResources {
+            ForEach(resources, id: \.providerId) { externalResource in
+              Group {
+                HStack {
+                  Image((ExternalResource.ProviderName(rawValue: externalResource.providerName) ?? .jellyfin).icon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 12, height: 12)
+                    .foregroundStyle(theme.secondaryColor)
+                  Text(verbatim: externalResource.providerName.capitalized)
+                    .foregroundStyle(theme.secondaryColor)
+                    .bpFont(.caption)
+                }
+                Text("•")
+                  .foregroundColor(.gray)
+                  .font(.caption)
+              }
+            }
+            Text(verbatim: item.details)
+              .foregroundStyle(theme.secondaryColor)
+              .bpFont(.caption)
+          }
+        }
+
         Text(verbatim: item.durationFormatted)
           .foregroundStyle(theme.secondaryColor)
           .bpFont(.caption)

@@ -11,6 +11,11 @@ import Combine
 import CoreData
 import Foundation
 
+public enum ImportSource {
+  case local(files: [URL])
+  case external(files: [SimpleExternalResource])
+}
+
 /// sourcery: AutoMockable
 public protocol LibraryServiceProtocol: AnyObject {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
@@ -52,6 +57,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func findBooks(containing fileURL: URL) -> [Book]?
   /// Fetch a single item with properties loaded
   func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
+  func getSimpleItem(for uuid: String) -> SimpleLibraryItem?
   /// Get items not included in a specific set
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
   /// Fetch a property from a stored library item
@@ -148,7 +154,15 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
   
-  func setExternalResource(_ hardcoverBook: SimpleHardcoverBook?, for uuid: String) async
+  func setExternalResource(_ externalResource: SimpleExternalResource, for libraryItem: LibraryItem) async
+  
+  func getExternalResource(for providerId: String) async -> ExternalResource?
+  
+  func findResource(for providerId: String) -> ExternalResource?
+  
+  func findResources(for uuid: String) -> [ExternalResource]?
+  
+  @MainActor func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
 }
 
 // swiftlint:disable force_cast
@@ -370,6 +384,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
       } else if type == .folder && (percentCompleted.isNaN || percentCompleted.isInfinite) {
         self?.rebuildFolderDetails(relativePath, context: context)
       }
+      
+      let externalResources = self?.findResources(for: uuid)
 
       return SimpleLibraryItem(
         title: title,
@@ -388,6 +404,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
         type: type,
         uuid: uuid,
+        externalResources: externalResources?.map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
       )
     })
   }
@@ -1045,6 +1062,29 @@ extension LibraryService {
 
     try self.delete(items, mode: .deep, context: context)
   }
+  
+  @MainActor
+  @discardableResult
+  public func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
+    // Phase 2: Create CoreData entities on the main thread using pre-extracted data
+    let library = getLibraryReference()
+    var processedFiles = [SimpleLibraryItem]()
+    var nextOrderRank = getNextOrderRank(in: nil)
+    for resource in resources {
+      let libraryItem: LibraryItem
+      let book = await createExternalBook(simpleItem: resource.libraryItem!, externalResource: resource)
+      libraryItem = book
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
+
+      library.addToItems(libraryItem)
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
+    }
+
+    dataManager.saveContext()
+
+    return processedFiles
+  }
 }
 
 // MARK: - Fetch library items
@@ -1169,6 +1209,19 @@ extension LibraryService {
   public func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+
+    let context = dataManager.getContext()
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results, context: context)?.first
+  }
+  
+  public func getSimpleItem(for uuid: String) -> SimpleLibraryItem? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
     fetchRequest.fetchLimit = 1
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
@@ -1533,6 +1586,41 @@ extension LibraryService {
     
     self.dataManager.saveSyncContext(context)
     return newBook
+  }
+  
+  public func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
+    let context = dataManager.getContext()
+    
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let book = Book(entity: entity, insertInto: context)
+    book.relativePath = simpleItem.title
+    book.remoteURL = nil
+    book.artworkURL = simpleItem.artworkURL
+    let title = simpleItem.title
+    book.title = title.isEmpty ? simpleItem.title.replacingOccurrences(of: "_", with: " ") : title
+    let artist = simpleItem.details
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
+    book.duration = simpleItem.duration
+    book.currentTime = simpleItem.currentTime
+    book.percentCompleted = simpleItem.percentCompleted
+    book.originalFileName = simpleItem.originalFileName
+    book.isFinished = simpleItem.isFinished
+    book.type = .book
+    book.uuid = UUID().uuidString
+    
+    let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+    let external = ExternalResource(entity: resourceEntity, insertInto: context)
+    
+    external.providerId = externalResource.providerId
+    external.providerName = externalResource.providerName
+    external.syncStatus = externalResource.syncStatus
+    external.lastSyncedAt = externalResource.lastSyncedAt
+    
+    external.libraryItem = book
+    book.addToExternalResources(external)
+    
+    self.dataManager.saveSyncContext(context)
+    return book
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
@@ -2411,6 +2499,63 @@ extension LibraryService {
     let item = getItemReference(with: bookmark.relativePath)
     item?.removeFromBookmarks(bookmarkReference)
     self.dataManager.delete(bookmarkReference)
+  }
+}
+
+extension LibraryService {
+  public func setExternalResource(_ externalResource: SimpleExternalResource, for libraryItem: LibraryItem) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        _ = ExternalResource.create(externalResource, libraryItem: libraryItem, in: context)
+
+        dataManager.saveSyncContext(context)
+
+        continuation.resume()
+      }
+    }
+  }
+  
+  public func getExternalResource(for providerId: String) async -> ExternalResource? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [context] in
+        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "ExternalResource")
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.providerId), providerId)
+        fetchRequest.fetchLimit = 1
+
+        guard
+          let results = try? context.fetch(fetchRequest) as? [ExternalResource],
+          let result = results.first
+        else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        continuation.resume(returning: result)
+      }
+    }
+  }
+  
+  public func findResource(for providerId: String) -> ExternalResource? {
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
+    let context = self.dataManager.getContext()
+
+    let result = try? context.fetch(fetch)
+    
+    return result?.first
+  }
+  
+  public func findResources(for uuid: String) -> [ExternalResource]? {
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
+    let context = self.dataManager.getContext()
+
+    let result = try? context.fetch(fetch)
+    
+    return result
   }
 }
 

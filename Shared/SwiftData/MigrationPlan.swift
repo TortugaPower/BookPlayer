@@ -11,11 +11,11 @@ import CoreData
 
 public enum MigrationPlan: SchemaMigrationPlan {
   public static var schemas: [any VersionedSchema.Type] {
-    [SchemaV1.self, SchemaV2.self]
+    [SchemaV1.self, SchemaV2.self, SchemaV3.self]
   }
   
   public static var stages: [MigrationStage] {
-    [v1ToV2]
+    [v1ToV2, v2ToV3]
   }
   
   public static var injectedCoreDataContext: NSManagedObjectContext?
@@ -93,5 +93,10 @@ public enum MigrationPlan: SchemaMigrationPlan {
       
       try context.save()
     }
+  )
+  
+  static var v2ToV3: MigrationStage = MigrationStage.lightweight(
+    fromVersion: SchemaV2.self,
+    toVersion: SchemaV3.self
   )
 }

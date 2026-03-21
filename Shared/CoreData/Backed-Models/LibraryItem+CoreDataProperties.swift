@@ -35,6 +35,30 @@ extension LibraryItem {
   @NSManaged public var details: String!
   @NSManaged public var type: ItemType
   @NSManaged public var hardcoverBook: HardcoverBook?
+  @NSManaged public var externalResources: NSSet?
+}
+
+// MARK: Generated accessors for externalResources
+extension LibraryItem {
+  @objc(addExternalResourcesObject:)
+  @NSManaged public func addToExternalResources(_ value: ExternalResource)
+
+  @objc(removeExternalResourcesObject:)
+  @NSManaged public func removeFromExternalResources(_ value: ExternalResource)
+
+  @objc(addExternalResources:)
+  @NSManaged public func addToExternalResources(_ values: NSSet)
+
+  @objc(removeExternalResources:)
+  @NSManaged public func removeFromExternalResources(_ values: NSSet)
+  
+  public var resourcesArray: [ExternalResource] {
+    return externalResources?.allObjects as? [ExternalResource] ?? []
+  }
+  
+  public var jellyfinResource: ExternalResource? {
+    return resourcesArray.first { $0.providerName == "jellyfin" }
+  }
 }
 
 // MARK: Generated accessors for bookmarks

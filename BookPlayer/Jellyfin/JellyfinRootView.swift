@@ -22,6 +22,7 @@ struct JellyfinRootView: View {
   @StateObject var connectionViewModel: JellyfinConnectionViewModel
 
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
+  @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
@@ -73,7 +74,8 @@ struct JellyfinRootView: View {
               viewModel: JellyfinAudiobookDetailsViewModel(
                 item: item,
                 connectionService: connectionViewModel.connectionService,
-                singleFileDownloadService: singleFileDownloadService
+                singleFileDownloadService: singleFileDownloadService,
+                importManager: importManager
               )
             ) {
               dismiss()

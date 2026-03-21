@@ -63,7 +63,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
   @Published var error: Error?
-
+  
+  var storedConnection: JellyfinConnectionData?
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()

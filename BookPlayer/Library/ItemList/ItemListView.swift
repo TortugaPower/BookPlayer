@@ -272,7 +272,8 @@ struct ItemListView: View {
           case .downloading:
             cancelDownload(of: item.id)
           case .downloaded, .notDownloaded:
-            loadPlayer(with: item.relativePath)
+            loadPlayer(with: item.uuid)
+            //HEY HO
           }
         }
         .accessibilityAction {
@@ -289,7 +290,7 @@ struct ItemListView: View {
           case .downloading:
             cancelDownload(of: item.id)
           case .downloaded, .notDownloaded:
-            loadPlayer(with: item.relativePath)
+            loadPlayer(with: item.uuid)
           }
         }
       }
@@ -520,11 +521,11 @@ struct ItemListView: View {
     case .downloaded:
       switch item.type {
       case .folder:
-        if let relativePath = model.getNextPlayableBookPath(in: item) {
-          loadPlayer(with: relativePath)
+        if let uuid = model.getNextPlayableBookPath(in: item) {
+          loadPlayer(with: uuid)
         }
       case .bound, .book:
-        loadPlayer(with: item.relativePath)
+        loadPlayer(with: item.uuid)
       }
     }
   }
@@ -536,12 +537,13 @@ struct ItemListView: View {
     }
   }
 
-  func loadPlayer(with relativePath: String) {
+  func loadPlayer(with uuid: String) {
     Task {
       do {
-        try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+        try await playerLoaderService.loadPlayer(uuid, autoplay: true)
         playerState.showPlayerBinding.wrappedValue = true
       } catch {
+        print(error)
         loadingState.error = error
       }
     }

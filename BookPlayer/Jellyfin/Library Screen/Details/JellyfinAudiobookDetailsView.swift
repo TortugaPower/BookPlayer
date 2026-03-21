@@ -70,7 +70,7 @@ struct JellyfinAudiobookDetailsView<
 
         Button {
           do {
-            try viewModel.beginDownloadAudiobook(viewModel.item)
+            try viewModel.virtualImportAudiobook(viewModel.item)
             onDownloadTap()
           } catch {
             viewModel.error = error
@@ -157,6 +157,8 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
 
   @MainActor
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
+  
+  func virtualImportAudiobook(_ item: JellyfinLibraryItem) throws {}
 }
 
 #Preview {

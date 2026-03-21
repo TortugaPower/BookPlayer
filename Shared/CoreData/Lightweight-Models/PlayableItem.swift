@@ -11,7 +11,7 @@ import Foundation
 
 public final class PlayableItem: NSObject, Identifiable {
   public var id: String {
-    return relativePath
+    return uuid
   }
   public let title: String
   public let author: String
@@ -19,7 +19,7 @@ public final class PlayableItem: NSObject, Identifiable {
   public var currentTime: TimeInterval
   public let duration: TimeInterval
   @objc dynamic public let relativePath: String
-  @objc dynamic public let uuid: String?
+  @objc dynamic public let uuid: String
   public let parentFolder: String?
   @objc dynamic public var percentCompleted: Double
   @objc dynamic public var lastPlayDate: Date?
@@ -55,7 +55,7 @@ public final class PlayableItem: NSObject, Identifiable {
     currentTime: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
-    uuid: String?,
+    uuid: String,
     parentFolder: String?,
     percentCompleted: Double,
     lastPlayDate: Date?,

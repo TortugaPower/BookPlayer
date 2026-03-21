@@ -297,7 +297,7 @@ class JellyfinConnectionService: BPLogger {
     guard let url = components.url else {
       throw JellyfinError.urlFromComponents(components)
     }
-
+    print("URL: \(url)")
     return url
   }
 
