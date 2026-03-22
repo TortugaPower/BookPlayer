@@ -133,6 +133,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   }
 
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem) {
+    guard items.count >= Self.itemFetchMargin else { return }
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
       fetchMoreItems()
@@ -159,6 +160,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   private func fetchTopLevelItems() {
     fetchTask?.cancel()
     fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
       items = []
 
       do {
@@ -195,6 +197,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     fetchTask?.cancel()
     fetchTask = nil
     items = []
+    selectedItems.removeAll()
     nextPage = 0
     totalItems = Int.max
 
@@ -212,7 +215,8 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
       do {
         let items = try await connectionService.searchItems(
           in: libraryID,
-          query: query
+          query: query,
+          limit: 100
         )
 
         self.totalItems = items.count

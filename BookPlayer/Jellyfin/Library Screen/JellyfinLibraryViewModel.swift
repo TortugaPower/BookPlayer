@@ -147,6 +147,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   }
 
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {
+    guard items.count >= Self.itemFetchMargin else { return }
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
       fetchMoreItems()
@@ -173,6 +174,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   private func fetchTopLevelItems() {
     fetchTask?.cancel()
     fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
       items = []
 
       do {
@@ -193,6 +195,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     fetchTask?.cancel()
     fetchTask = nil
     items = []
+    selectedItems.removeAll()
     nextStartItemIndex = 0
     totalItems = Int.max
     fetchFolderItems(folderID: folderID)

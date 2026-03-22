@@ -204,8 +204,9 @@ struct DebugFileTransferable: Transferable {
     info += "SwiftData (sync tasks):       \(formatSize(swiftDataSize))\n"
 
     // Caches directory
+    var cachesSize: Int64 = 0
     if let cachesURL {
-      let cachesSize = getFolderSize(cachesURL, skipHidden: false)
+      cachesSize = getFolderSize(cachesURL, skipHidden: false)
       info += "Library/Caches:               \(formatSize(cachesSize))\n"
     }
 
@@ -229,7 +230,7 @@ struct DebugFileTransferable: Transferable {
     // What the storage view shows vs total
     let storageViewTotal = processedVisibleSize + artworkSize
     let knownTotal = processedSize + artworkSize + backupSize + inboxSize
-      + coreDataSize + dbBackupSize + swiftDataSize + tmpSize
+      + coreDataSize + dbBackupSize + swiftDataSize + cachesSize + tmpSize
     info += "\nStorage view shows:           \(formatSize(storageViewTotal))\n"
     info += "Known total:                  \(formatSize(knownTotal))\n"
 
