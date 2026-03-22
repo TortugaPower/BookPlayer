@@ -196,6 +196,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     guard let libraryID else { return }
     fetchTask?.cancel()
     fetchTask = nil
+    editMode = .inactive
     items = []
     selectedItems.removeAll()
     nextPage = 0

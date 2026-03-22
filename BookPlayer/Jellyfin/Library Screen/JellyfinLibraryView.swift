@@ -36,9 +36,11 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
           .scrollContentBackground(.hidden)
       }
     }
+    .scrollDismissesKeyboard(.interactively)
     .background(theme.systemBackgroundColor)
     .environment(\.jellyfinService, viewModel.connectionService)
     .modifier(JellyfinSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
+    .searchPresentationToolbarBehavior(.avoidHidingContent)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)

@@ -36,9 +36,11 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
           .scrollContentBackground(.hidden)
       }
     }
+    .scrollDismissesKeyboard(.interactively)
     .background(theme.systemBackgroundColor)
     .environment(\.audiobookshelfService, viewModel.connectionService)
     .modifier(ConditionalSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
+    .searchPresentationToolbarBehavior(.avoidHidingContent)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)

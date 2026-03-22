@@ -194,6 +194,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     guard let folderID else { return }
     fetchTask?.cancel()
     fetchTask = nil
+    editMode = .inactive
     items = []
     selectedItems.removeAll()
     nextStartItemIndex = 0
