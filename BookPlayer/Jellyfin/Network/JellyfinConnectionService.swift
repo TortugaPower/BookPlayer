@@ -115,7 +115,8 @@ class JellyfinConnectionService: BPLogger {
     in folderID: String,
     startIndex: Int?,
     limit: Int?,
-    sortBy: JellyfinLayout.SortBy
+    sortBy: JellyfinLayout.SortBy,
+    searchTerm: String? = nil
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
     let orderBy: [JellyfinAPI.ItemSortBy]
     let sortOrder: [JellyfinAPI.SortOrder]
@@ -134,7 +135,8 @@ class JellyfinConnectionService: BPLogger {
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
-      isRecursive: false,
+      isRecursive: searchTerm != nil,
+      searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],

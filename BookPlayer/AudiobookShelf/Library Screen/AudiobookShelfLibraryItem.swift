@@ -122,3 +122,11 @@ struct AudiobookShelfItemsResponse: Codable {
   let limit: Int?
   let page: Int?
 }
+
+struct AudiobookShelfSearchResponse: Codable {
+  let book: [SearchResult]
+
+  struct SearchResult: Codable {
+    let libraryItem: AudiobookShelfAPIItem
+  }
+}

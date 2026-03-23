@@ -158,7 +158,7 @@ class AudiobookShelfConnectionService: BPLogger {
     limit: Int? = nil,
     page: Int? = nil,
     sortBy: String? = "media.metadata.title",
-    desc: Bool? = nil
+    desc: Bool? = nil,
   ) async throws -> (items: [AudiobookShelfLibraryItem], total: Int) {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
@@ -219,6 +219,61 @@ class AudiobookShelfConnectionService: BPLogger {
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)
+  }
+
+  public func searchItems(
+    in libraryId: String,
+    query: String,
+    limit: Int? = nil
+  ) async throws -> [AudiobookShelfLibraryItem] {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    guard
+      var urlComponents = URLComponents(
+        url: connection.url
+          .appendingPathComponent("api")
+          .appendingPathComponent("libraries")
+          .appendingPathComponent(libraryId)
+          .appendingPathComponent("search"),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw URLError(.badURL)
+    }
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "q", value: query)
+    ]
+
+    if let limit {
+      queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+    }
+
+    urlComponents.queryItems = queryItems
+
+    guard let url = urlComponents.url else {
+      throw AudiobookShelfError.urlFromComponents(urlComponents)
+    }
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+
+    let (data, response) = try await urlSession.data(for: request)
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw AudiobookShelfError.unexpectedResponse(code: nil)
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    let decoder = JSONDecoder()
+    let searchResponse = try decoder.decode(AudiobookShelfSearchResponse.self, from: data)
+
+    return searchResponse.book.compactMap { AudiobookShelfLibraryItem(apiItem: $0.libraryItem) }
   }
 
   public func fetchItemDetails(for id: String) async throws -> AudiobookShelfAudiobookDetailsData {
