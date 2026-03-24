@@ -37,13 +37,17 @@ struct MediaActionRow: View {
   }
   
   func accessibilityText(_ ma: MediaAction) -> String {
+    return ma == .speed
+      ? "\(speedText) \("speed_title".localized)"
+      : ma.accessibilityLabel
+  }
+
+  func accessibilityValueText(_ ma: MediaAction) -> String? {
     switch ma {
-    case .speed:
-      return "\(speedText) \("speed_title".localized)"
     case .timer:
-      return sleepAccessibilityLabel ?? ma.accessibilityLabel
+      return sleepAccessibilityLabel
     default:
-      return ma.accessibilityLabel
+      return nil
     }
   }
   
@@ -60,6 +64,7 @@ struct MediaActionRow: View {
           }
         )
         .accessibilityLabel(accessibilityText(ma))
+        .accessibilityValue(accessibilityValueText(ma) ?? "")
         .bpDialog(
           $currentAlert,
           isOriginView: currentAlertOrigin == ma

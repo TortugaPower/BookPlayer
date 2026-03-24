@@ -145,7 +145,6 @@ final class PlayerViewModel: ObservableObject {
     }
     
     SleepTimer.shared.$state
-      .removeDuplicates()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] state in
         guard let self else { return }
