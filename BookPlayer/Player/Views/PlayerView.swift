@@ -109,6 +109,7 @@ struct PlayerView: View {
       MediaActionRow(
         speedText: viewModel.formattedSpeed(),
         sleepText: viewModel.sleepText,
+        sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
         currentAlert: $viewModel.currentAlert,
         currentAlertOrigin: viewModel.currentAlertOrigin,
         onActionTapped: { viewModel.handleButtonTap(media: $0) }
