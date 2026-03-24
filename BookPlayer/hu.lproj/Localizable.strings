@@ -92,6 +92,7 @@
 "empty_playlist_description" = "A fájlokat úgy is áthelyezheti ide, hogy a Könyvtár ebbe a mappájába húzza őket";
 "playlist_add_title" = "Fájlok hozzáadása";
 "player_speed_title" = "Lejátszási sebesség beállítása";
+"player_volume_title" = "Hangerő";
 "player_sleep_title" = "Lejátszás megállítása";
 "sleep_chapter_option_title" = "Az aktuális fejezet végén";
 "player_chapter_description" = "%d/%d fejezet";

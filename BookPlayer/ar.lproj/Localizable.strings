@@ -92,6 +92,7 @@
 "empty_playlist_description" = "يمكنك أيضًا نقل الملفات هنا عن طريق سحبها إلى هذا المجلد في المكتبة";
 "playlist_add_title" = "إضافة ملفات";
 "player_speed_title" = "تعيين سرعة التشغيل";
+"player_volume_title" = "مستوى الصوت";
 "player_sleep_title" = "إيقاف التشغيل مؤقتًا";
 "sleep_chapter_option_title" = "نهاية الفصل الحالي";
 "player_chapter_description" = "الفصل %d من %d";

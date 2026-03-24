@@ -92,6 +92,7 @@
 "empty_playlist_description" = "De asemenea, puteți muta fișiere aici trăgându-le în acest dosar din Bibliotecă";
 "playlist_add_title" = "Adăugați fișiere";
 "player_speed_title" = "Setați viteza de redare";
+"player_volume_title" = "Volum";
 "player_sleep_title" = "Întrerupeți redarea";
 "sleep_chapter_option_title" = "Sfârșitul capitolului curent";
 "player_chapter_description" = "Capitolul %d din %d";

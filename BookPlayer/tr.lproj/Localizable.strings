@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Dosyaları Kitaplık'taki bu klasöre sürükleyerek de buraya taşıyabilirsiniz.";
 "playlist_add_title" = "Dosya Ekle";
 "player_speed_title" = "Oynatma hızını ayarla";
+"player_volume_title" = "Ses Düzeyi";
 "player_sleep_title" = "Oynatmayı duraklat";
 "sleep_chapter_option_title" = "Geçerli bölüm sonunda";
 "player_chapter_description" = "Bölüm %d / %d";

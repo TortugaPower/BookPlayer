@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Voit myös siirtää tiedostoja tänne vetämällä ne tähän kirjaston kansioon";
 "playlist_add_title" = "Lisää tiedostoja";
 "player_speed_title" = "Aseta toistonopeus";
+"player_volume_title" = "Äänenvoimakkuus";
 "player_sleep_title" = "Keskeytä toisto";
 "sleep_chapter_option_title" = "Nykyisen luvun loppu";
 "player_chapter_description" = "Luku %d (Lukuja %d)";

@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Вы также можете переместить файлы сюда, перетащив их в эту папку в библиотеке.";
 "playlist_add_title" = "Добавить файлы";
 "player_speed_title" = "Установить скорость воспроизведения";
+"player_volume_title" = "Громкость";
 "player_sleep_title" = "Остановить воспроизведение";
 "sleep_chapter_option_title" = "До конца текущей главы";
 "player_chapter_description" = "Глава %d из %d";
