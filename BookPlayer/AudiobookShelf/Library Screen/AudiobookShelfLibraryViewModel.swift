@@ -217,7 +217,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
         let items = try await connectionService.searchItems(
           in: libraryID,
           query: query,
-          limit: 100
+          limit: 500
         )
 
         self.totalItems = items.count

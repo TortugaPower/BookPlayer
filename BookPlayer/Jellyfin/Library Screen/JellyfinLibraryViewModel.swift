@@ -99,7 +99,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
   @Published var showingDownloadConfirmation = false
 
-  var isSearchable: Bool { folderID != nil }
+  var isSearchable: Bool { true }
 
   var onTransition: BPTransition<Routes>?
 
@@ -166,6 +166,8 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
     if let folderID {
       fetchFolderItems(folderID: folderID)
+    } else if !searchQuery.isEmpty {
+      fetchGlobalSearchItems()
     } else {
       fetchTopLevelItems()
     }
@@ -191,7 +193,6 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   }
 
   private func onSearchQueryChanged() {
-    guard let folderID else { return }
     fetchTask?.cancel()
     fetchTask = nil
     editMode = .inactive
@@ -199,7 +200,38 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     selectedItems.removeAll()
     nextStartItemIndex = 0
     totalItems = Int.max
-    fetchFolderItems(folderID: folderID)
+
+    if let folderID {
+      fetchFolderItems(folderID: folderID)
+    } else if searchQuery.isEmpty {
+      fetchTopLevelItems()
+    } else {
+      fetchGlobalSearchItems()
+    }
+  }
+
+  private func fetchGlobalSearchItems() {
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
+
+      do {
+        let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
+          in: nil,
+          startIndex: nextStartItemIndex,
+          limit: Self.itemBatchSize,
+          sortBy: sortBy,
+          searchTerm: searchQuery
+        )
+
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
+        self.totalItems = maxNumItems
+        self.items.append(contentsOf: items)
+      } catch is CancellationError {
+        // ignore
+      } catch {
+        self.error = error
+      }
+    }
   }
 
   private func fetchFolderItems(folderID: String) {

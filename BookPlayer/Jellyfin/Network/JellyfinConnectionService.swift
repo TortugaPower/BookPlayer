@@ -112,7 +112,7 @@ class JellyfinConnectionService: BPLogger {
   }
 
   public func fetchItems(
-    in folderID: String,
+    in folderID: String?,
     startIndex: Int?,
     limit: Int?,
     sortBy: JellyfinLayout.SortBy,
@@ -132,15 +132,18 @@ class JellyfinConnectionService: BPLogger {
         sortOrder = [.ascending]
     }
 
+    // When searching without a parent folder, search recursively across the whole server
+    // and return only audiobooks (no folders, since they lack navigational context globally)
+    let isGlobalSearch = folderID == nil
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
-      isRecursive: searchTerm != nil,
+      isRecursive: searchTerm != nil || isGlobalSearch,
       searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],
-      includeItemTypes: [.audioBook, .folder],
+      includeItemTypes: isGlobalSearch ? [.audioBook] : [.audioBook, .folder],
       sortBy: orderBy,
       imageTypeLimit: 1
     )
