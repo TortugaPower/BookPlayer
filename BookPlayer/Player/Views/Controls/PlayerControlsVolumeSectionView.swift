@@ -1,5 +1,5 @@
 //
-//  PlayerControlsBoostVolumeSectionView.swift
+//  PlayerControlsVolumeSectionView.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 11/10/25.
@@ -9,13 +9,21 @@
 import BookPlayerKit
 import SwiftUI
 
-struct PlayerControlsBoostVolumeSectionView: View {
+struct PlayerControlsVolumeSectionView: View {
   @Binding var boostVolumeEnabled: Bool
 
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
     VStack(alignment: .leading, spacing: Spacing.S) {
+      Text("player_volume_title")
+        .bpFont(.subheadline)
+        .bold()
+        .foregroundStyle(theme.primaryColor)
+
+      SystemVolumeSlider(tintColor: UIColor(theme.linkColor))
+        .frame(height: 32)
+
       Toggle("settings_boostvolume_title", isOn: $boostVolumeEnabled)
         .bpFont(.subheadline)
         .bold()
@@ -35,5 +43,5 @@ struct PlayerControlsBoostVolumeSectionView: View {
 
 #Preview {
   @Previewable @State var boostVolumeEnabled: Bool = true
-  PlayerControlsBoostVolumeSectionView(boostVolumeEnabled: $boostVolumeEnabled)
+  PlayerControlsVolumeSectionView(boostVolumeEnabled: $boostVolumeEnabled)
 }

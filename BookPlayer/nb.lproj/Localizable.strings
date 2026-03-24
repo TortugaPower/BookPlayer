@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Du kan også flytte filer hit ved å dra dem til denne mappen i biblioteket";
 "playlist_add_title" = "Legg til filer";
 "player_speed_title" = "Sett hastinghet";
+"player_volume_title" = "Volum";
 "player_sleep_title" = "Pause avspilling";
 "sleep_chapter_option_title" = "Slutt på gjeldende kapittel";
 "player_chapter_description" = "Kapittel %d av %d";
