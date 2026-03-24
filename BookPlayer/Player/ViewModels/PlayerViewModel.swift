@@ -31,6 +31,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var currentAlert: BPAlertContent?
   @Published var currentAlertOrigin: MediaAction?
   @Published var sleepText: String?
+  @Published var sleepAccessibilityLabel: String?
   @Published var hasNextChapter = false
   @Published var hasPreviousChapter = false
   @Published var lastBookmark: SimpleBookmark?
@@ -144,26 +145,23 @@ final class PlayerViewModel: ObservableObject {
     }
     
     SleepTimer.shared.$state
-      .map { [weak self] state -> String? in
-        switch state {
-        case .off:
-          return nil
-        case .endOfChapter:
-          return "active_title".localized
-        case .countdown(let seconds):
-          return self?.durationFormatter.string(from: seconds)
-        }
-      }
-      .removeDuplicates()
       .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-      .sink { [weak self] toolbarDescription in
+      .sink { [weak self] state in
         guard let self else { return }
 
-        if let timeFormatted = toolbarDescription {
-          sleepText = timeFormatted
-        } else {
+        switch state {
+        case .off:
           sleepText = nil
+          sleepAccessibilityLabel = nil
+        case .endOfChapter:
+          sleepText = "active_title".localized
+          sleepAccessibilityLabel = "sleep_alert_description".localized
+        case .countdown(let seconds):
+          sleepText = durationFormatter.string(from: seconds)
+          sleepAccessibilityLabel = String.localizedStringWithFormat(
+            "sleep_time_description".localized,
+            VoiceOverService.secondsToMinutes(seconds)
+          )
         }
       }.store(in: &disposeBag)
   }
