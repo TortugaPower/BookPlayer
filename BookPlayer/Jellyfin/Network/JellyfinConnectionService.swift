@@ -118,6 +118,12 @@ class JellyfinConnectionService: BPLogger {
     sortBy: JellyfinLayout.SortBy,
     searchTerm: String? = nil
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    // Require a search term when no folder is scoped, to avoid accidental expensive server-wide fetches
+    let effectiveSearchTerm = searchTerm.flatMap { $0.isEmpty ? nil : $0 }
+    guard folderID != nil || effectiveSearchTerm != nil else {
+      return ([], 0, 0)
+    }
+
     let orderBy: [JellyfinAPI.ItemSortBy]
     let sortOrder: [JellyfinAPI.SortOrder]
     switch sortBy {

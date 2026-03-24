@@ -214,15 +214,17 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
+      let capturedQuery = searchQuery
       do {
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
           in: nil,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
           sortBy: sortBy,
-          searchTerm: searchQuery
+          searchTerm: capturedQuery
         )
 
+        guard searchQuery == capturedQuery, !Task.isCancelled else { return }
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
         self.totalItems = maxNumItems
         self.items.append(contentsOf: items)
@@ -238,16 +240,19 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
+      let capturedQuery = searchQuery
+      let capturedFolderID = folderID
       do {
-        let searchParam: String? = searchQuery.isEmpty ? nil : searchQuery
+        let searchParam: String? = capturedQuery.isEmpty ? nil : capturedQuery
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
-          in: folderID,
+          in: capturedFolderID,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
           sortBy: sortBy,
           searchTerm: searchParam
         )
 
+        guard searchQuery == capturedQuery, !Task.isCancelled else { return }
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
         self.totalItems = maxNumItems
         self.items.append(contentsOf: items)

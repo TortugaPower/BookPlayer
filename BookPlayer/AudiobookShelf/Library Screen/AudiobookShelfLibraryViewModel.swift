@@ -98,6 +98,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
   private static let itemBatchSize = 20
   private static let itemFetchMargin = 3
+  private static let searchResultLimit = 500
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -217,7 +218,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
         let items = try await connectionService.searchItems(
           in: libraryID,
           query: query,
-          limit: 500
+          limit: Self.searchResultLimit
         )
 
         self.totalItems = items.count
