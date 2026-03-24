@@ -757,11 +757,7 @@ extension ItemListView {
   private func customBookRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
     ForEach(model.filteredResults, id: \.id) { item in
       if item.type != .folder {
-        AccessibilityRotorEntry(
-          VoiceOverService.getAccessibilityLabel(for: item),
-          item.id,
-          in: customRotorNamespace
-        ) {
+        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
           scrollView.scrollTo(item.id)
         }
       }
@@ -772,11 +768,7 @@ extension ItemListView {
   private func customFolderRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
     ForEach(model.filteredResults, id: \.id) { item in
       if item.type == .folder {
-        AccessibilityRotorEntry(
-          VoiceOverService.getAccessibilityLabel(for: item),
-          item.id,
-          in: customRotorNamespace
-        ) {
+        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
           scrollView.scrollTo(item.id)
         }
       }

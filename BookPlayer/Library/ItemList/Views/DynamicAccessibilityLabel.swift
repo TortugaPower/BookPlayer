@@ -38,9 +38,11 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
       .onDisappear {
         cancellable?.cancel()
       }
-      .onChange(of: playerManager.currentItem?.relativePath) { _, _ in
-        // Re-setup observer when the playing item changes
-        setupObserver()
+      .onChange(of: playerManager.currentItem?.relativePath) { _, newPath in
+        // Only re-setup if this item is now playing, or was playing (has active subscription)
+        if newPath == item.relativePath || cancellable != nil {
+          setupObserver()
+        }
       }
   }
   
