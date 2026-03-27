@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct JellyfinRootView: View {
   let connectionService: JellyfinConnectionService

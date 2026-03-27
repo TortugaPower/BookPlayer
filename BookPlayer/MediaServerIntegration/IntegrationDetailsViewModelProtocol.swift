@@ -45,4 +45,5 @@ protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   func fetchData()
   func cancelFetchData()
   func beginDownloadAudiobook(_ item: Item) throws
+  func virtualImportAudiobook(_ item: JellyfinLibraryItem) throws
 }

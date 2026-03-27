@@ -20,7 +20,8 @@ public typealias SetBookmarkTaskModel = SchemaV3.SetBookmarkTaskModel
 public typealias RenameFolderTaskModel = SchemaV3.RenameFolderTaskModel
 public typealias ArtworkUploadTaskModel = SchemaV3.ArtworkUploadTaskModel
 public typealias MatchUuidsTaskModel = SchemaV3.MatchUuidsTaskModel
-public typealias ExternalSyncTasksContainer = SchemaV3.SyncTasksContainer
-public typealias ExternalSyncTaskReferenceModel = SchemaV3.SyncTaskReferenceModel
-public typealias ExternalUpdateTaskModel = SchemaV3.UpdateTaskModel
 
+public typealias ConcurrentTasksContainer = SchemaV3.ConcurrentTasksContainer
+public typealias ConcurrentTaskReferenceModel = SchemaV3.ConcurrentTaskReferenceModel
+public typealias ExternalUpdateTaskModel = SchemaV3.ExternalUpdateTaskModel
+public typealias ConcurrentUploadTaskModel = SchemaV3.ConcurrentUploadTaskModel

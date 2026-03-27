@@ -1,0 +1,103 @@
+//
+//  ConcurrentSyncTasksView.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 24/3/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import BookPlayerKit
+import SwiftData
+import SwiftUI
+
+struct ConcurrentSyncTasksView: View {
+  @AppStorage(Constants.UserDefaults.allowCellularData)
+  private var allowsCellularData: Bool = false
+  var monitor = ConcurrentTaskProgressMonitor.shared
+  @State private var queuedJobs = [ConcurrentSyncTask]()
+  @State private var jobsCount = 0
+  @State private var showInfoAlert = false
+  @State private var networkMonitor = NetworkMonitor()
+
+  @Environment(\.concurrenceService) private var concurrenceService
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  var body: some View {
+    List {
+      ThemedSection {
+        ForEach(queuedJobs) { job in
+          QueuedSyncTaskRowView(
+            imageName: .constant(parseImageName(job.jobType)),
+            title: .constant("\(job.queueKey): \(job.jobType.rawValue)-\(job.id)"),
+            relativePath: "",
+            initialProgress: monitor.getTaskProgress(taskID: job.id),
+            isUpload: false
+          )
+        }
+      } header: {
+        if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {
+          HStack {
+            Spacer()
+            Image(systemName: "wifi")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 20, height: 20)
+              .foregroundStyle(theme.linkColor)
+              .padding([.trailing], 5)
+            Text("upload_wifi_required_title".localized)
+              .bpFont(.body)
+              .foregroundStyle(theme.secondaryColor)
+            Spacer()
+          }
+        }
+      }
+    }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemBackgroundColor)
+    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
+    .navigationTitle("tasks_title")
+    .navigationBarTitleDisplayMode(.inline)
+    .alert("", isPresented: $showInfoAlert) {
+      Button("ok_button", role: .cancel) {}
+        .foregroundStyle(theme.linkColor)
+    } message: {
+      Text("sync_tasks_alert_description")
+    }
+    .onReceive(
+      concurrenceService.observeConcurrentTasksCount()
+    ) { count in
+      guard jobsCount != count else { return }
+
+      jobsCount = count
+      reloadQueuedJobs()
+    }
+    .onAppear {
+      reloadQueuedJobs()
+    }
+    .toolbar {
+      ToolbarItem(placement: .confirmationAction) {
+        Button {
+          showInfoAlert = true
+        } label: {
+          Image(systemName: "info.circle")
+        }
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+  }
+
+  func reloadQueuedJobs() {
+    Task { @MainActor in
+      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTasks: monitor.activeTasks)
+      jobsCount = allJobs.count
+      queuedJobs = allJobs
+    }
+  }
+
+  func parseImageName(_ jobType: ExternalSyncJobType) -> String {
+    switch jobType {
+    case .update:
+      return "arrow.2.circlepath"
+    }
+  }
+}
