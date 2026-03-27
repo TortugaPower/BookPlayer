@@ -6,7 +6,6 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Get
 import JellyfinAPI
 import os
@@ -39,7 +38,7 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
 
 @MainActor
 @Observable
-class JellyfinConnectionService: BPLogger {
+public class JellyfinConnectionService: BPLogger {
   private static let activeConnectionIDKey = "jellyfin_active_connection_id"
 
   private nonisolated let keychainService: KeychainServiceProtocol
@@ -52,15 +51,15 @@ class JellyfinConnectionService: BPLogger {
     }
     return connections.first
   }
-  var client: JellyfinClient?
-  private var headerInjector: JellyfinHeaderInjector?
+  public var client: JellyfinClient?
+  public private var headerInjector: JellyfinHeaderInjector?
 
   private(set) var activeConnectionID: String? {
     get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
     set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
   }
 
-  nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
   }
 
@@ -241,7 +240,7 @@ class JellyfinConnectionService: BPLogger {
     )
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     if let id = connection?.id {
       deleteConnection(id: id)
     }
@@ -644,7 +643,7 @@ class JellyfinConnectionService: BPLogger {
     let mainBundleInfo = Bundle.main.infoDictionary
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
-    let deviceID = UIDevice.current.identifierForVendor
+    let deviceID = deviceIdentifier
     guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
       Self.logger.error(
         "cannot build Jellyfin API client. \(serverUrlString), \(clientName), \(clientVersion), \(String(reflecting: deviceID))"
@@ -654,8 +653,8 @@ class JellyfinConnectionService: BPLogger {
     let configuration = JellyfinClient.Configuration(
       url: url,
       client: clientName,
-      deviceName: UIDevice.current.name,
-      deviceID: "\(deviceID.uuidString)-\(clientName)",
+      deviceName: getDeviceName(),
+      deviceID: "\(deviceID)-\(clientName)",
       version: clientVersion
     )
     let injector = JellyfinHeaderInjector(customHeaders: customHeaders)
@@ -685,7 +684,7 @@ class JellyfinConnectionService: BPLogger {
     return client
   }
 
-  func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
+  public func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     guard let client else {
       throw IntegrationError.noClient("Jellyfin")
     }
@@ -722,7 +721,7 @@ class JellyfinConnectionService: BPLogger {
     return request
   }
 
-  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
+  public func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
     var parameters = Paths.GetItemImageParameters()
 
     if let size {
@@ -737,7 +736,7 @@ class JellyfinConnectionService: BPLogger {
     guard let url = components.url else {
       throw IntegrationError.urlFromComponents(components)
     }
-    print("URL: \(url)")
+
     return url
   }
 
@@ -766,5 +765,28 @@ class JellyfinConnectionService: BPLogger {
     }
 
     return components
+  }
+  
+  public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double, ) async throws {
+    guard let client else {
+      throw JellyfinError.noClient
+    }
+    
+    let userDataDto = UpdateUserItemDataDto(
+        playbackPositionTicks: positionTicks,
+        playedPercentage: percentCompleted
+    )
+
+    let request = Paths.updateItemUserData(itemID: itemId, userDataDto)
+    print("UPDATE \(request.query?.debugDescription ?? "nil") \(request.method) \(request.url!.absoluteString) \(request.body.debugDescription)")
+    let response = try await client.send(request)
+  }
+  
+  func getDeviceName() -> String {
+#if os(watchOS)
+    return WKInterfaceDevice.current().name
+#else
+    return UIDevice.current.name
+#endif
   }
 }

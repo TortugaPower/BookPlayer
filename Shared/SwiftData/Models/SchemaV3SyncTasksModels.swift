@@ -27,9 +27,10 @@ public enum SchemaV3: VersionedSchema {
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
-      ExternalSyncTasksContainer.self,
-      ExternalSyncTaskReferenceModel.self,
-      ExternalUpdateTaskModel.self
+      ConcurrentTasksContainer.self,
+      ConcurrentTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      ConcurrentUploadTaskModel.self
     ]
   }
   
@@ -284,28 +285,31 @@ public enum SchemaV3: VersionedSchema {
   
   // Paste your exact models inside the enum
   @Model
-  public class ExternalSyncTasksContainer {
-    @Relationship(deleteRule: .cascade, inverse: \ExternalSyncTaskReferenceModel.container)
-    public var tasks: [ExternalSyncTaskReferenceModel] = []
+  public class ConcurrentTasksContainer {
+    @Relationship(deleteRule: .cascade, inverse: \ConcurrentTaskReferenceModel.container)
+    public var tasks: [ConcurrentTaskReferenceModel] = []
     
-    public var orderedTasks: [ExternalSyncTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
+    public var orderedTasks: [ConcurrentTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
+    
+    public var allQueueKeys: [String] {
+      Array(Set(tasks.map { $0.queueKey }))
+    }
     
     public init() {}
   }
   
   @Model
-  public class ExternalSyncTaskReferenceModel {
+  public class ConcurrentTaskReferenceModel {
     @Attribute(.unique) public var id: String
     public var taskID: String
     public var jobType: ExternalSyncJobType
     public var position: Int
-    
-    public var container: ExternalSyncTasksContainer?
+    public var queueKey: String
+    public var container: ConcurrentTasksContainer?
     
     public init(
       id: String = UUID().uuidString,
-      uuid: String,
-      relativePath: String,
+      queueKey: String,
       taskID: String,
       jobType: ExternalSyncJobType,
       position: Int
@@ -313,6 +317,7 @@ public enum SchemaV3: VersionedSchema {
       self.id = id
       self.taskID = taskID
       self.jobType = jobType
+      self.queueKey = queueKey
       self.position = position
     }
   }
@@ -349,6 +354,26 @@ public enum SchemaV3: VersionedSchema {
       self.percentCompleted = percentCompleted
       self.isFinished = isFinished
       self.lastPlayDateTimestamp = lastPlayDateTimestamp
+    }
+  }
+  
+  @Model
+  public class ConcurrentUploadTaskModel {
+    @Attribute(.unique) public var id: String
+    public var filePath: String
+    public var remotePath: String?
+    public var uuid: String
+    
+    public init(
+      id: String,
+      uuid: String,
+      filePath: String,
+      remotePath: String? = nil
+    ) {
+      self.id = id
+      self.uuid = uuid
+      self.filePath = filePath
+      self.remotePath = remotePath
     }
   }
 }

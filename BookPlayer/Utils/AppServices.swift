@@ -76,11 +76,8 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(
-        accountService: accountService,
-        libraryService: libraryService,
-        dataManager: dataManager
-      )
+      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService, dataManager: dataManager)
+      let concurrenceSerivce = makeConcurrenceService(libraryService: libraryService)
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
@@ -121,6 +118,7 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
+        concurrenceService: concurrenceSerivce,
         watchService: watchService
       )
 
@@ -239,6 +237,12 @@ final class AppServices: BPLogger {
       accountService: accountService,
       dataManager: dataManager
     )
+    return service
+  }
+
+  private func makeConcurrenceService(libraryService: LibraryService) -> ConcurrenceService {
+    let service = ConcurrenceService()
+    service.setup(libraryService: libraryService)
     return service
   }
 

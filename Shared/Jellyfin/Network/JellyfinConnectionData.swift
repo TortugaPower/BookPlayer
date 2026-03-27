@@ -9,12 +9,12 @@
 import Foundation
 
 public struct JellyfinConnectionData: Codable, Identifiable {
-  let id: String
-  let url: URL
-  let serverName: String
-  let userID: String
-  let userName: String
-  let accessToken: String
+  public let id: String
+  public let url: URL
+  public let serverName: String
+  public let userID: String
+  public let userName: String
+  public let accessToken: String
   var selectedLibraryId: String?
   var customHeaders: [String: String] = [:]
 
