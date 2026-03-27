@@ -2145,14 +2145,21 @@ extension LibraryService {
     } else {
       dataManager.saveContext()
     }
-
-    progressPassthroughPublisher.send([
+    
+    var params = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.currentTime): time,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
       #keyPath(LibraryItem.uuid): item.uuid
-    ])
+    ] as [String : Any]
+    
+    if let externalResource = item.resourcesArray.first {
+      params[#keyPath(ExternalResource.providerId)] = externalResource.providerId
+      params[#keyPath(ExternalResource.providerName)] = externalResource.providerName
+    }
+    
+    progressPassthroughPublisher.send(params)
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {

@@ -13,6 +13,7 @@ import Combine
 public final class TasksDataManager {
   public let container: ModelContainer
   private let tasksCountSubject = CurrentValueSubject<Int, Never>(0)
+  private let concurrentTasksCountSubject = CurrentValueSubject<Int, Never>(0)
 
   public init() {
     let schema = Schema([
@@ -27,9 +28,10 @@ public final class TasksDataManager {
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
-      ExternalSyncTasksContainer.self,
-      ExternalSyncTaskReferenceModel.self,
-      ExternalUpdateTaskModel.self
+      ConcurrentTasksContainer.self,
+      ConcurrentTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      ConcurrentUploadTaskModel.self,
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
@@ -51,6 +53,12 @@ public final class TasksDataManager {
       .eraseToAnyPublisher()
   }
   
+  public func observeConcurrentTasksCount() -> AnyPublisher<Int, Never> {
+    return concurrentTasksCountSubject
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
+  }
+  
   public func notifyTasksChanged(context: ModelContext) {
     let descriptor = FetchDescriptor<SyncTasksContainer>()
 
@@ -60,6 +68,19 @@ public final class TasksDataManager {
       tasksCountSubject.send(count)
     } catch {
       tasksCountSubject.send(0)
+    }
+  }
+  
+  public func notifyConcurrentTasksChanged(context: ModelContext) {
+    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
+    
+    do {
+      let containers = try context.fetch(descriptor)
+      let count = containers.first?.tasks.count ?? 0
+      print("QUEUE NOTIFY \(count)")
+      concurrentTasksCountSubject.send(count)
+    } catch {
+      concurrentTasksCountSubject.send(0)
     }
   }
   
@@ -372,6 +393,41 @@ public final class TasksDataManager {
     } catch {
       // If there's an error reading from the database, keep the default value of 0
       tasksCountSubject.send(0)
+    }
+  }
+  
+  public func createConcurrentTaskModel(
+    for jobType: ExternalSyncJobType,
+    with parameters: [String: Any],
+    in context: ModelContext
+  ) {
+    switch jobType {
+    case .update:
+      if let id = parameters["id"] as? String, let providerName = parameters["providerName"] as? String, let providerId = parameters["providerId"] as? String {
+        let task = ExternalUpdateTaskModel(
+          id: id,
+          providerName: providerName,
+          providerId: providerId,
+          title: parameters["title"] as? String,
+          details: parameters["details"] as? String,
+          currentTime: parameters["currentTime"] as? Double,
+          percentCompleted: parameters["percentCompleted"] as? Double,
+          isFinished: parameters["isFinished"] as? Bool,
+          lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+        )
+        context.insert(task)
+      } else {
+        print("MISSING TASK PARAMS")
+      }
+    case .uploadFile:
+      if let id = parameters["id"] as? String,
+         let filePath = parameters["filePath"] as? String,
+         let remotePath = parameters["remotePath"] as? String,
+         let uuid = parameters["uuid"] as? String {
+        let task = ConcurrentUploadTaskModel(id: id, uuid: uuid, filePath: filePath, remotePath: remotePath)
+      } else {
+        print("MISSING UPLOAD FILE PARAMS")
+      }
     }
   }
 }

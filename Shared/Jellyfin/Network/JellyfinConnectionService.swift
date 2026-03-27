@@ -6,22 +6,35 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Get
 import JellyfinAPI
+#if os(watchOS)
+import WatchKit
+#else
+import UIKit
+#endif
 
 @Observable
-class JellyfinConnectionService: BPLogger {
+public class JellyfinConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
-  var connection: JellyfinConnectionData?
-  var client: JellyfinClient?
+  public var connection: JellyfinConnectionData?
+  public var client: JellyfinClient?
+  
+  public var deviceIdentifier: String? {
+#if os(watchOS)
+    return WKInterfaceDevice.current().identifierForVendor?.uuidString
+#else
+    // This covers iOS, iPadOS, and tvOS
+    return UIDevice.current.identifierForVendor?.uuidString
+#endif
+  }
 
-  init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
   }
 
-  func setup() {
+  public func setup() {
     reloadConnection()
   }
 
@@ -74,7 +87,7 @@ class JellyfinConnectionService: BPLogger {
     self.client = client
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     if let client {
       Task {
         // we don't care if this throws
@@ -247,7 +260,7 @@ class JellyfinConnectionService: BPLogger {
     let mainBundleInfo = Bundle.main.infoDictionary
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
-    let deviceID = UIDevice.current.identifierForVendor
+    let deviceID = deviceIdentifier
     guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
       Self.logger.error(
         "cannot build Jellyfin API client. \(serverUrlString), \(clientName), \(clientVersion), \(String(reflecting: deviceID))"
@@ -257,14 +270,14 @@ class JellyfinConnectionService: BPLogger {
     let configuration = JellyfinClient.Configuration(
       url: url,
       client: clientName,
-      deviceName: UIDevice.current.name,
-      deviceID: "\(deviceID.uuidString)-\(clientName)",
+      deviceName: getDeviceName(),
+      deviceID: "\(deviceID)-\(clientName)",
       version: clientVersion
     )
     return JellyfinClient(configuration: configuration, accessToken: accessToken)
   }
 
-  func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
+  public func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     guard let client else {
       throw JellyfinError.noClient
     }
@@ -283,7 +296,7 @@ class JellyfinConnectionService: BPLogger {
     return url
   }
 
-  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) throws -> URL {
+  public func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) throws -> URL {
     var parameters = Paths.GetItemImageParameters()
 
     if let size {
@@ -297,7 +310,7 @@ class JellyfinConnectionService: BPLogger {
     guard let url = components.url else {
       throw JellyfinError.urlFromComponents(components)
     }
-    print("URL: \(url)")
+
     return url
   }
 
@@ -326,5 +339,28 @@ class JellyfinConnectionService: BPLogger {
     }
 
     return components
+  }
+  
+  public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double, ) async throws {
+    guard let client else {
+      throw JellyfinError.noClient
+    }
+    
+    let userDataDto = UpdateUserItemDataDto(
+        playbackPositionTicks: positionTicks,
+        playedPercentage: percentCompleted
+    )
+
+    let request = Paths.updateItemUserData(itemID: itemId, userDataDto)
+    print("UPDATE \(request.query?.debugDescription ?? "nil") \(request.method) \(request.url!.absoluteString) \(request.body.debugDescription)")
+    let response = try await client.send(request)
+  }
+  
+  func getDeviceName() -> String {
+#if os(watchOS)
+    return WKInterfaceDevice.current().name
+#else
+    return UIDevice.current.name
+#endif
   }
 }

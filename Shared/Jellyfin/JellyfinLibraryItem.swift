@@ -9,27 +9,27 @@
 import Foundation
 import JellyfinAPI
 
-struct JellyfinLibraryItem: Identifiable, Hashable {
-  enum Kind {
+public struct JellyfinLibraryItem: Identifiable, Hashable {
+  public enum Kind {
     case userView
     case folder
     case audiobook
   }
 
-  let id: String
-  let name: String
-  let kind: Kind
+  public let id: String
+  public let name: String
+  public let kind: Kind
   
-  let durationSeconds: Int64?
-  let currentSeconds: Int64?
-  let isFinished: Bool?
-  let lastPlayedDate: Date?
-  let blurHash: String?
-  let imageAspectRatio: Double?
+  public let durationSeconds: Int64?
+  public let currentSeconds: Int64?
+  public let isFinished: Bool?
+  public let lastPlayedDate: Date?
+  public let blurHash: String?
+  public let imageAspectRatio: Double?
 }
 
 extension JellyfinLibraryItem {
-  init(id: String, name: String, kind: Kind) {
+  public init(id: String, name: String, kind: Kind) {
     self.init(
       id: id,
       name: name,
@@ -45,7 +45,7 @@ extension JellyfinLibraryItem {
 }
 
 extension JellyfinLibraryItem {
-  init?(apiItem: BaseItemDto) {
+  public init?(apiItem: BaseItemDto) {
     let kind: JellyfinLibraryItem.Kind? = switch apiItem.type {
     case .userView, .collectionFolder: .userView
     case .folder: .folder

@@ -56,16 +56,6 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func confirmDownloadFolder()
 }
 
-enum JellyfinLayout {
-  enum Options: String {
-    case grid, list
-  }
-
-  enum SortBy: String {
-    case recent, name, smart
-  }
-}
-
 final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done

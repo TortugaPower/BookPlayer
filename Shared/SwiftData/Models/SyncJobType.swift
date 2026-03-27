@@ -23,4 +23,5 @@ public enum SyncJobType: String, CaseIterable, Codable {
 
 public enum ExternalSyncJobType: String, CaseIterable, Codable {
   case update
+  case uploadFile
 }

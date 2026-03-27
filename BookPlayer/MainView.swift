@@ -19,6 +19,7 @@ struct MainView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
+  @Environment(\.concurrenceService) private var concurrenceService
   @Environment(\.accountService) private var accountService
   @Environment(\.playbackService) private var playbackService
   @Environment(\.colorScheme) private var scheme
@@ -55,7 +56,7 @@ struct MainView: View {
         }
       }
       Tab("profile_title", systemImage: "person.crop.circle") {
-        ProfileView()
+        ConcurrentSyncTasksView()
       }
       Tab("settings_title", systemImage: "gearshape") {
         SettingsView()
@@ -90,7 +91,8 @@ struct MainView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
-          syncService: syncService
+          syncService: syncService,
+          concurrenceService: concurrenceService
         )
       }
       .presentationBackground(.clear)

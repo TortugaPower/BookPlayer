@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BookPlayerKit
 
 class JellyfinConnectionFormViewModel: ObservableObject {
   @Published var serverUrl: String = ""

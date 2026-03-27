@@ -10,35 +10,6 @@ import BookPlayerKit
 import Foundation
 import JellyfinAPI
 
-struct JellyfinAudiobookDetailsData {
-  let artist: String?
-  let filePath: String?
-  let fileSize: Int?
-  let overview: String?
-  let runtimeInSeconds: TimeInterval?
-  let genres: [String]?
-  let tags: [String]?
-
-  var fileSizeString: String {
-    if let fileSize {
-      ByteCountFormatter.string(
-        fromByteCount: Int64(fileSize),
-        countStyle: ByteCountFormatter.CountStyle.file
-      )
-    } else {
-      "file_size_unknown".localized
-    }
-  }
-
-  var runtimeString: String {
-    if let runtimeInSeconds {
-      return TimeParser.formatTotalDuration(runtimeInSeconds)
-    } else {
-      return "runtime_unknown".localized
-    }
-  }
-}
-
 protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   var item: JellyfinLibraryItem { get }
   var details: JellyfinAudiobookDetailsData? { get }

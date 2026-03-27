@@ -18,5 +18,6 @@ struct CoreServices {
   let playerLoaderService: PlayerLoaderService
   let playerManager: PlayerManager
   let syncService: SyncService
+  let concurrenceService: ConcurrenceService
   let watchService: PhoneWatchConnectivityService
 }

@@ -9,11 +9,11 @@
 import Foundation
 
 public struct JellyfinConnectionData: Codable {
-  let url: URL
-  let serverName: String
-  let userID: String
-  let userName: String
-  let accessToken: String
+  public let url: URL
+  public let serverName: String
+  public let userID: String
+  public let userName: String
+  public let accessToken: String
 }
 
 extension JellyfinConnectionData: CustomDebugStringConvertible {
