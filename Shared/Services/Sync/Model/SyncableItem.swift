@@ -24,6 +24,7 @@ public struct SyncableItem {
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
   let uuid: String
+  var externalResources: [SyncableExternalResource]? = nil
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -61,6 +62,7 @@ extension SyncableItem: Decodable {
     case lastPlayDateTimestamp
     case type
     case uuid
+    case externalResources
   }
 
   public init(from decoder: Decoder) throws {
@@ -80,6 +82,7 @@ extension SyncableItem: Decodable {
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
+    self.externalResources = try? container.decode([SyncableExternalResource].self, forKey: .externalResources)
     self.uuid = myUuid ?? ""
   }
 }

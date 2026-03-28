@@ -28,6 +28,7 @@ public final class TasksDataManager {
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
       ConcurrentTasksContainer.self,
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
@@ -77,7 +78,6 @@ public final class TasksDataManager {
     do {
       let containers = try context.fetch(descriptor)
       let count = containers.first?.tasks.count ?? 0
-      print("QUEUE NOTIFY \(count)")
       concurrentTasksCountSubject.send(count)
     } catch {
       concurrentTasksCountSubject.send(0)
@@ -172,6 +172,13 @@ public final class TasksDataManager {
     case .matchUuid:
       let descriptor = FetchDescriptor<MatchUuidsTaskModel>(
         predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .externalResource:
+      let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+        predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
       )
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
@@ -296,6 +303,11 @@ public final class TasksDataManager {
         uuids: parameters["uuids"] as! [String: String]
       )
       context.insert(task)
+    case .externalResource:
+      let task = UploadExternalResourceTaskModel(
+        id: parameters["id"] as! String, uuid: parameters["uuid"] as! String, providerId: parameters["providerId"] as! String, providerName: parameters["providerName"] as! String, lastSyncedAt: parameters["lastSyncedAt"] as? Date, syncStatus: parameters["syncStatus"] as! String, processedFile: parameters["processedFile"] as! Bool
+      )
+      context.insert(task)
     }
   }
 
@@ -360,6 +372,11 @@ public final class TasksDataManager {
           predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
+      case .externalResource:
+        let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+          predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
       }
     } catch {
       return nil
@@ -416,8 +433,6 @@ public final class TasksDataManager {
           lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         )
         context.insert(task)
-      } else {
-        print("MISSING TASK PARAMS")
       }
     case .uploadFile:
       if let id = parameters["id"] as? String,
@@ -425,8 +440,8 @@ public final class TasksDataManager {
          let remotePath = parameters["remotePath"] as? String,
          let uuid = parameters["uuid"] as? String {
         let task = ConcurrentUploadTaskModel(id: id, uuid: uuid, filePath: filePath, remotePath: remotePath)
-      } else {
-        print("MISSING UPLOAD FILE PARAMS")
+        
+        context.insert(task)
       }
     }
   }

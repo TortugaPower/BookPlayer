@@ -47,9 +47,8 @@ final class PlayerLoaderService: @unchecked Sendable {
     let externalResources = self.libraryService.findResource(for: libraryItem.uuid)
     
     print("External Resources \(externalResources.debugDescription)")
-    if //syncService.isActive == false,
-       !FileManager.default.fileExists(atPath: fileURL.path),
-       (libraryItem.externalResources?.isEmpty ?? true)
+    if (syncService.isActive == false && (libraryItem.externalResources?.isEmpty ?? true)),
+       !FileManager.default.fileExists(atPath: fileURL.path)
     {
       throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)
     }

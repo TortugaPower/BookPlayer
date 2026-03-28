@@ -211,6 +211,21 @@ extension LibraryService: LibrarySyncProtocol {
       syncItem: item,
       context: context
     )
+    
+    if let externalResources = item.externalResources, externalResources.count > 0 {
+      for externalResource in externalResources {
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = externalResource.providerId
+        external.providerName = externalResource.providerName
+        external.syncStatus = externalResource.syncStatus
+        external.lastSyncedAt = externalResource.lastSyncedAt
+        
+        external.libraryItem = newBook
+        newBook.addToExternalResources(external)
+      }
+    }
 
     if let relativePath = parentFolder,
       let folder = getItem(with: relativePath, context: context) as? Folder

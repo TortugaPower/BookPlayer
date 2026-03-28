@@ -56,7 +56,7 @@ struct MainView: View {
         }
       }
       Tab("profile_title", systemImage: "person.crop.circle") {
-        ConcurrentSyncTasksView()
+        ProfileView()
       }
       Tab("settings_title", systemImage: "gearshape") {
         SettingsView()

@@ -14,6 +14,7 @@ public struct SimpleExternalResource: Identifiable {
   public let providerId: String
   public let syncStatus: String
   public var lastSyncedAt: Date?
+  public var processedFile = true
   public var libraryItemUuid: String?
   public var libraryItemName: String?
   public var libraryItem: SimpleLibraryItem?

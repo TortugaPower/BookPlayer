@@ -41,20 +41,4 @@ extension DataMigrationManager {
 
     dataManager.saveContext()
   }
-  
-  func populateUuids(dataManager: DataManager) {
-    let fetch: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetch.propertiesToFetch = ["uuid"]
-    
-    guard
-      let items = try? dataManager.getContext().fetch(fetch) as [LibraryItem]
-    else { return }
-    
-    items.forEach { item in
-      let newExternalSource = ExternalResource(context: dataManager.getContext())
-      item.uuid = UUID().uuidString
-    }
-
-    dataManager.saveContext()
-  }
 }

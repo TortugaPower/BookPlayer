@@ -147,6 +147,20 @@ extension MatchUuidsTaskModel: DictionaryConvertible {
   }
 }
 
+extension UploadExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "providerId": providerId,
+      "providerName": providerName,
+      "lastSyncedAt": lastSyncedAt as Any,
+      "processedFile": processedFile,
+      "syncStatus": syncStatus
+    ]
+  }
+}
+
 extension ExternalUpdateTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dictionary: [String: Any] = [

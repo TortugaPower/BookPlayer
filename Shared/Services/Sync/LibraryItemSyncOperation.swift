@@ -141,6 +141,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .matchUuid:
           try await handleMatchUuids()
           finish()
+        case .externalResource:
+          let _: Empty = try await self.provider.request(.externalResource(params: self.parameters))
+          finish()
         }
       } catch {
         self.error = error
@@ -196,108 +199,15 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    await uploadFile(
-      fileURL: fileURL,
-      remoteURL: remoteURL,
-      relativePath: self.relativePath
-    )
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, remotePath: remoteURL.absoluteString))
+    self.handleUploadFinished()
   }
 
-  /// Upload file on a background thread
-  func uploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String
-  ) async {
-    let session: URLSession = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
-    ? BPURLSession.shared.backgroundCellularSession
-    : BPURLSession.shared.backgroundSession
-
-    let uploadTask = await self.client.uploadTask(
-      fileURL,
-      remoteURL: remoteURL,
-      taskDescription: relativePath,
-      session: session
-    )
-
-    bindUploadObservers()
-
-    cellularDataObserver?.invalidate()
-    cellularDataObserver = UserDefaults.standard.observe(
-      \.userSettingsAllowCellularData,
-       options: [.new]
-    ) { [weak self] _, change in
-      guard let newValue = change.newValue else { return }
-
-      let previousSession: URLSession = newValue
-      ? BPURLSession.shared.backgroundSession
-      : BPURLSession.shared.backgroundCellularSession
-
-      self?.rescheduleUploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath,
-        previousSession: previousSession
-      )
-    }
-
-    uploadTask.resume()
-  }
-
-  func bindUploadObservers() {
-    progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
-      NotificationCenter.default.post(
-        name: .uploadProgressUpdated,
-        object: nil,
-        userInfo: [
-          "progress": progress,
-          "relativePath": path
-        ]
-      )
-    })
-
-    completionSubscriber?.cancel()
-    completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self] (task, error) in
-      self?.cellularDataObserver?.invalidate()
-      if let nserror = error as? NSError,
-         nserror.domain == NSURLErrorDomain,
-         nserror.code == NSURLErrorCancelled {
-        /// Do nothing, as the task is already being rescheduled
-      } else if let error {
-        self?.error = error
-        self?.finish()
-      } else {
-        self?.handleUploadFinished(task)
-      }
-    })
-  }
-
-  func rescheduleUploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String,
-    previousSession: URLSession
-  ) {
+  func handleUploadFinished() {
     Task {
-      let task = await previousSession.allTasks.filter({ $0.taskDescription == relativePath }).first
-      task?.cancel()
-
-      await self.uploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath
-      )
-    }
-  }
-
-  func handleUploadFinished(_ task: URLSessionTask) {
-    Task { [task] in
       do {
-        if let relativePath = task.taskDescription {
-          try await markUploadAsSynced(uuid: uuid)
-        }
-        NotificationCenter.default.post(name: .uploadCompleted, object: task)
+        try await markUploadAsSynced(uuid: uuid)
+        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
         finish()
       } catch {
         self.error = error

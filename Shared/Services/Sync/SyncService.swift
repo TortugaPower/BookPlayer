@@ -578,6 +578,15 @@ extension SyncService {
     }
 
     await handleItemsToUpload(itemsToUpload)
+    
+    for item in items {
+      if let externalResources = item.externalResources {
+        for externalResource in externalResources {
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: PathUuidPair(relativePath: item.relativePath, uuid: item.uuid))
+
+        }
+      }
+    }
   }
 
   /// Check if there's an upload task queued for the item

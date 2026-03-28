@@ -11,19 +11,20 @@ import Combine
 
 public class ConcurrenceService {
   let operationQueue: OperationQueue
-  let taskContainer: ConcurrentTasksContainer // Your DB model
+  let taskContainer: ConcurrentTasksRepository // Your DB model
   var libraryService: LibrarySyncProtocol!
   
   // Tracks which queueKeys currently have an active worker looping
   private var activeQueueKeys = Set<String>()
   private let stateLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
+  private var listeningTask: Task<Void, Never>?
   private var tasksCountService: ConcurrentTasksCountService!
   // Services
   private let jellyfinService = JellyfinConnectionService()
   
   public init(maxConcurrentTasks: Int = 4) {
-    self.taskContainer =  ConcurrentTasksContainer()
+    self.taskContainer =  ConcurrentTasksRepository()
     self.operationQueue = OperationQueue()
     self.operationQueue.name = "com.bookplayer.synctask.concurrent"
     // This still caps the total number of operations running simultaneously across all keys
@@ -35,6 +36,7 @@ public class ConcurrenceService {
     let tasksDataManager = TasksDataManager()
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
     jellyfinService.setup()
+    startListeningForNewTasks()
     bindObservers()
     wakeUpWorkers()
   }
@@ -53,6 +55,22 @@ public class ConcurrenceService {
       self?.scheduleMetadataUpdate(params: params)
     }
     .store(in: &disposeBag)
+  }
+  
+  private func startListeningForNewTasks() {
+    listeningTask = Task {
+      let stream = NotificationCenter.default.notifications(named: .newTaskInQueue)
+      
+      for await notification in stream {
+        guard let userInfo = notification.userInfo,
+              let queueKey = userInfo["queueKey"] as? String else {
+          continue
+        }
+        
+        // Wake up the worker!
+        await startWorkerLoop(for: queueKey)
+      }
+    }
   }
   
   /// Call this when the app wakes up, or when a new task is added to the database
@@ -100,14 +118,12 @@ public class ConcurrenceService {
       }
       return
     }
-        
     guard let operation = createOperation(for: nextTask) else { return }
-    
+
     operation.onProgress = { progress in
-        // Safely hop to the Main Thread to update the UI monitor
-        Task { @MainActor in
-          ConcurrentTaskProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
-        }
+      Task { @MainActor in
+        ConcurrentTaskProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
+      }
     }
     
     operation.completionBlock = { [weak self] in
@@ -183,7 +199,6 @@ extension ConcurrenceService {
       }
       
       try await taskContainer.storeTask(parameters: params)
-      await self.startWorkerLoop(for: queueKey)
     }
   }
   
@@ -196,7 +211,6 @@ extension ConcurrenceService {
       params["queueKey"] = queueKey
       
       try await taskContainer.storeTask(parameters: params)
-      await self.startWorkerLoop(for: queueKey)
     }
   }
 }

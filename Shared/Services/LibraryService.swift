@@ -153,9 +153,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
-  
-  func setExternalResource(_ externalResource: SimpleExternalResource, for libraryItem: LibraryItem) async
-  
+    
   func getExternalResource(for providerId: String) async -> ExternalResource?
   
   func findResource(for providerId: String) -> ExternalResource?
@@ -2509,21 +2507,7 @@ extension LibraryService {
   }
 }
 
-extension LibraryService {
-  public func setExternalResource(_ externalResource: SimpleExternalResource, for libraryItem: LibraryItem) async {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-
-      context.perform { [unowned self, context] in
-        _ = ExternalResource.create(externalResource, libraryItem: libraryItem, in: context)
-
-        dataManager.saveSyncContext(context)
-
-        continuation.resume()
-      }
-    }
-  }
-  
+extension LibraryService {  
   public func getExternalResource(for providerId: String) async -> ExternalResource? {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()

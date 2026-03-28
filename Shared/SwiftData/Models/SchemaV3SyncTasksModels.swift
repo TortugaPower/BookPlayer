@@ -27,6 +27,7 @@ public enum SchemaV3: VersionedSchema {
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
       ConcurrentTasksContainer.self,
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
@@ -283,6 +284,35 @@ public enum SchemaV3: VersionedSchema {
     }
   }
   
+  @Model
+  public class UploadExternalResourceTaskModel {
+    @Attribute(.unique) public var id: String
+    public var providerId: String
+    public var providerName: String
+    public var lastSyncedAt: Date?
+    public var syncStatus: String
+    public var processedFile: Bool
+    public var uuid: String
+    
+    public init(
+      id: String,
+      uuid: String,
+      providerId: String,
+      providerName: String,
+      lastSyncedAt: Date?,
+      syncStatus: String,
+      processedFile: Bool
+    ) {
+      self.id = id
+      self.uuid = uuid
+      self.providerId = providerId
+      self.providerName = providerName
+      self.lastSyncedAt = lastSyncedAt
+      self.syncStatus = syncStatus
+      self.processedFile = processedFile
+    }
+  }
+  
   // Paste your exact models inside the enum
   @Model
   public class ConcurrentTasksContainer {
@@ -306,7 +336,7 @@ public enum SchemaV3: VersionedSchema {
     public var position: Int
     public var queueKey: String
     public var container: ConcurrentTasksContainer?
-    
+
     public init(
       id: String = UUID().uuidString,
       queueKey: String,

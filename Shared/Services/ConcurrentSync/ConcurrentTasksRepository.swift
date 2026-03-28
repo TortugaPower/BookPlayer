@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import SwiftData
 
-public actor ConcurrentTasksContainer: ModelActor {
+public actor ConcurrentTasksRepository: ModelActor {
   nonisolated public let modelContainer: ModelContainer
   nonisolated public let modelExecutor: any ModelExecutor
   
@@ -34,12 +34,14 @@ public actor ConcurrentTasksContainer: ModelActor {
       with: task.taskID,
       jobType: task.jobType,
       in: modelContext
-    ) else { return nil }
-    
+    ) else {
+      print("NO TASKS \(firstTask?.taskID ?? "NONE")")
+      return nil
+    }
     return ConcurrentSyncTask(
       id: task.taskID,
       queueKey: task.queueKey,
-      jobType: .update,
+      jobType: task.jobType,
       parameters: storedObject.toDictionaryPayload()
     )
   }
@@ -140,6 +142,12 @@ public actor ConcurrentTasksContainer: ModelActor {
     try context.save()
 
     tasksDataManager.notifyConcurrentTasksChanged(context: context)
+    
+    NotificationCenter.default.post(
+      name: .newTaskInQueue,
+      object: nil,
+      userInfo: ["queueKey": queueKey]
+    )
   }
   
   public func getAllTasks() async -> [ConcurrentSyncTask] {

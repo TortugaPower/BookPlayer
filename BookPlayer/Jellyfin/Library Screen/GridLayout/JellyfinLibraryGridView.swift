@@ -68,7 +68,8 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   var navigationTitle: String = ""
   var navigation = BPNavigation()
   var connectionService = JellyfinConnectionService()
-
+  var importManager: ImportManager?
+  
   let data: JellyfinLibraryLevelData
 
   var layout = JellyfinLayout.Options.grid
@@ -99,6 +100,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func onDownloadTapped() {}
   func onDownloadFolderTapped() {}
   func confirmDownloadFolder() {}
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {}
 }
 
 #Preview("top level") {
