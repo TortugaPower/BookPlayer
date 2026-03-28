@@ -36,7 +36,7 @@ class JellyfinUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
       defer {
         self.finish()
       }
-            
+      try await Task.sleep(for: .seconds(5))
       // 2. Wrap the throwing code in a do-catch
       do {
         try await jellyfinService.updateItemProgress(

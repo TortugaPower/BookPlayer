@@ -9,5 +9,5 @@
 import Foundation
 
 enum ProfileScreen: String, Hashable {
-  case account, tasks
+  case account, tasks, concurrentTasks
 }

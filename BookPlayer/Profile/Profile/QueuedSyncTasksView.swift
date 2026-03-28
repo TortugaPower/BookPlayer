@@ -116,6 +116,8 @@ struct QueuedSyncTasksView: View {
       return "photo"
     case .matchUuid:
       return "app.connected.to.app.below.fill"
+    case .externalResource:
+      return "arrow.up.forward.square"
     }
   }
 }

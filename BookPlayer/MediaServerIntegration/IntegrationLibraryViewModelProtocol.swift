@@ -29,7 +29,11 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<Item.ID> { get set }
+  var showingDownloadConfirmation: Bool { get set }
 
+  var importManager: ImportManager? { get set }
+  var connectionService: JellyfinConnectionService { get }
+  
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
 

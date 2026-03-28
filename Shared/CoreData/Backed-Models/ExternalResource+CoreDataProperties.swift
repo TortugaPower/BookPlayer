@@ -45,4 +45,25 @@ public class ExternalResource: NSManagedObject {
 
     return entity
   }
+  
+  @nonobjc public class func create(
+    _ item: SyncableExternalResource,
+    libraryItem: LibraryItem?,
+    in context: NSManagedObjectContext
+  ) -> ExternalResource {
+    // swiftlint:disable:next force_cast
+    let entity = NSEntityDescription.insertNewObject(forEntityName: "ExternalResource", into: context) as! ExternalResource
+
+    entity.providerName = item.providerName
+    entity.providerId = item.providerId
+    entity.lastSyncedAt = item.lastSyncedAt
+    entity.syncStatus = item.syncStatus
+    entity.processedFile = false
+    
+    if let item = libraryItem {
+      entity.libraryItem = item
+    }
+
+    return entity
+  }
 }
