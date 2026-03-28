@@ -303,6 +303,7 @@ private struct JellyfinTabRoot: View {
           folderID: nil,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          importManager: importManager,
           navigation: navigation,
           navigationTitle: libraryName
         )
@@ -313,6 +314,7 @@ private struct JellyfinTabRoot: View {
           folderID: item.id,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          importManager: importManager,
           navigation: navigation,
           navigationTitle: item.name
         )
@@ -324,6 +326,7 @@ private struct JellyfinTabRoot: View {
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          importManager: importManager,
           navigation: navigation,
           navigationTitle: authorName
         )
@@ -335,6 +338,7 @@ private struct JellyfinTabRoot: View {
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          importManager: importManager,
           navigation: navigation,
           navigationTitle: personName
         )

@@ -12,6 +12,7 @@ public enum LibraryAPI {
   case syncedIdentifiers
   case contents(path: String)
   case upload(params: [String: Any])
+  case externalResource(params: [String: Any])
   case update(params: [String: Any])
   case move(origin: String, destination: String, uuid: String)
   case renameFolder(path: String, name: String, uuid: String)
@@ -56,6 +57,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/thumbnail_set"
     case .matchUuids:
       return "/v1/library/uuids"
+    case .externalResource:
+      return "/v1/library/external"
     }
   }
 
@@ -89,6 +92,8 @@ extension LibraryAPI: Endpoint {
       return .post
     case .matchUuids:
       return .post
+    case .externalResource:
+      return .put
     }
   }
 
@@ -101,7 +106,7 @@ extension LibraryAPI: Endpoint {
         "relativePath": path,
         "sign": true
       ]
-    case .upload( let params):
+    case .upload(let params):
       return params
     case .update(let params):
       return params
@@ -164,6 +169,8 @@ extension LibraryAPI: Endpoint {
       return [
         "items": uuidsDictionary
       ]
+    case .externalResource(let params):
+      return params
     }
   }
 }

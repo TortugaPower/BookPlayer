@@ -28,7 +28,7 @@ struct ConcurrentSyncTasksView: View {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
-            title: .constant("\(job.queueKey): \(job.jobType.rawValue)-\(job.id)"),
+            title: .constant(parseLabel(job.jobType, job.queueKey)),
             relativePath: "",
             initialProgress: monitor.getTaskProgress(taskID: job.id),
             isUpload: false
@@ -55,7 +55,7 @@ struct ConcurrentSyncTasksView: View {
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
-    .navigationTitle("tasks_title")
+    .navigationTitle("Concurrent Tasks")
     .navigationBarTitleDisplayMode(.inline)
     .alert("", isPresented: $showInfoAlert) {
       Button("ok_button", role: .cancel) {}
@@ -98,6 +98,17 @@ struct ConcurrentSyncTasksView: View {
     switch jobType {
     case .update:
       return "arrow.2.circlepath"
+    case .uploadFile:
+      return "square.and.arrow.up.badge.clock"
+    }
+  }
+  
+  func parseLabel(_ jobType: ExternalSyncJobType, _ queueKey: String) -> String {
+    switch jobType {
+    case .update:
+      return "Updating progress for \(queueKey)"
+    case .uploadFile:
+      return "Uploading file"
     }
   }
 }

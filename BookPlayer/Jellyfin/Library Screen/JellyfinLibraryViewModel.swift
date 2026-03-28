@@ -65,6 +65,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
   let folderID: String?
   let recursive: Bool
+  var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
 
@@ -85,12 +86,14 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     recursive: Bool = false,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    importManager: ImportManager?,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.folderID = folderID
     self.recursive = recursive
     self.connectionService = connectionService
+    self.importManager = importManager
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
@@ -359,6 +362,50 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       return try await connectionService.fetchAudiobookDownloadRequests(for: folderID)
     }
   }
+  
+  @MainActor
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+    let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
+      let libraryItem = SimpleLibraryItem(
+        title: item.name,
+        details: "voiceover_unknown_author".localized,
+        speed: 1,
+        currentTime: Double(item.currentSeconds ?? 0),
+        duration: Double(item.durationSeconds ?? 0),
+        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
+          ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        isFinished: item.isFinished ?? false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: item.name,
+        lastPlayDate: item.lastPlayedDate,
+        type: .book,
+        uuid: UUID().uuidString
+      )
+      
+      let externalItem = SimpleExternalResource(
+        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
+        providerId: item.id,
+        syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+        lastSyncedAt: nil,
+        libraryItem: libraryItem
+      )
+      
+      return externalItem
+    }
+    
+    importManager?.externalFiles.append(contentsOf: libraryItems)
+    importManager?.isShowingExternalImportView = true
+  }
 }
 
 // MARK: - Author Books ViewModel
@@ -543,7 +590,8 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
-
+  
+  var importManager: ImportManager? { get set }
   let connectionService: JellyfinConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -555,6 +603,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    importManager: importManager,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -562,6 +611,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.importManager = importManager
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 

@@ -297,7 +297,6 @@ struct ItemListView: View {
             cancelDownload(of: item.id)
           case .downloaded, .notDownloaded:
             loadPlayer(with: item.uuid)
-            //HEY HO
           }
         }
         .accessibilityAction {

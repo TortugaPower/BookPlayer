@@ -614,7 +614,7 @@ public class JellyfinConnectionService: BPLogger {
     )
 
     let request = Paths.updateItemUserData(itemID: itemId, userDataDto)
-    print("UPDATE \(request.query?.debugDescription ?? "nil") \(request.method) \(request.url!.absoluteString) \(request.body.debugDescription)")
+
     let response = try await client.send(request)
   }
   
