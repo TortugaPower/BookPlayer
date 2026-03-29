@@ -22,54 +22,56 @@ struct PlayerControlsView: View {
 
   var body: some View {
     NavigationStack {
-      VStack(spacing: Spacing.S) {
-        PlayerControlsSpeedSectionView(
-          currentSpeed: Binding(
-            get: { model.currentSpeed },
+      ScrollView {
+        VStack(spacing: Spacing.S) {
+          PlayerControlsSpeedSectionView(
+            currentSpeed: Binding(
+              get: { model.currentSpeed },
+              set: { newValue in
+                let rounded = model.roundSpeedValue(newValue)
+                model.handleSpeedChange(rounded)
+              }
+            ),
+            handleSpeedChange: model.handleSpeedChange
+          )
+
+          // Separator
+          Rectangle()
+            .fill(theme.secondaryColor)
+            .frame(height: 0.5)
+
+          // Volume Section
+          PlayerControlsVolumeSectionView(boostVolumeEnabled: Binding(
+            get: { model.isBoostVolumeEnabled },
             set: { newValue in
-              let rounded = model.roundSpeedValue(newValue)
-              model.handleSpeedChange(rounded)
+              model.handleBoostVolumeToggle(newValue)
             }
-          ),
-          handleSpeedChange: model.handleSpeedChange
-        )
-
-        // Separator
-        Rectangle()
-          .fill(theme.secondaryColor)
-          .frame(height: 0.5)
-
-        // Boost Volume Section
-        PlayerControlsBoostVolumeSectionView(boostVolumeEnabled: Binding(
-          get: { model.isBoostVolumeEnabled },
-          set: { newValue in
-            model.handleBoostVolumeToggle(newValue)
-          }
-        ))
-
-        // More Button
-        Button {
-          showingMoreControls = true
-        } label: {
-          Text("more_title")
+          ))
         }
-        .tint(theme.linkColor)
-        .padding(.top, Spacing.S3)
-
-        Spacer()
+        .padding(.horizontal, Spacing.M)
+        .padding(.vertical, Spacing.S)
       }
       .environmentObject(theme)
-      .padding(.horizontal, Spacing.M)
-      .padding(.vertical, Spacing.S)
       .background(theme.systemBackgroundColor)
+      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       .navigationTitle("settings_controls_title")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .confirmationAction) {
-          Button("done_title") {
+        ToolbarItem(placement: .cancellationAction) {
+          Button {
             dismiss()
+          } label: {
+            Image(systemName: "xmark")
+              .foregroundStyle(theme.linkColor)
           }
-          .foregroundStyle(theme.linkColor)
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button {
+            showingMoreControls = true
+          } label: {
+            Text("more_title")
+              .foregroundStyle(theme.linkColor)
+          }
         }
       }
       .sheet(isPresented: $showingMoreControls) {

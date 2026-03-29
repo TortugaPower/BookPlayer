@@ -11,6 +11,7 @@ import SwiftUI
 struct MediaActionRow: View {
   let speedText: String
   let sleepText: String?
+  let sleepAccessibilityLabel: String?
 
   @Binding var currentAlert: BPAlertContent?
   
@@ -36,9 +37,18 @@ struct MediaActionRow: View {
   }
   
   func accessibilityText(_ ma: MediaAction) -> String {
-    return ma != .speed
-      ? ma.accessibilityLabel
-      : "\(speedText) \("speed_title".localized)"
+    return ma == .speed
+      ? "\(speedText) \("speed_title".localized)"
+      : ma.accessibilityLabel
+  }
+
+  func accessibilityValueText(_ ma: MediaAction) -> String? {
+    switch ma {
+    case .timer:
+      return sleepAccessibilityLabel
+    default:
+      return nil
+    }
   }
   
   var body: some View {
@@ -54,6 +64,7 @@ struct MediaActionRow: View {
           }
         )
         .accessibilityLabel(accessibilityText(ma))
+        .accessibilityValue(accessibilityValueText(ma) ?? "")
         .bpDialog(
           $currentAlert,
           isOriginView: currentAlertOrigin == ma
@@ -66,5 +77,5 @@ struct MediaActionRow: View {
 }
 
 #Preview {
-  MediaActionRow(speedText: "2x", sleepText: nil, currentAlert: .constant(nil), currentAlertOrigin: .timer, onActionTapped: { ma in print(ma.iconName) })
+  MediaActionRow(speedText: "2x", sleepText: nil, sleepAccessibilityLabel: nil, currentAlert: .constant(nil), currentAlertOrigin: .timer, onActionTapped: { ma in print(ma.iconName) })
 }

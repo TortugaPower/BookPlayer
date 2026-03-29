@@ -24,6 +24,9 @@ protocol AudiobookShelfLibraryViewModelProtocol: ObservableObject {
   var editMode: EditMode { get set }
   var selectedItems: Set<AudiobookShelfLibraryItem.ID> { get set }
 
+  var searchQuery: String { get set }
+  var isSearchable: Bool { get }
+
   var connectionService: AudiobookShelfConnectionService { get }
 
   func fetchInitialItems()
@@ -74,12 +77,15 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     }
   }
 
+  @Published var searchQuery = ""
   @Published var items: [AudiobookShelfLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
+
+  var isSearchable: Bool { libraryID != nil }
 
   var onTransition: BPTransition<Routes>?
 
@@ -92,6 +98,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
   private static let itemBatchSize = 20
   private static let itemFetchMargin = 3
+  private static let searchResultLimit = 500
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -111,6 +118,15 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+
+    $searchQuery
+      .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] _ in
+        self?.onSearchQueryChanged()
+      }
+      .store(in: &disposeBag)
   }
 
   func fetchInitialItems() {
@@ -118,6 +134,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   }
 
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem) {
+    guard items.count >= Self.itemFetchMargin else { return }
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
       fetchMoreItems()
@@ -144,6 +161,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   private func fetchTopLevelItems() {
     fetchTask?.cancel()
     fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
       items = []
 
       do {
@@ -167,6 +185,44 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
         self.totalItems = libraryItems.count
         self.items = libraryItems
+      } catch is CancellationError {
+        // ignore
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
+  private func onSearchQueryChanged() {
+    guard let libraryID else { return }
+    fetchTask?.cancel()
+    fetchTask = nil
+    editMode = .inactive
+    items = []
+    selectedItems.removeAll()
+    nextPage = 0
+    totalItems = Int.max
+
+    if searchQuery.isEmpty {
+      fetchLibraryItems(libraryID: libraryID)
+    } else {
+      searchLibraryItems(libraryID: libraryID, query: searchQuery)
+    }
+  }
+
+  private func searchLibraryItems(libraryID: String, query: String) {
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
+
+      do {
+        let items = try await connectionService.searchItems(
+          in: libraryID,
+          query: query,
+          limit: Self.searchResultLimit
+        )
+
+        self.totalItems = items.count
+        self.items = items
       } catch is CancellationError {
         // ignore
       } catch {

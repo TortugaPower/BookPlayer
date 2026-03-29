@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Soubory sem můžete také přesunout přetažením do této složky v knihovně";
 "playlist_add_title" = "Přidat soubory";
 "player_speed_title" = "Nastavit rychlost přehrávání";
+"player_volume_title" = "Hlasitost";
 "player_sleep_title" = "Pozastavit přehrávání";
 "sleep_chapter_option_title" = "Konec aktuální kapitoly";
 "player_chapter_description" = "Kapitola %d z %d";

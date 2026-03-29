@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Μπορείτε επίσης να μετακινήσετε αρχεία εδώ σύροντάς τα σε αυτόν τον φάκελο στη Βιβλιοθήκη";
 "playlist_add_title" = "Προσθήκη αρχείων";
 "player_speed_title" = "Ρύθμιση ταχύτητας αναπαραγωγής";
+"player_volume_title" = "Ένταση";
 "player_sleep_title" = "Παύση αναπαραγωγής";
 "sleep_chapter_option_title" = "Τέλος τρέχοντος κεφαλαίου";
 "player_chapter_description" = "Κεφάλαιο %d από %d";

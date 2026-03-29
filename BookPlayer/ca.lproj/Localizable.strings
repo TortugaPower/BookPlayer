@@ -92,6 +92,7 @@
 "empty_playlist_description" = "També podeu moure fitxers aquí arrossegant-los a aquesta carpeta de la Biblioteca";
 "playlist_add_title" = "Afegeix fitxers";
 "player_speed_title" = "Estableix la velocitat de reproducció";
+"player_volume_title" = "Volum";
 "player_sleep_title" = "Posa en pausa la reproducció";
 "sleep_chapter_option_title" = "Final del capítol actual";
 "player_chapter_description" = "Capítol %d de %d";

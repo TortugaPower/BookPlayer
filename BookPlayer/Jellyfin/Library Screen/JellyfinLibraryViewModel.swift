@@ -33,6 +33,9 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
   var showingDownloadConfirmation: Bool { get set }
 
+  var searchQuery: String { get set }
+  var isSearchable: Bool { get }
+
   var connectionService: JellyfinConnectionService { get }
 
   func fetchInitialItems()
@@ -87,6 +90,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
   }
 
+  @Published var searchQuery = ""
   @Published var items: [JellyfinLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
@@ -94,6 +98,8 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
   @Published var showingDownloadConfirmation = false
+
+  var isSearchable: Bool { true }
 
   var onTransition: BPTransition<Routes>?
 
@@ -125,6 +131,15 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+
+    $searchQuery
+      .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] _ in
+        self?.onSearchQueryChanged()
+      }
+      .store(in: &disposeBag)
   }
 
   func fetchInitialItems() {
@@ -132,6 +147,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   }
 
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {
+    guard items.count >= Self.itemFetchMargin else { return }
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
       fetchMoreItems()
@@ -150,6 +166,8 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
     if let folderID {
       fetchFolderItems(folderID: folderID)
+    } else if !searchQuery.isEmpty {
+      fetchGlobalSearchItems()
     } else {
       fetchTopLevelItems()
     }
@@ -158,6 +176,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   private func fetchTopLevelItems() {
     fetchTask?.cancel()
     fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
       items = []
 
       do {
@@ -173,18 +192,67 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     }
   }
 
+  private func onSearchQueryChanged() {
+    fetchTask?.cancel()
+    fetchTask = nil
+    editMode = .inactive
+    items = []
+    selectedItems.removeAll()
+    nextStartItemIndex = 0
+    totalItems = Int.max
+
+    if let folderID {
+      fetchFolderItems(folderID: folderID)
+    } else if searchQuery.isEmpty {
+      fetchTopLevelItems()
+    } else {
+      fetchGlobalSearchItems()
+    }
+  }
+
+  private func fetchGlobalSearchItems() {
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
+
+      let capturedQuery = searchQuery
+      do {
+        let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
+          in: nil,
+          startIndex: nextStartItemIndex,
+          limit: Self.itemBatchSize,
+          sortBy: sortBy,
+          searchTerm: capturedQuery
+        )
+
+        guard searchQuery == capturedQuery, !Task.isCancelled else { return }
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
+        self.totalItems = maxNumItems
+        self.items.append(contentsOf: items)
+      } catch is CancellationError {
+        // ignore
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
   private func fetchFolderItems(folderID: String) {
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
+      let capturedQuery = searchQuery
+      let capturedFolderID = folderID
       do {
+        let searchParam: String? = capturedQuery.isEmpty ? nil : capturedQuery
         let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
-          in: folderID,
+          in: capturedFolderID,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
-          sortBy: sortBy
+          sortBy: sortBy,
+          searchTerm: searchParam
         )
 
+        guard searchQuery == capturedQuery, !Task.isCancelled else { return }
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
         self.totalItems = maxNumItems
         self.items.append(contentsOf: items)

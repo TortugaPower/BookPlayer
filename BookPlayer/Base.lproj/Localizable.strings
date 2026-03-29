@@ -92,6 +92,7 @@
 "empty_playlist_description" = "You can also move files here by dragging them on this folder in the Library";
 "playlist_add_title" = "Add files";
 "player_speed_title" = "Set playback speed";
+"player_volume_title" = "Volume";
 "player_sleep_title" = "Pause playback";
 "sleep_chapter_option_title" = "End of current chapter";
 "player_chapter_description" = "Chapter %d of %d";

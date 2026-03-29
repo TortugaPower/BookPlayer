@@ -1555,6 +1555,7 @@ class ImportDirectoryTests: LibraryServiceTests {
 
   /// Test that importing a directory and then moving it into another folder works correctly
   /// (no ghost folder at root, correct file count)
+  @MainActor
   func testImportDirectoryThenMoveToFolder() async throws {
     let library = self.sut.getLibrary()
     let processedFolder = DataManager.getProcessedFolderURL()

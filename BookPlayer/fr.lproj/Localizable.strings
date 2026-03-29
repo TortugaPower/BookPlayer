@@ -92,6 +92,7 @@
 "empty_playlist_description" = "Vous pouvez également déplacer des fichiers ici en les faisant glisser sur ce dossier dans la bibliothèque";
 "playlist_add_title" = "Ajouter des fichiers";
 "player_speed_title" = "Définir la vitesse de lecture";
+"player_volume_title" = "Volume";
 "player_sleep_title" = "Mettre la lecture en pause";
 "sleep_chapter_option_title" = "Fin du chapitre en cours";
 "player_chapter_description" = "Chapitre %d sur %d";

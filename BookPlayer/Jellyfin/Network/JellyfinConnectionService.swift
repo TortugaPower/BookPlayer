@@ -112,11 +112,18 @@ class JellyfinConnectionService: BPLogger {
   }
 
   public func fetchItems(
-    in folderID: String,
+    in folderID: String?,
     startIndex: Int?,
     limit: Int?,
-    sortBy: JellyfinLayout.SortBy
+    sortBy: JellyfinLayout.SortBy,
+    searchTerm: String? = nil
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    // Require a search term when no folder is scoped, to avoid accidental expensive server-wide fetches
+    let effectiveSearchTerm = searchTerm.flatMap { $0.isEmpty ? nil : $0 }
+    guard folderID != nil || effectiveSearchTerm != nil else {
+      return ([], 0, 0)
+    }
+
     let orderBy: [JellyfinAPI.ItemSortBy]
     let sortOrder: [JellyfinAPI.SortOrder]
     switch sortBy {
@@ -131,10 +138,12 @@ class JellyfinConnectionService: BPLogger {
         sortOrder = [.ascending]
     }
 
+    // When no parentID is given, search recursively across the whole server
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
-      isRecursive: false,
+      isRecursive: searchTerm != nil || folderID == nil,
+      searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],

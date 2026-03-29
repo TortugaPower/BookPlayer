@@ -92,6 +92,7 @@
 "empty_playlist_description" = "ライブラリ内のこのフォルダにドラッグすることで、ファイルを移動することもできます。";
 "playlist_add_title" = "ファイルを追加";
 "player_speed_title" = "再生速度を設定";
+"player_volume_title" = "音量";
 "player_sleep_title" = "再生を一時停止";
 "sleep_chapter_option_title" = "このチャプタの終わり";
 "player_chapter_description" = "チャプタ %d/%d";
