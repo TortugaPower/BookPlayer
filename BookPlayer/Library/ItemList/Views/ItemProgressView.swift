@@ -39,7 +39,6 @@ struct ItemProgressView: View {
     .onReceive(
       libraryService.immediateProgressUpdatePublisher
         .filter { item.relativePath == $0["relativePath"] as? String }
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
     ) { params in
       if let percentCompleted = params["percentCompleted"] as? Double {
         self.progress = percentCompleted / 100

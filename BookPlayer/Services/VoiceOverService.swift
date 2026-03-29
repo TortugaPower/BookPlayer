@@ -9,6 +9,7 @@ class VoiceOverService {
   // MARK: - BookCellView
 
   public static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+    let displayPercent = item.isFinished ? 100.0 : item.percentCompleted
     let remainingTime = item.duration - item.currentTime
     var remainingTimeLabel = "book_time_remaining_title".localized
     if remainingTime > 0 && remainingTime.isFinite {
@@ -21,20 +22,20 @@ class VoiceOverService {
         "voiceover_book_progress".localized,
         item.title,
         item.details,
-        item.percentCompleted,
+        displayPercent,
         item.durationFormatted
       ) + ", \(remainingTimeLabel)"
     case .folder:
       return String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
         item.title,
-        item.percentCompleted
+        displayPercent
       )
     case .bound:
       return String.localizedStringWithFormat(
         "voiceover_bound_books_progress".localized,
         item.title,
-        item.percentCompleted,
+        displayPercent,
         item.durationFormatted
       ) + ", \(remainingTimeLabel)"
     }
