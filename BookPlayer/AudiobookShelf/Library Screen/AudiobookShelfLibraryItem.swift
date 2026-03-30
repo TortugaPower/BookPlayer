@@ -8,6 +8,12 @@
 
 import Foundation
 
+struct AudiobookShelfSeriesReference: Codable, Hashable {
+  let id: String
+  let name: String
+  let sequence: String?
+}
+
 struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
   enum Kind: String, Codable {
     case audiobook = "book"
@@ -31,6 +37,7 @@ struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
   let duration: TimeInterval?
   let size: Int64?
   let subtitle: String?
+  let series: [AudiobookShelfSeriesReference]?
   let addedAt: Int64?
   let updatedAt: Int64?
 
@@ -57,6 +64,7 @@ struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
     duration: TimeInterval? = nil,
     size: Int64? = nil,
     subtitle: String? = nil,
+    series: [AudiobookShelfSeriesReference]? = nil,
     addedAt: Int64? = nil,
     updatedAt: Int64? = nil,
     coverPath: String? = nil,
@@ -76,6 +84,7 @@ struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
     self.duration = duration
     self.size = size
     self.subtitle = subtitle
+    self.series = series
     self.addedAt = addedAt
     self.updatedAt = updatedAt
     self.coverPath = coverPath
@@ -115,6 +124,10 @@ extension AudiobookShelfLibraryItem {
     case .author: "person"
     case .narrator: "mic"
     }
+  }
+
+  func seriesSequence(for seriesID: String) -> String? {
+    series?.first(where: { $0.id == seriesID })?.sequence
   }
 
   init(library: AudiobookShelfLibrary) {
@@ -197,6 +210,7 @@ extension AudiobookShelfLibraryItem {
       narratorName: apiItem.media.metadata.primaryNarratorName,
       duration: apiItem.media.duration,
       size: apiItem.size,
+      series: apiItem.media.metadata.series,
       addedAt: apiItem.addedAt,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
@@ -230,6 +244,34 @@ struct AudiobookShelfAPIItem: Codable {
       let narratorName: String?
       let authors: [NamedEntity]?
       let narrators: [String]?
+      let series: [AudiobookShelfSeriesReference]?
+
+      enum CodingKeys: String, CodingKey {
+        case title
+        case authorName
+        case narratorName
+        case authors
+        case narrators
+        case series
+      }
+
+      init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        title = try container.decode(String.self, forKey: .title)
+        authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
+        narratorName = try container.decodeIfPresent(String.self, forKey: .narratorName)
+        authors = try container.decodeIfPresent([NamedEntity].self, forKey: .authors)
+        narrators = try container.decodeIfPresent([String].self, forKey: .narrators)
+
+        if let seriesArray = try? container.decode([AudiobookShelfSeriesReference].self, forKey: .series) {
+          series = seriesArray
+        } else if let seriesSingle = try? container.decode(AudiobookShelfSeriesReference.self, forKey: .series) {
+          series = [seriesSingle]
+        } else {
+          series = nil
+        }
+      }
 
       var primaryAuthorName: String? {
         authorName ?? authors?.first?.name

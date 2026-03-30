@@ -517,6 +517,12 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   }
 
   private func sortItems(_ items: [AudiobookShelfLibraryItem]) -> [AudiobookShelfLibraryItem] {
+    if let seriesID = activeSeriesID {
+      return items.sorted { lhs, rhs in
+        compareSeriesItems(lhs, rhs, seriesID: seriesID)
+      }
+    }
+
     switch sortBy {
     case .recent:
       return items.sorted { lhs, rhs in
@@ -532,6 +538,153 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
         $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
       }
     }
+  }
+
+  private var activeSeriesID: String? {
+    guard case .books(_, let filter?) = source,
+          filter.group == .series
+    else {
+      return nil
+    }
+
+    return filter.value
+  }
+
+  private func compareSeriesItems(
+    _ lhs: AudiobookShelfLibraryItem,
+    _ rhs: AudiobookShelfLibraryItem,
+    seriesID: String
+  ) -> Bool {
+    let lhsSortValue = seriesSortValue(lhs.seriesSequence(for: seriesID))
+    let rhsSortValue = seriesSortValue(rhs.seriesSequence(for: seriesID))
+
+    switch (lhsSortValue, rhsSortValue) {
+    case let (.some(lhsValue), .some(rhsValue)):
+      if lhsValue != rhsValue {
+        return lhsValue < rhsValue
+      }
+    case (.some, .none):
+      return true
+    case (.none, .some):
+      return false
+    case (.none, .none):
+      break
+    }
+
+    let lhsSequence = lhs.seriesSequence(for: seriesID) ?? lhs.title
+    let rhsSequence = rhs.seriesSequence(for: seriesID) ?? rhs.title
+    let fallbackComparison = lhsSequence.localizedStandardCompare(rhsSequence)
+    if fallbackComparison != .orderedSame {
+      return fallbackComparison == .orderedAscending
+    }
+
+    return lhs.title.localizedStandardCompare(rhs.title) == .orderedAscending
+  }
+
+  private func seriesSortValue(_ sequence: String?) -> Decimal? {
+    guard let trimmedSequence = sequence?.trimmingCharacters(in: .whitespacesAndNewlines),
+          !trimmedSequence.isEmpty
+    else {
+      return nil
+    }
+
+    if let decimal = Decimal(string: trimmedSequence) {
+      return decimal
+    }
+
+    if let wordValue = seriesWordSortValue(trimmedSequence) {
+      return wordValue
+    }
+
+    let pattern = #"[-+]?\d+(?:\.\d+)?"#
+    guard let regex = try? NSRegularExpression(pattern: pattern),
+          let match = regex.firstMatch(
+            in: trimmedSequence,
+            range: NSRange(trimmedSequence.startIndex..., in: trimmedSequence)
+          ),
+          let range = Range(match.range, in: trimmedSequence)
+    else {
+      return nil
+    }
+
+    return Decimal(string: String(trimmedSequence[range]))
+  }
+
+  private func seriesWordSortValue(_ sequence: String) -> Decimal? {
+    let normalized = sequence
+      .lowercased()
+      .replacingOccurrences(of: "-", with: " ")
+      .replacingOccurrences(of: "_", with: " ")
+
+    let tokens = normalized
+      .components(separatedBy: CharacterSet.alphanumerics.inverted)
+      .filter { !$0.isEmpty }
+
+    func decimal(_ value: String) -> Decimal {
+      Decimal(string: value) ?? 0
+    }
+
+    let values: [String: Decimal] = [
+      "minus": decimal("-1"),
+      "negative": decimal("-1"),
+      "zero": decimal("0"),
+      "one": decimal("1"),
+      "first": decimal("1"),
+      "two": decimal("2"),
+      "second": decimal("2"),
+      "three": decimal("3"),
+      "third": decimal("3"),
+      "four": decimal("4"),
+      "fourth": decimal("4"),
+      "five": decimal("5"),
+      "fifth": decimal("5"),
+      "six": decimal("6"),
+      "sixth": decimal("6"),
+      "seven": decimal("7"),
+      "seventh": decimal("7"),
+      "eight": decimal("8"),
+      "eighth": decimal("8"),
+      "nine": decimal("9"),
+      "ninth": decimal("9"),
+      "ten": decimal("10"),
+      "tenth": decimal("10"),
+      "eleven": decimal("11"),
+      "eleventh": decimal("11"),
+      "twelve": decimal("12"),
+      "twelfth": decimal("12"),
+      "thirteen": decimal("13"),
+      "thirteenth": decimal("13"),
+      "fourteen": decimal("14"),
+      "fourteenth": decimal("14"),
+      "fifteen": decimal("15"),
+      "fifteenth": decimal("15"),
+      "sixteen": decimal("16"),
+      "sixteenth": decimal("16"),
+      "seventeen": decimal("17"),
+      "seventeenth": decimal("17"),
+      "eighteen": decimal("18"),
+      "eighteenth": decimal("18"),
+      "nineteen": decimal("19"),
+      "nineteenth": decimal("19"),
+      "twenty": decimal("20"),
+      "twentieth": decimal("20"),
+      "half": decimal("0.5")
+    ]
+
+    for (index, token) in tokens.enumerated() {
+      guard var value = values[token] else { continue }
+
+      if index > 0 {
+        let previous = tokens[index - 1]
+        if previous == "minus" || previous == "negative" {
+          value *= -1
+        }
+      }
+
+      return value
+    }
+
+    return nil
   }
 
   private func resetSelectionState() {
