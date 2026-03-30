@@ -65,9 +65,6 @@ fileprivate struct AudiobookShelfLibraryItemImageViewWrapper: View, Equatable {
   }
 
   private var placeholderImageName: String {
-    switch item.kind {
-    case .podcast, .audiobook: "waveform"
-    case .library: "folder"
-    }
+    item.placeholderImageName
   }
 }

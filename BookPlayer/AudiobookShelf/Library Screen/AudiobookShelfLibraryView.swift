@@ -26,7 +26,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   var body: some View {
     Group {
-      if viewModel.layout == .grid {
+      if viewModel.isGridEnabled, viewModel.layout == .grid {
         ScrollView {
           AudiobookShelfLibraryGridView(viewModel: viewModel)
             .padding()
@@ -56,7 +56,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
       }
     }
     .toolbar {
-      if viewModel.editMode.isEditing {
+      if viewModel.allowsEditing, viewModel.editMode.isEditing {
         ToolbarItemGroup(placement: .bottomBar) {
           bottomBar
         }
@@ -66,11 +66,14 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   @ViewBuilder
   var toolbarTrailing: some View {
-    if !viewModel.editMode.isEditing {
+    if !viewModel.editMode.isEditing,
+       viewModel.allowsEditing || viewModel.showsLayoutPreferences || viewModel.showsSortPreferences {
       Menu {
-        ThemedSection {
-          Button(action: viewModel.onEditToggleSelectTapped) {
-            Label("select_title".localized, systemImage: "checkmark.circle")
+        if viewModel.allowsEditing {
+          ThemedSection {
+            Button(action: viewModel.onEditToggleSelectTapped) {
+              Label("select_title".localized, systemImage: "checkmark.circle")
+            }
           }
         }
 
@@ -78,7 +81,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
       } label: {
         Label("more_title".localized, systemImage: "ellipsis.circle")
       }
-    } else {
+    } else if viewModel.allowsEditing {
       Button(action: viewModel.onEditToggleSelectTapped) {
         Text("done_title".localized).bold()
       }
@@ -87,16 +90,20 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   @ViewBuilder
   var layoutPreferences: some View {
-    ThemedSection {
-      Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-        Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
-        Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
+    if viewModel.showsLayoutPreferences {
+      ThemedSection {
+        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
+          Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
+          Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
+        }
       }
     }
-    ThemedSection {
-      Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
-        Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-        Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+    if viewModel.showsSortPreferences {
+      ThemedSection {
+        Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
+          Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
+          Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+        }
       }
     }
   }

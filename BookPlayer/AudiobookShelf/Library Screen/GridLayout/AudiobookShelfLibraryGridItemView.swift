@@ -24,7 +24,7 @@ struct AudiobookShelfLibraryGridItemView: View {
       ZStack(alignment: .topTrailing) {
         AudiobookShelfLibraryItemImageView(item: item)
           .overlay {
-            if editMode?.wrappedValue.isEditing == true, item.kind == .audiobook {
+            if editMode?.wrappedValue.isEditing == true, item.isDownloadable {
               Image(systemName: isSelected ? "checkmark.circle" : "circle")
                 .foregroundStyle(.white)
                 .background(isSelected ? .blue : .clear)
@@ -35,7 +35,7 @@ struct AudiobookShelfLibraryGridItemView: View {
           }
           .accessibilityHidden(true)
 
-        if item.kind == .library {
+        if item.isNavigable {
           libraryBadge
         }
       }
@@ -52,7 +52,7 @@ struct AudiobookShelfLibraryGridItemView: View {
     ZStack {
       Circle().strokeBorder(.foreground, lineWidth: 1 * accessabilityScale)
         .background(Circle().fill(.background))
-      Image(systemName: "folder.fill")
+      Image(systemName: item.placeholderImageName)
         .resizable()
         .aspectRatio(contentMode: .fit)
         .padding(4)

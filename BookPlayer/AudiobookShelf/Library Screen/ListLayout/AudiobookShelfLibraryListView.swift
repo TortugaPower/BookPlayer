@@ -16,7 +16,7 @@ struct AudiobookShelfLibraryListView<Model: AudiobookShelfLibraryViewModelProtoc
   var body: some View {
     List(viewModel.items, selection: $viewModel.selectedItems) { item in
       row(item: item)
-        .selectionDisabled(item.kind != .audiobook)
+        .selectionDisabled(!item.isDownloadable)
         .listRowBackground(theme.tertiarySystemBackgroundColor)
     }
   }
@@ -27,15 +27,10 @@ struct AudiobookShelfLibraryListView<Model: AudiobookShelfLibraryViewModelProtoc
       .contentShape(Rectangle())
       .onTapGesture {
         if viewModel.editMode.isEditing {
-          guard case .audiobook = item.kind else { return }
+          guard item.isDownloadable else { return }
           viewModel.onSelectTapped(for: item)
-        } else {
-          switch item.kind {
-          case .audiobook, .podcast:
-            viewModel.navigation.path.append(AudiobookShelfLibraryLevelData.details(data: item))
-          case .library:
-            viewModel.navigation.path.append(AudiobookShelfLibraryLevelData.library(data: item))
-          }
+        } else if let destination = viewModel.destination(for: item) {
+          viewModel.navigation.path.append(destination)
         }
       }
       .onAppear {
