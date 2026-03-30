@@ -205,11 +205,28 @@ struct AudiobookShelfBrowseTabsView: View {
   }
 
   var body: some View {
-    VStack(spacing: 0) {
-      tabBar
-      selectedView
+    selectedView
+      .background(theme.systemBackgroundColor)
+      .safeAreaInset(edge: .bottom) {
+        if !selectedViewModel.editMode.isEditing {
+          bottomSwitcher
+        }
+      }
+  }
+
+  private var selectedViewModel: AudiobookShelfLibraryViewModel {
+    switch selectedCategory {
+    case .books:
+      booksViewModel
+    case .series:
+      seriesViewModel
+    case .collections:
+      collectionsViewModel
+    case .authors:
+      authorsViewModel
+    case .narrators:
+      narratorsViewModel
     }
-    .background(theme.systemBackgroundColor)
   }
 
   @ViewBuilder
@@ -228,30 +245,57 @@ struct AudiobookShelfBrowseTabsView: View {
     }
   }
 
-  private var tabBar: some View {
-    ScrollView(.horizontal, showsIndicators: false) {
-      HStack(spacing: 8) {
-        ForEach(AudiobookShelfBrowseCategory.allCases, id: \.self) { category in
-          Button {
-            selectedCategory = category
-          } label: {
+  private var bottomSwitcher: some View {
+    HStack(spacing: 6) {
+      ForEach(AudiobookShelfBrowseCategory.allCases, id: \.self) { category in
+        Button {
+          selectedCategory = category
+        } label: {
+          VStack(spacing: 4) {
+            Image(systemName: iconName(for: category))
+              .bpFont(.body)
             Text(category.title)
-              .bpFont(.subheadline)
-              .foregroundStyle(selectedCategory == category ? Color.white : theme.primaryColor)
-              .padding(.horizontal, 14)
-              .padding(.vertical, 8)
-              .background(
-                Capsule()
-                  .fill(selectedCategory == category ? theme.linkColor : theme.secondarySystemBackgroundColor)
-              )
+              .bpFont(.caption)
+              .lineLimit(1)
+              .minimumScaleFactor(0.8)
           }
-          .buttonStyle(.plain)
+          .frame(maxWidth: .infinity)
+          .padding(.vertical, 10)
+          .foregroundStyle(selectedCategory == category ? Color.white : theme.primaryColor)
+          .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+              .fill(selectedCategory == category ? theme.linkColor : Color.clear)
+          )
         }
+        .buttonStyle(.plain)
       }
-      .padding(.horizontal)
-      .padding(.top, 8)
-      .padding(.bottom, 10)
     }
-    .background(theme.systemBackgroundColor)
+    .padding(8)
+    .background(
+      RoundedRectangle(cornerRadius: 28, style: .continuous)
+        .fill(theme.secondarySystemBackgroundColor.opacity(0.96))
+        .overlay(
+          RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .stroke(theme.separatorColor.opacity(0.25), lineWidth: 1)
+        )
+    )
+    .padding(.horizontal, 16)
+    .padding(.top, 8)
+    .padding(.bottom, 8)
+  }
+
+  private func iconName(for category: AudiobookShelfBrowseCategory) -> String {
+    switch category {
+    case .books:
+      "books.vertical.fill"
+    case .series:
+      "rectangle.stack.fill"
+    case .collections:
+      "square.stack.3d.up.fill"
+    case .authors:
+      "person.2.fill"
+    case .narrators:
+      "mic.fill"
+    }
   }
 }
