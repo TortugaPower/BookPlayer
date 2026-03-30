@@ -39,7 +39,14 @@ struct AudiobookShelfRootView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: AudiobookShelfLibraryLevelData.self) { destination in
           switch destination {
-          case .library(let source, let title):
+          case .library(source: .browseCategories(let library), title: _):
+            AudiobookShelfBrowseTabsView(
+              library: library,
+              connectionService: connectionViewModel.connectionService,
+              singleFileDownloadService: singleFileDownloadService,
+              navigation: navigation
+            )
+          case .library(source: let source, title: let title):
             AudiobookShelfLibraryView(
               viewModel: AudiobookShelfLibraryViewModel(
                 source: source,

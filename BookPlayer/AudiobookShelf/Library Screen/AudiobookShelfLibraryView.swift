@@ -135,3 +135,123 @@ private struct ConditionalSearchableModifier: ViewModifier {
     }
   }
 }
+
+struct AudiobookShelfBrowseTabsView: View {
+  let library: AudiobookShelfLibraryItem
+
+  @State private var selectedCategory: AudiobookShelfBrowseCategory = .books
+
+  @StateObject private var booksViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var seriesViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var collectionsViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var authorsViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var narratorsViewModel: AudiobookShelfLibraryViewModel
+
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  init(
+    library: AudiobookShelfLibraryItem,
+    connectionService: AudiobookShelfConnectionService,
+    singleFileDownloadService: SingleFileDownloadService,
+    navigation: BPNavigation
+  ) {
+    self.library = library
+
+    self._booksViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .books(libraryID: library.id, filter: nil),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._seriesViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .series),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._collectionsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .collections),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._authorsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .authors),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._narratorsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .narrators),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+  }
+
+  var body: some View {
+    VStack(spacing: 0) {
+      tabBar
+      selectedView
+    }
+    .background(theme.systemBackgroundColor)
+  }
+
+  @ViewBuilder
+  private var selectedView: some View {
+    switch selectedCategory {
+    case .books:
+      AudiobookShelfLibraryView(viewModel: booksViewModel)
+    case .series:
+      AudiobookShelfLibraryView(viewModel: seriesViewModel)
+    case .collections:
+      AudiobookShelfLibraryView(viewModel: collectionsViewModel)
+    case .authors:
+      AudiobookShelfLibraryView(viewModel: authorsViewModel)
+    case .narrators:
+      AudiobookShelfLibraryView(viewModel: narratorsViewModel)
+    }
+  }
+
+  private var tabBar: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        ForEach(AudiobookShelfBrowseCategory.allCases, id: \.self) { category in
+          Button {
+            selectedCategory = category
+          } label: {
+            Text(category.title)
+              .bpFont(.subheadline)
+              .foregroundStyle(selectedCategory == category ? Color.white : theme.primaryColor)
+              .padding(.horizontal, 14)
+              .padding(.vertical, 8)
+              .background(
+                Capsule()
+                  .fill(selectedCategory == category ? theme.linkColor : theme.secondarySystemBackgroundColor)
+              )
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .padding(.horizontal)
+      .padding(.top, 8)
+      .padding(.bottom, 10)
+    }
+    .background(theme.systemBackgroundColor)
+  }
+}
