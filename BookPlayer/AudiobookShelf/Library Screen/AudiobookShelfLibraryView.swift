@@ -12,7 +12,7 @@ import SwiftUI
 /// to the shared `IntegrationLibraryView`.
 struct AudiobookShelfLibraryView<Model: IntegrationLibraryViewModelProtocol>: View
 where Model.Item == AudiobookShelfLibraryItem {
-  @ObservedObject var viewModel: Model
+  @StateObject var viewModel: Model
 
   var body: some View {
     IntegrationLibraryView(

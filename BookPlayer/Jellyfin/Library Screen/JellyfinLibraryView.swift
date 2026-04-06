@@ -12,7 +12,7 @@ import SwiftUI
 /// to the shared `IntegrationLibraryView`.
 struct JellyfinLibraryView<Model: IntegrationLibraryViewModelProtocol>: View
 where Model.Item == JellyfinLibraryItem {
-  @ObservedObject var viewModel: Model
+  @StateObject var viewModel: Model
 
   var body: some View {
     IntegrationLibraryView(
