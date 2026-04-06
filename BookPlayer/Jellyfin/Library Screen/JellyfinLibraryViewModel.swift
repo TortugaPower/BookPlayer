@@ -21,58 +21,13 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case details(data: JellyfinLibraryItem)
 }
 
-protocol JellyfinLibraryViewModelProtocol: ObservableObject {
-  var navigation: BPNavigation { get set }
-  var navigationTitle: String { get }
-  var layout: JellyfinLayout.Options { get set }
-  var sortBy: JellyfinLayout.SortBy { get set }
-
-  var items: [JellyfinLibraryItem] { get set }
-  var totalItems: Int { get }
-  var error: Error? { get set }
-
-  var editMode: EditMode { get set }
-  var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
-  var showingDownloadConfirmation: Bool { get set }
-
-  var searchQuery: String { get set }
-  var isSearchable: Bool { get }
-
-  var connectionService: JellyfinConnectionService { get }
-
-  func fetchInitialItems()
-  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem)
-  func cancelFetchItems()
-  func destination(for item: JellyfinLibraryItem) -> JellyfinLibraryLevelData?
-
-  @MainActor
-  func handleDoneAction()
-
-  @MainActor
-  func onEditToggleSelectTapped()
-  @MainActor
-  func onSelectTapped(for item: JellyfinLibraryItem)
-  @MainActor
-  func onSelectAllTapped()
-  @MainActor
-  func onDownloadTapped()
-  @MainActor
-  func onDownloadFolderTapped()
-  @MainActor
-  func confirmDownloadFolder()
-}
-
 enum JellyfinLayout {
-  enum Options: String {
-    case grid, list
-  }
-
   enum SortBy: String {
     case recent, name, smart
   }
 }
 
-final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
   }
@@ -81,7 +36,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   let navigationTitle: String
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: JellyfinLayout.Options = .grid
+  var layout: IntegrationLayout.Options = .grid
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
   var sortBy: JellyfinLayout.SortBy = .smart {
@@ -381,7 +336,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
 // MARK: - Author Books ViewModel
 
-final class JellyfinAuthorBooksViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let authorID: String
   let parentID: String?
 
@@ -389,7 +344,7 @@ final class JellyfinAuthorBooksViewModel: JellyfinLibraryViewModelProtocol, BPLo
   let navigationTitle: String
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: JellyfinLayout.Options = .grid
+  var layout: IntegrationLayout.Options = .grid
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
   var sortBy: JellyfinLayout.SortBy = .smart
@@ -528,7 +483,7 @@ final class JellyfinAuthorBooksViewModel: JellyfinLibraryViewModelProtocol, BPLo
 
 // MARK: - Narrator Books ViewModel
 
-final class JellyfinNarratorBooksViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let personID: String
   let parentID: String?
 
@@ -536,7 +491,7 @@ final class JellyfinNarratorBooksViewModel: JellyfinLibraryViewModelProtocol, BP
   let navigationTitle: String
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: JellyfinLayout.Options = .grid
+  var layout: IntegrationLayout.Options = .grid
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
   var sortBy: JellyfinLayout.SortBy = .smart
@@ -676,14 +631,14 @@ final class JellyfinNarratorBooksViewModel: JellyfinLibraryViewModelProtocol, BP
 
 // MARK: - Authors List ViewModel
 
-final class JellyfinAuthorsListViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let parentID: String?
 
   var navigation: BPNavigation
   let navigationTitle: String
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: JellyfinLayout.Options = .list
+  var layout: IntegrationLayout.Options = .list
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
   var sortBy: JellyfinLayout.SortBy = .name
@@ -766,14 +721,14 @@ final class JellyfinAuthorsListViewModel: JellyfinLibraryViewModelProtocol, BPLo
 
 // MARK: - Narrators List ViewModel
 
-final class JellyfinNarratorsListViewModel: JellyfinLibraryViewModelProtocol, BPLogger {
+final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let parentID: String?
 
   var navigation: BPNavigation
   let navigationTitle: String
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: JellyfinLayout.Options = .list
+  var layout: IntegrationLayout.Options = .list
 
   @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
   var sortBy: JellyfinLayout.SortBy = .name

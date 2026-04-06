@@ -8,15 +8,6 @@
 
 import SwiftUI
 
-@MainActor
-final class BPNavigation: ObservableObject {
-  var dismiss: DismissAction?
-
-  @Published var path = NavigationPath()
-
-  nonisolated init() {}
-}
-
 struct JellyfinRootView: View {
   let connectionService: JellyfinConnectionService
 
@@ -109,7 +100,7 @@ struct JellyfinRootView: View {
     )
     .sheet(isPresented: $showConnectionForm) {
       NavigationStack {
-        JellyfinConnectionView(viewModel: connectionViewModel)
+        IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "Jellyfin")
           .toolbar {
             ToolbarItemGroup(placement: .cancellationAction) {
               Button { dismiss() } label: {
@@ -377,11 +368,12 @@ private struct JellyfinTabRoot: View {
 
   private var connectionDetailsSheet: some View {
     NavigationStack {
-      JellyfinSettingsView(
+      IntegrationSettingsView(
         viewModel: JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        )
+        ),
+        integrationName: "Jellyfin"
       )
       .toolbar {
         if connectionService.connection == nil {
@@ -410,7 +402,8 @@ private struct JellyfinTabRoot: View {
 // MARK: - Entity Tab Root (Authors / Narrators)
 // Reuses JellyfinTabRoot structure but with a list-specific ViewModel
 
-private struct JellyfinEntityTabRoot<ViewModel: JellyfinLibraryViewModelProtocol>: View {
+private struct JellyfinEntityTabRoot<ViewModel: IntegrationLibraryViewModelProtocol>: View
+where ViewModel.Item == JellyfinLibraryItem {
   let connectionService: JellyfinConnectionService
   let singleFileDownloadService: SingleFileDownloadService
   let onDismiss: () -> Void
@@ -590,11 +583,12 @@ extension JellyfinTabRoot {
     dismissAll: DismissAction? = nil
   ) -> some View {
     NavigationStack {
-      JellyfinSettingsView(
+      IntegrationSettingsView(
         viewModel: JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        )
+        ),
+        integrationName: "Jellyfin"
       )
       .toolbar {
         if connectionService.connection == nil {

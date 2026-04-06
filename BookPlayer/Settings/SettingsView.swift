@@ -114,20 +114,22 @@ struct SettingsView: View {
           )
         case .jellyfin:
           view = AnyView(
-            JellyfinSettingsView(
+            IntegrationSettingsView(
               viewModel: JellyfinConnectionViewModel(
                 connectionService: jellyfinService,
                 mode: .viewDetails
-              )
+              ),
+              integrationName: "Jellyfin"
             )
           )
         case .audiobookshelf:
           view = AnyView(
-            AudiobookShelfSettingsView(
+            IntegrationSettingsView(
               viewModel: AudiobookShelfConnectionViewModel(
                 connectionService: audiobookshelfService,
                 mode: .viewDetails
-              )
+              ),
+              integrationName: "AudiobookShelf"
             )
           )
         case .hardcover:

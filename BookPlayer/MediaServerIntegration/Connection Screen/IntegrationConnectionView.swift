@@ -1,55 +1,52 @@
 //
-//  AudiobookShelfConnectionView.swift
+//  IntegrationConnectionView.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 11/14/25.
-//  Copyright © 2025 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
 import SwiftUI
 
-enum AudiobookShelfConnectionViewField: Focusable {
-  case none
-  case serverUrl, username, password
-}
+struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: View {
+  @ObservedObject var viewModel: VM
 
-struct AudiobookShelfConnectionView: View {
-  /// View model for the form
-  @ObservedObject var viewModel: AudiobookShelfConnectionViewModel
+  let integrationName: String
 
-  @State private var firstAppear = true
   @State private var isLoading = false
   @State private var error: Error?
 
   @EnvironmentObject var theme: ThemeViewModel
 
-  @Environment(\.dismiss) var dismiss
-
   var body: some View {
     Form {
       switch viewModel.connectionState {
       case .disconnected:
-        AudiobookShelfDisconnectedView(
+        IntegrationDisconnectedView(
           serverUrl: $viewModel.form.serverUrl,
+          placeholderURL: integrationName == "Jellyfin"
+            ? "http://jellyfin.example.com:8096"
+            : "http://audiobookshelf.example.com",
+          integrationName: integrationName,
           onCommit: onConnect
         )
       case .foundServer:
-        AudiobookShelfServerInformationSectionView(
+        IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        AudiobookShelfServerFoundView(
+        IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
           onCommit: onSignIn
         )
       case .connected:
-        AudiobookShelfServerInformationSectionView(
+        IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        AudiobookShelfConnectedView(viewModel: viewModel)
+        IntegrationConnectedView(viewModel: viewModel)
       }
     }
     .scrollContentBackground(.hidden)
@@ -122,7 +119,7 @@ struct AudiobookShelfConnectionView: View {
 
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
-    case .disconnected, .foundServer: "AudiobookShelf"
+    case .disconnected, .foundServer: integrationName
     case .connected: "integration_connection_details_title".localized
     }
   }
@@ -150,43 +147,4 @@ struct AudiobookShelfConnectionView: View {
       viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty
     )
   }
-
-}
-
-#Preview("disconnected") {
-  let viewModel = AudiobookShelfConnectionViewModel(
-    connectionService: AudiobookShelfConnectionService()
-  )
-  AudiobookShelfConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
-}
-
-#Preview("found server") {
-  let viewModel = {
-    let viewModel = AudiobookShelfConnectionViewModel(
-      connectionService: AudiobookShelfConnectionService()
-    )
-    viewModel.connectionState = .foundServer
-    viewModel.form.serverName = "Mock Server"
-    viewModel.form.serverUrl = "http://example.com"
-    return viewModel
-  }()
-  AudiobookShelfConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
-}
-
-#Preview("connected") {
-  let viewModel = {
-    let viewModel = AudiobookShelfConnectionViewModel(
-      connectionService: AudiobookShelfConnectionService()
-    )
-    viewModel.connectionState = .connected
-    viewModel.form.serverName = "Mock Server"
-    viewModel.form.serverUrl = "http://example.com"
-    viewModel.form.username = "Mock User"
-    viewModel.form.password = "secret"
-    return viewModel
-  }()
-  AudiobookShelfConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
 }

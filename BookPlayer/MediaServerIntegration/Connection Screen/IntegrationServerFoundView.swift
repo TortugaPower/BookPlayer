@@ -1,22 +1,22 @@
 //
-//  JellyfinServerFoundView.swift
+//  IntegrationServerFoundView.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 6/6/25.
-//  Copyright © 2025 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import SwiftUI
 
-enum JellyfinServerFoundViewFields: Focusable {
+private enum ServerFoundViewFields: Focusable {
   case none, username, password
 }
 
-struct JellyfinServerFoundView: View {
+struct IntegrationServerFoundView: View {
   @Binding var username: String
   @Binding var password: String
 
-  @State var focusedField: JellyfinServerFoundViewFields = .none
+  @State private var focusedField: ServerFoundViewFields = .none
 
   @EnvironmentObject var theme: ThemeViewModel
 
@@ -32,7 +32,7 @@ struct JellyfinServerFoundView: View {
         }
       )
       .textContentType(.username)
-      .autocapitalization(.none)
+      .textInputAutocapitalization(.never)
       .focused($focusedField, selfKey: .username)
 
       SecureField(

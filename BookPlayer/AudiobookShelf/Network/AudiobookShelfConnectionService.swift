@@ -31,7 +31,7 @@ class AudiobookShelfConnectionService: BPLogger {
   /// Pings the server to verify it exists and returns the server version
   public func pingServer(at absolutePath: String) async throws -> String {
     guard let url = URL(string: absolutePath) else {
-      throw AudiobookShelfError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     // Use the public /ping endpoint which doesn't require authentication
@@ -43,11 +43,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     // Try to parse server info - /ping returns a simple success message
@@ -71,7 +71,7 @@ class AudiobookShelfConnectionService: BPLogger {
     serverName: String
   ) async throws {
     guard let url = URL(string: serverUrl) else {
-      throw AudiobookShelfError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     let loginURL = url.appendingPathComponent("login")
@@ -85,14 +85,14 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
       if httpResponse.statusCode == 401 {
         throw URLError(.userAuthenticationRequired)
       }
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     // Parse response
@@ -101,7 +101,7 @@ class AudiobookShelfConnectionService: BPLogger {
       let apiToken = user["token"] as? String,
       let userID = user["id"] as? String
     else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     let connectionData = AudiobookShelfConnectionData(
@@ -151,11 +151,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -211,7 +211,7 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     guard let url = urlComponents.url else {
-      throw AudiobookShelfError.urlFromComponents(urlComponents)
+      throw IntegrationError.urlFromComponents(urlComponents)
     }
 
     var request = URLRequest(url: url)
@@ -220,11 +220,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -252,11 +252,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -286,7 +286,7 @@ class AudiobookShelfConnectionService: BPLogger {
     ]
 
     guard let url = urlComponents.url else {
-      throw AudiobookShelfError.urlFromComponents(urlComponents)
+      throw IntegrationError.urlFromComponents(urlComponents)
     }
 
     var request = URLRequest(url: url)
@@ -295,11 +295,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -323,11 +323,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -367,7 +367,7 @@ class AudiobookShelfConnectionService: BPLogger {
     urlComponents.queryItems = queryItems
 
     guard let url = urlComponents.url else {
-      throw AudiobookShelfError.urlFromComponents(urlComponents)
+      throw IntegrationError.urlFromComponents(urlComponents)
     }
 
     var request = URLRequest(url: url)
@@ -376,11 +376,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -406,11 +406,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()

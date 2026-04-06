@@ -137,7 +137,7 @@ struct AudiobookShelfRootView: View {
     )
     .sheet(isPresented: $showConnectionForm) {
       NavigationStack {
-        AudiobookShelfConnectionView(viewModel: connectionViewModel)
+        IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "AudiobookShelf")
           .toolbar {
             ToolbarItemGroup(placement: .cancellationAction) {
               Button { dismiss() } label: {
@@ -262,18 +262,6 @@ struct AudiobookShelfRootView: View {
   }
 }
 
-// MARK: - Tab Editing State
-
-private struct TabEditingKey: EnvironmentKey {
-  static let defaultValue: Binding<Bool> = .constant(false)
-}
-
-extension EnvironmentValues {
-  var tabEditing: Binding<Bool> {
-    get { self[TabEditingKey.self] }
-    set { self[TabEditingKey.self] = newValue }
-  }
-}
 
 // MARK: - Per-Tab NavigationStack
 
@@ -386,11 +374,12 @@ private struct AudiobookShelfTabRoot: View {
     .tint(theme.linkColor)
     .sheet(isPresented: $showConnectionDetails) {
       NavigationStack {
-        AudiobookShelfSettingsView(
+        IntegrationSettingsView(
           viewModel: AudiobookShelfConnectionViewModel(
             connectionService: connectionService,
             mode: .viewDetails
-          )
+          ),
+          integrationName: "AudiobookShelf"
         )
         .toolbar {
           if connectionService.connection == nil {

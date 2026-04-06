@@ -1,21 +1,24 @@
 //
-//  JellyfinDisconnectedView.swift
+//  IntegrationDisconnectedView.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 6/6/25.
-//  Copyright © 2025 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import SwiftUI
 
-enum JellyfinDisconnectedViewFields: Focusable {
+private enum DisconnectedViewFields: Focusable {
   case none, serverUrl
 }
 
-struct JellyfinDisconnectedView: View {
+struct IntegrationDisconnectedView: View {
   @Binding var serverUrl: String
 
-  @State var focusedField: JellyfinDisconnectedViewFields = .none
+  let placeholderURL: String
+  let integrationName: String
+
+  @State private var focusedField: DisconnectedViewFields = .none
 
   @EnvironmentObject var theme: ThemeViewModel
 
@@ -24,7 +27,7 @@ struct JellyfinDisconnectedView: View {
   var body: some View {
     ThemedSection {
       ClearableTextField(
-        "http://jellyfin.example.com:8096",
+        placeholderURL,
         text: $serverUrl,
         onCommit: {
           if !serverUrl.isEmpty {
@@ -34,7 +37,7 @@ struct JellyfinDisconnectedView: View {
       )
       .keyboardType(.URL)
       .textContentType(.URL)
-      .autocapitalization(.none)
+      .textInputAutocapitalization(.never)
       .focused($focusedField, selfKey: .serverUrl)
     } header: {
       Text("integration_section_server_url".localized)
@@ -43,7 +46,7 @@ struct JellyfinDisconnectedView: View {
       Text(
         String(
           format: "integration_section_server_url_footer".localized,
-          "Jellyfin"
+          integrationName
         )
       )
       .foregroundStyle(theme.secondaryColor)

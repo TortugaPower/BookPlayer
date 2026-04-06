@@ -9,7 +9,7 @@
 import Foundation
 import JellyfinAPI
 
-struct JellyfinLibraryItem: Identifiable, Hashable {
+struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
   enum Kind {
     case userView
     case folder
@@ -32,6 +32,8 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
   var isNavigable: Bool {
     !isDownloadable
   }
+
+  var displayName: String { name }
 
   var placeholderImageName: String {
     switch kind {

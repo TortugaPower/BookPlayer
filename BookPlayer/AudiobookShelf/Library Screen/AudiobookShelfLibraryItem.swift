@@ -14,7 +14,7 @@ struct AudiobookShelfSeriesReference: Codable, Hashable {
   let sequence: String?
 }
 
-struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
+struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
   enum Kind: String, Codable {
     case audiobook = "book"
     case podcast = "podcast"
@@ -98,6 +98,8 @@ struct AudiobookShelfLibraryItem: Identifiable, Hashable, Codable {
 }
 
 extension AudiobookShelfLibraryItem {
+  var displayName: String { title }
+
   var isDownloadable: Bool {
     kind == .audiobook || kind == .podcast
   }

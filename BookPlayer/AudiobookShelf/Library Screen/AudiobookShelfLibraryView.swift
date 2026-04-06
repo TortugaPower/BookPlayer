@@ -6,139 +6,43 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
-import Kingfisher
 import SwiftUI
 
-struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>: View {
-  @StateObject var viewModel: Model
-  @EnvironmentObject private var theme: ThemeViewModel
-  @Environment(\.tabEditing) private var tabEditing
-
-  var navigationTitle: Text {
-    if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
-      return Text(
-        String(format: "integration_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
-      )
-    } else {
-      return Text(viewModel.navigationTitle)
-    }
-  }
+/// Thin wrapper providing AudiobookShelf-specific cell, row, sort picker, and environment
+/// to the shared `IntegrationLibraryView`.
+struct AudiobookShelfLibraryView<Model: IntegrationLibraryViewModelProtocol>: View
+where Model.Item == AudiobookShelfLibraryItem {
+  @ObservedObject var viewModel: Model
 
   var body: some View {
-    Group {
-      if viewModel.isGridEnabled, viewModel.layout == .grid {
-        ScrollView {
-          AudiobookShelfLibraryGridView(viewModel: viewModel)
-            .padding()
-        }
-      } else {
-        AudiobookShelfLibraryListView(viewModel: viewModel)
-          .scrollContentBackground(.hidden)
+    IntegrationLibraryView(
+      viewModel: viewModel,
+      gridCell: { item in
+        AudiobookShelfLibraryGridItemView(
+          item: item,
+          isSelected: viewModel.selectedItems.contains(item.id)
+        )
+      },
+      listRow: { item in
+        AudiobookShelfLibraryListItemView(item: item)
+      },
+      sortPicker: {
+        sortPickerContent
       }
-    }
-    .scrollDismissesKeyboard(.interactively)
-    .background(theme.systemBackgroundColor)
-    .environment(\.audiobookshelfService, viewModel.connectionService)
-    .modifier(ConditionalSearchableModifier(
-      isSearchable: viewModel.isSearchable,
-      text: $viewModel.searchQuery
-    ))
-    .searchPresentationToolbarBehavior(.avoidHidingContent)
-    .onAppear { viewModel.fetchInitialItems() }
-    .onDisappear { viewModel.cancelFetchItems() }
-    .errorAlert(error: $viewModel.error)
-    .environment(\.editMode, $viewModel.editMode)
-    .onChange(of: viewModel.editMode) { _, newValue in
-      tabEditing.wrappedValue = newValue.isEditing
-    }
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        navigationTitle
-          .bpFont(.headline)
-          .foregroundStyle(theme.primaryColor)
-      }
-      ToolbarItemGroup(placement: .topBarTrailing) {
-        toolbarTrailing
-      }
-    }
-    .toolbar {
-      if viewModel.allowsEditing, viewModel.editMode.isEditing {
-        ToolbarItemGroup(placement: .bottomBar) {
-          bottomBar
-        }
-      }
-    }
+    )
+    .environment(\.audiobookshelfService, (viewModel as? AudiobookShelfLibraryViewModel)?.connectionService ?? .init())
   }
 
   @ViewBuilder
-  var toolbarTrailing: some View {
-    if !viewModel.editMode.isEditing,
-       viewModel.allowsEditing || viewModel.showsLayoutPreferences || viewModel.showsSortPreferences {
-      Menu {
-        if viewModel.allowsEditing {
-          ThemedSection {
-            Button(action: viewModel.onEditToggleSelectTapped) {
-              Label("select_title".localized, systemImage: "checkmark.circle")
-            }
-          }
-        }
-
-        layoutPreferences
-      } label: {
-        Label("more_title".localized, systemImage: "ellipsis.circle")
+  private var sortPickerContent: some View {
+    if let vm = viewModel as? AudiobookShelfLibraryViewModel {
+      Picker(selection: Binding(
+        get: { vm.sortBy },
+        set: { vm.sortBy = $0 }
+      ), label: Text("Sort by".localized)) {
+        Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
+        Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
       }
-    } else if viewModel.allowsEditing {
-      Button(action: viewModel.onEditToggleSelectTapped) {
-        Text("done_title".localized).bold()
-      }
-    }
-  }
-
-  @ViewBuilder
-  var layoutPreferences: some View {
-    if viewModel.showsLayoutPreferences {
-      ThemedSection {
-        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-          Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
-          Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
-        }
-      }
-    }
-    if viewModel.showsSortPreferences {
-      ThemedSection {
-        Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
-          Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-          Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
-        }
-      }
-    }
-  }
-
-  @ViewBuilder
-  var bottomBar: some View {
-    Button(action: viewModel.onSelectAllTapped) {
-      Image(systemName: viewModel.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
-    }
-
-    Spacer()
-
-    Button(action: viewModel.onDownloadTapped) {
-      Image(systemName: "arrow.down.to.line")
-    }
-    .disabled(viewModel.selectedItems.isEmpty)
-  }
-}
-
-private struct ConditionalSearchableModifier: ViewModifier {
-  let isSearchable: Bool
-  @Binding var text: String
-
-  func body(content: Content) -> some View {
-    if isSearchable {
-      content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
-    } else {
-      content
     }
   }
 }

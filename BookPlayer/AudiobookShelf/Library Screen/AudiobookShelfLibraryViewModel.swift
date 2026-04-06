@@ -11,57 +11,13 @@ import Combine
 import Foundation
 import SwiftUI
 
-protocol AudiobookShelfLibraryViewModelProtocol: ObservableObject {
-  var navigation: BPNavigation { get set }
-  var navigationTitle: String { get }
-  var layout: AudiobookShelfLayout.Options { get set }
-  var sortBy: AudiobookShelfLayout.SortBy { get set }
-
-  var items: [AudiobookShelfLibraryItem] { get set }
-  var totalItems: Int { get }
-  var error: Error? { get set }
-
-  var editMode: EditMode { get set }
-  var selectedItems: Set<AudiobookShelfLibraryItem.ID> { get set }
-
-  var searchQuery: String { get set }
-  var isSearchable: Bool { get }
-  var isGridEnabled: Bool { get }
-  var showsLayoutPreferences: Bool { get }
-  var showsSortPreferences: Bool { get }
-  var allowsEditing: Bool { get }
-
-  var connectionService: AudiobookShelfConnectionService { get }
-
-  func fetchInitialItems()
-  func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem)
-  func cancelFetchItems()
-  func destination(for item: AudiobookShelfLibraryItem) -> AudiobookShelfLibraryLevelData?
-
-  @MainActor
-  func handleDoneAction()
-
-  @MainActor
-  func onEditToggleSelectTapped()
-  @MainActor
-  func onSelectTapped(for item: AudiobookShelfLibraryItem)
-  @MainActor
-  func onSelectAllTapped()
-  @MainActor
-  func onDownloadTapped()
-}
-
 enum AudiobookShelfLayout {
-  enum Options: String {
-    case grid, list
-  }
-
   enum SortBy: String {
     case recent, title
   }
 }
 
-final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtocol, BPLogger {
+final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
   }
@@ -71,7 +27,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   let source: AudiobookShelfLibraryViewSource
 
   @AppStorage(Constants.UserDefaults.audiobookshelfLibraryLayout)
-  var layout: AudiobookShelfLayout.Options = .grid
+  var layout: IntegrationLayout.Options = .grid
 
   @AppStorage(Constants.UserDefaults.audiobookshelfLibraryLayoutSortBy)
   var sortBy: AudiobookShelfLayout.SortBy = .recent {

@@ -1,16 +1,20 @@
 //
-//  AudiobookShelfLibraryListView.swift
+//  IntegrationLibraryListView.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 11/14/25.
-//  Copyright © 2025 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import SwiftUI
 
-struct AudiobookShelfLibraryListView<Model: AudiobookShelfLibraryViewModelProtocol>: View {
+struct IntegrationLibraryListView<
+  Model: IntegrationLibraryViewModelProtocol,
+  RowContent: View
+>: View {
   @ObservedObject var viewModel: Model
+  @ViewBuilder let rowContent: (Model.Item) -> RowContent
+
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
@@ -21,8 +25,8 @@ struct AudiobookShelfLibraryListView<Model: AudiobookShelfLibraryViewModelProtoc
     }
   }
 
-  func row(item: AudiobookShelfLibraryItem) -> some View {
-    AudiobookShelfLibraryListItemView(item: item)
+  func row(item: Model.Item) -> some View {
+    rowContent(item)
       .accessibilityAddTraits(.isButton)
       .contentShape(Rectangle())
       .onTapGesture {
@@ -36,6 +40,5 @@ struct AudiobookShelfLibraryListView<Model: AudiobookShelfLibraryViewModelProtoc
       .onAppear {
         viewModel.fetchMoreItemsIfNeeded(currentItem: item)
       }
-      .id("\(item.id)-\(viewModel.selectedItems.contains(item.id))")
   }
 }

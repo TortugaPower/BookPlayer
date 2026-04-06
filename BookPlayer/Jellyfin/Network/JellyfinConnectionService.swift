@@ -29,7 +29,7 @@ class JellyfinConnectionService: BPLogger {
   /// Finds and creates the api-client for the specified server
   public func findServer(at absolutePath: String) async throws -> String {
     guard let client = createClient(serverUrlString: absolutePath) else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let publicSystemInfo = try await client.send(Paths.getPublicSystemInfo)
@@ -46,7 +46,7 @@ class JellyfinConnectionService: BPLogger {
     serverName: String
   ) async throws {
     guard let client else {
-      fatalError("Client not initialized when attempting to sign in")
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let result = try await client.signIn(username: username, password: password)
@@ -55,7 +55,7 @@ class JellyfinConnectionService: BPLogger {
       let accessToken = result.accessToken,
       let userID = result.user?.id
     else {
-      throw JellyfinError.unexpectedResponse(code: nil).localizedDescription
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     let data = JellyfinConnectionData(
@@ -104,7 +104,7 @@ class JellyfinConnectionService: BPLogger {
     guard
       let connection
     else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let parameters = Paths.GetUserViewsParameters(userID: connection.userID)
@@ -417,7 +417,7 @@ class JellyfinConnectionService: BPLogger {
     _ request: Request<T>
   ) async throws -> Response<T> where T: Decodable {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     return try await client.send(request)
@@ -466,7 +466,7 @@ class JellyfinConnectionService: BPLogger {
 
   func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let request = Paths.getDownload(itemID: item.id)
@@ -477,7 +477,7 @@ class JellyfinConnectionService: BPLogger {
     components.queryItems = queryItems
 
     guard let url = components.url else {
-      throw JellyfinError.urlFromComponents(components)
+      throw IntegrationError.urlFromComponents(components)
     }
 
     return url
@@ -495,7 +495,7 @@ class JellyfinConnectionService: BPLogger {
     let components = try createUrlComponentsForApiRequest(request)
 
     guard let url = components.url else {
-      throw JellyfinError.urlFromComponents(components)
+      throw IntegrationError.urlFromComponents(components)
     }
 
     return url
@@ -505,11 +505,11 @@ class JellyfinConnectionService: BPLogger {
     _ request: Request<Response>
   ) throws -> URLComponents {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     guard let requestUrl = request.url else {
-      throw JellyfinError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     let requestAbsoluteUrl =
@@ -518,7 +518,7 @@ class JellyfinConnectionService: BPLogger {
       : requestUrl
 
     guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
-      throw JellyfinError.urlMalformed(requestUrl)
+      throw IntegrationError.urlMalformed(requestUrl)
     }
 
     if let query = request.query, !query.isEmpty {

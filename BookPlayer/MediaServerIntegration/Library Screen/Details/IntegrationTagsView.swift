@@ -1,15 +1,15 @@
 //
-//  JellyfinTagsView.swift
+//  IntegrationTagsView.swift
 //  BookPlayer
 //
-//  Created by Gianni Carlo on 31/7/25.
-//  Copyright © 2025 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
 import SwiftUI
 
-struct JellyfinTagsView: View {
+struct IntegrationTagsView: View {
   let tags: [String]
 
   @EnvironmentObject var theme: ThemeViewModel
@@ -33,6 +33,6 @@ struct JellyfinTagsView: View {
 }
 
 #Preview {
-  JellyfinTagsView(tags: ["Sci-Fi", "Fantasy", "Dystopian", "Action", "Adventure", "Mystery", "Horror", "Thriller"])
+  IntegrationTagsView(tags: ["Sci-Fi", "Fantasy", "Dystopian", "Action", "Adventure", "Mystery", "Horror", "Thriller"])
     .environmentObject(ThemeViewModel())
 }

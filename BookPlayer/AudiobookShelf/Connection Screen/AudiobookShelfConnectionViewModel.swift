@@ -11,36 +11,25 @@ import Combine
 import SwiftUI
 
 @MainActor
-final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
-  enum ViewMode {
-    case regular  // for the "Download from AudiobookShelf" flow
-    case viewDetails  // for the connection details + sign out option from the Settings screen
-  }
-
-  enum ConnectionState {
-    case disconnected
-    case foundServer
-    case connected
-  }
-
+final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelProtocol, BPLogger {
   let connectionService: AudiobookShelfConnectionService
 
-  @Published var form: AudiobookShelfConnectionFormViewModel
-  @Published var viewMode: ViewMode = .regular
-  @Published var connectionState: ConnectionState
+  @Published var form: IntegrationConnectionFormViewModel
+  @Published var viewMode: IntegrationViewMode = .regular
+  @Published var connectionState: IntegrationConnectionState
 
   private var disposeBag = Set<AnyCancellable>()
 
   init(
     connectionService: AudiobookShelfConnectionService,
-    mode: ViewMode = .regular
+    mode: IntegrationViewMode = .regular
   ) {
     self.connectionService = connectionService
     self._viewMode = .init(initialValue: mode)
-    let form = AudiobookShelfConnectionFormViewModel()
+    let form = IntegrationConnectionFormViewModel()
 
     if let data = connectionService.connection {
-      form.setValues(from: data)
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
       self._connectionState = .init(initialValue: .connected)
     } else {
       self._connectionState = .init(initialValue: .disconnected)
@@ -67,8 +56,8 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
       )
 
       connectionState = .connected
-    } catch let error as AudiobookShelfError {
-      throw error.localizedDescription
+    } catch let error as IntegrationError {
+      throw error
     } catch {
       throw error
     }
@@ -77,7 +66,7 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
   @MainActor
   func handleSignOutAction() {
     connectionService.deleteConnection()
-    form = AudiobookShelfConnectionFormViewModel()
+    form = IntegrationConnectionFormViewModel()
     connectionState = .disconnected
   }
 }

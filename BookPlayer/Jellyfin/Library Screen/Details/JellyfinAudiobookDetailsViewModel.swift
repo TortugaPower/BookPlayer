@@ -10,7 +10,7 @@ import BookPlayerKit
 import Foundation
 import JellyfinAPI
 
-struct JellyfinAudiobookDetailsData {
+struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
   let artist: String?
   let filePath: String?
   let fileSize: Int?
@@ -39,23 +39,7 @@ struct JellyfinAudiobookDetailsData {
   }
 }
 
-protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
-  var item: JellyfinLibraryItem { get }
-  var details: JellyfinAudiobookDetailsData? { get }
-  var connectionService: JellyfinConnectionService { get }
-  var error: Error? { get set }
-
-  @MainActor
-  func fetchData()
-
-  @MainActor
-  func cancelFetchData()
-
-  @MainActor
-  func beginDownloadAudiobook(_ item: JellyfinLibraryItem) throws
-}
-
-class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
+class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
 
   let item: JellyfinLibraryItem
   let connectionService: JellyfinConnectionService

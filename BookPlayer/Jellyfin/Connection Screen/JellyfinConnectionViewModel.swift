@@ -13,36 +13,25 @@ import JellyfinAPI
 import SwiftUI
 
 @MainActor
-final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
-  enum ViewMode {
-    case regular  // for the "Download from Jellyfin" flow
-    case viewDetails  // for the connection details + sign out option from the Settings screen
-  }
-
-  enum ConnectionState {
-    case disconnected
-    case foundServer
-    case connected
-  }
-
+final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol, BPLogger {
   let connectionService: JellyfinConnectionService
 
-  @Published var form: JellyfinConnectionFormViewModel
-  @Published var viewMode: ViewMode = .regular
-  @Published var connectionState: ConnectionState
+  @Published var form: IntegrationConnectionFormViewModel
+  @Published var viewMode: IntegrationViewMode = .regular
+  @Published var connectionState: IntegrationConnectionState
 
   private var disposeBag = Set<AnyCancellable>()
 
   init(
     connectionService: JellyfinConnectionService,
-    mode: ViewMode = .regular
+    mode: IntegrationViewMode = .regular
   ) {
     self.connectionService = connectionService
     self._viewMode = .init(initialValue: mode)
-    let form = JellyfinConnectionFormViewModel()
+    let form = IntegrationConnectionFormViewModel()
 
     if let data = connectionService.connection {
-      form.setValues(from: data)
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
       self._connectionState = .init(initialValue: .connected)
     } else {
       self._connectionState = .init(initialValue: .disconnected)
@@ -71,9 +60,9 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
       case 400...499:
-        throw JellyfinError.clientError(code: statusCode).localizedDescription
+        throw IntegrationError.clientError(code: statusCode)
       default:
-        throw JellyfinError.unexpectedResponse(code: statusCode).localizedDescription
+        throw IntegrationError.unexpectedResponse(code: statusCode)
       }
     } catch {
       throw error
@@ -83,7 +72,7 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
   @MainActor
   func handleSignOutAction() {
     connectionService.deleteConnection()
-    form = JellyfinConnectionFormViewModel()
+    form = IntegrationConnectionFormViewModel()
     connectionState = .disconnected
   }
 }
