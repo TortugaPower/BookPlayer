@@ -26,12 +26,17 @@ protocol AudiobookShelfLibraryViewModelProtocol: ObservableObject {
 
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
+  var isGridEnabled: Bool { get }
+  var showsLayoutPreferences: Bool { get }
+  var showsSortPreferences: Bool { get }
+  var allowsEditing: Bool { get }
 
   var connectionService: AudiobookShelfConnectionService { get }
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem)
   func cancelFetchItems()
+  func destination(for item: AudiobookShelfLibraryItem) -> AudiobookShelfLibraryLevelData?
 
   @MainActor
   func handleDoneAction()
@@ -63,6 +68,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
   var navigation: BPNavigation
   let navigationTitle: String
+  let source: AudiobookShelfLibraryViewSource
 
   @AppStorage(Constants.UserDefaults.audiobookshelfLibraryLayout)
   var layout: AudiobookShelfLayout.Options = .grid
@@ -70,10 +76,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   @AppStorage(Constants.UserDefaults.audiobookshelfLibraryLayoutSortBy)
   var sortBy: AudiobookShelfLayout.SortBy = .recent {
     didSet {
-      guard let libraryID = libraryID else { return }
-      items = []
-      nextPage = 0
-      fetchLibraryItems(libraryID: libraryID)
+      handleSortChanged()
     }
   }
 
@@ -85,16 +88,14 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
 
-  var isSearchable: Bool { libraryID != nil }
-
   var onTransition: BPTransition<Routes>?
 
-  var libraryID: String?
   let connectionService: AudiobookShelfConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
   private var nextPage = 0
+  private var allItems: [AudiobookShelfLibraryItem] = []
 
   private static let itemBatchSize = 20
   private static let itemFetchMargin = 3
@@ -102,25 +103,81 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
   private var disposeBag = Set<AnyCancellable>()
 
-  var canFetchMoreItems: Bool {
-    items.count < totalItems
+  var isSearchable: Bool {
+    switch source {
+    case .books(_, .none):
+      true
+    case .books(_, _), .entities(_, _), .collection(_):
+      true
+    case .libraries, .browseCategories(_):
+      false
+    }
+  }
+
+  var isGridEnabled: Bool {
+    switch source {
+    case .libraries, .books(_, _), .collection(_):
+      true
+    case .browseCategories(_), .entities(_, _):
+      false
+    }
+  }
+
+  var showsLayoutPreferences: Bool {
+    isGridEnabled
+  }
+
+  var showsSortPreferences: Bool {
+    switch source {
+    case .books(_, _), .collection(_):
+      true
+    case .libraries, .browseCategories(_), .entities(_, _):
+      false
+    }
+  }
+
+  var allowsEditing: Bool {
+    switch source {
+    case .books(_, _), .collection(_):
+      true
+    case .libraries, .browseCategories(_), .entities(_, _):
+      false
+    }
+  }
+
+  private var usesRemoteBookSearch: Bool {
+    if case .books(_, .none) = source {
+      return true
+    }
+    return false
+  }
+
+  private var usesPagedFetching: Bool {
+    if case .books(_, .none) = source, searchQuery.isEmpty {
+      return true
+    }
+    return false
+  }
+
+  private var canFetchMoreItems: Bool {
+    usesPagedFetching && items.count < totalItems
   }
 
   init(
-    libraryID: String?,
+    source: AudiobookShelfLibraryViewSource,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
-    self.libraryID = libraryID
+    self.source = source
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
     $searchQuery
-      .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+      .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
       .removeDuplicates()
       .dropFirst()
       .sink { [weak self] _ in
@@ -130,14 +187,15 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
   }
 
   func fetchInitialItems() {
-    fetchMoreItems()
+    guard items.isEmpty, fetchTask == nil else { return }
+    fetchSourceItems()
   }
 
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem) {
-    guard items.count >= Self.itemFetchMargin else { return }
+    guard canFetchMoreItems, items.count >= Self.itemFetchMargin else { return }
     let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
     if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
-      fetchMoreItems()
+      fetchBooksPage()
     }
   }
 
@@ -146,45 +204,141 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     fetchTask = nil
   }
 
-  private func fetchMoreItems() {
-    guard fetchTask == nil && canFetchMoreItems else {
-      return
-    }
-
-    if let libraryID {
-      fetchLibraryItems(libraryID: libraryID)
-    } else {
-      fetchTopLevelItems()
+  func destination(for item: AudiobookShelfLibraryItem) -> AudiobookShelfLibraryLevelData? {
+    switch item.kind {
+    case .audiobook, .podcast:
+      return .details(data: item)
+    case .library:
+      return .library(source: .browseCategories(library: item), title: item.title)
+    case .browseCategory:
+      guard let category = item.browseCategory else { return nil }
+      switch category {
+      case .books:
+        return .library(source: .books(libraryID: item.libraryId, filter: nil), title: category.title)
+      case .series, .collections, .authors, .narrators:
+        return .library(source: .entities(libraryID: item.libraryId, category: category), title: category.title)
+      }
+    case .collection:
+      return .library(source: .collection(id: item.id), title: item.title)
+    case .author, .series, .narrator:
+      guard let filter = item.filter else { return nil }
+      return .library(source: .books(libraryID: item.libraryId, filter: filter), title: item.title)
     }
   }
 
-  private func fetchTopLevelItems() {
+  @MainActor
+  func handleDoneAction() {
+    onTransition?(.done)
+  }
+
+  @MainActor
+  func onEditToggleSelectTapped() {
+    guard allowsEditing else { return }
+
+    withAnimation {
+      editMode = editMode.isEditing ? .inactive : .active
+    }
+
+    if !editMode.isEditing {
+      selectedItems.removeAll()
+    }
+  }
+
+  @MainActor
+  func onSelectTapped(for item: AudiobookShelfLibraryItem) {
+    guard item.isDownloadable else { return }
+
+    if let index = selectedItems.firstIndex(of: item.id) {
+      selectedItems.remove(at: index)
+    } else {
+      selectedItems.insert(item.id)
+    }
+  }
+
+  @MainActor
+  func onSelectAllTapped() {
+    guard allowsEditing else { return }
+
+    if selectedItems.isEmpty {
+      let ids = items.compactMap { item in
+        item.isDownloadable ? item.id : nil
+      }
+      selectedItems = Set(ids)
+    } else {
+      selectedItems.removeAll()
+    }
+  }
+
+  @MainActor
+  func onDownloadTapped() {
+    let items = selectedItems.compactMap { id in
+      self.items.first(where: { $0.id == id && $0.isDownloadable })
+    }
+
+    var urls = [URL]()
+    for item in items {
+      do {
+        let url = try connectionService.createItemDownloadUrl(item)
+        urls.append(url)
+      } catch {
+        self.error = error
+      }
+    }
+
+    guard !urls.isEmpty else { return }
+    singleFileDownloadService.handleDownload(urls)
+    navigation.dismiss?()
+  }
+
+  private func handleSortChanged() {
+    guard !items.isEmpty else { return }
+
+    switch source {
+    case .books(let libraryID, .none):
+      resetForFreshFetch()
+      fetchBookItems(libraryID: libraryID, filter: nil)
+    default:
+      applyLocalSearchAndSort()
+    }
+  }
+
+  private func fetchSourceItems() {
+    switch source {
+    case .libraries:
+      fetchLibraries()
+    case .browseCategories(let library):
+      loadLocalItems(AudiobookShelfBrowseCategory.allCases.map {
+        AudiobookShelfLibraryItem(category: $0, libraryId: library.id)
+      })
+    case .books(let libraryID, let filter):
+      fetchBookItems(libraryID: libraryID, filter: filter)
+    case .entities(let libraryID, let category):
+      fetchEntityItems(libraryID: libraryID, category: category)
+    case .collection(let id):
+      fetchCollectionItems(collectionID: id)
+    }
+  }
+
+  private func fetchLibraries() {
     fetchTask?.cancel()
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
-      items = []
 
       do {
         let libraries = try await connectionService.fetchLibraries()
+        let libraryItems = libraries
+          .filter { $0.mediaType == "book" }
+          .map(AudiobookShelfLibraryItem.init(library:))
+        loadLocalItems(libraryItems)
 
-        // Convert libraries to library items so users can select which library to browse
-        let libraryItems = libraries.map { library in
-          AudiobookShelfLibraryItem(
-            id: library.id,
-            title: library.name,
-            kind: .library,
-            libraryId: library.id,
-            authorName: nil,
-            narratorName: nil,
-            duration: nil,
-            size: nil,
-            coverPath: nil,
-            progress: nil
+        if libraryItems.count == 1, let library = libraryItems.first {
+          navigation.path.append(
+            AudiobookShelfLibraryLevelData.library(
+              source: AudiobookShelfLibraryViewSource.browseCategories(library: library),
+              title: library.title
+            )
           )
         }
-
-        self.totalItems = libraryItems.count
-        self.items = libraryItems
       } catch is CancellationError {
         // ignore
       } catch {
@@ -193,36 +347,28 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     }
   }
 
-  private func onSearchQueryChanged() {
-    guard let libraryID else { return }
+  private func fetchEntityItems(libraryID: String, category: AudiobookShelfBrowseCategory) {
     fetchTask?.cancel()
-    fetchTask = nil
-    editMode = .inactive
-    items = []
-    selectedItems.removeAll()
-    nextPage = 0
-    totalItems = Int.max
-
-    if searchQuery.isEmpty {
-      fetchLibraryItems(libraryID: libraryID)
-    } else {
-      searchLibraryItems(libraryID: libraryID, query: searchQuery)
-    }
-  }
-
-  private func searchLibraryItems(libraryID: String, query: String) {
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
       do {
-        let items = try await connectionService.searchItems(
-          in: libraryID,
-          query: query,
-          limit: Self.searchResultLimit
-        )
-
-        self.totalItems = items.count
-        self.items = items
+        switch category {
+        case .books:
+          loadLocalItems([])
+        case .authors:
+          let filterData = try await connectionService.fetchFilterData(in: libraryID)
+          loadLocalItems(filterData.authors.map { AudiobookShelfLibraryItem(author: $0, libraryId: libraryID) })
+        case .series:
+          let filterData = try await connectionService.fetchFilterData(in: libraryID)
+          loadLocalItems(filterData.series.map { AudiobookShelfLibraryItem(series: $0, libraryId: libraryID) })
+        case .narrators:
+          let filterData = try await connectionService.fetchFilterData(in: libraryID)
+          loadLocalItems(filterData.narrators.map { AudiobookShelfLibraryItem(narrator: $0, libraryId: libraryID) })
+        case .collections:
+          let collections = try await connectionService.fetchCollections(in: libraryID)
+          loadLocalItems(collections.map(AudiobookShelfLibraryItem.init(collection:)))
+        }
       } catch is CancellationError {
         // ignore
       } catch {
@@ -231,27 +377,50 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     }
   }
 
-  private func fetchLibraryItems(libraryID: String) {
+  private func fetchCollectionItems(collectionID: String) {
+    fetchTask?.cancel()
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
 
       do {
-        var desc: Bool?
-        let sortByParam: String
-        switch sortBy {
-        case .recent:
-          sortByParam = "addedAt"
-          desc = true
-        case .title:
-          sortByParam = "media.metadata.title"
-        }
+        let collection = try await connectionService.fetchCollection(id: collectionID)
+        let books = collection.books.compactMap(AudiobookShelfLibraryItem.init(apiItem:))
+        loadLocalItems(books)
+      } catch is CancellationError {
+        // ignore
+      } catch {
+        self.error = error
+      }
+    }
+  }
 
+  private func fetchBookItems(libraryID: String, filter: AudiobookShelfItemFilter?) {
+    resetSelectionState()
+
+    if filter == nil, usesRemoteBookSearch, searchQuery.isEmpty {
+      fetchBooksPage()
+    } else if filter == nil, usesRemoteBookSearch {
+      searchLibraryItems(libraryID: libraryID, query: searchQuery)
+    } else {
+      fetchAllFilteredBooks(libraryID: libraryID, filter: filter)
+    }
+  }
+
+  private func fetchBooksPage() {
+    guard case .books(let libraryID, let filter) = source else { return }
+    guard filter == nil, fetchTask == nil, canFetchMoreItems else { return }
+
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
+
+      do {
         let (items, totalItems) = try await connectionService.fetchItems(
           in: libraryID,
           limit: Self.itemBatchSize,
           page: nextPage,
-          sortBy: sortByParam,
-          desc: desc
+          sortBy: sortParameter,
+          desc: sortDescending,
+          filter: nil
         )
 
         self.nextPage += 1
@@ -265,61 +434,288 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     }
   }
 
-  @MainActor
-  func handleDoneAction() {
-    onTransition?(.done)
-  }
+  private func fetchAllFilteredBooks(libraryID: String, filter: AudiobookShelfItemFilter?) {
+    fetchTask?.cancel()
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
 
-  @MainActor
-  func onEditToggleSelectTapped() {
-    withAnimation {
-      editMode = editMode.isEditing ? .inactive : .active
-    }
-
-    if !editMode.isEditing {
-      selectedItems.removeAll()
-    }
-  }
-
-  @MainActor
-  func onSelectTapped(for item: AudiobookShelfLibraryItem) {
-    if let index = selectedItems.firstIndex(of: item.id) {
-      selectedItems.remove(at: index)
-    } else {
-      selectedItems.insert(item.id)
-    }
-  }
-
-  @MainActor
-  func onSelectAllTapped() {
-    if selectedItems.isEmpty {
-      let ids: [AudiobookShelfLibraryItem.ID] = items.compactMap { item in
-        guard item.kind == .audiobook else { return nil }
-        return item.id
-      }
-
-      selectedItems = Set(ids)
-    } else {
-      selectedItems.removeAll()
-    }
-  }
-
-  @MainActor
-  func onDownloadTapped() {
-    let items = selectedItems.compactMap({ id in
-      self.items.first(where: { $0.id == id })
-    })
-
-    var urls = [URL]()
-    for item in items {
       do {
-        let url = try connectionService.createItemDownloadUrl(item)
-        urls.append(url)
+        let (items, _) = try await connectionService.fetchItems(
+          in: libraryID,
+          limit: 0,
+          page: 0,
+          sortBy: sortParameter,
+          desc: sortDescending,
+          filter: filter
+        )
+
+        loadLocalItems(items)
+      } catch is CancellationError {
+        // ignore
       } catch {
         self.error = error
       }
     }
-    singleFileDownloadService.handleDownload(urls)
-    navigation.dismiss?()
+  }
+
+  private func searchLibraryItems(libraryID: String, query: String) {
+    fetchTask?.cancel()
+    fetchTask = Task { @MainActor in
+      defer { self.fetchTask = nil }
+
+      do {
+        let items = try await connectionService.searchItems(
+          in: libraryID,
+          query: query,
+          limit: Self.searchResultLimit
+        )
+
+        self.totalItems = items.count
+        self.items = sortItems(items)
+      } catch is CancellationError {
+        // ignore
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
+  private func onSearchQueryChanged() {
+    switch source {
+    case .books(let libraryID, .none):
+      resetForFreshFetch()
+
+      if searchQuery.isEmpty {
+        fetchBookItems(libraryID: libraryID, filter: nil)
+      } else {
+        searchLibraryItems(libraryID: libraryID, query: searchQuery)
+      }
+    default:
+      applyLocalSearchAndSort()
+    }
+  }
+
+  private func loadLocalItems(_ items: [AudiobookShelfLibraryItem]) {
+    allItems = items
+    applyLocalSearchAndSort()
+  }
+
+  private func applyLocalSearchAndSort() {
+    let normalizedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    let filteredItems = normalizedQuery.isEmpty
+      ? allItems
+      : allItems.filter { item in
+        item.title.localizedCaseInsensitiveContains(normalizedQuery)
+          || item.subtitle?.localizedCaseInsensitiveContains(normalizedQuery) == true
+          || item.authorName?.localizedCaseInsensitiveContains(normalizedQuery) == true
+          || item.narratorName?.localizedCaseInsensitiveContains(normalizedQuery) == true
+      }
+
+    let sortedItems = sortItems(filteredItems)
+    totalItems = sortedItems.count
+    items = sortedItems
+  }
+
+  private func sortItems(_ items: [AudiobookShelfLibraryItem]) -> [AudiobookShelfLibraryItem] {
+    if let seriesID = activeSeriesID {
+      return items.sorted { lhs, rhs in
+        compareSeriesItems(lhs, rhs, seriesID: seriesID)
+      }
+    }
+
+    switch sortBy {
+    case .recent:
+      return items.sorted { lhs, rhs in
+        let lhsDate = lhs.updatedAt ?? lhs.addedAt ?? 0
+        let rhsDate = rhs.updatedAt ?? rhs.addedAt ?? 0
+        if lhsDate == rhsDate {
+          return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+        }
+        return lhsDate > rhsDate
+      }
+    case .title:
+      return items.sorted {
+        $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+      }
+    }
+  }
+
+  private var activeSeriesID: String? {
+    guard case .books(_, let filter?) = source,
+          filter.group == .series
+    else {
+      return nil
+    }
+
+    return filter.value
+  }
+
+  private func compareSeriesItems(
+    _ lhs: AudiobookShelfLibraryItem,
+    _ rhs: AudiobookShelfLibraryItem,
+    seriesID: String
+  ) -> Bool {
+    let lhsSortValue = seriesSortValue(lhs.seriesSequence(for: seriesID))
+    let rhsSortValue = seriesSortValue(rhs.seriesSequence(for: seriesID))
+
+    switch (lhsSortValue, rhsSortValue) {
+    case let (.some(lhsValue), .some(rhsValue)):
+      if lhsValue != rhsValue {
+        return lhsValue < rhsValue
+      }
+    case (.some, .none):
+      return true
+    case (.none, .some):
+      return false
+    case (.none, .none):
+      break
+    }
+
+    let lhsSequence = lhs.seriesSequence(for: seriesID) ?? lhs.title
+    let rhsSequence = rhs.seriesSequence(for: seriesID) ?? rhs.title
+    let fallbackComparison = lhsSequence.localizedStandardCompare(rhsSequence)
+    if fallbackComparison != .orderedSame {
+      return fallbackComparison == .orderedAscending
+    }
+
+    return lhs.title.localizedStandardCompare(rhs.title) == .orderedAscending
+  }
+
+  private func seriesSortValue(_ sequence: String?) -> Decimal? {
+    guard let trimmedSequence = sequence?.trimmingCharacters(in: .whitespacesAndNewlines),
+          !trimmedSequence.isEmpty
+    else {
+      return nil
+    }
+
+    if let decimal = Decimal(string: trimmedSequence) {
+      return decimal
+    }
+
+    if let wordValue = seriesWordSortValue(trimmedSequence) {
+      return wordValue
+    }
+
+    let pattern = #"[-+]?\d+(?:\.\d+)?"#
+    guard let regex = try? NSRegularExpression(pattern: pattern),
+          let match = regex.firstMatch(
+            in: trimmedSequence,
+            range: NSRange(trimmedSequence.startIndex..., in: trimmedSequence)
+          ),
+          let range = Range(match.range, in: trimmedSequence)
+    else {
+      return nil
+    }
+
+    return Decimal(string: String(trimmedSequence[range]))
+  }
+
+  private func seriesWordSortValue(_ sequence: String) -> Decimal? {
+    let normalized = sequence
+      .lowercased()
+      .replacingOccurrences(of: "-", with: " ")
+      .replacingOccurrences(of: "_", with: " ")
+
+    let tokens = normalized
+      .components(separatedBy: CharacterSet.alphanumerics.inverted)
+      .filter { !$0.isEmpty }
+
+    func decimal(_ value: String) -> Decimal {
+      Decimal(string: value) ?? 0
+    }
+
+    let values: [String: Decimal] = [
+      "minus": decimal("-1"),
+      "negative": decimal("-1"),
+      "zero": decimal("0"),
+      "one": decimal("1"),
+      "first": decimal("1"),
+      "two": decimal("2"),
+      "second": decimal("2"),
+      "three": decimal("3"),
+      "third": decimal("3"),
+      "four": decimal("4"),
+      "fourth": decimal("4"),
+      "five": decimal("5"),
+      "fifth": decimal("5"),
+      "six": decimal("6"),
+      "sixth": decimal("6"),
+      "seven": decimal("7"),
+      "seventh": decimal("7"),
+      "eight": decimal("8"),
+      "eighth": decimal("8"),
+      "nine": decimal("9"),
+      "ninth": decimal("9"),
+      "ten": decimal("10"),
+      "tenth": decimal("10"),
+      "eleven": decimal("11"),
+      "eleventh": decimal("11"),
+      "twelve": decimal("12"),
+      "twelfth": decimal("12"),
+      "thirteen": decimal("13"),
+      "thirteenth": decimal("13"),
+      "fourteen": decimal("14"),
+      "fourteenth": decimal("14"),
+      "fifteen": decimal("15"),
+      "fifteenth": decimal("15"),
+      "sixteen": decimal("16"),
+      "sixteenth": decimal("16"),
+      "seventeen": decimal("17"),
+      "seventeenth": decimal("17"),
+      "eighteen": decimal("18"),
+      "eighteenth": decimal("18"),
+      "nineteen": decimal("19"),
+      "nineteenth": decimal("19"),
+      "twenty": decimal("20"),
+      "twentieth": decimal("20"),
+      "half": decimal("0.5")
+    ]
+
+    for (index, token) in tokens.enumerated() {
+      guard var value = values[token] else { continue }
+
+      if index > 0 {
+        let previous = tokens[index - 1]
+        if previous == "minus" || previous == "negative" {
+          value *= -1
+        }
+      }
+
+      return value
+    }
+
+    return nil
+  }
+
+  private func resetSelectionState() {
+    editMode = .inactive
+    selectedItems.removeAll()
+  }
+
+  private func resetForFreshFetch() {
+    fetchTask?.cancel()
+    fetchTask = nil
+    resetSelectionState()
+    items = []
+    totalItems = Int.max
+    nextPage = 0
+  }
+
+  private var sortParameter: String {
+    switch sortBy {
+    case .recent:
+      "addedAt"
+    case .title:
+      "media.metadata.title"
+    }
+  }
+
+  private var sortDescending: Bool? {
+    switch sortBy {
+    case .recent:
+      true
+    case .title:
+      nil
+    }
   }
 }

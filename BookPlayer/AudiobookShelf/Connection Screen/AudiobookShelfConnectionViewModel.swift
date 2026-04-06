@@ -49,7 +49,10 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
 
       Task { @MainActor in
         navigation.path.append(
-          AudiobookShelfLibraryLevelData.topLevel(libraryName: form.serverName)
+          AudiobookShelfLibraryLevelData.library(
+            source: AudiobookShelfLibraryViewSource.libraries,
+            title: form.serverName
+          )
         )
       }
     } else {
@@ -78,7 +81,10 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
 
       connectionState = .connected
       navigation.path.append(
-        AudiobookShelfLibraryLevelData.topLevel(libraryName: form.serverName)
+        AudiobookShelfLibraryLevelData.library(
+          source: AudiobookShelfLibraryViewSource.libraries,
+          title: form.serverName
+        )
       )
     } catch let error as AudiobookShelfError {
       throw error.localizedDescription
@@ -90,6 +96,7 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
   @MainActor
   func handleSignOutAction() {
     connectionService.deleteConnection()
+    navigation.path = NavigationPath()
     form = AudiobookShelfConnectionFormViewModel()
     connectionState = .disconnected
   }
@@ -97,7 +104,10 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
   @MainActor
   func handleGoToLibraryAction() {
     navigation.path.append(
-      AudiobookShelfLibraryLevelData.topLevel(libraryName: form.serverName)
+      AudiobookShelfLibraryLevelData.library(
+        source: AudiobookShelfLibraryViewSource.libraries,
+        title: form.serverName
+      )
     )
   }
 }

@@ -200,7 +200,7 @@ final class MockAudiobookShelfAudiobookDetailsViewModel: AudiobookShelfAudiobook
     publisher: nil,
     series: [.init(id: "1", name: "The Great American Novels", sequence: nil)]
   )
-  let parentData = AudiobookShelfLibraryLevelData.topLevel(libraryName: "Mock Library")
+  let parentData = AudiobookShelfLibraryLevelData.library(source: .libraries, title: "Mock Library")
   let vm = MockAudiobookShelfAudiobookDetailsViewModel(item: item, details: details)
   AudiobookShelfAudiobookDetailsView<MockAudiobookShelfAudiobookDetailsViewModel>(viewModel: vm, onDownloadTap: {})
     .environmentObject(MockAudiobookShelfLibraryViewModel(data: parentData))

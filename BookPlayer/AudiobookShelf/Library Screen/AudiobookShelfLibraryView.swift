@@ -26,7 +26,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   var body: some View {
     Group {
-      if viewModel.layout == .grid {
+      if viewModel.isGridEnabled, viewModel.layout == .grid {
         ScrollView {
           AudiobookShelfLibraryGridView(viewModel: viewModel)
             .padding()
@@ -56,7 +56,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
       }
     }
     .toolbar {
-      if viewModel.editMode.isEditing {
+      if viewModel.allowsEditing, viewModel.editMode.isEditing {
         ToolbarItemGroup(placement: .bottomBar) {
           bottomBar
         }
@@ -66,11 +66,14 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   @ViewBuilder
   var toolbarTrailing: some View {
-    if !viewModel.editMode.isEditing {
+    if !viewModel.editMode.isEditing,
+       viewModel.allowsEditing || viewModel.showsLayoutPreferences || viewModel.showsSortPreferences {
       Menu {
-        ThemedSection {
-          Button(action: viewModel.onEditToggleSelectTapped) {
-            Label("select_title".localized, systemImage: "checkmark.circle")
+        if viewModel.allowsEditing {
+          ThemedSection {
+            Button(action: viewModel.onEditToggleSelectTapped) {
+              Label("select_title".localized, systemImage: "checkmark.circle")
+            }
           }
         }
 
@@ -78,7 +81,7 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
       } label: {
         Label("more_title".localized, systemImage: "ellipsis.circle")
       }
-    } else {
+    } else if viewModel.allowsEditing {
       Button(action: viewModel.onEditToggleSelectTapped) {
         Text("done_title".localized).bold()
       }
@@ -87,16 +90,20 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
 
   @ViewBuilder
   var layoutPreferences: some View {
-    ThemedSection {
-      Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-        Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
-        Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
+    if viewModel.showsLayoutPreferences {
+      ThemedSection {
+        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
+          Label("Grid".localized, systemImage: "square.grid.2x2").tag(AudiobookShelfLayout.Options.grid)
+          Label("List".localized, systemImage: "list.bullet").tag(AudiobookShelfLayout.Options.list)
+        }
       }
     }
-    ThemedSection {
-      Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
-        Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-        Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+    if viewModel.showsSortPreferences {
+      ThemedSection {
+        Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
+          Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
+          Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+        }
       }
     }
   }
@@ -125,6 +132,170 @@ private struct ConditionalSearchableModifier: ViewModifier {
       content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
     } else {
       content
+    }
+  }
+}
+
+struct AudiobookShelfBrowseTabsView: View {
+  let library: AudiobookShelfLibraryItem
+
+  @State private var selectedCategory: AudiobookShelfBrowseCategory = .books
+
+  @StateObject private var booksViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var seriesViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var collectionsViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var authorsViewModel: AudiobookShelfLibraryViewModel
+  @StateObject private var narratorsViewModel: AudiobookShelfLibraryViewModel
+
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  init(
+    library: AudiobookShelfLibraryItem,
+    connectionService: AudiobookShelfConnectionService,
+    singleFileDownloadService: SingleFileDownloadService,
+    navigation: BPNavigation
+  ) {
+    self.library = library
+
+    self._booksViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .books(libraryID: library.id, filter: nil),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._seriesViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .series),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._collectionsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .collections),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._authorsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .authors),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+    self._narratorsViewModel = .init(
+      wrappedValue: AudiobookShelfLibraryViewModel(
+        source: .entities(libraryID: library.id, category: .narrators),
+        connectionService: connectionService,
+        singleFileDownloadService: singleFileDownloadService,
+        navigation: navigation,
+        navigationTitle: library.title
+      )
+    )
+  }
+
+  var body: some View {
+    selectedView
+      .background(theme.systemBackgroundColor)
+      .safeAreaInset(edge: .bottom) {
+        if !selectedViewModel.editMode.isEditing {
+          bottomSwitcher
+        }
+      }
+  }
+
+  private var selectedViewModel: AudiobookShelfLibraryViewModel {
+    switch selectedCategory {
+    case .books:
+      booksViewModel
+    case .series:
+      seriesViewModel
+    case .collections:
+      collectionsViewModel
+    case .authors:
+      authorsViewModel
+    case .narrators:
+      narratorsViewModel
+    }
+  }
+
+  @ViewBuilder
+  private var selectedView: some View {
+    switch selectedCategory {
+    case .books:
+      AudiobookShelfLibraryView(viewModel: booksViewModel)
+    case .series:
+      AudiobookShelfLibraryView(viewModel: seriesViewModel)
+    case .collections:
+      AudiobookShelfLibraryView(viewModel: collectionsViewModel)
+    case .authors:
+      AudiobookShelfLibraryView(viewModel: authorsViewModel)
+    case .narrators:
+      AudiobookShelfLibraryView(viewModel: narratorsViewModel)
+    }
+  }
+
+  private var bottomSwitcher: some View {
+    HStack(spacing: 6) {
+      ForEach(AudiobookShelfBrowseCategory.allCases, id: \.self) { category in
+        Button {
+          selectedCategory = category
+        } label: {
+          VStack(spacing: 4) {
+            Image(systemName: iconName(for: category))
+              .bpFont(.body)
+            Text(category.title)
+              .bpFont(.caption)
+              .lineLimit(1)
+              .minimumScaleFactor(0.8)
+          }
+          .frame(maxWidth: .infinity)
+          .padding(.vertical, 10)
+          .foregroundStyle(selectedCategory == category ? Color.white : theme.primaryColor)
+          .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+              .fill(selectedCategory == category ? theme.linkColor : Color.clear)
+          )
+        }
+        .buttonStyle(.plain)
+      }
+    }
+    .padding(8)
+    .background(
+      RoundedRectangle(cornerRadius: 28, style: .continuous)
+        .fill(theme.secondarySystemBackgroundColor.opacity(0.96))
+        .overlay(
+          RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .stroke(theme.separatorColor.opacity(0.25), lineWidth: 1)
+        )
+    )
+    .padding(.horizontal, 16)
+    .padding(.top, 8)
+    .padding(.bottom, 8)
+  }
+
+  private func iconName(for category: AudiobookShelfBrowseCategory) -> String {
+    switch category {
+    case .books:
+      "books.vertical.fill"
+    case .series:
+      "rectangle.stack.fill"
+    case .collections:
+      "square.stack.3d.up.fill"
+    case .authors:
+      "person.2.fill"
+    case .narrators:
+      "mic.fill"
     }
   }
 }

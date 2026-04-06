@@ -42,15 +42,10 @@ struct AudiobookShelfLibraryGridView<Model: AudiobookShelfLibraryViewModelProtoc
             .accessibilityAddTraits(.isButton)
             .onTapGesture {
               if viewModel.editMode.isEditing {
-                guard case .audiobook = item.kind else { return }
+                guard item.isDownloadable else { return }
                 viewModel.onSelectTapped(for: item)
-              } else {
-                switch item.kind {
-                case .audiobook, .podcast:
-                  viewModel.navigation.path.append(AudiobookShelfLibraryLevelData.details(data: item))
-                case .library:
-                  viewModel.navigation.path.append(AudiobookShelfLibraryLevelData.library(data: item))
-                }
+              } else if let destination = viewModel.destination(for: item) {
+                viewModel.navigation.path.append(destination)
               }
             }
             .onAppear {
@@ -70,6 +65,10 @@ final class MockAudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelPr
 
   var searchQuery: String = ""
   var isSearchable: Bool { false }
+  var isGridEnabled: Bool { true }
+  var showsLayoutPreferences: Bool { true }
+  var showsSortPreferences: Bool { true }
+  var allowsEditing: Bool { true }
 
   var layout = AudiobookShelfLayout.Options.grid
   var sortBy = AudiobookShelfLayout.SortBy.recent
@@ -88,6 +87,7 @@ final class MockAudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelPr
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem) {}
   func cancelFetchItems() {}
+  func destination(for item: AudiobookShelfLibraryItem) -> AudiobookShelfLibraryLevelData? { nil }
 
   func handleDoneAction() {}
 
@@ -99,7 +99,9 @@ final class MockAudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelPr
 
 #Preview("top level") {
   let model = {
-    let model = MockAudiobookShelfLibraryViewModel(data: .topLevel(libraryName: "Mock Library"))
+    let model = MockAudiobookShelfLibraryViewModel(
+      data: .library(source: .libraries, title: "Mock Library")
+    )
     model.items = [
       AudiobookShelfLibraryItem(
         id: "0.1",
