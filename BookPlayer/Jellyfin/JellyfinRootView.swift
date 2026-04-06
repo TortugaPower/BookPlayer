@@ -36,6 +36,7 @@ struct JellyfinRootView: View {
 
   @State private var showLibraryPicker = false
   @State private var showConnectionForm = false
+  @State private var showServerPicker = false
   @State private var isLoadingLibraries = false
 
   private var isReady: Bool {
@@ -136,14 +137,41 @@ struct JellyfinRootView: View {
     .onChange(of: connectionViewModel.connectionState) { _, newValue in
       if newValue == .connected {
         showConnectionForm = false
-        if resolvedLibrary == nil {
-          Task { await loadLibraries() }
-        }
+        resolvedLibrary = nil
+        Task { await loadLibraries() }
       }
     }
+    .sheet(isPresented: $showServerPicker) {
+      NavigationStack {
+        IntegrationServerPickerView(viewModel: connectionViewModel) { serverID in
+          connectionViewModel.handleActivateAction(id: serverID)
+          showServerPicker = false
+          resolvedLibrary = nil
+          Task { await loadLibraries() }
+        }
+        .toolbar {
+          ToolbarItem(placement: .principal) {
+            Text("Jellyfin")
+              .bpFont(.headline)
+              .foregroundStyle(theme.primaryColor)
+          }
+          ToolbarItemGroup(placement: .cancellationAction) {
+            Button { showServerPicker = false } label: {
+              Image(systemName: "xmark")
+                .foregroundStyle(theme.linkColor)
+            }
+          }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
     .task {
-      if connectionService.connection == nil {
+      if connectionService.connections.isEmpty {
         showConnectionForm = true
+      } else if connectionService.connections.count > 1, resolvedLibrary == nil {
+        showServerPicker = true
       } else if resolvedLibrary == nil {
         await loadLibraries()
       }

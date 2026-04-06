@@ -12,18 +12,31 @@ import JellyfinAPI
 
 @Observable
 class JellyfinConnectionService: BPLogger {
+  private static let activeConnectionIDKey = "jellyfin_active_connection_id"
+
   private let keychainService: KeychainServiceProtocol
 
-  var connection: JellyfinConnectionData?
+  var connections: [JellyfinConnectionData] = []
+  var connection: JellyfinConnectionData? {
+    if let activeConnectionID,
+       let active = connections.first(where: { $0.id == activeConnectionID }) {
+      return active
+    }
+    return connections.first
+  }
   var client: JellyfinClient?
 
+  private(set) var activeConnectionID: String? {
+    get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
+    set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
+  }
 
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
   }
 
   func setup() {
-    reloadConnection()
+    reloadConnections()
   }
 
   /// Finds and creates the api-client for the specified server
@@ -66,38 +79,69 @@ class JellyfinConnectionService: BPLogger {
       accessToken: accessToken
     )
 
-    try keychainService.set(
-      data,
-      key: .jellyfinConnection
-    )
+    // Deduplicate on url + userID
+    connections.removeAll { $0.url == data.url && $0.userID == data.userID }
+    connections.append(data)
+    activeConnectionID = data.id
+    saveConnections()
 
-    self.connection = data
     self.client = client
   }
 
   func saveSelectedLibrary(id: String?) {
-    guard var data = connection else { return }
-    data.selectedLibraryId = id
-    connection = data
-    try? keychainService.set(data, key: .jellyfinConnection)
+    guard let activeID = connection?.id,
+          let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
+    connections[index].selectedLibraryId = id
+    saveConnections()
   }
 
-  func deleteConnection() {
-    if let client {
+  func activateConnection(id: String) {
+    activeConnectionID = id
+    if let data = connection {
+      client = createClient(
+        serverUrlString: data.url.absoluteString,
+        accessToken: data.accessToken
+      )
+    }
+  }
+
+  func deleteConnection(id: String) {
+    if let data = connections.first(where: { $0.id == id }),
+       data.id == connection?.id,
+       let client {
       Task {
-        // we don't care if this throws
         try await client.signOut()
       }
     }
 
-    do {
-      try keychainService.remove(.jellyfinConnection)
-    } catch {
-      Self.logger.warning("failed to remove connection data from keychain: \(error)")
+    connections.removeAll { $0.id == id }
+
+    if activeConnectionID == id {
+      activeConnectionID = connections.first?.id
     }
 
-    connection = nil
-    client = nil
+    if connections.isEmpty {
+      client = nil
+      do {
+        try keychainService.remove(.jellyfinConnection)
+      } catch {
+        Self.logger.warning("failed to remove connection data from keychain: \(error)")
+      }
+    } else {
+      saveConnections()
+      if let data = connection {
+        client = createClient(
+          serverUrlString: data.url.absoluteString,
+          accessToken: data.accessToken
+        )
+      }
+    }
+  }
+
+  func deleteConnection() {
+    if let id = connection?.id {
+      deleteConnection(id: id)
+    }
   }
 
   public func fetchTopLevelItems() async throws -> [JellyfinLibraryItem] {
@@ -423,20 +467,40 @@ class JellyfinConnectionService: BPLogger {
     return try await client.send(request)
   }
 
-  private func reloadConnection() {
-    guard
-      let storedConnection: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection),
-      isConnectionValid(storedConnection)
-    else {
+  private func reloadConnections() {
+    // Try array format first
+    if let storedConnections: [JellyfinConnectionData] = try? keychainService.get(.jellyfinConnection) {
+      connections = storedConnections.filter { isConnectionValid($0) }
+    } else if let single: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection),
+              isConnectionValid(single) {
+      // Migrate from single-connection format
+      connections = [single]
+      saveConnections()
+    } else {
       Self.logger.warning("failed to load connection data from keychain")
       return
     }
 
-    client = createClient(
-      serverUrlString: storedConnection.url.absoluteString,
-      accessToken: storedConnection.accessToken
-    )
-    connection = storedConnection
+    // Normalize activeConnectionID
+    if connections.isEmpty {
+      activeConnectionID = nil
+    } else if let activeID = activeConnectionID,
+              !connections.contains(where: { $0.id == activeID }) {
+      activeConnectionID = connections.first?.id
+    } else if activeConnectionID == nil {
+      activeConnectionID = connections.first?.id
+    }
+
+    if let data = connection {
+      client = createClient(
+        serverUrlString: data.url.absoluteString,
+        accessToken: data.accessToken
+      )
+    }
+  }
+
+  private func saveConnections() {
+    try? keychainService.set(connections, key: .jellyfinConnection)
   }
 
   private func isConnectionValid(_ data: JellyfinConnectionData) -> Bool {
