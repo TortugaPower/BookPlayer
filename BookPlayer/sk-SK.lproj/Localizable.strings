@@ -436,3 +436,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "passkey_email_exists_title" = "Účet existuje";
 "passkey_email_exists_message" = "Účet s týmto e-mailom už existuje. Prihláste sa pomocou existujúceho prístupového kľúča alebo Apple ID.";
 "passkey_signin_existing" = "Prihlásiť sa existujúcim prístupovým kľúčom";
+"Switch Library" = "Prepnúť knižnicu";
+"Authors" = "Autori";
+"Series" = "Série";
+"Collections" = "Kolekcie";
+"Narrators" = "Rozprávači";

@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "アカウントが存在します";
 "passkey_email_exists_message" = "このメールアドレスのアカウントは既に存在します。既存のパスキーまたはApple IDでサインインしてください。";
 "passkey_signin_existing" = "既存のパスキーでサインイン";
+"Switch Library" = "ライブラリを切り替え";
+"Authors" = "著者";
+"Series" = "シリーズ";
+"Collections" = "コレクション";
+"Narrators" = "ナレーター";

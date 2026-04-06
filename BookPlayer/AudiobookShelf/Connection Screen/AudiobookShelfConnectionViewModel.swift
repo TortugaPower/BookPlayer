@@ -25,7 +25,6 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
 
   let connectionService: AudiobookShelfConnectionService
 
-  var navigation: BPNavigation
   @Published var form: AudiobookShelfConnectionFormViewModel
   @Published var viewMode: ViewMode = .regular
   @Published var connectionState: ConnectionState
@@ -34,27 +33,15 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
 
   init(
     connectionService: AudiobookShelfConnectionService,
-    navigation: BPNavigation,
     mode: ViewMode = .regular
   ) {
     self.connectionService = connectionService
     self._viewMode = .init(initialValue: mode)
     let form = AudiobookShelfConnectionFormViewModel()
 
-    self.navigation = navigation
-
     if let data = connectionService.connection {
       form.setValues(from: data)
       self._connectionState = .init(initialValue: .connected)
-
-      Task { @MainActor in
-        navigation.path.append(
-          AudiobookShelfLibraryLevelData.library(
-            source: AudiobookShelfLibraryViewSource.libraries,
-            title: form.serverName
-          )
-        )
-      }
     } else {
       self._connectionState = .init(initialValue: .disconnected)
     }
@@ -80,12 +67,6 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
       )
 
       connectionState = .connected
-      navigation.path.append(
-        AudiobookShelfLibraryLevelData.library(
-          source: AudiobookShelfLibraryViewSource.libraries,
-          title: form.serverName
-        )
-      )
     } catch let error as AudiobookShelfError {
       throw error.localizedDescription
     } catch {
@@ -96,18 +77,7 @@ final class AudiobookShelfConnectionViewModel: ObservableObject, BPLogger {
   @MainActor
   func handleSignOutAction() {
     connectionService.deleteConnection()
-    navigation.path = NavigationPath()
     form = AudiobookShelfConnectionFormViewModel()
     connectionState = .disconnected
-  }
-
-  @MainActor
-  func handleGoToLibraryAction() {
-    navigation.path.append(
-      AudiobookShelfLibraryLevelData.library(
-        source: AudiobookShelfLibraryViewSource.libraries,
-        title: form.serverName
-      )
-    )
   }
 }

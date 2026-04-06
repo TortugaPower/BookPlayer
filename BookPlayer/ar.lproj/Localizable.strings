@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "الحساب موجود";
 "passkey_email_exists_message" = "يوجد حساب بهذا البريد الإلكتروني بالفعل. يرجى تسجيل الدخول باستخدام مفتاح المرور الحالي أو معرف Apple بدلاً من ذلك.";
 "passkey_signin_existing" = "تسجيل الدخول بمفتاح المرور الحالي";
+"Switch Library" = "تبديل المكتبة";
+"Authors" = "المؤلفون";
+"Series" = "سلاسل";
+"Collections" = "مجموعات";
+"Narrators" = "الرواة";

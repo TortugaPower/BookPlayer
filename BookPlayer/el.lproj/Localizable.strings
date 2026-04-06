@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Ο λογαριασμός υπάρχει";
 "passkey_email_exists_message" = "Υπάρχει ήδη λογαριασμός με αυτό το email. Παρακαλώ συνδεθείτε με το υπάρχον κλειδί πρόσβασης ή Apple ID σας.";
 "passkey_signin_existing" = "Σύνδεση με υπάρχον κλειδί πρόσβασης";
+"Switch Library" = "Αλλαγή βιβλιοθήκης";
+"Authors" = "Συγγραφείς";
+"Series" = "Σειρές";
+"Collections" = "Συλλογές";
+"Narrators" = "Αφηγητές";

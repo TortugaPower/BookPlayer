@@ -27,15 +27,10 @@ struct JellyfinLibraryListView<Model: JellyfinLibraryViewModelProtocol>: View {
       .contentShape(Rectangle())
       .onTapGesture {
         if viewModel.editMode.isEditing {
-          guard case .audiobook = item.kind else { return }
+          guard item.isDownloadable else { return }
           viewModel.onSelectTapped(for: item)
-        } else {
-          switch item.kind {
-          case .audiobook:
-            viewModel.navigation.path.append(JellyfinLibraryLevelData.details(data: item))
-          case .userView, .folder:
-            viewModel.navigation.path.append(JellyfinLibraryLevelData.folder(data: item))
-          }
+        } else if let destination = viewModel.destination(for: item) {
+          viewModel.navigation.path.append(destination)
         }
       }
       .onAppear {

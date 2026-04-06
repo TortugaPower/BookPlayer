@@ -35,15 +35,10 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
           .accessibilityAddTraits(.isButton)
           .onTapGesture {
             if viewModel.editMode.isEditing {
-              guard case .audiobook = item.kind else { return }
+              guard item.isDownloadable else { return }
               viewModel.onSelectTapped(for: item)
-            } else {
-              switch item.kind {
-              case .audiobook:
-                viewModel.navigation.path.append(JellyfinLibraryLevelData.details(data: item))
-              case .userView, .folder:
-                viewModel.navigation.path.append(JellyfinLibraryLevelData.folder(data: item))
-              }
+            } else if let destination = viewModel.destination(for: item) {
+              viewModel.navigation.path.append(destination)
             }
           }
           .onAppear {
@@ -83,6 +78,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func fetchInitialItems() {}
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
   func cancelFetchItems() {}
+  func destination(for item: JellyfinLibraryItem) -> JellyfinLibraryLevelData? { nil }
 
   func handleDoneAction() {}
 

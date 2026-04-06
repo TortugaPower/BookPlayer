@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Hesap mevcut";
 "passkey_email_exists_message" = "Bu e-posta adresine sahip bir hesap zaten var. Lütfen mevcut geçiş anahtarınız veya Apple Kimliğiniz ile giriş yapın.";
 "passkey_signin_existing" = "Mevcut geçiş anahtarıyla giriş yap";
+"Switch Library" = "Kütüphane değiştir";
+"Authors" = "Yazarlar";
+"Series" = "Seriler";
+"Collections" = "Koleksiyonlar";
+"Narrators" = "Anlatıcılar";

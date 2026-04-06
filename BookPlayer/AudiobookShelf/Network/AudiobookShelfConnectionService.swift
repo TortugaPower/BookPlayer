@@ -16,9 +16,12 @@ class AudiobookShelfConnectionService: BPLogger {
   var connection: AudiobookShelfConnectionData?
   private var urlSession: URLSession
 
+
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
-    self.urlSession = URLSession.shared
+    let configuration = URLSessionConfiguration.default
+    configuration.timeoutIntervalForRequest = 15
+    self.urlSession = URLSession(configuration: configuration)
   }
 
   func setup() {
@@ -115,6 +118,13 @@ class AudiobookShelfConnectionService: BPLogger {
     )
 
     self.connection = connectionData
+  }
+
+  func saveSelectedLibrary(id: String?) {
+    guard var data = connection else { return }
+    data.selectedLibraryId = id
+    connection = data
+    try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
   func deleteConnection() {
@@ -317,9 +327,6 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      if httpResponse.statusCode == 404 {
-        throw URLError(.fileDoesNotExist)
-      }
       throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
@@ -403,9 +410,6 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      if httpResponse.statusCode == 404 {
-        throw URLError(.fileDoesNotExist)
-      }
       throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
     }
 

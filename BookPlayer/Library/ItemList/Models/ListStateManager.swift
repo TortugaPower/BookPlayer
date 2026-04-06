@@ -22,6 +22,14 @@ final class ListStateManager {
   public var isSearching = false
   public var isEditing = false
 
+  /// Integration sheet presented at MainView level for state preservation
+  enum IntegrationSheet: String, Identifiable {
+    case jellyfin
+    case audiobookshelf
+    var id: String { rawValue }
+  }
+  var activeIntegrationSheet: IntegrationSheet?
+
   func reloadAll(padding: Int = 0) {
     payloads[.all] = padding
     globalToken += 1

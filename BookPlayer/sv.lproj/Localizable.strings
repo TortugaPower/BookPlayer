@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Kontot finns";
 "passkey_email_exists_message" = "Ett konto med denna e-postadress finns redan. Logga in med din befintliga lösenordsnyckel eller Apple-ID istället.";
 "passkey_signin_existing" = "Logga in med befintlig lösenordsnyckel";
+"Switch Library" = "Byt bibliotek";
+"Authors" = "Författare";
+"Series" = "Serier";
+"Collections" = "Samlingar";
+"Narrators" = "Berättare";

@@ -117,7 +117,6 @@ struct SettingsView: View {
             JellyfinSettingsView(
               viewModel: JellyfinConnectionViewModel(
                 connectionService: jellyfinService,
-                navigation: BPNavigation(),
                 mode: .viewDetails
               )
             )
@@ -127,7 +126,6 @@ struct SettingsView: View {
             AudiobookShelfSettingsView(
               viewModel: AudiobookShelfConnectionViewModel(
                 connectionService: audiobookshelfService,
-                navigation: BPNavigation(),
                 mode: .viewDetails
               )
             )

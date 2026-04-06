@@ -14,6 +14,7 @@ struct JellyfinConnectionData: Codable {
   let userID: String
   let userName: String
   let accessToken: String
+  var selectedLibraryId: String?
 }
 
 extension JellyfinConnectionData: CustomDebugStringConvertible {

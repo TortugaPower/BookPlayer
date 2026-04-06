@@ -14,6 +14,7 @@ struct AudiobookShelfConnectionData: Codable {
   let userID: String
   let userName: String
   let apiToken: String
+  var selectedLibraryId: String?
 }
 
 extension AudiobookShelfConnectionData: CustomDebugStringConvertible {

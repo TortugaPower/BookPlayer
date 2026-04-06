@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Account bestaat al";
 "passkey_email_exists_message" = "Er bestaat al een account met dit e-mailadres. Log in met je bestaande passkey of Apple ID.";
 "passkey_signin_existing" = "Inloggen met bestaande passkey";
+"Switch Library" = "Wissel van bibliotheek";
+"Authors" = "Auteurs";
+"Series" = "Series";
+"Collections" = "Collecties";
+"Narrators" = "Vertellers";

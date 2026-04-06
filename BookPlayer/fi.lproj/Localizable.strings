@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Tili on olemassa";
 "passkey_email_exists_message" = "Tili tällä sähköpostilla on jo olemassa. Kirjaudu sisään olemassa olevalla pääsyavaimellasi tai Apple ID:lläsi.";
 "passkey_signin_existing" = "Kirjaudu olemassa olevalla pääsyavaimella";
+"Switch Library" = "Vaihda kirjastoa";
+"Authors" = "Tekijät";
+"Series" = "Sarjat";
+"Collections" = "Kokoelmat";
+"Narrators" = "Lukijat";

@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Contul există";
 "passkey_email_exists_message" = "Un cont cu acest e-mail există deja. Te rugăm să te autentifici cu cheia de acces sau ID-ul Apple existent.";
 "passkey_signin_existing" = "Autentificare cu cheia de acces existentă";
+"Switch Library" = "Schimbă biblioteca";
+"Authors" = "Autori";
+"Series" = "Serii";
+"Collections" = "Colecții";
+"Narrators" = "Naratori";

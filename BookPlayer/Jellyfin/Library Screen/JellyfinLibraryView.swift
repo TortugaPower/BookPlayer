@@ -13,6 +13,7 @@ import SwiftUI
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @StateObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.tabEditing) private var tabEditing
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
@@ -45,6 +46,9 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
     .environment(\.editMode, $viewModel.editMode)
+    .onChange(of: viewModel.editMode) { _, newValue in
+      tabEditing.wrappedValue = newValue.isEditing
+    }
     .confirmationDialog(
       "download_folder_confirmation_title".localized,
       isPresented: $viewModel.showingDownloadConfirmation

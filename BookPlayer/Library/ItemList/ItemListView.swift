@@ -70,6 +70,9 @@ struct ItemListView: View {
       .listStyle(.plain)
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle(model.navigationTitle)
+      .sheet(item: $activeSheet) { sheet in
+        sheetContent(for: sheet)
+      }
   }
 
   @ViewBuilder
@@ -95,9 +98,6 @@ struct ItemListView: View {
           }
         }
       )
-      .sheet(item: $activeSheet) { sheet in
-        sheetContent(for: sheet)
-      }
       .fileImporter(
         isPresented: $showDocumentPicker,
         allowedContentTypes: [
@@ -360,7 +360,7 @@ struct ItemListView: View {
       ),
       image: .jellyfinIcon
     ) {
-      activeSheet = .jellyfin
+      listState.activeIntegrationSheet = .jellyfin
     }
     Button(
       String(
@@ -370,7 +370,7 @@ struct ItemListView: View {
       ),
       image: .audiobookshelfIcon
     ) {
-      activeSheet = .audiobookshelf
+      listState.activeIntegrationSheet = .audiobookshelf
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood

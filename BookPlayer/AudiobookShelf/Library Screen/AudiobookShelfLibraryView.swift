@@ -13,6 +13,7 @@ import SwiftUI
 struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>: View {
   @StateObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.tabEditing) private var tabEditing
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
@@ -39,12 +40,18 @@ struct AudiobookShelfLibraryView<Model: AudiobookShelfLibraryViewModelProtocol>:
     .scrollDismissesKeyboard(.interactively)
     .background(theme.systemBackgroundColor)
     .environment(\.audiobookshelfService, viewModel.connectionService)
-    .modifier(ConditionalSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
+    .modifier(ConditionalSearchableModifier(
+      isSearchable: viewModel.isSearchable,
+      text: $viewModel.searchQuery
+    ))
     .searchPresentationToolbarBehavior(.avoidHidingContent)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
     .environment(\.editMode, $viewModel.editMode)
+    .onChange(of: viewModel.editMode) { _, newValue in
+      tabEditing.wrappedValue = newValue.isEditing
+    }
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
@@ -132,170 +139,6 @@ private struct ConditionalSearchableModifier: ViewModifier {
       content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
     } else {
       content
-    }
-  }
-}
-
-struct AudiobookShelfBrowseTabsView: View {
-  let library: AudiobookShelfLibraryItem
-
-  @State private var selectedCategory: AudiobookShelfBrowseCategory = .books
-
-  @StateObject private var booksViewModel: AudiobookShelfLibraryViewModel
-  @StateObject private var seriesViewModel: AudiobookShelfLibraryViewModel
-  @StateObject private var collectionsViewModel: AudiobookShelfLibraryViewModel
-  @StateObject private var authorsViewModel: AudiobookShelfLibraryViewModel
-  @StateObject private var narratorsViewModel: AudiobookShelfLibraryViewModel
-
-  @EnvironmentObject private var theme: ThemeViewModel
-
-  init(
-    library: AudiobookShelfLibraryItem,
-    connectionService: AudiobookShelfConnectionService,
-    singleFileDownloadService: SingleFileDownloadService,
-    navigation: BPNavigation
-  ) {
-    self.library = library
-
-    self._booksViewModel = .init(
-      wrappedValue: AudiobookShelfLibraryViewModel(
-        source: .books(libraryID: library.id, filter: nil),
-        connectionService: connectionService,
-        singleFileDownloadService: singleFileDownloadService,
-        navigation: navigation,
-        navigationTitle: library.title
-      )
-    )
-    self._seriesViewModel = .init(
-      wrappedValue: AudiobookShelfLibraryViewModel(
-        source: .entities(libraryID: library.id, category: .series),
-        connectionService: connectionService,
-        singleFileDownloadService: singleFileDownloadService,
-        navigation: navigation,
-        navigationTitle: library.title
-      )
-    )
-    self._collectionsViewModel = .init(
-      wrappedValue: AudiobookShelfLibraryViewModel(
-        source: .entities(libraryID: library.id, category: .collections),
-        connectionService: connectionService,
-        singleFileDownloadService: singleFileDownloadService,
-        navigation: navigation,
-        navigationTitle: library.title
-      )
-    )
-    self._authorsViewModel = .init(
-      wrappedValue: AudiobookShelfLibraryViewModel(
-        source: .entities(libraryID: library.id, category: .authors),
-        connectionService: connectionService,
-        singleFileDownloadService: singleFileDownloadService,
-        navigation: navigation,
-        navigationTitle: library.title
-      )
-    )
-    self._narratorsViewModel = .init(
-      wrappedValue: AudiobookShelfLibraryViewModel(
-        source: .entities(libraryID: library.id, category: .narrators),
-        connectionService: connectionService,
-        singleFileDownloadService: singleFileDownloadService,
-        navigation: navigation,
-        navigationTitle: library.title
-      )
-    )
-  }
-
-  var body: some View {
-    selectedView
-      .background(theme.systemBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        if !selectedViewModel.editMode.isEditing {
-          bottomSwitcher
-        }
-      }
-  }
-
-  private var selectedViewModel: AudiobookShelfLibraryViewModel {
-    switch selectedCategory {
-    case .books:
-      booksViewModel
-    case .series:
-      seriesViewModel
-    case .collections:
-      collectionsViewModel
-    case .authors:
-      authorsViewModel
-    case .narrators:
-      narratorsViewModel
-    }
-  }
-
-  @ViewBuilder
-  private var selectedView: some View {
-    switch selectedCategory {
-    case .books:
-      AudiobookShelfLibraryView(viewModel: booksViewModel)
-    case .series:
-      AudiobookShelfLibraryView(viewModel: seriesViewModel)
-    case .collections:
-      AudiobookShelfLibraryView(viewModel: collectionsViewModel)
-    case .authors:
-      AudiobookShelfLibraryView(viewModel: authorsViewModel)
-    case .narrators:
-      AudiobookShelfLibraryView(viewModel: narratorsViewModel)
-    }
-  }
-
-  private var bottomSwitcher: some View {
-    HStack(spacing: 6) {
-      ForEach(AudiobookShelfBrowseCategory.allCases, id: \.self) { category in
-        Button {
-          selectedCategory = category
-        } label: {
-          VStack(spacing: 4) {
-            Image(systemName: iconName(for: category))
-              .bpFont(.body)
-            Text(category.title)
-              .bpFont(.caption)
-              .lineLimit(1)
-              .minimumScaleFactor(0.8)
-          }
-          .frame(maxWidth: .infinity)
-          .padding(.vertical, 10)
-          .foregroundStyle(selectedCategory == category ? Color.white : theme.primaryColor)
-          .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-              .fill(selectedCategory == category ? theme.linkColor : Color.clear)
-          )
-        }
-        .buttonStyle(.plain)
-      }
-    }
-    .padding(8)
-    .background(
-      RoundedRectangle(cornerRadius: 28, style: .continuous)
-        .fill(theme.secondarySystemBackgroundColor.opacity(0.96))
-        .overlay(
-          RoundedRectangle(cornerRadius: 28, style: .continuous)
-            .stroke(theme.separatorColor.opacity(0.25), lineWidth: 1)
-        )
-    )
-    .padding(.horizontal, 16)
-    .padding(.top, 8)
-    .padding(.bottom, 8)
-  }
-
-  private func iconName(for category: AudiobookShelfBrowseCategory) -> String {
-    switch category {
-    case .books:
-      "books.vertical.fill"
-    case .series:
-      "rectangle.stack.fill"
-    case .collections:
-      "square.stack.3d.up.fill"
-    case .authors:
-      "person.2.fill"
-    case .narrators:
-      "mic.fill"
     }
   }
 }

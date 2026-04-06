@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Konto findes";
 "passkey_email_exists_message" = "En konto med denne e-mail findes allerede. Log venligst ind med din eksisterende adgangsnøgle eller Apple-id i stedet.";
 "passkey_signin_existing" = "Log ind med eksisterende adgangsnøgle";
+"Switch Library" = "Skift bibliotek";
+"Authors" = "Forfattere";
+"Series" = "Serier";
+"Collections" = "Samlinger";
+"Narrators" = "Fortællere";

@@ -27,7 +27,6 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
 
   let connectionService: JellyfinConnectionService
 
-  var navigation: BPNavigation
   @Published var form: JellyfinConnectionFormViewModel
   @Published var viewMode: ViewMode = .regular
   @Published var connectionState: ConnectionState
@@ -36,24 +35,15 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
 
   init(
     connectionService: JellyfinConnectionService,
-    navigation: BPNavigation,
     mode: ViewMode = .regular
   ) {
     self.connectionService = connectionService
     self._viewMode = .init(initialValue: mode)
     let form = JellyfinConnectionFormViewModel()
 
-    self.navigation = navigation
-
     if let data = connectionService.connection {
       form.setValues(from: data)
       self._connectionState = .init(initialValue: .connected)
-
-      Task { @MainActor in
-        navigation.path.append(
-          JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
-        )
-      }
     } else {
       self._connectionState = .init(initialValue: .disconnected)
     }
@@ -78,9 +68,6 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
       )
 
       connectionState = .connected
-      navigation.path.append(
-        JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
-      )
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
       case 400...499:
@@ -98,12 +85,5 @@ final class JellyfinConnectionViewModel: ObservableObject, BPLogger {
     connectionService.deleteConnection()
     form = JellyfinConnectionFormViewModel()
     connectionState = .disconnected
-  }
-
-  @MainActor
-  func handleGoToLibraryAction() {
-    navigation.path.append(
-      JellyfinLibraryLevelData.topLevel(libraryName: form.serverName)
-    )
   }
 }

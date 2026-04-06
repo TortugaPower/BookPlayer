@@ -77,14 +77,12 @@ struct AudiobookShelfConnectionView: View {
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .confirmationAction) {
-        switch (viewModel.viewMode, viewModel.connectionState) {
-        case (_, .disconnected):
+        switch viewModel.connectionState {
+        case .disconnected:
           connectToolbarButton
-        case (_, .foundServer):
+        case .foundServer:
           signInToolbarButton
-        case (.regular, .connected):
-          goToLibraryToolbarButton
-        case (.viewDetails, .connected):
+        case .connected:
           EmptyView()
         }
       }
@@ -153,21 +151,11 @@ struct AudiobookShelfConnectionView: View {
     )
   }
 
-  @ViewBuilder
-  private var goToLibraryToolbarButton: some View {
-    Button(
-      "library_title".localized,
-      systemImage: "chevron.forward",
-      action: viewModel.handleGoToLibraryAction
-    )
-    .foregroundStyle(theme.linkColor)
-  }
 }
 
 #Preview("disconnected") {
   let viewModel = AudiobookShelfConnectionViewModel(
-    connectionService: AudiobookShelfConnectionService(),
-    navigation: BPNavigation()
+    connectionService: AudiobookShelfConnectionService()
   )
   AudiobookShelfConnectionView(viewModel: viewModel)
     .environmentObject(ThemeViewModel())
@@ -176,8 +164,7 @@ struct AudiobookShelfConnectionView: View {
 #Preview("found server") {
   let viewModel = {
     let viewModel = AudiobookShelfConnectionViewModel(
-      connectionService: AudiobookShelfConnectionService(),
-      navigation: BPNavigation()
+      connectionService: AudiobookShelfConnectionService()
     )
     viewModel.connectionState = .foundServer
     viewModel.form.serverName = "Mock Server"
@@ -191,8 +178,7 @@ struct AudiobookShelfConnectionView: View {
 #Preview("connected") {
   let viewModel = {
     let viewModel = AudiobookShelfConnectionViewModel(
-      connectionService: AudiobookShelfConnectionService(),
-      navigation: BPNavigation()
+      connectionService: AudiobookShelfConnectionService()
     )
     viewModel.connectionState = .connected
     viewModel.form.serverName = "Mock Server"

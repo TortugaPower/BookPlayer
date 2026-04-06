@@ -45,10 +45,18 @@ struct AudiobookShelfItemFilter: Codable, Hashable {
 
 enum AudiobookShelfLibraryViewSource: Equatable, Hashable {
   case libraries
-  case browseCategories(library: AudiobookShelfLibraryItem)
   case books(libraryID: String, filter: AudiobookShelfItemFilter?)
   case entities(libraryID: String, category: AudiobookShelfBrowseCategory)
   case collection(id: String)
+
+  var libraryID: String {
+    switch self {
+    case .libraries: ""
+    case .books(let libraryID, _): libraryID
+    case .entities(let libraryID, _): libraryID
+    case .collection(let id): id
+    }
+  }
 }
 
 enum AudiobookShelfLibraryLevelData: Equatable, Hashable {

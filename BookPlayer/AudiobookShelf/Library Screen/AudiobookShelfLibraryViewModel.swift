@@ -109,17 +109,15 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
       true
     case .books(_, _), .entities(_, _), .collection(_):
       true
-    case .libraries, .browseCategories(_):
+    case .libraries:
       false
     }
   }
 
   var isGridEnabled: Bool {
     switch source {
-    case .libraries, .books(_, _), .collection(_):
+    case .libraries, .books(_, _), .collection(_), .entities(_, _):
       true
-    case .browseCategories(_), .entities(_, _):
-      false
     }
   }
 
@@ -131,7 +129,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     switch source {
     case .books(_, _), .collection(_):
       true
-    case .libraries, .browseCategories(_), .entities(_, _):
+    case .libraries, .entities(_, _):
       false
     }
   }
@@ -140,7 +138,7 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     switch source {
     case .books(_, _), .collection(_):
       true
-    case .libraries, .browseCategories(_), .entities(_, _):
+    case .libraries, .entities(_, _):
       false
     }
   }
@@ -188,6 +186,8 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
 
   func fetchInitialItems() {
     guard items.isEmpty, fetchTask == nil else { return }
+    // Don't fetch if source has an empty library ID (library not yet resolved)
+    guard !source.libraryID.isEmpty else { return }
     fetchSourceItems()
   }
 
@@ -209,15 +209,9 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     case .audiobook, .podcast:
       return .details(data: item)
     case .library:
-      return .library(source: .browseCategories(library: item), title: item.title)
+      return nil
     case .browseCategory:
-      guard let category = item.browseCategory else { return nil }
-      switch category {
-      case .books:
-        return .library(source: .books(libraryID: item.libraryId, filter: nil), title: category.title)
-      case .series, .collections, .authors, .narrators:
-        return .library(source: .entities(libraryID: item.libraryId, category: category), title: category.title)
-      }
+      return nil
     case .collection:
       return .library(source: .collection(id: item.id), title: item.title)
     case .author, .series, .narrator:
@@ -306,10 +300,6 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     switch source {
     case .libraries:
       fetchLibraries()
-    case .browseCategories(let library):
-      loadLocalItems(AudiobookShelfBrowseCategory.allCases.map {
-        AudiobookShelfLibraryItem(category: $0, libraryId: library.id)
-      })
     case .books(let libraryID, let filter):
       fetchBookItems(libraryID: libraryID, filter: filter)
     case .entities(let libraryID, let category):
@@ -330,15 +320,6 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
           .filter { $0.mediaType == "book" }
           .map(AudiobookShelfLibraryItem.init(library:))
         loadLocalItems(libraryItems)
-
-        if libraryItems.count == 1, let library = libraryItems.first {
-          navigation.path.append(
-            AudiobookShelfLibraryLevelData.library(
-              source: AudiobookShelfLibraryViewSource.browseCategories(library: library),
-              title: library.title
-            )
-          )
-        }
       } catch is CancellationError {
         // ignore
       } catch {
@@ -610,6 +591,53 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
     return Decimal(string: String(trimmedSequence[range]))
   }
 
+  private static let seriesWordValues: [String: Decimal] = [
+    "minus": -1,
+    "negative": -1,
+    "zero": 0,
+    "one": 1,
+    "first": 1,
+    "two": 2,
+    "second": 2,
+    "three": 3,
+    "third": 3,
+    "four": 4,
+    "fourth": 4,
+    "five": 5,
+    "fifth": 5,
+    "six": 6,
+    "sixth": 6,
+    "seven": 7,
+    "seventh": 7,
+    "eight": 8,
+    "eighth": 8,
+    "nine": 9,
+    "ninth": 9,
+    "ten": 10,
+    "tenth": 10,
+    "eleven": 11,
+    "eleventh": 11,
+    "twelve": 12,
+    "twelfth": 12,
+    "thirteen": 13,
+    "thirteenth": 13,
+    "fourteen": 14,
+    "fourteenth": 14,
+    "fifteen": 15,
+    "fifteenth": 15,
+    "sixteen": 16,
+    "sixteenth": 16,
+    "seventeen": 17,
+    "seventeenth": 17,
+    "eighteen": 18,
+    "eighteenth": 18,
+    "nineteen": 19,
+    "nineteenth": 19,
+    "twenty": 20,
+    "twentieth": 20,
+    "half": Decimal(string: "0.5")!
+  ]
+
   private func seriesWordSortValue(_ sequence: String) -> Decimal? {
     let normalized = sequence
       .lowercased()
@@ -620,59 +648,8 @@ final class AudiobookShelfLibraryViewModel: AudiobookShelfLibraryViewModelProtoc
       .components(separatedBy: CharacterSet.alphanumerics.inverted)
       .filter { !$0.isEmpty }
 
-    func decimal(_ value: String) -> Decimal {
-      Decimal(string: value) ?? 0
-    }
-
-    let values: [String: Decimal] = [
-      "minus": decimal("-1"),
-      "negative": decimal("-1"),
-      "zero": decimal("0"),
-      "one": decimal("1"),
-      "first": decimal("1"),
-      "two": decimal("2"),
-      "second": decimal("2"),
-      "three": decimal("3"),
-      "third": decimal("3"),
-      "four": decimal("4"),
-      "fourth": decimal("4"),
-      "five": decimal("5"),
-      "fifth": decimal("5"),
-      "six": decimal("6"),
-      "sixth": decimal("6"),
-      "seven": decimal("7"),
-      "seventh": decimal("7"),
-      "eight": decimal("8"),
-      "eighth": decimal("8"),
-      "nine": decimal("9"),
-      "ninth": decimal("9"),
-      "ten": decimal("10"),
-      "tenth": decimal("10"),
-      "eleven": decimal("11"),
-      "eleventh": decimal("11"),
-      "twelve": decimal("12"),
-      "twelfth": decimal("12"),
-      "thirteen": decimal("13"),
-      "thirteenth": decimal("13"),
-      "fourteen": decimal("14"),
-      "fourteenth": decimal("14"),
-      "fifteen": decimal("15"),
-      "fifteenth": decimal("15"),
-      "sixteen": decimal("16"),
-      "sixteenth": decimal("16"),
-      "seventeen": decimal("17"),
-      "seventeenth": decimal("17"),
-      "eighteen": decimal("18"),
-      "eighteenth": decimal("18"),
-      "nineteen": decimal("19"),
-      "nineteenth": decimal("19"),
-      "twenty": decimal("20"),
-      "twentieth": decimal("20"),
-      "half": decimal("0.5")
-    ]
-
     for (index, token) in tokens.enumerated() {
-      guard var value = values[token] else { continue }
+      guard var value = Self.seriesWordValues[token] else { continue }
 
       if index > 0 {
         let previous = tokens[index - 1]
