@@ -148,7 +148,7 @@ class JellyfinConnectionService: BPLogger {
     }
 
     let isRecursive = recursive || searchTerm != nil || folderID == nil
-    let itemTypes: [JellyfinAPI.BaseItemKind] = recursive ? [.audioBook] : [.audioBook, .folder]
+    let itemTypes: [JellyfinAPI.BaseItemKind] = (recursive || searchTerm != nil) ? [.audioBook] : [.audioBook, .folder]
 
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
