@@ -49,4 +49,5 @@ public protocol PlayerManagerProtocol: AnyObject {
 /// Delegate that hooks into the playback sequence
 public protocol PlaybackSyncProgressDelegate: AnyObject {
   func waitForSyncInProgress() async
+  func fetchExternalResource(_ playableItem: PlayableItem) async
 }

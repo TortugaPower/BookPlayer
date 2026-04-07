@@ -34,6 +34,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var showingDownloadConfirmation: Bool { get set }
 
   var importManager: ImportManager? { get set }
+  var accountService: AccountService { get }
   var connectionService: JellyfinConnectionService { get }
 
   func fetchInitialItems()
@@ -49,6 +50,8 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   func onSelectTapped(for item: JellyfinLibraryItem)
   @MainActor
   func onSelectAllTapped()
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool)
   @MainActor
   func onDownloadTapped()
   @MainActor
@@ -93,6 +96,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   let folderID: String?
   var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
+  let accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -112,6 +116,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -119,6 +124,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     self.connectionService = connectionService
     self.importManager = importManager
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
   }
@@ -228,6 +234,19 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       selectedItems = Set(ids)
     } else {
       selectedItems.removeAll()
+    }
+  }
+  
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool) {
+    if accountService.hasLiteEnabled() {
+      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        onDownloadFolderTapped()
+      }
     }
   }
 

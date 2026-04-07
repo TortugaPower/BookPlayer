@@ -44,9 +44,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     else { return }
     
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
-    let externalResources = self.libraryService.findResource(for: libraryItem.uuid)
     
-    print("External Resources \(externalResources.debugDescription)")
     if (syncService.isActive == false && (libraryItem.externalResources?.isEmpty ?? true)),
        !FileManager.default.fileExists(atPath: fileURL.path)
     {

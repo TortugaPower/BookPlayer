@@ -44,6 +44,7 @@ struct LibraryRootView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
+  @Environment(\.concurrenceService) private var concurrenceService
   @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.scenePhase) private var scenePhase
 
@@ -55,7 +56,9 @@ struct LibraryRootView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
+          playerState: playerState,
           syncService: syncService,
+          concurrenceService: concurrenceService,
           listSyncRefreshService: listSyncRefreshService,
           loadingState: loadingState,
           listState: listState,
@@ -69,7 +72,9 @@ struct LibraryRootView: View {
             libraryService: libraryService,
             playbackService: playbackService,
             playerManager: playerManager,
+            playerState: playerState,
             syncService: syncService,
+            concurrenceService: concurrenceService,
             listSyncRefreshService: listSyncRefreshService,
             loadingState: loadingState,
             listState: listState,

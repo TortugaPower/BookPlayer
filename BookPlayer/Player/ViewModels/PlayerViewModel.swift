@@ -42,7 +42,7 @@ final class PlayerViewModel: ObservableObject {
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
-  let concurrenceService: ConcurrenceService
+  let concurrenceService: ConcurrenceServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private let sharedDefaults: UserDefaults

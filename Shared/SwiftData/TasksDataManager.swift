@@ -74,7 +74,7 @@ public final class TasksDataManager {
   
   public func notifyConcurrentTasksChanged(context: ModelContext) {
     let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
-    
+
     do {
       let containers = try context.fetch(descriptor)
       let count = containers.first?.tasks.count ?? 0

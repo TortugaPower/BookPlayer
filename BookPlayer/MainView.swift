@@ -96,6 +96,12 @@ struct MainView: View {
         )
       }
       .presentationBackground(.clear)
+      .alert("Resume Playback", isPresented: playerState.showResumePopupBinding) {
+        Button("Yes") { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+        Button("Ignore", role: .cancel) { }
+      } message: {
+        Text("There is another source with current play time \(TimeParser.formatTime(playerState.remotePlayTime ?? 0)). Play from this time?")
+      }
     }
     .sheet(isPresented: $importManager.isShowingExternalImportView) {
       ExternalImportView(

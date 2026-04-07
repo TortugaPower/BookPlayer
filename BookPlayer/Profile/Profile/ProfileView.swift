@@ -13,11 +13,8 @@ struct ProfileView: View {
   @State private var path = NavigationPath()
   @State private var showLogin = false
   @Environment(\.accountService) private var accountService
-  @Environment(\.concurrenceService) private var concurrenceService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
-
-  @State private var jobsCount: Int = 0
   
   var body: some View {
     NavigationStack(path: $path) {
@@ -30,20 +27,6 @@ struct ProfileView: View {
 
         Spacer()
         
-        NavigationLink(value: ProfileScreen.concurrentTasks) {
-          VStack {
-            Text("Concurrent Tasks: \(jobsCount)")
-              .bpFont(.body)
-              .foregroundStyle(theme.linkColor)
-          }
-        }
-        .padding(.bottom, Spacing.L1)
-        .onReceive(concurrenceService.observeConcurrentTasksCount()) { count in
-          guard jobsCount != count else { return }
-
-          jobsCount = count
-        }
-
         if accountService.account.hasSubscription,
           !accountService.account.id.isEmpty
         {
@@ -60,6 +43,9 @@ struct ProfileView: View {
         switch destination {
         case .account:
           AccountView()
+        case .queueTasks:
+          QueuedTasksView()
+            .miniPlayerSafeAreaInset()
         case .tasks:
           QueuedSyncTasksView()
             .miniPlayerSafeAreaInset()

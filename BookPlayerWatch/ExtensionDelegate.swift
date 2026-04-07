@@ -279,6 +279,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
 
 extension ExtensionDelegate: PurchasesDelegate {
   func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-    coreServices?.updateSyncEnabled(customerInfo.entitlements.all["pro"]?.isActive == true)
+    let enableSync = customerInfo.entitlements.all["pro"]?.isActive == true
+    || customerInfo.entitlements.all["lite"]?.isActive == true
+    coreServices?.updateSyncEnabled(enableSync)
   }
 }

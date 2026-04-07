@@ -197,6 +197,15 @@ public class JellyfinConnectionService: BPLogger {
       tags: itemInfo.tags
     )
   }
+  
+  public func fetchItem(for id: String) async throws -> JellyfinLibraryItem? {
+    let response = try await send(Paths.getItem(itemID: id))
+    try Task.checkCancellation()
+    
+    let itemInfo = response.value
+
+    return JellyfinLibraryItem(apiItem: itemInfo)
+  }
 
   public func fetchAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
     let parameters = Paths.GetItemsParameters(
@@ -353,7 +362,28 @@ public class JellyfinConnectionService: BPLogger {
 
     let request = Paths.updateItemUserData(itemID: itemId, userDataDto)
 
+    let _ = try await client.send(request)
+  }
+  
+  public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
+    guard !externalResources.isEmpty, let client, let myId = connection?.userID else { return [:] }
+            
+    let request = Paths.getItems(parameters: Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId)))
     let response = try await client.send(request)
+
+    var itemsDictionary: [String: JellyfinLibraryItem] = [:]
+
+    for item in response.value.items ?? [] {
+        // 1. Safely grab the ID (assuming it might be optional in the generated client)
+        guard let jellyfinItem = JellyfinLibraryItem(apiItem: item) else {
+            continue
+        }
+        
+        // 3. Assign it to the dictionary
+        itemsDictionary[jellyfinItem.id] = jellyfinItem
+    }
+    
+    return itemsDictionary
   }
   
   func getDeviceName() -> String {

@@ -161,6 +161,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   func findResources(for uuid: String) -> [ExternalResource]?
   
   @MainActor func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
+  
+  func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem])
 }
 
 // swiftlint:disable force_cast
@@ -530,8 +532,10 @@ extension LibraryService {
     else {
       return nil
     }
-
-    return SimpleLibraryItem(from: item)
+    let externalResources = self.findResources(for: item.uuid)
+    return SimpleLibraryItem(
+      from: item,
+    )
   }
 
   public func getLibraryCurrentTheme() -> SimpleTheme? {
@@ -2547,6 +2551,43 @@ extension LibraryService {
     let result = try? context.fetch(fetch)
     
     return result
+  }
+  
+  public func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
+    let remoteKeys = Array(remoteItemsDictionary.keys)
+    
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K == %@ AND %K IN %@",
+      #keyPath(ExternalResource.providerName), "jellyfin",
+      #keyPath(ExternalResource.providerId), remoteKeys
+    )
+    let context = self.dataManager.getContext()
+    
+    do {
+      let localResources = try context.fetch(fetch)
+      
+      for localResource in localResources {
+        // We already know this exists because of our predicate!
+        guard let localItem = localResource.libraryItem,
+              let remoteItem = remoteItemsDictionary[localResource.providerId] else {
+          continue
+        }
+        
+        let localDate = localItem.lastPlayDate ?? .distantPast
+        let remoteDate = remoteItem.lastPlayedDate ?? .distantPast
+        
+        if remoteDate > localDate {
+          localItem.currentTime = Double(remoteItem.currentSeconds ?? 0)
+          localItem.isFinished = remoteItem.isFinished ?? localItem.isFinished
+          localItem.lastPlayDate = remoteDate
+        }
+      }
+      
+      try context.save()
+    } catch {
+      print("Failed to batch fetch ExternalResources: \(error)")
+    }
   }
 }
 

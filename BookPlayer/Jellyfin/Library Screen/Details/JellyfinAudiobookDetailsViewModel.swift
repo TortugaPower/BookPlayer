@@ -14,6 +14,7 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   var item: JellyfinLibraryItem { get }
   var details: JellyfinAudiobookDetailsData? { get }
   var connectionService: JellyfinConnectionService { get }
+  var accountService: AccountService { get }
   var error: Error? { get set }
 
   @MainActor
@@ -21,6 +22,9 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
 
   @MainActor
   func cancelFetchData()
+  
+  @MainActor
+  func handleImportAudiobook(_ item: JellyfinLibraryItem) throws
 
   @MainActor
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) throws
@@ -30,9 +34,10 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
 }
 
 class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
-
+  
   let item: JellyfinLibraryItem
   let connectionService: JellyfinConnectionService
+  let accountService: AccountService
   let importManager: ImportManager?
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
@@ -44,11 +49,13 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
     item: JellyfinLibraryItem,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
     importManager: ImportManager?
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.importManager = importManager
   }
 
@@ -81,6 +88,15 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   func cancelFetchData() {
     fetchTask?.cancel()
     fetchTask = nil
+  }
+  
+  @MainActor
+  func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
+    if accountService.hasLiteEnabled() {
+      virtualImportAudiobook(item)
+    } else {
+      try beginDownloadAudiobook(item)
+    }
   }
 
   @MainActor

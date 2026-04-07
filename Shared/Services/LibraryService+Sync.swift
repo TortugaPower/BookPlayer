@@ -175,6 +175,38 @@ extension LibraryService: LibrarySyncProtocol {
     if !item.uuid.isEmpty {
       storedItem.uuid = item.uuid
     }
+    
+    if let remoteExternalResources = item.externalResources {
+      let remoteIds = Set(item.externalResources?.compactMap { $0.providerId } ?? [])
+      let localIds = Set(storedItem.resourcesArray.compactMap { $0.providerId })
+      
+      let idsToAdd = remoteIds.subtracting(localIds)
+      let idsToRemove = localIds.subtracting(remoteIds)
+      for localResource in storedItem.resourcesArray {
+        if idsToRemove.contains(localResource.providerId) {
+          storedItem.removeFromExternalResources(localResource)
+          context.delete(localResource)
+        }
+      }
+      
+      for idToAdd in idsToAdd {
+        // Find the original struct using the ID
+        guard let remoteData = item.externalResources?.first(where: { $0.providerId == idToAdd }) else {
+          continue
+        }
+        
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = remoteData.providerId
+        external.providerName = remoteData.providerName
+        external.syncStatus = remoteData.syncStatus
+        external.lastSyncedAt = remoteData.lastSyncedAt
+        
+        external.libraryItem = storedItem
+        storedItem.addToExternalResources(external)
+      }
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)

@@ -1,4 +1,14 @@
 {
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
   "identifier" : "B145B4D1",
   "nonRenewingSubscriptions" : [
 
@@ -96,55 +106,51 @@
     }
   ],
   "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
     "_compatibilityTimeRate" : {
       "3" : 6
     },
+    "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
     "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "USA",
     "_storeKitErrors" : [
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Load Products"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Purchase"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Verification"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "App Store Sync"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Subscription Status"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "App Transaction"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Manage Subscriptions Sheet"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Refund Request Sheet"
       },
       {
-        "current" : null,
         "enabled" : false,
         "name" : "Offer Code Redeem Sheet"
       }
@@ -170,7 +176,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "404D4313",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -182,7 +190,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "pro.subscription",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -195,7 +206,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "FBD1E1A1",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -207,7 +220,10 @@
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "pro.subscription.yearly",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -220,7 +236,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "EE383201",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -232,7 +250,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.1",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -245,7 +266,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "FCF99805",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -257,7 +280,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.2",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -270,7 +296,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "B7B02088",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -282,7 +310,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.3",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -295,7 +326,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "570A9BCB",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -307,7 +340,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.4",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -320,7 +356,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "4F02881E",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -332,7 +370,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.6",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -345,7 +386,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "2DCC769A",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -357,7 +400,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.7",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -370,7 +416,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "A977972B",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -382,7 +430,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.8",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -395,7 +446,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "9410B8C0",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -407,7 +460,10 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.9",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
           "adHocOffers" : [
@@ -420,7 +476,9 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "0DEF0B7A",
-          "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "",
@@ -432,13 +490,76 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "subscription.support.10",
           "subscriptionGroupID" : "652B5FC0",
-          "type" : "RecurringSubscription"
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "0E8484DC",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.tortugapower.audiobookplayer.subscription.lite",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "lite.subscription",
+          "subscriptionGroupID" : "652B5FC0",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "CF2B5AFC",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.tortugapower.audiobookplayer.subscription.lite.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "lite.subscription.yearly",
+          "subscriptionGroupID" : "652B5FC0",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         }
       ]
     }
   ],
   "version" : {
-    "major" : 3,
+    "major" : 5,
     "minor" : 0
   }
 }

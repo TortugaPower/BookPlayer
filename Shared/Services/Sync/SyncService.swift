@@ -306,8 +306,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if let lastItemPlayed = response.lastItemPlayed {
       filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
     }
-    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
+    
     await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
@@ -438,11 +439,19 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     for remoteURL in bookURLs {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+      var downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
-
+      let keychainService: KeychainServiceProtocol = KeychainService()
+      if let externalResource = remoteURL.externalResources?.first(where: { $0.providerName == "jellyfin" }),
+         let storedConnection: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection)
+        {
+        let urlString = "\(storedConnection.url.absoluteString)/items/\(externalResource.providerId)/Download?api_key=\(storedConnection.accessToken)"
+        downloadUrl = URL(string: urlString) ?? localURL
+      }
+      
       let task = await provider.client.download(
-        url: remoteURL.url,
+        url: downloadUrl,
         taskDescription: remoteURL.relativePath,
         session: downloadURLSession.backgroundSession
       )

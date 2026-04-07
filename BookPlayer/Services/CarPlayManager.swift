@@ -664,4 +664,8 @@ extension CarPlayManager: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
   }
+  
+  func fetchExternalResource(_ playableItem: PlayableItem) async {
+    
+  }
 }

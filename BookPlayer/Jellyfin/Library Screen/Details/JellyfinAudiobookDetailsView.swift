@@ -70,7 +70,7 @@ struct JellyfinAudiobookDetailsView<
 
         Button {
           do {
-            try viewModel.virtualImportAudiobook(viewModel.item)
+            try viewModel.handleImportAudiobook(viewModel.item)
             onDownloadTap()
           } catch {
             viewModel.error = error
@@ -138,6 +138,8 @@ struct JellyfinAudiobookDetailsView<
 }
 
 final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
+  var accountService: AccountService
+  
   var connectionService = JellyfinConnectionService()
 
   let item: JellyfinLibraryItem
@@ -147,6 +149,7 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
   init(item: JellyfinLibraryItem, details: JellyfinAudiobookDetailsData?) {
     self.item = item
     self.details = details
+    self.accountService = AccountService()
   }
 
   @MainActor
@@ -159,6 +162,8 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
   func beginDownloadAudiobook(_ item: JellyfinLibraryItem) {}
   
   func virtualImportAudiobook(_ item: JellyfinLibraryItem) throws {}
+  
+  func handleImportAudiobook(_ item: BookPlayerKit.JellyfinLibraryItem) throws {}
 }
 
 #Preview {

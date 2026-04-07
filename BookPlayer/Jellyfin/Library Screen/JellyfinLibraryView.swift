@@ -45,7 +45,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
       isPresented: $viewModel.showingDownloadConfirmation
     ) {
       Button("download_title".localized) {
-        viewModel.virtualImportFolderAudiobooks(useSelectedItems: false)
+        viewModel.handleImportItems(useSelectedItems: false)
       }
       Button("cancel_button".localized, role: .cancel) {}
     } message: {
@@ -120,7 +120,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Spacer()
 
     Button {
-      viewModel.virtualImportFolderAudiobooks(useSelectedItems: true)
+      viewModel.handleImportItems(useSelectedItems: true)
     } label: {
       Image(systemName: "arrow.down.to.line")
     }

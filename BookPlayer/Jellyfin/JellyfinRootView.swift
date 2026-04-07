@@ -27,7 +27,8 @@ struct JellyfinRootView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
-
+  @Environment(\.accountService) private var accountService
+  
   init(connectionService: JellyfinConnectionService) {
     let navigation = BPNavigation()
     self._navigation = .init(wrappedValue: navigation)
@@ -57,6 +58,7 @@ struct JellyfinRootView: View {
                 connectionService: connectionViewModel.connectionService,
                 singleFileDownloadService: singleFileDownloadService,
                 importManager: importManager,
+                accountService: accountService,
                 navigation: navigation,
                 navigationTitle: libraryName
               )
@@ -68,6 +70,7 @@ struct JellyfinRootView: View {
                 connectionService: connectionViewModel.connectionService,
                 singleFileDownloadService: singleFileDownloadService,
                 importManager: importManager,
+                accountService: accountService,
                 navigation: navigation,
                 navigationTitle: item.name
               )
@@ -78,6 +81,7 @@ struct JellyfinRootView: View {
                 item: item,
                 connectionService: connectionViewModel.connectionService,
                 singleFileDownloadService: singleFileDownloadService,
+                accountService: accountService,
                 importManager: importManager
               )
             ) {

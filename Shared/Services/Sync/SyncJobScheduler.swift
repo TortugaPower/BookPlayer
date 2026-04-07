@@ -65,7 +65,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   /// Reference to ongoing library fetch task
   private var initializeStoreTask: Task<(), Error>?
   private var taskStore: SyncTasksStorage!
-  private var concurrentTasksRepository: ConcurrentTasksRepository!
+  private var concurrentTasksRepository: ConcurrentTasksRepositoryProtocol!
   private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?

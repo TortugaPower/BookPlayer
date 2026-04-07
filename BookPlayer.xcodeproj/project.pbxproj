@@ -678,6 +678,9 @@
 		9911FBCD2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9911FBCE2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9911FBCF2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		9911FBD12F7C1FBF00DC9A2B /* ConcurrentTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */; };
+		9911FBD32F7C3AC700DC9A2B /* SyncTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */; };
+		9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */; };
 		99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */; };
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
@@ -1650,6 +1653,9 @@
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
 		9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
+		9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksCardView.swift; sourceTree = "<group>"; };
+		9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCardView.swift; sourceTree = "<group>"; };
+		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
@@ -3369,6 +3375,9 @@
 		9F5F13662978D9B800F061A0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */,
+				9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */,
+				9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */,
 				9F5F13452977A06300F061A0 /* ProfileCardView.swift */,
 			);
 			path = Views;
@@ -4564,6 +4573,7 @@
 				410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */,
 				99329DCD2F3BFD33003F8E73 /* ProgressData.swift in Sources */,
 				63C48C7C2E3DAD6E005FBB96 /* LoginBenefitSectionView.swift in Sources */,
+				9911FBD32F7C3AC700DC9A2B /* SyncTasksCardView.swift in Sources */,
 				636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */,
 				63D561392E5A8C9900615522 /* ItemProgressView.swift in Sources */,
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
@@ -4602,6 +4612,7 @@
 				63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
+				9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */,
 				99B367FC2F5108BF00C38F7F /* MediaActionRow.swift in Sources */,
@@ -4622,6 +4633,7 @@
 				63FB9E032E5774A500D1966F /* ListStateManager.swift in Sources */,
 				630494842E6D1DF000C72387 /* MiniPlayerAccessoryView.swift in Sources */,
 				9F00A6242951F2F3005EA316 /* ItemDetailsViewModel.swift in Sources */,
+				9911FBD12F7C1FBF00DC9A2B /* ConcurrentTasksCardView.swift in Sources */,
 				41DA44BD26FAEC4F00F3A05D /* BookActivityItemProvider.swift in Sources */,
 				62793611272CBE910097837D /* ImportFileItem.swift in Sources */,
 				631908A82E3697DC009249C1 /* ListOptionsSectionView.swift in Sources */,

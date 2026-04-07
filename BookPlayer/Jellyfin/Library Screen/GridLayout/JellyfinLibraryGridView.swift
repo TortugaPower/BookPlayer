@@ -65,9 +65,11 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
 }
 
 final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
+    
   var navigationTitle: String = ""
   var navigation = BPNavigation()
   var connectionService = JellyfinConnectionService()
+  var accountService = AccountService()
   var importManager: ImportManager?
   
   let data: JellyfinLibraryLevelData
@@ -101,6 +103,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func onDownloadFolderTapped() {}
   func confirmDownloadFolder() {}
   func virtualImportFolderAudiobooks(useSelectedItems: Bool) {}
+  func handleImportItems(useSelectedItems: Bool) { }
 }
 
 #Preview("top level") {
