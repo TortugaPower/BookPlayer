@@ -14,8 +14,7 @@ public protocol ConcurrentTasksCountServiceProtocol {
 }
 
 public class ConcurrentTasksCountService: ConcurrentTasksCountServiceProtocol {
-  private var tasksCountPublisher = CurrentValueSubject<Int?, Never>(nil)
-  private let tasksDataManager: TasksDataManager
+  public let tasksDataManager: TasksDataManager
 
   public init(tasksDataManager: TasksDataManager) {
     self.tasksDataManager = tasksDataManager

@@ -63,6 +63,11 @@ public class ConcurrentTaskProgressMonitor {
   public func getTaskProgress(taskID: String) -> Double {
     guard let myState = activeTasks[taskID]?.state else { return 0 }
             
-    return 0.9
+    switch myState {
+      case .processing:
+      return 0
+    case let .progress(progress):
+      return progress
+    }
   }
 }

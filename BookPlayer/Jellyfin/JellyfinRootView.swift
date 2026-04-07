@@ -29,6 +29,8 @@ struct JellyfinRootView: View {
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
 
+  @Environment(\.accountService) private var accountService
+  
   init(connectionService: JellyfinConnectionService) {
     self.connectionService = connectionService
     self._connectionViewModel = .init(
@@ -329,6 +331,7 @@ private struct JellyfinTabRoot: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           importManager: importManager,
+          accountService: accountService,
           navigation: navigation,
           navigationTitle: libraryName
         )
@@ -340,6 +343,7 @@ private struct JellyfinTabRoot: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           importManager: importManager,
+          accountService: accountService,
           navigation: navigation,
           navigationTitle: item.name
         )
@@ -352,6 +356,7 @@ private struct JellyfinTabRoot: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           importManager: importManager,
+          accountService: accountService,
           navigation: navigation,
           navigationTitle: authorName
         )
@@ -364,6 +369,7 @@ private struct JellyfinTabRoot: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           importManager: importManager,
+          accountService: accountService,
           navigation: navigation,
           navigationTitle: personName
         )
@@ -374,6 +380,7 @@ private struct JellyfinTabRoot: View {
           item: item,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
           importManager: importManager
         )
       ) {

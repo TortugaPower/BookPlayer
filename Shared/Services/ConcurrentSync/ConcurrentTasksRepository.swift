@@ -10,13 +10,35 @@ import Combine
 import Foundation
 import SwiftData
 
-public actor ConcurrentTasksRepository: ModelActor {
+public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
+  init(tasksDataManager: TasksDataManager)
+  
+  func getNextTask(for queueKey: String) -> ConcurrentSyncTask?
+  
+  func pop(_ task: ConcurrentSyncTask)
+  
+  func getAllQueueKeys() -> [String]
+  
+  func getTaskModel(
+    with id: String,
+    jobType: ExternalSyncJobType,
+    in context: ModelContext
+  ) -> (any DictionaryConvertible)?
+  
+  func storeTask(parameters: [String: Any]) async throws
+  
+  func getAllTasks() async -> [ConcurrentSyncTask]
+  
+  func getOrderedTasks(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask]
+}
+
+public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
   nonisolated public let modelContainer: ModelContainer
   nonisolated public let modelExecutor: any ModelExecutor
   
   private let tasksDataManager: TasksDataManager
   
-  init(tasksDataManager: TasksDataManager = TasksDataManager()) {
+  public init(tasksDataManager: TasksDataManager = TasksDataManager()) {
     self.modelContainer = tasksDataManager.container
     let modelContext = ModelContext(tasksDataManager.container)
     modelContext.autosaveEnabled = true
@@ -24,7 +46,7 @@ public actor ConcurrentTasksRepository: ModelActor {
     self.tasksDataManager = tasksDataManager
   }
   
-  func getNextTask(for queueKey: String) -> ConcurrentSyncTask? {
+  public func getNextTask(for queueKey: String) -> ConcurrentSyncTask? {
     let firstTask: ConcurrentTaskReferenceModel? = fetchGlobalQueueModel()?.tasks
       .filter { $0.queueKey == queueKey }
       .sorted { $0.position < $1.position }
@@ -35,7 +57,6 @@ public actor ConcurrentTasksRepository: ModelActor {
       jobType: task.jobType,
       in: modelContext
     ) else {
-      print("NO TASKS \(firstTask?.taskID ?? "NONE")")
       return nil
     }
     return ConcurrentSyncTask(
@@ -46,7 +67,7 @@ public actor ConcurrentTasksRepository: ModelActor {
     )
   }
   
-  func pop(_ task: ConcurrentSyncTask) {
+  public func pop(_ task: ConcurrentSyncTask) {
     guard let globalQueue = fetchGlobalQueueModel() else { return }
     
     let context = modelContext

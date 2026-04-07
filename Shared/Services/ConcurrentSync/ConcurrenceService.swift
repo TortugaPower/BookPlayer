@@ -9,9 +9,25 @@
 import Foundation
 import Combine
 
-public class ConcurrenceService {
+public protocol ConcurrenceServiceProtocol {
+  init(maxConcurrentTasks: Int)
+  
+  func setup(libraryService: LibrarySyncProtocol)
+  
+  func observeConcurrentTasksCount() -> AnyPublisher<Int, Never>
+  
+  func getAllQueuedJobs() async -> [ConcurrentSyncTask]
+  
+  func getOrderedQueuedJobs(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask]
+  
+  func scheduleMetadataUpdate(params: [String: Any])
+  
+  func scheduleFileUpload(params: [String: Any])
+}
+
+public class ConcurrenceService: ConcurrenceServiceProtocol {
   let operationQueue: OperationQueue
-  let taskContainer: ConcurrentTasksRepository // Your DB model
+  var taskContainer: ConcurrentTasksRepositoryProtocol! // Your DB model
   var libraryService: LibrarySyncProtocol!
   
   // Tracks which queueKeys currently have an active worker looping
@@ -19,12 +35,11 @@ public class ConcurrenceService {
   private let stateLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
   private var listeningTask: Task<Void, Never>?
-  private var tasksCountService: ConcurrentTasksCountService!
+  public var tasksCountService: ConcurrentTasksCountService!
   // Services
   private let jellyfinService = JellyfinConnectionService()
   
-  public init(maxConcurrentTasks: Int = 4) {
-    self.taskContainer =  ConcurrentTasksRepository()
+  required public init(maxConcurrentTasks: Int = 4) {
     self.operationQueue = OperationQueue()
     self.operationQueue.name = "com.bookplayer.synctask.concurrent"
     // This still caps the total number of operations running simultaneously across all keys
@@ -34,6 +49,7 @@ public class ConcurrenceService {
   public func setup(libraryService: LibrarySyncProtocol) {
     self.libraryService = libraryService
     let tasksDataManager = TasksDataManager()
+    self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
     jellyfinService.setup()
     startListeningForNewTasks()
@@ -183,7 +199,7 @@ public class ConcurrenceService {
 }
 
 extension ConcurrenceService {
-  func scheduleMetadataUpdate(params: [String: Any]) {
+  public func scheduleMetadataUpdate(params: [String: Any]) {
     Task {
       guard let queueKey = params["providerName"] as? String else {
         return
@@ -202,7 +218,7 @@ extension ConcurrenceService {
     }
   }
   
-  func scheduleFileUpload(params: [String: Any]) {
+  public func scheduleFileUpload(params: [String: Any]) {
     Task {
       let queueKey = "uploadFile"
       var params = params

@@ -32,6 +32,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var showingDownloadConfirmation: Bool { get set }
 
   var importManager: ImportManager? { get set }
+  var accountService: AccountService { get set }
   var connectionService: JellyfinConnectionService { get }
   
   var searchQuery: String { get set }

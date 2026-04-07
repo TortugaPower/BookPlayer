@@ -1070,6 +1070,8 @@ extension PlayerManager {
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+      
+      await syncProgressDelegate?.fetchExternalResource(currentItem)
     }
   }
 
