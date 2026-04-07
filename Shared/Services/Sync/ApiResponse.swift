@@ -18,7 +18,7 @@ public struct MatchUuidsResponse: Decodable {
 }
 
 public struct ItemConflict: Decodable {
-    // Maps to the "key" in your JSON ("Jim Butcher - Ghost Story - 17.mp3")
+    // Maps to the local sent "uuid" in your JSON
     let key: String
     // Maps to the "uuid" in your JSON
     let uuid: String

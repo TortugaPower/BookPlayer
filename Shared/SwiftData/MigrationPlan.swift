@@ -58,7 +58,9 @@ public enum MigrationPlan: SchemaMigrationPlan {
           }
         }
 
-        if uuidsDict.count > 0 {
+        if !uuidsDict.isEmpty {
+          context.insert(tasksContainer)
+          
           var parameters = [
             "id": UUID().uuidString,
             "jobType": SyncJobType.matchUuid.rawValue,

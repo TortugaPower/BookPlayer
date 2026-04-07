@@ -65,6 +65,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       return coreServices
     } else {
       let dataManager = DataManager(coreDataStack: stack)
+      MigrationPlan.injectedCoreDataContext = stack.backgroundContext
       let accountService = AccountService()
       accountService.setup(dataManager: dataManager)
       let audioMetadataService = AudioMetadataService()

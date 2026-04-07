@@ -16,7 +16,7 @@ public struct SimpleBookmark: Decodable, Identifiable {
   public let note: String?
   let type: BookmarkType
   public let relativePath: String
-  public let uuid: String?
+  public let uuid: String
 
   static var fetchRequestProperties = [
     "time",
@@ -39,7 +39,7 @@ public struct SimpleBookmark: Decodable, Identifiable {
     }
   }
 
-  public init(time: Double, note: String?, type: BookmarkType, relativePath: String, uuid: String?) {
+  public init(time: Double, note: String?, type: BookmarkType, relativePath: String, uuid: String) {
     self.time = time
     self.note = note
     self.type = type
@@ -61,6 +61,6 @@ extension SimpleBookmark {
     self.time = bookmark.time
     self.note = bookmark.note
     self.type = .user
-    self.uuid = bookmark.uuid
+    self.uuid = bookmark.uuid ?? "" //DOUBLE CHECK
   }
 }

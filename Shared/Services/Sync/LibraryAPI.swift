@@ -22,7 +22,7 @@ public enum LibraryAPI {
   case bookmarks(path: String, uuid: String?)
   case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String)
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
-  case matchUuids(uuidsDictionary: [String: Any])
+  case matchUuids(uuidsDictionary: [String: String])
 }
 
 extension LibraryAPI: Endpoint {

@@ -136,7 +136,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Fetch a bookmark at a specific time
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
   /// Create a bookmark at the given time
-  func createBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) -> SimpleBookmark?
+  func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark?
   /// Add a note to a bookmark
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
@@ -2306,6 +2306,7 @@ extension LibraryService {
       guard
         let time = dictionary["time"] as? Double,
         let relativePath = dictionary["item.relativePath"] as? String,
+        let uuid = dictionary["item.uuid"] as? String,
         let rawType = dictionary["type"] as? Int16,
         let type = BookmarkType(rawValue: rawType)
       else { return nil }
@@ -2315,7 +2316,7 @@ extension LibraryService {
         note: dictionary["note"] as? String,
         type: type,
         relativePath: relativePath,
-        uuid: dictionary["item.uuid"] as? String
+        uuid: uuid
       )
     })
   }
@@ -2370,7 +2371,7 @@ extension LibraryService {
     return parseFetchedBookmarks(from: results)?.first
   }
 
-  public func createBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) -> SimpleBookmark? {
+  public func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark? {
     let finalTime = floor(time)
 
     if let bookmark = self.getBookmark(at: finalTime, relativePath: relativePath, type: type) {

@@ -46,7 +46,7 @@ public class CoreDataStack {
     self.storeContainer = NSPersistentContainer(name: modelName)
 
     let description = NSPersistentStoreDescription()
-    description.shouldInferMappingModelAutomatically = true
+    description.shouldInferMappingModelAutomatically = false
     description.shouldMigrateStoreAutomatically = true
     description.url = self.storeUrl
 

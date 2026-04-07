@@ -294,9 +294,7 @@ extension LibraryItemSyncOperation {
   func handleUploadFinished(_ task: URLSessionTask) {
     Task { [task] in
       do {
-        if let relativePath = task.taskDescription {
-          try await markUploadAsSynced(uuid: uuid)
-        }
+        try await markUploadAsSynced(uuid: uuid)
         NotificationCenter.default.post(name: .uploadCompleted, object: task)
         finish()
       } catch {

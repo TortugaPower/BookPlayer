@@ -1321,7 +1321,7 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String?, type: BookmarkType) {
+  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
     /// Clean up old bookmark
     if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
       libraryService.deleteBookmark(bookmark)
