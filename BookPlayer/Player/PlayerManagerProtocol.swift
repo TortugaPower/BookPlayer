@@ -33,6 +33,8 @@ public protocol PlayerManagerProtocol: AnyObject {
   func stop()
   func rewind()
   func forward()
+  func skipToNextChapter()
+  func skipToPreviousChapter()
   func skip(_ interval: TimeInterval)
   /// Bypass checks on chapter limits
   func directSkip(_ interval: TimeInterval)

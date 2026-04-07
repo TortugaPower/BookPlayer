@@ -53,6 +53,9 @@ class VoiceOverService {
   // MARK: - ArtworkControl
 
   public static func rewindText() -> String {
+    if PlayerManager.isRewindChapterSkip {
+      return "chapters_previous_title".localized
+    }
     return String(
       describing: String.localizedStringWithFormat(
         "voiceover_rewind_time".localized,
@@ -62,6 +65,9 @@ class VoiceOverService {
   }
 
   public static func fastForwardText() -> String {
+    if PlayerManager.isForwardChapterSkip {
+      return "chapters_next_title".localized
+    }
     return String(
       describing: String.localizedStringWithFormat(
         "voiceover_forward_time".localized,

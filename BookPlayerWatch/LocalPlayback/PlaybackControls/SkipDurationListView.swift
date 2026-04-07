@@ -47,7 +47,7 @@ struct SkipDurationListView: View {
         ForEach(intervals, id: \.self) { interval in
           Button {
             switch skipDirection {
-              case .forward:
+            case .forward:
               selectedForwardInterval = interval
             case .back:
               selectedRewindInterval = interval
@@ -62,6 +62,30 @@ struct SkipDurationListView: View {
                 Image(systemName: "checkmark")
                   .foregroundColor(.accentColor)
               }
+            }
+          }
+        }
+
+        Button {
+          switch skipDirection {
+          case .forward:
+            selectedForwardInterval = Constants.SkipInterval.chapterSkipValue
+          case .back:
+            selectedRewindInterval = Constants.SkipInterval.chapterSkipValue
+          }
+          dismiss()
+        } label: {
+          HStack {
+            Text(
+              skipDirection == .forward
+                ? "chapters_next_title".localized
+                : "chapters_previous_title".localized
+            )
+            .font(.caption)
+            Spacer()
+            if selectedInterval == Constants.SkipInterval.chapterSkipValue {
+              Image(systemName: "checkmark")
+                .foregroundColor(.accentColor)
             }
           }
         }

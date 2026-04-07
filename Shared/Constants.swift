@@ -90,6 +90,11 @@ public enum Constants {
     public static let macOSTextScale = "userSettingsMacOSTextScale"
   }
 
+  public enum SkipInterval {
+    /// Sentinel value indicating "skip to next/previous chapter" mode
+    public static let chapterSkipValue: TimeInterval = -1.0
+  }
+
   public enum SmartRewind {
     public static let threshold: TimeInterval = 60 * 60 // 60 minutes
     public static let minRewind: TimeInterval = 2
