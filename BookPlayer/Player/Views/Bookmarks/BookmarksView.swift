@@ -71,6 +71,20 @@ struct BookmarksView: View {
                 }
                 .accessibilityLabel("bookmark_note_edit_title")
               }
+              .macContextMenu {
+                Button {
+                  noteText = bookmark.note ?? ""
+                  showingNoteAlert = bookmark
+                } label: {
+                  Label("bookmark_note_edit_title", systemImage: "pencil")
+                }
+
+                Button(role: .destructive) {
+                  bookmarkToDelete = bookmark
+                } label: {
+                  Label("delete_button", systemImage: "trash")
+                }
+              }
           }
         } header: {
           Text("bookmark_type_user_title")

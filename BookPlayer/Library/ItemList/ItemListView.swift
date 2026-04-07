@@ -140,6 +140,12 @@ struct ItemListView: View {
               loadMoreView()
             }
           }
+          .macContextMenu(forSelectionType: SimpleLibraryItem.ID.self) { itemIDs in
+            let _ = { model.selectedSetItems = itemIDs }()
+            if !model.selectedItems.isEmpty {
+              contextMenuContent()
+            }
+          }
           .accessibilityElement(children: .contain)
           .accessibilityRotor("books_title") {
             customBookRotor(with: scrollView)
@@ -593,6 +599,21 @@ extension ItemListView {
     shareOption(forMenu: true)
     moveOption(forMenu: true)
     detailsOption(forMenu: true)
+  }
+
+  // MARK: - Context Menu (macOS right-click)
+
+  @ViewBuilder
+  func contextMenuContent() -> some View {
+    detailsOption(forMenu: false)
+    moveOption(forMenu: false)
+    shareOption(forMenu: false)
+    jumpToStartOption(forMenu: false)
+    markFinishedOption(forMenu: false)
+    boundBooksOption(forMenu: false)
+    downloadOption(forMenu: false)
+    Divider()
+    deleteOption(forMenu: false)
   }
 
   // MARK: - Individual Option Builders
