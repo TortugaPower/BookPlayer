@@ -400,25 +400,11 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func handleNextTap() {
-    if let currentChapter = self.playerManager.currentItem?.currentChapter,
-      let nextChapter = self.playerManager.currentItem?.nextChapter(after: currentChapter)
-    {
-      self.playerManager.jumpToChapter(nextChapter)
-    } else {
-      self.playerManager.playNextItem(autoPlayed: false, shouldAutoplay: true)
-    }
-    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
+    self.playerManager.skipToNextChapter()
   }
-  
+
   func handlePreviousTap() {
-    if let currentChapter = self.playerManager.currentItem?.currentChapter,
-      let previousChapter = self.playerManager.currentItem?.previousChapter(before: currentChapter)
-    {
-      self.playerManager.jumpToChapter(previousChapter)
-    } else {
-      self.playerManager.playPreviousItem()
-    }
-    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
+    self.playerManager.skipToPreviousChapter()
   }
   
   func hasLoadedBook() -> Bool {

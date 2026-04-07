@@ -579,7 +579,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     set {
       UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.rewindInterval)
 
-      MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [newValue] as [NSNumber]
+      let center = MPRemoteCommandCenter.shared()
+      if newValue == Constants.SkipInterval.chapterSkipValue {
+        center.skipBackwardCommand.isEnabled = false
+      } else {
+        center.skipBackwardCommand.isEnabled = true
+        center.skipBackwardCommand.preferredIntervals = [newValue] as [NSNumber]
+      }
     }
   }
 
@@ -595,8 +601,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     set {
       UserDefaults.standard.set(newValue, forKey: Constants.UserDefaults.forwardInterval)
 
-      MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
+      let center = MPRemoteCommandCenter.shared()
+      if newValue == Constants.SkipInterval.chapterSkipValue {
+        center.skipForwardCommand.isEnabled = false
+      } else {
+        center.skipForwardCommand.isEnabled = true
+        center.skipForwardCommand.preferredIntervals = [newValue] as [NSNumber]
+      }
     }
+  }
+
+  static var isRewindChapterSkip: Bool {
+    rewindInterval == Constants.SkipInterval.chapterSkipValue
+  }
+
+  static var isForwardChapterSkip: Bool {
+    forwardInterval == Constants.SkipInterval.chapterSkipValue
   }
 
   func setNowPlayingBookTitle(chapter: PlayableChapter) {
@@ -713,11 +733,41 @@ extension PlayerManager {
   }
 
   func forward() {
-    skip(PlayerManager.forwardInterval)
+    if PlayerManager.isForwardChapterSkip {
+      skipToNextChapter()
+    } else {
+      skip(PlayerManager.forwardInterval)
+    }
   }
 
   func rewind() {
-    skip(-PlayerManager.rewindInterval)
+    if PlayerManager.isRewindChapterSkip {
+      skipToPreviousChapter()
+    } else {
+      skip(-PlayerManager.rewindInterval)
+    }
+  }
+
+  func skipToNextChapter() {
+    if let currentChapter = currentItem?.currentChapter,
+      let nextChapter = currentItem?.nextChapter(after: currentChapter)
+    {
+      jumpToChapter(nextChapter)
+    } else {
+      playNextItem(autoPlayed: false, shouldAutoplay: true)
+    }
+    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
+  }
+
+  func skipToPreviousChapter() {
+    if let currentChapter = currentItem?.currentChapter,
+      let previousChapter = currentItem?.previousChapter(before: currentChapter)
+    {
+      jumpToChapter(previousChapter)
+    } else {
+      playPreviousItem()
+    }
+    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
   }
 
   func skip(_ interval: TimeInterval) {

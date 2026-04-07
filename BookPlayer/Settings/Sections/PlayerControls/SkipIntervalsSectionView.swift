@@ -40,13 +40,23 @@ struct SkipIntervalsSectionView: View {
             .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+        Text("chapters_previous_title")
+          .bpFont(.body)
+          .tag(Constants.SkipInterval.chapterSkipValue)
+          .foregroundStyle(theme.linkColor)
       } label: {
         Text("settings_skip_rewind_title")
           .bpFont(.body)
       }
       .pickerStyle(.menu)
       .onChange(of: rewindInterval) {
-        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [rewindInterval] as [NSNumber]
+        let center = MPRemoteCommandCenter.shared()
+        if rewindInterval == Constants.SkipInterval.chapterSkipValue {
+          center.skipBackwardCommand.isEnabled = false
+        } else {
+          center.skipBackwardCommand.isEnabled = true
+          center.skipBackwardCommand.preferredIntervals = [rewindInterval] as [NSNumber]
+        }
       }
 
       Picker(selection: $forwardInterval) {
@@ -56,13 +66,23 @@ struct SkipIntervalsSectionView: View {
             .tag(interval)
             .foregroundStyle(theme.linkColor)
         }
+        Text("chapters_next_title")
+          .bpFont(.body)
+          .tag(Constants.SkipInterval.chapterSkipValue)
+          .foregroundStyle(theme.linkColor)
       } label: {
         Text("settings_skip_forward_title")
           .bpFont(.body)
       }
       .pickerStyle(.menu)
       .onChange(of: forwardInterval) {
-        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [forwardInterval] as [NSNumber]
+        let center = MPRemoteCommandCenter.shared()
+        if forwardInterval == Constants.SkipInterval.chapterSkipValue {
+          center.skipForwardCommand.isEnabled = false
+        } else {
+          center.skipForwardCommand.isEnabled = true
+          center.skipForwardCommand.preferredIntervals = [forwardInterval] as [NSNumber]
+        }
       }
     } header: {
       Text("settings_skip_title".localized.capitalized)

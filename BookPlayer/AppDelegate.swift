@@ -214,7 +214,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   func setupMPSkipRemoteCommands() {
     let center = MPRemoteCommandCenter.shared()
     // Forward
-    center.skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
+    if PlayerManager.isForwardChapterSkip {
+      center.skipForwardCommand.isEnabled = false
+    } else {
+      center.skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
+    }
     center.skipForwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 
@@ -244,7 +248,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
 
     // Rewind
-    center.skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
+    if PlayerManager.isRewindChapterSkip {
+      center.skipBackwardCommand.isEnabled = false
+    } else {
+      center.skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
+    }
     center.skipBackwardCommand.addTarget { (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = AppServices.shared.coreServices?.playerManager else { return .commandFailed }
 

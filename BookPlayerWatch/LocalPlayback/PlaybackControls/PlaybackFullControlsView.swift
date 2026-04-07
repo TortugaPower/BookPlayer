@@ -126,7 +126,11 @@ struct PlaybackFullControlsView: View {
             HStack {
               Text("settings_skip_rewind_title")
               Spacer()
-              Text(TimeParser.formatDuration(rewindInterval))
+              Text(
+                rewindInterval == Constants.SkipInterval.chapterSkipValue
+                  ? "chapters_previous_title".localized
+                  : TimeParser.formatDuration(rewindInterval)
+              )
               Image(systemName: "chevron.forward")
             }
           }
@@ -137,7 +141,11 @@ struct PlaybackFullControlsView: View {
             HStack {
               Text("settings_skip_forward_title")
               Spacer()
-              Text(TimeParser.formatDuration(forwardInterval))
+              Text(
+                forwardInterval == Constants.SkipInterval.chapterSkipValue
+                  ? "chapters_next_title".localized
+                  : TimeParser.formatDuration(forwardInterval)
+              )
               Image(systemName: "chevron.forward")
             }
           }

@@ -214,7 +214,11 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
   func setupMPSkipRemoteCommands() {
     let center = MPRemoteCommandCenter.shared()
     // Forward
-    center.skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
+    if PlayerManager.isForwardChapterSkip {
+      center.skipForwardCommand.isEnabled = false
+    } else {
+      center.skipForwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.forwardInterval)]
+    }
     center.skipForwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
 
@@ -244,7 +248,11 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
     }
 
     // Rewind
-    center.skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
+    if PlayerManager.isRewindChapterSkip {
+      center.skipBackwardCommand.isEnabled = false
+    } else {
+      center.skipBackwardCommand.preferredIntervals = [NSNumber(value: PlayerManager.rewindInterval)]
+    }
     center.skipBackwardCommand.addTarget { [weak self] (_) -> MPRemoteCommandHandlerStatus in
       guard let playerManager = self?.coreServices?.playerManager else { return .commandFailed }
 
