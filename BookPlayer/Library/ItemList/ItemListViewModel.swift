@@ -205,10 +205,6 @@ final class ItemListViewModel: ObservableObject {
       }
     }
   }
-  
-  func syncUuids() async {
-    await syncService.scheduleMatchUuid()
-  }
 
   func refreshListState() async throws {
     guard syncService.isActive else { return }
@@ -370,8 +366,8 @@ extension ItemListViewModel {
 
   func importIntoLibrary(_ items: [PathUuidPair]) {
     do {
-      try libraryService.moveItems(items.map({ $0 }), inside: nil)
-      syncService.scheduleMove(items: items.map({ $0 }), to: nil)
+      try libraryService.moveItems(items, inside: nil)
+      syncService.scheduleMove(items: items, to: nil)
     } catch {
       loadingState.error = error
     }

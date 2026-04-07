@@ -69,15 +69,13 @@ public protocol SyncServiceProtocol {
     relativePath: String,
     time: Double,
     note: String?,
-    uuid: String?
+    uuid: String
   )
 
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
-  func scheduleUploadArtwork(relativePath: String, uuid: String?)
+  func scheduleUploadArtwork(relativePath: String, uuid: String)
   
-  func scheduleMatchUuid() async
-
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
@@ -461,7 +459,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .forEach({ initiatingFolderReference[$0] = item.parentFolder })
   }
 
-  public func scheduleUploadArtwork(relativePath: String, uuid: String?) {
+  public func scheduleUploadArtwork(relativePath: String, uuid: String) {
     guard isActive else { return }
 
     Task {
@@ -519,22 +517,6 @@ extension SyncService {
 
       await jobManager.scheduleMetadataUpdateJob(with: relativePath, parameters: params)
     }
-  }
-  
-  public func scheduleMatchUuid() async {
-    guard isActive else { return }
-    
-    var previousOffset = 0
-    var loopShouldContinue: Bool = true
-    repeat {
-      let uuidsDict = await libraryService.generateMissingUuids(offset: previousOffset)
-      if uuidsDict.count > 0 {
-        await jobManager.scheduleMatchUuidsJob(uuidsDict: uuidsDict)
-      } else {
-        loopShouldContinue = false
-      }
-      previousOffset += uuidsDict.count
-    } while loopShouldContinue
   }
 }
 
@@ -604,7 +586,7 @@ extension SyncService {
     relativePath: String,
     time: Double,
     note: String?,
-    uuid: String?
+    uuid: String
   ) {
     guard isActive else { return }
 

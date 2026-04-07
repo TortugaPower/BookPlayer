@@ -61,7 +61,7 @@ struct QueuedSyncTaskRowView_Previews: PreviewProvider {
     QueuedSyncTaskRowView(
       imageName: .constant("bookmark"),
       title: .constant("Task"),
-      relativePath: "path/to/file",
+      relativePath: "LEGACY_UUID",
       initialProgress: 0,
       isUpload: false
     )

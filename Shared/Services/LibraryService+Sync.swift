@@ -14,7 +14,7 @@ import Foundation
 public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
-
+  
   /// Fetch all the stored items in the library that are not in the remote identifiers array
   func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
@@ -26,7 +26,7 @@ public protocol LibrarySyncProtocol {
   func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Remove local items that were not in the remote identifiers
   func removeItems(notIn identifiers: [String], parentFolder: String?) async
-
+  
   /// Get last played library item
   func fetchLibraryLastItem() async -> SimpleLibraryItem?
   /// Set the last played book
@@ -35,43 +35,19 @@ public protocol LibrarySyncProtocol {
   func itemExists(for relativePath: String) async -> Bool
   /// Load encoded chapters from file into DB
   func loadChaptersIfNeeded(relativePath: String) async
-
+  
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
   /// Get max items count inside the specified path
   func getMaxItemsCount(at relativePath: String?) -> Int
-
+  
   /// Get all stored bookmarks of the specified type for a book
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
-  
-  func generateMissingUuids(offset: Int) async -> [String: String]
 }
 
 extension LibraryService: LibrarySyncProtocol {
-  public func generateMissingUuids(offset: Int) async -> [String: String] {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [unowned self, context] in
-        var uuidsDict: [String: String] = [:]
-        let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
-        // Fetch only items where the UUID hasn't been set yet
-        fetchRequest.fetchLimit = 200
-        fetchRequest.fetchOffset = offset
-        
-        guard let itemsToUpdate = try? context.fetch(fetchRequest) else {
-          return continuation.resume(returning: uuidsDict)
-        }
-        for item in itemsToUpdate {
-          uuidsDict[item.relativePath] = item.uuid
-        }
-        
-        continuation.resume(returning: uuidsDict)
-      }
-    }
-  }
-  
   public func updateLibraryLastBook(with relativePath: String?) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()

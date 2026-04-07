@@ -88,7 +88,8 @@ extension DeleteTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "jobType": jobType.rawValue,
-      "uuid": uuid as Any
+      "relativePath": relativePath,
+      "uuid": uuid
     ]
   }
 }
@@ -98,7 +99,8 @@ extension DeleteBookmarkTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "time": time,
-      "uuid": uuid as Any
+      "relativePath": relativePath,
+      "uuid": uuid
     ]
   }
 }
@@ -108,6 +110,7 @@ extension SetBookmarkTaskModel: DictionaryConvertible {
     var dict: [String: Any] = [
       "id": id,
       "uuid": uuid,
+      "relativePath": relativePath,
       "time": time
     ]
     
@@ -124,7 +127,8 @@ extension RenameFolderTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "name": name,
-      "uuid": uuid as Any
+      "relativePath": relativePath,
+      "uuid": uuid
     ]
   }
 }
@@ -133,7 +137,8 @@ extension ArtworkUploadTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
-      "uuid": uuid as Any
+      "relativePath": relativePath,
+      "uuid": uuid
     ]
   }
 }

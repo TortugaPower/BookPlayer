@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PathUuidPair: Equatable {
+public struct PathUuidPair: Equatable, Hashable {
   public var relativePath: String
   public var uuid: String
   
