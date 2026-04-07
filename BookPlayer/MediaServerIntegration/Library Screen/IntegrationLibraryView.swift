@@ -64,7 +64,7 @@ struct IntegrationLibraryView<
       isPresented: $viewModel.showingDownloadConfirmation
     ) {
       Button("download_title".localized) {
-        viewModel.virtualImportFolderAudiobooks(useSelectedItems: false)
+        viewModel.handleImportItems(useSelectedItems: false)
       }
       Button("cancel_button".localized, role: .cancel) {}
     } message: {

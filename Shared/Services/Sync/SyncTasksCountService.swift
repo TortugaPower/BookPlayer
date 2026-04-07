@@ -14,7 +14,6 @@ public protocol SyncTasksCountServiceProtocol {
 }
 
 public class SyncTasksCountService: SyncTasksCountServiceProtocol {
-  private var tasksCountPublisher = CurrentValueSubject<Int?, Never>(nil)
   private let tasksDataManager: TasksDataManager
 
   public init(tasksDataManager: TasksDataManager) {

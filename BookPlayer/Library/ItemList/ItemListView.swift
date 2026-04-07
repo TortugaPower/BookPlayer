@@ -240,7 +240,7 @@ struct ItemListView: View {
     }
     .task {
       focus = .primary
-      await model.syncList()
+      await model.syncList(jellyfinService: jellyfinService)
     }
     .task(id: playerState.loadedBookRelativePath) {
       playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
@@ -249,7 +249,7 @@ struct ItemListView: View {
       guard scenePhase == .active else { return }
 
       Task {
-        await model.syncList()
+        await model.syncList(jellyfinService: jellyfinService)
       }
     }
     .onChange(of: listState.token(for: .all), initial: false) {

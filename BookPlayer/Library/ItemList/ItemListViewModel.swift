@@ -15,12 +15,13 @@ final class ItemListViewModel: ObservableObject {
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
   let playerManager: PlayerManager
+  let playerState: PlayerState
   private let syncService: SyncService
+  private let concurrenceService: ConcurrenceServiceProtocol
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
 
@@ -100,7 +101,9 @@ final class ItemListViewModel: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
+    playerState: PlayerState,
     syncService: SyncService,
+    concurrenceService: ConcurrenceService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
     listState: ListStateManager,
@@ -110,7 +113,9 @@ final class ItemListViewModel: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
+    self.playerState = playerState
     self.syncService = syncService
+    self.concurrenceService = concurrenceService
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
     self.listState = listState
@@ -179,7 +184,7 @@ final class ItemListViewModel: ObservableObject {
     return playbackService.processFoldersStaleProgress()
   }
 
-  func syncList() async {
+  func syncList(jellyfinService: JellyfinConnectionService? = nil) async {
     if processFoldersStaleProgress() {
       listState.reloadAll()
     }
@@ -198,6 +203,9 @@ final class ItemListViewModel: ObservableObject {
       contentsFetchTask = Task {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
+          if let jellyfinService {
+            await updateFromResource(jellyfinService: jellyfinService)
+          }
           await MainActor.run {
             listState.reloadAll()
           }
@@ -674,7 +682,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {
@@ -787,10 +795,42 @@ extension ItemListViewModel {
       loadingState.error = BookPlayerError.networkError("Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))")
     }
   }
+  
+  func updateFromResource(jellyfinService: JellyfinConnectionService) async {
+    // 1. Break the calculation out into a distinct local variable.
+    // (Swapping `map` to `compactMap` here to safely unwrap the `.first` optional!)
+    let jellyfinItems = self.items
+      .filter { $0.externalResources?.contains { $0.providerName == "jellyfin" } ?? false }
+    let jellyfinResources = jellyfinItems
+      .compactMap { $0.externalResources!.first(where: { $0.providerName == "jellyfin" })! }
+    // 2. Pass the pre-calculated, explicitly-typed array into the function.
+    guard let results = try? await jellyfinService.updateItemsFromJellyfin(jellyfinResources) else { return }
+
+    libraryService.handleSyncFromExternalResouce(remoteItemsDictionary: results)
+  }
 }
 
 extension ItemListViewModel: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
+  }
+  
+  func fetchExternalResource(_ playableItem: PlayableItem) async {
+    Task {
+      let lastPlayDate = playableItem.lastPlayDate ?? Date.distantPast
+      let jellyfinService = JellyfinConnectionService()
+      jellyfinService.setup()
+      
+      guard let externalResources = libraryService.findResources(for: playableItem.uuid),
+            let jellyfinSource = externalResources.first(where: { $0.providerName == "jellyfin" }),
+            let jellyfinItem = try await jellyfinService.fetchItem(for: jellyfinSource.providerId) else  { return }
+      
+      let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
+      if externalPlayDate > lastPlayDate || TimeInterval(jellyfinItem.currentSeconds ?? 0) > playableItem.currentTime {
+        //playerManager.jumpTo(Double(jellyfinItem.currentSeconds ?? 0))
+        playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
+        playerState.showResumePopup = true
+      }
+    }
   }
 }

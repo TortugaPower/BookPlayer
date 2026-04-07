@@ -67,6 +67,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   let recursive: Bool
   var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
+  let accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -87,6 +88,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -95,6 +97,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     self.connectionService = connectionService
     self.importManager = importManager
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -309,6 +312,19 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       selectedItems.removeAll()
     }
   }
+  
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool) {
+    if accountService.hasLiteEnabled() {
+      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        onDownloadFolderTapped()
+      }
+    }
+  }
 
   @MainActor
   func onDownloadTapped() {
@@ -435,7 +451,9 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
 
   var isSearchable: Bool { true }
 
+  var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
+  let accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -446,6 +464,8 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -453,6 +473,8 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.importManager = importManager
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -592,6 +614,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   var isSearchable: Bool { true }
   
   var importManager: ImportManager? { get set }
+  let accountService: AccountService
   let connectionService: JellyfinConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -603,7 +626,8 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: importManager,
+    importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -612,6 +636,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.importManager = importManager
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -751,6 +776,8 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
+  var importManager: ImportManager?
+  let accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -760,12 +787,16 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.importManager = importManager
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -842,6 +873,8 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
+  var importManager: ImportManager?
+  let accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -851,12 +884,16 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    importManager: ImportManager?,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.importManager = importManager
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
