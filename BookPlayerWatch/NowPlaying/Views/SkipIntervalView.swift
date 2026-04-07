@@ -21,14 +21,11 @@ struct SkipIntervalView: View {
   var body: some View {
     ZStack {
       if isChapterSkip {
-        Image(
-          systemName: skipDirection == .forward
+        ResizeableImageView(
+          name: skipDirection == .forward
             ? "forward.end.fill"
             : "backward.end.fill"
         )
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .padding(12)
       } else {
         if let interval = interval {
           Text("**\(interval)**")
