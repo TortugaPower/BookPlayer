@@ -148,6 +148,7 @@ public final class DataMigrationManager: BPLogger {
           continuation.resume()
         }
       } catch {
+        Self.logger.error("Error during migration: \(error.localizedDescription)")
         continuation.resume(throwing: error)
       }
     }

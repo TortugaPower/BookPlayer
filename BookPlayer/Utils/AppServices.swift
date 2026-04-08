@@ -72,6 +72,7 @@ final class AppServices: BPLogger {
       return coreServices
     } else {
       let dataManager = DataManager(coreDataStack: stack)
+      MigrationPlan.injectedCoreDataContext = stack.backgroundContext
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
