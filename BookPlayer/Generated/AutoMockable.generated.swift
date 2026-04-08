@@ -149,10 +149,10 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var moveItemsInsideCalled: Bool {
         return moveItemsInsideCallsCount > 0
     }
-    var moveItemsInsideReceivedArguments: (items: [String], relativePath: String?)?
-    var moveItemsInsideReceivedInvocations: [(items: [String], relativePath: String?)] = []
-    var moveItemsInsideClosure: (([String], String?) throws -> Void)?
-    func moveItems(_ items: [String], inside relativePath: String?) throws {
+    var moveItemsInsideReceivedArguments: (items: [PathUuidPair], relativePath: String?)?
+    var moveItemsInsideReceivedInvocations: [(items: [PathUuidPair], relativePath: String?)] = []
+    var moveItemsInsideClosure: (([PathUuidPair], String?) throws -> Void)?
+    func moveItems(_ items: [PathUuidPair], inside relativePath: String?) throws {
         if let error = moveItemsInsideThrowableError {
             throw error
         }
@@ -845,7 +845,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookmarkAtRelativePathTypeReceivedInvocations: [(time: Double, relativePath: String, type: BookmarkType)] = []
     var createBookmarkAtRelativePathTypeReturnValue: SimpleBookmark?
     var createBookmarkAtRelativePathTypeClosure: ((Double, String, BookmarkType) -> SimpleBookmark?)?
-    func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+    func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark? {
         createBookmarkAtRelativePathTypeCallsCount += 1
         createBookmarkAtRelativePathTypeReceivedArguments = (time: time, relativePath: relativePath, type: type)
         createBookmarkAtRelativePathTypeReceivedInvocations.append((time: time, relativePath: relativePath, type: type))
@@ -1627,7 +1627,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var getRemoteFileURLsOfTypeReceivedInvocations: [(relativePath: String, type: SimpleItemType)] = []
     var getRemoteFileURLsOfTypeReturnValue: [RemoteFileURL]!
     var getRemoteFileURLsOfTypeClosure: ((String, SimpleItemType) async throws -> [RemoteFileURL])?
-    func getRemoteFileURLs(of relativePath: String, type: SimpleItemType) async throws -> [RemoteFileURL] {
+    func getRemoteFileURLs(of relativePath: String, for uuid: String?, type: SimpleItemType) async throws -> [RemoteFileURL] {
         if let error = getRemoteFileURLsOfTypeThrowableError {
             throw error
         }
@@ -1695,10 +1695,10 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleMoveItemsToCalled: Bool {
         return scheduleMoveItemsToCallsCount > 0
     }
-    var scheduleMoveItemsToReceivedArguments: (items: [String], parentFolder: String?)?
-    var scheduleMoveItemsToReceivedInvocations: [(items: [String], parentFolder: String?)] = []
-    var scheduleMoveItemsToClosure: (([String], String?) -> Void)?
-    func scheduleMove(items: [String], to parentFolder: String?) {
+    var scheduleMoveItemsToReceivedArguments: (items: [PathUuidPair], parentFolder: PathUuidPair?)?
+    var scheduleMoveItemsToReceivedInvocations: [(items: [PathUuidPair], parentFolder: PathUuidPair?)] = []
+    var scheduleMoveItemsToClosure: (([PathUuidPair], PathUuidPair?) -> Void)?
+    func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?) {
         scheduleMoveItemsToCallsCount += 1
         scheduleMoveItemsToReceivedArguments = (items: items, parentFolder: parentFolder)
         scheduleMoveItemsToReceivedInvocations.append((items: items, parentFolder: parentFolder))
@@ -1713,7 +1713,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleRenameFolderAtNameReceivedArguments: (relativePath: String, name: String)?
     var scheduleRenameFolderAtNameReceivedInvocations: [(relativePath: String, name: String)] = []
     var scheduleRenameFolderAtNameClosure: ((String, String) -> Void)?
-    func scheduleRenameFolder(at relativePath: String, name: String) {
+    func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String) {
         scheduleRenameFolderAtNameCallsCount += 1
         scheduleRenameFolderAtNameReceivedArguments = (relativePath: relativePath, name: name)
         scheduleRenameFolderAtNameReceivedInvocations.append((relativePath: relativePath, name: name))
@@ -1728,7 +1728,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleSetBookmarkRelativePathTimeNoteReceivedArguments: (relativePath: String, time: Double, note: String?)?
     var scheduleSetBookmarkRelativePathTimeNoteReceivedInvocations: [(relativePath: String, time: Double, note: String?)] = []
     var scheduleSetBookmarkRelativePathTimeNoteClosure: ((String, Double, String?) -> Void)?
-    func scheduleSetBookmark(relativePath: String, time: Double, note: String?) {
+    func scheduleSetBookmark(relativePath: String, time: Double, note: String?, uuid: String) {
         scheduleSetBookmarkRelativePathTimeNoteCallsCount += 1
         scheduleSetBookmarkRelativePathTimeNoteReceivedArguments = (relativePath: relativePath, time: time, note: note)
         scheduleSetBookmarkRelativePathTimeNoteReceivedInvocations.append((relativePath: relativePath, time: time, note: note))
@@ -1758,7 +1758,7 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleUploadArtworkRelativePathReceivedRelativePath: String?
     var scheduleUploadArtworkRelativePathReceivedInvocations: [String] = []
     var scheduleUploadArtworkRelativePathClosure: ((String) -> Void)?
-    func scheduleUploadArtwork(relativePath: String) {
+    func scheduleUploadArtwork(relativePath: String, uuid: String) {
         scheduleUploadArtworkRelativePathCallsCount += 1
         scheduleUploadArtworkRelativePathReceivedRelativePath = relativePath
         scheduleUploadArtworkRelativePathReceivedInvocations.append(relativePath)
