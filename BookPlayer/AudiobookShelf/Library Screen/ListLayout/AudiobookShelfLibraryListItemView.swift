@@ -18,11 +18,20 @@ struct AudiobookShelfLibraryListItemView: View {
       AudiobookShelfLibraryItemImageView(item: item)
         .frame(width: 50, height: 50)
         .accessibilityHidden(true)
-      Text(item.title)
-        .bpFont(.titleRegular)
-        .foregroundStyle(theme.primaryColor)
+      VStack(alignment: .leading, spacing: 2) {
+        Text(item.title)
+          .bpFont(.titleRegular)
+          .foregroundStyle(theme.primaryColor)
+
+        if let subtitle = item.subtitle ?? item.authorName ?? item.narratorName {
+          Text(subtitle)
+            .bpFont(.caption)
+            .foregroundStyle(theme.secondaryColor)
+            .lineLimit(1)
+        }
+      }
       Spacer()
-      if item.kind == .library {
+      if item.isNavigable {
         Image(systemName: "chevron.forward")
           .foregroundStyle(theme.secondaryColor)
       }

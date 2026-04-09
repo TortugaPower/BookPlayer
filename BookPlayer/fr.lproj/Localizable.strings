@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Le compte existe déjà";
 "passkey_email_exists_message" = "Un compte avec cet e-mail existe déjà. Veuillez vous connecter avec votre clé d'accès ou identifiant Apple existant.";
 "passkey_signin_existing" = "Se connecter avec une clé existante";
+"Switch Library" = "Changer de bibliothèque";
+"Authors" = "Auteurs";
+"Series" = "Séries";
+"Collections" = "Collections";
+"Narrators" = "Narrateurs";

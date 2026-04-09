@@ -44,11 +44,8 @@ struct JellyfinLibraryGridItemView: View {
           }
           .accessibilityHidden(true)
 
-        switch item.kind {
-        case .userView, .folder:
+        if item.isNavigable {
           folderBadge
-        case .audiobook:
-          EmptyView()
         }
       }
 

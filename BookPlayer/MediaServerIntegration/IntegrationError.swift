@@ -1,17 +1,17 @@
 //
-//  JellyfinError.swift
+//  IntegrationError.swift
 //  BookPlayer
 //
-//  Created by Lysann Tranvouez on 2024-11-22.
-//  Copyright © 2024 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import Foundation
 
-enum JellyfinError: Error, LocalizedError {
+enum IntegrationError: Error, LocalizedError {
   case urlMalformed(_ url: URL?)
   case urlFromComponents(_ components: URLComponents)
-  case noClient
+  case noClient(_ integrationName: String)
   case unexpectedResponse(code: Int?)
   case clientError(code: Int)
 
@@ -21,8 +21,8 @@ enum JellyfinError: Error, LocalizedError {
       String(format: "integration_internal_error_invalid_url".localized, String(reflecting: url))
     case .urlFromComponents:
       "integration_internal_error_build_url".localized
-    case .noClient:
-      String(format: "integration_internal_error_no_client".localized, "Jellyfin")
+    case .noClient(let name):
+      String(format: "integration_internal_error_no_client".localized, name)
     case .unexpectedResponse(let code):
       if let code {
         String(

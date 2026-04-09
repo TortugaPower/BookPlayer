@@ -17,6 +17,7 @@ class JellyfinConnectionService: BPLogger {
   var connection: JellyfinConnectionData?
   var client: JellyfinClient?
 
+
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
   }
@@ -28,7 +29,7 @@ class JellyfinConnectionService: BPLogger {
   /// Finds and creates the api-client for the specified server
   public func findServer(at absolutePath: String) async throws -> String {
     guard let client = createClient(serverUrlString: absolutePath) else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let publicSystemInfo = try await client.send(Paths.getPublicSystemInfo)
@@ -45,7 +46,7 @@ class JellyfinConnectionService: BPLogger {
     serverName: String
   ) async throws {
     guard let client else {
-      fatalError("Client not initialized when attempting to sign in")
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let result = try await client.signIn(username: username, password: password)
@@ -54,7 +55,7 @@ class JellyfinConnectionService: BPLogger {
       let accessToken = result.accessToken,
       let userID = result.user?.id
     else {
-      throw JellyfinError.unexpectedResponse(code: nil).localizedDescription
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     let data = JellyfinConnectionData(
@@ -72,6 +73,13 @@ class JellyfinConnectionService: BPLogger {
 
     self.connection = data
     self.client = client
+  }
+
+  func saveSelectedLibrary(id: String?) {
+    guard var data = connection else { return }
+    data.selectedLibraryId = id
+    connection = data
+    try? keychainService.set(data, key: .jellyfinConnection)
   }
 
   func deleteConnection() {
@@ -96,7 +104,7 @@ class JellyfinConnectionService: BPLogger {
     guard
       let connection
     else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let parameters = Paths.GetUserViewsParameters(userID: connection.userID)
@@ -116,7 +124,8 @@ class JellyfinConnectionService: BPLogger {
     startIndex: Int?,
     limit: Int?,
     sortBy: JellyfinLayout.SortBy,
-    searchTerm: String? = nil
+    searchTerm: String? = nil,
+    recursive: Bool = false
   ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
     // Require a search term when no folder is scoped, to avoid accidental expensive server-wide fetches
     let effectiveSearchTerm = searchTerm.flatMap { $0.isEmpty ? nil : $0 }
@@ -138,16 +147,18 @@ class JellyfinConnectionService: BPLogger {
         sortOrder = [.ascending]
     }
 
-    // When no parentID is given, search recursively across the whole server
+    let isRecursive = recursive || searchTerm != nil || folderID == nil
+    let itemTypes: [JellyfinAPI.BaseItemKind] = (recursive || searchTerm != nil) ? [.audioBook] : [.audioBook, .folder]
+
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
-      isRecursive: searchTerm != nil || folderID == nil,
+      isRecursive: isRecursive,
       searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],
-      includeItemTypes: [.audioBook, .folder],
+      includeItemTypes: itemTypes,
       sortBy: orderBy,
       imageTypeLimit: 1
     )
@@ -168,6 +179,186 @@ class JellyfinConnectionService: BPLogger {
       .compactMap { item -> JellyfinLibraryItem? in
         return JellyfinLibraryItem(apiItem: item)
       }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  /// Fetch audiobooks filtered by album artist ID.
+  public func fetchItemsByArtist(
+    artistID: String,
+    parentID: String?,
+    startIndex: Int?,
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
+    switch sortBy {
+    case .recent:
+      orderBy = [.dateCreated]
+      sortOrder = [.descending]
+    case .name:
+      orderBy = [.name]
+      sortOrder = [.ascending]
+    case .smart:
+      orderBy = [.sortName]
+      sortOrder = [.ascending]
+    }
+
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: true,
+      sortOrder: sortOrder,
+      parentID: parentID,
+      fields: [.sortName],
+      includeItemTypes: [.audioBook],
+      sortBy: orderBy,
+      imageTypeLimit: 1,
+      albumArtistIDs: [artistID]
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let nextStartItemIndex =
+      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
+        startIndex + numItems
+      } else {
+        -1
+      }
+    let maxNumItems = response.value.totalRecordCount ?? 0
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  /// Fetch album artists in a library.
+  public func fetchAlbumArtists(
+    parentID: String?,
+    startIndex: Int? = nil,
+    limit: Int? = nil,
+    searchTerm: String? = nil
+  ) async throws -> (items: [JellyfinLibraryItem], total: Int) {
+    let parameters = Paths.GetAlbumArtistsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      searchTerm: searchTerm,
+      parentID: parentID,
+      fields: [.sortName],
+      imageTypeLimit: 1,
+      sortBy: [.sortName],
+      sortOrder: [.ascending]
+    )
+
+    let response = try await send(Paths.getAlbumArtists(parameters: parameters))
+    try Task.checkCancellation()
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(authorApiItem: $0) }
+    let total = response.value.totalRecordCount ?? items.count
+
+    return (items, total)
+  }
+
+  /// Fetch narrators by scanning audiobook items for People with "Narrator" role or type.
+  /// Jellyfin doesn't have a native "Narrator" person kind, so we extract them from item metadata.
+  public func fetchNarrators(
+    parentID: String? = nil,
+    searchTerm: String? = nil,
+    limit: Int? = nil
+  ) async throws -> (items: [JellyfinLibraryItem], total: Int) {
+    // Fetch all audiobooks with People metadata
+    let parameters = Paths.GetItemsParameters(
+      isRecursive: true,
+      parentID: parentID,
+      fields: [.people],
+      includeItemTypes: [.audioBook],
+      imageTypeLimit: 0
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    // Extract unique narrators from People arrays
+    var seenNames = Set<String>()
+    var narratorItems = [JellyfinLibraryItem]()
+
+    for apiItem in response.value.items ?? [] {
+      for person in apiItem.people ?? [] {
+        guard let name = person.name, !name.isEmpty else { continue }
+
+        let isNarrator =
+          person.role?.localizedCaseInsensitiveContains("narrator") == true
+          || person.type?.rawValue.localizedCaseInsensitiveContains("narrator") == true
+
+        guard isNarrator, !seenNames.contains(name) else { continue }
+        seenNames.insert(name)
+
+        let id = person.id ?? name
+        narratorItems.append(
+          JellyfinLibraryItem(id: id, name: name, kind: .narrator)
+        )
+      }
+    }
+
+    narratorItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+    return (narratorItems, narratorItems.count)
+  }
+
+  /// Fetch audiobooks by a specific narrator (person name or ID).
+  public func fetchItemsByPerson(
+    personID: String,
+    personName: String?,
+    parentID: String?,
+    startIndex: Int?,
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
+    switch sortBy {
+    case .recent:
+      orderBy = [.dateCreated]
+      sortOrder = [.descending]
+    case .name:
+      orderBy = [.name]
+      sortOrder = [.ascending]
+    case .smart:
+      orderBy = [.sortName]
+      sortOrder = [.ascending]
+    }
+
+    // Use person name for matching (more reliable for narrators extracted from metadata)
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: true,
+      sortOrder: sortOrder,
+      parentID: parentID,
+      fields: [.sortName],
+      includeItemTypes: [.audioBook],
+      sortBy: orderBy,
+      imageTypeLimit: 1,
+      person: personName ?? personID
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let nextStartItemIndex =
+      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
+        startIndex + numItems
+      } else {
+        -1
+      }
+    let maxNumItems = response.value.totalRecordCount ?? 0
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
 
     return (items, nextStartItemIndex, maxNumItems)
   }
@@ -226,7 +417,7 @@ class JellyfinConnectionService: BPLogger {
     _ request: Request<T>
   ) async throws -> Response<T> where T: Decodable {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     return try await client.send(request)
@@ -275,7 +466,7 @@ class JellyfinConnectionService: BPLogger {
 
   func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     let request = Paths.getDownload(itemID: item.id)
@@ -286,7 +477,7 @@ class JellyfinConnectionService: BPLogger {
     components.queryItems = queryItems
 
     guard let url = components.url else {
-      throw JellyfinError.urlFromComponents(components)
+      throw IntegrationError.urlFromComponents(components)
     }
 
     return url
@@ -304,7 +495,7 @@ class JellyfinConnectionService: BPLogger {
     let components = try createUrlComponentsForApiRequest(request)
 
     guard let url = components.url else {
-      throw JellyfinError.urlFromComponents(components)
+      throw IntegrationError.urlFromComponents(components)
     }
 
     return url
@@ -314,11 +505,11 @@ class JellyfinConnectionService: BPLogger {
     _ request: Request<Response>
   ) throws -> URLComponents {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("Jellyfin")
     }
 
     guard let requestUrl = request.url else {
-      throw JellyfinError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     let requestAbsoluteUrl =
@@ -327,7 +518,7 @@ class JellyfinConnectionService: BPLogger {
       : requestUrl
 
     guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
-      throw JellyfinError.urlMalformed(requestUrl)
+      throw IntegrationError.urlMalformed(requestUrl)
     }
 
     if let query = request.query, !query.isEmpty {

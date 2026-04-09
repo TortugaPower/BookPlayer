@@ -6,140 +6,53 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
-import Kingfisher
 import SwiftUI
 
-struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
+/// Thin wrapper providing Jellyfin-specific cell, row, sort picker, and environment
+/// to the shared `IntegrationLibraryView`.
+struct JellyfinLibraryView<Model: IntegrationLibraryViewModelProtocol>: View
+where Model.Item == JellyfinLibraryItem {
   @StateObject var viewModel: Model
-  @EnvironmentObject private var theme: ThemeViewModel
-
-  var navigationTitle: Text {
-    if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
-      return Text(
-        String(format: "integration_selection_count".localized, viewModel.selectedItems.count, viewModel.totalItems)
-      )
-    } else {
-      return Text(viewModel.navigationTitle)
-    }
-  }
 
   var body: some View {
-    Group {
-      if viewModel.layout == .grid {
-        ScrollView {
-          JellyfinLibraryGridView(viewModel: viewModel)
-            .padding()
-        }
-      } else {
-        JellyfinLibraryListView(viewModel: viewModel)
-          .scrollContentBackground(.hidden)
+    IntegrationLibraryView(
+      viewModel: viewModel,
+      gridCell: { item in
+        JellyfinLibraryGridItemView(
+          item: item,
+          isSelected: viewModel.selectedItems.contains(item.id)
+        )
+      },
+      listRow: { item in
+        JellyfinLibraryListItemView(item: item)
+      },
+      sortPicker: {
+        sortPickerContent
       }
-    }
-    .scrollDismissesKeyboard(.interactively)
-    .background(theme.systemBackgroundColor)
-    .environment(\.jellyfinService, viewModel.connectionService)
-    .modifier(JellyfinSearchableModifier(isSearchable: viewModel.isSearchable, text: $viewModel.searchQuery))
-    .searchPresentationToolbarBehavior(.avoidHidingContent)
-    .onAppear { viewModel.fetchInitialItems() }
-    .onDisappear { viewModel.cancelFetchItems() }
-    .errorAlert(error: $viewModel.error)
-    .environment(\.editMode, $viewModel.editMode)
-    .confirmationDialog(
-      "download_folder_confirmation_title".localized,
-      isPresented: $viewModel.showingDownloadConfirmation
-    ) {
-      Button("download_title".localized) {
-        viewModel.confirmDownloadFolder()
-      }
-      Button("cancel_button".localized, role: .cancel) {}
-    } message: {
-      Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
-    }
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        navigationTitle
-          .bpFont(.headline)
-          .foregroundStyle(theme.primaryColor)
-      }
-      ToolbarItemGroup(placement: .topBarTrailing) {
-        toolbarTrailing
-      }
-    }
-    .toolbar {
-      if viewModel.editMode.isEditing {
-        ToolbarItemGroup(placement: .bottomBar) {
-          bottomBar
-        }
-      }
-    }
+    )
+    .environment(\.jellyfinService, jellyfinConnectionService)
+  }
+
+  private var jellyfinConnectionService: JellyfinConnectionService {
+    (viewModel as? JellyfinLibraryViewModel)?.connectionService
+      ?? (viewModel as? JellyfinAuthorBooksViewModel)?.connectionService
+      ?? (viewModel as? JellyfinNarratorBooksViewModel)?.connectionService
+      ?? (viewModel as? JellyfinAuthorsListViewModel)?.connectionService
+      ?? (viewModel as? JellyfinNarratorsListViewModel)?.connectionService
+      ?? .init()
   }
 
   @ViewBuilder
-  var toolbarTrailing: some View {
-    if !viewModel.editMode.isEditing {
-      Menu {
-        ThemedSection {
-          Button(action: viewModel.onEditToggleSelectTapped) {
-            Label("select_title".localized, systemImage: "checkmark.circle")
-          }
-          Button(action: viewModel.onDownloadFolderTapped) {
-            Label("download_title".localized, systemImage: "arrow.down.to.line")
-          }
-        }
-
-        layoutPreferences
-      } label: {
-        Label("more_title".localized, systemImage: "ellipsis.circle")
-      }
-    } else {
-      Button(action: viewModel.onEditToggleSelectTapped) {
-        Text("done_title".localized).bold()
-      }
-    }
-  }
-
-  @ViewBuilder
-  var layoutPreferences: some View {
-    ThemedSection {
-      Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-        Label("Grid".localized, systemImage: "square.grid.2x2").tag(JellyfinLayout.Options.grid)
-        Label("List".localized, systemImage: "list.bullet").tag(JellyfinLayout.Options.list)
-      }
-    }
-    ThemedSection {
-      Picker(selection: $viewModel.sortBy, label: Text("Sort by".localized)) {
+  private var sortPickerContent: some View {
+    if let vm = viewModel as? JellyfinLibraryViewModel {
+      Picker(selection: Binding(
+        get: { vm.sortBy },
+        set: { vm.sortBy = $0 }
+      ), label: Text("Sort by".localized)) {
         Text("Default".localized).tag(JellyfinLayout.SortBy.smart)
         Label("sort_most_recent_button", systemImage: "clock").tag(JellyfinLayout.SortBy.recent)
         Label("Name".localized, systemImage: "textformat.abc").tag(JellyfinLayout.SortBy.name)
       }
-    }
-  }
-
-  @ViewBuilder
-  var bottomBar: some View {
-    Button(action: viewModel.onSelectAllTapped) {
-      Image(systemName: viewModel.selectedItems.isEmpty ? "checklist.checked" : "checklist.unchecked")
-    }
-
-    Spacer()
-
-    Button(action: viewModel.onDownloadTapped) {
-      Image(systemName: "arrow.down.to.line")
-    }
-    .disabled(viewModel.selectedItems.isEmpty)
-  }
-}
-
-private struct JellyfinSearchableModifier: ViewModifier {
-  let isSearchable: Bool
-  @Binding var text: String
-
-  func body(content: Content) -> some View {
-    if isSearchable {
-      content.searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
-    } else {
-      content
     }
   }
 }

@@ -55,7 +55,7 @@ struct SettingsAppearanceSectionView: View {
 
           Slider(
             value: $textScaleIndex,
-            in: 0...6,
+            in: 0...20,
             step: 1
           ) {
             Text("settings_text_size_title")

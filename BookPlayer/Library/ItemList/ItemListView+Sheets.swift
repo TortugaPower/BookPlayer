@@ -18,10 +18,6 @@ extension ItemListView {
       itemDetailsSheet(for: item)
     case .queuedTasks:
       QueuedSyncTasksView()
-    case .jellyfin:
-      JellyfinRootView(connectionService: jellyfinService)
-    case .audiobookshelf:
-      AudiobookShelfRootView(connectionService: audiobookshelfService)
     case .foldersSelection:
       foldersSelectionSheet()
     }

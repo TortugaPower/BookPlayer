@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "账户已存在";
 "passkey_email_exists_message" = "使用此电子邮件的账户已存在。请使用现有的通行密钥或 Apple ID 登录。";
 "passkey_signin_existing" = "使用现有通行密钥登录";
+"Switch Library" = "切换资料库";
+"Authors" = "作者";
+"Series" = "系列";
+"Collections" = "合集";
+"Narrators" = "朗读者";

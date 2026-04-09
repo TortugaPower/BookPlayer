@@ -436,3 +436,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "passkey_email_exists_title" = "Konto finnes";
 "passkey_email_exists_message" = "En konto med denne e-posten finnes allerede. Vennligst logg inn med din eksisterende passordnøkkel eller Apple-ID i stedet.";
 "passkey_signin_existing" = "Logg inn med eksisterende passordnøkkel";
+"Switch Library" = "Bytt bibliotek";
+"Authors" = "Forfattere";
+"Series" = "Serier";
+"Collections" = "Samlinger";
+"Narrators" = "Fortellere";

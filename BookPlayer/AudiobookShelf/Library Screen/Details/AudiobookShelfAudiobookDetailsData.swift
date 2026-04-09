@@ -9,7 +9,7 @@
 import BookPlayerKit
 import Foundation
 
-struct AudiobookShelfAudiobookDetailsData {
+struct AudiobookShelfAudiobookDetailsData: IntegrationDetailsDataProtocol {
   let artist: String?
   let narrator: String?
   let filePath: String?
@@ -35,6 +35,10 @@ struct AudiobookShelfAudiobookDetailsData {
     return TimeParser.formatTotalDuration(runtime)
   }
   
+  var seriesEntries: [IntegrationSeriesEntry] {
+    (series ?? []).map { IntegrationSeriesEntry(id: $0.id, name: $0.name, sequence: $0.sequence) }
+  }
+
   var fileSizeString: String {
     guard let size = fileSize else {
       return "file_size_unknown".localized

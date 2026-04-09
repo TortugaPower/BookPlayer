@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Учётная запись существует";
 "passkey_email_exists_message" = "Учётная запись с таким адресом эл. почты уже существует. Войдите с помощью существующего ключа доступа или Apple ID.";
 "passkey_signin_existing" = "Войти с существующим ключом доступа";
+"Switch Library" = "Сменить библиотеку";
+"Authors" = "Авторы";
+"Series" = "Серии";
+"Collections" = "Коллекции";
+"Narrators" = "Чтецы";

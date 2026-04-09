@@ -16,9 +16,12 @@ class AudiobookShelfConnectionService: BPLogger {
   var connection: AudiobookShelfConnectionData?
   private var urlSession: URLSession
 
+
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
-    self.urlSession = URLSession.shared
+    let configuration = URLSessionConfiguration.default
+    configuration.timeoutIntervalForRequest = 15
+    self.urlSession = URLSession(configuration: configuration)
   }
 
   func setup() {
@@ -28,7 +31,7 @@ class AudiobookShelfConnectionService: BPLogger {
   /// Pings the server to verify it exists and returns the server version
   public func pingServer(at absolutePath: String) async throws -> String {
     guard let url = URL(string: absolutePath) else {
-      throw AudiobookShelfError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     // Use the public /ping endpoint which doesn't require authentication
@@ -40,11 +43,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     // Try to parse server info - /ping returns a simple success message
@@ -68,7 +71,7 @@ class AudiobookShelfConnectionService: BPLogger {
     serverName: String
   ) async throws {
     guard let url = URL(string: serverUrl) else {
-      throw AudiobookShelfError.urlMalformed(nil)
+      throw IntegrationError.urlMalformed(nil)
     }
 
     let loginURL = url.appendingPathComponent("login")
@@ -82,14 +85,14 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
       if httpResponse.statusCode == 401 {
         throw URLError(.userAuthenticationRequired)
       }
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     // Parse response
@@ -98,7 +101,7 @@ class AudiobookShelfConnectionService: BPLogger {
       let apiToken = user["token"] as? String,
       let userID = user["id"] as? String
     else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     let connectionData = AudiobookShelfConnectionData(
@@ -115,6 +118,13 @@ class AudiobookShelfConnectionService: BPLogger {
     )
 
     self.connection = connectionData
+  }
+
+  func saveSelectedLibrary(id: String?) {
+    guard var data = connection else { return }
+    data.selectedLibraryId = id
+    connection = data
+    try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
   func deleteConnection() {
@@ -141,11 +151,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -159,6 +169,7 @@ class AudiobookShelfConnectionService: BPLogger {
     page: Int? = nil,
     sortBy: String? = "media.metadata.title",
     desc: Bool? = nil,
+    filter: AudiobookShelfItemFilter? = nil
   ) async throws -> (items: [AudiobookShelfLibraryItem], total: Int) {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
@@ -191,13 +202,16 @@ class AudiobookShelfConnectionService: BPLogger {
         queryItems.append(URLQueryItem(name: "desc", value: desc ? "1" : "0"))
       }
     }
+    if let filter {
+      queryItems.append(URLQueryItem(name: "filter", value: filter.queryValue))
+    }
 
     if !queryItems.isEmpty {
       urlComponents.queryItems = queryItems
     }
 
     guard let url = urlComponents.url else {
-      throw AudiobookShelfError.urlFromComponents(urlComponents)
+      throw IntegrationError.urlFromComponents(urlComponents)
     }
 
     var request = URLRequest(url: url)
@@ -206,11 +220,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -219,6 +233,105 @@ class AudiobookShelfConnectionService: BPLogger {
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)
+  }
+
+  public func fetchFilterData(in libraryId: String) async throws -> AudiobookShelfLibraryFilterData {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("libraries")
+      .appendingPathComponent(libraryId)
+      .appendingPathComponent("filterdata")
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+
+    let (data, response) = try await urlSession.data(for: request)
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    let decoder = JSONDecoder()
+    return try decoder.decode(AudiobookShelfLibraryFilterData.self, from: data)
+  }
+
+  public func fetchCollections(in libraryId: String) async throws -> [AudiobookShelfCollection] {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    guard
+      var urlComponents = URLComponents(
+        url: connection.url
+          .appendingPathComponent("api")
+          .appendingPathComponent("libraries")
+          .appendingPathComponent(libraryId)
+          .appendingPathComponent("collections"),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw URLError(.badURL)
+    }
+
+    urlComponents.queryItems = [
+      URLQueryItem(name: "minified", value: "1")
+    ]
+
+    guard let url = urlComponents.url else {
+      throw IntegrationError.urlFromComponents(urlComponents)
+    }
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+
+    let (data, response) = try await urlSession.data(for: request)
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    let decoder = JSONDecoder()
+    let collectionsResponse = try decoder.decode(AudiobookShelfCollectionsResponse.self, from: data)
+    return collectionsResponse.results
+  }
+
+  public func fetchCollection(id: String) async throws -> AudiobookShelfCollection {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("collections")
+      .appendingPathComponent(id)
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+
+    let (data, response) = try await urlSession.data(for: request)
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    let decoder = JSONDecoder()
+    return try decoder.decode(AudiobookShelfCollection.self, from: data)
   }
 
   public func searchItems(
@@ -254,7 +367,7 @@ class AudiobookShelfConnectionService: BPLogger {
     urlComponents.queryItems = queryItems
 
     guard let url = urlComponents.url else {
-      throw AudiobookShelfError.urlFromComponents(urlComponents)
+      throw IntegrationError.urlFromComponents(urlComponents)
     }
 
     var request = URLRequest(url: url)
@@ -263,11 +376,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -293,14 +406,11 @@ class AudiobookShelfConnectionService: BPLogger {
     let (data, response) = try await urlSession.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
-      throw AudiobookShelfError.unexpectedResponse(code: nil)
+      throw IntegrationError.unexpectedResponse(code: nil)
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      if httpResponse.statusCode == 404 {
-        throw URLError(.fileDoesNotExist)
-      }
-      throw AudiobookShelfError.unexpectedResponse(code: httpResponse.statusCode)
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
 
     let decoder = JSONDecoder()
@@ -343,7 +453,9 @@ class AudiobookShelfConnectionService: BPLogger {
     guard let connection = connection else { return nil }
 
     let baseURL = connection.url
-    let itemID = item.id
+    guard let itemID = item.coverItemId ?? (item.isDownloadable ? item.id : nil) else {
+      return nil
+    }
 
     // AudiobookShelf image endpoint: /api/items/:id/cover
     // Optional query params: width, height, format

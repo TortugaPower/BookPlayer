@@ -306,6 +306,33 @@ extension View {
 }
 
 extension View {
+  /// Applies a context menu only when running as an iOS app on macOS ("Designed for iPad").
+  /// Use this to add right-click support on Mac without affecting iOS long-press behavior.
+  @ViewBuilder
+  func macContextMenu<MenuItems: View>(@ViewBuilder menuItems: () -> MenuItems) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      self.contextMenu { menuItems() }
+    } else {
+      self
+    }
+  }
+
+  /// Selection-based variant for Lists. The menu closure receives the set of item IDs
+  /// that were right-clicked, without mutating any state during view evaluation.
+  @ViewBuilder
+  func macContextMenu<ID: Hashable, MenuItems: View>(
+    forSelectionType type: ID.Type,
+    @ViewBuilder menu: @escaping (Set<ID>) -> MenuItems
+  ) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      self.contextMenu(forSelectionType: type, menu: menu)
+    } else {
+      self
+    }
+  }
+}
+
+extension View {
   @ViewBuilder
   func liquidGlassBackground() -> some View {
     if #available(iOS 26.0, *) {

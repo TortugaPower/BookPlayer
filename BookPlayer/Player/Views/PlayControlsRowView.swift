@@ -16,10 +16,34 @@ struct PlayControlsRowView: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
   
+  private var rewindImage: Image {
+    rewindInterval == Constants.SkipInterval.chapterSkipValue
+      ? Image(systemName: "backward.end.fill")
+      : Image(.playerIconRewind)
+  }
+
+  private var rewindLabelText: String {
+    rewindInterval == Constants.SkipInterval.chapterSkipValue
+      ? ""
+      : "-\(String(Int(rewindInterval.rounded())))"
+  }
+
+  private var forwardImage: Image {
+    forwardInterval == Constants.SkipInterval.chapterSkipValue
+      ? Image(systemName: "forward.end.fill")
+      : Image(.playerIconForward)
+  }
+
+  private var forwardLabelText: String {
+    forwardInterval == Constants.SkipInterval.chapterSkipValue
+      ? ""
+      : "+\(String(Int(forwardInterval.rounded())))"
+  }
+
   var body: some View {
     HStack(spacing: 0) {
       Spacer()
-      PlayerJumpView(backgroundImage: Image(.playerIconRewind), text: "-\(String(Int(rewindInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+      PlayerJumpView(backgroundImage: rewindImage, text: rewindLabelText, tintColor: Color(theme.linkColor)) {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.rewind()
       }
@@ -33,7 +57,7 @@ struct PlayControlsRowView: View {
         .accessibilityLabel(isPlaying ? "pause_title".localized : "play_title".localized)
       Spacer()
       Spacer()
-      PlayerJumpView(backgroundImage: Image(.playerIconForward), text: "+\(String(Int(forwardInterval.rounded())))", tintColor: Color(theme.linkColor)) {
+      PlayerJumpView(backgroundImage: forwardImage, text: forwardLabelText, tintColor: Color(theme.linkColor)) {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         playerManager.forward()
       }

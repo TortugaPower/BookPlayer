@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "Účet existuje";
 "passkey_email_exists_message" = "Účet s tímto e-mailem již existuje. Přihlaste se prosím pomocí stávajícího přístupového klíče nebo Apple ID.";
 "passkey_signin_existing" = "Přihlásit se stávajícím přístupovým klíčem";
+"Switch Library" = "Přepnout knihovnu";
+"Authors" = "Autoři";
+"Series" = "Série";
+"Collections" = "Kolekce";
+"Narrators" = "Vypravěči";

@@ -9,23 +9,7 @@
 import BookPlayerKit
 import Foundation
 
-protocol AudiobookShelfAudiobookDetailsViewModelProtocol: ObservableObject {
-  var item: AudiobookShelfLibraryItem { get }
-  var details: AudiobookShelfAudiobookDetailsData? { get }
-  var connectionService: AudiobookShelfConnectionService { get }
-  var error: Error? { get set }
-
-  @MainActor
-  func fetchData()
-
-  @MainActor
-  func cancelFetchData()
-
-  @MainActor
-  func beginDownloadAudiobook(_ item: AudiobookShelfLibraryItem) throws
-}
-
-class AudiobookShelfAudiobookDetailsViewModel: AudiobookShelfAudiobookDetailsViewModelProtocol {
+class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
 
   let item: AudiobookShelfLibraryItem
   let connectionService: AudiobookShelfConnectionService

@@ -1224,6 +1224,28 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         forwardCallsCount += 1
         forwardClosure?()
     }
+    //MARK: - skipToNextChapter
+
+    var skipToNextChapterCallsCount = 0
+    var skipToNextChapterCalled: Bool {
+        return skipToNextChapterCallsCount > 0
+    }
+    var skipToNextChapterClosure: (() -> Void)?
+    func skipToNextChapter() {
+        skipToNextChapterCallsCount += 1
+        skipToNextChapterClosure?()
+    }
+    //MARK: - skipToPreviousChapter
+
+    var skipToPreviousChapterCallsCount = 0
+    var skipToPreviousChapterCalled: Bool {
+        return skipToPreviousChapterCallsCount > 0
+    }
+    var skipToPreviousChapterClosure: (() -> Void)?
+    func skipToPreviousChapter() {
+        skipToPreviousChapterCallsCount += 1
+        skipToPreviousChapterClosure?()
+    }
     //MARK: - skip
 
     var skipCallsCount = 0

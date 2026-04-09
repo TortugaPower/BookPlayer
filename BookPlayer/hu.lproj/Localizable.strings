@@ -436,3 +436,8 @@
 "passkey_email_exists_title" = "A fiók létezik";
 "passkey_email_exists_message" = "Ezzel az e-mail címmel már létezik fiók. Kérjük, jelentkezz be a meglévő jelszókulcsoddal vagy Apple ID-ddal.";
 "passkey_signin_existing" = "Bejelentkezés meglévő jelszókulccsal";
+"Switch Library" = "Könyvtár váltása";
+"Authors" = "Szerzők";
+"Series" = "Sorozatok";
+"Collections" = "Gyűjtemények";
+"Narrators" = "Felolvasók";

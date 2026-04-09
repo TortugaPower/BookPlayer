@@ -13,20 +13,14 @@ import Foundation
 enum ItemListSheet: Identifiable {
   case itemDetails(SimpleLibraryItem)
   case queuedTasks
-  case jellyfin
-  case audiobookshelf
   case foldersSelection
-  
+
   var id: String {
     switch self {
     case .itemDetails(let item):
       return "itemDetails-\(item.id)"
     case .queuedTasks:
       return "queuedTasks"
-    case .jellyfin:
-      return "jellyfin"
-    case .audiobookshelf:
-      return "audiobookshelf"
     case .foldersSelection:
       return "foldersSelection"
     }

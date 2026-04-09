@@ -436,3 +436,8 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "passkey_email_exists_title" = "El compte ja existeix";
 "passkey_email_exists_message" = "Ja existeix un compte amb aquest correu electrònic. Si us plau, inicia sessió amb la teva clau d'accés o ID d'Apple existent.";
 "passkey_signin_existing" = "Iniciar sessió amb clau d'accés existent";
+"Switch Library" = "Canviar de biblioteca";
+"Authors" = "Autors";
+"Series" = "Sèries";
+"Collections" = "Col·leccions";
+"Narrators" = "Narradors";

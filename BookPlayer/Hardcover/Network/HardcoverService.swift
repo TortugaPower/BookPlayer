@@ -90,7 +90,6 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
         try? self.keychain.set(newValue, key: .hardcoverToken)
       } else {
         try? self.keychain.remove(.hardcoverToken)
-
       }
     }
   }
@@ -113,9 +112,7 @@ extension HardcoverService {
             query: $query
             query_type: "book"
             per_page: $per_page
-            page: 1,
-            fields: "title,series_names,author_names,alternative_titles",
-            weights: "5,3,3,1"
+            page: 1
           ) {
             results
           }
@@ -439,9 +436,9 @@ extension HardcoverService {
       .trimmingCharacters(in: .whitespacesAndNewlines)
 
     if author.isEmpty {
-      return title
+      return cleaned
     } else {
-      return "\(title), \(author)"
+      return "\(cleaned), \(author)"
     }
   }
 

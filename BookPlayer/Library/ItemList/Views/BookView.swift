@@ -61,7 +61,7 @@ struct BookView: View {
       )
     }
     .contentShape(Rectangle())
-    .accessibilityElement(children: .combine)
+    .accessibilityElement(children: .ignore)
     .dynamicAccessibilityLabel(for: item)
   }
 }

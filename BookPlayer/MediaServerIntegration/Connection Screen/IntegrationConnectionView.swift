@@ -1,55 +1,52 @@
 //
-//  JellyfinConnectionView.swift
+//  IntegrationConnectionView.swift
 //  BookPlayer
 //
-//  Created by Lysann Tranvouez on 2024-10-25.
-//  Copyright © 2024 BookPlayer LLC. All rights reserved.
+//  Created by Gianni Carlo on 4/5/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
 import BookPlayerKit
 import SwiftUI
 
-enum JellyfinConnectionViewField: Focusable {
-  case none
-  case serverUrl, username, password
-}
+struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: View {
+  @ObservedObject var viewModel: VM
 
-struct JellyfinConnectionView: View {
-  /// View model for the form
-  @ObservedObject var viewModel: JellyfinConnectionViewModel
+  let integrationName: String
 
-  @State private var firstAppear = true
   @State private var isLoading = false
   @State private var error: Error?
 
   @EnvironmentObject var theme: ThemeViewModel
 
-  @Environment(\.dismiss) var dismiss
-
   var body: some View {
     Form {
       switch viewModel.connectionState {
       case .disconnected:
-        JellyfinDisconnectedView(
+        IntegrationDisconnectedView(
           serverUrl: $viewModel.form.serverUrl,
+          placeholderURL: integrationName == "Jellyfin"
+            ? "http://jellyfin.example.com:8096"
+            : "http://audiobookshelf.example.com",
+          integrationName: integrationName,
           onCommit: onConnect
         )
       case .foundServer:
-        JellyfinServerInformationSectionView(
+        IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        JellyfinServerFoundView(
+        IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
           onCommit: onSignIn
         )
       case .connected:
-        JellyfinServerInformationSectionView(
+        IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        JellyfinConnectedView(viewModel: viewModel)
+        IntegrationConnectedView(viewModel: viewModel)
       }
     }
     .scrollContentBackground(.hidden)
@@ -77,14 +74,12 @@ struct JellyfinConnectionView: View {
           .foregroundStyle(theme.primaryColor)
       }
       ToolbarItemGroup(placement: .confirmationAction) {
-        switch (viewModel.viewMode, viewModel.connectionState) {
-        case (_, .disconnected):
+        switch viewModel.connectionState {
+        case .disconnected:
           connectToolbarButton
-        case (_, .foundServer):
+        case .foundServer:
           signInToolbarButton
-        case (.regular, .connected):
-          goToLibraryToolbarButton
-        case (.viewDetails, .connected):
+        case .connected:
           EmptyView()
         }
       }
@@ -124,7 +119,7 @@ struct JellyfinConnectionView: View {
 
   private var localizedNavigationTitle: String {
     switch viewModel.connectionState {
-    case .disconnected, .foundServer: "Jellyfin"
+    case .disconnected, .foundServer: integrationName
     case .connected: "integration_connection_details_title".localized
     }
   }
@@ -152,55 +147,4 @@ struct JellyfinConnectionView: View {
       viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty
     )
   }
-
-  @ViewBuilder
-  private var goToLibraryToolbarButton: some View {
-    Button(
-      "library_title",
-      systemImage: "chevron.forward",
-      action: viewModel.handleGoToLibraryAction
-    )
-    .foregroundStyle(theme.linkColor)
-  }
-}
-
-#Preview("disconnected") {
-  let viewModel = JellyfinConnectionViewModel(
-    connectionService: JellyfinConnectionService(),
-    navigation: BPNavigation()
-  )
-  JellyfinConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
-}
-
-#Preview("found server") {
-  let viewModel = {
-    let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(),
-      navigation: BPNavigation()
-    )
-    viewModel.connectionState = .foundServer
-    viewModel.form.serverName = "Mock Server"
-    viewModel.form.serverUrl = "http://example.com"
-    return viewModel
-  }()
-  JellyfinConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
-}
-
-#Preview("connected") {
-  let viewModel = {
-    let viewModel = JellyfinConnectionViewModel(
-      connectionService: JellyfinConnectionService(),
-      navigation: BPNavigation()
-    )
-    viewModel.connectionState = .connected
-    viewModel.form.serverName = "Mock Server"
-    viewModel.form.serverUrl = "http://example.com"
-    viewModel.form.username = "Mock User"
-    viewModel.form.password = "secret"
-    return viewModel
-  }()
-  JellyfinConnectionView(viewModel: viewModel)
-    .environmentObject(ThemeViewModel())
 }

@@ -70,6 +70,9 @@ struct ItemListView: View {
       .listStyle(.plain)
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle(model.navigationTitle)
+      .sheet(item: $activeSheet) { sheet in
+        sheetContent(for: sheet)
+      }
   }
 
   @ViewBuilder
@@ -95,9 +98,6 @@ struct ItemListView: View {
           }
         }
       )
-      .sheet(item: $activeSheet) { sheet in
-        sheetContent(for: sheet)
-      }
       .fileImporter(
         isPresented: $showDocumentPicker,
         allowedContentTypes: [
@@ -138,6 +138,12 @@ struct ItemListView: View {
 
             if model.canLoadMore {
               loadMoreView()
+            }
+          }
+          .macContextMenu(forSelectionType: SimpleLibraryItem.ID.self) { itemIDs in
+            let _ = { model.selectedSetItems = itemIDs }()
+            if !model.selectedItems.isEmpty {
+              contextMenuContent()
             }
           }
           .accessibilityElement(children: .contain)
@@ -360,7 +366,7 @@ struct ItemListView: View {
       ),
       image: .jellyfinIcon
     ) {
-      activeSheet = .jellyfin
+      listState.activeIntegrationSheet = .jellyfin
     }
     Button(
       String(
@@ -370,7 +376,7 @@ struct ItemListView: View {
       ),
       image: .audiobookshelfIcon
     ) {
-      activeSheet = .audiobookshelf
+      listState.activeIntegrationSheet = .audiobookshelf
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
@@ -595,6 +601,21 @@ extension ItemListView {
     detailsOption(forMenu: true)
   }
 
+  // MARK: - Context Menu (macOS right-click)
+
+  @ViewBuilder
+  func contextMenuContent() -> some View {
+    detailsOption(forMenu: false)
+    moveOption(forMenu: false)
+    shareOption(forMenu: false)
+    jumpToStartOption(forMenu: false)
+    markFinishedOption(forMenu: false)
+    boundBooksOption(forMenu: false)
+    downloadOption(forMenu: false)
+    Divider()
+    deleteOption(forMenu: false)
+  }
+
   // MARK: - Individual Option Builders
 
   @ViewBuilder
@@ -757,11 +778,7 @@ extension ItemListView {
   private func customBookRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
     ForEach(model.filteredResults, id: \.id) { item in
       if item.type != .folder {
-        AccessibilityRotorEntry(
-          VoiceOverService.getAccessibilityLabel(for: item),
-          item.id,
-          in: customRotorNamespace
-        ) {
+        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
           scrollView.scrollTo(item.id)
         }
       }
@@ -772,11 +789,7 @@ extension ItemListView {
   private func customFolderRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
     ForEach(model.filteredResults, id: \.id) { item in
       if item.type == .folder {
-        AccessibilityRotorEntry(
-          VoiceOverService.getAccessibilityLabel(for: item),
-          item.id,
-          in: customRotorNamespace
-        ) {
+        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
           scrollView.scrollTo(item.id)
         }
       }

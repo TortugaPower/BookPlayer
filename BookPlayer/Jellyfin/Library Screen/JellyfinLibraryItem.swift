@@ -9,11 +9,13 @@
 import Foundation
 import JellyfinAPI
 
-struct JellyfinLibraryItem: Identifiable, Hashable {
+struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
   enum Kind {
     case userView
     case folder
     case audiobook
+    case author
+    case narrator
   }
 
   let id: String
@@ -22,6 +24,25 @@ struct JellyfinLibraryItem: Identifiable, Hashable {
 
   let blurHash: String?
   let imageAspectRatio: Double?
+
+  var isDownloadable: Bool {
+    kind == .audiobook
+  }
+
+  var isNavigable: Bool {
+    !isDownloadable
+  }
+
+  var displayName: String { name }
+
+  var placeholderImageName: String {
+    switch kind {
+    case .audiobook: "waveform"
+    case .userView, .folder: "folder"
+    case .author: "person"
+    case .narrator: "mic"
+    }
+  }
 }
 
 extension JellyfinLibraryItem {
@@ -46,5 +67,21 @@ extension JellyfinLibraryItem {
     let blurHash = apiItem.imageBlurHashes?.primary?.first?.value
 
     self.init(id: id, name: name, kind: kind, blurHash: blurHash, imageAspectRatio: apiItem.primaryImageAspectRatio)
+  }
+
+  /// Create an author item from an AlbumArtists API response
+  init?(authorApiItem: BaseItemDto) {
+    guard let id = authorApiItem.id else { return nil }
+    let name = authorApiItem.name ?? id
+    let blurHash = authorApiItem.imageBlurHashes?.primary?.first?.value
+    self.init(id: id, name: name, kind: .author, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio)
+  }
+
+  /// Create a narrator item from a Persons API response
+  init?(narratorApiItem: BaseItemDto) {
+    guard let id = narratorApiItem.id else { return nil }
+    let name = narratorApiItem.name ?? id
+    let blurHash = narratorApiItem.imageBlurHashes?.primary?.first?.value
+    self.init(id: id, name: name, kind: .narrator, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio)
   }
 }

@@ -52,7 +52,7 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   }
   
   static func == (lhs: Self, rhs: Self) -> Bool {
-    return lhs.item.kind == rhs.item.kind && lhs.item.id == rhs.item.id
+    return lhs.item.id == rhs.item.id && lhs.url == rhs.url
   }
   
   @ViewBuilder
@@ -80,10 +80,7 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   }
   
   private var placeholderImageName: String {
-    switch item.kind {
-    case .userView, .folder: "folder"
-    case .audiobook: "waveform"
-    }
+    item.placeholderImageName
   }
 }
 
