@@ -821,6 +821,7 @@
 		C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */; };
 		C53864BEFAE4D1CEC668A6B3 /* IntegrationLibraryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F0D505E060FDAEB6DB68E3 /* IntegrationLibraryListView.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
+		F1A2B3C4D5E6F7089A1B2C3D /* MediaServersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* MediaServersView.swift */; };
 		D080B0A77D9844C3A0737170 /* IntegrationConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB91B577BC77F45EDB2AAAA /* IntegrationConnectionFormViewModel.swift */; };
 		D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F152A4CA94800C2BD9A /* StorageRowView.swift */; };
 		D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */; };
@@ -1232,6 +1233,7 @@
 		465D87532D31965100A4AA47 /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
 		4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowHelper.swift; sourceTree = "<group>"; };
 		4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionViewModelProtocol.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* MediaServersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServersView.swift; sourceTree = "<group>"; };
 		4D9D68F735D2519CDBC18495 /* IntegrationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSettingsView.swift; sourceTree = "<group>"; };
 		D4C3B2A1F6E54D78B2A1C3D4 /* IntegrationServerPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationServerPickerView.swift; sourceTree = "<group>"; };
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -3093,6 +3095,7 @@
 				3724BB21B1B88177C60BE4D8 /* IntegrationConnectionFormViewModelProtocol.swift */,
 				4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */,
 				B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* MediaServersView.swift */,
 				7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */,
 				2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */,
 				7DDD933F7FDEDC1BF67EC567 /* TabEditingEnvironmentKey.swift */,
@@ -4639,6 +4642,7 @@
 				F906EF4FC85B1CCE138B230D /* PasskeyEmailInputView.swift in Sources */,
 				07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */,
 				CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */,
+				F1A2B3C4D5E6F7089A1B2C3D /* MediaServersView.swift in Sources */,
 				7CAD4B67352939D0A1E54A21 /* IntegrationConnectionFormViewModelProtocol.swift in Sources */,
 				C3C998E7EA2919BB438B337C /* IntegrationLibraryItemProtocol.swift in Sources */,
 				760180C62F243705DE6B3224 /* IntegrationError.swift in Sources */,

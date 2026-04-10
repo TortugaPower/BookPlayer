@@ -87,10 +87,15 @@ struct MainView: View {
     }
     .sheet(item: $listState.activeIntegrationSheet) { sheet in
       switch sheet {
+      case .mediaServers:
+        MediaServersView(
+          jellyfinService: jellyfinService,
+          audiobookshelfService: audiobookshelfService
+        )
       case .jellyfin:
-        JellyfinRootView(connectionService: jellyfinService)
+        JellyfinRootView(connectionService: jellyfinService, skipServerPicker: true)
       case .audiobookshelf:
-        AudiobookShelfRootView(connectionService: audiobookshelfService)
+        AudiobookShelfRootView(connectionService: audiobookshelfService, skipServerPicker: true)
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {

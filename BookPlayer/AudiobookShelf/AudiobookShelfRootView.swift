@@ -10,6 +10,9 @@ import SwiftUI
 
 struct AudiobookShelfRootView: View {
   let connectionService: AudiobookShelfConnectionService
+  /// When `true`, skips the per-integration server picker on launch.
+  /// Used when the caller (e.g. MediaServersView) has already activated the desired server.
+  var skipServerPicker: Bool = false
 
   @StateObject private var connectionViewModel: AudiobookShelfConnectionViewModel
 
@@ -27,8 +30,9 @@ struct AudiobookShelfRootView: View {
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
 
-  init(connectionService: AudiobookShelfConnectionService) {
+  init(connectionService: AudiobookShelfConnectionService, skipServerPicker: Bool = false) {
     self.connectionService = connectionService
+    self.skipServerPicker = skipServerPicker
     self._connectionViewModel = .init(
       wrappedValue: .init(connectionService: connectionService)
     )
@@ -207,7 +211,7 @@ struct AudiobookShelfRootView: View {
     .task {
       if connectionService.connections.isEmpty {
         showConnectionForm = true
-      } else if connectionService.connections.count > 1, resolvedLibrary == nil {
+      } else if !skipServerPicker && connectionService.connections.count > 1, resolvedLibrary == nil {
         showServerPicker = true
       } else if resolvedLibrary == nil {
         await loadLibraries()
