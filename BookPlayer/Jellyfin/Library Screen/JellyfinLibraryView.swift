@@ -13,6 +13,7 @@ import SwiftUI
 struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   @StateObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.accountService) private var accountService
 
   var navigationTitle: Text {
     if viewModel.editMode.isEditing, !viewModel.selectedItems.isEmpty {
@@ -25,32 +26,63 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
   }
 
   var body: some View {
-    Group {
-      if viewModel.layout == .grid {
-        JellyfinLibraryGridView(viewModel: viewModel)
-          .padding()
-      } else {
-        JellyfinLibraryListView(viewModel: viewModel)
+    ZStack {
+      Group {
+        if viewModel.layout == .grid {
+          JellyfinLibraryGridView(viewModel: viewModel)
+            .padding()
+        } else {
+          JellyfinLibraryListView(viewModel: viewModel)
+        }
+      }
+      .scrollContentBackground(.hidden)
+      .background(theme.systemBackgroundColor)
+      
+      if viewModel.showingDownloadConfirmation {
+        // Dimmed background
+        Color.black.opacity(0.4)
+          .ignoresSafeArea()
+          .onTapGesture {
+            // Allow tapping outside to dismiss
+            withAnimation { viewModel.showingDownloadConfirmation = false }
+          }
+        // This prevents touches from passing through to the view behind it
+          .allowsHitTesting(true)
+        
+        // The charming card aligned to the bottom
+        VStack {
+          Spacer()
+          
+          SyncInvitationCard(
+            totalItems: viewModel.useSelectedItems ? viewModel.selectedItems.count : viewModel.totalItems,
+            hasSubscription: accountService.hasLiteEnabled(),
+            onDownload: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+              viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
+            },
+            onSync: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+              viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+            },
+            onCancel: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+            }
+          )
+          .padding(.horizontal, 16)
+          // Push it slightly off the bottom edge for a floating look
+          .padding(.bottom, 32)
+        }
+        // Animate the card sliding in from the bottom
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        // Ensure it sits above everything else in the ZStack
+        .zIndex(1)
       }
     }
-    .scrollContentBackground(.hidden)
-    .background(theme.systemBackgroundColor)
     .environment(\.jellyfinService, viewModel.connectionService)
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
     .environment(\.editMode, $viewModel.editMode)
-    .confirmationDialog(
-      "download_folder_confirmation_title".localized,
-      isPresented: $viewModel.showingDownloadConfirmation
-    ) {
-      Button("download_title".localized) {
-        viewModel.handleImportItems(useSelectedItems: false)
-      }
-      Button("cancel_button".localized, role: .cancel) {}
-    } message: {
-      Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
-    }
     .toolbar {
       ToolbarItem(placement: .principal) {
         navigationTitle
@@ -78,7 +110,11 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
           Button(action: viewModel.onEditToggleSelectTapped) {
             Label("select_title".localized, systemImage: "checkmark.circle")
           }
-          Button(action: viewModel.onDownloadFolderTapped) {
+          Button {
+            withAnimation {
+              viewModel.onDownloadFolderTapped()
+            }
+          } label: {
             Label("download_title".localized, systemImage: "arrow.down.to.line")
           }
         }
@@ -120,7 +156,8 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Spacer()
 
     Button {
-      viewModel.handleImportItems(useSelectedItems: true)
+      viewModel.useSelectedItems = true
+      withAnimation { viewModel.showingDownloadConfirmation = true }
     } label: {
       Image(systemName: "arrow.down.to.line")
     }

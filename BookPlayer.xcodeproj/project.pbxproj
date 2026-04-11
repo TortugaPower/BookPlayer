@@ -648,6 +648,9 @@
 		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
 		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
 		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
+		990442102F889201007E2A44 /* ExternalSyncInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */; };
+		990442122F88B101007E2A44 /* SyncInvitationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */; };
+		990442142F894DDB007E2A44 /* SubscriptionPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442132F894DD5007E2A44 /* SubscriptionPillView.swift */; };
 		9911FBA12F71B8CE00DC9A2B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA72725BCE800A4A98F /* Kingfisher */; };
 		9911FBA42F71BD0400DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA32F71BD0400DC9A2B /* Get */; };
 		9911FBA62F71BD1D00DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA52F71BD1D00DC9A2B /* Get */; };
@@ -1642,6 +1645,9 @@
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A342CF0C42C00238F8D /* JellyfinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinError.swift; sourceTree = "<group>"; };
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
+		9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalSyncInfoView.swift; sourceTree = "<group>"; };
+		990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncInvitationCard.swift; sourceTree = "<group>"; };
+		990442132F894DD5007E2A44 /* SubscriptionPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPillView.swift; sourceTree = "<group>"; };
 		9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrenceService.swift; sourceTree = "<group>"; };
 		9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksRepository.swift; sourceTree = "<group>"; };
@@ -3325,6 +3331,7 @@
 		9F4691EC2800C90400A8F0E8 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */,
 				63C48D3D2E3E7F9E005FBB96 /* LoginViewModel.swift */,
 				9F2681B528898A7300359BD3 /* LoginDisclaimerView.swift */,
 				63C48C792E3DAC9D005FBB96 /* LoginView.swift */,
@@ -3340,6 +3347,7 @@
 		9F4691F32800F65400A8F0E8 /* CompleteAccount */ = {
 			isa = PBXGroup;
 			children = (
+				990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */,
 				9F2DC9D82A008B19006CDF1F /* PricingOptionsView.swift */,
 				9F2DC9DA2A008B28006CDF1F /* PricingRowView.swift */,
 				9FAB93732A53117C005B92B2 /* CompleteAccountView.swift */,
@@ -3375,6 +3383,7 @@
 		9F5F13662978D9B800F061A0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				990442132F894DD5007E2A44 /* SubscriptionPillView.swift */,
 				9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */,
 				9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */,
 				9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */,
@@ -4579,6 +4588,7 @@
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
 				634BA5932C160B890015314D /* LoadingBar.swift in Sources */,
 				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
+				990442142F894DDB007E2A44 /* SubscriptionPillView.swift in Sources */,
 				63B4A3C22E92A87C00784A22 /* BookmarksFileTransferable.swift in Sources */,
 				6356F9B52AC7CC5600B7A027 /* CancelSleepTimerIntent.swift in Sources */,
 				6319089B2E335196009249C1 /* ContributorsListView.swift in Sources */,
@@ -4619,6 +4629,7 @@
 				D6BA8F162A4CA94800C2BD9A /* StorageRowView.swift in Sources */,
 				9F3C436A284181690066D99A /* DataInitializerCoordinator.swift in Sources */,
 				9F3C436B284181C70066D99A /* AlertPresenter.swift in Sources */,
+				990442102F889201007E2A44 /* ExternalSyncInfoView.swift in Sources */,
 				63E893B22CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */,
 				63B760FC2C33B77F00AA98C7 /* SupportProfileView.swift in Sources */,
 				638487CD2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsView.swift in Sources */,
@@ -4806,6 +4817,7 @@
 				4124122A26D19B9100B099DB /* StorageItem.swift in Sources */,
 				41A1B12F226FE0F900EA0400 /* Notification+BookPlayer.swift in Sources */,
 				3F6640942E17386400356522 /* DeleteUserBookData.swift in Sources */,
+				990442122F88B101007E2A44 /* SyncInvitationCard.swift in Sources */,
 				6356F9BD2AC7CFFB00B7A027 /* CustomSleepTimerIntent.swift in Sources */,
 				636E77792DF28E9400D4DC0A /* JellyfinLibraryGridView.swift in Sources */,
 				63C48D512E3F1FCC005FBB96 /* ItemListView.swift in Sources */,

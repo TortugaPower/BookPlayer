@@ -775,9 +775,9 @@ extension ItemListViewModel {
     // 1. Break the calculation out into a distinct local variable.
     // (Swapping `map` to `compactMap` here to safely unwrap the `.first` optional!)
     let jellyfinItems = self.items
-      .filter { $0.externalResources?.contains { $0.providerName == "jellyfin" } ?? false }
+      .filter { $0.externalResources?.contains { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue } ?? false }
     let jellyfinResources = jellyfinItems
-      .compactMap { $0.externalResources!.first(where: { $0.providerName == "jellyfin" })! }
+      .compactMap { $0.externalResources!.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue })! }
     // 2. Pass the pre-calculated, explicitly-typed array into the function.
     guard let results = try? await jellyfinService.updateItemsFromJellyfin(jellyfinResources) else { return }
 
@@ -797,12 +797,11 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
       jellyfinService.setup()
       
       guard let externalResources = libraryService.findResources(for: playableItem.uuid),
-            let jellyfinSource = externalResources.first(where: { $0.providerName == "jellyfin" }),
+            let jellyfinSource = externalResources.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
             let jellyfinItem = try await jellyfinService.fetchItem(for: jellyfinSource.providerId) else  { return }
       
       let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
       if externalPlayDate > lastPlayDate || TimeInterval(jellyfinItem.currentSeconds ?? 0) > playableItem.currentTime {
-        //playerManager.jumpTo(Double(jellyfinItem.currentSeconds ?? 0))
         playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
         playerState.showResumePopup = true
       }

@@ -82,11 +82,15 @@ struct JellyfinRootView: View {
                 connectionService: connectionViewModel.connectionService,
                 singleFileDownloadService: singleFileDownloadService,
                 accountService: accountService,
-                importManager: importManager
+                importManager: importManager,
+                navigation: navigation,
+                navigationTitle: item.name
               )
             ) {
               dismiss()
             }
+          case .subscribe:
+            ExternalSyncIntroView()
           }
         }
     }

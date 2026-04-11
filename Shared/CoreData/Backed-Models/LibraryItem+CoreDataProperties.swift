@@ -57,7 +57,7 @@ extension LibraryItem {
   }
   
   public var jellyfinResource: ExternalResource? {
-    return resourcesArray.first { $0.providerName == "jellyfin" }
+    return resourcesArray.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
   }
 }
 

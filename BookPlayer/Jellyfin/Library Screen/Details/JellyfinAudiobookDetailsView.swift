@@ -21,7 +21,8 @@ struct JellyfinAudiobookDetailsView<
   @StateObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
   @State var filePathLineLimit: Int? = 1
-
+  @State var showCompleteAccount = false
+  
   var onDownloadTap: (() -> Void)
 
   var voiceOverBookInfo: String {
@@ -68,24 +69,40 @@ struct JellyfinAudiobookDetailsView<
           .bpFont(.caption)
         }
 
-        Button {
-          do {
-            try viewModel.handleImportAudiobook(viewModel.item)
-            onDownloadTap()
-          } catch {
-            viewModel.error = error
+        HStack(spacing: 12) {
+          Button {
+            do {
+              try viewModel.handleImportAudiobook(viewModel.item)
+              onDownloadTap()
+            } catch {
+              viewModel.error = error
+            }
+          } label: {
+            HStack {
+              Image(systemName: "square.and.arrow.down")
+            }
+            .frame(width: 24)
+            .padding()
+            .foregroundStyle(theme.secondaryColor)
+            .background(theme.secondarySystemBackgroundColor)
+            .cornerRadius(10)
           }
-        } label: {
-          HStack {
-            Image(systemName: "square.and.arrow.down")
-            Text("download_title".localized)
-              .fontWeight(.semibold)
+          
+          Button {
+            self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+            //self.showCompleteAccount = true
+          } label: {
+            HStack {
+              Image(systemName: "arrow.down.circle.dotted")
+              Text("Syncronize")
+                .fontWeight(.semibold)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .foregroundStyle(theme.systemBackgroundColor)
+            .background(theme.linkColor)
+            .cornerRadius(10)
           }
-          .frame(maxWidth: .infinity)
-          .padding()
-          .foregroundStyle(theme.systemBackgroundColor)
-          .background(theme.linkColor)
-          .cornerRadius(10)
         }
         .padding(.horizontal)
 
@@ -134,10 +151,17 @@ struct JellyfinAudiobookDetailsView<
       viewModel.cancelFetchData()
     }
     .scrollIndicators(.hidden)
+    .sheet(isPresented: $showCompleteAccount) {
+      SettingsCompleteAccountView(subType: .lite)
+        .presentationDetents([.medium])
+    }
   }
 }
 
 final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtocol {
+  let navigation: BPNavigation
+  let navigationTitle: String
+  
   var accountService: AccountService
   
   var connectionService = JellyfinConnectionService()
@@ -150,6 +174,8 @@ final class MockJellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewM
     self.item = item
     self.details = details
     self.accountService = AccountService()
+    self.navigationTitle = item.name
+    self.navigation = BPNavigation()
   }
 
   @MainActor

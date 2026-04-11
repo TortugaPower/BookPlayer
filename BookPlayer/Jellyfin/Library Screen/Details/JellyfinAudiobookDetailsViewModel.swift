@@ -16,7 +16,9 @@ protocol JellyfinAudiobookDetailsViewModelProtocol: ObservableObject {
   var connectionService: JellyfinConnectionService { get }
   var accountService: AccountService { get }
   var error: Error? { get set }
-
+  var navigation: BPNavigation { get }
+  var navigationTitle: String { get }
+  
   @MainActor
   func fetchData()
 
@@ -39,6 +41,8 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   let connectionService: JellyfinConnectionService
   let accountService: AccountService
   let importManager: ImportManager?
+  let navigation: BPNavigation
+  let navigationTitle: String
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
   private var singleFileDownloadService: SingleFileDownloadService
@@ -50,13 +54,17 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?
+    importManager: ImportManager?,
+    navigation: BPNavigation,
+    navigationTitle: String
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
     self.importManager = importManager
+    self.navigation = navigation
+    self.navigationTitle = navigationTitle
   }
 
   @MainActor
@@ -92,7 +100,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   
   @MainActor
   func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
-    if accountService.hasLiteEnabled() {
+    if !accountService.hasLiteEnabled() {
       virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)
@@ -107,6 +115,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
   
   @MainActor
   func virtualImportAudiobook(_ item: JellyfinLibraryItem) {
+    let fileExt = self.details?.filePath?.split(separator: ".").last ?? "m4a"
     let libraryItem = SimpleLibraryItem(
       title: item.name,
       details: self.details?.artist ?? "voiceover_unknown_author".localized,
@@ -121,7 +130,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
       artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
       orderRank: 0,
       parentFolder: nil,
-      originalFileName: item.name,
+      originalFileName: "\(item.name).\(fileExt)",
       lastPlayDate: item.lastPlayedDate,
       type: .book,
       uuid: UUID().uuidString

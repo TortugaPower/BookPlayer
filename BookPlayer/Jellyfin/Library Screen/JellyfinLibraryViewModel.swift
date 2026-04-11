@@ -17,6 +17,7 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case topLevel(libraryName: String)
   case folder(data: JellyfinLibraryItem)
   case details(data: JellyfinLibraryItem)
+  case subscribe
 }
 
 protocol JellyfinLibraryViewModelProtocol: ObservableObject {
@@ -32,7 +33,7 @@ protocol JellyfinLibraryViewModelProtocol: ObservableObject {
   var editMode: EditMode { get set }
   var selectedItems: Set<JellyfinLibraryItem.ID> { get set }
   var showingDownloadConfirmation: Bool { get set }
-
+  var useSelectedItems: Bool { get set }
   var importManager: ImportManager? { get set }
   var accountService: AccountService { get }
   var connectionService: JellyfinConnectionService { get }
@@ -90,7 +91,8 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
   @Published var showingDownloadConfirmation = false
-
+  
+  var useSelectedItems = false
   var onTransition: BPTransition<Routes>?
 
   let folderID: String?
@@ -245,7 +247,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       if useSelectedItems {
         onDownloadTapped()
       } else {
-        onDownloadFolderTapped()
+        confirmDownloadFolder()
       }
     }
   }
@@ -271,6 +273,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
 
   @MainActor
   func onDownloadFolderTapped() {
+    useSelectedItems = false
     showingDownloadConfirmation = true
   }
   

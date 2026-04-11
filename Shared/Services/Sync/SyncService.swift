@@ -443,10 +443,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
       let keychainService: KeychainServiceProtocol = KeychainService()
-      if let externalResource = remoteURL.externalResources?.first(where: { $0.providerName == "jellyfin" }),
+      if let externalResource = remoteURL.externalResources?.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
          let storedConnection: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection)
         {
-        let urlString = "\(storedConnection.url.absoluteString)/items/\(externalResource.providerId)/Download?api_key=\(storedConnection.accessToken)"
+        let urlString = storedConnection.buildDownloadUrl(providerId: externalResource.providerId)
         downloadUrl = URL(string: urlString) ?? localURL
       }
       
