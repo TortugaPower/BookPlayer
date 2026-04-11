@@ -355,6 +355,12 @@
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
 		631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */; };
 		632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632119D62E543973005B3E10 /* ItemListViewModel.swift */; };
+		632132502F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		632132512F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		632132522F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		632132532F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		632132542F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		632132552F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
 		6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		632941402AEEE739000AD2EE /* CircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6329413F2AEEE739000AD2EE /* CircularView.swift */; };
@@ -645,12 +651,6 @@
 		9236C57F833C70652BDD1FA3 /* TabEditingEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDD933F7FDEDC1BF67EC567 /* TabEditingEnvironmentKey.swift */; };
 		9586CECD8FB418C6CFB0A7DD /* IntegrationLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C407B5BD19D3CF9CC64EC7 /* IntegrationLibraryView.swift */; };
 		98BA9BA4D6A94BC8BCCE5F8B /* IntegrationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9D68F735D2519CDBC18495 /* IntegrationSettingsView.swift */; };
-		990442082F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		990442092F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		9904420A2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		9904420B2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		9904420C2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		9904420D2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */; };
 		99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */; };
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
@@ -1308,6 +1308,7 @@
 		631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPPushPresentationFlow.swift; sourceTree = "<group>"; };
 		631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPModalPresentationFlow.swift; sourceTree = "<group>"; };
 		632119D62E543973005B3E10 /* ItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModel.swift; sourceTree = "<group>"; };
+		6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v10_to_v11.xcmappingmodel; sourceTree = "<group>"; };
 		6329413F2AEEE739000AD2EE /* CircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularView.swift; sourceTree = "<group>"; };
 		632D5A572E58C3CC006D10BC /* VerticalLabelStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalLabelStyle.swift; sourceTree = "<group>"; };
 		63344BFF2EA708F800B90DF7 /* BackupDatabaseOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupDatabaseOperation.swift; sourceTree = "<group>"; };
@@ -1587,7 +1588,6 @@
 		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
-		990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v10_to_v11.xcmappingmodel; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
@@ -2331,7 +2331,7 @@
 				41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */,
 				9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */,
 				3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */,
-				990442072F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel */,
+				6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -4152,7 +4152,7 @@
 				9FA334B127C1499A0064E8EA /* ItemCellView.swift in Sources */,
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
 				41A359C4276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
-				9904420D2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132522F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				418CABB325EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F82DF7127DF8203001B0EA8 /* WatchConnectivityService.swift in Sources */,
 				6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */,
@@ -4311,7 +4311,7 @@
 				4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				41EB07162752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
-				990442092F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132552F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				99F3C2072F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */,
 				412AB70A2701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				63B9149E2EE47951000918D8 /* AppEnvironment.swift in Sources */,
@@ -4358,7 +4358,7 @@
 				63E893B32CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */,
 				639720722CAAF8290045A4DB /* LastPlayedProvider.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
-				9904420A2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132532F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4571,7 +4571,7 @@
 				631908972E33442A009249C1 /* SettingsTipJarView.swift in Sources */,
 				C39401E920DEE83200F3DC71 /* UIView+BookPlayer.swift in Sources */,
 				8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */,
-				9904420C2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132542F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				637043542E2DED05005353D1 /* SettingsMailView.swift in Sources */,
 				8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */,
 				631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */,
@@ -4827,7 +4827,7 @@
 				638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
-				9904420B2F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132502F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				418CABB425EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				99F3C1ED2F5BCE1600AC91A2 /* PathUuidPair.swift in Sources */,
@@ -4869,7 +4869,7 @@
 				6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */,
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
-				990442082F85EAA2007E2A44 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				632132512F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,
 				630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */,
 				3F66408E2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
