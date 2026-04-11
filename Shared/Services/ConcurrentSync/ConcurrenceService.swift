@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 public protocol ConcurrenceServiceProtocol {
+  var accessPolicy: [ExternalSyncJobType: Bool] { get }
+  
   init(maxConcurrentTasks: Int)
   
   func setup(libraryService: LibrarySyncProtocol)
@@ -30,6 +32,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
   var taskContainer: ConcurrentTasksRepositoryProtocol! // Your DB model
   var libraryService: LibrarySyncProtocol!
   
+  public var accessPolicy: [ExternalSyncJobType: Bool] = [:]
   // Tracks which queueKeys currently have an active worker looping
   private var activeQueueKeys = Set<String>()
   private let stateLock = NSLock()
@@ -200,6 +203,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
 
 extension ConcurrenceService {
   public func scheduleMetadataUpdate(params: [String: Any]) {
+    guard (accessPolicy[.update] ?? false) else { return }
+    
     Task {
       guard let queueKey = params["providerName"] as? String else {
         return
@@ -219,6 +224,8 @@ extension ConcurrenceService {
   }
   
   public func scheduleFileUpload(params: [String: Any]) {
+    guard (accessPolicy[.uploadFile] ?? false) else { return }
+    
     Task {
       let queueKey = "uploadFile"
       var params = params

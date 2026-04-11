@@ -19,6 +19,7 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case authorBooks(authorID: String, authorName: String, parentID: String?)
   case narratorBooks(personID: String, personName: String, parentID: String?)
   case details(data: JellyfinLibraryItem)
+  case subscribe
 }
 
 enum JellyfinLayout {
@@ -61,6 +62,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
   var isSearchable: Bool { true }
 
+  var useSelectedItems = false
   var onTransition: BPTransition<Routes>?
 
   let folderID: String?
@@ -321,7 +323,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       if useSelectedItems {
         onDownloadTapped()
       } else {
-        onDownloadFolderTapped()
+        confirmDownloadFolder()
       }
     }
   }
@@ -347,6 +349,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
   @MainActor
   func onDownloadFolderTapped() {
+    useSelectedItems = false
     showingDownloadConfirmation = true
   }
 

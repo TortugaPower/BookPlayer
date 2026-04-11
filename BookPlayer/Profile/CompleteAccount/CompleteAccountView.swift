@@ -23,7 +23,8 @@ struct CompleteAccountView: View {
 
   @Environment(\.accountService) private var accountService
   @EnvironmentObject private var theme: ThemeViewModel
-
+  
+  var subType: AccessLevel = .pro
   var onDismiss: () -> Void
 
   var body: some View {
@@ -138,7 +139,7 @@ struct CompleteAccountView: View {
   }
 
   func loadProducts() async throws {
-    let options = try await accountService.getSubscriptionOptions()
+    let options = subType == .lite ? try await accountService.getLiteSubscriptionOptions() : try await accountService.getSubscriptionOptions()
     pricingOptions = options
     selectedPricingOption = options.first
     isLoadingPricingOptions = false

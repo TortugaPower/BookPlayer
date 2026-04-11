@@ -307,6 +307,8 @@ private struct JellyfinTabRoot: View {
               }
               .accessibilityLabel("Switch Library")
             }
+          case .subscribe:
+            ExternalSyncIntroView()
           }
         }
     }

@@ -45,7 +45,8 @@ final class PlayerLoaderService: @unchecked Sendable {
     
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
     
-    if (syncService.isActive == false && (libraryItem.externalResources?.isEmpty ?? true)),
+    if syncService.isActive == false,
+       libraryItem.externalResources?.isEmpty ?? true,
        !FileManager.default.fileExists(atPath: fileURL.path)
     {
       throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)
