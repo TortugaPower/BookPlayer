@@ -32,6 +32,7 @@
         <attribute name="status" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="userBookID" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="libraryItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="hardcoverBook" inverseEntity="LibraryItem"/>
     </entity>
     <entity name="Library" representedClassName="Library" syncable="YES">
         <relationship name="currentTheme" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Theme" inverseName="selected" inverseEntity="Theme"/>
@@ -57,7 +58,7 @@
         <attribute name="uuid" attributeType="String"/>
         <relationship name="bookmarks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Bookmark" inverseName="item" inverseEntity="Bookmark"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Folder" inverseName="items" inverseEntity="Folder"/>
-        <relationship name="hardcoverBook" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="HardcoverBook"/>
+        <relationship name="hardcoverBook" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="HardcoverBook" inverseName="libraryItem" inverseEntity="HardcoverBook"/>
         <relationship name="lastPlayed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="lastPlayedItem" inverseEntity="Library"/>
         <relationship name="library" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Library" inverseName="items" inverseEntity="Library"/>
     </entity>
