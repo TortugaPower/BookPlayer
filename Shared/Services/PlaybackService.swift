@@ -220,7 +220,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
       let externalResource = book.externalResources?.first
       let keychainService = KeychainService()
       let storedConnection: JellyfinConnectionData? = try? keychainService.get(.jellyfinConnection)
-      let urlString = (storedConnection != nil && externalResource != nil) ? "\(storedConnection!.url.absoluteString)/items/\(externalResource!.providerId)/Download?api_key=\(storedConnection!.accessToken)" : ""
+      let urlString = (storedConnection != nil && externalResource != nil)
+      ? storedConnection!.buildDownloadUrl(providerId: externalResource!.providerId)
+      : ""
 
       return [
         PlayableChapter(

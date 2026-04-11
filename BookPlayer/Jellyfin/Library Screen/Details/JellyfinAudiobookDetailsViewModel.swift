@@ -44,6 +44,8 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   let connectionService: JellyfinConnectionService
   let accountService: AccountService
   let importManager: ImportManager?
+  let navigation: BPNavigation
+  let navigationTitle: String
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
   private var singleFileDownloadService: SingleFileDownloadService
@@ -55,13 +57,17 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?
+    importManager: ImportManager?,
+    navigation: BPNavigation,
+    navigationTitle: String
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
     self.importManager = importManager
+    self.navigation = navigation
+    self.navigationTitle = navigationTitle
   }
 
   @MainActor
@@ -97,7 +103,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
-    if accountService.hasLiteEnabled() {
+    if !accountService.hasLiteEnabled() {
       virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)
@@ -112,6 +118,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func virtualImportAudiobook(_ item: JellyfinLibraryItem) {
+    let fileExt = self.details?.filePath?.split(separator: ".").last ?? "m4a"
     let libraryItem = SimpleLibraryItem(
       title: item.name,
       details: self.details?.artist ?? "voiceover_unknown_author".localized,
@@ -126,7 +133,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
       orderRank: 0,
       parentFolder: nil,
-      originalFileName: item.name,
+      originalFileName: "\(item.name).\(fileExt)",
       lastPlayDate: item.lastPlayedDate,
       type: .book,
       uuid: UUID().uuidString

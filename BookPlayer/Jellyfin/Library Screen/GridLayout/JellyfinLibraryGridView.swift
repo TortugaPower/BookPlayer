@@ -65,7 +65,7 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
 }
 
 final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, ObservableObject {
-    
+  var useSelectedItems = false
   var navigationTitle: String = ""
   var navigation = BPNavigation()
   var connectionService = JellyfinConnectionService()

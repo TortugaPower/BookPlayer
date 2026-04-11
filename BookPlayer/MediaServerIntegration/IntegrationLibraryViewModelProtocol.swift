@@ -43,7 +43,6 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var showsLayoutPreferences: Bool { get }
   var showsSortPreferences: Bool { get }
   var allowsEditing: Bool { get }
-  var showingDownloadConfirmation: Bool { get set }
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: Item)
@@ -54,6 +53,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onEditToggleSelectTapped()
   @MainActor func onSelectTapped(for item: Item)
   @MainActor func onSelectAllTapped()
+  @MainActor func handleImportItems(useSelectedItems: Bool)
   @MainActor func onDownloadTapped()
   @MainActor func onDownloadFolderTapped()
   @MainActor func confirmDownloadFolder()

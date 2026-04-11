@@ -1791,7 +1791,7 @@ extension LibraryService {
     
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     let book = Book(entity: entity, insertInto: context)
-    book.relativePath = simpleItem.title
+    book.relativePath = simpleItem.originalFileName
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
@@ -2890,7 +2890,7 @@ extension LibraryService {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(
       format: "%K == %@ AND %K IN %@",
-      #keyPath(ExternalResource.providerName), "jellyfin",
+      #keyPath(ExternalResource.providerName), ExternalResource.ProviderName.jellyfin.rawValue,
       #keyPath(ExternalResource.providerId), remoteKeys
     )
     let context = self.dataManager.getContext()

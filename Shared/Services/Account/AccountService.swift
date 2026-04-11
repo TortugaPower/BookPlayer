@@ -177,7 +177,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func hasSyncEnabled() -> Bool {
-    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true || Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }
   
   public func hasLiteEnabled() -> Bool {
@@ -190,7 +190,7 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     let entitlements = cachedInfo.entitlements.all
-
+    print(entitlements)
     if entitlements["plus"]?.isActive == true
       || entitlements["pro"]?.isActive == true
         || entitlements["lite"]?.isActive == true
@@ -216,7 +216,7 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   private func getAccessLevel() -> AccessLevel {
-    if hasSyncEnabled() {
+    if hasSyncEnabled() && !hasLiteEnabled() {
       return .pro
     } else if hasLiteEnabled() {
       return .lite
