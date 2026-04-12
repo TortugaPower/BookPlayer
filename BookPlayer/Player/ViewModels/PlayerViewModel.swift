@@ -223,7 +223,7 @@ final class PlayerViewModel: ObservableObject {
     
     self.playingProgressSubscriber?.cancel()
     self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
-      .receive(on: DispatchQueue.main)
+      .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
@@ -231,7 +231,7 @@ final class PlayerViewModel: ObservableObject {
 
     self.listeningProgressSubscriber?.cancel()
     self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
-      .receive(on: DispatchQueue.main)
+      .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
