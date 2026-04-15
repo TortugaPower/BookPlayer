@@ -49,7 +49,7 @@ public enum SchemaV2: VersionedSchema {
     public var taskID: String
     public var jobType: SyncJobType
     public var position: Int
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public var container: SyncTasksContainer?
     
@@ -85,7 +85,7 @@ public enum SchemaV2: VersionedSchema {
     public var orderRank: Int
     public var lastPlayDateTimestamp: Double?
     public var type: Int16
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(
       id: String,
@@ -138,7 +138,7 @@ public enum SchemaV2: VersionedSchema {
     public var orderRank: Int16?
     public var lastPlayDateTimestamp: Double?
     public var type: Int16?
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(
       id: String,
@@ -181,7 +181,7 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     public var origin: String
     public var destination: String
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String, uuid: String, relativePath: String, origin: String, destination: String) {
       self.id = id
@@ -198,7 +198,7 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     /// Can only be `delete` or `shallowDelete`
     public var jobType: SyncJobType
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String, uuid: String, relativePath: String, jobType: SyncJobType) {
       self.id = id
@@ -213,7 +213,7 @@ public enum SchemaV2: VersionedSchema {
     @Attribute(.unique) public var id: String
     public var relativePath: String
     public var time: Double
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String = UUID().uuidString, uuid: String, relativePath: String, time: Double) {
       self.id = id
@@ -229,7 +229,7 @@ public enum SchemaV2: VersionedSchema {
     public var relativePath: String
     public var time: Double
     public var note: String?
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String, uuid: String, relativePath: String, time: Double, note: String? = nil) {
       self.id = id
@@ -245,7 +245,7 @@ public enum SchemaV2: VersionedSchema {
     @Attribute(.unique) public var id: String
     public var relativePath: String
     public var name: String
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String, uuid: String, relativePath: String, name: String) {
       self.id = id
@@ -259,7 +259,7 @@ public enum SchemaV2: VersionedSchema {
   public class ArtworkUploadTaskModel {
     @Attribute(.unique) public var id: String
     public var relativePath: String
-    public var uuid: String = UUID().uuidString
+    public var uuid: String = Constants.uuidPlaceholder
     
     public init(id: String, uuid: String, relativePath: String) {
       self.id = id

@@ -31,8 +31,11 @@ extension UploadTaskModel: DictionaryConvertible {
       "isFinished": isFinished,
       "orderRank": orderRank,
       "type": type,
-      "uuid": uuid
     ]
+    
+    if uuid != Constants.uuidPlaceholder {
+      dict["uuid"] = uuid
+    }
     
     // Handle optional values and sanitize infinite values
     if let speed = speed, speed.isFinite {
@@ -52,8 +55,11 @@ extension UpdateTaskModel: DictionaryConvertible {
     var dict: [String: Any] = [
       "id": id,
       "relativePath": relativePath,
-      "uuid": uuid
     ]
+    
+    if uuid != Constants.uuidPlaceholder {
+      dict["uuid"] = uuid
+    }
     
     if let title = title { dict["title"] = title }
     if let details = details { dict["details"] = details }
