@@ -222,6 +222,7 @@ public final class TasksDataManager {
         orderRank: parameters["orderRank"] as! Int,
         lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
         type: parameters["type"] as! Int16,
+        provider: parameters["provider"] as? String
       )
       context.insert(task)
 

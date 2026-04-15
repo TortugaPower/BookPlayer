@@ -13,8 +13,8 @@ import SwiftUI
 extension ExternalResource {
   public enum SyncStatus: String, Codable {
     case notSynced = "not_synced"
-    case syncing = "syncing"
-    case synced = "synced"
+    case stream = "stream"
+    case downloaded = "downloaded"
   }
   
   public enum ProviderName: String, Codable {

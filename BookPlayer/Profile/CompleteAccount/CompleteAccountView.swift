@@ -84,7 +84,7 @@ struct CompleteAccountView: View {
       showConfetti: showConfetti
     )
     .errorAlert(error: $loadingState.error)
-    .navigationTitle("BookPlayer Pro")
+    .navigationTitle(subType == .lite ? "BookPlayer Lite" : "BookPlayer Pro")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
@@ -106,7 +106,7 @@ struct CompleteAccountView: View {
         .foregroundStyle(theme.linkColor)
       }
     }
-    .alert("pro_welcome_title", isPresented: $showSuccessAlert) {
+    .alert(subType == .lite ? "Welcome to BookPlayer Lite!" : "pro_welcome_title", isPresented: $showSuccessAlert) {
       Button("ok_button") {
         onDismiss()
       }

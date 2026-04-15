@@ -91,7 +91,8 @@ public enum SchemaV3: VersionedSchema {
     public var lastPlayDateTimestamp: Double?
     public var type: Int16
     public var uuid: String = UUID().uuidString
-    
+    public var provider: String? = nil
+
     public init(
       id: String,
       uuid: String,
@@ -106,7 +107,8 @@ public enum SchemaV3: VersionedSchema {
       isFinished: Bool,
       orderRank: Int,
       lastPlayDateTimestamp: Double? = nil,
-      type: Int16
+      type: Int16,
+      provider: String? = nil
     ) {
       self.id = id
       self.uuid = uuid
@@ -126,6 +128,7 @@ public enum SchemaV3: VersionedSchema {
       self.orderRank = orderRank
       self.lastPlayDateTimestamp = lastPlayDateTimestamp
       self.type = type
+      self.provider = provider
     }
   }
   

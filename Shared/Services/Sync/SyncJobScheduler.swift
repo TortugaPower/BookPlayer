@@ -50,7 +50,7 @@ public protocol JobSchedulerProtocol {
   /// Check if there's an upload task queued for the item
   func hasUploadTask(for relativePath: String) async -> Bool
   
-  func scheduleExternalResourceUpload(for externalResource: SimpleExternalResource, itemOrigin: PathUuidPair) async
+  func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
@@ -157,10 +157,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       parameters["speed"] = speed
     }
     
+    if let provider = item.externalResources?.first?.providerName {
+      parameters["provider"] = provider
+    }
+    
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleExternalResourceUpload(for externalResource: SimpleExternalResource, itemOrigin: PathUuidPair) async {
+  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "providerId": externalResource.providerId,
@@ -379,7 +383,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
               case .matchUuid(let response):
                 self.handleMatchUuidsResponse(response)
               case .uploadMetadata(let result):
-                self.handleUploadResult(result)
+                if task.parameters["provider"] as? String == nil {
+                  self.handleUploadResult(result)
+                }
               }
             }
             self.handleFinishedTask(task)

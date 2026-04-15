@@ -190,7 +190,6 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     let entitlements = cachedInfo.entitlements.all
-    print(entitlements)
     if entitlements["plus"]?.isActive == true
       || entitlements["pro"]?.isActive == true
         || entitlements["lite"]?.isActive == true

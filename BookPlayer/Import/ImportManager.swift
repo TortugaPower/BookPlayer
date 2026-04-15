@@ -155,11 +155,27 @@ final class ImportManager: ObservableObject {
     }
   }
   
-  func processExternalFiles() async {
+  private func hasExistingBook(_ externalResource: SimpleExternalResource) -> Bool {
+    guard let simpleItem = externalResource.libraryItem else { return false }
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+    let destinationURL = documentsFolder.appendingPathComponent(simpleItem.relativePath)
+    print(destinationURL)
+    if self.libraryService.findBooks(containing: destinationURL)?.first != nil {
+      return true
+    }
+    
+    if self.libraryService.findResource(for: externalResource.providerId) != nil {
+      return true
+    }
+    
+    return false
+  }
+  
+  func processExternalFiles() {
     guard self.externalFiles.count > 0 else {
       return
     }
-    let myExternalFiles = self.externalFiles
+    let myExternalFiles = self.externalFiles.filter { !hasExistingBook($0) }
     self.externalFiles = []
     self.externalOperationPublisher.send(myExternalFiles)
   }

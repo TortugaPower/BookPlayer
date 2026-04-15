@@ -420,8 +420,18 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
-    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
-
+    var remoteURLs: [RemoteFileURL] = []
+    if item.type == .book,
+       let external = item.externalResources?.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
+       let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
+       let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
+      remoteURLs = [
+        RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
+      ]
+    } else {
+      remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    }
+    
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
@@ -442,9 +452,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       var downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
-      let keychainService: KeychainServiceProtocol = KeychainService()
       if let externalResource = remoteURL.externalResources?.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
-         let storedConnection: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection)
+         let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection)
         {
         let urlString = storedConnection.buildDownloadUrl(providerId: externalResource.providerId)
         downloadUrl = URL(string: urlString) ?? localURL
@@ -551,6 +560,12 @@ extension SyncService {
   func handleItemsToUpload(_ items: [SyncableItem]) async {
     for item in items {
       await jobManager.scheduleLibraryItemUploadJob(for: item)
+      
+      if let externalResources = item.externalResources {
+        for externalResource in externalResources {
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: PathUuidPair(relativePath: item.relativePath, uuid: item.uuid))
+        }
+      }
     }
 
     /// Handle bookmarks in separate loop, as the viewContext can be unreliable
@@ -587,15 +602,6 @@ extension SyncService {
     }
 
     await handleItemsToUpload(itemsToUpload)
-    
-    for item in items {
-      if let externalResources = item.externalResources {
-        for externalResource in externalResources {
-          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: PathUuidPair(relativePath: item.relativePath, uuid: item.uuid))
-
-        }
-      }
-    }
   }
 
   /// Check if there's an upload task queued for the item

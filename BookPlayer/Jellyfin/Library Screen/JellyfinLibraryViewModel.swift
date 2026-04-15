@@ -338,7 +338,7 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
       let externalItem = SimpleExternalResource(
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
         lastSyncedAt: nil,
         libraryItem: libraryItem
       )

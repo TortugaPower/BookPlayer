@@ -177,7 +177,7 @@ extension LibraryService: LibrarySyncProtocol {
     }
     
     if let remoteExternalResources = item.externalResources {
-      let remoteIds = Set(item.externalResources?.compactMap { $0.providerId } ?? [])
+      let remoteIds = Set(remoteExternalResources.compactMap { $0.providerId })
       let localIds = Set(storedItem.resourcesArray.compactMap { $0.providerId })
       
       let idsToAdd = remoteIds.subtracting(localIds)
@@ -371,6 +371,8 @@ extension LibraryService: LibrarySyncProtocol {
       if let lastPlayDate = dictionary["lastPlayDate"] as? Date {
         lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
       }
+      
+      let externalResources = self.findResources(for: uuid)
 
       return SyncableItem(
         relativePath: relativePath,
@@ -387,7 +389,16 @@ extension LibraryService: LibrarySyncProtocol {
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
         type: type,
-        uuid: uuid
+        uuid: uuid,
+        externalResources: externalResources?.map({
+          SyncableExternalResource(
+            providerName: $0.providerName,
+            providerId: $0.providerId,
+            syncStatus: $0.syncStatus,
+            lastSyncedAt: $0.lastSyncedAt,
+            processedFile: $0.processedFile
+          )
+        })
       )
     })
   }

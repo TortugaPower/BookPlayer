@@ -203,8 +203,6 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
 
 extension ConcurrenceService {
   public func scheduleMetadataUpdate(params: [String: Any]) {
-    guard (accessPolicy[.update] ?? false) else { return }
-    
     Task {
       guard let queueKey = params["providerName"] as? String else {
         return
@@ -224,8 +222,6 @@ extension ConcurrenceService {
   }
   
   public func scheduleFileUpload(params: [String: Any]) {
-    guard (accessPolicy[.uploadFile] ?? false) else { return }
-    
     Task {
       let queueKey = "uploadFile"
       var params = params

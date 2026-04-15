@@ -89,8 +89,16 @@ struct JellyfinAudiobookDetailsView<
           }
           
           Button {
-            self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
-            //self.showCompleteAccount = true
+            if self.viewModel.accountService.hasLiteEnabled() {
+              do {
+                try self.viewModel.handleImportAudiobook(viewModel.item)
+                onDownloadTap()
+              } catch {
+                viewModel.error = error
+              }
+            } else {
+              self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+            }
           } label: {
             HStack {
               Image(systemName: "arrow.down.circle.dotted")
