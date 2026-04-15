@@ -114,4 +114,6 @@ public enum Constants {
     case lastPlayedWidget = "com.bookplayer.widget.small.lastPlayed"
     case timeListenedWidget = "com.bookplayer.widget.small.timeListened"
   }
+  
+  public static let uuidPlaceholder: String = "LOCAL-UUID-PLACEHOLDER"
 }
