@@ -103,7 +103,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
-    if !accountService.hasLiteEnabled() {
+    if accountService.hasLiteEnabled() {
       virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)
@@ -142,7 +142,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     let externalItem = SimpleExternalResource(
       providerName: ExternalResource.ProviderName.jellyfin.rawValue,
       providerId: item.id,
-      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       libraryItem: libraryItem
     )

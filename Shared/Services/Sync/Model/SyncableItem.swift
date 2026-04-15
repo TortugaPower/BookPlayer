@@ -24,7 +24,7 @@ public struct SyncableItem {
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
   let uuid: String
-  var externalResources: [SyncableExternalResource]? = nil
+  var externalResources: [SyncableExternalResource]?
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -104,6 +104,15 @@ extension SyncableItem {
     self.lastPlayDateTimestamp = item.lastPlayDate?.timeIntervalSince1970
     self.type = item.type
     self.uuid = item.uuid
+    self.externalResources = item.externalResources?.map({
+      SyncableExternalResource(
+        providerName: $0.providerName,
+        providerId: $0.providerId,
+        syncStatus: $0.syncStatus,
+        lastSyncedAt: $0.lastSyncedAt,
+        processedFile: $0.processedFile
+      )
+    })
   }
   
   public func copy(

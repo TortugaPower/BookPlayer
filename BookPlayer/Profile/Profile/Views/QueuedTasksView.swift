@@ -31,6 +31,8 @@ struct QueuedTasksView: View {
       
       Spacer()
     }
+    .background(theme.systemBackgroundColor)
+    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("Queued Tasks")
   }
 }
