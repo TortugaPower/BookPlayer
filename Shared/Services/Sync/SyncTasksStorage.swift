@@ -28,9 +28,10 @@ public actor SyncTasksStorage: ModelActor {
   public func appendTask(parameters: [String: Any]) async throws {
     guard
       let taskId = parameters["id"] as? String,
-      let relativePath = parameters["relativePath"] as? String,
       let rawJobType = parameters["jobType"] as? String,
-      let jobType = SyncJobType(rawValue: rawJobType)
+      let jobType = SyncJobType(rawValue: rawJobType),
+      let uuid = parameters["uuid"] as? String,
+      let relativePath = parameters["relativePath"] as? String
     else {
       throw BookPlayerError.runtimeError("Missing id or job type when creating task")
     }
@@ -50,7 +51,7 @@ public actor SyncTasksStorage: ModelActor {
     if jobType == .update,
       tasksContainer.tasks.count > 1,
       let existingTask = try context.fetch(FetchDescriptor<UpdateTaskModel>())
-        .last(where: { $0.relativePath == relativePath })
+        .last(where: { $0.uuid == uuid })
     {
 
       var parameters = parameters
@@ -66,6 +67,7 @@ public actor SyncTasksStorage: ModelActor {
       let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
       // Create task reference
       let taskReference = SyncTaskReferenceModel(
+        uuid: uuid,
         relativePath: relativePath,
         taskID: taskId,
         jobType: jobType,
@@ -91,7 +93,7 @@ public actor SyncTasksStorage: ModelActor {
     else {
       return nil
     }
-
+    
     guard
       let storedObject = tasksDataManager.getTaskModel(
         with: firstTask.taskID,
@@ -107,6 +109,7 @@ public actor SyncTasksStorage: ModelActor {
 
     return SyncTask(
       id: firstTask.taskID,
+      uuid: firstTask.uuid,
       relativePath: firstTask.relativePath,
       jobType: firstTask.jobType,
       parameters: storedObject.toDictionaryPayload()
@@ -150,9 +153,10 @@ public actor SyncTasksStorage: ModelActor {
       return tasksContainer.orderedTasks.map { task in
         SyncTaskReference(
           id: task.taskID,
+          uuid: task.uuid,
           relativePath: task.relativePath,
           jobType: task.jobType,
-          progress: progress[task.relativePath] ?? 0.0
+          progress: progress[task.uuid] ?? 0.0
         )
       }
 
@@ -181,6 +185,7 @@ public actor SyncTasksStorage: ModelActor {
 
         return SyncTask(
           id: taskRef.taskID,
+          uuid: taskRef.uuid,
           relativePath: taskRef.relativePath,
           jobType: taskRef.jobType,
           parameters: storedObject.toDictionaryPayload()

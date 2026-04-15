@@ -14,7 +14,7 @@ import Foundation
 public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
-
+  
   /// Fetch all the stored items in the library that are not in the remote identifiers array
   func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
@@ -26,7 +26,7 @@ public protocol LibrarySyncProtocol {
   func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Remove local items that were not in the remote identifiers
   func removeItems(notIn identifiers: [String], parentFolder: String?) async
-
+  
   /// Get last played library item
   func fetchLibraryLastItem() async -> SimpleLibraryItem?
   /// Set the last played book
@@ -35,12 +35,12 @@ public protocol LibrarySyncProtocol {
   func itemExists(for relativePath: String) async -> Bool
   /// Load encoded chapters from file into DB
   func loadChaptersIfNeeded(relativePath: String) async
-
+  
   /// Fetch all items and folders inside a given folder (Used for newly imported folders)
   func getAllNestedItems(inside relativePath: String) -> [SyncableItem]?
   /// Get max items count inside the specified path
   func getMaxItemsCount(at relativePath: String?) -> Int
-
+  
   /// Get all stored bookmarks of the specified type for a book
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
@@ -147,6 +147,10 @@ extension LibraryService: LibrarySyncProtocol {
     storedItem.artworkURL = item.artworkURL
     storedItem.type = item.type.itemType
     storedItem.speed = Float(item.speed ?? 1.0)
+    
+    if !item.uuid.isEmpty {
+      storedItem.uuid = item.uuid
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
@@ -276,6 +280,7 @@ extension LibraryService: LibrarySyncProtocol {
   func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
+        let uuid = dictionary["uuid"] as? String,
         let relativePath = dictionary["relativePath"] as? String,
         let originalFileName = dictionary["originalFileName"] as? String,
         let title = dictionary["title"] as? String,
@@ -310,7 +315,8 @@ extension LibraryService: LibrarySyncProtocol {
         isFinished: isFinished,
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
-        type: type
+        type: type,
+        uuid: uuid
       )
     })
   }

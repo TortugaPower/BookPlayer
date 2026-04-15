@@ -30,8 +30,12 @@ extension UploadTaskModel: DictionaryConvertible {
       "percentCompleted": percentCompleted,
       "isFinished": isFinished,
       "orderRank": orderRank,
-      "type": type
+      "type": type,
     ]
+    
+    if uuid != Constants.uuidPlaceholder {
+      dict["uuid"] = uuid
+    }
     
     // Handle optional values and sanitize infinite values
     if let speed = speed, speed.isFinite {
@@ -41,7 +45,7 @@ extension UploadTaskModel: DictionaryConvertible {
     if let lastPlayDateTimestamp = lastPlayDateTimestamp, lastPlayDateTimestamp.isFinite {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
-    
+        
     return dict
   }
 }
@@ -50,8 +54,12 @@ extension UpdateTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dict: [String: Any] = [
       "id": id,
-      "relativePath": relativePath
+      "relativePath": relativePath,
     ]
+    
+    if uuid != Constants.uuidPlaceholder {
+      dict["uuid"] = uuid
+    }
     
     if let title = title { dict["title"] = title }
     if let details = details { dict["details"] = details }
@@ -65,7 +73,6 @@ extension UpdateTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
     if let type = type { dict["type"] = type }
-    
     return dict
   }
 }
@@ -76,7 +83,8 @@ extension MoveTaskModel: DictionaryConvertible {
       "id": id,
       "relativePath": relativePath,
       "origin": origin,
-      "destination": destination
+      "destination": destination,
+      "uuid": uuid
     ]
   }
 }
@@ -85,8 +93,9 @@ extension DeleteTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
+      "jobType": jobType.rawValue,
       "relativePath": relativePath,
-      "jobType": jobType.rawValue
+      "uuid": uuid
     ]
   }
 }
@@ -95,8 +104,9 @@ extension DeleteBookmarkTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
+      "time": time,
       "relativePath": relativePath,
-      "time": time
+      "uuid": uuid
     ]
   }
 }
@@ -105,6 +115,7 @@ extension SetBookmarkTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dict: [String: Any] = [
       "id": id,
+      "uuid": uuid,
       "relativePath": relativePath,
       "time": time
     ]
@@ -121,8 +132,9 @@ extension RenameFolderTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
+      "name": name,
       "relativePath": relativePath,
-      "name": name
+      "uuid": uuid
     ]
   }
 }
@@ -131,8 +143,17 @@ extension ArtworkUploadTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     return [
       "id": id,
-      "relativePath": relativePath
+      "relativePath": relativePath,
+      "uuid": uuid
     ]
   }
 }
 
+extension MatchUuidsTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuids": uuids
+    ]
+  }
+}

@@ -23,6 +23,7 @@ public struct SyncableItem {
   let orderRank: Int
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
+  let uuid: String
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -38,7 +39,8 @@ public struct SyncableItem {
     "isFinished",
     "orderRank",
     "lastPlayDate",
-    "type"
+    "type",
+    "uuid"
   ]
 }
 
@@ -58,10 +60,12 @@ extension SyncableItem: Decodable {
     case orderRank
     case lastPlayDateTimestamp
     case type
+    case uuid
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    let myUuid = try? container.decode(String.self, forKey: .uuid)
     self.relativePath = try container.decode(String.self, forKey: .relativePath)
     self.remoteURL = try? container.decode(URL.self, forKey: .remoteURL)
     self.artworkURL = try? container.decode(URL.self, forKey: .artworkURL)
@@ -76,6 +80,7 @@ extension SyncableItem: Decodable {
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
+    self.uuid = myUuid ?? ""
   }
 }
 
@@ -95,5 +100,28 @@ extension SyncableItem {
     self.orderRank = Int(item.orderRank)
     self.lastPlayDateTimestamp = item.lastPlayDate?.timeIntervalSince1970
     self.type = item.type
+    self.uuid = item.uuid
+  }
+  
+  public func copy(
+    uuid: String? = nil,
+  ) -> SyncableItem {
+    return SyncableItem(
+      relativePath: self.relativePath,
+      remoteURL: self.remoteURL,
+      artworkURL: self.artworkURL,
+      originalFileName: self.originalFileName,
+      title: self.title,
+      details: self.details,
+      speed: self.speed,
+      currentTime: self.currentTime,
+      duration: self.duration,
+      percentCompleted: self.percentCompleted,
+      isFinished: self.isFinished,
+      orderRank: self.orderRank,
+      lastPlayDateTimestamp: self.lastPlayDateTimestamp,
+      type: self.type,
+      uuid: uuid ?? self.uuid
+    )
   }
 }

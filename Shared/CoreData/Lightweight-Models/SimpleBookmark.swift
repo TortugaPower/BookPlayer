@@ -16,12 +16,14 @@ public struct SimpleBookmark: Decodable, Identifiable {
   public let note: String?
   let type: BookmarkType
   public let relativePath: String
+  public let uuid: String
 
   static var fetchRequestProperties = [
     "time",
     "note",
     "type",
     "item.relativePath",
+    "item.uuid"
   ]
 
   public func getImageNameForType() -> String? {
@@ -37,11 +39,12 @@ public struct SimpleBookmark: Decodable, Identifiable {
     }
   }
 
-  public init(time: Double, note: String?, type: BookmarkType, relativePath: String) {
+  public init(time: Double, note: String?, type: BookmarkType, relativePath: String, uuid: String) {
     self.time = time
     self.note = note
     self.type = type
     self.relativePath = relativePath
+    self.uuid = uuid
   }
 }
 
@@ -58,5 +61,6 @@ extension SimpleBookmark {
     self.time = bookmark.time
     self.note = bookmark.note
     self.type = .user
+    self.uuid = bookmark.uuid ?? "" //DOUBLE CHECK
   }
 }

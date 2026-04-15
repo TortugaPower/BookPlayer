@@ -136,7 +136,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     request.httpMethod = HTTPMethod.put.rawValue
 
     let allTasks = await session.allTasks
-
+    
     /// Avoid creating a new task if one exists already to avoid double uploads
     if let existingTask = allTasks.first(where: { task in
       task.taskDescription == taskDescription
@@ -148,7 +148,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
       let task = session.uploadTask(with: request, fromFile: fileURL)
       task.taskDescription = taskDescription
-
+      
       return task
     }
   }

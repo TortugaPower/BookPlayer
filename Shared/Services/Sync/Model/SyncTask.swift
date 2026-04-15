@@ -13,23 +13,27 @@ public struct SyncTask: Identifiable {
   public let relativePath: String
   public let jobType: SyncJobType
   public let parameters: [String: Any]
+  public let uuid: String
 
-  public init(id: String, relativePath: String, jobType: SyncJobType, parameters: [String: Any]) {
+  public init(id: String, uuid: String, relativePath: String, jobType: SyncJobType, parameters: [String: Any]) {
     self.id = id
-    self.relativePath = relativePath
     self.jobType = jobType
     self.parameters = parameters
+    self.uuid = uuid
+    self.relativePath = relativePath
   }
 }
 
 public struct SyncTaskReference: Identifiable {
   public let id: String
+  public let uuid: String
   public let relativePath: String
   public let jobType: SyncJobType
   public let progress: Double
 
-  public init(id: String, relativePath: String, jobType: SyncJobType, progress: Double) {
+  public init(id: String, uuid: String, relativePath: String, jobType: SyncJobType, progress: Double) {
     self.id = id
+    self.uuid = uuid
     self.relativePath = relativePath
     self.jobType = jobType
     self.progress = progress
@@ -39,20 +43,20 @@ public struct SyncTaskReference: Identifiable {
 /// Information about the last sync error for debugging purposes
 public struct SyncErrorInfo {
   public let taskId: String
-  public let relativePath: String
+  public let uuid: String
   public let jobType: SyncJobType
   public let error: String
   public let timestamp: Date
 
   public init(
     taskId: String,
-    relativePath: String,
+    uuid: String,
     jobType: SyncJobType,
     error: String,
     timestamp: Date = Date()
   ) {
     self.taskId = taskId
-    self.relativePath = relativePath
+    self.uuid = uuid
     self.jobType = jobType
     self.error = error
     self.timestamp = timestamp
