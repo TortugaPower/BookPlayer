@@ -551,7 +551,7 @@ extension LibraryService {
     else {
       return nil
     }
-    let externalResources = self.findResources(for: item.uuid)
+
     return SimpleLibraryItem(
       from: item,
     )
