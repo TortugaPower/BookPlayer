@@ -287,6 +287,9 @@ private struct JellyfinTabRoot: View {
     .sheet(isPresented: $showConnectionDetails) {
       connectionDetailsSheet
     }
+    .task {
+      navigation.dismiss = onDismiss
+    }
   }
 
   @ViewBuilder
@@ -482,6 +485,9 @@ where ViewModel.Item == JellyfinLibraryItem {
         theme: theme,
         dismissAll: dismissAll
       )
+    }
+    .task {
+      navigation.dismiss = onDismiss
     }
   }
 }
