@@ -216,13 +216,13 @@ public class ImportOperation: Operation {
   private func detectFolderOrganization() {
     guard files.count > 1 else { return }
 
-    let documentsURL = DataManager.getDocumentsFolderURL()
+    let documentsPath = DataManager.getDocumentsFolderURL().resolvingSymlinksInPath().path
     var parentFolders = Set<String>()
 
     for file in files {
         let parentURL = file.deletingLastPathComponent()
 
-        guard parentURL != documentsURL else { continue }
+        guard parentURL.resolvingSymlinksInPath().path != documentsPath else { continue }
 
         parentFolders.insert(parentURL.lastPathComponent)
     }
