@@ -24,6 +24,7 @@ struct SyncTasksCardView: View {
   
   var body: some View {
     HStack {
+      
       VStack(alignment: .leading, spacing: 6) {
         Text("Queued sync tasks (\(jobsCount))")
           .bpFont(.titleRegular)
@@ -49,6 +50,10 @@ struct SyncTasksCardView: View {
           )
         }
       }
+          
+      Image(systemName: "chevron.right")
+        .foregroundStyle(theme.primaryColor)
+        .padding(.leading, 16)
     }
     .padding(16)
     .background(theme.tertiarySystemBackgroundColor)

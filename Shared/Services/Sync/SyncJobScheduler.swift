@@ -166,7 +166,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {
+  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {    
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "providerId": externalResource.providerId,
