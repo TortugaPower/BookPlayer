@@ -207,6 +207,20 @@ extension LibraryService: LibrarySyncProtocol {
         storedItem.addToExternalResources(external)
       }
     }
+    
+    if let allExternalItems = self.findResources(for: storedItem.uuid, context: context),
+       allExternalItems.count > storedItem.resourcesArray.count {
+      let allSet = Set(allExternalItems)
+      let keepSet = Set(storedItem.resourcesArray)
+
+      // 2. Find the difference (things in 'all' but NOT in 'keep')
+      let toDelete = allSet.subtracting(keepSet)
+
+      // 3. Delete them from the context
+      toDelete.forEach { resource in
+          context.delete(resource)
+      }
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)

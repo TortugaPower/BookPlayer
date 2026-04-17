@@ -178,7 +178,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   
   func findResource(for providerId: String) -> ExternalResource?
   
-  func findResources(for uuid: String) -> [ExternalResource]?
+  func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
   
   @MainActor func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
   
@@ -1828,6 +1828,8 @@ extension LibraryService {
     book.type = .book
     book.uuid = UUID().uuidString
     
+    self.dataManager.saveSyncContext(context)
+    
     let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
     let external = ExternalResource(entity: resourceEntity, insertInto: context)
     
@@ -2929,10 +2931,10 @@ extension LibraryService {
     return result?.first
   }
   
-  public func findResources(for uuid: String) -> [ExternalResource]? {
+  public func findResources(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
-    let context = self.dataManager.getContext()
+    let context = context ?? self.dataManager.getContext()
 
     let result = try? context.fetch(fetch)
     

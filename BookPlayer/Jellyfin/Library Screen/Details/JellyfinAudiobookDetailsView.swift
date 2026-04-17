@@ -31,4 +31,52 @@ where Model.Item == JellyfinLibraryItem, Model.Details == JellyfinAudiobookDetai
   private var jellyfinConnectionService: JellyfinConnectionService {
     (viewModel as? JellyfinAudiobookDetailsViewModel)?.connectionService ?? .init()
   }
+  
+  var DownloadButton: some View {
+    Button {
+      do {
+        try viewModel.handleImportAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
+      }
+    } label: {
+      HStack {
+        Image(systemName: "square.and.arrow.down")
+        Text("Download")
+          .fontWeight(.semibold)
+      }
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.tertiarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
+  }
+  
+  var SynchronizeButton: some View {
+    Button {
+      if self.viewModel.accountService.hasLiteEnabled() {
+        do {
+          try self.viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
+      } else {
+        self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+      }
+    } label: {
+      HStack {
+        Image(systemName: "arrow.down.circle.dotted")
+        Text("Syncronize")
+          .fontWeight(.semibold)
+      }
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.linkColor)
+      .cornerRadius(10)
+    }
+  }
 }
