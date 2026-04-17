@@ -52,6 +52,10 @@ struct ConcurrentTasksCardView: View {
           )
         }
       }
+      
+      Image(systemName: "chevron.right")
+        .foregroundStyle(theme.primaryColor)
+        .padding(.leading, 16)
     }
     .padding(16)
     .background(theme.tertiarySystemBackgroundColor)

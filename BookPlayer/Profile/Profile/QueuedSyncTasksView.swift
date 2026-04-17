@@ -24,14 +24,35 @@ struct QueuedSyncTasksView: View {
   var body: some View {
     List {
       ThemedSection {
-        ForEach(queuedJobs) { job in
-          QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job.jobType)),
-            title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
-            relativePath: job.uuid,
-            initialProgress: job.jobType == .upload ? job.progress : 0,
-            isUpload: job.jobType == .upload
-          )
+        if queuedJobs.isEmpty {
+          // MARK: - Empty State
+          VStack(spacing: 12) {
+            Image(systemName: "checkmark.icloud")
+              .font(.system(size: 40))
+              .foregroundStyle(.secondary)
+            
+            Text("No queued tasks")
+              .font(.headline)
+            
+            Text("All your sync tasks are up to date.")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          .padding(.vertical, 40)
+          .frame(maxWidth: .infinity)
+          .listRowBackground(Color.clear)
+          
+        } else {
+          ForEach(queuedJobs) { job in
+            QueuedSyncTaskRowView(
+              imageName: .constant(parseImageName(job.jobType)),
+              title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
+              relativePath: job.uuid,
+              initialProgress: job.jobType == .upload ? job.progress : 0,
+              isUpload: job.jobType == .upload
+            )
+          }
         }
       } header: {
         if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {

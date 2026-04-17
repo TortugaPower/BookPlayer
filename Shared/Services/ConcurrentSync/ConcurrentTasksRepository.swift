@@ -145,6 +145,15 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
       context.insert(tasksContainer)
     }
 
+    if jobType == .update,
+       let providerId = parameters["providerId"] as? String,
+       let existingTask = try context.fetch(FetchDescriptor<ExternalUpdateTaskModel>()).last(where: { $0.providerId == providerId }) {
+      
+      tasksDataManager.updateExternalUpdateTaskModel(for: existingTask, with: parameters, in: modelContext)
+      try context.save()
+      tasksDataManager.notifyConcurrentTasksChanged(context: context)
+      return
+    }
     tasksDataManager.createConcurrentTaskModel(for: jobType, with: parameters, in: modelContext)
 
     let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
@@ -161,7 +170,6 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
     taskReference.container = tasksContainer
 
     try context.save()
-
     tasksDataManager.notifyConcurrentTasksChanged(context: context)
     
     NotificationCenter.default.post(

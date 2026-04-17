@@ -25,14 +25,35 @@ struct ConcurrentSyncTasksView: View {
   var body: some View {
     List {
       ThemedSection {
-        ForEach(queuedJobs) { job in
-          QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job.jobType)),
-            title: .constant(parseLabel(job.jobType, job.queueKey)),
-            relativePath: "",
-            initialProgress: monitor.getTaskProgress(taskID: job.id),
-            isUpload: false
-          )
+        if queuedJobs.isEmpty {
+          // MARK: - Empty State
+          VStack(spacing: 12) {
+            Image(systemName: "checkmark.icloud")
+              .font(.system(size: 40))
+              .foregroundStyle(.secondary)
+            
+            Text("No queued tasks")
+              .font(.headline)
+            
+            Text("All your sync tasks are up to date.")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          .padding(.vertical, 40)
+          .frame(maxWidth: .infinity)
+          .listRowBackground(Color.clear)
+          
+        } else {
+          ForEach(queuedJobs) { job in
+            QueuedSyncTaskRowView(
+              imageName: .constant(parseImageName(job.jobType)),
+              title: .constant(parseLabel(job.jobType, job.queueKey)),
+              relativePath: "",
+              initialProgress: monitor.getTaskProgress(taskID: job.id),
+              isUpload: false
+            )
+          }
         }
       } header: {
         if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {

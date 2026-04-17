@@ -94,9 +94,14 @@ public final class TasksDataManager {
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
+    try context.delete(model: UploadExternalResourceTaskModel.self)
     try context.delete(model: SyncTaskReferenceModel.self)
     try context.delete(model: SyncTasksContainer.self)
     
+    try context.delete(model: ConcurrentUploadTaskModel.self)
+    try context.delete(model: ExternalUpdateTaskModel.self)
+    try context.delete(model: ConcurrentTaskReferenceModel.self)
+    try context.delete(model: ConcurrentTasksContainer.self)
     try context.save()
   }
 
@@ -444,6 +449,21 @@ public final class TasksDataManager {
         
         context.insert(task)
       }
+    }
+  }
+  
+  public func updateExternalUpdateTaskModel(
+    for task: ExternalUpdateTaskModel,
+    with parameters: [String: Any],
+    in context: ModelContext
+  ) {
+    if let title = parameters["title"] as? String { task.title = title }
+    if let details = parameters["details"] as? String { task.details = details }
+    if let currentTime = parameters["currentTime"] as? Double { task.currentTime = currentTime }
+    if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
+    if let isFinished = parameters["isFinished"] as? Bool { task.isFinished = isFinished }
+    if let lastPlayDateTimestamp = parameters["lastPlayDateTimestamp"] as? Double {
+      task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
   }
 }

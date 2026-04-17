@@ -651,6 +651,12 @@
 		990442102F889201007E2A44 /* ExternalSyncInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */; };
 		990442122F88B101007E2A44 /* SyncInvitationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */; };
 		990442142F894DDB007E2A44 /* SubscriptionPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442132F894DD5007E2A44 /* SubscriptionPillView.swift */; };
+		990442162F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		990442172F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		990442182F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		990442192F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		9904421A2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		9904421B2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9911FBA12F71B8CE00DC9A2B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA72725BCE800A4A98F /* Kingfisher */; };
 		9911FBA42F71BD0400DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA32F71BD0400DC9A2B /* Get */; };
 		9911FBA62F71BD1D00DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA52F71BD1D00DC9A2B /* Get */; };
@@ -675,12 +681,6 @@
 		9911FBC52F76122400DC9A2B /* FileUploadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */; };
 		9911FBC72F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */; };
 		9911FBC82F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */; };
-		9911FBCA2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBCB2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBCC2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBCD2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBCE2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBCF2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9911FBD12F7C1FBF00DC9A2B /* ConcurrentTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */; };
 		9911FBD32F7C3AC700DC9A2B /* SyncTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */; };
 		9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */; };
@@ -1648,6 +1648,7 @@
 		9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalSyncInfoView.swift; sourceTree = "<group>"; };
 		990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncInvitationCard.swift; sourceTree = "<group>"; };
 		990442132F894DD5007E2A44 /* SubscriptionPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPillView.swift; sourceTree = "<group>"; };
+		990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
 		9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrenceService.swift; sourceTree = "<group>"; };
 		9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksRepository.swift; sourceTree = "<group>"; };
@@ -1658,7 +1659,6 @@
 		9911FBC02F7465DC00DC9A2B /* ConcurrentTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksCountService.swift; sourceTree = "<group>"; };
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
-		9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
 		9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksCardView.swift; sourceTree = "<group>"; };
 		9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCardView.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
@@ -2396,7 +2396,7 @@
 				9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */,
 				3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */,
 				99F3C1EE2F5F85B500AC91A2 /* MappingModel_v10_to_v11.xcmappingmodel */,
-				9911FBC92F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel */,
+				990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -4282,7 +4282,7 @@
 				6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */,
 				41C3396225E04103003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */,
-				9911FBCB2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				9904421B2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */,
 				4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */,
 				63CD851D2CE2964900EDBEA8 /* SettingsView.swift in Sources */,
@@ -4344,7 +4344,7 @@
 				9FC1E45A2814E0B000522FA8 /* NetworkUtils.swift in Sources */,
 				9F2DC9E62A014BB5006CDF1F /* PricingModel.swift in Sources */,
 				630826082AF54BB1002ACE0D /* Spacing.swift in Sources */,
-				9911FBCE2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				9904421A2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				41C23404272E1966006BC7B8 /* PlaybackState.swift in Sources */,
 				4138CE1426E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */,
 				99F3C1EC2F5BCE1600AC91A2 /* PathUuidPair.swift in Sources */,
@@ -4461,7 +4461,7 @@
 				630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */,
 				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
-				9911FBCA2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				990442192F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
 				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
@@ -4528,6 +4528,7 @@
 				9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */,
 				99329DD72F3E8A04003F8E73 /* SlickSlider.swift in Sources */,
 				638487AF2EC7750100DF442B /* AudiobookShelfConnectedView.swift in Sources */,
+				990442182F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				638487B02EC7750100DF442B /* AudiobookShelfDisconnectedView.swift in Sources */,
 				638487B12EC7750100DF442B /* AudiobookShelfConnectionView.swift in Sources */,
 				99329DD52F3D83A4003F8E73 /* BPDialogModifier.swift in Sources */,
@@ -4566,7 +4567,6 @@
 				9F1345FF293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift in Sources */,
 				631908992E334894009249C1 /* ContributorView.swift in Sources */,
 				6308260D2AF6C312002ACE0D /* WidgetReloadService.swift in Sources */,
-				9911FBCC2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				6370433D2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift in Sources */,
@@ -4878,7 +4878,7 @@
 				6399EA3A2F12BB690077BB13 /* PasskeyModels.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
-				9911FBCF2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				990442162F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */,
 				41A1B126226F88C500EA0400 /* LibraryItem+CoreDataProperties.swift in Sources */,
@@ -5006,7 +5006,7 @@
 				630826012AF29538002ACE0D /* SharedWidgetEntry.swift in Sources */,
 				6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */,
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
-				9911FBCD2F77891700DC9A2B /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				990442172F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				99F3C1F02F5F85B500AC91A2 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,

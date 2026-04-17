@@ -164,7 +164,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {
+  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {    
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "providerId": externalResource.providerId,
@@ -436,10 +436,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       
       for item in matchingItems {
         if let newUUID = uuidMap[item.uuid] {
+          print("CONFLICTS 1 \(item.uuid)")
           item.uuid = newUUID
+          print("CONFLICTS 2 \(item.uuid)")
         }
       }
-      
       try? context.save()
     }
     

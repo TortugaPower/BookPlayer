@@ -38,7 +38,7 @@ struct JellyfinAudiobookDetailsView<
 
   var body: some View {
     ScrollView {
-      VStack {
+      VStack(spacing: 8) {
         JellyfinLibraryItemImageView(item: viewModel.item)
           .environment(\.jellyfinService, viewModel.connectionService)
           .accessibilityHidden(true)
@@ -70,49 +70,17 @@ struct JellyfinAudiobookDetailsView<
         }
 
         HStack(spacing: 12) {
-          Button {
-            do {
-              try viewModel.handleImportAudiobook(viewModel.item)
-              onDownloadTap()
-            } catch {
-              viewModel.error = error
-            }
-          } label: {
-            HStack {
-              Image(systemName: "square.and.arrow.down")
-            }
-            .frame(width: 24)
-            .padding()
-            .foregroundStyle(theme.secondaryColor)
-            .background(theme.secondarySystemBackgroundColor)
-            .cornerRadius(10)
-          }
-          
-          Button {
-            if self.viewModel.accountService.hasLiteEnabled() {
-              do {
-                try self.viewModel.handleImportAudiobook(viewModel.item)
-                onDownloadTap()
-              } catch {
-                viewModel.error = error
-              }
-            } else {
-              self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
-            }
-          } label: {
-            HStack {
-              Image(systemName: "arrow.down.circle.dotted")
-              Text("Syncronize")
-                .fontWeight(.semibold)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .foregroundStyle(theme.systemBackgroundColor)
-            .background(theme.linkColor)
-            .cornerRadius(10)
+          if viewModel.accountService.accessLevel == .pro {
+            DownloadButton
+          } else if viewModel.accountService.accessLevel == .lite {
+            SynchronizeButton
+          } else {
+            DownloadButton
+            SynchronizeButton
           }
         }
         .padding(.horizontal)
+        .padding(.vertical, 12)
 
         if let details = viewModel.details {
           VStack {
@@ -162,6 +130,54 @@ struct JellyfinAudiobookDetailsView<
     .sheet(isPresented: $showCompleteAccount) {
       SettingsCompleteAccountView(subType: .lite)
         .presentationDetents([.medium])
+    }
+  }
+  
+  var DownloadButton: some View {
+    Button {
+      do {
+        try viewModel.handleImportAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
+      }
+    } label: {
+      HStack {
+        Image(systemName: "square.and.arrow.down")
+        Text("Download")
+          .fontWeight(.semibold)
+      }
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.tertiarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
+  }
+  
+  var SynchronizeButton: some View {
+    Button {
+      if self.viewModel.accountService.hasLiteEnabled() {
+        do {
+          try self.viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
+      } else {
+        self.viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+      }
+    } label: {
+      HStack {
+        Image(systemName: "arrow.down.circle.dotted")
+        Text("Syncronize")
+          .fontWeight(.semibold)
+      }
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.linkColor)
+      .cornerRadius(10)
     }
   }
 }
