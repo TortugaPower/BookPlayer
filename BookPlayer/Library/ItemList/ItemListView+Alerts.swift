@@ -46,7 +46,7 @@ extension ItemListView {
   @ViewBuilder
   func importCompletionAlert(for alertParameters: ImportOperationState.AlertParameters) -> some View {
     let hasParentFolder = model.libraryNode.folderRelativePath != nil
-    let suggestedFolderName = alertParameters.suggestedFolderName ?? ""
+    let suggestedFolderName = ((alertParameters.suggestedFolderName ?? "") as NSString).deletingPathExtension
     let canCreateBound = alertParameters.hasOnlyBooks || alertParameters.singleFolder != nil
     
     if hasParentFolder {
@@ -60,6 +60,7 @@ extension ItemListView {
     }
     
     Button("new_playlist_button") {
+      folderInput.prepareForFolder(title: suggestedFolderName, placeholder: suggestedFolderName)
       model.selectedSetItems = Set(alertParameters.itemIdentifiers)
       activeAlert = nil
       Task { @MainActor in
@@ -113,7 +114,7 @@ extension ItemListView {
     .disabled(availableFolders.isEmpty)
 
     Button("bound_books_create_button") {
-      let suggestedFolderName = model.selectedItems.first?.title ?? ""
+      let suggestedFolderName = ((model.selectedItems.first?.title ?? "") as NSString).deletingPathExtension
       folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
       activeAlert = nil
       Task { @MainActor in

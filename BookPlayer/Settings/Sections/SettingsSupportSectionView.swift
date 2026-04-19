@@ -90,7 +90,7 @@ struct SettingsSupportSectionView: View {
     // `defaultFilename` to bypass that path.
     if ProcessInfo.processInfo.isiOSAppOnMac {
       Button {
-        Task {
+        Task { @MainActor in
           loadingState.show = true
           let data = await file.generateDebugData()
           loadingState.show = false
