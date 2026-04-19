@@ -512,7 +512,7 @@ extension ItemListViewModel {
       let gotAccess = url.startAccessingSecurityScopedResource()
       guard gotAccess else { continue }
 
-      if DataManager.isAppOwnFolder(url) {
+      if DataManager.isInDocumentsFolder(url) {
         skippedOwnFiles += 1
         url.stopAccessingSecurityScopedResource()
         continue

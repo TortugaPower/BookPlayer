@@ -27,9 +27,9 @@ struct FolderCreationInput {
     type = .bound
   }
   
-  mutating func prepareForFolder(placeholder suggestedPlaceholder: String = "") {
-    name = ""
-    placeholder = suggestedPlaceholder
+  mutating func prepareForFolder(title: String? = nil, placeholder suggestedPlaceholder: String = "") {
+    name = title ?? ""
+    placeholder = title ?? suggestedPlaceholder
     type = .folder
   }
 }

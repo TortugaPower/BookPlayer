@@ -10,6 +10,7 @@ import BookPlayerKit
 import MessageUI
 import RevenueCat
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsSupportSectionView: View {
   var accessLevel: AccessLevel
@@ -17,7 +18,11 @@ struct SettingsSupportSectionView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) private var syncService
+  @Environment(\.loadingState) private var loadingState
   @Environment(\.openURL) private var openURL
+
+  @State private var isExportingDebugFile = false
+  @State private var debugDocument: DebugFileDocument?
 
   let supportEmail = "support@bookplayer.app"
 
@@ -43,21 +48,7 @@ struct SettingsSupportSectionView: View {
       }
       .buttonStyle(.borderless)
 
-      ShareLink(
-        item: DebugFileTransferable(
-          libraryService: libraryService,
-          accountService: accountService,
-          syncService: syncService
-        ),
-        preview: SharePreview(
-          "bookplayer_debug_information.txt",
-          image: Image(systemName: "text.page")
-        )
-      ) {
-        Text("settings_share_debug_information")
-          .bpFont(.body)
-      }
-      .foregroundStyle(theme.primaryColor)
+      debugInfoButton
       Button {
         let url = URL(string: "https://github.com/TortugaPower/BookPlayer")!
         openURL(url)
@@ -82,6 +73,55 @@ struct SettingsSupportSectionView: View {
       Text("BookPlayer \(appVersion) - \(systemVersion)")
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
+    }
+  }
+
+  @ViewBuilder
+  private var debugInfoButton: some View {
+    let file = DebugFileTransferable(
+      libraryService: libraryService,
+      accountService: accountService,
+      syncService: syncService
+    )
+    // On iOS-app-on-Mac, `ShareLink` + `Transferable` crashes in
+    // `SHKSaveToFilesSharingService` when routing to "Save to Files" because
+    // `NSItemProvider.suggestedName` isn't propagated, and `NSSavePanel`
+    // rejects the nil filename. Use `.fileExporter` with an explicit
+    // `defaultFilename` to bypass that path.
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      Button {
+        Task { @MainActor in
+          loadingState.show = true
+          let data = await file.generateDebugData()
+          loadingState.show = false
+          debugDocument = DebugFileDocument(data: data)
+          isExportingDebugFile = true
+        }
+      } label: {
+        Text("settings_share_debug_information")
+          .bpFont(.body)
+      }
+      .foregroundStyle(theme.primaryColor)
+      .fileExporter(
+        isPresented: $isExportingDebugFile,
+        document: debugDocument,
+        contentType: .plainText,
+        defaultFilename: "bookplayer_debug_information"
+      ) { _ in
+        debugDocument = nil
+      }
+    } else {
+      ShareLink(
+        item: file,
+        preview: SharePreview(
+          "bookplayer_debug_information.txt",
+          image: Image(systemName: "text.page")
+        )
+      ) {
+        Text("settings_share_debug_information")
+          .bpFont(.body)
+      }
+      .foregroundStyle(theme.primaryColor)
     }
   }
 

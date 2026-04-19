@@ -58,6 +58,7 @@ struct SettingsView: View {
         SettingsCreditsSectionView()
       }
       .environment(\.loadingState, loadingState)
+      .loadingOverlay(loadingState.show)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)

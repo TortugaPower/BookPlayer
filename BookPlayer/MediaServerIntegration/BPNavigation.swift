@@ -10,7 +10,7 @@ import SwiftUI
 
 @MainActor
 final class BPNavigation: ObservableObject {
-  var dismiss: DismissAction?
+  var dismiss: (() -> Void)?
 
   @Published var path = NavigationPath()
 

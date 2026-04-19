@@ -403,5 +403,8 @@ private struct AudiobookShelfTabRoot: View {
       .tint(theme.linkColor)
       .environmentObject(theme)
     }
+    .task {
+      navigation.dismiss = onDismiss
+    }
   }
 }

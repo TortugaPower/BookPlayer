@@ -9,55 +9,29 @@
 import BookPlayerKit
 import RevenueCat
 import SwiftUI
+import UniformTypeIdentifiers
+
+struct DebugFileDocument: FileDocument {
+  static var readableContentTypes: [UTType] { [.plainText] }
+  let data: Data
+
+  init(data: Data) {
+    self.data = data
+  }
+
+  init(configuration: ReadConfiguration) throws {
+    self.data = configuration.file.regularFileContents ?? Data()
+  }
+
+  func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    FileWrapper(regularFileWithContents: data)
+  }
+}
 
 struct DebugFileTransferable: Transferable {
   static var transferRepresentation: some TransferRepresentation {
     DataRepresentation(exportedContentType: .text) { file in
-      let syncService = file.syncService
-      let libraryService = file.libraryService
-
-      var remoteIdentifiers: [String]?
-      var syncJobsInformation: String?
-      var syncError: String?
-
-      // Always get sync state information regardless of isActive
-      syncJobsInformation = await file.getSyncOperationsInformation()
-
-      if syncService.isActive {
-        do {
-          remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
-        } catch {
-          syncError = "Error fetching remote identifiers: \(error.localizedDescription)"
-        }
-      }
-
-      let localidentifiers = libraryService.fetchIdentifiers()
-
-      var libraryRepresentation = file.getLibraryRepresentation(
-        localidentifiers: localidentifiers,
-        remoteIdentifiers: remoteIdentifiers
-      )
-
-      if let remoteIdentifiers,
-        let remoteOnlyInfo = file.getRemoteOnlyInformation(
-          localidentifiers: localidentifiers,
-          remoteIdentifiers: remoteIdentifiers
-        )
-      {
-        libraryRepresentation += remoteOnlyInfo
-      }
-
-      libraryRepresentation += file.getStorageBreakdown()
-
-      if let syncJobsInformation {
-        libraryRepresentation += syncJobsInformation
-      }
-
-      if let syncError {
-        libraryRepresentation += "\n\n⚠️ Sync Error:\n\(syncError)\n"
-      }
-
-      return libraryRepresentation.data(using: .utf8)!
+      await file.generateDebugData()
     }
     .suggestedFileName { _ in
       return "bookplayer_debug_information.txt"
@@ -67,6 +41,47 @@ struct DebugFileTransferable: Transferable {
   let libraryService: LibraryService
   let accountService: AccountService
   let syncService: SyncService
+
+  func generateDebugData() async -> Data {
+    var remoteIdentifiers: [String]?
+    var syncError: String?
+
+    let syncJobsInformation = await getSyncOperationsInformation()
+
+    if syncService.isActive {
+      do {
+        remoteIdentifiers = try await syncService.fetchSyncedIdentifiers()
+      } catch {
+        syncError = "Error fetching remote identifiers: \(error.localizedDescription)"
+      }
+    }
+
+    let localidentifiers = libraryService.fetchIdentifiers()
+
+    var libraryRepresentation = getLibraryRepresentation(
+      localidentifiers: localidentifiers,
+      remoteIdentifiers: remoteIdentifiers
+    )
+
+    if let remoteIdentifiers,
+      let remoteOnlyInfo = getRemoteOnlyInformation(
+        localidentifiers: localidentifiers,
+        remoteIdentifiers: remoteIdentifiers
+      )
+    {
+      libraryRepresentation += remoteOnlyInfo
+    }
+
+    libraryRepresentation += getStorageBreakdown()
+
+    libraryRepresentation += syncJobsInformation
+
+    if let syncError {
+      libraryRepresentation += "\n\n⚠️ Sync Error:\n\(syncError)\n"
+    }
+
+    return libraryRepresentation.data(using: .utf8)!
+  }
 
   /// Get a representation of the library like with the `tree` command
   /// Note:  For the first status, '✓' means the backing file exists, and '𐄂' that it's missing locally,
