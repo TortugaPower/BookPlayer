@@ -22,8 +22,11 @@ final class ListStateManager {
   public var isSearching = false
   public var isEditing = false
 
-  /// Integration sheet presented at MainView level for state preservation
+  /// Integration sheet presented at MainView level for state preservation.
+  /// `.mediaServers` shows the unified server list; `.jellyfin` / `.audiobookshelf`
+  /// open the corresponding library browser directly.
   enum IntegrationSheet: String, Identifiable {
+    case mediaServers
     case jellyfin
     case audiobookshelf
     var id: String { rawValue }

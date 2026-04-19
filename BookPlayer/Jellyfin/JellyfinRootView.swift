@@ -10,6 +10,9 @@ import SwiftUI
 
 struct JellyfinRootView: View {
   let connectionService: JellyfinConnectionService
+  /// When `true`, skips the per-integration server picker on launch.
+  /// Used when the caller (e.g. MediaServersView) has already activated the desired server.
+  var skipServerPicker: Bool = false
 
   @StateObject private var connectionViewModel: JellyfinConnectionViewModel
 
@@ -27,8 +30,9 @@ struct JellyfinRootView: View {
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
 
-  init(connectionService: JellyfinConnectionService) {
+  init(connectionService: JellyfinConnectionService, skipServerPicker: Bool = false) {
     self.connectionService = connectionService
+    self.skipServerPicker = skipServerPicker
     self._connectionViewModel = .init(
       wrappedValue: .init(connectionService: connectionService)
     )
@@ -36,6 +40,7 @@ struct JellyfinRootView: View {
 
   @State private var showLibraryPicker = false
   @State private var showConnectionForm = false
+  @State private var showServerPicker = false
   @State private var isLoadingLibraries = false
 
   private var isReady: Bool {
@@ -136,14 +141,41 @@ struct JellyfinRootView: View {
     .onChange(of: connectionViewModel.connectionState) { _, newValue in
       if newValue == .connected {
         showConnectionForm = false
-        if resolvedLibrary == nil {
-          Task { await loadLibraries() }
-        }
+        resolvedLibrary = nil
+        Task { await loadLibraries() }
       }
     }
+    .sheet(isPresented: $showServerPicker) {
+      NavigationStack {
+        IntegrationServerPickerView(viewModel: connectionViewModel) { serverID in
+          connectionViewModel.handleActivateAction(id: serverID)
+          showServerPicker = false
+          resolvedLibrary = nil
+          Task { await loadLibraries() }
+        }
+        .toolbar {
+          ToolbarItem(placement: .principal) {
+            Text("Jellyfin")
+              .bpFont(.headline)
+              .foregroundStyle(theme.primaryColor)
+          }
+          ToolbarItemGroup(placement: .cancellationAction) {
+            Button { showServerPicker = false } label: {
+              Image(systemName: "xmark")
+                .foregroundStyle(theme.linkColor)
+            }
+          }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
     .task {
-      if connectionService.connection == nil {
+      if connectionService.connections.isEmpty {
         showConnectionForm = true
+      } else if !skipServerPicker && connectionService.connections.count > 1, resolvedLibrary == nil {
+        showServerPicker = true
       } else if resolvedLibrary == nil {
         await loadLibraries()
       }

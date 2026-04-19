@@ -11,11 +11,24 @@ import Foundation
 
 @Observable
 class AudiobookShelfConnectionService: BPLogger {
+  private static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
+
   private let keychainService: KeychainServiceProtocol
 
-  var connection: AudiobookShelfConnectionData?
+  var connections: [AudiobookShelfConnectionData] = []
+  var connection: AudiobookShelfConnectionData? {
+    if let activeConnectionID,
+       let active = connections.first(where: { $0.id == activeConnectionID }) {
+      return active
+    }
+    return connections.first
+  }
   private var urlSession: URLSession
 
+  private(set) var activeConnectionID: String? {
+    get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
+    set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
+  }
 
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
@@ -25,7 +38,7 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   func setup() {
-    reloadConnection()
+    reloadConnections()
   }
 
   /// Pings the server to verify it exists and returns the server version
@@ -112,29 +125,46 @@ class AudiobookShelfConnectionService: BPLogger {
       apiToken: apiToken
     )
 
-    try keychainService.set(
-      connectionData,
-      key: .audiobookshelfConnection
-    )
-
-    self.connection = connectionData
+    // Deduplicate on url + userID
+    connections.removeAll { $0.url == url && $0.userID == userID }
+    connections.append(connectionData)
+    activeConnectionID = connectionData.id
+    saveConnections()
   }
 
   func saveSelectedLibrary(id: String?) {
-    guard var data = connection else { return }
-    data.selectedLibraryId = id
-    connection = data
-    try? keychainService.set(data, key: .audiobookshelfConnection)
+    guard let activeID = connection?.id,
+          let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
+    connections[index].selectedLibraryId = id
+    saveConnections()
+  }
+
+  func activateConnection(id: String) {
+    activeConnectionID = id
+  }
+
+  func deleteConnection(id: String) {
+    connections.removeAll { $0.id == id }
+
+    if activeConnectionID == id {
+      activeConnectionID = connections.first?.id
+    }
+
+    if connections.isEmpty {
+      do {
+        try keychainService.remove(.audiobookshelfConnection)
+      } catch {
+        Self.logger.warning("failed to remove connection data from keychain: \(error)")
+      }
+    } else {
+      saveConnections()
+    }
   }
 
   func deleteConnection() {
-    do {
-      try keychainService.remove(.audiobookshelfConnection)
-    } catch {
-      Self.logger.warning("failed to remove connection data from keychain: \(error)")
+    if let id = connection?.id {
+      deleteConnection(id: id)
     }
-
-    connection = nil
   }
 
   public func fetchLibraries() async throws -> [AudiobookShelfLibrary] {
@@ -432,16 +462,33 @@ class AudiobookShelfConnectionService: BPLogger {
       .appending(queryItems: [URLQueryItem(name: "token", value: connection.apiToken)])
   }
 
-  private func reloadConnection() {
-    guard
-      let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
-      isConnectionValid(storedConnection)
-    else {
+  private func reloadConnections() {
+    // Try array format first
+    if let storedConnections: [AudiobookShelfConnectionData] = try? keychainService.get(.audiobookshelfConnection) {
+      connections = storedConnections.filter { isConnectionValid($0) }
+    } else if let single: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
+              isConnectionValid(single) {
+      // Migrate from single-connection format
+      connections = [single]
+      saveConnections()
+    } else {
       Self.logger.warning("failed to load connection data from keychain")
       return
     }
 
-    connection = storedConnection
+    // Normalize activeConnectionID
+    if connections.isEmpty {
+      activeConnectionID = nil
+    } else if let activeID = activeConnectionID,
+              !connections.contains(where: { $0.id == activeID }) {
+      activeConnectionID = connections.first?.id
+    } else if activeConnectionID == nil {
+      activeConnectionID = connections.first?.id
+    }
+  }
+
+  private func saveConnections() {
+    try? keychainService.set(connections, key: .audiobookshelfConnection)
   }
 
   private func isConnectionValid(_ data: AudiobookShelfConnectionData) -> Bool {

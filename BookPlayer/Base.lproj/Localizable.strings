@@ -348,6 +348,10 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_username_placeholder" = "Username";
 "integration_password_placeholder" = "Password";
 "integration_password_remember_me_label" = "Remember Me";
+"integration_add_server_button" = "Add Server";
+"media_servers_title" = "Media Servers";
+"media_servers_choose_type_title" = "Choose Server Type";
+"media_servers_add_prompt" = "Add a media server to get started";
 "settings_integration_manage_connection_title" = "Manage Connection";
 "integration_internal_error_invalid_url" = "Internal error: Request URL is invalid: %@";
 "integration_internal_error_build_url" = "Internal error: Failed to build request URL";
