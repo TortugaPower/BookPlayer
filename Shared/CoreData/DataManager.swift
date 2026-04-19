@@ -157,17 +157,22 @@ public class DataManager {
     return absoluteUrl.contains(processedFolderUrl)
   }
 
-  /// Check if a URL points to the app's own Documents folder or is contained within it.
-  /// This prevents importing the app's own folder structure which would cause circular references.
+  /// Check if a URL points to one of the app's own managed folders
+  /// (Documents or the App Group SharedFiles folder).
+  /// Used to prevent circular self-imports via the file picker, and to
+  /// clean up source files in the import flow once they've been copied
+  /// into the Processed folder.
   public class func isAppOwnFolder(_ url: URL) -> Bool {
     let resolvedURL = url.resolvingSymlinksInPath()
     let documentsPath = getDocumentsFolderURL().resolvingSymlinksInPath().path
+    let sharedPath = getSharedFilesFolderURL().resolvingSymlinksInPath().path
 
-    // Check if the URL is the Documents folder itself or inside it
     if resolvedURL.path == documentsPath || resolvedURL.path.hasPrefix(documentsPath + "/") {
       return true
     }
-
+    if resolvedURL.path == sharedPath || resolvedURL.path.hasPrefix(sharedPath + "/") {
+      return true
+    }
     return false
   }
 
