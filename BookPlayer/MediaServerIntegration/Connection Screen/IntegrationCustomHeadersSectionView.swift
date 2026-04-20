@@ -27,29 +27,21 @@ struct IntegrationCustomHeadersSectionView: View {
   @FocusState private var focusedField: FocusedField?
 
   /// IDs of rows that `customHeadersDictionary()` will drop — either because
-  /// the key/value is invalid, or because a later row with the same (trimmed)
-  /// key will overwrite it. Used to strike through the key field as a hint.
+  /// the entry is rejected by `CustomHeaderEntry.normalized`, or because a
+  /// later row with the same normalized key will overwrite it. Used to strike
+  /// through the key field as a hint.
   private var droppedEntryIDs: Set<UUID> {
     var dropped: Set<UUID> = []
     var lastWinner: [String: UUID] = [:]
     for entry in customHeaders {
-      let trimmedKey = entry.key.trimmingCharacters(in: .whitespacesAndNewlines)
-      let trimmedValue = entry.value.trimmingCharacters(in: .whitespacesAndNewlines)
-      let isInvalid =
-        trimmedKey.isEmpty
-        || trimmedKey.rangeOfCharacter(from: .newlines) != nil
-        || trimmedKey.contains(":")
-        || trimmedKey.caseInsensitiveCompare("Authorization") == .orderedSame
-        || trimmedValue.isEmpty
-        || trimmedValue.rangeOfCharacter(from: .newlines) != nil
-      if isInvalid {
+      guard let pair = entry.normalized else {
         dropped.insert(entry.id)
         continue
       }
-      if let priorID = lastWinner[trimmedKey] {
+      if let priorID = lastWinner[pair.key] {
         dropped.insert(priorID)
       }
-      lastWinner[trimmedKey] = entry.id
+      lastWinner[pair.key] = entry.id
     }
     return dropped
   }

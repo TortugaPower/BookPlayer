@@ -18,6 +18,30 @@ struct CustomHeaderEntry: Identifiable, Equatable {
     self.key = key
     self.value = value
   }
+
+  /// Returns the `(key, value)` pair this entry contributes to an outgoing request,
+  /// or `nil` if it should be dropped. Single source of truth for header validation,
+  /// consumed by both `customHeadersDictionary()` (persistence/send) and the UI
+  /// strikethrough indicator. Rules:
+  /// - Key and value are trimmed of surrounding whitespace and newlines.
+  /// - Empty key or empty value → dropped.
+  /// - Key containing newlines or `:` → dropped (would crash `URLRequest.setValue`).
+  /// - Value containing newlines → dropped (same reason).
+  /// - Key of `Authorization` → dropped; owned by the integration itself
+  ///   (Jellyfin's MediaBrowser scheme / AudiobookShelf's Bearer token).
+  var normalized: (key: String, value: String)? {
+    let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmedKey.isEmpty,
+      trimmedKey.rangeOfCharacter(from: .newlines) == nil,
+      !trimmedKey.contains(":"),
+      trimmedKey.caseInsensitiveCompare("Authorization") != .orderedSame
+    else { return nil }
+    let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmedValue.isEmpty,
+      trimmedValue.rangeOfCharacter(from: .newlines) == nil
+    else { return nil }
+    return (trimmedKey, trimmedValue)
+  }
 }
 
 protocol IntegrationConnectionFormViewModelProtocol: ObservableObject {
@@ -29,28 +53,14 @@ protocol IntegrationConnectionFormViewModelProtocol: ObservableObject {
 }
 
 extension IntegrationConnectionFormViewModelProtocol {
-  /// Serialize the header entries into a dictionary. Skips entries with:
-  /// - an empty key or value,
-  /// - characters that `URLRequest.setValue(_:forHTTPHeaderField:)` would
-  ///   reject (newlines in either field, a colon in the key),
-  /// - or a key of `Authorization` — which is owned by the integration itself
-  ///   (Jellyfin's MediaBrowser scheme / AudiobookShelf's Bearer token) and
-  ///   must not be overridden.
-  /// Later duplicates of the same (trimmed) key overwrite earlier values.
+  /// Serialize the header entries into a dictionary, dropping anything
+  /// `CustomHeaderEntry.normalized` rejects. Later duplicates of the same
+  /// (trimmed) key overwrite earlier values.
   func customHeadersDictionary() -> [String: String] {
     var result: [String: String] = [:]
     for entry in customHeaders {
-      let trimmedKey = entry.key.trimmingCharacters(in: .whitespacesAndNewlines)
-      guard !trimmedKey.isEmpty else { continue }
-      guard trimmedKey.rangeOfCharacter(from: .newlines) == nil,
-        !trimmedKey.contains(":")
-      else { continue }
-      guard trimmedKey.caseInsensitiveCompare("Authorization") != .orderedSame else { continue }
-      let trimmedValue = entry.value.trimmingCharacters(in: .whitespacesAndNewlines)
-      guard !trimmedValue.isEmpty,
-        trimmedValue.rangeOfCharacter(from: .newlines) == nil
-      else { continue }
-      result[trimmedKey] = trimmedValue
+      guard let pair = entry.normalized else { continue }
+      result[pair.key] = pair.value
     }
     return result
   }
