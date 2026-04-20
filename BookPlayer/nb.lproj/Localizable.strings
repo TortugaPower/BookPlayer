@@ -346,6 +346,11 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_username_placeholder" = "Brukernavn";
 "integration_password_placeholder" = "Passord";
 "integration_password_remember_me_label" = "Husk meg";
+"integration_custom_headers_title" = "Egendefinerte HTTP-headere";
+"integration_custom_headers_footer" = "Headere som legges til her, vedlegges hver forespørsel som sendes til denne serveren.";
+"integration_custom_headers_key_placeholder" = "Header-navn";
+"integration_custom_headers_value_placeholder" = "Header-verdi";
+"integration_custom_headers_add_button" = "Legg til header";
 "settings_integration_manage_connection_title" = "Administrer tilkobling";
 "integration_internal_error_invalid_url" = "Intern feil: Forespørsels-URL er ugyldig: %@";
 "integration_internal_error_build_url" = "Intern feil: Kunne ikke lage forespørsels-URL";

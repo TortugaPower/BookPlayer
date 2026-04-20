@@ -347,6 +347,11 @@
 "integration_username_placeholder" = "Felhasználónév";
 "integration_password_placeholder" = "Jelszó";
 "integration_password_remember_me_label" = "Emlékezzen rám";
+"integration_custom_headers_title" = "Egyéni HTTP fejlécek";
+"integration_custom_headers_footer" = "Az itt hozzáadott fejlécek minden, erre a kiszolgálóra küldött kéréshez csatolódnak.";
+"integration_custom_headers_key_placeholder" = "Fejléc neve";
+"integration_custom_headers_value_placeholder" = "Fejléc értéke";
+"integration_custom_headers_add_button" = "Fejléc hozzáadása";
 "settings_integration_manage_connection_title" = "Kapcsolat kezelése";
 "integration_internal_error_invalid_url" = "Belső hiba: A kérés URL-je érvénytelen: %@";
 "integration_internal_error_build_url" = "Belső hiba: Nem sikerült létrehozni a kérés URL-jét";

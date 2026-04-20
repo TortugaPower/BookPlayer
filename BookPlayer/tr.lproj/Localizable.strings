@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Kullanıcı adı";
 "integration_password_placeholder" = "Şifre";
 "integration_password_remember_me_label" = "Beni Hatırla";
+"integration_custom_headers_title" = "Özel HTTP başlıkları";
+"integration_custom_headers_footer" = "Buraya eklenen başlıklar bu sunucuya gönderilen her isteğe eklenir.";
+"integration_custom_headers_key_placeholder" = "Başlık adı";
+"integration_custom_headers_value_placeholder" = "Başlık değeri";
+"integration_custom_headers_add_button" = "Başlık ekle";
 "settings_integration_manage_connection_title" = "Bağlantıyı Yönet";
 "integration_internal_error_invalid_url" = "Dahili hata: İstek URL'si geçersiz: %@";
 "integration_internal_error_build_url" = "Dahili hata: İstek URL'si oluşturulamadı";

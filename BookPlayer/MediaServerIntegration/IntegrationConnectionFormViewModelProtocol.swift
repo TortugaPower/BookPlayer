@@ -29,14 +29,28 @@ protocol IntegrationConnectionFormViewModelProtocol: ObservableObject {
 }
 
 extension IntegrationConnectionFormViewModelProtocol {
-  /// Serialize the header entries into a dictionary, ignoring empty keys.
+  /// Serialize the header entries into a dictionary. Skips entries with:
+  /// - an empty key or value,
+  /// - characters that `URLRequest.setValue(_:forHTTPHeaderField:)` would
+  ///   reject (newlines in either field, a colon in the key),
+  /// - or a key of `Authorization` — which is owned by the integration itself
+  ///   (Jellyfin's MediaBrowser scheme / AudiobookShelf's Bearer token) and
+  ///   must not be overridden.
   /// Later duplicates of the same (trimmed) key overwrite earlier values.
   func customHeadersDictionary() -> [String: String] {
     var result: [String: String] = [:]
     for entry in customHeaders {
       let trimmedKey = entry.key.trimmingCharacters(in: .whitespacesAndNewlines)
       guard !trimmedKey.isEmpty else { continue }
-      result[trimmedKey] = entry.value
+      guard trimmedKey.rangeOfCharacter(from: .newlines) == nil,
+        !trimmedKey.contains(":")
+      else { continue }
+      guard trimmedKey.caseInsensitiveCompare("Authorization") != .orderedSame else { continue }
+      let trimmedValue = entry.value.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmedValue.isEmpty,
+        trimmedValue.rangeOfCharacter(from: .newlines) == nil
+      else { continue }
+      result[trimmedKey] = trimmedValue
     }
     return result
   }

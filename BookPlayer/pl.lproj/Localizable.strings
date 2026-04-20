@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Nazwa użytkownika";
 "integration_password_placeholder" = "Hasło";
 "integration_password_remember_me_label" = "Pamiętaj mnie";
+"integration_custom_headers_title" = "Niestandardowe nagłówki HTTP";
+"integration_custom_headers_footer" = "Nagłówki dodane tutaj są dołączane do każdego żądania wysyłanego do tego serwera.";
+"integration_custom_headers_key_placeholder" = "Nazwa nagłówka";
+"integration_custom_headers_value_placeholder" = "Wartość nagłówka";
+"integration_custom_headers_add_button" = "Dodaj nagłówek";
 "settings_integration_manage_connection_title" = "Zarządzaj połączeniem";
 "integration_internal_error_invalid_url" = "Błąd wewnętrzny: Adres URL żądania jest nieprawidłowy: %@";
 "integration_internal_error_build_url" = "Błąd wewnętrzny: Nie udało się zbudować adresu URL żądania";

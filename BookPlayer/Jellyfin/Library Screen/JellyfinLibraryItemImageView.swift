@@ -62,7 +62,9 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   }
   
   static func == (lhs: Self, rhs: Self) -> Bool {
-    return lhs.item.id == rhs.item.id && lhs.url == rhs.url
+    return lhs.item.id == rhs.item.id
+      && lhs.url == rhs.url
+      && lhs.customHeaders == rhs.customHeaders
   }
   
   @ViewBuilder

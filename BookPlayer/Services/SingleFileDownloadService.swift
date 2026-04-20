@@ -91,7 +91,9 @@ final class SingleFileDownloadService: ObservableObject {
       guard currentTask == nil, !downloadQueue.isEmpty else { return }
 
       let downloadItem = downloadQueue.removeFirst()
-      let url = downloadItem.request.url ?? URL(fileURLWithPath: "")
+      /// Every `handleDownload` overload wraps a known URL, so `request.url` is non-nil.
+      /// A nil here would break dedupe (task description collides) — crash early instead.
+      let url = downloadItem.request.url!
       sendEvent(.starting(url: url))
 
       let task = await networkClient.download(

@@ -9,19 +9,29 @@
 import BookPlayerKit
 import Get
 import JellyfinAPI
+import os
 
 /// Applies user-defined custom HTTP headers (e.g. Cloudflare Access Service Tokens)
 /// to every outgoing `JellyfinClient` request. Skips `Authorization` so the Jellyfin
 /// client's own MediaBrowser token is never overwritten.
-final class JellyfinHeaderInjector: APIClientDelegate {
-  var customHeaders: [String: String]
+///
+/// `willSendRequest` is invoked on `Get.APIClient`'s actor executor, while
+/// `setCustomHeaders(_:)` is typically called from `@MainActor`. The dictionary
+/// is therefore guarded by `OSAllocatedUnfairLock`.
+final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
+  private let lockedHeaders: OSAllocatedUnfairLock<[String: String]>
 
   init(customHeaders: [String: String] = [:]) {
-    self.customHeaders = customHeaders
+    self.lockedHeaders = OSAllocatedUnfairLock(initialState: customHeaders)
+  }
+
+  func setCustomHeaders(_ headers: [String: String]) {
+    lockedHeaders.withLock { $0 = headers }
   }
 
   func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
-    for (key, value) in customHeaders where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+    let headers = lockedHeaders.withLock { $0 }
+    for (key, value) in headers where key.caseInsensitiveCompare("Authorization") != .orderedSame {
       request.setValue(value, forHTTPHeaderField: key)
     }
   }
@@ -96,7 +106,7 @@ class JellyfinConnectionService: BPLogger {
 
     self.connection = data
     self.client = client
-    headerInjector?.customHeaders = customHeaders
+    headerInjector?.setCustomHeaders(customHeaders)
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {
@@ -104,7 +114,7 @@ class JellyfinConnectionService: BPLogger {
     data.customHeaders = headers
     connection = data
     try? keychainService.set(data, key: .jellyfinConnection)
-    headerInjector?.customHeaders = headers
+    headerInjector?.setCustomHeaders(headers)
   }
 
   func saveSelectedLibrary(id: String?) {

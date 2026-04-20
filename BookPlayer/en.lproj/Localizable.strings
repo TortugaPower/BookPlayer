@@ -350,7 +350,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_password_placeholder" = "Password";
 "integration_password_remember_me_label" = "Remember Me";
 "integration_custom_headers_title" = "Custom HTTP Headers";
-"integration_custom_headers_footer" = "Headers added here are attached to every request sent to this server. Useful for Cloudflare Access, Authelia, Authentik, and reverse-proxy API keys.";
+"integration_custom_headers_footer" = "Headers added here are attached to every request sent to this server.";
 "integration_custom_headers_key_placeholder" = "Header name";
 "integration_custom_headers_value_placeholder" = "Header value";
 "integration_custom_headers_add_button" = "Add Header";
