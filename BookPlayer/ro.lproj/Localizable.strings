@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Nume de utilizator";
 "integration_password_placeholder" = "Parolă";
 "integration_password_remember_me_label" = "Ține-mă minte";
+"integration_custom_headers_title" = "Anteturi HTTP personalizate";
+"integration_custom_headers_footer" = "Anteturile adăugate aici sunt atașate fiecărei solicitări trimise către acest server.";
+"integration_custom_headers_key_placeholder" = "Numele antetului";
+"integration_custom_headers_value_placeholder" = "Valoarea antetului";
+"integration_custom_headers_add_button" = "Adaugă antet";
 "settings_integration_manage_connection_title" = "Gestionați conexiunea";
 "integration_internal_error_invalid_url" = "Eroare internă: adresa URL a solicitării este nevalidă: %@";
 "integration_internal_error_build_url" = "Eroare internă: nu s-a putut crea adresa URL a solicitării";

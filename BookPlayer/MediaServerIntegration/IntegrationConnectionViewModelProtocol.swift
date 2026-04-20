@@ -30,4 +30,7 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   func handleConnectAction() async throws
   func handleSignInAction() async throws
   func handleSignOutAction()
+  /// Persist any changes made to the custom-headers list while the connection is already live.
+  /// Called by the headers-editor UI in the `.connected` state.
+  func handleCustomHeadersUpdate()
 }

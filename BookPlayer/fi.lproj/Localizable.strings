@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Käyttäjätunnus";
 "integration_password_placeholder" = "Salasana";
 "integration_password_remember_me_label" = "Muista minut";
+"integration_custom_headers_title" = "Mukautetut HTTP-otsakkeet";
+"integration_custom_headers_footer" = "Tähän lisätyt otsakkeet liitetään jokaiseen tälle palvelimelle lähetettävään pyyntöön.";
+"integration_custom_headers_key_placeholder" = "Otsakkeen nimi";
+"integration_custom_headers_value_placeholder" = "Otsakkeen arvo";
+"integration_custom_headers_add_button" = "Lisää otsake";
 "settings_integration_manage_connection_title" = "Hallitse yhteyttä";
 "integration_internal_error_invalid_url" = "Sisäinen virhe: Pyynnön URL-osoite on virheellinen: %@";
 "integration_internal_error_build_url" = "Sisäinen virhe: Pyynnön URL-osoitteen luominen epäonnistui";

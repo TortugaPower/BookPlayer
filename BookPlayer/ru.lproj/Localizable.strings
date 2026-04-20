@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Имя пользователя";
 "integration_password_placeholder" = "Пароль";
 "integration_password_remember_me_label" = "Запомнить меня";
+"integration_custom_headers_title" = "Пользовательские HTTP-заголовки";
+"integration_custom_headers_footer" = "Заголовки, добавленные здесь, прикрепляются к каждому запросу, отправляемому на этот сервер.";
+"integration_custom_headers_key_placeholder" = "Имя заголовка";
+"integration_custom_headers_value_placeholder" = "Значение заголовка";
+"integration_custom_headers_add_button" = "Добавить заголовок";
 "settings_integration_manage_connection_title" = "Управление соединением";
 "integration_internal_error_invalid_url" = "Внутренняя ошибка: недопустимый URL-адрес запроса: %@";
 "integration_internal_error_build_url" = "Внутренняя ошибка: не удалось создать URL-адрес запроса";

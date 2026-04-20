@@ -374,13 +374,12 @@ private struct AudiobookShelfTabRoot: View {
     .tint(theme.linkColor)
     .sheet(isPresented: $showConnectionDetails) {
       NavigationStack {
-        IntegrationSettingsView(
-          viewModel: AudiobookShelfConnectionViewModel(
+        IntegrationSettingsView(integrationName: "AudiobookShelf") {
+          AudiobookShelfConnectionViewModel(
             connectionService: connectionService,
             mode: .viewDetails
-          ),
-          integrationName: "AudiobookShelf"
-        )
+          )
+        }
         .toolbar {
           if connectionService.connection == nil {
             ToolbarItemGroup(placement: .cancellationAction) {

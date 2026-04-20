@@ -286,16 +286,16 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       self.items.first(where: { $0.id == id })
     })
 
-    var urls = [URL]()
+    var requests = [URLRequest]()
     for item in items {
       do {
-        let url = try connectionService.createItemDownloadUrl(item)
-        urls.append(url)
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
       } catch {
         self.error = error
       }
     }
-    singleFileDownloadService.handleDownload(urls)
+    singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
 
@@ -303,7 +303,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   func onDownloadFolderTapped() {
     showingDownloadConfirmation = true
   }
-  
+
   @MainActor
   func confirmDownloadFolder() {
     guard let folderID else { return }
@@ -312,24 +312,24 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       guard let self else { return }
 
       do {
-        let urls = try await self.getAllAudiobookDownloadURLs(for: folderID)
-        self.singleFileDownloadService.handleDownload(urls, folderName: self.navigationTitle)
+        let requests = try await self.getAllAudiobookDownloadRequests(for: folderID)
+        self.singleFileDownloadService.handleDownload(requests, folderName: self.navigationTitle)
         self.navigation.dismiss?()
       } catch {
         self.error = error
       }
     }
   }
-  
+
   @MainActor
-  private func getAllAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+  private func getAllAudiobookDownloadRequests(for folderID: String) async throws -> [URLRequest] {
     if items.count == totalItems {
       let audiobooks = items.filter { $0.kind == .audiobook }
       return audiobooks.compactMap { audiobook in
-        try? connectionService.createItemDownloadUrl(audiobook)
+        try? connectionService.createItemDownloadRequest(audiobook)
       }
     } else {
-      return try await connectionService.fetchAudiobookDownloadURLs(for: folderID)
+      return try await connectionService.fetchAudiobookDownloadRequests(for: folderID)
     }
   }
 }
@@ -453,17 +453,17 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
       items.first(where: { $0.id == id && $0.isDownloadable })
     }
     guard !downloadItems.isEmpty else { return }
-    var urls = [URL]()
+    var requests = [URLRequest]()
     for item in downloadItems {
       do {
-        let url = try connectionService.createItemDownloadUrl(item)
-        urls.append(url)
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
       } catch {
         self.error = error
       }
     }
-    guard !urls.isEmpty else { return }
-    singleFileDownloadService.handleDownload(urls)
+    guard !requests.isEmpty else { return }
+    singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
 
@@ -601,17 +601,17 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
       items.first(where: { $0.id == id && $0.isDownloadable })
     }
     guard !downloadItems.isEmpty else { return }
-    var urls = [URL]()
+    var requests = [URLRequest]()
     for item in downloadItems {
       do {
-        let url = try connectionService.createItemDownloadUrl(item)
-        urls.append(url)
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
       } catch {
         self.error = error
       }
     }
-    guard !urls.isEmpty else { return }
-    singleFileDownloadService.handleDownload(urls)
+    guard !requests.isEmpty else { return }
+    singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
 

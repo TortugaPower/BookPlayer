@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "用户名";
 "integration_password_placeholder" = "密码";
 "integration_password_remember_me_label" = "记住账号";
+"integration_custom_headers_title" = "自定义 HTTP 请求头";
+"integration_custom_headers_footer" = "此处添加的请求头将附加到发送至此服务器的每个请求中。";
+"integration_custom_headers_key_placeholder" = "请求头名称";
+"integration_custom_headers_value_placeholder" = "请求头值";
+"integration_custom_headers_add_button" = "添加请求头";
 "settings_integration_manage_connection_title" = "管理连接";
 "integration_internal_error_invalid_url" = "内部错误：请求 URL 无效： %@";
 "integration_internal_error_build_url" = "内部错误：无法构建请求 URL";

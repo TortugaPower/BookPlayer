@@ -347,6 +347,11 @@
 "integration_username_placeholder" = "ユーザ名";
 "integration_password_placeholder" = "パスワード";
 "integration_password_remember_me_label" = "ログイン状態を保持する";
+"integration_custom_headers_title" = "カスタムHTTPヘッダー";
+"integration_custom_headers_footer" = "ここで追加したヘッダーは、このサーバーへのすべてのリクエストに付加されます。";
+"integration_custom_headers_key_placeholder" = "ヘッダー名";
+"integration_custom_headers_value_placeholder" = "ヘッダーの値";
+"integration_custom_headers_add_button" = "ヘッダーを追加";
 "settings_integration_manage_connection_title" = "接続を管理";
 "integration_internal_error_invalid_url" = "内部エラー: リクエストURLが無効です: %@";
 "integration_internal_error_build_url" = "内部エラー: リクエストURLの構築に失敗しました";

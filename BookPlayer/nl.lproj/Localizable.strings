@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Gebruikersnaam";
 "integration_password_placeholder" = "Wachtwoord";
 "integration_password_remember_me_label" = "Onthoud mij";
+"integration_custom_headers_title" = "Aangepaste HTTP-headers";
+"integration_custom_headers_footer" = "Headers die hier worden toegevoegd, worden bij elk verzoek naar deze server meegestuurd.";
+"integration_custom_headers_key_placeholder" = "Headernaam";
+"integration_custom_headers_value_placeholder" = "Headerwaarde";
+"integration_custom_headers_add_button" = "Header toevoegen";
 "settings_integration_manage_connection_title" = "Verbinding beheren";
 "integration_internal_error_invalid_url" = "Interne fout: Verzoek-URL is ongeldig: %@";
 "integration_internal_error_build_url" = "Interne fout: het is niet gelukt om de URL van het verzoek te bouwen";

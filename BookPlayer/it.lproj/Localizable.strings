@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Nome utente";
 "integration_password_placeholder" = "Password";
 "integration_password_remember_me_label" = "Ricordati di me";
+"integration_custom_headers_title" = "Intestazioni HTTP personalizzate";
+"integration_custom_headers_footer" = "Le intestazioni aggiunte qui vengono allegate a ogni richiesta inviata a questo server.";
+"integration_custom_headers_key_placeholder" = "Nome intestazione";
+"integration_custom_headers_value_placeholder" = "Valore intestazione";
+"integration_custom_headers_add_button" = "Aggiungi intestazione";
 "settings_integration_manage_connection_title" = "Gestisci connessione";
 "integration_internal_error_invalid_url" = "Errore interno: l'URL della richiesta non è valido: %@";
 "integration_internal_error_build_url" = "Errore interno: Impossibile creare l'URL della richiesta";

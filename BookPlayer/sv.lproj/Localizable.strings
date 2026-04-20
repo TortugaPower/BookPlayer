@@ -346,6 +346,11 @@
 "integration_username_placeholder" = "Användarnamn";
 "integration_password_placeholder" = "Lösenord";
 "integration_password_remember_me_label" = "Kom ihåg mig";
+"integration_custom_headers_title" = "Anpassade HTTP-headrar";
+"integration_custom_headers_footer" = "Headrar som läggs till här bifogas varje förfrågan som skickas till denna server.";
+"integration_custom_headers_key_placeholder" = "Headernamn";
+"integration_custom_headers_value_placeholder" = "Headervärde";
+"integration_custom_headers_add_button" = "Lägg till header";
 "settings_integration_manage_connection_title" = "Hantera anslutning";
 "integration_internal_error_invalid_url" = "Internt fel: URL för begäran är ogiltig: %@";
 "integration_internal_error_build_url" = "Internt fel: Det gick inte att skapa webbadress för begäran";
