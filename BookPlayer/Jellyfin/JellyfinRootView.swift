@@ -371,13 +371,12 @@ private struct JellyfinTabRoot: View {
 
   private var connectionDetailsSheet: some View {
     NavigationStack {
-      IntegrationSettingsView(
-        viewModel: JellyfinConnectionViewModel(
+      IntegrationSettingsView(integrationName: "Jellyfin") {
+        JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        ),
-        integrationName: "Jellyfin"
-      )
+        )
+      }
       .toolbar {
         if connectionService.connection == nil {
           ToolbarItemGroup(placement: .cancellationAction) {
@@ -589,13 +588,12 @@ extension JellyfinTabRoot {
     dismissAll: DismissAction? = nil
   ) -> some View {
     NavigationStack {
-      IntegrationSettingsView(
-        viewModel: JellyfinConnectionViewModel(
+      IntegrationSettingsView(integrationName: "Jellyfin") {
+        JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        ),
-        integrationName: "Jellyfin"
-      )
+        )
+      }
       .toolbar {
         if connectionService.connection == nil {
           ToolbarItemGroup(placement: .cancellationAction) {

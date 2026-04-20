@@ -225,18 +225,18 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       self.items.first(where: { $0.id == id && $0.isDownloadable })
     }
 
-    var urls = [URL]()
+    var requests = [URLRequest]()
     for item in items {
       do {
-        let url = try connectionService.createItemDownloadUrl(item)
-        urls.append(url)
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
       } catch {
         self.error = error
       }
     }
 
-    guard !urls.isEmpty else { return }
-    singleFileDownloadService.handleDownload(urls)
+    guard !requests.isEmpty else { return }
+    singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
 

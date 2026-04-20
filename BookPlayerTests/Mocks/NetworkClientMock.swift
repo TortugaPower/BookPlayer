@@ -61,4 +61,8 @@ class NetworkClientMock: NetworkClientProtocol {
   func download(url: URL, taskDescription: String?, session: URLSession) async -> URLSessionTask {
     return URLSession.shared.downloadTask(with: URLRequest(url: URL(string: "https://google.com")!))
   }
+
+  func download(request: URLRequest, taskDescription: String?, session: URLSession) async -> URLSessionTask {
+    return URLSession.shared.downloadTask(with: request)
+  }
 }

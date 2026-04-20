@@ -40,6 +40,14 @@ public protocol NetworkClientProtocol {
     taskDescription: String?,
     session: URLSession
   ) async -> URLSessionTask
+
+  /// Managed download using a fully-built URLRequest (e.g. to carry custom HTTP headers
+  /// for integrations behind Cloudflare Access / Authelia / reverse-proxy auth).
+  func download(
+    request: URLRequest,
+    taskDescription: String?,
+    session: URLSession
+  ) async -> URLSessionTask
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
@@ -93,18 +101,30 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     taskDescription: String?,
     session: URLSession
   ) async -> URLSessionTask {
+    await download(
+      request: URLRequest(url: url),
+      taskDescription: taskDescription,
+      session: session
+    )
+  }
+
+  public func download(
+    request: URLRequest,
+    taskDescription: String?,
+    session: URLSession
+  ) async -> URLSessionTask {
     let allTasks = await session.allTasks
 
     /// Avoid creating a new task if one exists already to avoid double downloads
     if let existingTask = allTasks.first(where: { task in
       task.taskDescription == taskDescription
     }) {
-      Self.logger.trace("Existing request for: \(url.path)")
+      Self.logger.trace("Existing request for: \(request.url?.path ?? "")")
       return existingTask
     } else {
-      Self.logger.trace("[Request] Download \(url.path)")
+      Self.logger.trace("[Request] Download \(request.url?.path ?? "")")
 
-      let task = session.downloadTask(with: url)
+      let task = session.downloadTask(with: request)
       task.taskDescription = taskDescription
       task.resume()
 

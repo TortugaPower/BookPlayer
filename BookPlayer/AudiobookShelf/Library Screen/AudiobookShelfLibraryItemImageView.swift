@@ -21,6 +21,7 @@ struct AudiobookShelfLibraryItemImageView: View {
       AudiobookShelfLibraryItemImageViewWrapper(
         item: item,
         url: connectionService.createItemImageURL(item, size: imageSize),
+        customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize
       )
       .cornerRadius(max(3, min(proxy.size.width, proxy.size.height) * 0.02))
@@ -33,6 +34,7 @@ struct AudiobookShelfLibraryItemImageView: View {
 fileprivate struct AudiobookShelfLibraryItemImageViewWrapper: View, Equatable {
   let item: AudiobookShelfLibraryItem
   let url: URL?
+  let customHeaders: [String: String]
   let imageSize: CGSize
 
   @EnvironmentObject var themeViewModel: ThemeViewModel
@@ -40,6 +42,13 @@ fileprivate struct AudiobookShelfLibraryItemImageViewWrapper: View, Equatable {
   var body: some View {
     KFImage
       .url(url)
+      .requestModifier(AnyModifier { request in
+        var request = request
+        for (key, value) in customHeaders {
+          request.setValue(value, forHTTPHeaderField: key)
+        }
+        return request
+      })
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()

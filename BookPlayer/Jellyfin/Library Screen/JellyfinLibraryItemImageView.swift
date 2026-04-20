@@ -23,6 +23,7 @@ struct JellyfinLibraryItemImageView: View {
       JellyfinLibraryItemImageViewWrapper(
         item: item,
         url: try? connectionService.createItemImageURL(item, size: imageSize),
+        customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize,
         aspectRatio: aspectRatio
       )
@@ -36,6 +37,7 @@ struct JellyfinLibraryItemImageView: View {
 fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   let item: JellyfinLibraryItem
   let url: URL?
+  let customHeaders: [String: String]
   let imageSize: CGSize
   let aspectRatio: CGFloat?
 
@@ -44,6 +46,14 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
   var body: some View {
     KFImage
       .url(url)
+      .requestModifier(AnyModifier { request in
+        var request = request
+        for (key, value) in customHeaders
+        where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+          request.setValue(value, forHTTPHeaderField: key)
+        }
+        return request
+      })
       .cancelOnDisappear(true)
       .cacheMemoryOnly()
       .resizable()

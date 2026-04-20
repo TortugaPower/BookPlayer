@@ -29,7 +29,7 @@ final class SingleFileDownloadService: ObservableObject {
   private var disposeBag = Set<AnyCancellable>()
 
   public var isDownloading: Bool { !downloadQueue.isEmpty || currentTask != nil }
-  public private(set) var downloadQueue: [(url: URL, folderName: String?)] = []
+  public private(set) var downloadQueue: [(request: URLRequest, folderName: String?)] = []
 
   private var currentTask: (task: URLSessionTask, folderName: String?)?
   private lazy var downloadSession: URLSession = {
@@ -51,22 +51,38 @@ final class SingleFileDownloadService: ObservableObject {
   }
 
   public func handleDownload(_ url: URL) {
-    downloadQueue.append((url: url, folderName: nil))
-    processNextDownload()
+    handleDownload(URLRequest(url: url))
   }
 
   public func handleDownload(_ urls: [URL]) {
-    downloadQueue.append(contentsOf: urls.map { (url: $0, folderName: nil) })
-    processNextDownload()
+    handleDownload(urls.map { URLRequest(url: $0) })
   }
 
   public func handleDownload(_ url: URL, folderName: String) {
-    downloadQueue.append((url: url, folderName: folderName))
-    processNextDownload()
+    handleDownload(URLRequest(url: url), folderName: folderName)
   }
 
   public func handleDownload(_ urls: [URL], folderName: String) {
-    downloadQueue.append(contentsOf: urls.map { (url: $0, folderName: folderName) })
+    handleDownload(urls.map { URLRequest(url: $0) }, folderName: folderName)
+  }
+
+  public func handleDownload(_ request: URLRequest) {
+    downloadQueue.append((request: request, folderName: nil))
+    processNextDownload()
+  }
+
+  public func handleDownload(_ requests: [URLRequest]) {
+    downloadQueue.append(contentsOf: requests.map { (request: $0, folderName: nil) })
+    processNextDownload()
+  }
+
+  public func handleDownload(_ request: URLRequest, folderName: String) {
+    downloadQueue.append((request: request, folderName: folderName))
+    processNextDownload()
+  }
+
+  public func handleDownload(_ requests: [URLRequest], folderName: String) {
+    downloadQueue.append(contentsOf: requests.map { (request: $0, folderName: folderName) })
     processNextDownload()
   }
 
@@ -75,11 +91,12 @@ final class SingleFileDownloadService: ObservableObject {
       guard currentTask == nil, !downloadQueue.isEmpty else { return }
 
       let downloadItem = downloadQueue.removeFirst()
-      sendEvent(.starting(url: downloadItem.url))
+      let url = downloadItem.request.url ?? URL(fileURLWithPath: "")
+      sendEvent(.starting(url: url))
 
       let task = await networkClient.download(
-        url: downloadItem.url,
-        taskDescription: "SingleFileDownload-\(downloadItem.url.absoluteString)",
+        request: downloadItem.request,
+        taskDescription: "SingleFileDownload-\(url.absoluteString)",
         session: downloadSession
       )
       currentTask = (task: task, folderName: downloadItem.folderName)

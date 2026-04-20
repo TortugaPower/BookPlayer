@@ -10,12 +10,30 @@ import BookPlayerKit
 import Get
 import JellyfinAPI
 
+/// Applies user-defined custom HTTP headers (e.g. Cloudflare Access Service Tokens)
+/// to every outgoing `JellyfinClient` request. Skips `Authorization` so the Jellyfin
+/// client's own MediaBrowser token is never overwritten.
+final class JellyfinHeaderInjector: APIClientDelegate {
+  var customHeaders: [String: String]
+
+  init(customHeaders: [String: String] = [:]) {
+    self.customHeaders = customHeaders
+  }
+
+  func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
+    for (key, value) in customHeaders where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+  }
+}
+
 @Observable
 class JellyfinConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
   var connection: JellyfinConnectionData?
   var client: JellyfinClient?
+  private var headerInjector: JellyfinHeaderInjector?
 
 
   init(keychainService: KeychainServiceProtocol = KeychainService()) {
@@ -27,8 +45,11 @@ class JellyfinConnectionService: BPLogger {
   }
 
   /// Finds and creates the api-client for the specified server
-  public func findServer(at absolutePath: String) async throws -> String {
-    guard let client = createClient(serverUrlString: absolutePath) else {
+  public func findServer(
+    at absolutePath: String,
+    customHeaders: [String: String] = [:]
+  ) async throws -> String {
+    guard let client = createClient(serverUrlString: absolutePath, customHeaders: customHeaders) else {
       throw IntegrationError.noClient("Jellyfin")
     }
 
@@ -43,7 +64,8 @@ class JellyfinConnectionService: BPLogger {
   public func signIn(
     username: String,
     password: String,
-    serverName: String
+    serverName: String,
+    customHeaders: [String: String] = [:]
   ) async throws {
     guard let client else {
       throw IntegrationError.noClient("Jellyfin")
@@ -63,7 +85,8 @@ class JellyfinConnectionService: BPLogger {
       serverName: serverName,
       userID: userID,
       userName: username,
-      accessToken: accessToken
+      accessToken: accessToken,
+      customHeaders: customHeaders
     )
 
     try keychainService.set(
@@ -73,6 +96,15 @@ class JellyfinConnectionService: BPLogger {
 
     self.connection = data
     self.client = client
+    headerInjector?.customHeaders = customHeaders
+  }
+
+  func updateCustomHeaders(_ headers: [String: String]) {
+    guard var data = connection else { return }
+    data.customHeaders = headers
+    connection = data
+    try? keychainService.set(data, key: .jellyfinConnection)
+    headerInjector?.customHeaders = headers
   }
 
   func saveSelectedLibrary(id: String?) {
@@ -385,7 +417,7 @@ class JellyfinConnectionService: BPLogger {
     )
   }
 
-  public func fetchAudiobookDownloadURLs(for folderID: String) async throws -> [URL] {
+  public func fetchAudiobookDownloadRequests(for folderID: String) async throws -> [URLRequest] {
     let parameters = Paths.GetItemsParameters(
       isRecursive: false,
       parentID: folderID,
@@ -401,16 +433,14 @@ class JellyfinConnectionService: BPLogger {
         return JellyfinLibraryItem(apiItem: item)
       }
 
-    let downloadURLs = audiobooks.compactMap { audiobook in
+    return audiobooks.compactMap { audiobook in
       do {
-        return try createItemDownloadUrl(audiobook)
+        return try createItemDownloadRequest(audiobook)
       } catch {
-        Self.logger.warning("Failed to create download URL for audiobook \(audiobook.id): \(error)")
+        Self.logger.warning("Failed to create download request for audiobook \(audiobook.id): \(error)")
         return nil
       }
     }
-
-    return downloadURLs
   }
 
   private func send<T>(
@@ -434,7 +464,8 @@ class JellyfinConnectionService: BPLogger {
 
     client = createClient(
       serverUrlString: storedConnection.url.absoluteString,
-      accessToken: storedConnection.accessToken
+      accessToken: storedConnection.accessToken,
+      customHeaders: storedConnection.customHeaders
     )
     connection = storedConnection
   }
@@ -443,7 +474,11 @@ class JellyfinConnectionService: BPLogger {
     return !data.userID.isEmpty && !data.accessToken.isEmpty
   }
 
-  private func createClient(serverUrlString: String, accessToken: String? = nil) -> JellyfinClient? {
+  private func createClient(
+    serverUrlString: String,
+    accessToken: String? = nil,
+    customHeaders: [String: String] = [:]
+  ) -> JellyfinClient? {
     let mainBundleInfo = Bundle.main.infoDictionary
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
@@ -461,7 +496,13 @@ class JellyfinConnectionService: BPLogger {
       deviceID: "\(deviceID.uuidString)-\(clientName)",
       version: clientVersion
     )
-    return JellyfinClient(configuration: configuration, accessToken: accessToken)
+    let injector = JellyfinHeaderInjector(customHeaders: customHeaders)
+    self.headerInjector = injector
+    return JellyfinClient(
+      configuration: configuration,
+      delegate: injector,
+      accessToken: accessToken
+    )
   }
 
   func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
@@ -481,6 +522,24 @@ class JellyfinConnectionService: BPLogger {
     }
 
     return url
+  }
+
+  /// Returns a URLRequest for downloading a library item, carrying the user-defined
+  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
+  func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
+    let url = try createItemDownloadUrl(item)
+    return wrapWithCustomHeaders(url)
+  }
+
+  /// Wraps an arbitrary URL (e.g. a cover image) in a URLRequest carrying the current
+  /// connection's custom HTTP headers. Skips `Authorization` so the Jellyfin token is preserved.
+  func wrapWithCustomHeaders(_ url: URL) -> URLRequest {
+    var request = URLRequest(url: url)
+    for (key, value) in connection?.customHeaders ?? [:]
+    where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+    return request
   }
 
   func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) throws -> URL {

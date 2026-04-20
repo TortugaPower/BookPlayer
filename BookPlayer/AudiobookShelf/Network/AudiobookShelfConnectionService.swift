@@ -29,7 +29,10 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   /// Pings the server to verify it exists and returns the server version
-  public func pingServer(at absolutePath: String) async throws -> String {
+  public func pingServer(
+    at absolutePath: String,
+    customHeaders: [String: String] = [:]
+  ) async throws -> String {
     guard let url = URL(string: absolutePath) else {
       throw IntegrationError.urlMalformed(nil)
     }
@@ -39,6 +42,7 @@ class AudiobookShelfConnectionService: BPLogger {
     var request = URLRequest(url: pingURL)
     request.httpMethod = "GET"
     request.timeoutInterval = 10
+    applyCustomHeaders(to: &request, headers: customHeaders)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -68,7 +72,8 @@ class AudiobookShelfConnectionService: BPLogger {
     username: String,
     password: String,
     serverUrl: String,
-    serverName: String
+    serverName: String,
+    customHeaders: [String: String] = [:]
   ) async throws {
     guard let url = URL(string: serverUrl) else {
       throw IntegrationError.urlMalformed(nil)
@@ -77,6 +82,7 @@ class AudiobookShelfConnectionService: BPLogger {
     let loginURL = url.appendingPathComponent("login")
     var request = URLRequest(url: loginURL)
     request.httpMethod = "POST"
+    applyCustomHeaders(to: &request, headers: customHeaders)
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     let credentials = ["username": username, "password": password]
@@ -109,7 +115,8 @@ class AudiobookShelfConnectionService: BPLogger {
       serverName: serverName,
       userID: userID,
       userName: username,
-      apiToken: apiToken
+      apiToken: apiToken,
+      customHeaders: customHeaders
     )
 
     try keychainService.set(
@@ -118,6 +125,13 @@ class AudiobookShelfConnectionService: BPLogger {
     )
 
     self.connection = connectionData
+  }
+
+  func updateCustomHeaders(_ headers: [String: String]) {
+    guard var data = connection else { return }
+    data.customHeaders = headers
+    connection = data
+    try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
   func saveSelectedLibrary(id: String?) {
@@ -146,7 +160,7 @@ class AudiobookShelfConnectionService: BPLogger {
       .appendingPathComponent("api")
       .appendingPathComponent("libraries")
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -215,7 +229,7 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -247,7 +261,7 @@ class AudiobookShelfConnectionService: BPLogger {
       .appendingPathComponent("filterdata")
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -290,7 +304,7 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -318,7 +332,7 @@ class AudiobookShelfConnectionService: BPLogger {
       .appendingPathComponent(id)
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -371,7 +385,7 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -401,7 +415,7 @@ class AudiobookShelfConnectionService: BPLogger {
       .appending(queryItems: [URLQueryItem(name: "expanded", value: "1")])
 
     var request = URLRequest(url: url)
-    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
+    applyAuthenticatedHeaders(to: &request, connection: connection)
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -432,6 +446,24 @@ class AudiobookShelfConnectionService: BPLogger {
       .appending(queryItems: [URLQueryItem(name: "token", value: connection.apiToken)])
   }
 
+  /// Returns a URLRequest for downloading a library item, carrying the user-defined
+  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
+  public func createItemDownloadRequest(_ item: AudiobookShelfLibraryItem) throws -> URLRequest {
+    guard connection != nil else {
+      throw URLError(.userAuthenticationRequired)
+    }
+    let url = try createItemDownloadUrl(item)
+    return wrapWithCustomHeaders(url)
+  }
+
+  /// Wraps an arbitrary URL (e.g. a cover image or stream URL) in a URLRequest that carries
+  /// the current connection's custom HTTP headers.
+  public func wrapWithCustomHeaders(_ url: URL) -> URLRequest {
+    var request = URLRequest(url: url)
+    applyCustomHeaders(to: &request, headers: connection?.customHeaders ?? [:])
+    return request
+  }
+
   private func reloadConnection() {
     guard
       let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
@@ -446,6 +478,23 @@ class AudiobookShelfConnectionService: BPLogger {
 
   private func isConnectionValid(_ data: AudiobookShelfConnectionData) -> Bool {
     return !data.userID.isEmpty && !data.apiToken.isEmpty
+  }
+
+  /// Apply user-defined custom headers (e.g. Cloudflare Access Service Tokens) to an outgoing request.
+  /// Called before integration-specific headers (Authorization, Content-Type) so the integration's
+  /// own values always win on conflict.
+  private func applyCustomHeaders(to request: inout URLRequest, headers: [String: String]) {
+    for (key, value) in headers {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+  }
+
+  private func applyAuthenticatedHeaders(
+    to request: inout URLRequest,
+    connection: AudiobookShelfConnectionData
+  ) {
+    applyCustomHeaders(to: &request, headers: connection.customHeaders)
+    request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
   }
 
   /// Creates an image URL for a library item
