@@ -151,12 +151,13 @@ public actor SyncTasksStorage: ModelActor {
       guard let tasksContainer = containers.first else { return [] }
 
       return tasksContainer.orderedTasks.map { task in
-        SyncTaskReference(
+        let key = SyncProgressKey.resolve(uuid: task.uuid, relativePath: task.relativePath)
+        return SyncTaskReference(
           id: task.taskID,
           uuid: task.uuid,
           relativePath: task.relativePath,
           jobType: task.jobType,
-          progress: progress[task.uuid] ?? 0.0
+          progress: progress[key] ?? 0.0
         )
       }
 

@@ -104,10 +104,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] notification in
         guard
+          let uuid = notification.userInfo?["uuid"] as? String,
           let relativePath = notification.userInfo?["relativePath"] as? String,
           let progress = notification.userInfo?["progress"] as? Double
         else { return }
-        self?.updateProgress(for: relativePath, value: progress)
+        let key = SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath)
+        self?.updateProgress(for: key, value: progress)
       }
       .store(in: &disposeBag)
     
@@ -387,10 +389,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
   
   private func updateProgress(
-    for path: String,
+    for key: String,
     value: Double
   ) {
-    tasksProgress[path] = value
+    tasksProgress[key] = value
   }
   
   private func retryQueuedTask() {
@@ -406,7 +408,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)
         self.queueNextTask()
-        self.tasksProgress.removeValue(forKey: task.uuid)
+        self.tasksProgress.removeValue(forKey: task.progressKey)
       }
     }
   }

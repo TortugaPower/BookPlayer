@@ -33,7 +33,7 @@ public enum MigrationPlan: SchemaMigrationPlan {
       // 1. Fetch all V2 models (which have both path and optional uuid)
       let items = try context.fetch(FetchDescriptor<SchemaV2.SyncTaskReferenceModel>())
       for item in items {
-        item.uuid = "LEGACY_UUID_PLACEHOLDER"
+        item.uuid = Constants.legacyUuidPlaceholder
       }
       
       let descriptor = FetchDescriptor<SchemaV2.SyncTasksContainer>()

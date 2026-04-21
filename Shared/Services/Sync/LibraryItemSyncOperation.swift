@@ -246,13 +246,15 @@ extension LibraryItemSyncOperation {
 
   func bindUploadObservers() {
     progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
+    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { [uuid, relativePath] (path, progress) in
+      guard path == relativePath else { return }
       NotificationCenter.default.post(
         name: .uploadProgressUpdated,
         object: nil,
         userInfo: [
           "progress": progress,
-          "relativePath": path
+          "relativePath": path,
+          "uuid": uuid
         ]
       )
     })

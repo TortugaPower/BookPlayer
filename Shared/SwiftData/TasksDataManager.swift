@@ -33,8 +33,14 @@ public final class TasksDataManager {
     let modelConfiguration = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
 
     container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
-    
+
     // Initialize task count from database
+    initializeTasksCount()
+  }
+
+  /// Test-only init that accepts a pre-built container (e.g. in-memory for unit tests).
+  internal init(container: ModelContainer) {
+    self.container = container
     initializeTasksCount()
   }
 

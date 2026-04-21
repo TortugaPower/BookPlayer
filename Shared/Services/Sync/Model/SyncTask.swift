@@ -8,6 +8,19 @@
 
 import Foundation
 
+/// Resolves the stable key used to track upload progress and match UI rows.
+/// Falls back to `relativePath` when `uuid` is empty or a known migration placeholder —
+/// those collide across legacy-migrated items until `matchUuid` backfills real uuids.
+public enum SyncProgressKey {
+  public static func resolve(uuid: String, relativePath: String) -> String {
+    guard !uuid.isEmpty,
+          uuid != Constants.uuidPlaceholder,
+          uuid != Constants.legacyUuidPlaceholder
+    else { return relativePath }
+    return uuid
+  }
+}
+
 public struct SyncTask: Identifiable {
   public let id: String
   public let relativePath: String
@@ -21,6 +34,10 @@ public struct SyncTask: Identifiable {
     self.parameters = parameters
     self.uuid = uuid
     self.relativePath = relativePath
+  }
+
+  public var progressKey: String {
+    SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath)
   }
 }
 
@@ -37,6 +54,10 @@ public struct SyncTaskReference: Identifiable {
     self.relativePath = relativePath
     self.jobType = jobType
     self.progress = progress
+  }
+
+  public var progressKey: String {
+    SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath)
   }
 }
 

@@ -116,4 +116,5 @@ public enum Constants {
   }
   
   public static let uuidPlaceholder: String = "LOCAL-UUID-PLACEHOLDER"
+  public static let legacyUuidPlaceholder: String = "LEGACY_UUID_PLACEHOLDER"
 }
