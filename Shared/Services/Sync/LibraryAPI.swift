@@ -24,6 +24,7 @@ public enum LibraryAPI {
   case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String)
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
   case matchUuids(uuidsDictionary: [String: String])
+  case externalResourceToDownload(uuid: String, uploaded: Bool)
 }
 
 extension LibraryAPI: Endpoint {
@@ -59,6 +60,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/uuids"
     case .externalResource:
       return "/v1/library/external"
+    case .externalResourceToDownload:
+      return "/v1/library/external_set"
     }
   }
 
@@ -94,6 +97,8 @@ extension LibraryAPI: Endpoint {
       return .post
     case .externalResource:
       return .put
+    case .externalResourceToDownload:
+      return .post
     }
   }
 
@@ -171,6 +176,11 @@ extension LibraryAPI: Endpoint {
       ]
     case .externalResource(let params):
       return params
+    case .externalResourceToDownload(let uuid, let uploaded):
+      return [
+        "uuid": uuid,
+        "uploaded": uploaded
+      ]
     }
   }
 }

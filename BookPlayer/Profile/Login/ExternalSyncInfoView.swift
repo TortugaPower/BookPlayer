@@ -27,7 +27,7 @@ struct ExternalSyncIntroView: View {
         LoginBenefitSectionView(
           imageName: "server.rack",
           title: "Bring Your Own Server",
-          subtitle: "Connect your existing Jellyfin, Audiobookshelf, or other external libraries directly to the app."
+          subtitle: "Connect your existing Jellyfin or Audiobookshelf directly to the app."
         )
         
         // Feature 2: Streaming (No Local Storage)
@@ -42,13 +42,6 @@ struct ExternalSyncIntroView: View {
           imageName: "arrow.triangle.2.circlepath",
           title: "Two-Way Progress Sync",
           subtitle: "Your listening progress stays perfectly synced with your server and across all your devices."
-        )
-        
-        // Feature 4: Cheaper Tier Value
-        LoginBenefitSectionView(
-          imageName: "tag.fill", // Or "dollarsign.circle"
-          title: "More Affordable Sync",
-          subtitle: "Get all the power of cloud synchronization at a fraction of the cost by leveraging your own media servers."
         )
         
         LoginDisclaimerSectionView()
@@ -75,12 +68,12 @@ struct ExternalSyncIntroView: View {
           Button {
             showCompleteAccount = true
           } label: {
-            Text("View Subscription Options")
+            Text("continue_title".localized)
               .font(.headline)
               .foregroundColor(.white)
               .frame(maxWidth: .infinity)
               .padding()
-              .background(theme.systemBackgroundColor) // Or whatever your primary button color is
+              .background(theme.linkColor) // Or whatever your primary button color is
               .cornerRadius(12)
           }
           .padding(.horizontal)

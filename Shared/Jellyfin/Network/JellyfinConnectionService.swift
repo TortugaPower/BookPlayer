@@ -198,7 +198,12 @@ public class JellyfinConnectionService: BPLogger {
       searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
-      fields: [.sortName],
+      fields: [
+        .sortName,
+        .overview,
+        .mediaSources,
+        .path
+      ],
       includeItemTypes: itemTypes,
       sortBy: orderBy,
       enableUserData: false,

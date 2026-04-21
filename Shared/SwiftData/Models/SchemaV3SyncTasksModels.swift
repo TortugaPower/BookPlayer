@@ -31,7 +31,8 @@ public enum SchemaV3: VersionedSchema {
       ConcurrentTasksContainer.self,
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
-      ConcurrentUploadTaskModel.self
+      ConcurrentUploadTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self
     ]
   }
   
@@ -407,6 +408,23 @@ public enum SchemaV3: VersionedSchema {
       self.uuid = uuid
       self.filePath = filePath
       self.remotePath = remotePath
+    }
+  }
+  
+  @Model
+  public class ExternalResourceToDownloadTaskModel {
+    @Attribute(.unique) public var id: String
+    public var uuid: String
+    public var uploaded: Bool
+    
+    public init(
+      id: String,
+      uuid: String,
+      uploaded: Bool
+    ) {
+      self.id = id
+      self.uuid = uuid
+      self.uploaded = uploaded
     }
   }
 }

@@ -13,6 +13,7 @@ class CoreServices: ObservableObject {
   let dataManager: DataManager
   let accountService: AccountServiceProtocol
   var syncService: SyncServiceProtocol
+  var concurrenceService: ConcurrenceServiceProtocol
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManager
@@ -25,6 +26,7 @@ class CoreServices: ObservableObject {
     dataManager: DataManager,
     accountService: AccountServiceProtocol,
     syncService: SyncServiceProtocol,
+    concurrenceService: ConcurrenceServiceProtocol,
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
     playerManager: PlayerManager,
@@ -34,6 +36,7 @@ class CoreServices: ObservableObject {
     self.dataManager = dataManager
     self.accountService = accountService
     self.syncService = syncService
+    self.concurrenceService = concurrenceService
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.hasSyncEnabled = accountService.hasSyncEnabled()
@@ -49,5 +52,25 @@ class CoreServices: ObservableObject {
   func updateSyncEnabled(_ enabled: Bool) {
     hasSyncEnabled = enabled
     syncService.isActive = enabled
+  }
+  
+  func updateConcurrentService(_ accessLevel: AccessLevel) {
+    switch accessLevel {
+    case .lite:
+      concurrenceService.accessPolicy = [
+        .update: true,
+        .uploadFile: false,
+      ]
+    case .pro:
+      concurrenceService.accessPolicy = [
+        .update: true,
+        .uploadFile: true,
+      ]
+    default:
+      concurrenceService.accessPolicy = [
+        .update: false,
+        .uploadFile: false,
+      ]
+    }
   }
 }

@@ -22,11 +22,11 @@ struct QueuedTasksView: View {
         NavigationLink(value: ProfileScreen.tasks) {
           SyncTasksCardView()
         }
-        .padding(.bottom, Spacing.S1)
-      }
+        .padding(.vertical, Spacing.S1)
         
-      NavigationLink(value: ProfileScreen.concurrentTasks) {
-        ConcurrentTasksCardView()
+        NavigationLink(value: ProfileScreen.concurrentTasks) {
+          ConcurrentTasksCardView()
+        }
       }
       
       Spacer()

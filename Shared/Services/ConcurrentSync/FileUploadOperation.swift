@@ -43,7 +43,6 @@ class FileUploadOperation: AsyncOperation, @unchecked Sendable {
     
     // Spin up the async context
     Task {
-      try await Task.sleep(for: .seconds(5))
       await startUploadTask()
     }
   }
