@@ -277,18 +277,6 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     }
   }
 
-  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-    fetchRequest.fetchLimit = 1
-    fetchRequest.propertiesToFetch = [
-      #keyPath(LibraryItem.relativePath),
-      #keyPath(LibraryItem.originalFileName),
-    ]
-
-    return try? context.fetch(fetchRequest).first
-  }
-
   func getItemReference(with relativePath: String) -> LibraryItem? {
     return getItemReference(with: relativePath, context: dataManager.getContext())
   }

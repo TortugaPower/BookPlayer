@@ -161,6 +161,16 @@ extension UploadExternalResourceTaskModel: DictionaryConvertible {
   }
 }
 
+extension ExternalResourceToDownloadTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "uploaded": uploaded
+    ]
+  }
+}
+
 extension ExternalUpdateTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dictionary: [String: Any] = [

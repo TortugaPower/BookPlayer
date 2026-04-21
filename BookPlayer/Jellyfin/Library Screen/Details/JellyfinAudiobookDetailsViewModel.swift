@@ -137,6 +137,7 @@ class JellyfinAudiobookDetailsViewModel: JellyfinAudiobookDetailsViewModelProtoc
     )
     
     let externalItem = SimpleExternalResource(
+      id: Int(Date.timeIntervalBetween1970AndReferenceDate),
       providerName: ExternalResource.ProviderName.jellyfin.rawValue,
       providerId: item.id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,

@@ -39,7 +39,7 @@ public protocol JobSchedulerProtocol {
   func scheduleRenameFolderJob(with relativePath: String, name: String, for uuid: String?) async
   /// Upload current cached artwork
   func scheduleArtworkUpload(with relativePath: String, for uuid: String?) async
-  /// Get all queued jobs
+    /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters
   func getAllQueuedJobsWithParams() async -> [SyncTask]
@@ -51,6 +51,8 @@ public protocol JobSchedulerProtocol {
   func hasUploadTask(for relativePath: String) async -> Bool
   
   func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async
+  
+  func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
@@ -300,6 +302,21 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
   
+  public func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async {
+    var params: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "jobType": SyncJobType.externalResourceToDownload.rawValue,
+      "uploaded": uploaded
+    ]
+    
+    if let uuid = uuid {
+      params["uuid"] = uuid
+    }
+    
+    await persistTask(parameters: params)
+  }
+  
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
     let currentProgress = await MainActor.run { tasksProgress }
@@ -361,7 +378,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           self.retryQueuedTask()
           return
         }
-        
+
         let operationTask = LibraryItemSyncOperation(
           client: networkClient,
           task: task
@@ -436,9 +453,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       
       for item in matchingItems {
         if let newUUID = uuidMap[item.uuid] {
-          print("CONFLICTS 1 \(item.uuid)")
           item.uuid = newUUID
-          print("CONFLICTS 2 \(item.uuid)")
         }
       }
       try? context.save()

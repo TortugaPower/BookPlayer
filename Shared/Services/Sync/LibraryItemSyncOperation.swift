@@ -144,6 +144,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .externalResource:
           let _: Empty = try await self.provider.request(.externalResource(params: self.parameters))
           finish()
+        case .externalResourceToDownload:
+          try await handleExternalResourceToDownload()
+          finish()
         }
       } catch {
         self.error = error
@@ -281,6 +284,30 @@ extension LibraryItemSyncOperation {
 
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
+    )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  func handleExternalResourceToDownload() async throws {
+    let response: UploadItemContent = try await self.provider.request(
+      .externalResourceToDownload(uuid: uuid, uploaded: false)
+    )
+    
+    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
+      ? hardLinkURL
+      : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+    
+    guard let data = FileManager.default.contents(atPath: fileURL.path),
+    let remoteUrl = response.url else {
+      return
+    }
+    
+    try await client.upload(data, remoteURL: remoteUrl)
+    
+    let _ : Empty = try await self.provider.request(
+      .externalResourceToDownload(uuid: uuid, uploaded: true)
     )
   }
 }

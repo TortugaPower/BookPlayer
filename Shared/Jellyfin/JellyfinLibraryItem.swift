@@ -26,6 +26,7 @@ public struct JellyfinLibraryItem: Identifiable, Hashable {
   public let lastPlayedDate: Date?
   public let blurHash: String?
   public let imageAspectRatio: Double?
+  public let details: JellyfinAudiobookDetailsData?
 }
 
 extension JellyfinLibraryItem {
@@ -39,7 +40,8 @@ extension JellyfinLibraryItem {
       isFinished: false,
       lastPlayedDate: nil,
       blurHash: nil,
-      imageAspectRatio: nil
+      imageAspectRatio: nil,
+      details: nil
     )
   }
 }
@@ -59,6 +61,23 @@ extension JellyfinLibraryItem {
     let name = apiItem.name ?? id
     let blurHash = apiItem.imageBlurHashes?.primary?.first?.value
     
+    var myDetails: JellyfinAudiobookDetailsData? = nil
+    
+    if let artist = apiItem.albumArtist,
+      let filePath = apiItem.mediaSources?.first?.path ?? apiItem.path,
+      let fileSize = apiItem.mediaSources?.first?.size,
+       let runtimeInSeconds = (apiItem.runTimeTicks != nil) ? TimeInterval(apiItem.runTimeTicks!) / 10000000.0 : nil {
+      myDetails = JellyfinAudiobookDetailsData(
+        artist: artist,
+        filePath: filePath,
+        fileSize: fileSize,
+        overview: apiItem.overview,
+        runtimeInSeconds: runtimeInSeconds,
+        genres: apiItem.genres,
+        tags: apiItem.tags
+      )
+    }
+    
     self.init(
       id: id,
       name: name,
@@ -68,7 +87,8 @@ extension JellyfinLibraryItem {
       isFinished: apiItem.userData?.isPlayed,
       lastPlayedDate: apiItem.userData?.lastPlayedDate,
       blurHash: blurHash,
-      imageAspectRatio: apiItem.primaryImageAspectRatio
+      imageAspectRatio: apiItem.primaryImageAspectRatio,
+      details: myDetails
     )
   }
 }

@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 public protocol ConcurrenceServiceProtocol {
-  var accessPolicy: [ExternalSyncJobType: Bool] { get }
+  var accessPolicy: [ExternalSyncJobType: Bool] { get set }
   
   init(maxConcurrentTasks: Int)
   
@@ -203,6 +203,10 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
 
 extension ConcurrenceService {
   public func scheduleMetadataUpdate(params: [String: Any]) {
+    guard accessPolicy[.update] == true else {
+      return
+    }
+    
     Task {
       guard let queueKey = params["providerName"] as? String else {
         return
@@ -222,6 +226,10 @@ extension ConcurrenceService {
   }
   
   public func scheduleFileUpload(params: [String: Any]) {
+    guard accessPolicy[.uploadFile] == true else {
+      return
+    }
+    
     Task {
       let queueKey = "uploadFile"
       var params = params

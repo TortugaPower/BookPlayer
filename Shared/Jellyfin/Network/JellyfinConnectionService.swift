@@ -150,7 +150,12 @@ public class JellyfinConnectionService: BPLogger {
       isRecursive: false,
       sortOrder: sortOrder,
       parentID: folderID,
-      fields: [.sortName],
+      fields: [
+        .sortName,
+        .overview,
+        .mediaSources,
+        .path
+      ],
       includeItemTypes: [.audioBook, .folder],
       sortBy: orderBy,
       imageTypeLimit: 1

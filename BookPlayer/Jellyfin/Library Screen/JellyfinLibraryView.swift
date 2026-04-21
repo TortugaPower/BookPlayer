@@ -55,7 +55,7 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
           
           SyncInvitationCard(
             totalItems: viewModel.useSelectedItems ? viewModel.selectedItems.count : viewModel.totalItems,
-            hasSubscription: accountService.hasLiteEnabled(),
+            subscription: accountService.accessLevel,
             onDownload: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
               viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
@@ -111,8 +111,12 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
             Label("select_title".localized, systemImage: "checkmark.circle")
           }
           Button {
-            withAnimation {
-              viewModel.onDownloadFolderTapped()
+            if accountService.hasLiteEnabled() {
+              viewModel.handleImportItems(useSelectedItems: false)
+            } else {
+              withAnimation {
+                viewModel.onDownloadFolderTapped()
+              }
             }
           } label: {
             Label("download_title".localized, systemImage: "arrow.down.to.line")
@@ -156,8 +160,12 @@ struct JellyfinLibraryView<Model: JellyfinLibraryViewModelProtocol>: View {
     Spacer()
 
     Button {
-      viewModel.useSelectedItems = true
-      withAnimation { viewModel.showingDownloadConfirmation = true }
+      if accountService.hasLiteEnabled() {
+        viewModel.handleImportItems(useSelectedItems: true)
+      } else {
+        viewModel.useSelectedItems = true
+        withAnimation { viewModel.showingDownloadConfirmation = true }
+      }
     } label: {
       Image(systemName: "arrow.down.to.line")
     }

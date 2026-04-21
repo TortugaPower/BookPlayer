@@ -75,7 +75,7 @@ struct JellyfinAudiobookDetailsView<
           } else if viewModel.accountService.accessLevel == .lite {
             SynchronizeButton
           } else {
-            DownloadButton
+            SmallDownloadButton
             SynchronizeButton
           }
         }
@@ -147,7 +147,28 @@ struct JellyfinAudiobookDetailsView<
         Text("Download")
           .fontWeight(.semibold)
       }
+      .frame(height: 24)
       .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.tertiarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
+  }
+  
+  var SmallDownloadButton: some View {
+    Button {
+      do {
+        try viewModel.handleImportAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
+      }
+    } label: {
+      HStack {
+        Image(systemName: "square.and.arrow.down")
+      }
+      .frame(width: 36, height: 24)
       .padding()
       .foregroundStyle(theme.primaryColor)
       .background(theme.tertiarySystemBackgroundColor)
@@ -170,13 +191,15 @@ struct JellyfinAudiobookDetailsView<
     } label: {
       HStack {
         Image(systemName: "arrow.down.circle.dotted")
-        Text("Syncronize")
-          .fontWeight(.semibold)
+        Text("Stream")
+          .foregroundStyle(theme.primaryColor)
+          .bpFont(.title)
       }
+      .frame(height: 24)
       .frame(maxWidth: .infinity)
       .padding()
       .foregroundStyle(theme.primaryColor)
-      .background(theme.linkColor)
+      .background(theme.secondarySystemBackgroundColor)
       .cornerRadius(10)
     }
   }

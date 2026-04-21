@@ -315,10 +315,11 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
+      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
       let libraryItem = SimpleLibraryItem(
         title: item.name,
-        details: "voiceover_unknown_author".localized,
-        speed: 1,
+        details: item.details?.artist ?? "voiceover_unknown_author".localized,
+        speed: 1, 
         currentTime: Double(item.currentSeconds ?? 0),
         duration: Double(item.durationSeconds ?? 0),
         percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
@@ -329,13 +330,14 @@ final class JellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, BPLogger
         artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
         orderRank: 0,
         parentFolder: nil,
-        originalFileName: item.name,
+        originalFileName: "\(item.name).\(fileExt)",
         lastPlayDate: item.lastPlayedDate,
         type: .book,
         uuid: UUID().uuidString
       )
       
       let externalItem = SimpleExternalResource(
+        id: UUID().hashValue,
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,

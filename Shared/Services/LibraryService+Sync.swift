@@ -47,6 +47,8 @@ public protocol LibrarySyncProtocol {
   func addBookmark(from bookmark: SimpleBookmark) async
   
   func generateMissingUuids(offset: Int) async -> [String: String]
+  
+  func getItemWithResources(with relativePath: String) -> LibraryItem?
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -445,6 +447,32 @@ extension LibraryService: LibrarySyncProtocol {
         continuation.resume()
       }
     }
+  }
+  
+  public func getItemWithResources(with relativePath: String) -> LibraryItem? {
+    let context = self.dataManager.getBackgroundContext()
+    
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.originalFileName)
+    ]
+
+    return try? context.fetch(fetchRequest).first
+  }
+  
+  public func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.originalFileName),
+    ]
+
+    return try? context.fetch(fetchRequest).first
   }
 
   private func createBackup(

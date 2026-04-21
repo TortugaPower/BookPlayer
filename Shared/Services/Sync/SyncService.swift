@@ -717,6 +717,13 @@ extension SyncService {
 
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
+      
+      guard let item = self.libraryService.getItemWithResources(with: relativePath),
+            item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) != nil else { return }
+      
+      Task {
+        await self.jobManager.scheduleResourceToDownload(with: item.relativePath, for: item.uuid, uploaded: false)
+      }
     }
   }
 

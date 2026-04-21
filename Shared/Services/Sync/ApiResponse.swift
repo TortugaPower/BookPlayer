@@ -8,7 +8,7 @@
 
 public enum ApiResponse {
   case matchUuid(MatchUuidsResponse)
-  case uploadMetadata(UploadResponse)
+  case uploadMetadata(UploadResponse)                                                           
 }
 
 public struct MatchUuidsResponse: Decodable {

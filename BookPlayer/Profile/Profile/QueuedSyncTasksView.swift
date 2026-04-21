@@ -139,6 +139,8 @@ struct QueuedSyncTasksView: View {
       return "app.connected.to.app.below.fill"
     case .externalResource:
       return "arrow.up.forward.square"
+    case .externalResourceToDownload:
+      return "link.badge.plus"
     }
   }
 }

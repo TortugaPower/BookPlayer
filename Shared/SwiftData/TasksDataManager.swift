@@ -29,6 +29,7 @@ public final class TasksDataManager {
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
       UploadExternalResourceTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self,
       ConcurrentTasksContainer.self,
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
@@ -188,6 +189,13 @@ public final class TasksDataManager {
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
       }
+    case .externalResourceToDownload:
+      let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+        predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
     }
   }
 
@@ -212,25 +220,7 @@ public final class TasksDataManager {
   ) {
     switch jobType {
     case .upload:
-      let task = UploadTaskModel(
-        id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
-        relativePath: parameters["relativePath"] as! String,
-        originalFileName: parameters["originalFileName"] as! String,
-        title: parameters["title"] as! String,
-        details: parameters["details"] as! String,
-        speed: parameters["speed"] as? Float,
-        currentTime: parameters["currentTime"] as! Double,
-        duration: parameters["duration"] as! Double,
-        percentCompleted: parameters["percentCompleted"] as! Double,
-        isFinished: parameters["isFinished"] as! Bool,
-        orderRank: parameters["orderRank"] as! Int,
-        lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        type: parameters["type"] as! Int16,
-        provider: parameters["provider"] as? String
-      )
-      context.insert(task)
-
+      context.insert(buildUploadTask(parameters))
     case .update:
       let task = UpdateTaskModel(
         id: parameters["id"] as! String,
@@ -314,7 +304,34 @@ public final class TasksDataManager {
         id: parameters["id"] as! String, uuid: parameters["uuid"] as! String, providerId: parameters["providerId"] as! String, providerName: parameters["providerName"] as! String, lastSyncedAt: parameters["lastSyncedAt"] as? Date, syncStatus: parameters["syncStatus"] as! String, processedFile: parameters["processedFile"] as! Bool
       )
       context.insert(task)
+    case .externalResourceToDownload:
+      let task = ExternalResourceToDownloadTaskModel(
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        uploaded: parameters["uploaded"] as? Bool ?? false
+      )
+      context.insert(task)
     }
+  }
+  
+  private func buildUploadTask(_ parameters: [String: Any]) -> UploadTaskModel {
+    return UploadTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      relativePath: parameters["relativePath"] as! String,
+      originalFileName: parameters["originalFileName"] as! String,
+      title: parameters["title"] as! String,
+      details: parameters["details"] as! String,
+      speed: parameters["speed"] as? Float,
+      currentTime: parameters["currentTime"] as! Double,
+      duration: parameters["duration"] as! Double,
+      percentCompleted: parameters["percentCompleted"] as! Double,
+      isFinished: parameters["isFinished"] as! Bool,
+      orderRank: parameters["orderRank"] as! Int,
+      lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+      type: parameters["type"] as! Int16,
+      provider: parameters["provider"] as? String
+    )
   }
 
   // swiftlint:enable force_cast
@@ -381,6 +398,11 @@ public final class TasksDataManager {
       case .externalResource:
         let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
           predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .externalResourceToDownload:
+        let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+          predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
       }
