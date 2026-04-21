@@ -6,7 +6,8 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-public struct JellyfinAudiobookDetailsData {
+public struct JellyfinAudiobookDetailsData: Identifiable, Hashable {
+  public let id: String = UUID().uuidString
   public let artist: String?
   public let filePath: String?
   public let fileSize: Int?

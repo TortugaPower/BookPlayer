@@ -51,6 +51,8 @@ public protocol JobSchedulerProtocol {
   func hasUploadTask(for relativePath: String) async -> Bool
   
   func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async
+  
+  func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
@@ -295,6 +297,21 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
   
+  public func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async {
+    var params: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "jobType": SyncJobType.externalResourceToDownload.rawValue,
+      "uploaded": uploaded
+    ]
+    
+    if let uuid = uuid {
+      params["uuid"] = uuid
+    }
+    
+    await persistTask(parameters: params)
+  }
+  
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
     let currentProgress = await MainActor.run { tasksProgress }
@@ -356,7 +373,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           self.retryQueuedTask()
           return
         }
-        
+
         let operationTask = LibraryItemSyncOperation(
           client: networkClient,
           task: task

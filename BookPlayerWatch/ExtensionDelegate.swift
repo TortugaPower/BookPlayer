@@ -78,6 +78,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         accountService: accountService,
         dataManager: dataManager
       )
+      let concurrenceService = ConcurrenceService()
+      concurrenceService.setup(libraryService: libraryService)
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -98,6 +100,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         dataManager: dataManager,
         accountService: accountService,
         syncService: syncService,
+        concurrenceService: concurrenceService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
@@ -292,5 +295,15 @@ extension ExtensionDelegate: PurchasesDelegate {
     let enableSync = customerInfo.entitlements.all["pro"]?.isActive == true
     || customerInfo.entitlements.all["lite"]?.isActive == true
     coreServices?.updateSyncEnabled(enableSync)
+    
+    let accessLevel: AccessLevel = customerInfo.entitlements.all["pro"]?.isActive == true
+      ? .pro
+      : customerInfo.entitlements.all["lite"]?.isActive == true
+        ? .lite
+        : customerInfo.entitlements["plus"]?.isActive == true
+          ? .plus
+          : .free
+    
+    coreServices?.updateConcurrentService(accessLevel)
   }
 }

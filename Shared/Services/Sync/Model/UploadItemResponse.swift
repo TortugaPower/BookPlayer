@@ -12,6 +12,6 @@ struct UploadItemResponse: Decodable {
   let content: UploadItemContent
 }
 
-struct UploadItemContent: Decodable {
+public struct UploadItemContent: Decodable {
   let url: URL?
 }
