@@ -286,7 +286,6 @@
 		62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE22B274AA3EB001EB9FF /* LibraryService.swift */; };
 		62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */; };
 		62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
-		62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA92725BCF000A4A98F /* Kingfisher */; };
 		62CADBAB2725C23A00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
 		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
@@ -357,12 +356,6 @@
 		631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75C82AB92C540013E7E5 /* BPPushPresentationFlow.swift */; };
 		631C75CC2AB92FA60013E7E5 /* BPModalPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631C75CB2AB92FA60013E7E5 /* BPModalPresentationFlow.swift */; };
 		632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632119D62E543973005B3E10 /* ItemListViewModel.swift */; };
-		632132502F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		632132512F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		632132522F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		632132532F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		632132542F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
-		632132552F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */; };
 		6327E0C62ADB9913004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		6327E0C72ADB9914004780DC /* DownloadState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA429A281140021663B /* DownloadState.swift */; };
 		632941402AEEE739000AD2EE /* CircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6329413F2AEEE739000AD2EE /* CircularView.swift */; };
@@ -649,13 +642,10 @@
 		8ADD46222CF29A02002E9C50 /* TextFieldFocused.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46212CF29A02002E9C50 /* TextFieldFocused.swift */; };
 		8ADD46262CF67592002E9C50 /* JellyfinAudiobookDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */; };
 		8AE4AAC52CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */; };
-		8AF18A332CF0A26200238F8D /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
 		9236C57F833C70652BDD1FA3 /* TabEditingEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDD933F7FDEDC1BF67EC567 /* TabEditingEnvironmentKey.swift */; };
 		9586CECD8FB418C6CFB0A7DD /* IntegrationLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C407B5BD19D3CF9CC64EC7 /* IntegrationLibraryView.swift */; };
 		98BA9BA4D6A94BC8BCCE5F8B /* IntegrationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9D68F735D2519CDBC18495 /* IntegrationSettingsView.swift */; };
-		8AE4AACB2CCBAA3800BAA927 /* JellyfinConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4AACA2CCBAA3800BAA927 /* JellyfinConnectionView.swift */; };
-		8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */; };
 		990442102F889201007E2A44 /* ExternalSyncInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */; };
 		990442122F88B101007E2A44 /* SyncInvitationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */; };
 		990442142F894DDB007E2A44 /* SubscriptionPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442132F894DD5007E2A44 /* SubscriptionPillView.swift */; };
@@ -665,10 +655,6 @@
 		990442192F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9904421A2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9904421B2F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9911FBA12F71B8CE00DC9A2B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 62CADBA72725BCE800A4A98F /* Kingfisher */; };
-		9911FBA42F71BD0400DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA32F71BD0400DC9A2B /* Get */; };
-		9911FBA62F71BD1D00DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA52F71BD1D00DC9A2B /* Get */; };
-		9911FBA82F71BD2100DC9A2B /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9911FBA72F71BD2100DC9A2B /* Get */; };
 		9911FBA92F71BD3000DC9A2B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
 		9911FBAC2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
 		9911FBAD2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
@@ -708,13 +694,25 @@
 		99329DD72F3E8A04003F8E73 /* SlickSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD62F3E8A04003F8E73 /* SlickSlider.swift */; };
 		99329DDB2F3ED5E5003F8E73 /* DurationPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */; };
 		9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
+		996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CC62F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CC72F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CC82F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CC92F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CCA2F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */; };
+		996D4CCD2F98A39A00FC3B57 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 996D4CCC2F98A39A00FC3B57 /* Kingfisher */; };
+		996D4CCF2F98A39F00FC3B57 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 996D4CCE2F98A39F00FC3B57 /* Kingfisher */; };
+		996D4CD12F98A45300FC3B57 /* IntegrationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */; };
+		996D4CD22F98A45300FC3B57 /* IntegrationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */; };
+		996D4CD32F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */; };
+		996D4CD42F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */; };
 		99B367FA2F4575C900C38F7F /* MediaAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367F92F4575C600C38F7F /* MediaAction.swift */; };
 		99B367FC2F5108BF00C38F7F /* MediaActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */; };
 		99F3C1EC2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
 		99F3C1ED2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
 		99D995872F719E7600BAF216 /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
-		99D995892F719E7E00BAF216 /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
-		99D9958A2F719E7E00BAF216 /* JellyfinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A342CF0C42C00238F8D /* JellyfinError.swift */; };
+		99D995892F719E7E00BAF216 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		99D9958A2F719E7E00BAF216 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		99D9958F2F71AB6800BAF216 /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		99D995902F71AB6800BAF216 /* JellyfinLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */; };
 		99D995932F71ABAA00BAF216 /* JellyfinAudiobookDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */; };
@@ -901,7 +899,6 @@
 		C3A479132094C8C300D92122 /* rubberBandDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479122094C8C300D92122 /* rubberBandDistance.swift */; };
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
-		C3C998E7EA2919BB438B337C /* IntegrationLibraryItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */; };
 		C3EA7176218DEC870005D488 /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = C3EA7175218DEC870005D488 /* .swiftformat */; };
 		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
@@ -1695,6 +1692,9 @@
 		99329DD62F3E8A04003F8E73 /* SlickSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickSlider.swift; sourceTree = "<group>"; };
 		99329DDA2F3ED5E5003F8E73 /* DurationPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerSheet.swift; sourceTree = "<group>"; };
 		995787DD2F56674400BF0814 /* Audiobook Player 11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 11.xcdatamodel"; sourceTree = "<group>"; };
+		996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v10_to_v11.xcmappingmodel; sourceTree = "<group>"; };
+		996D4CD52F98A7F000FC3B57 /* Get.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; name = Get.docc; path = "../../../Library/Developer/Xcode/DerivedData/BookPlayer-aehtalmtnvnplqeabppyoncpqrlc/SourcePackages/checkouts/Get/Sources/Get/Get.docc"; sourceTree = "<group>"; };
+		996D4CD62F98A7FD00FC3B57 /* Get.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = Get.md; path = "../../../Library/Developer/Xcode/DerivedData/BookPlayer-aehtalmtnvnplqeabppyoncpqrlc/SourcePackages/checkouts/Get/Sources/Get/Get.docc/Get.md"; sourceTree = "<group>"; };
 		99B367F92F4575C600C38F7F /* MediaAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAction.swift; sourceTree = "<group>"; };
 		99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActionRow.swift; sourceTree = "<group>"; };
 		99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemRef.swift; sourceTree = "<group>"; };
@@ -1884,10 +1884,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				996D4CCF2F98A39F00FC3B57 /* Kingfisher in Frameworks */,
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
 				99D9959A2F71B05700BAF216 /* JellyfinAPI in Frameworks */,
-				62CADBAA2725BCF000A4A98F /* Kingfisher in Frameworks */,
-				9911FBA82F71BD2100DC9A2B /* Get in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1914,7 +1913,6 @@
 				41F1A1D7254B07E80043FCF3 /* MarqueeLabel in Frameworks */,
 				8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */,
 				41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */,
-				9911FBA42F71BD0400DC9A2B /* Get in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1929,10 +1927,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9911FBA12F71B8CE00DC9A2B /* Kingfisher in Frameworks */,
+				996D4CCD2F98A39A00FC3B57 /* Kingfisher in Frameworks */,
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
 				99D995982F71B02D00BAF216 /* JellyfinAPI in Frameworks */,
-				9911FBA62F71BD1D00DC9A2B /* Get in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2233,6 +2230,7 @@
 				9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */,
 				418B6CF91D2707F800F974FB /* Products */,
 				41AABFFA1E705D18006BD2E0 /* Frameworks */,
+				993BAADC2F9894D800FB8014 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -2327,6 +2325,7 @@
 		41A1B0F1226E9C5100EA0400 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				996D4CD02F98A41E00FC3B57 /* Integrations */,
 				99D9958B2F719ECF00BAF216 /* Jellyfin */,
 				9F22DE3A288D771800056FCD /* Styleguide */,
 				9FC1E4572814E09700522FA8 /* Network */,
@@ -2365,6 +2364,8 @@
 				4193E1FB24394CEF004D6A82 /* Alamofire.framework */,
 				41F898AE2402080C00F58B8A /* ZipArchive.framework */,
 				99D9959D2F71B67100BAF216 /* Kingfisher */,
+				996D4CD62F98A7FD00FC3B57 /* Get.md */,
+				996D4CD52F98A7F000FC3B57 /* Get.docc */,
 				4112AFD5223AD27D00BFEA55 /* Sentry.framework */,
 				99D9959B2F71B54200BAF216 /* Get */,
 				41D7944E22260EC000228580 /* SwiftyStoreKit.framework */,
@@ -2444,7 +2445,7 @@
 				41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */,
 				9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */,
 				3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */,
-				99F3C1EE2F5F85B500AC91A2 /* MappingModel_v10_to_v11.xcmappingmodel */,
+				996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */,
 				990442152F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel */,
 			);
 			path = Migrations;
@@ -2830,8 +2831,6 @@
 			children = (
 				8ADD46232CF38F91002E9C50 /* JellyfinAudiobookDetailsView.swift */,
 				8ADD46252CF67587002E9C50 /* JellyfinAudiobookDetailsViewModel.swift */,
-				63FCAB1A2E3BBA5F005EB9DE /* JellyfinTagsView.swift */,
-				63FCAB1C2E3BBEA0005EB9DE /* TagsFlowLayout.swift */,
 			);
 			path = Details;
 			sourceTree = "<group>";
@@ -3267,6 +3266,23 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		993BAADC2F9894D800FB8014 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				6321324F2F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		996D4CD02F98A41E00FC3B57 /* Integrations */ = {
+			isa = PBXGroup;
+			children = (
+				B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */,
+				7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */,
+			);
+			path = Integrations;
+			sourceTree = "<group>";
+		};
 		99D9958B2F719ECF00BAF216 /* Jellyfin */ = {
 			isa = PBXGroup;
 			children = (
@@ -3285,6 +3301,15 @@
 			path = "Migration Policies";
 			sourceTree = "<group>";
 		};
+		99F3C21D2F69D09A00AC91A2 /* ExternalSource */ = {
+			isa = PBXGroup;
+			children = (
+				99F3C2202F69D32800AC91A2 /* ExternalImportViewModel.swift */,
+				99F3C21E2F69D0AC00AC91A2 /* ExternalImportView.swift */,
+			);
+			path = ExternalSource;
+			sourceTree = "<group>";
+		};
 		9EDB4EF25480E070F2786662 /* MediaServerIntegration */ = {
 			isa = PBXGroup;
 			children = (
@@ -3293,8 +3318,6 @@
 				E55F466D61AE62A69DE4D371 /* BPNavigation.swift */,
 				3724BB21B1B88177C60BE4D8 /* IntegrationConnectionFormViewModelProtocol.swift */,
 				4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */,
-				B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */,
-				7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */,
 				2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */,
 				A4D9C8B6E5F1D2A7C4E9B81B /* IntegrationImageSizing.swift */,
 				7DDD933F7FDEDC1BF67EC567 /* TabEditingEnvironmentKey.swift */,
@@ -3302,15 +3325,6 @@
 				808E351A8B30ABCBA9EC00EF /* IntegrationDetailsViewModelProtocol.swift */,
 			);
 			path = MediaServerIntegration;
-			sourceTree = "<group>";
-		};
-		99F3C21D2F69D09A00AC91A2 /* ExternalSource */ = {
-			isa = PBXGroup;
-			children = (
-				99F3C2202F69D32800AC91A2 /* ExternalImportViewModel.swift */,
-				99F3C21E2F69D0AC00AC91A2 /* ExternalImportView.swift */,
-			);
-			path = ExternalSource;
 			sourceTree = "<group>";
 		};
 		9F00A6222951DEE6005EA316 /* Views */ = {
@@ -3850,10 +3864,9 @@
 			);
 			name = BookPlayerWatchKit;
 			packageProductDependencies = (
-				62CADBA92725BCF000A4A98F /* Kingfisher */,
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
 				99D995992F71B05700BAF216 /* JellyfinAPI */,
-				9911FBA72F71BD2100DC9A2B /* Get */,
+				996D4CCE2F98A39F00FC3B57 /* Kingfisher */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -3908,7 +3921,6 @@
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
 				8A495CC52CC85D27001B4244 /* JellyfinAPI */,
 				63AE44722E6161B60088668F /* DirectoryWatcher */,
-				9911FBA32F71BD0400DC9A2B /* Get */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -3947,10 +3959,9 @@
 			);
 			name = BookPlayerKit;
 			packageProductDependencies = (
-				62CADBA72725BCE800A4A98F /* Kingfisher */,
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
 				99D995972F71B02D00BAF216 /* JellyfinAPI */,
-				9911FBA52F71BD1D00DC9A2B /* Get */,
+				996D4CCC2F98A39A00FC3B57 /* Kingfisher */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -4096,12 +4107,11 @@
 				41F1A1F0254B09020043FCF3 /* XCRemoteSwiftPackageReference "IDZSwiftCommonCrypto" */,
 				41F1A202254B09C00043FCF3 /* XCRemoteSwiftPackageReference "Themeable" */,
 				41F1A20B254B0A0C0043FCF3 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */,
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */,
 				63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
-				9911FBA22F71BD0400DC9A2B /* XCRemoteSwiftPackageReference "Get" */,
+				996D4CCB2F98A38100FC3B57 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -4338,7 +4348,6 @@
 				9FA334B127C1499A0064E8EA /* ItemCellView.swift in Sources */,
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
 				41A359C4276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
-				632132522F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				418CABB325EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9F82DF7127DF8203001B0EA8 /* WatchConnectivityService.swift in Sources */,
 				6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */,
@@ -4349,6 +4358,7 @@
 				6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */,
 				630EC82F2CEF9F0700C19411 /* ForcedEnvironment.swift in Sources */,
 				6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */,
+				996D4CCA2F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				41D20DB125D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				9F82DF6D27DE985A001B0EA8 /* NowPlayingPlaybackControlsView.swift in Sources */,
 				6334CF1B2CF8D87500F1FA17 /* SkipDurationListView.swift in Sources */,
@@ -4490,6 +4500,8 @@
 				418CABB525EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				9911FBC72F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
+				996D4CC62F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				996D4CD42F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				9F7B64722803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
 				9911FBB22F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */,
@@ -4504,6 +4516,7 @@
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				9911FBB62F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
+				996D4CD22F98A45300FC3B57 /* IntegrationError.swift in Sources */,
 				9911FBC12F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				99D995952F71ABBD00BAF216 /* JellyfinAudiobookDetailsData.swift in Sources */,
@@ -4514,7 +4527,7 @@
 				4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				99F3C2112F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */,
 				41EB07162752F17B00EFEE13 /* PlayableItem.swift in Sources */,
-				99D9958A2F719E7E00BAF216 /* JellyfinError.swift in Sources */,
+				99D9958A2F719E7E00BAF216 /* (null) in Sources */,
 				4140EA84227289E60009F794 /* BookPlayer.xcdatamodeld in Sources */,
 				99F3C20E2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */,
 				99F3C2072F5FD41300AC91A2 /* SchemaV2SyncTasksModels.swift in Sources */,
@@ -4534,6 +4547,7 @@
 				4106414025872614008EB8D0 /* BarView.swift in Sources */,
 				3F66408F2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				63E893B02CB0AA7100946CD4 /* LastBookStartPlaybackIntent.swift in Sources */,
+				996D4CC92F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				630826062AF525F1002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */,
 				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
@@ -4567,7 +4581,6 @@
 				63E893B32CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */,
 				639720722CAAF8290045A4DB /* LastPlayedProvider.swift in Sources */,
 				630826022AF295AE002ACE0D /* CornerView.swift in Sources */,
-				632132532F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4627,10 +4640,7 @@
 				63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */,
 				9F3D0CE728C2BF7700E9E8A3 /* ButtonFreeViewModel.swift in Sources */,
 				99329DD72F3E8A04003F8E73 /* SlickSlider.swift in Sources */,
-				638487AF2EC7750100DF442B /* AudiobookShelfConnectedView.swift in Sources */,
 				990442182F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
-				638487B02EC7750100DF442B /* AudiobookShelfDisconnectedView.swift in Sources */,
-				638487B12EC7750100DF442B /* AudiobookShelfConnectionView.swift in Sources */,
 				99329DD52F3D83A4003F8E73 /* BPDialogModifier.swift in Sources */,
 				638487B32EC7750100DF442B /* AudiobookShelfConnectionViewModel.swift in Sources */,
 				63AD93D72E3C74990077E73A /* ProfileCardSectionView.swift in Sources */,
@@ -4727,7 +4737,6 @@
 				63B760FC2C33B77F00AA98C7 /* SupportProfileView.swift in Sources */,
 				638487CD2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsView.swift in Sources */,
 				638487CE2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsViewModel.swift in Sources */,
-				638487CF2EC77B1200DF442B /* AudiobookShelfTagsView.swift in Sources */,
 				99F3C2212F69D32E00AC91A2 /* ExternalImportViewModel.swift in Sources */,
 				63344C002EA708F800B90DF7 /* BackupDatabaseOperation.swift in Sources */,
 				9F00A6212950F44B005EA316 /* ImagePicker.swift in Sources */,
@@ -4765,7 +4774,6 @@
 				638487A42EC7722400DF442B /* AudiobookShelfConnectionService.swift in Sources */,
 				638487A52EC7722400DF442B /* AudiobookShelfConnectionData.swift in Sources */,
 				99F3C21F2F69D0AF00AC91A2 /* ExternalImportView.swift in Sources */,
-				638487A62EC7722400DF442B /* AudiobookShelfError.swift in Sources */,
 				638487A72EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				3F7B64362E0F71E900299D97 /* HardcoverSettingsView.swift in Sources */,
 				631908A12E33EF50009249C1 /* ConfettiView.swift in Sources */,
@@ -4915,8 +4923,6 @@
 				07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */,
 				CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */,
 				7CAD4B67352939D0A1E54A21 /* IntegrationConnectionFormViewModelProtocol.swift in Sources */,
-				C3C998E7EA2919BB438B337C /* IntegrationLibraryItemProtocol.swift in Sources */,
-				760180C62F243705DE6B3224 /* IntegrationError.swift in Sources */,
 				18D0AD99D1AAA10976F75C11 /* BPNavigation.swift in Sources */,
 				9236C57F833C70652BDD1FA3 /* TabEditingEnvironmentKey.swift in Sources */,
 				11A972EC3C4426DD4D02867E /* TagsFlowLayout.swift in Sources */,
@@ -4926,6 +4932,7 @@
 				9586CECD8FB418C6CFB0A7DD /* IntegrationLibraryView.swift in Sources */,
 				41A6E5ED3159D85692581CC9 /* IntegrationLibraryGridView.swift in Sources */,
 				C53864BEFAE4D1CEC668A6B3 /* IntegrationLibraryListView.swift in Sources */,
+				996D4CC72F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				F7CB281CF765C468BFA9B0D8 /* IntegrationDetailsViewModelProtocol.swift in Sources */,
 				A7FA45CB2BD6567C9B5EA372 /* IntegrationTagsView.swift in Sources */,
 				A34DA648F3EF87A9E11631B3 /* IntegrationAudiobookDetailsView.swift in Sources */,
@@ -4966,6 +4973,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
@@ -4984,6 +4992,7 @@
 				6399EA3A2F12BB690077BB13 /* PasskeyModels.swift in Sources */,
 				416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */,
 				9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */,
+				996D4CD32F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */,
 				990442162F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				62AAE22E274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				9F2DC9E52A014BB5006CDF1F /* PricingModel.swift in Sources */,
@@ -5016,7 +5025,7 @@
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,
 				9911FBB52F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */,
-				99D995892F719E7E00BAF216 /* JellyfinError.swift in Sources */,
+				99D995892F719E7E00BAF216 /* (null) in Sources */,
 				41C23403272E1965006BC7B8 /* PlaybackState.swift in Sources */,
 				99F3C2052F5FC76D00AC91A2 /* MigrationPlan.swift in Sources */,
 				41A1B120226F88C500EA0400 /* Chapter+CoreDataProperties.swift in Sources */,
@@ -5044,6 +5053,7 @@
 				9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */,
 				9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
+				996D4CD12F98A45300FC3B57 /* IntegrationError.swift in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				412AB71527017ABE00969618 /* DBVersion.swift in Sources */,
@@ -5065,7 +5075,6 @@
 				638352CD2E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				5126F122258E9F18009965DC /* URL+BookPlayer.swift in Sources */,
 				9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */,
-				632132502F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				418CABB425EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				99D995962F71ABBD00BAF216 /* JellyfinAudiobookDetailsData.swift in Sources */,
 				41A1B121226F88C500EA0400 /* PlaybackRecord+CoreDataClass.swift in Sources */,
@@ -5117,7 +5126,6 @@
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
 				990442172F907328007E2A44 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
-				632132512F8AB05B0044353B /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,
 				630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */,
 				3F66408E2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
@@ -5127,6 +5135,7 @@
 				63005A302AE7FD8000A4CA2C /* BookPlayerWidgets.swift in Sources */,
 				63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				63F828572AED56FA00B5CE0C /* CornerView.swift in Sources */,
+				996D4CC82F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				63005A342AE7FD8000A4CA2C /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				6340D56E2AF13E4C003D0B09 /* RectangularView.swift in Sources */,
 				632941402AEEE739000AD2EE /* CircularView.swift in Sources */,
@@ -6673,14 +6682,6 @@
 				version = 8.36.0;
 			};
 		};
-		41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.9.0;
-			};
-		};
 		41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GianniCarlo/ZipArchive.git";
@@ -6705,12 +6706,12 @@
 				minimumVersion = 0.4.0;
 			};
 		};
-		9911FBA22F71BD0400DC9A2B /* XCRemoteSwiftPackageReference "Get" */ = {
+		996D4CCB2F98A38100FC3B57 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kean/Get";
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
-				kind = exactVersion;
-				version = 2.2.1;
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.8.1;
 			};
 		};
 		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
@@ -6754,16 +6755,6 @@
 			package = 41F1A226254B0C6C0043FCF3 /* XCRemoteSwiftPackageReference "ZipArchive" */;
 			productName = ZipArchive;
 		};
-		62CADBA72725BCE800A4A98F /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
-		62CADBA92725BCF000A4A98F /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 41F1A214254B0AA40043FCF3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
 		63AE44722E6161B60088668F /* DirectoryWatcher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
@@ -6774,20 +6765,15 @@
 			package = 8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */;
 			productName = JellyfinAPI;
 		};
-		9911FBA32F71BD0400DC9A2B /* Get */ = {
+		996D4CCC2F98A39A00FC3B57 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9911FBA22F71BD0400DC9A2B /* XCRemoteSwiftPackageReference "Get" */;
-			productName = Get;
+			package = 996D4CCB2F98A38100FC3B57 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
-		9911FBA52F71BD1D00DC9A2B /* Get */ = {
+		996D4CCE2F98A39F00FC3B57 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9911FBA22F71BD0400DC9A2B /* XCRemoteSwiftPackageReference "Get" */;
-			productName = Get;
-		};
-		9911FBA72F71BD2100DC9A2B /* Get */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9911FBA22F71BD0400DC9A2B /* XCRemoteSwiftPackageReference "Get" */;
-			productName = Get;
+			package = 996D4CCB2F98A38100FC3B57 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		99D995972F71B02D00BAF216 /* JellyfinAPI */ = {
 			isa = XCSwiftPackageProductDependency;

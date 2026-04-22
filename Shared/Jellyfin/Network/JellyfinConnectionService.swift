@@ -10,6 +10,12 @@ import Get
 import JellyfinAPI
 import os
 
+#if os(watchOS)
+import WatchKit
+#else
+import UIKit
+#endif
+
 /// Applies user-defined custom HTTP headers (e.g. Cloudflare Access Service Tokens)
 /// to every outgoing `JellyfinClient` request. Skips `Authorization` so the Jellyfin
 /// client's own MediaBrowser token is never overwritten.
@@ -17,7 +23,7 @@ import os
 /// `willSendRequest` is invoked on `Get.APIClient`'s actor executor, while
 /// `setCustomHeaders(_:)` is typically called from `@MainActor`. The dictionary
 /// is therefore guarded by `OSAllocatedUnfairLock`.
-final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
+public final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
   private let lockedHeaders: OSAllocatedUnfairLock<[String: String]>
 
   init(customHeaders: [String: String] = [:]) {
@@ -28,7 +34,7 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
     lockedHeaders.withLock { $0 = headers }
   }
 
-  func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
+  public func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
     let headers = lockedHeaders.withLock { $0 }
     for (key, value) in headers where key.caseInsensitiveCompare("Authorization") != .orderedSame {
       request.setValue(value, forHTTPHeaderField: key)
@@ -42,7 +48,16 @@ public class JellyfinConnectionService: BPLogger {
 
   public var connection: JellyfinConnectionData?
   public var client: JellyfinClient?
-  public private var headerInjector: JellyfinHeaderInjector?
+  public var headerInjector: JellyfinHeaderInjector?
+
+  public var deviceIdentifier: String? {
+#if os(watchOS)
+    return WKInterfaceDevice.current().identifierForVendor?.uuidString
+#else
+    // This covers iOS, iPadOS, and tvOS
+    return UIDevice.current.identifierForVendor?.uuidString
+#endif
+  }
 
 
   public init(keychainService: KeychainServiceProtocol = KeychainService()) {
@@ -619,7 +634,7 @@ public class JellyfinConnectionService: BPLogger {
   
   public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double, ) async throws {
     guard let client else {
-      throw JellyfinError.noClient
+      throw IntegrationError.noClient("jellyfin")
     }
     
     let userDataDto = UpdateUserItemDataDto(

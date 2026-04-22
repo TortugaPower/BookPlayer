@@ -51,9 +51,7 @@ public protocol LibrarySyncProtocol {
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
-  
-  func generateMissingUuids(offset: Int) async -> [String: String]
-  
+    
   func getItemWithResources(with relativePath: String) -> LibraryItem?
 }
 

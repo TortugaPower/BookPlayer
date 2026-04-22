@@ -39,7 +39,7 @@ public struct JellyfinConnectionData: Codable {
     self.customHeaders = customHeaders
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.url = try container.decode(URL.self, forKey: .url)
     self.serverName = try container.decode(String.self, forKey: .serverName)
