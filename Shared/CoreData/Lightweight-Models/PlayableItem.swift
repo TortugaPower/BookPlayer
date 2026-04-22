@@ -222,7 +222,7 @@ extension PlayableItem: Codable {
       currentTime: try values.decode(TimeInterval.self, forKey: .currentTime),
       duration: try values.decode(TimeInterval.self, forKey: .duration),
       relativePath: try values.decode(String.self, forKey: .relativePath),
-      uuid: try values.decode(String.self, forKey: .uuid),
+      uuid: try values.decodeIfPresent(String.self, forKey: .uuid) ?? Constants.uuidPlaceholder,
       parentFolder: try? values.decode(String?.self, forKey: .parentFolder),
       percentCompleted: try values.decode(Double.self, forKey: .percentCompleted),
       lastPlayDate: try? values.decode(Date.self, forKey: .lastPlayDate),
