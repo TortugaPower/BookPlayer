@@ -96,6 +96,36 @@ final class SyncTasksStorageTests: XCTestCase {
     XCTAssertEqual(reference.progress, 0.33, accuracy: 0.0001)
   }
 
+  /// `matchUuid` conflicts must rewrite both the task reference and the underlying task
+  /// model from the old (local) uuid to the new (server-assigned) uuid.
+  func testApplyMatchUuidConflicts_rewritesRefAndTaskUuid() async throws {
+    let oldUuid = "old-uuid"
+    let newUuid = "new-uuid"
+    let relativePath = "Folder/Swap.mp3"
+    try await appendUploadTask(uuid: oldUuid, relativePath: relativePath)
+
+    try await storage.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
+
+    let refs = await storage.getAllTasks(progress: [:])
+    XCTAssertEqual(refs.count, 1)
+    XCTAssertEqual(refs.first?.uuid, newUuid)
+
+    let tasks = await storage.getAllTasksWithParams()
+    XCTAssertEqual(tasks.count, 1)
+    XCTAssertEqual(tasks.first?.uuid, newUuid)
+  }
+
+  /// Conflicts whose `key` doesn't match any stored reference should be a no-op.
+  func testApplyMatchUuidConflicts_noMatch_leavesStoreUnchanged() async throws {
+    let uuid = "existing-uuid"
+    try await appendUploadTask(uuid: uuid, relativePath: "Folder/Other.mp3")
+
+    try await storage.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
+
+    let refs = await storage.getAllTasks(progress: [:])
+    XCTAssertEqual(refs.first?.uuid, uuid)
+  }
+
   private func appendUploadTask(uuid: String, relativePath: String) async throws {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,

@@ -12,14 +12,24 @@ public enum ApiResponse {
 
 public struct MatchUuidsResponse: Decodable {
     // Array of string keys that were successfully applied
-    let applied: [String]
+    public let applied: [String]
     // Array of the conflict objects
-    let conflicts: [ItemConflict]
+    public let conflicts: [ItemConflict]
+
+    public init(applied: [String], conflicts: [ItemConflict]) {
+        self.applied = applied
+        self.conflicts = conflicts
+    }
 }
 
 public struct ItemConflict: Decodable {
     // Maps to the local sent "uuid" in your JSON
-    let key: String
+    public let key: String
     // Maps to the "uuid" in your JSON
-    let uuid: String
+    public let uuid: String
+
+    public init(key: String, uuid: String) {
+        self.key = key
+        self.uuid = uuid
+    }
 }

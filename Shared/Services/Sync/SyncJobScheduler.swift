@@ -360,8 +360,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           guard let self else {
             return
           }
-          
-          if let error = operationTask.error {
+          let error = operationTask.error
+          let results = operationTask.results
+
+          if let error {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
             self.lastSyncError = SyncErrorInfo(
               taskId: task.id,
@@ -371,13 +373,16 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
             )
             self.retryQueuedTask()
           } else {
-            if let results = operationTask.results {
-              switch results {
-              case .matchUuid(let response):
-                self.handleMatchUuidsResponse(response)
+            Task { [weak self] in
+              guard let self else { return }
+              if let results {
+                switch results {
+                case .matchUuid(let response):
+                  await self.handleMatchUuidsResponse(response)
+                }
               }
+              self.handleFinishedTask(task)
             }
-            self.handleFinishedTask(task)
           }
         }
         
@@ -413,81 +418,43 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     }
   }
   
-  private func handleMatchUuidsResponse(_ results: MatchUuidsResponse) {
-    let context = dataManager.getBackgroundContext()
-    
-    context.perform { [weak self, context] in
-      let uuidsToUpdate = results.conflicts.map { $0.key }
-      let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "uuid IN %@", uuidsToUpdate)
-      guard let matchingItems = try? context.fetch(fetchRequest) else { return }
-      let uuidMap = Dictionary(uniqueKeysWithValues: results.conflicts.map { ($0.key, $0.uuid) })
-      
-      for item in matchingItems {
-        if let newUUID = uuidMap[item.uuid] {
-          item.uuid = newUUID
-        }
-      }
-      
-      try? context.save()
-    }
-    
-    let modelContext = ModelContext(tasksDataManager.container)
-    modelContext.autosaveEnabled = true
-    
-    for itemConflict in results.conflicts {
-      let conflictUuid = itemConflict.uuid
-      let taskRefDescriptor = FetchDescriptor<SyncTaskReferenceModel>(
-        predicate: #Predicate { container in
-          container.uuid == conflictUuid // Your search condition
-        }
+  private func handleMatchUuidsResponse(_ results: MatchUuidsResponse) async {
+    guard !results.conflicts.isEmpty else { return }
+    do {
+      try await applyCoreDataConflicts(results.conflicts)
+      try await taskStore.applyMatchUuidConflicts(results.conflicts)
+    } catch {
+      Self.logger.error("Failed to apply matchUuid conflicts: \(error.localizedDescription)")
+      self.lastSyncError = SyncErrorInfo(
+        taskId: "",
+        uuid: "",
+        jobType: .matchUuid,
+        error: error.localizedDescription
       )
-      
-      if let taskRefs = try? modelContext.fetch(taskRefDescriptor) {
-        taskRefs.forEach {
-          $0.uuid = conflictUuid
-          let taskId = $0.taskID
-          
-          switch $0.jobType {
-          case .upload:
-            if let task = try? modelContext.fetch(FetchDescriptor<UploadTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
+    }
+  }
+
+  private func applyCoreDataConflicts(_ conflicts: [ItemConflict]) async throws {
+    let context = dataManager.getBackgroundContext()
+    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+      context.perform {
+        do {
+          let oldUuids = conflicts.map { $0.key }
+          let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+          fetchRequest.predicate = NSPredicate(format: "uuid IN %@", oldUuids)
+          let items = try context.fetch(fetchRequest)
+          let uuidMap = Dictionary(uniqueKeysWithValues: conflicts.map { ($0.key, $0.uuid) })
+          for item in items {
+            if let newUuid = uuidMap[item.uuid] {
+              item.uuid = newUuid
             }
-          case .update:
-            if let task = try? modelContext.fetch(FetchDescriptor<UpdateTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .move:
-            if let task = try? modelContext.fetch(FetchDescriptor<MoveTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .renameFolder:
-            if let task = try? modelContext.fetch(FetchDescriptor<RenameFolderTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .delete, .shallowDelete:
-            if let task = try? modelContext.fetch(FetchDescriptor<DeleteTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .setBookmark:
-            if let task = try? modelContext.fetch(FetchDescriptor<SetBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .deleteBookmark:
-            if let task = try? modelContext.fetch(FetchDescriptor<DeleteBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          case .uploadArtwork:
-            if let task = try? modelContext.fetch(FetchDescriptor<ArtworkUploadTaskModel>(predicate: #Predicate { $0.id == taskId })).first {
-              task.uuid = conflictUuid
-            }
-          default:
-            break
           }
+          try context.save()
+          continuation.resume()
+        } catch {
+          continuation.resume(throwing: error)
         }
       }
     }
-    
-    try? modelContext.save()
   }
 }

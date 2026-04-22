@@ -206,6 +206,60 @@ public actor SyncTasksStorage: ModelActor {
     try tasksDataManager.deleteAllTasks(with: modelContext)
   }
 
+  /// Rewrites task reference and task model uuids for each conflict returned by `matchUuid`.
+  /// Each conflict maps a locally-known uuid (`key`) to the uuid the server wants the client
+  /// to adopt (`uuid`). Runs on the actor's serial executor.
+  public func applyMatchUuidConflicts(_ conflicts: [ItemConflict]) throws {
+    for conflict in conflicts {
+      let oldUuid = conflict.key
+      let newUuid = conflict.uuid
+      let refs = try modelContext.fetch(
+        FetchDescriptor<SyncTaskReferenceModel>(predicate: #Predicate { $0.uuid == oldUuid })
+      )
+      for ref in refs {
+        ref.uuid = newUuid
+        let taskId = ref.taskID
+        switch ref.jobType {
+        case .upload:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<UploadTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .update:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<UpdateTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .move:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<MoveTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .renameFolder:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<RenameFolderTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .delete, .shallowDelete:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<DeleteTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .setBookmark:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<SetBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .deleteBookmark:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<DeleteBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .uploadArtwork:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<ArtworkUploadTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .matchUuid:
+          break
+        }
+      }
+    }
+    try modelContext.save()
+  }
+
   /// Check if there's an upload task queued for the item
   public func hasUploadTask(for relativePath: String) async -> Bool {
     do {
