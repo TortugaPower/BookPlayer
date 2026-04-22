@@ -64,6 +64,8 @@ public class Folder: LibraryItem {
     }
     self.init(entity: entity, insertInto: nil)
 
+    self.uuid = UUID().uuidString
+
     let values = try decoder.container(keyedBy: CodingKeys.self)
     title = try values.decode(String.self, forKey: .title)
     details = try values.decode(String.self, forKey: .details)

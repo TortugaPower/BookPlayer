@@ -61,6 +61,6 @@ extension SimpleBookmark {
     self.time = bookmark.time
     self.note = bookmark.note
     self.type = .user
-    self.uuid = bookmark.uuid ?? "" //DOUBLE CHECK
+    self.uuid = bookmark.uuid ?? Constants.uuidPlaceholder
   }
 }
