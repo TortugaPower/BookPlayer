@@ -13,11 +13,7 @@ import Foundation
 /// those collide across legacy-migrated items until `matchUuid` backfills real uuids.
 public enum SyncProgressKey {
   public static func resolve(uuid: String, relativePath: String) -> String {
-    guard !uuid.isEmpty,
-          uuid != Constants.uuidPlaceholder,
-          uuid != Constants.legacyUuidPlaceholder
-    else { return relativePath }
-    return uuid
+    Constants.isRealUuid(uuid) ? uuid : relativePath
   }
 }
 

@@ -177,8 +177,8 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
   
   public func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async {
-    let useUuids = itemOrigin.uuid != ""
-    
+    let useUuids = Constants.isRealUuid(itemOrigin.uuid)
+
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": itemOrigin.relativePath,
@@ -187,7 +187,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "jobType": SyncJobType.move.rawValue,
       "uuid": itemOrigin.uuid
     ]
-    
+
     await persistTask(parameters: parameters)
   }
   
