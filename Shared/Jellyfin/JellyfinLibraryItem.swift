@@ -118,7 +118,8 @@ extension JellyfinLibraryItem {
     guard let id = authorApiItem.id else { return nil }
     let name = authorApiItem.name ?? id
     let blurHash = authorApiItem.imageBlurHashes?.primary?.first?.value
-    self.init(id: id, name: name, kind: .author, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio)
+    self.init(id: id, name: name, kind: .author, durationSeconds: Int64((authorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((authorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: authorApiItem.userData?.isPlayed,
+              lastPlayedDate: authorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio, details: nil)
   }
 
   /// Create a narrator item from a Persons API response
@@ -126,6 +127,7 @@ extension JellyfinLibraryItem {
     guard let id = narratorApiItem.id else { return nil }
     let name = narratorApiItem.name ?? id
     let blurHash = narratorApiItem.imageBlurHashes?.primary?.first?.value
-    self.init(id: id, name: name, kind: .narrator, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio)
+    self.init(id: id, name: name, kind: .narrator, durationSeconds: Int64((narratorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((narratorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: narratorApiItem.userData?.isPlayed,
+              lastPlayedDate: narratorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil)
   }
 }

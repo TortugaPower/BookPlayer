@@ -1,5 +1,5 @@
 {
-  "originHash" : "6ad6d5e6e89baf2e07e4db1ccd3b80c3445251629f9ae44c0a558473685e2774",
+  "originHash" : "2c9d3bdfd4165a741f792a7671be3b38f62f754aa4ce15f19a0c2cb3e6f5aba6",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
-        "version" : "7.12.0"
+        "revision" : "c152c1915f60c51e4afa0752656993ee5b3c63db",
+        "version" : "8.8.1"
       }
     },
     {
