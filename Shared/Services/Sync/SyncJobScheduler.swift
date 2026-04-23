@@ -356,12 +356,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           task: task
         )
         
-        operationTask.completionBlock = { [weak self, unowned operationTask] in
+        operationTask.completionBlock = { [weak self, weak operationTask] in
           guard let self else {
             return
           }
-          let error = operationTask.error
-          let results = operationTask.results
+          let error = operationTask?.error
+          let results = operationTask?.results
 
           if let error {
             Self.logger.error("Operation failed: \(error.localizedDescription)")

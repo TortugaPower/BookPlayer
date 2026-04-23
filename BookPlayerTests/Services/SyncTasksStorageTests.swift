@@ -126,6 +126,83 @@ final class SyncTasksStorageTests: XCTestCase {
     XCTAssertEqual(refs.first?.uuid, uuid)
   }
 
+  /// A second matchUuid schedule should merge into the existing task rather than queue a second one.
+  /// Note: the dedup skips coalescing when the existing matchUuid sits at the head of the queue
+  /// (presumed in flight), so this test occupies the head with an unrelated upload task first.
+  func testAppendMatchUuidTask_existingTask_mergesPreferringExistingValues() async throws {
+    try await appendUploadTask(uuid: "upload-uuid", relativePath: "folder/Head.mp3")
+    try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A", "folder/B.mp3": "uuid-B"])
+    // Second call reuses one existing key with a different uuid (should be kept as-is)
+    // and introduces a new key (should be added).
+    try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A-prime", "folder/C.mp3": "uuid-C"])
+
+    let refs = await storage.getAllTasks(progress: [:])
+    XCTAssertEqual(refs.filter { $0.jobType == .matchUuid }.count, 1)
+
+    let tasks = await storage.getAllTasksWithParams()
+    let matchTask = try XCTUnwrap(tasks.first(where: { $0.jobType == .matchUuid }))
+    let mergedUuids = try XCTUnwrap(matchTask.parameters["uuids"] as? [String: String])
+    XCTAssertEqual(mergedUuids["folder/A.mp3"], "uuid-A")           // existing preserved
+    XCTAssertEqual(mergedUuids["folder/B.mp3"], "uuid-B")           // existing preserved
+    XCTAssertEqual(mergedUuids["folder/C.mp3"], "uuid-C")           // new added
+    XCTAssertEqual(mergedUuids.count, 3)
+  }
+
+  /// With no prior matchUuid task, the first call should create one normally.
+  func testAppendMatchUuidTask_noExisting_createsNewTask() async throws {
+    try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
+
+    let refs = await storage.getAllTasks(progress: [:])
+    XCTAssertEqual(refs.count, 1)
+    XCTAssertEqual(refs.first?.jobType, .matchUuid)
+  }
+
+  /// When the existing matchUuid is in flight (head of the queue), a new schedule call
+  /// must NOT mutate it — a second matchUuid task gets queued instead. Further calls
+  /// then coalesce into the second task, leaving the in-flight one untouched.
+  func testAppendMatchUuidTask_firstInFlight_queuesSecondAndMergesIntoIt() async throws {
+    try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
+
+    // Simulate the first task being in flight — the scheduler calls getNextTask()
+    // to hand the snapshot to the operation queue; the task stays in the store.
+    let inFlight = try await storage.getNextTask()
+    XCTAssertEqual(inFlight?.jobType, .matchUuid)
+
+    // A second schedule must bypass the in-flight task and create a fresh one.
+    try await appendMatchUuidTask(uuids: ["folder/B.mp3": "uuid-B"])
+
+    let refsAfterSecond = await storage.getAllTasks(progress: [:])
+    let matchRefsAfterSecond = refsAfterSecond.filter { $0.jobType == .matchUuid }
+    XCTAssertEqual(matchRefsAfterSecond.count, 2)
+
+    // A third schedule must merge into the second (non-in-flight) task,
+    // leaving the in-flight task's dict unchanged.
+    try await appendMatchUuidTask(uuids: ["folder/C.mp3": "uuid-C"])
+
+    let tasksAfterThird = await storage.getAllTasksWithParams()
+    let matchTasks = tasksAfterThird.filter { $0.jobType == .matchUuid }
+    XCTAssertEqual(matchTasks.count, 2)
+
+    let inFlightTask = try XCTUnwrap(matchTasks.first)
+    let inFlightUuids = try XCTUnwrap(inFlightTask.parameters["uuids"] as? [String: String])
+    XCTAssertEqual(inFlightUuids, ["folder/A.mp3": "uuid-A"])
+
+    let queuedTask = try XCTUnwrap(matchTasks.last)
+    let queuedUuids = try XCTUnwrap(queuedTask.parameters["uuids"] as? [String: String])
+    XCTAssertEqual(queuedUuids, ["folder/B.mp3": "uuid-B", "folder/C.mp3": "uuid-C"])
+  }
+
+  private func appendMatchUuidTask(uuids: [String: String]) async throws {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.matchUuid.rawValue,
+      "relativePath": "",
+      "uuid": "",
+      "uuids": uuids
+    ]
+    try await storage.appendTask(parameters: parameters)
+  }
+
   private func appendUploadTask(uuid: String, relativePath: String) async throws {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,

@@ -47,6 +47,29 @@ public actor SyncTasksStorage: ModelActor {
       context.insert(tasksContainer)
     }
 
+    // Coalesce matchUuid tasks: if one is already queued and is NOT the task currently
+    // in flight (head of the ordered queue), merge new relativePath→uuid pairs into it.
+    // Prefer existing values so we never overwrite uuids that other queued tasks or
+    // Core Data are already referencing. The in-flight task is skipped because its
+    // parameter snapshot has already been read by `getNextTask`, so mutations would
+    // be silently dropped when the task finishes and gets deleted.
+    if jobType == .matchUuid,
+      let newUuidsDict = parameters["uuids"] as? [String: String],
+      let headTaskID = tasksContainer.orderedTasks.first?.taskID,
+      let candidateTask = try context
+        .fetch(FetchDescriptor<MatchUuidsTaskModel>())
+        .first(where: { $0.id != headTaskID })
+    {
+      var merged = candidateTask.uuids
+      for (path, uuid) in newUuidsDict where merged[path] == nil {
+        merged[path] = uuid
+      }
+      candidateTask.uuids = merged
+      try context.save()
+      tasksDataManager.notifyTasksChanged(context: context)
+      return
+    }
+
     // Check for update task optimization
     if jobType == .update,
       tasksContainer.tasks.count > 1,
