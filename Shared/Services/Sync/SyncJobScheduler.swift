@@ -365,12 +365,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
           if let error {
             Self.logger.error("Operation failed: \(error.localizedDescription)")
-            self.lastSyncError = SyncErrorInfo(
-              taskId: task.id,
-              uuid: task.uuid,
-              jobType: task.jobType,
-              error: error.localizedDescription
-            )
+            Task { @MainActor [weak self] in
+              self?.lastSyncError = SyncErrorInfo(
+                taskId: task.id,
+                uuid: task.uuid,
+                jobType: task.jobType,
+                error: error.localizedDescription
+              )
+            }
             self.retryQueuedTask()
           } else {
             Task { [weak self] in
@@ -425,12 +427,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       try await taskStore.applyMatchUuidConflicts(results.conflicts)
     } catch {
       Self.logger.error("Failed to apply matchUuid conflicts: \(error.localizedDescription)")
-      self.lastSyncError = SyncErrorInfo(
-        taskId: "",
-        uuid: "",
-        jobType: .matchUuid,
-        error: error.localizedDescription
-      )
+      await MainActor.run {
+        self.lastSyncError = SyncErrorInfo(
+          taskId: "",
+          uuid: "",
+          jobType: .matchUuid,
+          error: error.localizedDescription
+        )
+      }
     }
   }
 
