@@ -39,7 +39,10 @@ public enum MigrationPlan: SchemaMigrationPlan {
       let descriptor = FetchDescriptor<SchemaV2.SyncTasksContainer>()
       let containers = try context.fetch(descriptor)
       let tasksContainer = containers.first ?? SchemaV2.SyncTasksContainer()
-      
+      if containers.isEmpty {
+        context.insert(tasksContainer)
+      }
+
       var previousOffset = 0
       var loopShouldContinue = true
       repeat {
@@ -50,7 +53,7 @@ public enum MigrationPlan: SchemaMigrationPlan {
           fetchRequest.fetchLimit = 200
           fetchRequest.fetchOffset = previousOffset
           fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LibraryItem.relativePath, ascending: true)]
-          
+
           if let itemsToUpdate = try? coreDataContext.fetch(fetchRequest) {
             for item in itemsToUpdate {
               uuidsDict[item.relativePath] = item.uuid
@@ -59,8 +62,6 @@ public enum MigrationPlan: SchemaMigrationPlan {
         }
 
         if !uuidsDict.isEmpty {
-          context.insert(tasksContainer)
-          
           var parameters = [
             "id": UUID().uuidString,
             "jobType": SyncJobType.matchUuid.rawValue,
