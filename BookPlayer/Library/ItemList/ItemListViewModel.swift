@@ -390,8 +390,8 @@ extension ItemListViewModel {
         )
         await syncService.scheduleUpload(items: [folder])
         if let fetchedItems = items {
-          try libraryService.moveItems(fetchedItems.map({ $0 }), inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems.map({ $0 }), to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
+          try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+          syncService.scheduleMove(items: fetchedItems, to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
         }
         try libraryService.updateFolder(at: folder.relativePath, type: type)
         libraryService.rebuildFolderDetails(folder.relativePath)
@@ -424,8 +424,8 @@ extension ItemListViewModel {
     }
 
     do {
-      try libraryService.moveItems(fetchedItems.map({ $0 }), inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems.map({ $0 }), to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
+      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
+      syncService.scheduleMove(items: fetchedItems, to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
     } catch {
       loadingState.error = error
     }
