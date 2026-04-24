@@ -10,6 +10,7 @@ import BookPlayerKit
 import Foundation
 
 struct AudiobookShelfAudiobookDetailsData: IntegrationDetailsDataProtocol {
+  let id: String = UUID().uuidString
   let artist: String?
   let narrator: String?
   let filePath: String?

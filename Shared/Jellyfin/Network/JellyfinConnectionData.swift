@@ -15,8 +15,8 @@ public struct JellyfinConnectionData: Codable, Identifiable {
   public let userID: String
   public let userName: String
   public let accessToken: String
-  var selectedLibraryId: String?
-  var customHeaders: [String: String] = [:]
+  public var selectedLibraryId: String?
+  public var customHeaders: [String: String] = [:]
 
   enum CodingKeys: String, CodingKey {
     case id, url, serverName, userID, userName, accessToken, selectedLibraryId, customHeaders

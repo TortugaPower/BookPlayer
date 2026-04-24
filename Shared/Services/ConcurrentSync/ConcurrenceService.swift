@@ -14,7 +14,7 @@ public protocol ConcurrenceServiceProtocol {
   
   init(maxConcurrentTasks: Int)
   
-  func setup(libraryService: LibrarySyncProtocol)
+  func setup(libraryService: LibrarySyncProtocol, accessLevel: AccessLevel)
   
   func observeConcurrentTasksCount() -> AnyPublisher<Int, Never>
   
@@ -49,7 +49,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     self.operationQueue.maxConcurrentOperationCount = maxConcurrentTasks
   }
   
-  public func setup(libraryService: LibrarySyncProtocol) {
+  public func setup(libraryService: LibrarySyncProtocol, accessLevel: AccessLevel) {
     self.libraryService = libraryService
     let tasksDataManager = TasksDataManager()
     self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
@@ -58,6 +58,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     startListeningForNewTasks()
     bindObservers()
     wakeUpWorkers()
+    updateConcurrentService(accessLevel)
   }
   
   func bindObservers() {
@@ -199,6 +200,26 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
       return FileUploadOperation(fileURL: URL(string: filePath)!, remoteURL: URL(string: remotePath)!, uuid: uuid)
     }
   }
+  
+  func updateConcurrentService(_ accessLevel: AccessLevel) {
+    switch accessLevel {
+    case .lite:
+      accessPolicy = [
+        .update: true,
+        .uploadFile: false,
+      ]
+    case .pro:
+      accessPolicy = [
+        .update: true,
+        .uploadFile: true,
+      ]
+    default:
+      accessPolicy = [
+        .update: false,
+        .uploadFile: false,
+      ]
+    }
+  }
 }
 
 extension ConcurrenceService {
@@ -206,7 +227,6 @@ extension ConcurrenceService {
     guard accessPolicy[.update] == true else {
       return
     }
-    
     Task {
       guard let queueKey = params["providerName"] as? String else {
         return
@@ -220,7 +240,6 @@ extension ConcurrenceService {
       if let lastPlayDate = params.removeValue(forKey: #keyPath(LibraryItem.lastPlayDate)) {
         params["lastPlayDateTimestamp"] = lastPlayDate
       }
-      
       try await taskContainer.storeTask(parameters: params)
     }
   }

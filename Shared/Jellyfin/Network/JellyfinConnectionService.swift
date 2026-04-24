@@ -171,14 +171,14 @@ public class JellyfinConnectionService: BPLogger {
     pending.injector.setCustomHeaders(customHeaders)
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard let activeID = connection?.id else { return }
     updateCustomHeaders(id: activeID, headers)
   }
 
   /// Persist `headers` to the connection with the given id, regardless of which is active.
   /// If `id` happens to be the active connection, the live header injector is also updated.
-  func updateCustomHeaders(id: String, _ headers: [String: String]) {
+  public func updateCustomHeaders(id: String, _ headers: [String: String]) {
     guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
     connections[index].customHeaders = headers
     saveConnections()
@@ -187,20 +187,20 @@ public class JellyfinConnectionService: BPLogger {
     }
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard let activeID = connection?.id,
           let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
     connections[index].selectedLibraryId = id
     saveConnections()
   }
 
-  func activateConnection(id: String) {
+  public func activateConnection(id: String) {
     guard connections.contains(where: { $0.id == id }) else { return }
     activeConnectionID = id
     rebuildClient(for: connection)
   }
 
-  func deleteConnection(id: String) {
+  public func deleteConnection(id: String) {
     // Capture the old client BEFORE we mutate state, so the fire-and-forget
     // signOut doesn't race with the rebuildClient call below (and so signOut
     // is invoked on the connection the user actually asked us to remove).
@@ -734,7 +734,7 @@ public class JellyfinConnectionService: BPLogger {
 
   /// Returns a URLRequest for downloading a library item, carrying the user-defined
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
-  func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
+  public func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
     let url = try createItemDownloadUrl(item)
     return wrapWithCustomHeaders(url)
   }

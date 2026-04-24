@@ -21,7 +21,10 @@ struct IntegrationAudiobookDetailsView<
   @ObservedObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
 
+  var showSubscribeButton: Bool = false
+  var allowStream: Bool = false
   var onDownloadTap: () -> Void
+  var onStreamTap: () -> Void
   @ViewBuilder let imageContent: () -> ImageContent
 
   var voiceOverBookInfo: String {
@@ -75,26 +78,18 @@ struct IntegrationAudiobookDetailsView<
           .bpFont(.caption)
         }
 
-        Button {
-          do {
-            try viewModel.beginDownloadAudiobook(viewModel.item)
-            onDownloadTap()
-          } catch {
-            viewModel.error = error
+        HStack(spacing: 12) {
+          if allowStream {
+            SynchronizeButton
+          } else if showSubscribeButton {
+            SmallDownloadButton
+            SynchronizeButton
+          } else {
+            DownloadButton
           }
-        } label: {
-          HStack {
-            Image(systemName: "square.and.arrow.down")
-            Text("download_title".localized)
-              .fontWeight(.semibold)
-          }
-          .frame(maxWidth: .infinity)
-          .padding()
-          .foregroundStyle(theme.systemBackgroundColor)
-          .background(theme.linkColor)
-          .cornerRadius(10)
         }
         .padding(.horizontal)
+        .padding(.vertical, 12)
 
         if let details = viewModel.details {
           VStack {
@@ -147,5 +142,76 @@ struct IntegrationAudiobookDetailsView<
       viewModel.cancelFetchData()
     }
     .scrollIndicators(.hidden)
+  }
+  
+  var DownloadButton: some View {
+    Button {
+      do {
+        try viewModel.handleImportAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
+      }
+    } label: {
+      HStack {
+        Image(systemName: "square.and.arrow.down")
+        Text("Download")
+          .fontWeight(.semibold)
+      }
+      .frame(height: 24)
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.tertiarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
+  }
+  
+  var SmallDownloadButton: some View {
+    Button {
+      do {
+        try viewModel.handleImportAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
+      }
+    } label: {
+      HStack {
+        Image(systemName: "square.and.arrow.down")
+      }
+      .frame(width: 36, height: 24)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.tertiarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
+  }
+  
+  var SynchronizeButton: some View {
+    Button {
+      if allowStream {
+        do {
+          try self.viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
+      } else {
+        onStreamTap()
+      }
+    } label: {
+      HStack {
+        Image(systemName: "arrow.down.circle.dotted")
+        Text("Stream")
+          .foregroundStyle(theme.primaryColor)
+          .bpFont(.title)
+      }
+      .frame(height: 24)
+      .frame(maxWidth: .infinity)
+      .padding()
+      .foregroundStyle(theme.primaryColor)
+      .background(theme.secondarySystemBackgroundColor)
+      .cornerRadius(10)
+    }
   }
 }

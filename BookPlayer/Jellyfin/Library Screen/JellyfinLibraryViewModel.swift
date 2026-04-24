@@ -22,13 +22,6 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case subscribe
 }
 
-enum JellyfinLayout {
-  enum SortBy: String {
-    case recent, name, smart
-  }
-}
-
-@MainActor
 final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
@@ -69,7 +62,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   let recursive: Bool
   var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
-  let accountService: AccountService
+  var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -424,6 +417,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       return externalItem
     }
     
+    navigation.dismiss?()
     importManager?.externalFiles.append(contentsOf: libraryItems)
     importManager?.isShowingExternalImportView = true
   }
@@ -452,13 +446,14 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var useSelectedItems: Bool = false
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
 
   var importManager: ImportManager?
   let connectionService: JellyfinConnectionService
-  let accountService: AccountService
+  var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -576,6 +571,66 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
+  
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool) {
+    if accountService.hasLiteEnabled() {
+      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        confirmDownloadFolder()
+      }
+    }
+  }
+  
+  @MainActor
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+    let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
+      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
+      let libraryItem = SimpleLibraryItem(
+        title: item.name,
+        details: item.details?.artist ?? "voiceover_unknown_author".localized,
+        speed: 1,
+        currentTime: Double(item.currentSeconds ?? 0),
+        duration: Double(item.durationSeconds ?? 0),
+        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
+        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        isFinished: item.isFinished ?? false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: "\(item.name).\(fileExt)",
+        lastPlayDate: item.lastPlayedDate,
+        type: .book,
+        uuid: UUID().uuidString
+      )
+      
+      let externalItem = SimpleExternalResource(
+        id: UUID().hashValue,
+        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
+        providerId: item.id,
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+        lastSyncedAt: nil,
+        libraryItem: libraryItem
+      )
+      
+      return externalItem
+    }
+    
+    navigation.dismiss?()
+    importManager?.externalFiles.append(contentsOf: libraryItems)
+    importManager?.isShowingExternalImportView = true
+  }
 
   @MainActor func onDownloadFolderTapped() {}
   @MainActor func confirmDownloadFolder() {}
@@ -614,12 +669,13 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var useSelectedItems: Bool = false
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
   
-  var importManager: ImportManager? { get set }
-  let accountService: AccountService
+  var importManager: ImportManager?
+  var accountService: AccountService
   let connectionService: JellyfinConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -739,6 +795,66 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
   }
+  
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool) {
+    if accountService.hasLiteEnabled() {
+      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        confirmDownloadFolder()
+      }
+    }
+  }
+  
+  @MainActor
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+    let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
+      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
+      let libraryItem = SimpleLibraryItem(
+        title: item.name,
+        details: item.details?.artist ?? "voiceover_unknown_author".localized,
+        speed: 1,
+        currentTime: Double(item.currentSeconds ?? 0),
+        duration: Double(item.durationSeconds ?? 0),
+        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
+        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        isFinished: item.isFinished ?? false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: "\(item.name).\(fileExt)",
+        lastPlayDate: item.lastPlayedDate,
+        type: .book,
+        uuid: UUID().uuidString
+      )
+      
+      let externalItem = SimpleExternalResource(
+        id: UUID().hashValue,
+        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
+        providerId: item.id,
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+        lastSyncedAt: nil,
+        libraryItem: libraryItem
+      )
+      
+      return externalItem
+    }
+    
+    navigation.dismiss?()
+    importManager?.externalFiles.append(contentsOf: libraryItems)
+    importManager?.isShowingExternalImportView = true
+  }
 
   @MainActor func onDownloadFolderTapped() {}
   @MainActor func confirmDownloadFolder() {}
@@ -776,13 +892,14 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var useSelectedItems: Bool = false
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
   var importManager: ImportManager?
-  let accountService: AccountService
+  var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -843,6 +960,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
   @MainActor func onDownloadTapped() {}
   @MainActor func onDownloadFolderTapped() {}
   @MainActor func confirmDownloadFolder() {}
+  @MainActor func handleImportItems(useSelectedItems: Bool) {}
 
   private func applyLocalSearch() {
     let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -873,13 +991,14 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
+  @Published var useSelectedItems: Bool = false
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
   var importManager: ImportManager?
-  let accountService: AccountService
+  var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
@@ -940,6 +1059,7 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor func onDownloadTapped() {}
   @MainActor func onDownloadFolderTapped() {}
   @MainActor func confirmDownloadFolder() {}
+  @MainActor func handleImportItems(useSelectedItems: Bool) {}
 
   private func applyLocalSearch() {
     let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)

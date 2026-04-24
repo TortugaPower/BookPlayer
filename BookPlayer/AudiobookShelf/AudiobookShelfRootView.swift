@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct AudiobookShelfRootView: View {
   let connectionService: AudiobookShelfConnectionService
@@ -55,6 +56,7 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: AccountService(),
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -69,6 +71,7 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: AccountService(),
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -83,6 +86,7 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: AccountService(),
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -97,6 +101,7 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: AccountService(),
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -111,6 +116,7 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: AccountService(),
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -292,7 +298,6 @@ struct AudiobookShelfRootView: View {
   }
 }
 
-
 // MARK: - Per-Tab NavigationStack
 
 /// Each tab owns its own NavigationStack and BPNavigation.
@@ -300,6 +305,7 @@ struct AudiobookShelfRootView: View {
 private struct AudiobookShelfTabRoot: View {
   let connectionService: AudiobookShelfConnectionService
   let singleFileDownloadService: SingleFileDownloadService
+  let accountService: AccountService
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
   var dismissAll: DismissAction?
@@ -316,12 +322,14 @@ private struct AudiobookShelfTabRoot: View {
     libraryTitle: String,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
     dismissAll: DismissAction? = nil
   ) {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.dismissAll = dismissAll
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
@@ -333,6 +341,7 @@ private struct AudiobookShelfTabRoot: View {
         source: source,
         connectionService: connectionService,
         singleFileDownloadService: singleFileDownloadService,
+        accountService: accountService,
         navigation: navigation,
         navigationTitle: libraryTitle
       )
@@ -351,6 +360,7 @@ private struct AudiobookShelfTabRoot: View {
                 source: source,
                 connectionService: connectionService,
                 singleFileDownloadService: singleFileDownloadService,
+                accountService: accountService,
                 navigation: navigation,
                 navigationTitle: title
               )
@@ -364,6 +374,8 @@ private struct AudiobookShelfTabRoot: View {
               )
             ) {
               onDismiss()
+            } onStreamTap: {
+              navigation.path.append(JellyfinLibraryLevelData.subscribe)
             }
           }
         }

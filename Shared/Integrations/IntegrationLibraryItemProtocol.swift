@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol IntegrationLibraryItemProtocol: Identifiable, Hashable {
+public protocol IntegrationLibraryItemProtocol: Identifiable, Hashable {
   var id: String { get }
   var displayName: String { get }
   var isDownloadable: Bool { get }

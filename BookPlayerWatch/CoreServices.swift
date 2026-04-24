@@ -47,6 +47,7 @@ class CoreServices: ObservableObject {
 
   func checkAndReloadIfSyncIsEnabled() {
     self.hasSyncEnabled = accountService.hasSyncEnabled()
+    self.updateConcurrentService(accountService.getAccessLevel())
   }
 
   func updateSyncEnabled(_ enabled: Bool) {

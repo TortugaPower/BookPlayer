@@ -19,6 +19,10 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+  var importManager: ImportManager?
+  var accountService: BookPlayerKit.AccountService
+  func handleImportItems(useSelectedItems: Bool) {}
+  
   enum Routes {
     case done
   }
@@ -44,7 +48,8 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
-
+  @Published var useSelectedItems: Bool = false
+  
   var onTransition: BPTransition<Routes>?
 
   let connectionService: AudiobookShelfConnectionService
@@ -122,12 +127,14 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     source: AudiobookShelfLibraryViewSource,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.source = source
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 /// Thin wrapper providing AudiobookShelf-specific image view to the shared details view.
 struct AudiobookShelfAudiobookDetailsView<
@@ -16,11 +17,13 @@ where Model.Item == AudiobookShelfLibraryItem, Model.Details == AudiobookShelfAu
 
   @ObservedObject var viewModel: Model
   var onDownloadTap: () -> Void
-
+  var onStreamTap: () -> Void
+  
   var body: some View {
     IntegrationAudiobookDetailsView(
       viewModel: viewModel,
       onDownloadTap: onDownloadTap,
+      onStreamTap: onStreamTap,
       imageContent: {
         AudiobookShelfLibraryItemImageView(item: viewModel.item)
           .environment(\.audiobookshelfService, audiobookShelfConnectionService)

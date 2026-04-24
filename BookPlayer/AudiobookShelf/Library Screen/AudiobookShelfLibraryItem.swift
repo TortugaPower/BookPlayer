@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BookPlayerKit
 
 struct AudiobookShelfSeriesReference: Codable, Hashable {
   let id: String

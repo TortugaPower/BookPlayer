@@ -10,36 +10,10 @@ import BookPlayerKit
 import Foundation
 import JellyfinAPI
 
-struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
-  let artist: String?
-  let filePath: String?
-  let fileSize: Int?
-  let overview: String?
-  let runtimeInSeconds: TimeInterval?
-  let genres: [String]?
-  let tags: [String]?
-
-  var fileSizeString: String {
-    if let fileSize {
-      ByteCountFormatter.string(
-        fromByteCount: Int64(fileSize),
-        countStyle: ByteCountFormatter.CountStyle.file
-      )
-    } else {
-      "file_size_unknown".localized
-    }
-  }
-
-  var runtimeString: String {
-    if let runtimeInSeconds {
-      return TimeParser.formatTotalDuration(runtimeInSeconds)
-    } else {
-      return "runtime_unknown".localized
-    }
-  }
-}
-
 class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
+  typealias Item = JellyfinLibraryItem
+  typealias Details = JellyfinAudiobookDetailsData
+  
   let item: JellyfinLibraryItem
   let connectionService: JellyfinConnectionService
   let accountService: AccountService
@@ -68,6 +42,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     self.importManager = importManager
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+    self.details = nil
   }
 
   @MainActor
@@ -80,10 +55,10 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       defer { fetchTask = nil }
 
       do {
-        let details = try await connectionService.fetchItemDetails(for: item.id)
+        let detailsData = try await connectionService.fetchItemDetails(for: item.id)
 
         await MainActor.run {
-          self.details = details
+          self.details = detailsData
         }
       } catch is CancellationError {
         // ignore

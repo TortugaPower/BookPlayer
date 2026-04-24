@@ -6,7 +6,7 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-public struct JellyfinAudiobookDetailsData: Identifiable, Hashable {
+public struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
   public let id: String = UUID().uuidString
   public let artist: String?
   public let filePath: String?
@@ -15,6 +15,9 @@ public struct JellyfinAudiobookDetailsData: Identifiable, Hashable {
   public let runtimeInSeconds: TimeInterval?
   public let genres: [String]?
   public let tags: [String]?
+  
+  public let narrator: String?
+  public var seriesEntries: [IntegrationSeriesEntry] = []
 
   public var fileSizeString: String {
     if let fileSize {
@@ -51,6 +54,8 @@ public struct JellyfinAudiobookDetailsData: Identifiable, Hashable {
     self.runtimeInSeconds = runtimeInSeconds
     self.genres = genres
     self.tags = tags
+    self.narrator = nil
+    self.seriesEntries = []
   }
 }
 
