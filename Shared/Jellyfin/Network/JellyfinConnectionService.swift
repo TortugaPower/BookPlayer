@@ -123,7 +123,7 @@ public class JellyfinConnectionService: BPLogger {
     headerInjector?.setCustomHeaders(customHeaders)
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard var data = connection else { return }
     data.customHeaders = headers
     connection = data
@@ -131,7 +131,7 @@ public class JellyfinConnectionService: BPLogger {
     headerInjector?.setCustomHeaders(headers)
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard var data = connection else { return }
     data.selectedLibraryId = id
     connection = data
@@ -570,7 +570,7 @@ public class JellyfinConnectionService: BPLogger {
 
   /// Returns a URLRequest for downloading a library item, carrying the user-defined
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
-  func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
+  public func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
     let url = try createItemDownloadUrl(item)
     return wrapWithCustomHeaders(url)
   }

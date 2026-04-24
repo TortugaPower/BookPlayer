@@ -164,7 +164,7 @@ final class ImportManager: ObservableObject {
       return true
     }
     
-    if self.libraryService.findResource(for: externalResource.providerId) != nil {
+    if self.libraryService.findResource(for: externalResource.providerId, context: nil) != nil {
       return true
     }
     

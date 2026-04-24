@@ -172,7 +172,7 @@ public protocol LibraryServiceProtocol: AnyObject {
     
   func getExternalResource(for providerId: String) async -> ExternalResource?
   
-  func findResource(for providerId: String) -> ExternalResource?
+  func findResource(for providerId: String, context: NSManagedObjectContext?) -> ExternalResource?
   
   func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
   
@@ -2866,10 +2866,10 @@ extension LibraryService {
     }
   }
   
-  public func findResource(for providerId: String) -> ExternalResource? {
+  public func findResource(for providerId: String, context: NSManagedObjectContext? = nil) -> ExternalResource? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
-    let context = self.dataManager.getContext()
+    let context = context ?? self.dataManager.getContext()
 
     let result = try? context.fetch(fetch)
     

@@ -49,7 +49,7 @@ struct ConcurrentSyncTasksView: View {
             QueuedSyncTaskRowView(
               imageName: .constant(parseImageName(job.jobType)),
               title: .constant(parseLabel(job.jobType, job.queueKey)),
-              relativePath: "",
+              progressKey: job.queueKey,
               initialProgress: monitor.getTaskProgress(taskID: job.id),
               isUpload: false
             )

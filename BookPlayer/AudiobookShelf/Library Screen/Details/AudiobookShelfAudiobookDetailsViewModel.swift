@@ -10,7 +10,6 @@ import BookPlayerKit
 import Foundation
 
 class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
-
   let item: AudiobookShelfLibraryItem
   let connectionService: AudiobookShelfConnectionService
   @Published var details: AudiobookShelfAudiobookDetailsData?
@@ -65,4 +64,10 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     let request = try connectionService.createItemDownloadRequest(item)
     singleFileDownloadService.handleDownload(request)
   }
+  
+  @MainActor
+  func virtualImportAudiobook(_ item: AudiobookShelfLibraryItem) throws { }
+  
+  @MainActor
+  func handleImportAudiobook(_ item: AudiobookShelfLibraryItem) throws { }
 }

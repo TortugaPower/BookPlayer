@@ -825,8 +825,11 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
             let jellyfinSource = externalResources.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
             let jellyfinItem = try await jellyfinService.fetchItem(for: jellyfinSource.providerId) else  { return }
       
+      let threshold: TimeInterval = 15
       let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
-      if externalPlayDate > lastPlayDate || TimeInterval(jellyfinItem.currentSeconds ?? 0) > playableItem.currentTime {
+      let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+      let isExternalSecondsFarther = TimeInterval(jellyfinItem.currentSeconds ?? 0) > (playableItem.currentTime + threshold)
+      if  isExternalDateNewer || isExternalSecondsFarther {
         playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
         playerState.showResumePopup = true
       }

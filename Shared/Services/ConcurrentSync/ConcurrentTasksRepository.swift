@@ -144,11 +144,10 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
     if containers.isEmpty {
       context.insert(tasksContainer)
     }
-
     if jobType == .update,
        let providerId = parameters["providerId"] as? String,
-       let existingTask = try context.fetch(FetchDescriptor<ExternalUpdateTaskModel>()).last(where: { $0.providerId == providerId }) {
-      
+       let existingTask = try context.fetch(FetchDescriptor<ExternalUpdateTaskModel>()).last(where: { $0.providerId == providerId }),
+       tasksContainer.tasks.first(where: { $0.taskID == existingTask.id }) != nil {
       tasksDataManager.updateExternalUpdateTaskModel(for: existingTask, with: parameters, in: modelContext)
       try context.save()
       tasksDataManager.notifyConcurrentTasksChanged(context: context)

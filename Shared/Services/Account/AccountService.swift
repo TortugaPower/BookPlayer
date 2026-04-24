@@ -74,7 +74,8 @@ public protocol AccountServiceProtocol {
 
   func getHardcodedSubscriptionOptions() -> [PricingModel]
   func getSubscriptionOptions() async throws -> [PricingModel]
-
+  func getAccessLevel() -> AccessLevel
+  
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
@@ -214,7 +215,7 @@ public final class AccountService: AccountServiceProtocol {
     return getAccount()?.donationMade == true
   }
 
-  private func getAccessLevel() -> AccessLevel {
+  public func getAccessLevel() -> AccessLevel {
     if hasSyncEnabled() && !hasLiteEnabled() {
       return .pro
     } else if hasLiteEnabled() {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 enum IntegrationLayout {
   enum Options: String {
@@ -30,10 +31,11 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var editMode: EditMode { get set }
   var selectedItems: Set<Item.ID> { get set }
   var showingDownloadConfirmation: Bool { get set }
-
+  var useSelectedItems: Bool { get set }
+  
   var importManager: ImportManager? { get set }
   var accountService: AccountService { get set }
-  var connectionService: JellyfinConnectionService { get }
+  //var connectionService: JellyfinConnectionService { get }
   
   var searchQuery: String { get set }
   var isSearchable: Bool { get }

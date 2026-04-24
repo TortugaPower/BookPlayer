@@ -78,7 +78,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         dataManager: dataManager
       )
       let concurrenceService = ConcurrenceService()
-      concurrenceService.setup(libraryService: libraryService)
+      concurrenceService.setup(libraryService: libraryService, accessLevel: accountService.accessLevel)
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
       let playerManager = PlayerManager(

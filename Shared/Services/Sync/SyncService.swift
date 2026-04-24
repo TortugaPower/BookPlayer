@@ -715,9 +715,11 @@ extension SyncService {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
       
       guard let item = self.libraryService.getItemWithResources(with: relativePath),
-            item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) != nil else { return }
+            let externalResource = item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) else { return }
       
       Task {
+        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true)
+        await self.libraryService.updateExternalResource(for: externalSyncItem)
         await self.jobManager.scheduleResourceToDownload(with: item.relativePath, for: item.uuid, uploaded: false)
       }
     }

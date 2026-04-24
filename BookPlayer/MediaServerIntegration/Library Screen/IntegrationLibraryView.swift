@@ -64,7 +64,7 @@ struct IntegrationLibraryView<
           
           SyncInvitationCard(
             totalItems: viewModel.useSelectedItems ? viewModel.selectedItems.count : viewModel.totalItems,
-            hasSubscription: accountService.hasLiteEnabled(),
+            subscription: viewModel.accountService.accessLevel,
             onDownload: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
               viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
@@ -130,7 +130,15 @@ struct IntegrationLibraryView<
             Button(action: viewModel.onEditToggleSelectTapped) {
               Label("select_title".localized, systemImage: "checkmark.circle")
             }
-            Button(action: viewModel.onDownloadFolderTapped) {
+            
+            Button {
+              if viewModel.accountService.hasLiteEnabled() {
+                viewModel.handleImportItems(useSelectedItems: false)
+              } else {
+                viewModel.useSelectedItems = true
+                withAnimation { viewModel.showingDownloadConfirmation = true }
+              }
+            } label: {
               Label("download_title".localized, systemImage: "arrow.down.to.line")
             }
           }
@@ -172,7 +180,14 @@ struct IntegrationLibraryView<
 
     Spacer()
 
-    Button(action: viewModel.onDownloadTapped) {
+    Button {
+      if viewModel.accountService.hasLiteEnabled() {
+        viewModel.handleImportItems(useSelectedItems: true)
+      } else {
+        viewModel.useSelectedItems = true
+        withAnimation { viewModel.showingDownloadConfirmation = true }
+      }
+    } label: {
       Image(systemName: "arrow.down.to.line")
     }
     .disabled(viewModel.selectedItems.isEmpty)

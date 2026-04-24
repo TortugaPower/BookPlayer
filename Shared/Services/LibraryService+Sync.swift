@@ -53,6 +53,8 @@ public protocol LibrarySyncProtocol {
   func addBookmark(from bookmark: SimpleBookmark) async
     
   func getItemWithResources(with relativePath: String) -> LibraryItem?
+  
+  func updateExternalResource(for item: SyncableExternalResource) async
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -166,11 +168,23 @@ extension LibraryService: LibrarySyncProtocol {
       
       let idsToAdd = remoteIds.subtracting(localIds)
       let idsToRemove = localIds.subtracting(remoteIds)
+      let idsExisting = localIds.intersection(remoteIds)
+      
       for localResource in storedItem.resourcesArray {
         if idsToRemove.contains(localResource.providerId) {
           storedItem.removeFromExternalResources(localResource)
           context.delete(localResource)
         }
+      }
+      
+      for idExisting in idsExisting {
+        guard let localItem = storedItem.resourcesArray.first(where: { $0.providerId == idExisting }),
+              let remoteData = item.externalResources?.first(where: { $0.providerId == idExisting }),
+              remoteData.syncStatus != localItem.syncStatus
+           else {
+          continue
+        }
+        localItem.syncStatus = remoteData.syncStatus
       }
       
       for idToAdd in idsToAdd {
@@ -196,18 +210,32 @@ extension LibraryService: LibrarySyncProtocol {
        allExternalItems.count > storedItem.resourcesArray.count {
       let allSet = Set(allExternalItems)
       let keepSet = Set(storedItem.resourcesArray)
-
+      
       // 2. Find the difference (things in 'all' but NOT in 'keep')
       let toDelete = allSet.subtracting(keepSet)
-
+      
       // 3. Delete them from the context
       toDelete.forEach { resource in
-          context.delete(resource)
+        context.delete(resource)
       }
     }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
+    }
+  }
+  
+  public func updateExternalResource(for item: SyncableExternalResource) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let externalResource = self.findResource(for: item.providerId, context: context)
+        if let externalResource {
+          externalResource.syncStatus = item.syncStatus
+          externalResource.processedFile = item.processedFile
+        }
+        continuation.resume()
+      }
     }
   }
 

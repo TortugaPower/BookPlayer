@@ -10,6 +10,10 @@ import Foundation
 import JellyfinAPI
 
 public struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
+  public static func == (lhs: JellyfinLibraryItem, rhs: JellyfinLibraryItem) -> Bool {
+    return lhs.id == rhs.id
+  }
+  
   public enum Kind {
     case userView
     case folder
@@ -30,17 +34,17 @@ public struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
   public let imageAspectRatio: Double?
   public let details: JellyfinAudiobookDetailsData?
 
-  var isDownloadable: Bool {
+  public var isDownloadable: Bool {
     kind == .audiobook
   }
 
-  var isNavigable: Bool {
+  public var isNavigable: Bool {
     !isDownloadable
   }
 
-  var displayName: String { name }
+  public var displayName: String { name }
 
-  var placeholderImageName: String {
+  public var placeholderImageName: String {
     switch kind {
     case .audiobook: "waveform"
     case .userView, .folder: "folder"
