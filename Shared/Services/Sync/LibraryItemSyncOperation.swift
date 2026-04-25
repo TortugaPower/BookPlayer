@@ -309,6 +309,7 @@ extension LibraryItemSyncOperation {
   func markUploadAsSynced(uuid: String) async throws {
     let _: UploadItemResponse = try await self.provider.request(.update(params: [
       "uuid": uuid,
+      "relativePath": self.relativePath,
       "synced": true
     ]))
   }
