@@ -342,11 +342,12 @@ struct DebugFileTransferable: Transferable {
     for (index, job) in jobs.enumerated() {
       information += "\n[\(index + 1)] \(job.jobType.rawValue)\n"
       information += "  Task ID: \(job.id)\n"
+      information += "  Path: \(job.relativePath)\n"
       information += "  Uuid: \(job.uuid)\n"
       information += "  Parameters:\n"
       for (key, value) in job.parameters.sorted(by: { $0.key < $1.key }) {
-        // Skip id and relativePath as they're already shown
-        if key == "id" || key == "uuid" { continue }
+        // Skip id, relativePath and uuid as they're already shown
+        if key == "id" || key == "relativePath" || key == "uuid" { continue }
         information += "    \(key): \(value)\n"
       }
     }
