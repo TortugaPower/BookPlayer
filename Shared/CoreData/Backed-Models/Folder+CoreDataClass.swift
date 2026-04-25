@@ -18,7 +18,8 @@ public class Folder: LibraryItem {
   public convenience init(title: String, context: NSManagedObjectContext) {
     let entity = NSEntityDescription.entity(forEntityName: "Folder", in: context)!
     self.init(entity: entity, insertInto: context)
-
+    
+    self.uuid = UUID().uuidString
     self.relativePath = title
     self.title = title
     self.originalFileName = title
@@ -31,6 +32,7 @@ public class Folder: LibraryItem {
     self.init(entity: entity, insertInto: context)
 
     let fileTitle = fileURL.lastPathComponent
+    self.uuid = UUID().uuidString
     self.relativePath = fileURL.relativePath(to: DataManager.getProcessedFolderURL())
     self.title = fileTitle
     self.originalFileName = fileTitle
@@ -61,6 +63,8 @@ public class Folder: LibraryItem {
       fatalError("Failed to decode Folder!")
     }
     self.init(entity: entity, insertInto: nil)
+
+    self.uuid = UUID().uuidString
 
     let values = try decoder.container(keyedBy: CodingKeys.self)
     title = try values.decode(String.self, forKey: .title)
@@ -98,5 +102,6 @@ extension Folder {
       self.lastPlayDate = Date(timeIntervalSince1970: timestamp)
     }
     self.type = syncItem.type.itemType
+    self.uuid = syncItem.uuid
   }
 }

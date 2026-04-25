@@ -61,7 +61,7 @@ extension ItemListView {
     
     Button("new_playlist_button") {
       folderInput.prepareForFolder(title: suggestedFolderName, placeholder: suggestedFolderName)
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
       activeAlert = nil
       Task { @MainActor in
         activeAlert = .createFolder(type: .folder, placeholder: suggestedFolderName)
@@ -70,7 +70,7 @@ extension ItemListView {
     
     Button("existing_playlist_button") {
       model.pendingMoveItemIdentifiers = alertParameters.itemIdentifiers
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
       activeSheet = .foldersSelection
     }
     .disabled(alertParameters.availableFolders.isEmpty)
@@ -78,7 +78,7 @@ extension ItemListView {
     Button("bound_books_create_button") {
       if alertParameters.hasOnlyBooks {
         folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
-        model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+        model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
         activeAlert = nil
         Task { @MainActor in
           activeAlert = .createFolder(type: .bound, placeholder: suggestedFolderName)
@@ -145,7 +145,9 @@ extension ItemListView {
     Button("create_button") {
       model.createFolder(
         with: folderInput.name,
-        items: selectedItems,
+        items: model.selectedItems.map { item in
+          PathUuidPair(relativePath: item.relativePath, uuid: item.uuid)
+        },
         type: folderInput.type
       )
       folderInput.reset()

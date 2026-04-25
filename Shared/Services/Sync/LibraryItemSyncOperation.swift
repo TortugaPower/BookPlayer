@@ -54,8 +54,10 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let client: NetworkClientProtocol
   let provider: NetworkProvider<LibraryAPI>
   let relativePath: String
+  let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
+  var results: ApiResponse?
   var error: Error?
   
   private var progressSubscriber: AnyCancellable?
@@ -74,6 +76,7 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.relativePath = task.relativePath
     self.jobType = task.jobType
     self.parameters = task.parameters
+    self.uuid = task.uuid
   }
 
   override func start() {
@@ -111,20 +114,20 @@ class LibraryItemSyncOperation: Operation, BPLogger {
           else {
             throw BookPlayerError.runtimeError("Missing parameters for moving")
           }
-          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination))
+          let _: Empty = try await self.provider.request(.move(origin: origin, destination: destination, uuid: uuid))
           finish()
         case .renameFolder:
           guard let name = parameters["name"] as? String else {
             throw BookPlayerError.runtimeError("Missing parameters for renaming")
           }
 
-          let _: Empty = try await provider.request(.renameFolder(path: self.relativePath, name: name))
+          let _: Empty = try await provider.request(.renameFolder(path: self.relativePath, name: name, uuid: uuid))
           finish()
         case .delete:
-          let _: Empty = try await provider.request(.delete(path: self.relativePath))
+          let _: Empty = try await provider.request(.delete(path: self.relativePath, uuid: uuid))
           finish()
         case .shallowDelete:
-          let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath))
+          let _: Empty = try await provider.request(.shallowDelete(path: self.relativePath, uuid: uuid))
           finish()
         case .setBookmark:
           try await handleSetBookmark()
@@ -134,6 +137,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
           finish()
         case .uploadArtwork:
           try await handleUploadArtwork()
+          finish()
+        case .matchUuid:
+          try await handleMatchUuids()
           finish()
         }
       } catch {
@@ -157,7 +163,7 @@ extension LibraryItemSyncOperation {
 
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
-      try await markUploadAsSynced(relativePath: self.relativePath)
+      try await markUploadAsSynced(uuid: self.uuid)
       finish()
       return
     }
@@ -169,7 +175,7 @@ extension LibraryItemSyncOperation {
         parameters: nil,
         useKeychain: false
       )
-      try await markUploadAsSynced(relativePath: self.relativePath)
+      try await markUploadAsSynced(uuid: self.uuid)
       finish()
       return
     }
@@ -240,13 +246,15 @@ extension LibraryItemSyncOperation {
 
   func bindUploadObservers() {
     progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { (path, progress) in
+    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { [uuid, relativePath] (path, progress) in
+      guard path == relativePath else { return }
       NotificationCenter.default.post(
         name: .uploadProgressUpdated,
         object: nil,
         userInfo: [
           "progress": progress,
-          "relativePath": path
+          "relativePath": path,
+          "uuid": uuid
         ]
       )
     })
@@ -288,9 +296,7 @@ extension LibraryItemSyncOperation {
   func handleUploadFinished(_ task: URLSessionTask) {
     Task { [task] in
       do {
-        if let relativePath = task.taskDescription {
-          try await markUploadAsSynced(relativePath: relativePath)
-        }
+        try await markUploadAsSynced(uuid: uuid)
         NotificationCenter.default.post(name: .uploadCompleted, object: task)
         finish()
       } catch {
@@ -300,9 +306,10 @@ extension LibraryItemSyncOperation {
     }
   }
 
-  func markUploadAsSynced(relativePath: String) async throws {
+  func markUploadAsSynced(uuid: String) async throws {
     let _: UploadItemResponse = try await self.provider.request(.update(params: [
-      "relativePath": relativePath,
+      "uuid": uuid,
+      "relativePath": self.relativePath,
       "synced": true
     ]))
   }
@@ -323,7 +330,8 @@ extension LibraryItemSyncOperation {
         path: self.relativePath,
         note: parameters["note"] as? String,
         time: time,
-        isActive: true
+        isActive: true,
+        uuid: uuid
       )
     )
   }
@@ -340,7 +348,8 @@ extension LibraryItemSyncOperation {
         path: self.relativePath,
         note: nil,
         time: time,
-        isActive: false
+        isActive: false,
+        uuid: uuid
       )
     )
   }
@@ -357,13 +366,29 @@ extension LibraryItemSyncOperation {
 
     let filename = "\(UUID().uuidString)-\(Int(Date().timeIntervalSince1970)).jpg"
     let response: ArtworkResponse = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil)
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: nil, uuid: uuid)
     )
 
     try await client.upload(data, remoteURL: response.thumbnailURL)
 
     let _: Empty = try await self.provider.request(
-      .uploadArtwork(path: relativePath, filename: filename, uploaded: true)
+      .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
     )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  func handleMatchUuids() async throws {
+    guard
+      let uuidsDictionary = parameters["uuids"] as? [String: String],
+      uuidsDictionary.count > 0
+    else {
+      return
+    }
+    let response: MatchUuidsResponse = try await self.provider.request(
+      .matchUuids(uuidsDictionary: uuidsDictionary)
+    )
+    
+    self.results = .matchUuid(response)
   }
 }

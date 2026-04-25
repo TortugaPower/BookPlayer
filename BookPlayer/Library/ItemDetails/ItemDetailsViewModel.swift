@@ -162,7 +162,7 @@ final class ItemDetailsViewModel: ObservableObject {
 
       await ArtworkService.removeCache(for: item.relativePath)
       await ArtworkService.storeInCache(imageData, for: cacheKey)
-      syncService.scheduleUploadArtwork(relativePath: cacheKey)
+      syncService.scheduleUploadArtwork(relativePath: cacheKey, uuid: item.uuid)
 
       loadingState.show = false
       listState.reload(.path(item.parentFolder ?? ""))
@@ -196,7 +196,7 @@ final class ItemDetailsViewModel: ObservableObject {
     case .bound, .folder:
       let newRelativePath = try libraryService.renameFolder(at: relativePath, with: cleanedTitle)
       cacheKey = newRelativePath
-      syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle)
+      syncService.scheduleRenameFolder(at: relativePath, name: cleanedTitle, for: item.uuid)
     }
 
     return cacheKey

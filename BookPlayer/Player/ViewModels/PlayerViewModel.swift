@@ -664,12 +664,14 @@ final class PlayerViewModel: ObservableObject {
     if let bookmark = self.libraryService.createBookmark(
       at: floor(currentTime),
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .user
     ) {
       syncService.scheduleSetBookmark(
         relativePath: currentItem.relativePath,
         time: floor(currentTime),
-        note: nil
+        note: nil,
+        uuid: currentItem.uuid,
       )
       self.showBookmarkSuccessAlert(bookmark: bookmark, existed: false)
     }
@@ -731,7 +733,8 @@ final class PlayerViewModel: ObservableObject {
     self.syncService.scheduleSetBookmark(
       relativePath: myBookmark.relativePath,
       time: myBookmark.time,
-      note: note
+      note: note,
+      uuid: myBookmark.uuid,
     )
     self.lastBookmark = nil
   }

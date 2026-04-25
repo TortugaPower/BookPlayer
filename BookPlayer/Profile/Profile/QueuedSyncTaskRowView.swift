@@ -14,10 +14,10 @@ struct QueuedSyncTaskRowView: View {
 
   @Binding var imageName: String
   @Binding var title: String
-  let relativePath: String
+  let progressKey: String
   var initialProgress: Double
   var isUpload: Bool
-  
+
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
   var body: some View {
@@ -47,9 +47,10 @@ struct QueuedSyncTaskRowView: View {
     ) { notification in
       guard
         self.isUpload,
+        let uuid = notification.userInfo?["uuid"] as? String,
         let relativePath = notification.userInfo?["relativePath"] as? String,
         let progress = notification.userInfo?["progress"] as? Double,
-        relativePath == self.relativePath
+        SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath) == self.progressKey
       else { return }
       self.progress = progress
     }
@@ -61,7 +62,7 @@ struct QueuedSyncTaskRowView_Previews: PreviewProvider {
     QueuedSyncTaskRowView(
       imageName: .constant("bookmark"),
       title: .constant("Task"),
-      relativePath: "path/to/file",
+      progressKey: "preview-key",
       initialProgress: 0,
       isUpload: false
     )

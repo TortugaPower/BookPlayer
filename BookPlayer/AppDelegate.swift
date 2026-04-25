@@ -55,6 +55,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   ) -> Bool {
     Self.shared = self
 
+    // Register fallback defaults before anything reads UserDefaults, so a fresh
+    // install follows the system appearance instead of defaulting to light mode.
+    UserDefaults.standard.register(defaults: [
+      Constants.UserDefaults.systemThemeVariantEnabled: true
+    ])
+
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(self.messageReceived),

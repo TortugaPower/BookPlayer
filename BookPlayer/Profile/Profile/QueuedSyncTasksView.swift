@@ -27,8 +27,8 @@ struct QueuedSyncTasksView: View {
         ForEach(queuedJobs) { job in
           QueuedSyncTaskRowView(
             imageName: .constant(parseImageName(job.jobType)),
-            title: .constant(job.relativePath),
-            relativePath: job.relativePath,
+            title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
+            progressKey: job.progressKey,
             initialProgress: job.jobType == .upload ? job.progress : 0,
             isUpload: job.jobType == .upload
           )
@@ -114,6 +114,8 @@ struct QueuedSyncTasksView: View {
       return "bookmark.slash"
     case .uploadArtwork:
       return "photo"
+    case .matchUuid:
+      return "app.connected.to.app.below.fill"
     }
   }
 }

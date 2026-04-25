@@ -178,7 +178,7 @@ final class StorageViewModel: StorageViewModelProtocol {
 
     // Relink book object if it's orphaned
     if fetchedBook.getLibrary() == nil {
-      try libraryService.moveItems([fetchedBook.relativePath], inside: nil)
+      try libraryService.moveItems([PathUuidPair(relativePath: fetchedBook.relativePath, uuid: fetchedBook.uuid)], inside: nil)
       reloadLibraryItems()
     }
 
@@ -368,7 +368,7 @@ final class StorageViewModel: StorageViewModelProtocol {
   private func createBook(from item: StorageItem) async throws {
     let book = await self.libraryService.createBook(from: item.fileURL)
     try moveBookFile(from: item, with: book)
-    try libraryService.moveItems([book.relativePath], inside: nil)
+    try libraryService.moveItems([PathUuidPair(relativePath: book.relativePath, uuid: book.uuid)], inside: nil)
     reloadLibraryItems()
   }
 

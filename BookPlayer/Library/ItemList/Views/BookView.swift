@@ -75,7 +75,8 @@ struct BookView: View {
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     syncService.setup(
       isActive: true,
-      libraryService: libraryService
+      libraryService: libraryService,
+      dataManager: dataManager
     )
 
     return syncService
@@ -97,7 +98,8 @@ struct BookView: View {
       parentFolder: nil,
       originalFileName: "",
       lastPlayDate: nil,
-      type: .book
+      type: .book,
+      uuid: UUID().uuidString
     )
   ) {}
   .environment(\.syncService, syncService)

@@ -51,6 +51,7 @@ public protocol SyncServiceProtocol {
 
   func getRemoteFileURLs(
     of relativePath: String,
+    for uuid: String?,
     type: SimpleItemType
   ) async throws -> [RemoteFileURL]
 
@@ -60,20 +61,21 @@ public protocol SyncServiceProtocol {
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
-  func scheduleMove(items: [String], to parentFolder: String?)
+  func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?)
 
-  func scheduleRenameFolder(at relativePath: String, name: String)
+  func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String)
 
   func scheduleSetBookmark(
     relativePath: String,
     time: Double,
-    note: String?
+    note: String?,
+    uuid: String
   )
 
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
-  func scheduleUploadArtwork(relativePath: String)
-
+  func scheduleUploadArtwork(relativePath: String, uuid: String)
+  
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
@@ -130,13 +132,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
-    client: NetworkClientProtocol = NetworkClient()
+    client: NetworkClientProtocol = NetworkClient(),
+    dataManager: DataManager
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
     let tasksDataManager = TasksDataManager()
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
-    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager)
+    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -285,7 +288,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     guard !response.content.isEmpty else { return }
 
-    let completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    var completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
+    var missingUuidsDict: [String: String] = [:]
+    
+    response.content.forEach {
+      if $0.uuid.isEmpty {
+        let newUuid = UUID().uuidString
+        completeItemsDict.updateValue($0.copy(uuid: newUuid), forKey: $0.relativePath)
+        missingUuidsDict[$0.relativePath] = newUuid
+      }
+    }
 
     var filteredItemsDict = completeItemsDict
     /// Avoid updating the last played info preemptively
@@ -307,6 +319,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     {
       try await handleSyncedLastPlayed(item: lastItemPlayed)
     }
+    
+    await jobManager.scheduleMatchUuidsJob(uuidsDict: missingUuidsDict)
   }
 
   func handleSyncedLastPlayed(item: SyncableItem) async throws {
@@ -376,22 +390,23 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   func fetchBookmarks(for relativePath: String) async throws -> [SimpleBookmark] {
-    let response: BookmarksResponse = try await provider.request(.bookmarks(path: relativePath))
+    let response: BookmarksResponse = try await provider.request(.bookmarks(path: relativePath, uuid: nil))
 
     return response.bookmarks.map({ SimpleBookmark(from: $0) })
   }
 
   public func getRemoteFileURLs(
     of relativePath: String,
+    for uuid: String?,
     type: SimpleItemType
   ) async throws -> [RemoteFileURL] {
     let response: RemoteFileURLResponseContainer
 
     switch type {
     case .folder, .bound:
-      response = try await provider.request(.remoteContentsURL(path: relativePath))
+      response = try await provider.request(.remoteContentsURL(path: relativePath, uuid: uuid))
     case .book:
-      response = try await self.provider.request(.remoteFileURL(path: relativePath))
+      response = try await self.provider.request(.remoteFileURL(path: relativePath, uuid: uuid))
     }
 
     guard !response.content.isEmpty else {
@@ -402,7 +417,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
-    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, type: item.type)
+    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
 
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
@@ -444,11 +459,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .forEach({ initiatingFolderReference[$0] = item.parentFolder })
   }
 
-  public func scheduleUploadArtwork(relativePath: String) {
+  public func scheduleUploadArtwork(relativePath: String, uuid: String) {
     guard isActive else { return }
 
     Task {
-      await jobManager.scheduleArtworkUpload(with: relativePath)
+      await jobManager.scheduleArtworkUpload(with: relativePath, for: uuid)
     }
   }
 
@@ -474,9 +489,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 }
 
 extension SyncService {
-  public func scheduleMove(items: [String], to parentFolder: String?) {
+  public func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?) {
     guard isActive else { return }
-
+    
     Task {
       for relativePath in items {
         await jobManager.scheduleMoveItemJob(with: relativePath, to: parentFolder)
@@ -518,7 +533,8 @@ extension SyncService {
           await jobManager.scheduleSetBookmarkJob(
             with: bookmark.relativePath,
             time: floor(bookmark.time),
-            note: bookmark.note
+            note: bookmark.note,
+            for: item.uuid
           )
         }
       }
@@ -559,7 +575,7 @@ extension SyncService {
 
     Task {
       for item in items {
-        await jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode)
+        await jobManager.scheduleDeleteJob(with: item.relativePath, mode: mode, for: item.uuid)
       }
     }
   }
@@ -569,7 +585,8 @@ extension SyncService {
   public func scheduleSetBookmark(
     relativePath: String,
     time: Double,
-    note: String?
+    note: String?,
+    uuid: String
   ) {
     guard isActive else { return }
 
@@ -577,7 +594,8 @@ extension SyncService {
       await jobManager.scheduleSetBookmarkJob(
         with: relativePath,
         time: time,
-        note: note
+        note: note,
+        for: uuid
       )
     }
   }
@@ -588,16 +606,17 @@ extension SyncService {
     Task {
       await jobManager.scheduleDeleteBookmarkJob(
         with: bookmark.relativePath,
-        time: bookmark.time
+        time: bookmark.time,
+        for: bookmark.uuid
       )
     }
   }
 
-  public func scheduleRenameFolder(at relativePath: String, name: String) {
+  public func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String) {
     guard isActive else { return }
 
     Task {
-      await jobManager.scheduleRenameFolderJob(with: relativePath, name: name)
+      await jobManager.scheduleRenameFolderJob(with: relativePath, name: name, for: uuid)
     }
   }
 }

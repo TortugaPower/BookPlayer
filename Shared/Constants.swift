@@ -114,4 +114,12 @@ public enum Constants {
     case lastPlayedWidget = "com.bookplayer.widget.small.lastPlayed"
     case timeListenedWidget = "com.bookplayer.widget.small.timeListened"
   }
+  
+  public static let uuidPlaceholder: String = "LOCAL-UUID-PLACEHOLDER"
+  public static let legacyUuidPlaceholder: String = "LEGACY_UUID_PLACEHOLDER"
+
+  /// True when `uuid` is non-empty and not one of the known migration placeholders.
+  public static func isRealUuid(_ uuid: String) -> Bool {
+    !uuid.isEmpty && uuid != uuidPlaceholder && uuid != legacyUuidPlaceholder
+  }
 }
