@@ -142,6 +142,20 @@ struct LibraryRootView: View {
     for action in pendingActions {
       ActionParserService.handleAction(action)
     }
+
+    /// Drain web URLs queued by the share extension into `SingleFileDownloadService` so
+    /// they download with progress in BookPlayer's normal UI and land directly in the
+    /// library (no separate AirDrop-style import confirmation).
+    let pendingShareURLStrings =
+      UserDefaults.sharedDefaults.stringArray(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
+      ?? []
+    if !pendingShareURLStrings.isEmpty {
+      UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
+      let urls = pendingShareURLStrings.compactMap(URL.init(string:))
+      if !urls.isEmpty {
+        singleFileDownloadService.handleDownload(urls)
+      }
+    }
   }
 
   func loadLastBookIfNeeded() async {

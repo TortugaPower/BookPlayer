@@ -53,6 +53,11 @@ public enum Constants {
     /// Key to store an array of identifiers that need their progress recalculated
     public static let staleProgressIdentifiers = "staleProgressIdentifiers"
 
+    /// Web URLs the share extension queued for the main app to download with
+    /// `SingleFileDownloadService` on next foreground. Lives in the app group's shared
+    /// `UserDefaults` so both processes see the same value.
+    public static let pendingShareDownloadURLs = "pendingShareDownloadURLs"
+
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
 
