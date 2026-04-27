@@ -20,6 +20,7 @@
         || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.folder&quot;
         || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.movie&quot;
         || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;com.pkware.zip-archive&quot;
+        || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO &quot;public.url&quot;
         )
         ).@count &gt; 0
         ).@count &gt; 0

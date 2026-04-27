@@ -90,6 +90,19 @@ class ShareViewController: UIViewController {
   /// In-memory array of shared items
   var sharedItems = [URL]()
 
+  /// File extensions BookPlayer can fetch from a remote `http(s)` URL.
+  ///
+  /// File-URL shares (AirDrop, Files app) are accepted unconditionally — they're already
+  /// concrete files and the existing copy flow handles them. This list only gates web URLs,
+  /// where we'd otherwise hand the main app an arbitrary HTML page that `SingleFileDownloadService`
+  /// would dutifully save as a broken "audio" file.
+  static let supportedRemoteFileExtensions: Set<String> = [
+    "mp3", "m4a", "m4b", "aac", "flac", "ogg", "opus", "wav", "wma",
+    "aiff", "aif", "caf",
+    "mp4", "m4v", "mov",
+    "zip"
+  ]
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -156,7 +169,9 @@ class ShareViewController: UIViewController {
 
       guard error == nil else { return }
 
-      if let url = data as? URL {
+      if let url = data as? URL,
+         ShareViewController.isSupportedShareURL(url)
+      {
         self?.sharedItems.append(url)
       }
     }
@@ -186,20 +201,68 @@ class ShareViewController: UIViewController {
   }
 
   func saveSharedItems(_ items: [URL]) {
-    var mutableItems = items
-    guard !mutableItems.isEmpty else {
-      DispatchQueue.main.async { [weak self] in
-        self?.extensionContext?.completeRequest(returningItems: nil)
-      }
-      return
+    /// File URLs (AirDrop, Files, Photos) are concrete on-disk items: copy them into the
+    /// app group's shared folder where the main app will pick them up on next foreground.
+    /// Web URLs are forwarded to the main app via the `bookplayer://download` URL scheme
+    /// so `SingleFileDownloadService` can fetch them with the app's normal networking stack.
+    let fileItems = items.filter { $0.isFileURL }
+    let webItems = items.filter { !$0.isFileURL }
+
+    for item in fileItems {
+      let destinationURL = sharedFolder.appendingPathComponent(item.lastPathComponent)
+      try? FileManager.default.copyItem(at: item, to: destinationURL)
     }
 
-    let item = mutableItems.removeFirst()
+    /// Share extensions only ever receive a single URL in practice (Safari and most apps
+    /// share one item at a time), so handing off the first web URL covers the realistic case.
+    if let webURL = webItems.first {
+      openInHostApp(downloadURL: webURL)
+    }
 
-    let destinationURL = sharedFolder.appendingPathComponent(item.lastPathComponent)
-    try? FileManager.default.copyItem(at: item, to: destinationURL)
+    DispatchQueue.main.async { [weak self] in
+      self?.extensionContext?.completeRequest(returningItems: nil)
+    }
+  }
 
-    saveSharedItems(mutableItems)
+  /// Hand a shareable URL to the main BookPlayer app via the `bookplayer://download?url=…`
+  /// custom URL scheme.
+  ///
+  /// Share extensions can't call `UIApplication.shared.open(_:)` directly, so we walk the
+  /// responder chain to find the `UIApplication` and invoke its `openURL:` selector. This
+  /// pattern is widely used by share extensions (1Password, Pocket, etc.) and is accepted
+  /// by App Review.
+  private func openInHostApp(downloadURL: URL) {
+    guard
+      let escaped = downloadURL.absoluteString.addingPercentEncoding(
+        withAllowedCharacters: .urlQueryAllowed
+      ),
+      let actionURL = URL(string: "bookplayer://download?url=\(escaped)")
+    else { return }
+
+    let selector = NSSelectorFromString("openURL:")
+    var responder: UIResponder? = self
+    while let current = responder {
+      if current !== self, current.responds(to: selector) {
+        _ = current.perform(selector, with: actionURL)
+        return
+      }
+      responder = current.next
+    }
+  }
+
+  /// Returns `true` for share items BookPlayer can usefully import.
+  ///
+  /// File URLs are always accepted (they're concrete files arriving via Files / AirDrop /
+  /// document pickers — the main app's import pipeline handles MIME sniffing). Web URLs
+  /// are only accepted when the path extension matches a known media or archive type, so
+  /// we don't appear in the share sheet for arbitrary web pages we couldn't actually
+  /// download as audio.
+  static func isSupportedShareURL(_ url: URL) -> Bool {
+    if url.isFileURL { return true }
+    guard let scheme = url.scheme?.lowercased(),
+          scheme == "http" || scheme == "https"
+    else { return false }
+    return Self.supportedRemoteFileExtensions.contains(url.pathExtension.lowercased())
   }
 
   func applyDefaultThemeColors() {
