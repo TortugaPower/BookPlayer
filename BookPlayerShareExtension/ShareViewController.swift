@@ -201,14 +201,14 @@ class ShareViewController: UIViewController {
   }
 
   func saveSharedItems(_ items: [URL]) {
-    /// Share extensions can't launch their host app on current iOS — the responder-chain
-    /// `openURL:` trick silently no-ops, and `NSExtensionContext.open` is documented as
-    /// Today-widget-only. So instead of trying to hand a URL to the main app, we deposit the
-    /// final file into the app group's shared folder ourselves: file URLs are copied (already
-    /// concrete on disk), web URLs are downloaded. Either way, BookPlayer's main-app
-    /// `DirectoryWatcher` on `getSharedFilesFolderURL()` (see `LibraryRootView`) and
-    /// `ImportManager.notifyPendingFiles()` import the file on the next foreground — the
-    /// same code path that handles AirDropped audio.
+    /// Two paths: file URLs (AirDrop, Files, Photos) get copied into the app group's shared
+    /// folder where the main app's `DirectoryWatcher` + `ImportManager` import them — same
+    /// code path that handles AirDropped audio. Web URLs are stashed in the app group's
+    /// shared `UserDefaults`; on next foreground the main app drains them and feeds them
+    /// to its existing `SingleFileDownloadService`, so the download runs in BookPlayer's
+    /// usual UI (progress bar, direct-into-library) instead of inside this extension.
+    /// (Share extensions can't launch their host app on current iOS, so a real URL handoff
+    /// isn't an option; queueing through shared `UserDefaults` is the closest substitute.)
     let fileItems = items.filter { $0.isFileURL }
     let webItems = items.filter { !$0.isFileURL }
 
@@ -217,54 +217,25 @@ class ShareViewController: UIViewController {
       try? FileManager.default.copyItem(at: item, to: destinationURL)
     }
 
-    /// Share extensions in practice receive a single URL at a time (Safari and most apps
-    /// share one item per gesture), so downloading the first web URL covers the realistic
-    /// case. We hold off on `completeRequest` until the download finishes — a foreground
-    /// `URLSession` is bound to the share extension's process lifetime, so completing the
-    /// request first would tear the download down mid-flight.
-    if let webURL = webItems.first {
-      downloadIntoSharedFolder(webURL) { [weak self] in
-        self?.completeRequestOnMain()
-      }
-    } else {
-      completeRequestOnMain()
+    if !webItems.isEmpty {
+      queueWebURLsForMainApp(webItems)
     }
+
+    completeRequestOnMain()
   }
 
-  /// Download a web URL straight into the app group's shared folder, then invoke
-  /// `completion` (success or failure) so the caller can dismiss the extension.
-  ///
-  /// Uses a foreground `URLSession` for v1 — fine for the audio-file sizes typical of
-  /// share-sheet senders (single tracks, episodes, chapters in the tens-of-MB range). For
-  /// multi-gigabyte single files, switching to a background `URLSession` configured with
-  /// `sharedContainerIdentifier` would let the transfer survive the extension dismissing,
-  /// at the cost of needing the main-app `AppDelegate` to handle
-  /// `application(_:handleEventsForBackgroundURLSession:completionHandler:)`.
-  private func downloadIntoSharedFolder(_ url: URL, completion: @escaping () -> Void) {
-    let destinationFolder = sharedFolder
-    let task = URLSession.shared.downloadTask(with: url) { tempURL, response, error in
-      defer { completion() }
-
-      /// `URLSession.downloadTask` reports success on non-2xx responses too — the temp
-      /// file just contains the error body. Reject anything that isn't a 2xx so we don't
-      /// move a 404 HTML page into the library named `song.mp3`.
-      guard error == nil, let tempURL,
-            let httpResponse = response as? HTTPURLResponse,
-            (200..<300).contains(httpResponse.statusCode)
-      else { return }
-
-      /// Prefer the server-suggested filename (Content-Disposition) over the URL's last
-      /// path component — yt-dlp-multi etc. set this to the actual track name rather than
-      /// the opaque token segment.
-      let filename = httpResponse.suggestedFilename ?? url.lastPathComponent
-      let destinationURL = destinationFolder.appendingPathComponent(filename)
-
-      /// Replace any existing file of the same name in the shared folder so the import
-      /// pipeline doesn't get confused by a stale half-download.
-      try? FileManager.default.removeItem(at: destinationURL)
-      try? FileManager.default.moveItem(at: tempURL, to: destinationURL)
-    }
-    task.resume()
+  /// Append web URLs to the app group's shared `pendingShareDownloadURLs` array. The main
+  /// app reads and clears this array on next foreground (see `LibraryRootView.handleLibraryLoaded`)
+  /// and hands each URL to `SingleFileDownloadService.handleDownload(_:)`.
+  private func queueWebURLsForMainApp(_ urls: [URL]) {
+    let strings = urls.map { $0.absoluteString }
+    let existing =
+      UserDefaults.sharedDefaults.stringArray(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
+      ?? []
+    UserDefaults.sharedDefaults.set(
+      existing + strings,
+      forKey: Constants.UserDefaults.pendingShareDownloadURLs
+    )
   }
 
   private func completeRequestOnMain() {
