@@ -92,7 +92,6 @@ struct LibraryRootView: View {
       }
       .onChange(of: scenePhase) {
         guard scenePhase == .active else { return }
-        drainPendingShareDownloadURLs()
         showImport()
       }
       .onReceive(syncService.downloadErrorPublisher) { (relativePath, error) in
@@ -142,30 +141,6 @@ struct LibraryRootView: View {
     AppServices.shared.pendingURLActions.removeAll()
     for action in pendingActions {
       ActionParserService.handleAction(action)
-    }
-
-    drainPendingShareDownloadURLs()
-  }
-
-  /// Drain web URLs the share extension queued in shared `UserDefaults` and feed them
-  /// to `SingleFileDownloadService` so the download runs in BookPlayer's normal UI and
-  /// lands directly in the library. Called both on initial library load and on every
-  /// `scenePhase == .active` transition: handleLibraryLoaded only fires once per
-  /// `LibraryRootView` lifecycle, but the user can share to BookPlayer while it's still
-  /// in memory in the background, in which case the drain has to run on warm-foreground
-  /// too. Idempotent: removing the UserDefaults key first means re-runs are no-ops.
-  func drainPendingShareDownloadURLs() {
-    let pendingShareURLStrings =
-      UserDefaults.sharedDefaults.stringArray(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
-      ?? []
-    NSLog("BP-DRAIN: drainPendingShareDownloadURLs called, found %d URLs", pendingShareURLStrings.count)
-    guard !pendingShareURLStrings.isEmpty else { return }
-
-    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
-    let urls = pendingShareURLStrings.compactMap(URL.init(string:))
-    if !urls.isEmpty {
-      NSLog("BP-DRAIN: handing %d URLs to singleFileDownloadService", urls.count)
-      singleFileDownloadService.handleDownload(urls)
     }
   }
 

@@ -90,6 +90,10 @@ class ShareViewController: UIViewController {
   /// In-memory array of shared items
   var sharedItems = [URL]()
 
+  /// Retained URLSession delegate. Held so iOS can deliver the completion to *this*
+  /// process if the extension survives long enough — see `kickOffBackgroundDownloads`.
+  private var backgroundDownloadCoordinator: BackgroundDownloadCoordinator?
+
   /// File extensions BookPlayer can fetch from a remote `http(s)` URL.
   ///
   /// File-URL shares (AirDrop, Files app) are accepted unconditionally — they're already
@@ -201,14 +205,19 @@ class ShareViewController: UIViewController {
   }
 
   func saveSharedItems(_ items: [URL]) {
-    /// Two paths: file URLs (AirDrop, Files, Photos) get copied into the app group's shared
-    /// folder where the main app's `DirectoryWatcher` + `ImportManager` import them — same
-    /// code path that handles AirDropped audio. Web URLs are stashed in the app group's
-    /// shared `UserDefaults`; on next foreground the main app drains them and feeds them
-    /// to its existing `SingleFileDownloadService`, so the download runs in BookPlayer's
-    /// usual UI (progress bar, direct-into-library) instead of inside this extension.
-    /// (Share extensions can't launch their host app on current iOS, so a real URL handoff
-    /// isn't an option; queueing through shared `UserDefaults` is the closest substitute.)
+    /// File URLs (AirDrop, Files, document picker) are concrete on-disk items: copy them
+    /// into the app group's shared folder synchronously where the main app's
+    /// `ImportManager` will pick them up on next foreground — same code path AirDropped
+    /// audio uses.
+    ///
+    /// Web URLs are handed to a background `URLSession` keyed by
+    /// `Constants.shareExtensionBackgroundSessionIdentifier`, with
+    /// `sharedContainerIdentifier` set to the app group. The transfer is owned by iOS's
+    /// `nsurlsessiond` daemon, not by this extension's process, so we can immediately call
+    /// `completeRequest` and let the share UI dismiss without waiting for the bytes. When
+    /// the download finishes, iOS launches the BookPlayer main app (in the background if
+    /// needed) and `BackgroundShareDownloadDelegate` moves the temp file into the same
+    /// shared folder, where the standard import flow takes over.
     let fileItems = items.filter { $0.isFileURL }
     let webItems = items.filter { !$0.isFileURL }
 
@@ -218,24 +227,48 @@ class ShareViewController: UIViewController {
     }
 
     if !webItems.isEmpty {
-      queueWebURLsForMainApp(webItems)
+      kickOffBackgroundDownloads(for: webItems)
     }
 
     completeRequestOnMain()
   }
 
-  /// Append web URLs to the app group's shared `pendingShareDownloadURLs` array. The main
-  /// app reads and clears this array on next foreground (see `LibraryRootView.handleLibraryLoaded`)
-  /// and hands each URL to `SingleFileDownloadService.handleDownload(_:)`.
-  private func queueWebURLsForMainApp(_ urls: [URL]) {
-    let strings = urls.map { $0.absoluteString }
-    let existing =
-      UserDefaults.sharedDefaults.stringArray(forKey: Constants.UserDefaults.pendingShareDownloadURLs)
-      ?? []
-    UserDefaults.sharedDefaults.set(
-      existing + strings,
-      forKey: Constants.UserDefaults.pendingShareDownloadURLs
+  /// Schedules a background `URLSession` download for each shared web URL.
+  ///
+  /// Two delivery paths cover the lifecycle of the transfer:
+  ///
+  /// 1. If the extension's process is still alive when the download completes (typical for
+  ///    small files that finish in seconds), iOS routes the completion to *this session's*
+  ///    `URLSessionDownloadDelegate` — `BackgroundDownloadCoordinator` below — which moves
+  ///    the temp file into the app group's shared folder.
+  /// 2. If iOS suspends/terminates the extension before the download completes, the
+  ///    transfer continues via `nsurlsessiond` and iOS routes completion to the main app
+  ///    via `application(_:handleEventsForBackgroundURLSession:completionHandler:)`. Main
+  ///    app recreates the same session identifier and `BackgroundShareDownloadDelegate`
+  ///    handles the move there.
+  ///
+  /// We previously created the session with `delegate: nil` assuming iOS would always
+  /// route to the main app, but in practice downloads small enough to finish before the
+  /// extension dies got their events delivered to a nil delegate and the temp file was
+  /// silently discarded. The first path above plugs that gap.
+  private func kickOffBackgroundDownloads(for urls: [URL]) {
+    let config = URLSessionConfiguration.background(
+      withIdentifier: Constants.shareExtensionBackgroundSessionIdentifier
     )
+    config.sharedContainerIdentifier = Constants.ApplicationGroupIdentifier
+    config.sessionSendsLaunchEvents = true
+    config.isDiscretionary = false
+
+    /// Retain the coordinator on the running view controller so its delegate methods can
+    /// fire if iOS keeps this process alive past the share-sheet dismissal — typical for
+    /// downloads that complete in a few seconds.
+    let coordinator = BackgroundDownloadCoordinator()
+    self.backgroundDownloadCoordinator = coordinator
+    let session = URLSession(configuration: config, delegate: coordinator, delegateQueue: nil)
+    for url in urls {
+      session.downloadTask(with: url).resume()
+    }
+    session.finishTasksAndInvalidate()
   }
 
   private func completeRequestOnMain() {
@@ -302,4 +335,41 @@ extension ShareViewController: UITableViewDelegate {}
 
 enum ShareExtensionError: Error {
   case cancelled
+}
+
+/// `URLSessionDownloadDelegate` for the share extension's background download.
+///
+/// Used when the extension's process is still alive when iOS finishes the download —
+/// typically the case for small files that complete in a few seconds. Without a delegate
+/// here, iOS would silently discard the temp file because the alive-extension's session
+/// is the active one (iOS only escalates to the main app's matching-identifier session
+/// when the extension's process is gone).
+///
+/// Moves the temp file into the app group's shared folder, where the main app's
+/// `ImportManager` picks it up on next foreground.
+final class BackgroundDownloadCoordinator: NSObject, URLSessionDownloadDelegate {
+  func urlSession(
+    _ session: URLSession,
+    downloadTask: URLSessionDownloadTask,
+    didFinishDownloadingTo location: URL
+  ) {
+    /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
+    /// file just contains the error body.
+    if let httpResponse = downloadTask.response as? HTTPURLResponse,
+       !(200..<300).contains(httpResponse.statusCode)
+    {
+      return
+    }
+
+    let originalURL = downloadTask.originalRequest?.url
+    let filename =
+      downloadTask.response?.suggestedFilename
+      ?? originalURL?.lastPathComponent
+      ?? "shared-\(UUID().uuidString)"
+    let destinationURL = DataManager.getSharedFilesFolderURL().appendingPathComponent(filename)
+
+    /// Replace any same-named stale download from a previous attempt.
+    try? FileManager.default.removeItem(at: destinationURL)
+    try? FileManager.default.moveItem(at: location, to: destinationURL)
+  }
 }

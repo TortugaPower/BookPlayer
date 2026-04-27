@@ -53,11 +53,6 @@ public enum Constants {
     /// Key to store an array of identifiers that need their progress recalculated
     public static let staleProgressIdentifiers = "staleProgressIdentifiers"
 
-    /// Web URLs the share extension queued for the main app to download with
-    /// `SingleFileDownloadService` on next foreground. Lives in the app group's shared
-    /// `UserDefaults` so both processes see the same value.
-    public static let pendingShareDownloadURLs = "pendingShareDownloadURLs"
-
     // One-time migrations
     public static let fileProtectionMigration = "userFileProtectionMigration"
 
@@ -135,6 +130,14 @@ public enum Constants {
 
   public static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
   public static let ApplicationGroupIdentifier = "group.\(Bundle.main.configurationString(for: .bundleIdentifier)).files"
+
+  /// `URLSessionConfiguration.background` identifier used by the share extension to download
+  /// shared web URLs. The main app re-creates a session with the same identifier in
+  /// `application(_:handleEventsForBackgroundURLSession:completionHandler:)` so the
+  /// `BackgroundShareDownloadDelegate` receives completion and can move the resulting file
+  /// into the app group's shared folder.
+  public static let shareExtensionBackgroundSessionIdentifier =
+    "\(Bundle.main.configurationString(for: .bundleIdentifier)).shareext.background"
 
   public enum Widgets: String {
     case sharedNowPlayingWidget = "com.bookplayer.shared.widget"
