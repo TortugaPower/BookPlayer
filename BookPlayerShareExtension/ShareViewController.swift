@@ -201,10 +201,14 @@ class ShareViewController: UIViewController {
   }
 
   func saveSharedItems(_ items: [URL]) {
-    /// File URLs (AirDrop, Files, Photos) are concrete on-disk items: copy them into the
-    /// app group's shared folder where the main app will pick them up on next foreground.
-    /// Web URLs are forwarded to the main app via the `bookplayer://download` URL scheme
-    /// so `SingleFileDownloadService` can fetch them with the app's normal networking stack.
+    /// Share extensions can't launch their host app on current iOS — the responder-chain
+    /// `openURL:` trick silently no-ops, and `NSExtensionContext.open` is documented as
+    /// Today-widget-only. So instead of trying to hand a URL to the main app, we deposit the
+    /// final file into the app group's shared folder ourselves: file URLs are copied (already
+    /// concrete on disk), web URLs are downloaded. Either way, BookPlayer's main-app
+    /// `DirectoryWatcher` on `getSharedFilesFolderURL()` (see `LibraryRootView`) and
+    /// `ImportManager.notifyPendingFiles()` import the file on the next foreground — the
+    /// same code path that handles AirDropped audio.
     let fileItems = items.filter { $0.isFileURL }
     let webItems = items.filter { !$0.isFileURL }
 
@@ -213,65 +217,59 @@ class ShareViewController: UIViewController {
       try? FileManager.default.copyItem(at: item, to: destinationURL)
     }
 
-    /// Share extensions only ever receive a single URL in practice (Safari and most apps
-    /// share one item at a time), so handing off the first web URL covers the realistic case.
-    /// We must defer `completeRequest` until *after* the URL has been handed to the host —
-    /// completing the extension request first dismisses the extension's process and iOS
-    /// drops the in-flight URL open.
+    /// Share extensions in practice receive a single URL at a time (Safari and most apps
+    /// share one item per gesture), so downloading the first web URL covers the realistic
+    /// case. We hold off on `completeRequest` until the download finishes — a foreground
+    /// `URLSession` is bound to the share extension's process lifetime, so completing the
+    /// request first would tear the download down mid-flight.
     if let webURL = webItems.first {
-      openInHostApp(downloadURL: webURL) { [weak self] in
-        DispatchQueue.main.async {
-          self?.extensionContext?.completeRequest(returningItems: nil)
-        }
+      downloadIntoSharedFolder(webURL) { [weak self] in
+        self?.completeRequestOnMain()
       }
     } else {
-      DispatchQueue.main.async { [weak self] in
-        self?.extensionContext?.completeRequest(returningItems: nil)
-      }
+      completeRequestOnMain()
     }
   }
 
-  /// Hand a shareable URL to the main BookPlayer app via the `bookplayer://download?url=…`
-  /// custom URL scheme.
+  /// Download a web URL straight into the app group's shared folder, then invoke
+  /// `completion` (success or failure) so the caller can dismiss the extension.
   ///
-  /// Tries `NSExtensionContext.open(_:completionHandler:)` first — Apple's docs claim it's
-  /// unavailable for share extensions, but in practice it works on iOS 14+ and is the only
-  /// reliable path on iOS 18+, where the older responder-chain `openURL:` walk no longer
-  /// reaches a live `UIApplication` from a share-extension context. Falls back to the
-  /// responder-chain walk for older iOS versions where the extensionContext path may return
-  /// false synchronously.
-  private func openInHostApp(downloadURL: URL, completion: @escaping () -> Void) {
-    guard
-      let escaped = downloadURL.absoluteString.addingPercentEncoding(
-        withAllowedCharacters: .urlQueryAllowed
-      ),
-      let actionURL = URL(string: "bookplayer://download?url=\(escaped)")
-    else {
-      completion()
-      return
-    }
+  /// Uses a foreground `URLSession` for v1 — fine for the audio-file sizes typical of
+  /// share-sheet senders (single tracks, episodes, chapters in the tens-of-MB range). For
+  /// multi-gigabyte single files, switching to a background `URLSession` configured with
+  /// `sharedContainerIdentifier` would let the transfer survive the extension dismissing,
+  /// at the cost of needing the main-app `AppDelegate` to handle
+  /// `application(_:handleEventsForBackgroundURLSession:completionHandler:)`.
+  private func downloadIntoSharedFolder(_ url: URL, completion: @escaping () -> Void) {
+    let destinationFolder = sharedFolder
+    let task = URLSession.shared.downloadTask(with: url) { tempURL, response, error in
+      defer { completion() }
 
-    extensionContext?.open(actionURL) { [weak self] success in
-      if success {
-        completion()
-      } else {
-        self?.fallbackOpenViaResponderChain(actionURL)
-        completion()
-      }
+      /// `URLSession.downloadTask` reports success on non-2xx responses too — the temp
+      /// file just contains the error body. Reject anything that isn't a 2xx so we don't
+      /// move a 404 HTML page into the library named `song.mp3`.
+      guard error == nil, let tempURL,
+            let httpResponse = response as? HTTPURLResponse,
+            (200..<300).contains(httpResponse.statusCode)
+      else { return }
+
+      /// Prefer the server-suggested filename (Content-Disposition) over the URL's last
+      /// path component — yt-dlp-multi etc. set this to the actual track name rather than
+      /// the opaque token segment.
+      let filename = httpResponse.suggestedFilename ?? url.lastPathComponent
+      let destinationURL = destinationFolder.appendingPathComponent(filename)
+
+      /// Replace any existing file of the same name in the shared folder so the import
+      /// pipeline doesn't get confused by a stale half-download.
+      try? FileManager.default.removeItem(at: destinationURL)
+      try? FileManager.default.moveItem(at: tempURL, to: destinationURL)
     }
+    task.resume()
   }
 
-  /// Legacy share-extension URL-open path: send `openURL:` up the responder chain until a
-  /// `UIApplication` accepts it. Pre-iOS 18 fallback only.
-  private func fallbackOpenViaResponderChain(_ url: URL) {
-    let selector = NSSelectorFromString("openURL:")
-    var responder: UIResponder? = self
-    while let current = responder {
-      if current !== self, current.responds(to: selector) {
-        _ = current.perform(selector, with: url)
-        return
-      }
-      responder = current.next
+  private func completeRequestOnMain() {
+    DispatchQueue.main.async { [weak self] in
+      self?.extensionContext?.completeRequest(returningItems: nil)
     }
   }
 
