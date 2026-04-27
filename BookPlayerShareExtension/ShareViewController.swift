@@ -215,35 +215,60 @@ class ShareViewController: UIViewController {
 
     /// Share extensions only ever receive a single URL in practice (Safari and most apps
     /// share one item at a time), so handing off the first web URL covers the realistic case.
+    /// We must defer `completeRequest` until *after* the URL has been handed to the host —
+    /// completing the extension request first dismisses the extension's process and iOS
+    /// drops the in-flight URL open.
     if let webURL = webItems.first {
-      openInHostApp(downloadURL: webURL)
-    }
-
-    DispatchQueue.main.async { [weak self] in
-      self?.extensionContext?.completeRequest(returningItems: nil)
+      openInHostApp(downloadURL: webURL) { [weak self] in
+        DispatchQueue.main.async {
+          self?.extensionContext?.completeRequest(returningItems: nil)
+        }
+      }
+    } else {
+      DispatchQueue.main.async { [weak self] in
+        self?.extensionContext?.completeRequest(returningItems: nil)
+      }
     }
   }
 
   /// Hand a shareable URL to the main BookPlayer app via the `bookplayer://download?url=…`
   /// custom URL scheme.
   ///
-  /// Share extensions can't call `UIApplication.shared.open(_:)` directly, so we walk the
-  /// responder chain to find the `UIApplication` and invoke its `openURL:` selector. This
-  /// pattern is widely used by share extensions (1Password, Pocket, etc.) and is accepted
-  /// by App Review.
-  private func openInHostApp(downloadURL: URL) {
+  /// Tries `NSExtensionContext.open(_:completionHandler:)` first — Apple's docs claim it's
+  /// unavailable for share extensions, but in practice it works on iOS 14+ and is the only
+  /// reliable path on iOS 18+, where the older responder-chain `openURL:` walk no longer
+  /// reaches a live `UIApplication` from a share-extension context. Falls back to the
+  /// responder-chain walk for older iOS versions where the extensionContext path may return
+  /// false synchronously.
+  private func openInHostApp(downloadURL: URL, completion: @escaping () -> Void) {
     guard
       let escaped = downloadURL.absoluteString.addingPercentEncoding(
         withAllowedCharacters: .urlQueryAllowed
       ),
       let actionURL = URL(string: "bookplayer://download?url=\(escaped)")
-    else { return }
+    else {
+      completion()
+      return
+    }
 
+    extensionContext?.open(actionURL) { [weak self] success in
+      if success {
+        completion()
+      } else {
+        self?.fallbackOpenViaResponderChain(actionURL)
+        completion()
+      }
+    }
+  }
+
+  /// Legacy share-extension URL-open path: send `openURL:` up the responder chain until a
+  /// `UIApplication` accepts it. Pre-iOS 18 fallback only.
+  private func fallbackOpenViaResponderChain(_ url: URL) {
     let selector = NSSelectorFromString("openURL:")
     var responder: UIResponder? = self
     while let current = responder {
       if current !== self, current.responds(to: selector) {
-        _ = current.perform(selector, with: actionURL)
+        _ = current.perform(selector, with: url)
         return
       }
       responder = current.next
