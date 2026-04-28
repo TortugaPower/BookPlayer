@@ -10,6 +10,13 @@ import BookPlayerKit
 import SwiftUI
 
 struct ItemProgressView: View {
+  /// Throttle window applied to per-row progress publishers. Each visible row in a long
+  /// library list subscribes to three high-frequency progress streams; without throttling
+  /// SwiftUI re-diffs the circular indicators on every audio tick, which lags VoiceOver
+  /// and burns CPU. One second matches the existing `.folderProgressUpdated` cadence and
+  /// keeps the list feeling live.
+  private static let progressUpdateThrottleSeconds = 1
+
   let item: SimpleLibraryItem
   let isHighlighted: Bool
 
@@ -51,14 +58,14 @@ struct ItemProgressView: View {
     .onReceive(
       playerManager.currentProgressPublisher()
         .filter { $0.0 == item.relativePath }
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+        .throttle(for: .seconds(Self.progressUpdateThrottleSeconds), scheduler: DispatchQueue.main, latest: true)
     ) { (_, progress) in
       self.progress = progress
     }
     .onReceive(
       libraryService.immediateProgressUpdatePublisher
         .filter { item.relativePath == $0["relativePath"] as? String }
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+        .throttle(for: .seconds(Self.progressUpdateThrottleSeconds), scheduler: DispatchQueue.main, latest: true)
     ) { params in
       if let percentCompleted = params["percentCompleted"] as? Double {
         self.progress = percentCompleted / 100
@@ -69,7 +76,7 @@ struct ItemProgressView: View {
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .folderProgressUpdated)
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+        .throttle(for: .seconds(Self.progressUpdateThrottleSeconds), scheduler: DispatchQueue.main, latest: true)
         .filter { notification in
           guard
             item.type != .book,

@@ -21,6 +21,13 @@ enum PlayerSheetStyle: String, Identifiable {
 
 @MainActor
 final class PlayerViewModel: ObservableObject {
+  /// Throttle window applied to high-frequency playback-progress notifications
+  /// (`.bookPlaying`, `.listeningProgressChanged`) before they trigger a recompute of the
+  /// progress UI. Tuned to a roughly 2 Hz refresh — fast enough for the time/progress
+  /// readout to feel live, slow enough to keep the main thread out of the audio engine's
+  /// per-tick firehose.
+  private static let progressNotificationThrottleMs = 500
+
   @Published var progressData = ProgressData()
   @Published var isPlaying = false
   @Published var playbackSpeed: Float = 1.0
@@ -223,7 +230,7 @@ final class PlayerViewModel: ObservableObject {
     
     self.playingProgressSubscriber?.cancel()
     self.playingProgressSubscriber = NotificationCenter.default.publisher(for: .bookPlaying)
-      .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
+      .throttle(for: .milliseconds(Self.progressNotificationThrottleMs), scheduler: DispatchQueue.main, latest: true)
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
@@ -231,7 +238,7 @@ final class PlayerViewModel: ObservableObject {
 
     self.listeningProgressSubscriber?.cancel()
     self.listeningProgressSubscriber = NotificationCenter.default.publisher(for: .listeningProgressChanged)
-      .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
+      .throttle(for: .milliseconds(Self.progressNotificationThrottleMs), scheduler: DispatchQueue.main, latest: true)
       .sink { [weak self] _ in
         guard let self = self else { return }
         self.recalculateProgress()
