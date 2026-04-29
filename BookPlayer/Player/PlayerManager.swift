@@ -230,6 +230,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
       if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath) {
         currentItem = try playbackService.getPlayableItem(from: libraryItem)
+        if let currentItem {
+          /// `currentItem` was replaced — re-bind the chapter-change subscription
+          /// to the new instance so end-of-chapter sleep timer keeps working.
+          /// `dropInitialReplay: true` is safe only because `PlayableItem.init`
+          /// seeds `currentChapter` from `currentTime` (see PlayableItem.swift).
+          bindPlayableChapterSubscription(to: currentItem, dropInitialReplay: true)
+        }
       }
     } else if currentItem?.isBoundBook == true, chapter.relativePath.hasSuffix(".m4b") {
       /// recently synced m4b files do not have their chapters loaded outright
@@ -324,17 +331,30 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     self.currentItem = item
 
+    bindPlayableChapterSubscription(to: item, dropInitialReplay: false)
+
+    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
+    storeWidgetItem(item)
+  }
+
+  /// Subscribes the chapter-change pipeline to a `PlayableItem` instance.
+  /// Must be called again whenever `currentItem` is swapped, otherwise
+  /// `.chapterChange` (which the end-of-chapter sleep timer listens for)
+  /// publishes on an orphaned instance.
+  private func bindPlayableChapterSubscription(to item: PlayableItem, dropInitialReplay: Bool) {
     self.playableChapterSubscription?.cancel()
-    self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
+    let publisher = item.$currentChapter
+    let stream: AnyPublisher<PlayableChapter?, Never> =
+      dropInitialReplay
+      ? publisher.dropFirst().eraseToAnyPublisher()
+      : publisher.eraseToAnyPublisher()
+    self.playableChapterSubscription = stream.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
       self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
       self?.widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
-
-    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
-    storeWidgetItem(item)
   }
 
   func storeWidgetItem(_ item: PlayableItem) {
