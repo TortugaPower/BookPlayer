@@ -93,9 +93,13 @@ struct LibraryOptionsView: View {
       .navigationTitle("options_button")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .confirmationAction) {
-          Button("done_title") { dismiss() }
-            .foregroundStyle(theme.linkColor)
+        ToolbarItem(placement: .cancellationAction) {
+          Button {
+            dismiss()
+          } label: {
+            Image(systemName: "xmark")
+              .foregroundStyle(theme.linkColor)
+          }
         }
       }
     }
