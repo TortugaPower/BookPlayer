@@ -9,6 +9,22 @@
 
 import Foundation
 
+/// Identifies a location within the library that can have a sticky-sort preference.
+///
+/// Three states, distinguished so callers can't accidentally route a placeholder-UUID
+/// folder onto the library-root preference:
+///
+/// - `.libraryRoot`: the top-level library list. Maps to `library_sort:default`.
+/// - `.folder(LibraryItemRef)`: a folder with a real UUID. Maps to `library_sort:<uuid>`.
+/// - `.unresolved`: a folder whose UUID is still the placeholder (mid-migration / not synced).
+///   Reads return `.custom`; writes are silent no-ops. Distinct from `.libraryRoot`
+///   to prevent accidental mutation of the root preference.
+public enum SortLocation: Equatable {
+  case libraryRoot
+  case folder(LibraryItemRef)
+  case unresolved
+}
+
 /// Reads and writes sticky-sort preferences for a library location.
 ///
 /// Each location is independent — there is no inheritance between the
@@ -17,18 +33,17 @@ import Foundation
 public protocol SortPreferencesResolving: AnyObject {
   /// Returns the effective sort for a location.
   ///
-  /// - Parameter location: `nil` for the library root, otherwise the folder ref.
   /// - Returns: `.automatic(SortType)` if the location has a stored preference,
-  ///   `.custom` otherwise (including for folders mid-UUID-migration).
-  func effectiveSort(forLocation location: LibraryItemRef?) -> EffectiveSort
+  ///   `.custom` otherwise (including for `.unresolved` placeholder-UUID folders).
+  func effectiveSort(forLocation location: SortLocation) -> EffectiveSort
 
   /// Writes the sticky-sort preference for a location.
   ///
   /// No-op when the value matches the currently stored value (idempotent).
-  /// Silent no-op for folders with placeholder UUIDs.
-  func setSort(_ value: EffectiveSort, forLocation location: LibraryItemRef?)
+  /// Silent no-op for `.unresolved` placeholder-UUID folders.
+  func setSort(_ value: EffectiveSort, forLocation location: SortLocation)
 
   /// Removes any stored override for the location, returning it to `.custom`.
-  /// Silent no-op for folders with placeholder UUIDs.
-  func clearOverride(forLocation location: LibraryItemRef?)
+  /// Silent no-op for `.unresolved` placeholder-UUID folders.
+  func clearOverride(forLocation location: SortLocation)
 }

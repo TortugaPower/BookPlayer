@@ -343,16 +343,21 @@ struct ItemListView: View {
     .task { await model.loadNextPage() }
   }
 
-  /// Current location: `nil` for the library root, otherwise the folder ref.
+  /// Current location: `.libraryRoot`, `.folder(ref)`, or `.unresolved`.
   /// Read by the library-options sheet to (a) decide which sort key the checkmark
   /// reflects, and (b) tell the sticky-sort write path which folder is being changed.
-  var currentLocation: LibraryItemRef? {
+  ///
+  /// `.book` and folders with placeholder UUIDs map to `.unresolved` — distinct
+  /// from `.libraryRoot` so writes never accidentally mutate the root pref.
+  var currentLocation: SortLocation {
     switch model.libraryNode {
-    case .root, .book:
-      return nil
+    case .root:
+      return .libraryRoot
+    case .book:
+      return .unresolved
     case .folder(_, let relativePath, let uuid):
-      guard Constants.isRealUuid(uuid) else { return nil }
-      return LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      guard Constants.isRealUuid(uuid) else { return .unresolved }
+      return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
     }
   }
 

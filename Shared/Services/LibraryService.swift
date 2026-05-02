@@ -110,7 +110,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func sortContents(at relativePath: String?, by type: SortType)
   /// Sort entire list at the given location. `nil` represents the library root.
   /// Convenience that resolves the relativePath from the ref and delegates.
-  func sortContents(in location: LibraryItemRef?, by type: SortType)
+  func sortContents(in location: SortLocation, by type: SortType)
   /// Look up the relativePath for a library item by its uuid.
   /// Returns nil for placeholder uuids or if no matching item is found.
   func getRelativePath(forUuid uuid: String) -> String?
@@ -2080,17 +2080,36 @@ extension LibraryService {
 
   /// Constructs a `LibraryItemRef?` from a relativePath. `nil` represents the library root.
   /// Returns `nil` when the underlying folder has a placeholder uuid (mid-migration).
-  func makeLocation(forRelativePath relativePath: String?) -> LibraryItemRef? {
-    guard let relativePath else { return nil }
+  /// Resolves a relativePath into a `SortLocation`.
+  ///
+  /// Three outcomes — keep them distinct so callers (and the resolver) can't
+  /// accidentally route a placeholder-UUID folder onto the library-root key:
+  /// - `nil` path → `.libraryRoot`
+  /// - real UUID → `.folder(LibraryItemRef)`
+  /// - missing or placeholder UUID → `.unresolved` (hooks no-op cleanly)
+  func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+    guard let relativePath else { return .libraryRoot }
     guard
       let uuid = getItemProperty(#keyPath(LibraryItem.uuid), relativePath: relativePath) as? String,
       Constants.isRealUuid(uuid)
-    else { return nil }
-    return LibraryItemRef(relativePath: relativePath, uuid: uuid)
+    else { return .unresolved }
+    return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
   }
 
-  public func sortContents(in location: LibraryItemRef?, by type: SortType) {
-    sortContents(at: location?.relativePath, by: type)
+  public func sortContents(in location: SortLocation, by type: SortType) {
+    let relativePath: String?
+    switch location {
+    case .libraryRoot:
+      relativePath = nil
+    case .folder(let ref):
+      relativePath = ref.relativePath
+    case .unresolved:
+      // Folder with placeholder UUID — pref writes are no-ops at the resolver,
+      // so re-sorting the underlying CoreData ranks would be a partial action.
+      // Skip until the UUID is materialized and the caller re-tries.
+      return
+    }
+    sortContents(at: relativePath, by: type)
   }
 
   public func getRelativePath(forUuid uuid: String) -> String? {

@@ -654,10 +654,10 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var sortContentsInByCalled: Bool {
         return sortContentsInByCallsCount > 0
     }
-    var sortContentsInByReceivedArguments: (location: LibraryItemRef?, type: SortType)?
-    var sortContentsInByReceivedInvocations: [(location: LibraryItemRef?, type: SortType)] = []
-    var sortContentsInByClosure: ((LibraryItemRef?, SortType) -> Void)?
-    func sortContents(in location: LibraryItemRef?, by type: SortType) {
+    var sortContentsInByReceivedArguments: (location: SortLocation, type: SortType)?
+    var sortContentsInByReceivedInvocations: [(location: SortLocation, type: SortType)] = []
+    var sortContentsInByClosure: ((SortLocation, SortType) -> Void)?
+    func sortContents(in location: SortLocation, by type: SortType) {
         sortContentsInByCallsCount += 1
         sortContentsInByReceivedArguments = (location: location, type: type)
         sortContentsInByReceivedInvocations.append((location: location, type: type))

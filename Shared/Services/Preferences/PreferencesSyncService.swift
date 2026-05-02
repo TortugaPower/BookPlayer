@@ -206,14 +206,8 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
   // MARK: - SortPreferencesResolving
 
-  public func effectiveSort(forLocation location: LibraryItemRef?) -> EffectiveSort {
-    let key: String
-    if let location {
-      guard Constants.isRealUuid(location.uuid) else { return .custom }
-      key = Constants.UserDefaults.librarySort(folderUuid: location.uuid)
-    } else {
-      key = Constants.UserDefaults.librarySortDefault
-    }
+  public func effectiveSort(forLocation location: SortLocation) -> EffectiveSort {
+    guard let key = userDefaultsKey(forLocation: location) else { return .custom }
 
     guard
       let raw = defaults.string(forKey: key),
@@ -225,29 +219,32 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     return parsed
   }
 
-  public func setSort(_ value: EffectiveSort, forLocation location: LibraryItemRef?) {
-    let key: String
-    if let location {
-      guard Constants.isRealUuid(location.uuid) else { return }
-      key = Constants.UserDefaults.librarySort(folderUuid: location.uuid)
-    } else {
-      key = Constants.UserDefaults.librarySortDefault
-    }
-
+  public func setSort(_ value: EffectiveSort, forLocation location: SortLocation) {
+    guard let key = userDefaultsKey(forLocation: location) else { return }
     let newRaw = value.rawValue
     if defaults.string(forKey: key) == newRaw { return }
     defaults.set(newRaw, forKey: key)
   }
 
-  public func clearOverride(forLocation location: LibraryItemRef?) {
-    let key: String
-    if let location {
-      guard Constants.isRealUuid(location.uuid) else { return }
-      key = Constants.UserDefaults.librarySort(folderUuid: location.uuid)
-    } else {
-      key = Constants.UserDefaults.librarySortDefault
-    }
+  public func clearOverride(forLocation location: SortLocation) {
+    guard let key = userDefaultsKey(forLocation: location) else { return }
     defaults.removeObject(forKey: key)
+  }
+
+  /// Maps a `SortLocation` to the UserDefaults key it should read/write.
+  /// Returns `nil` for `.unresolved` so callers no-op cleanly.
+  private func userDefaultsKey(forLocation location: SortLocation) -> String? {
+    switch location {
+    case .libraryRoot:
+      return Constants.UserDefaults.librarySortDefault
+    case .folder(let ref):
+      // Defensive: even though `.folder` should only be constructed with real UUIDs,
+      // re-check here so a malformed caller can never accidentally hit the root key.
+      guard Constants.isRealUuid(ref.uuid) else { return nil }
+      return Constants.UserDefaults.librarySort(folderUuid: ref.uuid)
+    case .unresolved:
+      return nil
+    }
   }
 
   // MARK: - Server pull
@@ -361,16 +358,16 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   }
 
   private func dispatchResort(forKey key: String) async {
-    let location: LibraryItemRef?
+    let location: SortLocation
     if key == Constants.UserDefaults.librarySortDefault {
-      location = nil
+      location = .libraryRoot
     } else if key.hasPrefix(Constants.UserDefaults.librarySortPrefix) {
       let uuid = String(key.dropFirst(Constants.UserDefaults.librarySortPrefix.count))
       guard Constants.isRealUuid(uuid) else { return }
       // Look up the relativePath for this folder uuid (best-effort; if folder
       // hasn't synced down yet, we just cache the pref and skip the re-sort).
       guard let relativePath = libraryService.getRelativePath(forUuid: uuid) else { return }
-      location = LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      location = .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
     } else {
       return
     }

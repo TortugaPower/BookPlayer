@@ -11,9 +11,9 @@ import BookPlayerKit
 import SwiftUI
 
 struct LibraryOptionsView: View {
-  /// Current location: `nil` for the library root, otherwise the folder ref.
-  let location: LibraryItemRef?
-  /// Whether sticky sort can be applied here (false for placeholder UUIDs).
+  /// Current location: `.libraryRoot`, `.folder(ref)`, or `.unresolved`.
+  let location: SortLocation
+  /// Whether sticky sort can be applied here (false for `.unresolved`).
   let canApplyStickySort: Bool
   /// Triggered when the user changes the effective sort.
   let onSelectionChange: (EffectiveSort) -> Void
@@ -27,7 +27,7 @@ struct LibraryOptionsView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   init(
-    location: LibraryItemRef?,
+    location: SortLocation,
     canApplyStickySort: Bool,
     onSelectionChange: @escaping (EffectiveSort) -> Void
   ) {
@@ -35,11 +35,16 @@ struct LibraryOptionsView: View {
     self.canApplyStickySort = canApplyStickySort
     self.onSelectionChange = onSelectionChange
 
+    // Pick the matching UserDefaults key for the picker binding.
+    // `.unresolved` falls back to the default key only because `@AppStorage`
+    // requires a non-empty string here; the picker is `.disabled` in that
+    // case so reads never surface and writes never fire.
     let key: String
-    if let location, Constants.isRealUuid(location.uuid) {
-      key = Constants.UserDefaults.librarySort(folderUuid: location.uuid)
-    } else {
+    switch location {
+    case .libraryRoot, .unresolved:
       key = Constants.UserDefaults.librarySortDefault
+    case .folder(let ref):
+      key = Constants.UserDefaults.librarySort(folderUuid: ref.uuid)
     }
     self._sortRaw = AppStorage(
       wrappedValue: "",
