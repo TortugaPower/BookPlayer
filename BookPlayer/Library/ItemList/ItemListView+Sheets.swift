@@ -20,9 +20,33 @@ extension ItemListView {
       QueuedSyncTasksView()
     case .foldersSelection:
       foldersSelectionSheet()
+    case .libraryOptions:
+      libraryOptionsSheet()
     }
   }
-  
+
+  @ViewBuilder
+  private func libraryOptionsSheet() -> some View {
+    let location = currentLocation
+    LibraryOptionsView(
+      location: location,
+      canApplyStickySort: canApplyStickySort,
+      onSelectionChange: { effective in
+        switch effective {
+        case .automatic(let sort):
+          // Goes through `sortContents` which rewrites ranks and writes the pref via Hook 1.
+          model.handleSort(by: sort)
+        case .custom:
+          // No drag happened — just flip the pref. orderRanks stay where they are; from now
+          // on, sync will push rank changes since the location is no longer auto-sorted.
+          preferencesService?.setSort(.custom, forLocation: location)
+        }
+      }
+    )
+  }
+
+
+
   @ViewBuilder
   private func itemDetailsSheet(for item: SimpleLibraryItem) -> some View {
     NavigationStack {

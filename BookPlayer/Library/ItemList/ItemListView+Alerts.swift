@@ -146,7 +146,7 @@ extension ItemListView {
       model.createFolder(
         with: folderInput.name,
         items: model.selectedItems.map { item in
-          PathUuidPair(relativePath: item.relativePath, uuid: item.uuid)
+          LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid)
         },
         type: folderInput.type
       )

@@ -149,10 +149,10 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var moveItemsInsideCalled: Bool {
         return moveItemsInsideCallsCount > 0
     }
-    var moveItemsInsideReceivedArguments: (items: [PathUuidPair], relativePath: String?)?
-    var moveItemsInsideReceivedInvocations: [(items: [PathUuidPair], relativePath: String?)] = []
-    var moveItemsInsideClosure: (([PathUuidPair], String?) throws -> Void)?
-    func moveItems(_ items: [PathUuidPair], inside relativePath: String?) throws {
+    var moveItemsInsideReceivedArguments: (items: [LibraryItemRef], relativePath: String?)?
+    var moveItemsInsideReceivedInvocations: [(items: [LibraryItemRef], relativePath: String?)] = []
+    var moveItemsInsideClosure: (([LibraryItemRef], String?) throws -> Void)?
+    func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
         if let error = moveItemsInsideThrowableError {
             throw error
         }
@@ -647,6 +647,37 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         sortContentsAtByReceivedArguments = (relativePath: relativePath, type: type)
         sortContentsAtByReceivedInvocations.append((relativePath: relativePath, type: type))
         sortContentsAtByClosure?(relativePath, type)
+    }
+    //MARK: - sortContents
+
+    var sortContentsInByCallsCount = 0
+    var sortContentsInByCalled: Bool {
+        return sortContentsInByCallsCount > 0
+    }
+    var sortContentsInByReceivedArguments: (location: LibraryItemRef?, type: SortType)?
+    var sortContentsInByReceivedInvocations: [(location: LibraryItemRef?, type: SortType)] = []
+    var sortContentsInByClosure: ((LibraryItemRef?, SortType) -> Void)?
+    func sortContents(in location: LibraryItemRef?, by type: SortType) {
+        sortContentsInByCallsCount += 1
+        sortContentsInByReceivedArguments = (location: location, type: type)
+        sortContentsInByReceivedInvocations.append((location: location, type: type))
+        sortContentsInByClosure?(location, type)
+    }
+    //MARK: - getRelativePath
+
+    var getRelativePathForUuidCallsCount = 0
+    var getRelativePathForUuidCalled: Bool {
+        return getRelativePathForUuidCallsCount > 0
+    }
+    var getRelativePathForUuidReceivedUuid: String?
+    var getRelativePathForUuidReceivedInvocations: [String] = []
+    var getRelativePathForUuidReturnValue: String?
+    var getRelativePathForUuidClosure: ((String) -> String?)?
+    func getRelativePath(forUuid uuid: String) -> String? {
+        getRelativePathForUuidCallsCount += 1
+        getRelativePathForUuidReceivedUuid = uuid
+        getRelativePathForUuidReceivedInvocations.append(uuid)
+        return getRelativePathForUuidClosure.map({ $0(uuid) }) ?? getRelativePathForUuidReturnValue
     }
     //MARK: - updatePlaybackTime
 
@@ -1695,10 +1726,10 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleMoveItemsToCalled: Bool {
         return scheduleMoveItemsToCallsCount > 0
     }
-    var scheduleMoveItemsToReceivedArguments: (items: [PathUuidPair], parentFolder: PathUuidPair?)?
-    var scheduleMoveItemsToReceivedInvocations: [(items: [PathUuidPair], parentFolder: PathUuidPair?)] = []
-    var scheduleMoveItemsToClosure: (([PathUuidPair], PathUuidPair?) -> Void)?
-    func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?) {
+    var scheduleMoveItemsToReceivedArguments: (items: [LibraryItemRef], parentFolder: LibraryItemRef?)?
+    var scheduleMoveItemsToReceivedInvocations: [(items: [LibraryItemRef], parentFolder: LibraryItemRef?)] = []
+    var scheduleMoveItemsToClosure: (([LibraryItemRef], LibraryItemRef?) -> Void)?
+    func scheduleMove(items: [LibraryItemRef], to parentFolder: LibraryItemRef?) {
         scheduleMoveItemsToCallsCount += 1
         scheduleMoveItemsToReceivedArguments = (items: items, parentFolder: parentFolder)
         scheduleMoveItemsToReceivedInvocations.append((items: items, parentFolder: parentFolder))

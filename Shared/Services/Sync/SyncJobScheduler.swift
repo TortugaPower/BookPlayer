@@ -23,7 +23,7 @@ public protocol JobSchedulerProtocol {
   
   func scheduleMatchUuidsJob(uuidsDict: [String: String]) async
   /// Move item to destination
-  func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async
+  func scheduleMoveItemJob(with itemOrigin: LibraryItemRef, to parentFolder: LibraryItemRef?) async
   /// Delete item
   func scheduleDeleteJob(with relativePath: String, mode: DeleteMode, for uuid: String) async
   /// Create or update a bookmark
@@ -176,7 +176,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleMoveItemJob(with itemOrigin: PathUuidPair, to parentFolder: PathUuidPair?) async {
+  public func scheduleMoveItemJob(with itemOrigin: LibraryItemRef, to parentFolder: LibraryItemRef?) async {
     let useUuids = Constants.isRealUuid(itemOrigin.uuid)
 
     let parameters: [String: Any] = [

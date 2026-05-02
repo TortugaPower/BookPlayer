@@ -14,6 +14,7 @@ enum ItemListSheet: Identifiable {
   case itemDetails(SimpleLibraryItem)
   case queuedTasks
   case foldersSelection
+  case libraryOptions
 
   var id: String {
     switch self {
@@ -23,6 +24,8 @@ enum ItemListSheet: Identifiable {
       return "queuedTasks"
     case .foldersSelection:
       return "foldersSelection"
+    case .libraryOptions:
+      return "libraryOptions"
     }
   }
 }

@@ -99,6 +99,13 @@ final class AppServices: BPLogger {
       )
       let hardcoverService = makeHardcoverService(libraryService: libraryService)
 
+      let preferencesService = PreferencesSyncService(
+        accountService: accountService,
+        libraryService: libraryService
+      )
+      libraryService.preferencesService = preferencesService
+      Task { await preferencesService.bootstrap() }
+
       let coreServices = CoreServices(
         accountService: accountService,
         dataManager: dataManager,
@@ -107,6 +114,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerLoaderService: playerLoaderService,
         playerManager: playerManager,
+        preferencesService: preferencesService,
         syncService: syncService,
         watchService: watchService
       )
