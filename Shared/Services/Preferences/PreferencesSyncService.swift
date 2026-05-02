@@ -6,8 +6,6 @@
 //  to the backend, and applies remote changes in. Source of truth is
 //  UserDefaults itself; this service is a passive observer + sync coordinator.
 //
-//  See plan: /Users/pro.gianni.carlo/.claude/plans/can-you-spawn-a-staged-marble.md
-//
 
 import Combine
 import Foundation
@@ -45,12 +43,15 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
   public let preferencesChanged = PassthroughSubject<String, Never>()
 
-  // MARK: - Dependencies
+  // MARK: - Dependencies (assigned by `setup(...)` — IUO matches the
+  // pattern used by `LibraryService`, `SyncService`, etc., where the
+  // env-value default `.init()` produces a placeholder shell that gets
+  // wired up before any view actually invokes a method on it.)
 
-  private let accountService: AccountServiceProtocol
-  private let libraryService: LibraryServiceProtocol
-  private let defaults: UserDefaults
-  private let provider: NetworkProvider<PreferencesAPI>
+  private var accountService: AccountServiceProtocol!
+  private var libraryService: LibraryServiceProtocol!
+  private var defaults: UserDefaults!
+  private var provider: NetworkProvider<PreferencesAPI>!
 
   // MARK: - State
 
@@ -69,16 +70,22 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   /// Persisted to `userPreferences.dirty` synchronously on every mutation.
   private var dirty: [String: Date] = [:]
 
+  /// Minimum interval between non-forced pulls. Forced pulls (login, foreground,
+  /// sync-enabled flip) bypass this gate.
+  private static let pullCooldown: TimeInterval = 30
+
+  /// Debounce window for batched server flushes. Reset on each new dirty key
+  /// so a burst of changes coalesces into a single PATCH.
+  private static let flushDebounce: TimeInterval = 3
+
   /// Last successful pull timestamp; gates `pullFromServer(force: false)`.
   private var lastSuccessfulPull: Date?
-  private let pullCooldown: TimeInterval = 30
 
   /// Set during `applyServerSnapshot` to suppress KVO echoes.
   private var isApplyingRemoteUpdate = false
 
   /// Pending debounced flush.
   private var flushTask: Task<Void, Never>?
-  private let flushDebounce: TimeInterval = 3
 
   /// Concurrency lock guarding `dirty`, `registeredKeys`, `flushTask`,
   /// `lastSuccessfulPull`, `isApplyingRemoteUpdate`. KVO callbacks fire
@@ -89,9 +96,19 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   /// Account-state and lifecycle observers (logout, accountUpdate, foreground).
   private var notificationObservers: [NSObjectProtocol] = []
 
-  // MARK: - Init
+  // MARK: - Init / setup
 
-  public init(
+  public override init() {
+    super.init()
+  }
+
+  /// Wires up dependencies. Called once by `AppServices` after the surrounding
+  /// services are constructed. Until this fires, all methods that hit the
+  /// network or UserDefaults will trap on the IUOs above — but the env-value
+  /// default `.init()` is never exposed to view code: by the time any view
+  /// reads `@Environment(\.preferencesService)`, `MainCoordinator` has
+  /// already injected the configured instance.
+  public func setup(
     accountService: AccountServiceProtocol,
     libraryService: LibraryServiceProtocol,
     defaults: UserDefaults = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier) ?? .standard,
@@ -101,12 +118,18 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     self.libraryService = libraryService
     self.defaults = defaults
     self.provider = NetworkProvider<PreferencesAPI>(client: client)
-    super.init()
   }
 
   deinit {
-    for key in registeredKeys {
-      defaults.removeObserver(self, forKeyPath: key)
+    // No lock needed: deinit implies refcount=0, so no other thread can be
+    // mid-`observeValue` against `self` (KVO callbacks are synchronous to the
+    // writing thread and require a live reference). Cleanup of in-session
+    // state goes through `teardown()` on the `.logout` path; this is the
+    // belt-and-suspenders cleanup at process exit.
+    if let defaults {
+      for key in registeredKeys {
+        defaults.removeObserver(self, forKeyPath: key)
+      }
     }
     for token in notificationObservers {
       NotificationCenter.default.removeObserver(token)
@@ -147,12 +170,17 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       object: nil,
       queue: .main
     ) { [weak self] _ in
-      // `force: false` here so co-firing with the foreground observer dedupes
-      // via the 30s rate limit. If `lastSuccessfulPull` is nil (first time
-      // sync becomes enabled), the rate limit doesn't trigger and the pull happens.
-      // Also flush any locally-accumulated dirty entries (e.g. free user upgrades to Pro).
+      // Re-run the full bootstrap path on every account state change. This
+      // covers logout→login (where `handleLogout` removed all KVO observers
+      // and we need to re-register the static keys) as well as free→Pro
+      // upgrades (where the rate-limited pull would otherwise have run).
+      // `bootstrap()` is idempotent: dirty-list reload reads the persisted
+      // file (empty if logout just wiped it), KVO `addObserver` is guarded
+      // by `registeredKeys`, and the notification-observer setup is guarded
+      // by `notificationObservers.isEmpty`. After bootstrap force-pulls,
+      // also flush any locally-accumulated dirty entries.
       Task { [weak self] in
-        await self?.pullFromServer(force: false)
+        await self?.bootstrap()
         await self?.flush()
       }
     }
@@ -253,7 +281,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     guard accountService.hasSyncEnabled() else { return }
 
     lock.lock()
-    if !force, let last = lastSuccessfulPull, Date().timeIntervalSince(last) < pullCooldown {
+    if !force, let last = lastSuccessfulPull, Date().timeIntervalSince(last) < Self.pullCooldown {
       lock.unlock()
       return
     }
@@ -275,12 +303,17 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     lastSuccessfulPull = Date()
     lock.unlock()
 
-    // Walk applied keys and re-sort affected locations.
+    // Walk applied keys and re-sort affected locations. For each key whose
+    // value actually changed, emit `preferencesChanged` so subscribers (e.g.
+    // `ItemListView`) can refresh their cached `[SimpleLibraryItem]` list.
+    // The KVO observer doesn't publish here because `applyServerSnapshot`
+    // sets `isApplyingRemoteUpdate` to suppress echo loops.
     for key in appliedKeys {
       let oldValue = beforeSnapshot[key]
       let newValue = defaults.string(forKey: key)
       if oldValue == newValue { continue }
       await dispatchResort(forKey: key)
+      preferencesChanged.send(key)
     }
   }
 
@@ -293,24 +326,38 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     change: [NSKeyValueChangeKey: Any]?,
     context: UnsafeMutableRawPointer?
   ) {
+    // Capture the key to publish under the lock, then release before
+    // invoking subscribers and rescheduling. `preferencesChanged.send`
+    // runs subscriber closures synchronously; holding the lock during
+    // that creates a lock-ordering hazard for any subscriber that takes
+    // its own locks.
+    let changedKey: String
     lock.lock()
-    defer { lock.unlock() }
+    do {
+      defer { lock.unlock() }
 
-    guard !isApplyingRemoteUpdate else { return }
-    guard let key = keyPath else { return }
+      guard !isApplyingRemoteUpdate, let key = keyPath else { return }
+      let oldValue = (change?[.oldKey] as? String) ?? ""
+      let newValue = (change?[.newKey] as? String) ?? ""
+      guard oldValue != newValue else { return }
 
-    let oldValue = (change?[.oldKey] as? String) ?? ""
-    let newValue = (change?[.newKey] as? String) ?? ""
-    guard oldValue != newValue else { return }
-
-    dirty[key] = Date()
-    persistDirtyList()
-    preferencesChanged.send(key)
+      dirty[key] = Date()
+      persistDirtyList()
+      changedKey = key
+    }
+    preferencesChanged.send(changedKey)
     scheduleFlush()
   }
 
   // MARK: - Private
 
+  /// Registers KVO for a single App Group key. KVO on `UserDefaults` is
+  /// **per-process**: writes from another process (extensions, watch, widgets)
+  /// hit the same suite on disk but do NOT fire callbacks here. Those writes
+  /// are caught later by the foreground pull (`willEnterForegroundNotification`)
+  /// or the next rate-limited pull from `ListSyncRefreshService`. Today no
+  /// extension target writes `library_sort:*` keys, so this is documentation —
+  /// add a `UserDefaults.didChangeNotification` listener if that ever changes.
   private func addObserver(forKey key: String) {
     guard !registeredKeys.contains(key) else { return }
     registeredKeys.insert(key)
@@ -345,7 +392,18 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
         continue
       }
 
-      let stringValue = (entry.value["sort"]?.value as? String) ?? ""
+      // Reject malformed payloads (missing "sort" field, null, non-string,
+      // or a value this client doesn't know about). Without this guard a
+      // bad server response would silently overwrite a good local pref
+      // with `""`, which the resolver then maps to `.custom`.
+      guard
+        let stringValue = entry.value["sort"]?.value as? String,
+        EffectiveSort(rawValue: stringValue) != nil
+      else {
+        Self.logger.trace("PreferencesSyncService: skipping entry with unrecognized value for key \(entry.key)")
+        continue
+      }
+
       defaults.set(stringValue, forKey: entry.key)
       applied.append(entry.key)
 
@@ -367,7 +425,10 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       // Look up the relativePath for this folder uuid (best-effort; if folder
       // hasn't synced down yet, we just cache the pref and skip the re-sort).
       guard let relativePath = libraryService.getRelativePath(forUuid: uuid) else { return }
-      location = .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
+      // Route through `makeLocation` rather than constructing `.folder(...)`
+      // directly, so bound-folder + placeholder-UUID gates apply uniformly
+      // even on the server-driven path.
+      location = libraryService.makeLocation(forRelativePath: relativePath)
     } else {
       return
     }
@@ -384,21 +445,29 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   // MARK: - Flush
 
   private func scheduleFlush() {
+    // Take the lock here so callers (e.g. `observeValue`) can release the
+    // lock before invoking us — keeps the publish-subscriber callback
+    // out of any locked region.
+    lock.lock()
+    defer { lock.unlock() }
     flushTask?.cancel()
     flushTask = Task { [weak self] in
-      try? await Task.sleep(nanoseconds: UInt64((self?.flushDebounce ?? 3) * 1_000_000_000))
+      try? await Task.sleep(nanoseconds: UInt64(Self.flushDebounce * Double(NSEC_PER_SEC)))
       guard !Task.isCancelled else { return }
       await self?.flush()
     }
   }
 
   private func flush() async {
-    guard accountService.hasSyncEnabled() else { return }
+    // Honor cancellation at each await boundary so a logout (which cancels
+    // `flushTask`) can exit cleanly without sending a stale request or
+    // mutating dirty state that's already been wiped.
+    guard accountService.hasSyncEnabled(), !Task.isCancelled else { return }
 
     lock.lock()
     let snapshot = dirty
     lock.unlock()
-    guard !snapshot.isEmpty else { return }
+    guard !snapshot.isEmpty, !Task.isCancelled else { return }
 
     var entries: [PreferenceEntry] = []
     for (key, _) in snapshot {
@@ -412,6 +481,8 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       Self.logger.trace("PreferencesSyncService.flush failed: \(error.localizedDescription)")
       return
     }
+
+    guard !Task.isCancelled else { return }
 
     lock.lock()
     for (key, ts) in snapshot {
@@ -427,9 +498,18 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
   // MARK: - Dirty-list persistence
 
+  /// Single formatter shared by encode + decode. Fractional seconds preserve
+  /// sub-second precision so the round-trip matches the precision used by
+  /// server timestamps (LWW comparisons rely on the two clocks being on the
+  /// same scale).
+  private static let dirtyListFormatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return f
+  }()
+
   private func persistDirtyList() {
-    let formatter = ISO8601DateFormatter()
-    let encoded: [String: String] = dirty.mapValues { formatter.string(from: $0) }
+    let encoded: [String: String] = dirty.mapValues { Self.dirtyListFormatter.string(from: $0) }
     if let data = try? JSONSerialization.data(withJSONObject: encoded) {
       defaults.set(data, forKey: Constants.UserDefaults.userPreferencesDirty)
     }
@@ -441,9 +521,8 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       let raw = try? JSONSerialization.jsonObject(with: data) as? [String: String]
     else { return }
 
-    let formatter = ISO8601DateFormatter()
     for (key, ts) in raw {
-      if let date = formatter.date(from: ts) {
+      if let date = Self.dirtyListFormatter.date(from: ts) {
         dirty[key] = date
       }
     }
@@ -452,11 +531,11 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
 // MARK: - Wire types
 
-private struct PreferencesSyncResponse: Decodable {
+struct PreferencesSyncResponse: Decodable {
   let entries: [PreferencesSyncEntry]
 }
 
-private struct PreferencesSyncEntry: Decodable {
+struct PreferencesSyncEntry: Decodable {
   let key: String
   let value: [String: AnyDecodable]
   let updatedAt: Date
@@ -467,19 +546,42 @@ private struct PreferencesSyncEntry: Decodable {
     case updatedAt = "updated_at"
   }
 
+  /// ISO8601 with fractional-seconds support. Server emits this format
+  /// when the underlying timestamp has sub-second precision.
+  private static let fractionalFormatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return f
+  }()
+
+  /// ISO8601 without fractional-seconds. Server emits this format for
+  /// timestamps with whole-second precision (the two options are mutually
+  /// exclusive in `ISO8601DateFormatter`).
+  private static let plainFormatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime]
+    return f
+  }()
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.key = try container.decode(String.self, forKey: .key)
     self.value = try container.decode([String: AnyDecodable].self, forKey: .value)
     let dateString = try container.decode(String.self, forKey: .updatedAt)
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    if let date = formatter.date(from: dateString) {
+    if let date = Self.fractionalFormatter.date(from: dateString)
+        ?? Self.plainFormatter.date(from: dateString) {
       self.updatedAt = date
     } else {
-      let plainFormatter = ISO8601DateFormatter()
-      plainFormatter.formatOptions = [.withInternetDateTime]
-      self.updatedAt = plainFormatter.date(from: dateString) ?? Date.distantPast
+      // Throw rather than fall back to `Date.distantPast` — a silent fallback
+      // would always make `entry.updatedAt <= localChangeAt`, so server values
+      // for affected keys could never beat local LWW. Failing the whole pull
+      // is loud and correct: the server is sending malformed timestamps and
+      // a retry on next foreground is the right recovery.
+      throw DecodingError.dataCorruptedError(
+        forKey: .updatedAt,
+        in: container,
+        debugDescription: "Unrecognized ISO8601 timestamp: \(dateString)"
+      )
     }
   }
 }
@@ -489,7 +591,7 @@ private struct SuccessResponse: Decodable {
 }
 
 /// Type-erased decoder for arbitrary JSON values inside a pref's `value` object.
-private struct AnyDecodable: Decodable {
+struct AnyDecodable: Decodable {
   let value: Any
 
   init(from decoder: Decoder) throws {

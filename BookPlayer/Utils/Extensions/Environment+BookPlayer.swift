@@ -21,8 +21,10 @@ extension EnvironmentValues {
   @Entry var loadingState: LoadingOverlayState = .init()
   @Entry var playerState: PlayerState = .init()
   @Entry var passkeyService: PasskeyServiceProtocol = PasskeyService()
-  /// Sticky-sort prefs service. `nil` until injected by the root coordinator.
-  @Entry var preferencesService: PreferencesSyncServiceProtocol? = nil
+  /// Sticky-sort prefs service. The default is a placeholder shell; the real
+  /// instance is injected by `MainCoordinator` after `AppServices` calls
+  /// `setup(...)` on it.
+  @Entry var preferencesService: PreferencesSyncService = .init()
 }
 
 extension EnvironmentValues {

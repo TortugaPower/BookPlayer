@@ -679,6 +679,22 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         getRelativePathForUuidReceivedInvocations.append(uuid)
         return getRelativePathForUuidClosure.map({ $0(uuid) }) ?? getRelativePathForUuidReturnValue
     }
+    //MARK: - makeLocation
+
+    var makeLocationForRelativePathCallsCount = 0
+    var makeLocationForRelativePathCalled: Bool {
+        return makeLocationForRelativePathCallsCount > 0
+    }
+    var makeLocationForRelativePathReceivedRelativePath: String?
+    var makeLocationForRelativePathReceivedInvocations: [String?] = []
+    var makeLocationForRelativePathReturnValue: SortLocation!
+    var makeLocationForRelativePathClosure: ((String?) -> SortLocation)?
+    func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+        makeLocationForRelativePathCallsCount += 1
+        makeLocationForRelativePathReceivedRelativePath = relativePath
+        makeLocationForRelativePathReceivedInvocations.append(relativePath)
+        return makeLocationForRelativePathClosure.map({ $0(relativePath) }) ?? makeLocationForRelativePathReturnValue
+    }
     //MARK: - updatePlaybackTime
 
     var updatePlaybackTimeRelativePathTimeDateScheduleSaveCallsCount = 0

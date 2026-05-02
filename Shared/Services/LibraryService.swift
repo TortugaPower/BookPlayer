@@ -114,6 +114,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Look up the relativePath for a library item by its uuid.
   /// Returns nil for placeholder uuids or if no matching item is found.
   func getRelativePath(forUuid uuid: String) -> String?
+  /// Resolves a path into a `SortLocation`, applying the bound-folder and
+  /// placeholder-UUID gates. See implementation for details.
+  func makeLocation(forRelativePath relativePath: String?) -> SortLocation
   /// Playback
   /// Update playback time for item
   func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool)
@@ -2083,16 +2086,24 @@ extension LibraryService {
   /// Resolves a relativePath into a `SortLocation`.
   ///
   /// Three outcomes — keep them distinct so callers (and the resolver) can't
-  /// accidentally route a placeholder-UUID folder onto the library-root key:
+  /// accidentally route a non-sortable location onto the library-root key:
   /// - `nil` path → `.libraryRoot`
-  /// - real UUID → `.folder(LibraryItemRef)`
-  /// - missing or placeholder UUID → `.unresolved` (hooks no-op cleanly)
-  func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+  /// - real UUID, non-bound folder → `.folder(LibraryItemRef)`
+  /// - missing/placeholder UUID, or bound folder → `.unresolved` (hooks no-op).
+  ///   Bound folders are explicitly excluded because their children are a
+  ///   single playable unit, not a user-sortable list — even if some path
+  ///   tried to write a sticky sort for the bound's UUID, this gate keeps
+  ///   the children's `orderRank` stable.
+  public func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
     guard let relativePath else { return .libraryRoot }
     guard
       let uuid = getItemProperty(#keyPath(LibraryItem.uuid), relativePath: relativePath) as? String,
       Constants.isRealUuid(uuid)
     else { return .unresolved }
+    if let rawType = getItemProperty(#keyPath(LibraryItem.type), relativePath: relativePath) as? Int16,
+       rawType == ItemType.bound.rawValue {
+      return .unresolved
+    }
     return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
   }
 

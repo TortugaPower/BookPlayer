@@ -13,8 +13,6 @@ import SwiftUI
 struct LibraryOptionsView: View {
   /// Current location: `.libraryRoot`, `.folder(ref)`, or `.unresolved`.
   let location: SortLocation
-  /// Whether sticky sort can be applied here (false for `.unresolved`).
-  let canApplyStickySort: Bool
   /// Triggered when the user changes the effective sort.
   let onSelectionChange: (EffectiveSort) -> Void
 
@@ -28,11 +26,9 @@ struct LibraryOptionsView: View {
 
   init(
     location: SortLocation,
-    canApplyStickySort: Bool,
     onSelectionChange: @escaping (EffectiveSort) -> Void
   ) {
     self.location = location
-    self.canApplyStickySort = canApplyStickySort
     self.onSelectionChange = onSelectionChange
 
     // Pick the matching UserDefaults key for the picker binding.
@@ -81,17 +77,27 @@ struct LibraryOptionsView: View {
     NavigationStack {
       List {
         Section {
-          Picker(selection: pickerSelection) {
-            Text("title_button").tag(Optional(SortType.metadataTitle))
-            Text("sort_filename_button").tag(Optional(SortType.fileName))
-            Text("sort_most_recent_button").tag(Optional(SortType.mostRecent))
-            Text("sleeptimer_option_custom").tag(SortType?.none)
-          } label: {
-            Text("sort_files_title")
-              .bpFont(.body)
+          if location == .unresolved {
+            // Mid-migration folder (or non-sortable container): the sort
+            // re-ranks items locally but is NOT persisted as a sticky pref.
+            // Once the folder's UUID materializes the user can re-tap and
+            // it'll stick. Render plain Buttons so the UI doesn't suggest
+            // a persistent selection.
+            oneShotSortRow(.metadataTitle, titleKey: "title_button")
+            oneShotSortRow(.fileName, titleKey: "sort_filename_button")
+            oneShotSortRow(.mostRecent, titleKey: "sort_most_recent_button")
+          } else {
+            Picker(selection: pickerSelection) {
+              Text("title_button").tag(Optional(SortType.metadataTitle))
+              Text("sort_filename_button").tag(Optional(SortType.fileName))
+              Text("sort_most_recent_button").tag(Optional(SortType.mostRecent))
+              Text("sleeptimer_option_custom").tag(SortType?.none)
+            } label: {
+              Text("sort_files_title")
+                .bpFont(.body)
+            }
+            .pickerStyle(.menu)
           }
-          .pickerStyle(.menu)
-          .disabled(!canApplyStickySort)
         }
       }
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
@@ -109,5 +115,22 @@ struct LibraryOptionsView: View {
       }
     }
     .presentationDetents([.medium])
+  }
+
+  /// Single-tap action for `.unresolved` locations. The user picks a sort,
+  /// items are re-ranked locally via `onSelectionChange → handleSort →
+  /// sortContents(at:by:)`, and the resolver no-ops the pref write because
+  /// the location resolves to `.unresolved`.
+  @ViewBuilder
+  private func oneShotSortRow(
+    _ sort: SortType,
+    titleKey: LocalizedStringKey
+  ) -> some View {
+    Button {
+      onSelectionChange(.automatic(sort))
+    } label: {
+      Text(titleKey)
+        .foregroundStyle(theme.primaryColor)
+    }
   }
 }

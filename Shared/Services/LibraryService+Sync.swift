@@ -164,7 +164,7 @@ extension LibraryService: LibrarySyncProtocol {
   }
 
   public func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async {
-    var didInsertNonBoundItems = false
+    var didInsertItems = false
 
     await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
@@ -176,17 +176,19 @@ extension LibraryService: LibrarySyncProtocol {
         for key in newKeys {
           guard let item = itemsDict[key] else { continue }
 
+          // All three types appear as siblings in the parent list, so all three
+          // need the parent re-sort below. The bound case adds a folder of type
+          // `.bound` which is itself a sortable sibling — its own children are
+          // never user-sortable, but that's a separate concern (handled by the
+          // resolver returning `.unresolved` for any folder with a placeholder
+          // UUID, including bound internals).
           switch item.type {
           case .book:
             addBook(from: item, parentFolder: parentFolder, context: context)
-            didInsertNonBoundItems = true
-          case .folder:
+          case .folder, .bound:
             addFolder(from: item, parentFolder: parentFolder, context: context)
-            didInsertNonBoundItems = true
-          case .bound:
-            addFolder(from: item, parentFolder: parentFolder, context: context)
-            // Bound parents are not sortable containers — skip the parent re-sort below.
           }
+          didInsertItems = true
         }
 
         dataManager.saveSyncContext(context)
@@ -195,9 +197,8 @@ extension LibraryService: LibrarySyncProtocol {
     }
 
     // Hook 4: hop to the main actor (after the background save commits) and re-sort
-    // the parent if its effective sort is automatic. Skip when only bound items were
-    // inserted — bound parents aren't sortable containers.
-    guard didInsertNonBoundItems, let prefs = preferencesService else { return }
+    // the parent if its effective sort is automatic.
+    guard didInsertItems, let prefs = preferencesService else { return }
 
     await MainActor.run {
       let parentLocation = makeLocation(forRelativePath: parentFolder)

@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import Foundation
 
 enum LibraryNode: Equatable, Hashable {
@@ -31,6 +32,21 @@ enum LibraryNode: Equatable, Hashable {
     switch self {
     case .root: ""
     case .folder(_, _, let uuid), .book(_, _, let uuid): uuid
+    }
+  }
+
+  /// Returns true when `key` is the sticky-sort UserDefaults key that affects
+  /// this node's visible list. Used by `ItemListView` to filter pref-change
+  /// publisher events down to "I need to reload" events.
+  func matchesSortPrefKey(_ key: String) -> Bool {
+    switch self {
+    case .root:
+      return key == Constants.UserDefaults.librarySortDefault
+    case .folder(_, _, let uuid):
+      guard Constants.isRealUuid(uuid) else { return false }
+      return key == Constants.UserDefaults.librarySort(folderUuid: uuid)
+    case .book:
+      return false
     }
   }
 }

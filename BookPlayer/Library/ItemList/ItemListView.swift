@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import SwiftUI
 
 struct ItemListView: View {
@@ -79,8 +80,16 @@ struct ItemListView: View {
         // PreferencesSyncService catches local writes (sort tap, drag-reorder).
         if case .folder(_, _, let uuid) = model.libraryNode,
            Constants.isRealUuid(uuid) {
-          preferencesService?.register(folderUuid: uuid)
+          preferencesService.register(folderUuid: uuid)
         }
+      }
+      .onReceive(preferencesService.preferencesChanged) { key in
+        // Server-driven sort change for the location currently on screen:
+        // PreferencesSyncService has already rewritten orderRank in CoreData
+        // via dispatchResort → sortContents. The cached `[SimpleLibraryItem]`
+        // in the view model is stale until we trigger a reload here.
+        guard model.libraryNode.matchesSortPrefKey(key) else { return }
+        listState.reloadAll()
       }
   }
 
@@ -361,18 +370,6 @@ struct ItemListView: View {
     }
   }
 
-  /// `false` when the current view doesn't support sticky sort yet — book detail
-  /// (no list to sort) and folders mid-UUID-migration (no stable key to write to).
-  var canApplyStickySort: Bool {
-    switch model.libraryNode {
-    case .root:
-      return true
-    case .folder(_, _, let uuid):
-      return Constants.isRealUuid(uuid)
-    case .book:
-      return false
-    }
-  }
 
   @ViewBuilder
   func addFilesOptions() -> some View {

@@ -30,7 +30,6 @@ extension ItemListView {
     let location = currentLocation
     LibraryOptionsView(
       location: location,
-      canApplyStickySort: canApplyStickySort,
       onSelectionChange: { effective in
         switch effective {
         case .automatic(let sort):
@@ -39,7 +38,7 @@ extension ItemListView {
         case .custom:
           // No drag happened — just flip the pref. orderRanks stay where they are; from now
           // on, sync will push rank changes since the location is no longer auto-sorted.
-          preferencesService?.setSort(.custom, forLocation: location)
+          preferencesService.setSort(.custom, forLocation: location)
         }
       }
     )

@@ -84,21 +84,3 @@ public enum EffectiveSort: Equatable {
   }
 }
 
-extension EffectiveSort: Codable {
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    let raw = try container.decode(String.self)
-    guard let value = EffectiveSort(rawValue: raw) else {
-      throw DecodingError.dataCorruptedError(
-        in: container,
-        debugDescription: "Unknown EffectiveSort raw value: \(raw)"
-      )
-    }
-    self = value
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(rawValue)
-  }
-}

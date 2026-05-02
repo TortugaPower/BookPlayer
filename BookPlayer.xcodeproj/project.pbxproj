@@ -626,6 +626,7 @@
 		63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */; };
 		66DF1F3E6AFECB623A558F04 /* IntegrationDisconnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FDA0B60D7BE4CFE100A612 /* IntegrationDisconnectedView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
+		FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
@@ -1570,6 +1571,7 @@
 		63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListItemView.swift; sourceTree = "<group>"; };
 		643E169A5F153B754F726AE1 /* IntegrationTagsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationTagsView.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
+		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
@@ -3066,6 +3068,7 @@
 				9FC1E4662815091A00522FA8 /* AccountServiceTests.swift */,
 				9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */,
 				700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */,
+				0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -4755,6 +4758,7 @@
 				62AAE231274ABB5D001EB9FF /* LibraryServiceTests.swift in Sources */,
 				6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */,
 				6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */,
+				FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,

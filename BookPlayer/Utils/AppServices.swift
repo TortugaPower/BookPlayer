@@ -99,7 +99,8 @@ final class AppServices: BPLogger {
       )
       let hardcoverService = makeHardcoverService(libraryService: libraryService)
 
-      let preferencesService = PreferencesSyncService(
+      let preferencesService = PreferencesSyncService()
+      preferencesService.setup(
         accountService: accountService,
         libraryService: libraryService
       )

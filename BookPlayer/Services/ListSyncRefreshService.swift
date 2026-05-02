@@ -19,13 +19,13 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
   let playerLoaderService: PlayerLoaderService
-  let preferencesService: PreferencesSyncServiceProtocol?
+  let preferencesService: PreferencesSyncServiceProtocol
 
   init(
     playerManager: PlayerManagerProtocol,
     syncService: SyncServiceProtocol,
     playerLoaderService: PlayerLoaderService,
-    preferencesService: PreferencesSyncServiceProtocol? = nil
+    preferencesService: PreferencesSyncServiceProtocol
   ) {
     self.playerManager = playerManager
     self.syncService = syncService
@@ -37,7 +37,7 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     // Pref pull runs in parallel with content sync and is independent of the
     // item-sync queue state — kick it off first so a queue-blocked content
     // sync doesn't skip the pref refresh.
-    async let prefPull: Void = { await preferencesService?.pullFromServer(force: false) }()
+    async let prefPull: Void = { await preferencesService.pullFromServer(force: false) }()
 
     do {
       if let relativePath {
@@ -115,7 +115,7 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
   }
 
   func syncList(at relativePath: String?) async throws {
-    async let prefPull: Void = { await preferencesService?.pullFromServer(force: false) }()
+    async let prefPull: Void = { await preferencesService.pullFromServer(force: false) }()
 
     do {
       if let relativePath {
