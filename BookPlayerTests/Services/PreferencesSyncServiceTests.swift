@@ -170,7 +170,12 @@ final class PreferencesSyncServiceTests: XCTestCase {
     // Local writes via setSort don't pass through KVO (they short-circuit on
     // value-unchanged); instead, simulate a real KVO-driven mutation by
     // writing directly to UD with the suite as defaults.
-    account.syncEnabled = true
+    //
+    // We deliberately leave `account.syncEnabled = false` so `bootstrap()`'s
+    // pull/flush short-circuit on `hasSyncEnabled()` — the shared
+    // `NetworkClientMock(mockedResponse: Empty())` would force-cast `Empty`
+    // to `PreferencesSyncResponse` and trap. KVO registration in bootstrap
+    // happens regardless of sync state, which is all this test exercises.
     let key = Constants.UserDefaults.librarySortDefault
 
     // Trigger a KVO callback by writing through `defaults` itself. The
