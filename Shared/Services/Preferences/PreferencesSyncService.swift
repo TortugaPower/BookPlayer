@@ -150,6 +150,12 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     lock.unlock()
 
     await pullFromServer(force: true)
+
+    // Drain any persisted dirty entries left over from a previous session
+    // (e.g. process killed mid-debounce). `flush` no-ops on empty/sync-disabled
+    // and respects the LWW-driven dirty-list cleanup that pullFromServer just
+    // performed, so this is safe to run unconditionally.
+    await flush()
   }
 
   /// Wire `.logout` (clean up state for the next user) and `.accountUpdate`
@@ -170,6 +176,14 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       object: nil,
       queue: .main
     ) { [weak self] _ in
+      guard let self else { return }
+      // `AccountService.logout()` calls `updateAccount(id: "", ...)` BEFORE
+      // posting `.logout`, which means `.accountUpdate` fires first with an
+      // empty account id. Without this guard we'd re-run `bootstrap()` against
+      // the about-to-be-torn-down service and re-register KVO observers that
+      // `handleLogout` would have to clean up again — and any sticky-sort
+      // change after that point could leak into the next account that signs in.
+      guard self.accountService.getAccountId() != nil else { return }
       // Re-run the full bootstrap path on every account state change. This
       // covers logout→login (where `handleLogout` removed all KVO observers
       // and we need to re-register the static keys) as well as free→Pro
@@ -177,11 +191,10 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       // `bootstrap()` is idempotent: dirty-list reload reads the persisted
       // file (empty if logout just wiped it), KVO `addObserver` is guarded
       // by `registeredKeys`, and the notification-observer setup is guarded
-      // by `notificationObservers.isEmpty`. After bootstrap force-pulls,
-      // also flush any locally-accumulated dirty entries.
+      // by `notificationObservers.isEmpty`. Bootstrap also drains pending
+      // dirty entries via its own `flush()` call.
       Task { [weak self] in
         await self?.bootstrap()
-        await self?.flush()
       }
     }
     notificationObservers.append(accountToken)
@@ -254,6 +267,15 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     defaults.set(newRaw, forKey: key)
   }
 
+  /// Removes the local override for a location. **Currently unused in production**
+  /// (only exercised by tests).
+  ///
+  /// ⚠️ Before wiring this to the UI: today the KVO-driven flush serializes the
+  /// post-removal value as `""` and would PATCH that to the server instead of
+  /// issuing a delete. `applyServerSnapshot` rejects `""` so the server-side row
+  /// would persist; another device pulling next would resurrect the override.
+  /// Wire `PreferencesAPI.deletePreferences` here (or via a tombstone semantic
+  /// in the dirty list) before exposing this to user actions.
   public func clearOverride(forLocation location: SortLocation) {
     guard let key = userDefaultsKey(forLocation: location) else { return }
     defaults.removeObject(forKey: key)

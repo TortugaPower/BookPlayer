@@ -10,7 +10,7 @@ import Foundation
 public enum PreferencesAPI {
   /// Fetch all of the user's preferences (optionally filtered by key prefix).
   case getPreferences(prefix: String?)
-  /// Upsert one or more preferences (max 64 per request).
+  /// Upsert one or more preferences (max 500 per request, server-enforced).
   case setPreferences(entries: [PreferenceEntry])
   /// Soft-delete preferences by key.
   case deletePreferences(keys: [String])

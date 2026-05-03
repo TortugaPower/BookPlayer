@@ -2081,8 +2081,6 @@ extension LibraryService {
     self.dataManager.saveContext()
   }
 
-  /// Constructs a `LibraryItemRef?` from a relativePath. `nil` represents the library root.
-  /// Returns `nil` when the underlying folder has a placeholder uuid (mid-migration).
   /// Resolves a relativePath into a `SortLocation`.
   ///
   /// Three outcomes — keep them distinct so callers (and the resolver) can't
