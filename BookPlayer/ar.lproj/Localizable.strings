@@ -46,6 +46,8 @@
 "delete_completely_button" = "الحذف كلياً";
 "move_library_button" = "النقل إلى المكتبة";
 "options_button" = "خيارات";
+"library_options_progress_as_percentage_title" = "عرض التقدم كنسبة مئوية";
+"library_options_original_filename_title" = "عرض اسم الملف الأصلي";
 "select_playlist_title" = "اختر مجلد";
 "title_button" = "العنوان";
 "sort_filename_button" = "اسم الملف الأصلي";

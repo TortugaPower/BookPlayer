@@ -20,6 +20,19 @@ struct BookView: View {
   @Environment(\.listState) private var listState
   @EnvironmentObject private var theme: ThemeViewModel
 
+  /// Set from `LibraryOptionsView`. When true (and the item has one), the row
+  /// shows the imported file name instead of the parsed title.
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayTitleSource,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var useOriginalFileName: Bool
+
+  private var displayTitle: String {
+    item.displayTitle(useOriginalFileName: useOriginalFileName)
+  }
+
   var isHighlighted: Bool {
     playerState.loadedBookRelativePath == item.relativePath || playingItemParentPath == item.relativePath
   }
@@ -42,7 +55,7 @@ struct BookView: View {
       .buttonStyle(.plain)
       .accessibilityLabel("voiceover_continue_playback_title")
       VStack(alignment: .leading) {
-        Text(verbatim: item.title)
+        Text(verbatim: displayTitle)
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)

@@ -46,6 +46,8 @@
 "delete_completely_button" = "Tamamen sil";
 "move_library_button" = "Kitaplığa Taşı";
 "options_button" = "Seçenekler";
+"library_options_progress_as_percentage_title" = "İlerlemeyi yüzde olarak göster";
+"library_options_original_filename_title" = "Orijinal dosya adını göster";
 "select_playlist_title" = "Dosya Seç";
 "title_button" = "Başlık";
 "sort_filename_button" = "Orijinal Dosya Adı";

@@ -46,6 +46,8 @@
 "delete_completely_button" = "Delete completely";
 "move_library_button" = "Move to Library";
 "options_button" = "Options";
+"library_options_progress_as_percentage_title" = "Show progress as percentage";
+"library_options_original_filename_title" = "Show original file name";
 "select_playlist_title" = "Select Folder";
 "title_button" = "Title";
 "sort_filename_button" = "Original File Name";

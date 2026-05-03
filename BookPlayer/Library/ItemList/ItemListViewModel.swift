@@ -49,7 +49,9 @@ final class ItemListViewModel: ObservableObject {
 
     if !query.isEmpty {
       filteredItems = filteredItems.filter {
-        $0.title.localizedCaseInsensitiveContains(query) || $0.details.localizedCaseInsensitiveContains(query)
+        $0.title.localizedCaseInsensitiveContains(query)
+          || $0.details.localizedCaseInsensitiveContains(query)
+          || $0.originalFileName.localizedCaseInsensitiveContains(query)
       }
     }
     return filteredItems

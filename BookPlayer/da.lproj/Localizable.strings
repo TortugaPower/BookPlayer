@@ -46,6 +46,8 @@
 "delete_completely_button" = "Slet helt";
 "move_library_button" = "Flyt til bibliotek";
 "options_button" = "Valgmuligheder";
+"library_options_progress_as_percentage_title" = "Vis fremgang som procent";
+"library_options_original_filename_title" = "Vis oprindeligt filnavn";
 "select_playlist_title" = "Vælg Mappe";
 "title_button" = "Titel";
 "sort_filename_button" = "Oprindelige filnavn";

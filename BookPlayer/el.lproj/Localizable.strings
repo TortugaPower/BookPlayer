@@ -46,6 +46,8 @@
 "delete_completely_button" = "Διαγραφή εντελώς";
 "move_library_button" = "Μετακίνηση στη Βιβλιοθήκη";
 "options_button" = "Επιλογές";
+"library_options_progress_as_percentage_title" = "Εμφάνιση προόδου ως ποσοστό";
+"library_options_original_filename_title" = "Εμφάνιση αρχικού ονόματος αρχείου";
 "select_playlist_title" = "Επιλέξτε φάκελο";
 "title_button" = "Τίτλος";
 "sort_filename_button" = "Αρχικό όνομα αρχείου";

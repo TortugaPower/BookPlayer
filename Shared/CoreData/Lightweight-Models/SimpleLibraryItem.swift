@@ -147,4 +147,18 @@ extension SimpleLibraryItem {
       self.type = .book
     }
   }
+
+  /// Title to render in the library tab, honoring the
+  /// `libraryDisplayTitleSource` user preference.
+  ///
+  /// When `useOriginalFileName` is true and the item actually has an
+  /// imported filename, returns that. Otherwise falls back to the parsed
+  /// `title` — including for legacy items where `originalFileName` is
+  /// empty, so toggling the preference can never produce a blank row.
+  public func displayTitle(useOriginalFileName: Bool) -> String {
+    if useOriginalFileName, !originalFileName.isEmpty {
+      return originalFileName
+    }
+    return title
+  }
 }

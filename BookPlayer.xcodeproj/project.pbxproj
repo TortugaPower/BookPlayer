@@ -594,6 +594,7 @@
 		63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D561342E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift */; };
 		63D561372E5A26C800615522 /* ItemArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D561362E5A26C800615522 /* ItemArtworkView.swift */; };
 		63D561392E5A8C9900615522 /* ItemProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D561382E5A8C9900615522 /* ItemProgressView.swift */; };
+		63D561412E5A8C99006155A1 /* PercentageProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D561402E5A8C99006155A1 /* PercentageProgressView.swift */; };
 		63E15D972D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15D962D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift */; };
 		63E15D9A2D8F1461005B42E5 /* SleepTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15D992D8F1461005B42E5 /* SleepTimerView.swift */; };
 		63E15DA22D91C934005B42E5 /* CountDownPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */; };
@@ -1546,6 +1547,7 @@
 		63D561342E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SimpleLibraryItem+SwiftUI.swift"; sourceTree = "<group>"; };
 		63D561362E5A26C800615522 /* ItemArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemArtworkView.swift; sourceTree = "<group>"; };
 		63D561382E5A8C9900615522 /* ItemProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemProgressView.swift; sourceTree = "<group>"; };
+		63D561402E5A8C99006155A1 /* PercentageProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PercentageProgressView.swift; sourceTree = "<group>"; };
 		63E15D962D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFullControlsViewModel.swift; sourceTree = "<group>"; };
 		63E15D992D8F1461005B42E5 /* SleepTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerView.swift; sourceTree = "<group>"; };
 		63E15DA12D91C934005B42E5 /* CountDownPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountDownPickerView.swift; sourceTree = "<group>"; };
@@ -3539,6 +3541,7 @@
 				6338C7882E48DDC4008016E5 /* EmptyListView.swift */,
 				63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */,
 				63D561382E5A8C9900615522 /* ItemProgressView.swift */,
+				63D561402E5A8C99006155A1 /* PercentageProgressView.swift */,
 				63D561362E5A26C800615522 /* ItemArtworkView.swift */,
 				8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */,
 			);
@@ -4425,6 +4428,7 @@
 				632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */,
+				63D561412E5A8C99006155A1 /* PercentageProgressView.swift in Sources */,
 				63B9EFA82E9A4230002361A0 /* PlayerControlsVolumeSectionView.swift in Sources */,
 				4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */,
 				631C75C92AB92C540013E7E5 /* BPPushPresentationFlow.swift in Sources */,

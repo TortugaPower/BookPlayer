@@ -55,12 +55,71 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
   // MARK: - State
 
-  /// Tracked-key prefixes. Currently just sticky-sort keys.
-  private let trackedPrefixes: [String] = [Constants.UserDefaults.librarySortPrefix]
+  /// Single source of truth for every synced preference family. Each entry
+  /// owns its prefix, the static keys observed at bootstrap, the value-shape
+  /// codec used by `applyServerSnapshot` / `flush`, and the side effect to
+  /// run after a remote-pulled value lands in `UserDefaults`.
+  ///
+  /// Adding a new family (e.g. `audio_eq:`) is a single entry append: declare
+  /// the prefix + keys in `Constants.UserDefaults`, plug the decode/encode
+  /// closures, and pick a `PreferenceSideEffect` (or extend the enum if a new
+  /// kind of side effect is needed).
+  private let schemas: [PreferenceSchema] = [
+    PreferenceSchema(
+      prefix: Constants.UserDefaults.librarySortPrefix,
+      staticKeys: [Constants.UserDefaults.librarySortDefault],
+      decode: { value in
+        guard
+          let stringValue = value["sort"]?.value as? String,
+          EffectiveSort(rawValue: stringValue) != nil
+        else { return nil }
+        return stringValue
+      },
+      encode: { key, defaults in
+        ["sort": defaults.string(forKey: key) ?? ""]
+      },
+      sideEffect: .resort
+    ),
+    PreferenceSchema(
+      prefix: Constants.UserDefaults.libraryDisplayPrefix,
+      staticKeys: [
+        Constants.UserDefaults.libraryDisplayProgressStyle,
+        Constants.UserDefaults.libraryDisplayTitleSource,
+      ],
+      decode: { value in
+        // Accept both real `Bool` and `Int 0/1` since JSON serializers
+        // sometimes collapse Booleans to integers.
+        if let boolValue = value["value"]?.value as? Bool {
+          return boolValue
+        }
+        if let intValue = value["value"]?.value as? Int, intValue == 0 || intValue == 1 {
+          return intValue == 1
+        }
+        return nil
+      },
+      encode: { key, defaults in
+        ["value": defaults.bool(forKey: key)]
+      },
+      sideEffect: .none
+    ),
+  ]
 
-  /// Static (non-prefixed) tracked keys.
+  /// Prefixes the service tracks, derived from `schemas`. Used by the
+  /// pull loop and by `handleLogout`'s wipe sweep.
+  private var trackedPrefixes: [String] {
+    schemas.map(\.prefix)
+  }
+
+  /// Static (non-prefixed) tracked keys, derived from `schemas`. Used at
+  /// bootstrap to register KVO observers eagerly.
   private var staticTrackedKeys: [String] {
-    [Constants.UserDefaults.librarySortDefault]
+    schemas.flatMap(\.staticKeys)
+  }
+
+  /// Looks up the schema that owns `key` (by prefix match). Returns `nil`
+  /// for keys outside the tracked families.
+  private func schema(forKey key: String) -> PreferenceSchema? {
+    schemas.first { key.hasPrefix($0.prefix) }
   }
 
   /// Currently registered KVO key paths.
@@ -309,33 +368,45 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     }
     lock.unlock()
 
-    let prefix = Constants.UserDefaults.librarySortPrefix
-    let response: PreferencesSyncResponse
-    do {
-      response = try await provider.request(.getPreferences(prefix: prefix))
-    } catch {
-      Self.logger.trace("PreferencesSyncService.pullFromServer failed: \(error.localizedDescription)")
-      return
+    // One request per tracked prefix. Each prefix has its own value-shape
+    // decoder; partitioning at the request level keeps the per-prefix
+    // before-snapshot tight (only those keys' values are captured) and
+    // avoids cross-contaminating value-shape validation in `applyServerSnapshot`.
+    var anyRequestSucceeded = false
+    for prefix in trackedPrefixes {
+      let response: PreferencesSyncResponse
+      do {
+        response = try await provider.request(.getPreferences(prefix: prefix))
+      } catch {
+        Self.logger.trace("PreferencesSyncService.pullFromServer failed for prefix \(prefix): \(error.localizedDescription)")
+        continue
+      }
+      anyRequestSucceeded = true
+
+      let beforeSnapshot = currentValues(forPrefix: prefix)
+      let appliedKeys = applyServerSnapshot(response.entries)
+
+      // Walk applied keys and run the per-prefix side effect (resort for
+      // sort keys, no-op for display keys). For each key whose value
+      // actually changed, emit `preferencesChanged` so subscribers (e.g.
+      // `ItemListView`) can refresh. The KVO observer doesn't publish here
+      // because `applyServerSnapshot` sets `isApplyingRemoteUpdate` to
+      // suppress echo loops.
+      for key in appliedKeys {
+        let oldValue = beforeSnapshot[key]
+        let newValue = currentValue(forKey: key)
+        if oldValue == newValue { continue }
+        await dispatchSideEffect(forKey: key)
+        preferencesChanged.send(key)
+      }
     }
 
-    let beforeSnapshot = currentValues(forPrefix: prefix)
-    let appliedKeys = applyServerSnapshot(response.entries)
-
-    lock.lock()
-    lastSuccessfulPull = Date()
-    lock.unlock()
-
-    // Walk applied keys and re-sort affected locations. For each key whose
-    // value actually changed, emit `preferencesChanged` so subscribers (e.g.
-    // `ItemListView`) can refresh their cached `[SimpleLibraryItem]` list.
-    // The KVO observer doesn't publish here because `applyServerSnapshot`
-    // sets `isApplyingRemoteUpdate` to suppress echo loops.
-    for key in appliedKeys {
-      let oldValue = beforeSnapshot[key]
-      let newValue = defaults.string(forKey: key)
-      if oldValue == newValue { continue }
-      await dispatchResort(forKey: key)
-      preferencesChanged.send(key)
+    // Only update the cooldown timestamp if at least one prefix request
+    // succeeded — otherwise we'd suppress retries after a transient failure.
+    if anyRequestSucceeded {
+      lock.lock()
+      lastSuccessfulPull = Date()
+      lock.unlock()
     }
   }
 
@@ -359,8 +430,12 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       defer { lock.unlock() }
 
       guard !isApplyingRemoteUpdate, let key = keyPath else { return }
-      let oldValue = (change?[.oldKey] as? String) ?? ""
-      let newValue = (change?[.newKey] as? String) ?? ""
+      // Use `String(describing:)` so the equality guard works regardless of
+      // the underlying type (sort keys store `String`, display keys store
+      // `Bool` via `NSNumber`). A typed cast to `String` would collapse
+      // every Bool change into `"" != ""`, silently dropping the dirty mark.
+      let oldValue = change?[.oldKey].map { String(describing: $0) } ?? ""
+      let newValue = change?[.newKey].map { String(describing: $0) } ?? ""
       guard oldValue != newValue else { return }
 
       dirty[key] = Date()
@@ -386,19 +461,36 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     defaults.addObserver(self, forKeyPath: key, options: [.new, .old], context: nil)
   }
 
+  /// Snapshot of currently-stored values under `prefix`, normalized to
+  /// string descriptions so the type-agnostic comparison in
+  /// `pullFromServer` works across both `String` (sort) and `Bool`
+  /// (display) value shapes.
   private func currentValues(forPrefix prefix: String) -> [String: String] {
     var result: [String: String] = [:]
     let domain = defaults.dictionaryRepresentation()
     for (key, value) in domain where key.hasPrefix(prefix) {
-      if let str = value as? String {
-        result[key] = str
-      }
+      result[key] = String(describing: value)
     }
     return result
   }
 
+  /// Companion to `currentValues(forPrefix:)`: reads the currently-stored
+  /// value for a single key in the same string-description form.
+  /// Returns nil if no value is stored.
+  private func currentValue(forKey key: String) -> String? {
+    guard let value = defaults.object(forKey: key) else { return nil }
+    return String(describing: value)
+  }
+
   /// Applies the server snapshot to UserDefaults with the remote-update flag set.
   /// Returns the keys that were actually written (passed LWW check).
+  ///
+  /// Each tracked prefix has its own value-shape contract:
+  /// - `library_sort:` → `{"sort": "<EffectiveSort.rawValue>"}` (String)
+  /// - `library_display:` → `{"value": <Bool>}` (Bool)
+  ///
+  /// Entries with unknown prefixes or malformed payloads are skipped — a bad
+  /// server response must not silently overwrite a good local pref.
   private func applyServerSnapshot(_ entries: [PreferencesSyncEntry]) -> [String] {
     lock.lock()
     isApplyingRemoteUpdate = true
@@ -414,19 +506,12 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
         continue
       }
 
-      // Reject malformed payloads (missing "sort" field, null, non-string,
-      // or a value this client doesn't know about). Without this guard a
-      // bad server response would silently overwrite a good local pref
-      // with `""`, which the resolver then maps to `.custom`.
-      guard
-        let stringValue = entry.value["sort"]?.value as? String,
-        EffectiveSort(rawValue: stringValue) != nil
-      else {
+      guard let decoded = decodeServerValue(forKey: entry.key, value: entry.value) else {
         Self.logger.trace("PreferencesSyncService: skipping entry with unrecognized value for key \(entry.key)")
         continue
       }
 
-      defaults.set(stringValue, forKey: entry.key)
+      defaults.set(decoded, forKey: entry.key)
       applied.append(entry.key)
 
       // Server superseded any pending local write.
@@ -435,6 +520,34 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       }
     }
     return applied
+  }
+
+  /// Resolves the server entry to the local-storage value, deferring to the
+  /// schema that owns the key. Returns `nil` for malformed payloads or
+  /// untracked prefixes.
+  private func decodeServerValue(forKey key: String, value: [String: AnyDecodable]) -> Any? {
+    schema(forKey: key)?.decode(value)
+  }
+
+  /// Builds the server-side `value` payload for a dirty key, deferring to
+  /// the schema that owns the key. Returns `nil` for untracked prefixes —
+  /// only tracked keys reach the dirty list, so this is defensive.
+  private func encodeServerValue(forKey key: String) -> [String: Any]? {
+    schema(forKey: key)?.encode(key, defaults)
+  }
+
+  /// Runs the schema's declared side effect after a remote-pulled value
+  /// changes a tracked key. `@AppStorage` subscribers re-render on their
+  /// own — this is for service-internal work that needs to follow the
+  /// new value (e.g. re-ranking items when sort changes).
+  private func dispatchSideEffect(forKey key: String) async {
+    guard let schema = schema(forKey: key) else { return }
+    switch schema.sideEffect {
+    case .resort:
+      await dispatchResort(forKey: key)
+    case .none:
+      break
+    }
   }
 
   private func dispatchResort(forKey key: String) async {
@@ -493,9 +606,14 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
     var entries: [PreferenceEntry] = []
     for (key, _) in snapshot {
-      let raw = defaults.string(forKey: key) ?? ""
-      entries.append(PreferenceEntry(key: key, value: ["sort": raw]))
+      guard let payload = encodeServerValue(forKey: key) else {
+        // Unknown prefix shouldn't reach the dirty list (only tracked keys
+        // get observed), but skip defensively rather than push garbage.
+        continue
+      }
+      entries.append(PreferenceEntry(key: key, value: payload))
     }
+    guard !entries.isEmpty else { return }
 
     do {
       let _: SuccessResponse = try await provider.request(.setPreferences(entries: entries))
@@ -549,6 +667,54 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       }
     }
   }
+}
+
+// MARK: - Preference schema
+
+/// Service-internal action to run after a remote-pulled value writes to
+/// `UserDefaults`. The view layer reacts to UserDefaults changes via
+/// `@AppStorage` automatically; this enum names the work that the
+/// **service** still has to do (e.g. re-rank items when sort changes).
+///
+/// Add a new case when a new preference family needs a new kind of work.
+/// The `dispatchSideEffect` switch in `PreferencesSyncService` is the
+/// single place that maps cases to implementations.
+enum PreferenceSideEffect {
+  /// Re-rank the affected library location's contents.
+  case resort
+  /// No service-side action — `@AppStorage` subscribers handle it.
+  case none
+}
+
+/// Declarative description of a synced-preference family.
+///
+/// `PreferencesSyncService` holds an array of these and uses them as the
+/// single source of truth for tracked prefixes, observed static keys, the
+/// per-prefix codec used to talk to the server, and the side effect to run
+/// after a remote update lands.
+struct PreferenceSchema {
+  /// All keys under this family share this prefix. KVO observation and
+  /// the logout wipe both key off it.
+  let prefix: String
+
+  /// Keys observed eagerly at bootstrap. Per-instance keys (e.g. per-folder
+  /// sort under `library_sort:<uuid>`) are registered lazily via
+  /// `register(folderUuid:)` and are not listed here.
+  let staticKeys: [String]
+
+  /// Validates a server entry's `value` payload and returns the local-storage
+  /// representation to write to `UserDefaults`, or `nil` if malformed.
+  /// Receiving `nil` from this closure causes the entry to be skipped — a bad
+  /// server response must never silently overwrite a good local pref.
+  let decode: ([String: AnyDecodable]) -> Any?
+
+  /// Reads the current local value for `key` from `defaults` and produces
+  /// the dictionary the server expects under the entry's `value` field.
+  let encode: (_ key: String, _ defaults: UserDefaults) -> [String: Any]
+
+  /// Service-internal work to run after a remote update changes a key in
+  /// this family. View-layer refresh is handled by `@AppStorage`, not here.
+  let sideEffect: PreferenceSideEffect
 }
 
 // MARK: - Wire types

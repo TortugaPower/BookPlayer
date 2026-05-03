@@ -46,6 +46,8 @@
 "delete_completely_button" = "Suprimeix completament";
 "move_library_button" = "Mou a la biblioteca";
 "options_button" = "Opcions";
+"library_options_progress_as_percentage_title" = "Mostra el progrés en percentatge";
+"library_options_original_filename_title" = "Mostra el nom del fitxer original";
 "select_playlist_title" = "Seleccioneu Carpeta";
 "title_button" = "Títol";
 "sort_filename_button" = "Nom del fitxer original";
