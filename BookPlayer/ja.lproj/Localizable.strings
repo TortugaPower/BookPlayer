@@ -46,6 +46,8 @@
 "delete_completely_button" = "完全に削除";
 "move_library_button" = "ライブラリに移動";
 "options_button" = "オプション";
+"library_options_progress_as_percentage_title" = "進捗をパーセントで表示";
+"library_options_original_filename_title" = "元のファイル名を表示";
 "select_playlist_title" = "フォルダを選択";
 "title_button" = "タイトル";
 "sort_filename_button" = "元のファイル名";

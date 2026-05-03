@@ -226,10 +226,13 @@ final class PreferencesSyncServiceTests: XCTestCase {
       client: countingClient
     )
 
+    // Each pull issues a single nil-prefix request that fetches every
+    // preference family in one round trip; the contract this test guards
+    // is the rate limit, not the absolute count.
     await sut.pullFromServer(force: true) // succeeds, sets lastSuccessfulPull
     XCTAssertEqual(countingClient.requestCount, 1)
 
-    // Within the 30s cooldown, a non-forced pull is a no-op (no network call).
+    // Within the cooldown window, a non-forced pull is a no-op (no network call).
     await sut.pullFromServer(force: false)
     XCTAssertEqual(countingClient.requestCount, 1)
 
@@ -310,6 +313,184 @@ final class PreferencesSyncServiceTests: XCTestCase {
     )
   }
 
+  // MARK: - Display prefs (Bool value shape)
+
+  func testPullAppliesDisplayBoolValue() async {
+    account.syncEnabled = true
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryDisplayProgressStyle,
+        "value": ["value": true],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+  }
+
+  func testPullAcceptsIntZeroOneAsBoolAndRejectsOtherTypes() async {
+    // Two entries on display keys: one carries `Int 1` (must decode as
+    // `true`), one carries a string (must be rejected, leaving the
+    // pre-seeded local value intact). Without the type-specific branches
+    // in `decodeServerValue`, a string value would either trap on
+    // `defaults.set(_:forKey:)` or silently overwrite the local Bool.
+    account.syncEnabled = true
+
+    // Pre-seed the title-source key. The malformed pull entry must not
+    // overwrite this.
+    defaults.set(true, forKey: Constants.UserDefaults.libraryDisplayTitleSource)
+
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryDisplayProgressStyle,
+        "value": ["value": 1],
+        "updated_at": iso8601String(Date())
+      ],
+      [
+        "key": Constants.UserDefaults.libraryDisplayTitleSource,
+        "value": ["value": "yes"],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    // Int 1 → true.
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+    // Malformed string → entry skipped, pre-seeded local value preserved.
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayTitleSource))
+  }
+
+  func testPullAppliesMixedPrefixEntries() async {
+    // The pull issues a single nil-prefix request that returns every
+    // preference family in one response. The per-entry dispatch in
+    // `applyServerSnapshot` routes each entry to its schema's decoder
+    // by key prefix — so a sort entry and a display entry can ride the
+    // same response and both land correctly.
+    //
+    // The `sortContentsInByCallsCount` assertion guards against a
+    // regression of the cross-prefix snapshot drift bug: with the
+    // single-request pull, exactly ONE side-effect dispatch should
+    // happen per applied sort key. A higher count would mean an entry
+    // is being applied (and its side effect fired) more than once.
+    account.syncEnabled = true
+
+    let libraryServiceMock = LibraryServiceProtocolMock()
+
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.librarySortDefault,
+        "value": ["sort": SortType.metadataTitle.rawValue],
+        "updated_at": iso8601String(Date())
+      ],
+      [
+        "key": Constants.UserDefaults.libraryDisplayProgressStyle,
+        "value": ["value": true],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: libraryServiceMock,
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertEqual(
+      sut.effectiveSort(forLocation: .libraryRoot),
+      .automatic(.metadataTitle)
+    )
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+
+    // Exactly one resort dispatch — for the sort entry. The display
+    // entry's side effect is `.none`, so it should not contribute.
+    XCTAssertEqual(libraryServiceMock.sortContentsInByCallsCount, 1)
+  }
+
+  func testPullRejectsIntOutsideBoolRange() async {
+    // The display-prefix decoder accepts `Bool` directly and `Int 0/1`
+    // as a JSON-coercion fallback. Anything else (e.g. `Int 2`) must be
+    // rejected so a malformed server response can't silently overwrite
+    // a good local value with a meaningless coercion.
+    account.syncEnabled = true
+
+    // Pre-seed local state — the malformed entry must leave it alone.
+    defaults.set(true, forKey: Constants.UserDefaults.libraryDisplayProgressStyle)
+
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryDisplayProgressStyle,
+        "value": ["value": 2],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+  }
+
+  func testPullSkipsMalformedDisplayEntry() async {
+    // Mirrors `testPullSkipsServerEntryWithMalformedValue` for the
+    // display-prefix decoder: a payload missing the expected `value`
+    // field (or carrying it under the wrong key) must be rejected so
+    // a bad server response can't silently flip the local value.
+    account.syncEnabled = true
+
+    defaults.set(true, forKey: Constants.UserDefaults.libraryDisplayProgressStyle)
+
+    let badJSON = """
+    {"entries":[{"key":"library_display:progress_style","value":{"wrongField":false},"updated_at":"2030-01-01T00:00:00Z"}]}
+    """
+    let response = try! JSONDecoder().decode(
+      PreferencesSyncResponse.self,
+      from: Data(badJSON.utf8)
+    )
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    // Local value preserved.
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+  }
+
   // MARK: - Helpers
 
   /// Builds a `PreferencesSyncResponse` from `(key, sortRaw, updatedAt)` tuples
@@ -328,6 +509,22 @@ final class PreferencesSyncServiceTests: XCTestCase {
     let payload: [String: Any] = ["entries": entryDicts]
     let data = try! JSONSerialization.data(withJSONObject: payload)
     return try! JSONDecoder().decode(PreferencesSyncResponse.self, from: data)
+  }
+
+  /// Like `makeServerResponse(entries:)` but takes pre-built entry dicts.
+  /// Use when the entry's `value` shape isn't sort-specific (e.g. display
+  /// prefs use `{"value": <Bool>}`) or when you want to feed deliberately
+  /// malformed payloads to the decoder.
+  private func makeRawServerResponse(rawEntries: [[String: Any]]) -> PreferencesSyncResponse {
+    let payload: [String: Any] = ["entries": rawEntries]
+    let data = try! JSONSerialization.data(withJSONObject: payload)
+    return try! JSONDecoder().decode(PreferencesSyncResponse.self, from: data)
+  }
+
+  private func iso8601String(_ date: Date) -> String {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter.string(from: date)
   }
 }
 

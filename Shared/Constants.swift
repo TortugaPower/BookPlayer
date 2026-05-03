@@ -100,6 +100,15 @@ public enum Constants {
     /// Prefix used to enumerate / clear all library sticky-sort keys
     public static let librarySortPrefix = "library_sort:"
 
+    /// Library tab display style: progress indicator (false = wheel, true = percentage)
+    public static let libraryDisplayProgressStyle = "library_display:progress_style"
+
+    /// Library tab display style: title source (false = parsed title, true = original filename)
+    public static let libraryDisplayTitleSource = "library_display:title_source"
+
+    /// Prefix used to enumerate / sync library display preferences
+    public static let libraryDisplayPrefix = "library_display:"
+
     /// JSON-encoded `[String: ISO-8601-Date]` of synced-pref keys awaiting server flush
     public static let userPreferencesDirty = "userPreferences.dirty"
   }

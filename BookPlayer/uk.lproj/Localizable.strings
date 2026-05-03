@@ -46,6 +46,8 @@
 "delete_completely_button" = "Видалити остаточно";
 "move_library_button" = "Перемістити до бібліотеки";
 "options_button" = "Параметри";
+"library_options_progress_as_percentage_title" = "Показувати прогрес у відсотках";
+"library_options_original_filename_title" = "Показувати оригінальне ім'я файлу";
 "select_playlist_title" = "Виберіть теку";
 "title_button" = "Назва";
 "sort_filename_button" = "Оригінальне ім'я файлу";

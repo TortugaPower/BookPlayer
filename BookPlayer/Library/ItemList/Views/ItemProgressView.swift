@@ -18,6 +18,15 @@ struct ItemProgressView: View {
   @EnvironmentObject private var playerManager: PlayerManager
   @Environment(\.libraryService) private var libraryService
 
+  /// Set from `LibraryOptionsView`. When true the row shows a numeric
+  /// percentage instead of the circular wheel.
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayProgressStyle,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var progressAsPercentage: Bool
+
   init(item: SimpleLibraryItem, isHighlighted: Bool) {
     self.item = item
     self.isHighlighted = isHighlighted
@@ -26,10 +35,19 @@ struct ItemProgressView: View {
   }
 
   var body: some View {
-    CircularProgressView(
-      progress: isFinished ? 1.0 : progress,
-      isHighlighted: isHighlighted
-    )
+    Group {
+      if progressAsPercentage {
+        PercentageProgressView(
+          progress: isFinished ? 1.0 : progress,
+          isHighlighted: isHighlighted
+        )
+      } else {
+        CircularProgressView(
+          progress: isFinished ? 1.0 : progress,
+          isHighlighted: isHighlighted
+        )
+      }
+    }
     .onReceive(
       playerManager.currentProgressPublisher()
         .filter { $0.0 == item.relativePath }

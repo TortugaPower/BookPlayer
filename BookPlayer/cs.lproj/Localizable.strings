@@ -46,6 +46,8 @@
 "delete_completely_button" = "Úplně odstranit";
 "move_library_button" = "Přesunout do Knihovny";
 "options_button" = "Možnosti";
+"library_options_progress_as_percentage_title" = "Zobrazit průběh v procentech";
+"library_options_original_filename_title" = "Zobrazit původní název souboru";
 "select_playlist_title" = "Vybrat složku";
 "title_button" = "Titul";
 "sort_filename_button" = "Název souboru";

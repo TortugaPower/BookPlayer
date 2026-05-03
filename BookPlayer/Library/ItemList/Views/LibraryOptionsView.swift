@@ -21,6 +21,24 @@ struct LibraryOptionsView: View {
   /// since that ultimately writes to UserDefaults too.
   @AppStorage private var sortRaw: String
 
+  /// Library tab progress indicator: false = wheel (default), true = numeric percentage.
+  /// Synced cross-device via `PreferencesSyncService`.
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayProgressStyle,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var progressAsPercentage: Bool
+
+  /// Library tab title source: false = parsed title (default), true = original filename.
+  /// Synced cross-device via `PreferencesSyncService`.
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayTitleSource,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var useOriginalFileName: Bool
+
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -97,6 +115,16 @@ struct LibraryOptionsView: View {
                 .bpFont(.body)
             }
             .pickerStyle(.menu)
+          }
+
+          Toggle(isOn: $progressAsPercentage) {
+            Text("library_options_progress_as_percentage_title")
+              .bpFont(.body)
+          }
+
+          Toggle(isOn: $useOriginalFileName) {
+            Text("library_options_original_filename_title")
+              .bpFont(.body)
           }
         }
       }
