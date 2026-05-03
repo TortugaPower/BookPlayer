@@ -19,18 +19,26 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
   let playerLoaderService: PlayerLoaderService
+  let preferencesService: PreferencesSyncServiceProtocol
 
   init(
     playerManager: PlayerManagerProtocol,
     syncService: SyncServiceProtocol,
-    playerLoaderService: PlayerLoaderService
+    playerLoaderService: PlayerLoaderService,
+    preferencesService: PreferencesSyncServiceProtocol
   ) {
     self.playerManager = playerManager
     self.syncService = syncService
     self.playerLoaderService = playerLoaderService
+    self.preferencesService = preferencesService
   }
 
   func syncList(at relativePath: String?, alertPresenter: AlertPresenter) async {
+    // Pref pull runs in parallel with content sync and is independent of the
+    // item-sync queue state — kick it off first so a queue-blocked content
+    // sync doesn't skip the pref refresh.
+    async let prefPull: Void = { await preferencesService.pullFromServer(force: false) }()
+
     do {
       if let relativePath {
         try await syncService.syncListContents(at: relativePath)
@@ -46,6 +54,8 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     } catch {
       Self.logger.trace("Sync contents error: \(error.localizedDescription)")
     }
+
+    _ = await prefPull
   }
 
   @MainActor
@@ -105,6 +115,8 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
   }
 
   func syncList(at relativePath: String?) async throws {
+    async let prefPull: Void = { await preferencesService.pullFromServer(force: false) }()
+
     do {
       if let relativePath {
         try await syncService.syncListContents(at: relativePath)
@@ -120,6 +132,8 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     } catch {
       Self.logger.trace("Sync contents error: \(error.localizedDescription)")
     }
+
+    _ = await prefPull
   }
 
   @MainActor

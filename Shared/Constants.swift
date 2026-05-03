@@ -88,6 +88,20 @@ public enum Constants {
 
     /// macOS text scaling
     public static let macOSTextScale = "userSettingsMacOSTextScale"
+
+    /// Library tab sticky sort: library-root default
+    public static let librarySortDefault = "library_sort:default"
+
+    /// Library tab sticky sort: per-folder override key
+    public static func librarySort(folderUuid: String) -> String {
+      "library_sort:\(folderUuid)"
+    }
+
+    /// Prefix used to enumerate / clear all library sticky-sort keys
+    public static let librarySortPrefix = "library_sort:"
+
+    /// JSON-encoded `[String: ISO-8601-Date]` of synced-pref keys awaiting server flush
+    public static let userPreferencesDirty = "userPreferences.dirty"
   }
 
   public enum SkipInterval {

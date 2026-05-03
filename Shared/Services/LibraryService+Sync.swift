@@ -14,7 +14,13 @@ import Foundation
 public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
-  
+
+  /// Returns true if the item at the given path is inside a location with an
+  /// automatic sticky sort. Used by the sync layer (Decision 9) to suppress
+  /// `orderRank`-only updates that other devices recompute locally from
+  /// (item set + sort rule).
+  func isParentLocationAutoSorted(itemRelativePath: String) -> Bool
+
   /// Fetch all the stored items in the library that are not in the remote identifiers array
   func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
@@ -158,7 +164,9 @@ extension LibraryService: LibrarySyncProtocol {
   }
 
   public func storeNewItems(from itemsDict: [String: SyncableItem], parentFolder: String?) async {
-    return await withCheckedContinuation { continuation in
+    var didInsertItems = false
+
+    await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
         let incomingKeys = Set(itemsDict.keys)
@@ -168,16 +176,34 @@ extension LibraryService: LibrarySyncProtocol {
         for key in newKeys {
           guard let item = itemsDict[key] else { continue }
 
+          // All three types appear as siblings in the parent list, so all three
+          // need the parent re-sort below. The bound case adds a folder of type
+          // `.bound` which is itself a sortable sibling — its own children are
+          // never user-sortable, but that's a separate concern (handled by the
+          // resolver returning `.unresolved` for any folder with a placeholder
+          // UUID, including bound internals).
           switch item.type {
           case .book:
             addBook(from: item, parentFolder: parentFolder, context: context)
           case .folder, .bound:
             addFolder(from: item, parentFolder: parentFolder, context: context)
           }
+          didInsertItems = true
         }
 
         dataManager.saveSyncContext(context)
         continuation.resume()
+      }
+    }
+
+    // Hook 4: hop to the main actor (after the background save commits) and re-sort
+    // the parent if its effective sort is automatic.
+    guard didInsertItems, let prefs = preferencesService else { return }
+
+    await MainActor.run {
+      let parentLocation = makeLocation(forRelativePath: parentFolder)
+      if case .automatic(let sort) = prefs.effectiveSort(forLocation: parentLocation) {
+        sortContents(at: parentFolder, by: sort)
       }
     }
   }

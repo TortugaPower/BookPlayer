@@ -61,7 +61,7 @@ public protocol SyncServiceProtocol {
 
   func scheduleDelete(_ items: [SimpleLibraryItem], mode: DeleteMode)
 
-  func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?)
+  func scheduleMove(items: [LibraryItemRef], to parentFolder: LibraryItemRef?)
 
   func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String)
 
@@ -489,7 +489,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 }
 
 extension SyncService {
-  public func scheduleMove(items: [PathUuidPair], to parentFolder: PathUuidPair?) {
+  public func scheduleMove(items: [LibraryItemRef], to parentFolder: LibraryItemRef?) {
     guard isActive else { return }
     
     Task {
@@ -506,6 +506,20 @@ extension SyncService {
       isActive,
       let relativePath = params["relativePath"] as? String
     else { return }
+
+    // Decision 9: drop `orderRank`-only updates when the item's parent location
+    // has an automatic sticky sort. Other devices recompute ranks locally from
+    // (item set + sort rule), so syncing the rank churn would be redundant.
+    let identifierKeys: Set<String> = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.uuid),
+    ]
+    let dataKeys = Set(params.keys).subtracting(identifierKeys)
+    let isOrderRankOnly = dataKeys == [#keyPath(LibraryItem.orderRank)]
+    if isOrderRankOnly,
+       libraryService.isParentLocationAutoSorted(itemRelativePath: relativePath) {
+      return
+    }
 
     Task {
       var params = params

@@ -16,7 +16,7 @@ final class ImportOperationState {
   var alertParameters: AlertParameters?
 
   struct AlertParameters: Equatable {
-    var itemIdentifiers: [PathUuidPair]
+    var itemIdentifiers: [LibraryItemRef]
     var hasOnlyBooks: Bool
     var singleFolder: SimpleLibraryItem?
     var availableFolders: [SimpleLibraryItem]

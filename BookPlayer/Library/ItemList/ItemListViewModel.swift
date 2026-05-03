@@ -79,7 +79,7 @@ final class ItemListViewModel: ObservableObject {
   @Published var selectedItems = [SimpleLibraryItem]()
   /// Stores item identifiers from import operations to avoid race condition
   /// where items may not be loaded in the UI yet when moving to a folder
-  var pendingMoveItemIdentifiers: [PathUuidPair]?
+  var pendingMoveItemIdentifiers: [LibraryItemRef]?
 
   /// Search
   @Published var scope: ItemListSearchScope = .all
@@ -347,7 +347,7 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoLibrary() {
-    let selectedItemPaths = selectedItems.compactMap({ PathUuidPair(relativePath: $0.relativePath, uuid: $0.uuid) })
+    let selectedItemPaths = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
     let parentFolder = selectedItems.first?.parentFolder
 
     do {
@@ -364,7 +364,7 @@ extension ItemListViewModel {
     editMode = .inactive
   }
 
-  func importIntoLibrary(_ items: [PathUuidPair]) {
+  func importIntoLibrary(_ items: [LibraryItemRef]) {
     do {
       try libraryService.moveItems(items, inside: nil)
       syncService.scheduleMove(items: items, to: nil)
@@ -375,7 +375,7 @@ extension ItemListViewModel {
     listState.reloadAll(padding: items.count)
   }
 
-  func createFolder(with title: String, items: [PathUuidPair]? = nil, type: SimpleItemType) {
+  func createFolder(with title: String, items: [LibraryItemRef]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -391,7 +391,7 @@ extension ItemListViewModel {
         await syncService.scheduleUpload(items: [folder])
         if let fetchedItems = items {
           try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems, to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
+          syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
         }
         try libraryService.updateFolder(at: folder.relativePath, type: type)
         libraryService.rebuildFolderDetails(folder.relativePath)
@@ -415,17 +415,17 @@ extension ItemListViewModel {
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
     // Use pendingMoveItemIdentifiers if available (from import operations),
     // otherwise fall back to selectedItems (from manual selection)
-    let fetchedItems: [PathUuidPair]
+    let fetchedItems: [LibraryItemRef]
     if let pendingItems = pendingMoveItemIdentifiers {
       fetchedItems = pendingItems
       pendingMoveItemIdentifiers = nil
     } else {
-      fetchedItems = selectedItems.compactMap({ PathUuidPair(relativePath: $0.relativePath, uuid: $0.uuid) })
+      fetchedItems = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
     }
 
     do {
       try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems, to: PathUuidPair(relativePath: folder.relativePath, uuid: folder.uuid))
+      syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
     } catch {
       loadingState.error = error
     }
