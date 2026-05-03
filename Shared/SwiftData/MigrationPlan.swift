@@ -35,7 +35,16 @@ public enum MigrationPlan: SchemaMigrationPlan {
       for item in items {
         item.uuid = Constants.legacyUuidPlaceholder
       }
-      
+
+      // Skip the match-uuids enqueue for users with no server-side library.
+      // SyncService.processContentsResponse rewrites local uuids from server
+      // uuids on first sync, so this batch reconcile is only useful for users
+      // who already had items synced before the migration.
+      guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) else {
+        try context.save()
+        return
+      }
+
       let descriptor = FetchDescriptor<SchemaV2.SyncTasksContainer>()
       let containers = try context.fetch(descriptor)
       let tasksContainer = containers.first ?? SchemaV2.SyncTasksContainer()
