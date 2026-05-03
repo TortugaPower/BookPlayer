@@ -226,22 +226,19 @@ final class PreferencesSyncServiceTests: XCTestCase {
       client: countingClient
     )
 
-    // The service issues one request per tracked prefix (currently
-    // `library_sort:` and `library_display:`), so each pull adds
-    // `trackedPrefixes.count` to the counter. The contract this test
-    // guards is the rate limit, not the absolute count.
-    let perPull = 2
-
+    // Each pull issues a single nil-prefix request that fetches every
+    // preference family in one round trip; the contract this test guards
+    // is the rate limit, not the absolute count.
     await sut.pullFromServer(force: true) // succeeds, sets lastSuccessfulPull
-    XCTAssertEqual(countingClient.requestCount, perPull)
+    XCTAssertEqual(countingClient.requestCount, 1)
 
-    // Within the 30s cooldown, a non-forced pull is a no-op (no network call).
+    // Within the cooldown window, a non-forced pull is a no-op (no network call).
     await sut.pullFromServer(force: false)
-    XCTAssertEqual(countingClient.requestCount, perPull)
+    XCTAssertEqual(countingClient.requestCount, 1)
 
     // A forced pull bypasses the cooldown.
     await sut.pullFromServer(force: true)
-    XCTAssertEqual(countingClient.requestCount, perPull * 2)
+    XCTAssertEqual(countingClient.requestCount, 2)
   }
 
   func testPullSkipsWhenSyncDisabled() async {
@@ -383,12 +380,20 @@ final class PreferencesSyncServiceTests: XCTestCase {
   }
 
   func testPullAppliesMixedPrefixEntries() async {
-    // The pull issues one HTTP request per tracked prefix; the mock
-    // returns the same response for both. The per-entry dispatch in
+    // The pull issues a single nil-prefix request that returns every
+    // preference family in one response. The per-entry dispatch in
     // `applyServerSnapshot` routes each entry to its schema's decoder
     // by key prefix — so a sort entry and a display entry can ride the
     // same response and both land correctly.
+    //
+    // The `sortContentsInByCallsCount` assertion guards against a
+    // regression of the cross-prefix snapshot drift bug: with the
+    // single-request pull, exactly ONE side-effect dispatch should
+    // happen per applied sort key. A higher count would mean an entry
+    // is being applied (and its side effect fired) more than once.
     account.syncEnabled = true
+
+    let libraryServiceMock = LibraryServiceProtocolMock()
 
     let response = makeRawServerResponse(rawEntries: [
       [
@@ -406,7 +411,7 @@ final class PreferencesSyncServiceTests: XCTestCase {
     sut = PreferencesSyncService()
     sut.setup(
       accountService: account,
-      libraryService: LibraryServiceProtocolMock(),
+      libraryService: libraryServiceMock,
       defaults: defaults,
       client: NetworkClientMock(mockedResponse: response)
     )
@@ -417,6 +422,72 @@ final class PreferencesSyncServiceTests: XCTestCase {
       sut.effectiveSort(forLocation: .libraryRoot),
       .automatic(.metadataTitle)
     )
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+
+    // Exactly one resort dispatch — for the sort entry. The display
+    // entry's side effect is `.none`, so it should not contribute.
+    XCTAssertEqual(libraryServiceMock.sortContentsInByCallsCount, 1)
+  }
+
+  func testPullRejectsIntOutsideBoolRange() async {
+    // The display-prefix decoder accepts `Bool` directly and `Int 0/1`
+    // as a JSON-coercion fallback. Anything else (e.g. `Int 2`) must be
+    // rejected so a malformed server response can't silently overwrite
+    // a good local value with a meaningless coercion.
+    account.syncEnabled = true
+
+    // Pre-seed local state — the malformed entry must leave it alone.
+    defaults.set(true, forKey: Constants.UserDefaults.libraryDisplayProgressStyle)
+
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryDisplayProgressStyle,
+        "value": ["value": 2],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+  }
+
+  func testPullSkipsMalformedDisplayEntry() async {
+    // Mirrors `testPullSkipsServerEntryWithMalformedValue` for the
+    // display-prefix decoder: a payload missing the expected `value`
+    // field (or carrying it under the wrong key) must be rejected so
+    // a bad server response can't silently flip the local value.
+    account.syncEnabled = true
+
+    defaults.set(true, forKey: Constants.UserDefaults.libraryDisplayProgressStyle)
+
+    let badJSON = """
+    {"entries":[{"key":"library_display:progress_style","value":{"wrongField":false},"updated_at":"2030-01-01T00:00:00Z"}]}
+    """
+    let response = try! JSONDecoder().decode(
+      PreferencesSyncResponse.self,
+      from: Data(badJSON.utf8)
+    )
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    // Local value preserved.
     XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
   }
 

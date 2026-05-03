@@ -37,7 +37,6 @@ struct PercentageProgressView: View {
         Text("\(Int((progress * 100).rounded()))%")
           .bpFont(.miniPlayerTitle)
           .monospacedDigit()
-          .fontWeight(.semibold)
           .foregroundStyle(labelColor)
       }
     }

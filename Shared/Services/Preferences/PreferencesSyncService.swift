@@ -131,7 +131,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
   /// Minimum interval between non-forced pulls. Forced pulls (login, foreground,
   /// sync-enabled flip) bypass this gate.
-  private static let pullCooldown: TimeInterval = 30
+  private static let pullCooldown: TimeInterval = 60
 
   /// Debounce window for batched server flushes. Reset on each new dirty key
   /// so a burst of changes coalesces into a single PATCH.
@@ -368,45 +368,45 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     }
     lock.unlock()
 
-    // One request per tracked prefix. Each prefix has its own value-shape
-    // decoder; partitioning at the request level keeps the per-prefix
-    // before-snapshot tight (only those keys' values are captured) and
-    // avoids cross-contaminating value-shape validation in `applyServerSnapshot`.
-    var anyRequestSucceeded = false
-    for prefix in trackedPrefixes {
-      let response: PreferencesSyncResponse
-      do {
-        response = try await provider.request(.getPreferences(prefix: prefix))
-      } catch {
-        Self.logger.trace("PreferencesSyncService.pullFromServer failed for prefix \(prefix): \(error.localizedDescription)")
-        continue
-      }
-      anyRequestSucceeded = true
-
-      let beforeSnapshot = currentValues(forPrefix: prefix)
-      let appliedKeys = applyServerSnapshot(response.entries)
-
-      // Walk applied keys and run the per-prefix side effect (resort for
-      // sort keys, no-op for display keys). For each key whose value
-      // actually changed, emit `preferencesChanged` so subscribers (e.g.
-      // `ItemListView`) can refresh. The KVO observer doesn't publish here
-      // because `applyServerSnapshot` sets `isApplyingRemoteUpdate` to
-      // suppress echo loops.
-      for key in appliedKeys {
-        let oldValue = beforeSnapshot[key]
-        let newValue = currentValue(forKey: key)
-        if oldValue == newValue { continue }
-        await dispatchSideEffect(forKey: key)
-        preferencesChanged.send(key)
-      }
+    // Single nil-prefix request fetches every preference the user has on
+    // the server in one round trip. The schema-table dispatch in
+    // `applyServerSnapshot` already routes each entry by its own key
+    // prefix and rejects anything that isn't tracked, so untracked rows
+    // in the response are harmlessly skipped here.
+    //
+    // The per-prefix request loop this replaced was the original cause of
+    // the cross-prefix snapshot drift: a per-prefix `beforeSnapshot`
+    // could miss keys from other families that `applyServerSnapshot`
+    // happened to write, firing spurious side effects. With a single
+    // request and a single all-tracked-keys snapshot, the change-detection
+    // loop is consistent by construction.
+    let response: PreferencesSyncResponse
+    do {
+      response = try await provider.request(.getPreferences(prefix: nil))
+    } catch {
+      Self.logger.trace("PreferencesSyncService.pullFromServer failed: \(error.localizedDescription)")
+      return
     }
 
-    // Only update the cooldown timestamp if at least one prefix request
-    // succeeded — otherwise we'd suppress retries after a transient failure.
-    if anyRequestSucceeded {
-      lock.lock()
-      lastSuccessfulPull = Date()
-      lock.unlock()
+    let beforeSnapshot = currentValuesForTrackedKeys()
+    let appliedKeys = applyServerSnapshot(response.entries)
+
+    lock.lock()
+    lastSuccessfulPull = Date()
+    lock.unlock()
+
+    // Walk applied keys and run the per-key side effect (resort for sort
+    // keys, no-op for display keys). For each key whose value actually
+    // changed, emit `preferencesChanged` so subscribers (e.g. `ItemListView`)
+    // can refresh. The KVO observer doesn't publish here because
+    // `applyServerSnapshot` sets `isApplyingRemoteUpdate` to suppress
+    // echo loops.
+    for key in appliedKeys {
+      let oldValue = beforeSnapshot[key]
+      let newValue = currentValue(forKey: key)
+      if oldValue == newValue { continue }
+      await dispatchSideEffect(forKey: key)
+      preferencesChanged.send(key)
     }
   }
 
@@ -461,20 +461,20 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     defaults.addObserver(self, forKeyPath: key, options: [.new, .old], context: nil)
   }
 
-  /// Snapshot of currently-stored values under `prefix`, normalized to
-  /// string descriptions so the type-agnostic comparison in
-  /// `pullFromServer` works across both `String` (sort) and `Bool`
-  /// (display) value shapes.
-  private func currentValues(forPrefix prefix: String) -> [String: String] {
+  /// Snapshot of currently-stored values for every key matching one of the
+  /// schemas' tracked prefixes. Values are normalized to string descriptions
+  /// so the type-agnostic comparison in `pullFromServer` works across both
+  /// `String` (sort) and `Bool` (display) value shapes.
+  private func currentValuesForTrackedKeys() -> [String: String] {
     var result: [String: String] = [:]
     let domain = defaults.dictionaryRepresentation()
-    for (key, value) in domain where key.hasPrefix(prefix) {
+    for (key, value) in domain where schema(forKey: key) != nil {
       result[key] = String(describing: value)
     }
     return result
   }
 
-  /// Companion to `currentValues(forPrefix:)`: reads the currently-stored
+  /// Companion to `currentValuesForTrackedKeys()`: reads the currently-stored
   /// value for a single key in the same string-description form.
   /// Returns nil if no value is stored.
   private func currentValue(forKey key: String) -> String? {
@@ -662,6 +662,12 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     else { return }
 
     for (key, ts) in raw {
+      // Skip keys belonging to a schema that no longer exists (e.g. an
+      // app downgrade or a retired family). Without this guard, those
+      // keys would rehydrate on every launch, fail `encodeServerValue`
+      // during flush, hit the empty-entries early-return, and never get
+      // evicted — accumulating as bookkeeping zombies.
+      guard schema(forKey: key) != nil else { continue }
       if let date = Self.dirtyListFormatter.date(from: ts) {
         dirty[key] = date
       }
@@ -679,7 +685,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 /// Add a new case when a new preference family needs a new kind of work.
 /// The `dispatchSideEffect` switch in `PreferencesSyncService` is the
 /// single place that maps cases to implementations.
-enum PreferenceSideEffect {
+private enum PreferenceSideEffect {
   /// Re-rank the affected library location's contents.
   case resort
   /// No service-side action — `@AppStorage` subscribers handle it.
@@ -692,7 +698,7 @@ enum PreferenceSideEffect {
 /// single source of truth for tracked prefixes, observed static keys, the
 /// per-prefix codec used to talk to the server, and the side effect to run
 /// after a remote update lands.
-struct PreferenceSchema {
+private struct PreferenceSchema {
   /// All keys under this family share this prefix. KVO observation and
   /// the logout wipe both key off it.
   let prefix: String
