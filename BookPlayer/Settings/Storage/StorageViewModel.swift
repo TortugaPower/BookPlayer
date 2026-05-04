@@ -166,6 +166,7 @@ final class StorageViewModel: StorageViewModelProtocol {
     publishedFiles.filter({ $0.showWarning })
   }
 
+  @MainActor
   func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) async {
     await libraryService.registerExistingProcessedItems(at: [item.fileURL])
 
@@ -205,7 +206,11 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   func fixAllBrokenItems() {
-    let brokenItems = getBrokenItems()
+    // Process in Finder-style order so the resulting orderRank assignments match
+    // the regular import flow (see LibraryService.enumerateAndSortDirectory).
+    let brokenItems = getBrokenItems().sorted {
+      $0.fileURL.path.localizedStandardCompare($1.fileURL.path) == .orderedAscending
+    }
 
     guard !brokenItems.isEmpty else { return }
 
@@ -224,6 +229,7 @@ final class StorageViewModel: StorageViewModelProtocol {
         self.showProgressIndicator = false
         self.fixProgress = nil
         self.loadItems()
+        self.reloadLibraryItems()
       }
     }
   }

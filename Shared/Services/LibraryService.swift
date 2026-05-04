@@ -725,19 +725,26 @@ extension LibraryService {
   /// URLs whose `relativePath` already resolves to a registered item are skipped;
   /// already-registered folders still recurse so unregistered children are picked up.
   ///
-  /// - Precondition: every URL must live inside `DataManager.processedFolderURL`.
-  ///   Passing URLs from anywhere else is unsupported — the computed relativePath
-  ///   will be malformed and the inserted CoreData entry will not match a real file.
-  ///   Callers must filter via `DataManager.isURLInProcessedFolder(_:)` first.
+  /// URLs that do not live inside `DataManager.processedFolderURL` are skipped
+  /// silently (a runtime guard rejects them to prevent a malformed relativePath
+  /// from creating a CoreData entry that points outside Processed). Callers should
+  /// still filter via `DataManager.isURLInProcessedFolder(_:)` for clarity.
   ///
   /// - Parameter urls: Absolute URLs inside the Processed folder.
-  /// - Returns: The newly inserted leaves. Excludes items that were already registered.
+  /// - Returns: The newly inserted leaves. Excludes items that were already
+  ///   registered or were rejected by the in-Processed check.
   @MainActor
   @discardableResult
   public func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem] {
+    // Process in Finder-style order so the resulting orderRank assignments match
+    // the regular import flow's directory enumeration (see enumerateAndSortDirectory).
+    let sortedURLs = urls.sorted {
+      $0.path.localizedStandardCompare($1.path) == .orderedAscending
+    }
+
     var registered = [SimpleLibraryItem]()
 
-    for url in urls {
+    for url in sortedURLs {
       registered.append(contentsOf: await registerExistingProcessedItem(at: url))
     }
 
@@ -746,15 +753,12 @@ extension LibraryService {
 
   @MainActor
   private func registerExistingProcessedItem(at url: URL) async -> [SimpleLibraryItem] {
+    guard DataManager.isURLInProcessedFolder(url) else { return [] }
+
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let relativePath = url.relativePath(to: processedFolderURL)
 
     guard !relativePath.isEmpty else { return [] }
-
-    // Files placed via Files.app may carry the user-immutable flag or strict
-    // file-protection class, which would crash later deletions. Mirror the
-    // regular import flow's cleanup at ImportOperation.swift:272.
-    url.disableFileProtection()
 
     let isDirectory =
       (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
@@ -776,7 +780,15 @@ extension LibraryService {
     }
 
     let parentPath = ensureAncestorFolders(forRelativePath: relativePath, processedFolderURL: processedFolderURL)
-    return await insertItems(from: [url], parentPath: parentPath)
+    // Files placed via Files.app may carry the user-immutable flag or strict
+    // file-protection class, which would crash later deletions. Mirror the
+    // regular import flow's cleanup at ImportOperation.swift:272.
+    url.disableFileProtection()
+    let inserted = await insertItems(from: [url], parentPath: parentPath)
+    if let parentPath {
+      rebuildFolderDetails(parentPath)
+    }
+    return inserted
   }
 
   /// Walks the ancestor chain of `relativePath` (excluding the leaf), creating any
