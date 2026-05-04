@@ -678,6 +678,7 @@
 		9925427D2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9925427E2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9925427F2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992D6E102FA2BD290091849F /* DynamicWaveLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */; };
 		99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */; };
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
@@ -1680,6 +1681,7 @@
 		9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCardView.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
 		992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
+		992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicWaveLoadingView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
@@ -3234,6 +3236,7 @@
 				4138CE1A26E5B4020014F11E /* Bookmarks */,
 				9F64C6222793C37C00B2493C /* Controls */,
 				9F3D0CE328C2BF2A00E9E8A3 /* ButtonFree */,
+				992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */,
 				99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */,
 				99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */,
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
@@ -4839,6 +4842,7 @@
 				6370434C2E2C046F005353D1 /* SettingsPrivacySectionView.swift in Sources */,
 				8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */,
 				631908AA2E369BDB009249C1 /* ProgressSeekingSectionView.swift in Sources */,
+				992D6E102FA2BD290091849F /* DynamicWaveLoadingView.swift in Sources */,
 				636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				3F7B64422E0FB27000299D97 /* AnyCodable.swift in Sources */,

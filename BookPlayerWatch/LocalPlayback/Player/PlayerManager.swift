@@ -36,6 +36,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  @Published var playerIsLoadingURL: Bool = false
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
   private var hasObserverRegistered = false

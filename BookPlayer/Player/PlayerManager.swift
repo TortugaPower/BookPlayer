@@ -37,8 +37,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  @Published var playerIsLoadingURL: Bool = false
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
+  private var canFetchExternalURL = true
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -167,6 +169,35 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     audioPlayer.allowsExternalPlayback = false
 
     bindTimeControlPassthroughPublisher()
+    setupPlayerObservers(player: audioPlayer)
+  }
+  
+  private func setupPlayerObservers(player: AVPlayer?) {
+    guard let player = player else { return }
+    
+    // 2. Observe Buffering (AVPlayer TimeControlStatus)
+    player.publisher(for: \.timeControlStatus)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, weak player] status in
+        guard let self = self, let player = player else { return }
+        
+        switch status {
+        case .waitingToPlayAtSpecifiedRate:
+          if player.reasonForWaitingToPlay == .toMinimizeStalls {
+            // We are actively buffering mid-playback (or right after hitting play)
+            self.playerIsLoadingURL = true
+          }
+        case .playing, .paused:
+          // If the item status is still .unknown, we don't want to hide the
+          // spinner just because the player is technically "paused".
+          if self.playerItem?.status == .readyToPlay {
+            self.playerIsLoadingURL = false
+          }
+        @unknown default:
+          break
+        }
+      }
+      .store(in: &disposeBag) // Keep the subscription alive
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -253,10 +284,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     if !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      if syncService.isActive {
+      if syncService.isActive,
+         (forceRefreshURL || chapter.externalUrl == nil) {
         asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      } else if let remoteUrl = chapter.remoteURL {
-        asset = AVURLAsset(url: remoteUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+      } else if let externalUrl = chapter.externalUrl {
+        asset = AVURLAsset(url: externalUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
       } else {
         asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
       }
@@ -272,6 +304,35 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
+    setupPlayerItemObservers(playerItem: playerItem)
+  }
+  
+  func setupPlayerItemObservers(playerItem: AVPlayerItem?) {
+    guard let playerItem else {
+      return
+    }
+    
+    playerItem.publisher(for: \.status)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] status in
+        guard let self = self else { return }
+        
+        switch status {
+        case .readyToPlay:
+          // The item is fully loaded and ready to be played
+          self.playerIsLoadingURL = false
+          print("Item is ready to play")
+        case .failed:
+          self.playerIsLoadingURL = false
+          print("Failed to load: \(String(describing: playerItem.error))")
+        case .unknown:
+          // Still evaluating the asset
+          self.playerIsLoadingURL = true
+        @unknown default:
+          break
+        }
+      }
+      .store(in: &disposeBag)
   }
 
   func load(_ item: PlayableItem, autoplay: Bool) {
@@ -840,6 +901,7 @@ extension PlayerManager {
   func prepareForPlayback(_ currentItem: PlayableItem) async -> Bool {
     /// Allow refetching remote URL if the action was initiating by the user
     canFetchRemoteURL = true
+    canFetchExternalURL = true
 
     guard let playerItem else {
       /// Check if the playbable item is in the process of being set
@@ -1026,6 +1088,11 @@ extension PlayerManager {
       {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
+      } else if let currentItem,
+                currentItem.currentChapter.externalUrl != nil,
+                canFetchExternalURL {
+        loadAndRefreshURL(item: currentItem)
+        canFetchExternalURL = false
       } else {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item

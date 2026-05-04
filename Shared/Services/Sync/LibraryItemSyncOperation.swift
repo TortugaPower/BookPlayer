@@ -305,9 +305,13 @@ extension LibraryItemSyncOperation {
       return
     }
     
-    try await client.upload(data, remoteURL: remoteUrl)
+    do {
+      try await client.upload(data, remoteURL: remoteUrl)
+    } catch {
+      print("Failed to upload data to \(remoteUrl): \(error)")
+    }
     
-    let _ : Empty = try await self.provider.request(
+    let _: Empty = try await self.provider.request(
       .externalResourceToDownload(uuid: uuid, uploaded: true)
     )
   }
