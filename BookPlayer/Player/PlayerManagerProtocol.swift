@@ -18,6 +18,7 @@ public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
   var isPlaying: Bool { get }
+  var playerIsLoadingURL: Bool { get }
   var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
   var storedConnection: JellyfinConnectionData? { get set }
 
