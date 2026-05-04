@@ -34,6 +34,10 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
   @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
+  /// Register files/folders already present inside the Processed folder that have no CoreData entry.
+  /// Creates any missing parent `Folder` entries and clears file-protection flags so the new entries
+  /// can be deleted later. URLs already registered are skipped.
+  @MainActor func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
   func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws
   /// Delete items
@@ -285,7 +289,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return try? context.fetch(fetchRequest).first
   }
 
-  func getItemReference(with relativePath: String) -> LibraryItem? {
+  public func getItemReference(with relativePath: String) -> LibraryItem? {
     return getItemReference(with: relativePath, context: dataManager.getContext())
   }
 
@@ -658,7 +662,7 @@ extension LibraryService {
   /// as we don't want this method to throw, and the files are already in the processed folder
   @MainActor
   @discardableResult
-  func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
+  public func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
     // Phase 1: Extract metadata and enumerate directories off the main thread
     let preparedItems = await prepareItems(from: files)
 
@@ -713,6 +717,122 @@ extension LibraryService {
     }
 
     return processedFiles
+  }
+
+  /// Registers files/folders that physically exist inside the Processed folder but
+  /// have no CoreData entry. Walks each URL's ancestor chain, creates any missing
+  /// parent `Folder` entries, then delegates the leaf to `insertItems(from:parentPath:)`.
+  /// URLs whose `relativePath` already resolves to a registered item are skipped;
+  /// already-registered folders still recurse so unregistered children are picked up.
+  ///
+  /// - Precondition: every URL must live inside `DataManager.processedFolderURL`.
+  ///   Passing URLs from anywhere else is unsupported — the computed relativePath
+  ///   will be malformed and the inserted CoreData entry will not match a real file.
+  ///   Callers must filter via `DataManager.isURLInProcessedFolder(_:)` first.
+  ///
+  /// - Parameter urls: Absolute URLs inside the Processed folder.
+  /// - Returns: The newly inserted leaves. Excludes items that were already registered.
+  @MainActor
+  @discardableResult
+  public func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem] {
+    var registered = [SimpleLibraryItem]()
+
+    for url in urls {
+      registered.append(contentsOf: await registerExistingProcessedItem(at: url))
+    }
+
+    return registered
+  }
+
+  @MainActor
+  private func registerExistingProcessedItem(at url: URL) async -> [SimpleLibraryItem] {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let relativePath = url.relativePath(to: processedFolderURL)
+
+    guard !relativePath.isEmpty else { return [] }
+
+    // Files placed via Files.app may carry the user-immutable flag or strict
+    // file-protection class, which would crash later deletions. Mirror the
+    // regular import flow's cleanup at ImportOperation.swift:272.
+    url.disableFileProtection()
+
+    let isDirectory =
+      (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+
+    if getItemReference(with: relativePath) != nil {
+      guard isDirectory else { return [] }
+
+      let children = (try? FileManager.default.contentsOfDirectory(
+        at: url,
+        includingPropertiesForKeys: [.isDirectoryKey],
+        options: [.skipsHiddenFiles]
+      )) ?? []
+
+      var registered = [SimpleLibraryItem]()
+      for child in children {
+        registered.append(contentsOf: await registerExistingProcessedItem(at: child))
+      }
+      return registered
+    }
+
+    let parentPath = ensureAncestorFolders(forRelativePath: relativePath, processedFolderURL: processedFolderURL)
+    return await insertItems(from: [url], parentPath: parentPath)
+  }
+
+  /// Walks the ancestor chain of `relativePath` (excluding the leaf), creating any
+  /// missing `Folder` entries along the way so the leaf can be inserted with its
+  /// correct parent. Saves the context after each new folder so subsequent lookups
+  /// can resolve newly created entries.
+  ///
+  /// - Returns: The relativePath of the leaf's immediate parent, or `nil` if the
+  ///   leaf belongs at the library root.
+  @MainActor
+  private func ensureAncestorFolders(
+    forRelativePath relativePath: String,
+    processedFolderURL: URL
+  ) -> String? {
+    let components = relativePath.split(separator: "/").map(String.init)
+    guard components.count > 1 else { return nil }
+
+    let context = dataManager.getContext()
+    let library = getLibraryReference()
+    let ancestorComponents = components.dropLast()
+
+    var currentPath = ""
+    var currentParent: Folder?
+
+    for component in ancestorComponents {
+      currentPath = currentPath.isEmpty ? component : "\(currentPath)/\(component)"
+
+      let folderURL = processedFolderURL.appendingPathComponent(currentPath)
+      // Clear protection on the ancestor folder itself so the user can later
+      // delete the registered hierarchy. Skip recursion (the leaf already
+      // disables its own subtree).
+      try? (folderURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+      try? (folderURL as NSURL).setResourceValue(false, forKey: .isUserImmutableKey)
+
+      if let existing = getItemReference(with: currentPath, context: context) as? Folder {
+        currentParent = existing
+        continue
+      }
+
+      let newFolder = Folder(from: folderURL, context: context)
+      newFolder.orderRank = getNextOrderRank(
+        in: currentParent?.relativePath,
+        context: context
+      )
+
+      if let parent = currentParent {
+        parent.addToItems(newFolder)
+      } else {
+        library.addToItems(newFolder)
+      }
+
+      dataManager.saveContext()
+      currentParent = newFolder
+    }
+
+    return currentParent?.relativePath
   }
 
   /// Inserts already-prepared items into CoreData. Used by directory handling to avoid re-preparing.

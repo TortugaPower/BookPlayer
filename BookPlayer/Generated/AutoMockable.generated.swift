@@ -143,6 +143,27 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return insertItemsFromReturnValue
         }
     }
+    //MARK: - registerExistingProcessedItems
+
+    var registerExistingProcessedItemsAtCallsCount = 0
+    var registerExistingProcessedItemsAtCalled: Bool {
+        return registerExistingProcessedItemsAtCallsCount > 0
+    }
+    var registerExistingProcessedItemsAtReceivedUrls: [URL]?
+    var registerExistingProcessedItemsAtReceivedInvocations: [[URL]] = []
+    var registerExistingProcessedItemsAtReturnValue: [SimpleLibraryItem]!
+    var registerExistingProcessedItemsAtClosure: (([URL]) async -> [SimpleLibraryItem])?
+    @MainActor
+    func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem] {
+        registerExistingProcessedItemsAtCallsCount += 1
+        registerExistingProcessedItemsAtReceivedUrls = urls
+        registerExistingProcessedItemsAtReceivedInvocations.append(urls)
+        if let registerExistingProcessedItemsAtClosure = registerExistingProcessedItemsAtClosure {
+            return await registerExistingProcessedItemsAtClosure(urls)
+        } else {
+            return registerExistingProcessedItemsAtReturnValue
+        }
+    }
     //MARK: - moveItems
 
     var moveItemsInsideThrowableError: Error?

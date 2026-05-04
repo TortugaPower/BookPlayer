@@ -1901,3 +1901,94 @@ class SearchTests: LibraryServiceTests {
     XCTAssert(results?.first?.details == "Stephen King")
   }
 }
+
+class RegisterExistingProcessedItemsTests: LibraryServiceTests {
+  /// File sideloaded into Processed root: registration creates a single Book at the library root.
+  func testRegisterFileAtProcessedRoot() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+    let fileURL = DataTestUtils.generateTestFile(
+      name: "sideloaded.txt",
+      contents: bookContents,
+      destinationFolder: processedFolder
+    )
+
+    let registered = await self.sut.registerExistingProcessedItems(at: [fileURL])
+
+    XCTAssertEqual(registered.count, 1)
+    XCTAssertEqual(registered.first?.relativePath, "sideloaded.txt")
+    XCTAssertNotNil(self.sut.getItem(with: "sideloaded.txt"))
+  }
+
+  /// File sideloaded into a nested directory whose parents are not yet in CoreData: registration
+  /// creates the missing ancestor folders and inserts the leaf under the deepest one.
+  func testRegisterFileWithMissingAncestorFolders() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+
+    let authorsFolder = try DataTestUtils.generateTestFolder(name: "Authors", destinationFolder: processedFolder)
+    let joeFolder = try DataTestUtils.generateTestFolder(name: "Joe", destinationFolder: authorsFolder)
+    let fileURL = DataTestUtils.generateTestFile(
+      name: "Book.txt",
+      contents: bookContents,
+      destinationFolder: joeFolder
+    )
+
+    let registered = await self.sut.registerExistingProcessedItems(at: [fileURL])
+
+    XCTAssertEqual(registered.count, 1)
+    XCTAssertEqual(registered.first?.relativePath, "Authors/Joe/Book.txt")
+    XCTAssertNotNil(self.sut.getItem(with: "Authors") as? Folder)
+    XCTAssertNotNil(self.sut.getItem(with: "Authors/Joe") as? Folder)
+    XCTAssertNotNil(self.sut.getItem(with: "Authors/Joe/Book.txt"))
+  }
+
+  /// Registering a URL that already has a CoreData entry returns nothing and creates no duplicates.
+  func testRegisterAlreadyRegisteredFileIsNoOp() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+    let fileURL = DataTestUtils.generateTestFile(
+      name: "already.txt",
+      contents: bookContents,
+      destinationFolder: processedFolder
+    )
+
+    let firstPass = await self.sut.insertItems(from: [fileURL])
+    XCTAssertEqual(firstPass.count, 1)
+
+    let secondPass = await self.sut.registerExistingProcessedItems(at: [fileURL])
+    XCTAssertEqual(secondPass.count, 0)
+
+    let library = self.sut.getLibrary()
+    XCTAssertEqual(library.items?.count, 1)
+  }
+
+  /// Picking a registered folder whose disk contains an unregistered child should add the child
+  /// without creating a duplicate folder entry.
+  func testRegisterRegisteredFolderRecursesIntoUnregisteredChildren() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+
+    let folderURL = try DataTestUtils.generateTestFolder(name: "Mistborn", destinationFolder: processedFolder)
+    _ = DataTestUtils.generateTestFile(name: "book1.txt", contents: bookContents, destinationFolder: folderURL)
+
+    _ = await self.sut.insertItems(from: [folderURL])
+    XCTAssertNotNil(self.sut.getItem(with: "Mistborn") as? Folder)
+    XCTAssertNotNil(self.sut.getItem(with: "Mistborn/book1.txt"))
+
+    // Drop a second file into the existing folder *after* the initial import.
+    _ = DataTestUtils.generateTestFile(name: "book2.txt", contents: bookContents, destinationFolder: folderURL)
+
+    let registered = await self.sut.registerExistingProcessedItems(at: [folderURL])
+
+    XCTAssertEqual(registered.count, 1)
+    XCTAssertEqual(registered.first?.relativePath, "Mistborn/book2.txt")
+    XCTAssertNotNil(self.sut.getItem(with: "Mistborn/book2.txt"))
+
+    // No duplicate folder, registered child is untouched.
+    let library = self.sut.getLibrary()
+    XCTAssertEqual(library.items?.count, 1)
+    let folder = self.sut.getItem(with: "Mistborn") as? Folder
+    XCTAssertEqual(folder?.items?.count, 2)
+  }
+}

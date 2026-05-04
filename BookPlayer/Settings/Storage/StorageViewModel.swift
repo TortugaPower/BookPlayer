@@ -166,37 +166,12 @@ final class StorageViewModel: StorageViewModelProtocol {
     publishedFiles.filter({ $0.showWarning })
   }
 
-  func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) async throws {
-    guard let fetchedBook = self.libraryService.findBooks(containing: item.fileURL)?.first else {
-      // create a new book
-      try await self.createBook(from: item)
-      if shouldReloadItems {
-        self.loadItems()
-      }
-      return
-    }
-
-    // Relink book object if it's orphaned
-    if fetchedBook.getLibrary() == nil {
-      try libraryService.moveItems([LibraryItemRef(relativePath: fetchedBook.relativePath, uuid: fetchedBook.uuid)], inside: nil)
-      reloadLibraryItems()
-    }
-
-    let fetchedBookURL = self.folderURL.appendingPathComponent(fetchedBook.relativePath)
-
-    // Check if existing book already has its file, and this one is a duplicate
-    if FileManager.default.fileExists(atPath: fetchedBookURL.path) {
-      try FileManager.default.removeItem(at: item.fileURL)
-      if shouldReloadItems {
-        self.loadItems()
-      }
-      return
-    }
-
-    try self.moveBookFile(from: item, with: fetchedBook)
+  func handleFix(for item: StorageItem, shouldReloadItems: Bool = true) async {
+    await libraryService.registerExistingProcessedItems(at: [item.fileURL])
 
     if shouldReloadItems {
       self.loadItems()
+      reloadLibraryItems()
     }
   }
 
@@ -225,14 +200,7 @@ final class StorageViewModel: StorageViewModelProtocol {
 
   func fixSelectedItem(_ item: StorageItem) {
     Task {
-      do {
-        try await handleFix(for: item)
-      } catch {
-        await MainActor.run {
-          storageAlert = .error(errorMessage: error.localizedDescription)
-          showAlert = true
-        }
-      }
+      await handleFix(for: item)
     }
   }
 
@@ -365,33 +333,6 @@ final class StorageViewModel: StorageViewModelProtocol {
     listState.reloadAll()
   }
 
-  private func createBook(from item: StorageItem) async throws {
-    let book = await self.libraryService.createBook(from: item.fileURL)
-    try moveBookFile(from: item, with: book)
-    try libraryService.moveItems([LibraryItemRef(relativePath: book.relativePath, uuid: book.uuid)], inside: nil)
-    reloadLibraryItems()
-  }
-
-  private func moveBookFile(from item: StorageItem, with book: Book) throws {
-    let isOrphaned = book.getLibrary() == nil
-    let defaultDestinationURL = self.folderURL.appendingPathComponent(item.fileURL.lastPathComponent)
-    let destinationURL = !isOrphaned
-    ? book.fileURL ?? defaultDestinationURL
-    : defaultDestinationURL
-
-    guard item.fileURL != destinationURL,
-          !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
-
-    // create parent folder if it doesn't exist
-    let parentFolder = destinationURL.deletingLastPathComponent()
-
-    if !FileManager.default.fileExists(atPath: parentFolder.path) {
-      try FileManager.default.createDirectory(at: parentFolder, withIntermediateDirectories: true, attributes: nil)
-    }
-
-    try FileManager.default.moveItem(at: item.fileURL, to: destinationURL)
-  }
-
   private func sortedItems(items: [StorageItem]) -> [StorageItem] {
     return items
       .sorted { sortBy == .size ? $0.size > $1.size : $0.title < $1.title }
@@ -452,15 +393,8 @@ final class StorageViewModel: StorageViewModelProtocol {
   }
 
   private func fixItemSafely(_ item: StorageItem) async -> FixResult {
-    do {
-      try await Task.detached(priority: .userInitiated) {
-        try await self.handleFix(for: item, shouldReloadItems: false)
-      }.value
-      
-      return FixResult(item: item, success: true, error: nil)
-    } catch {
-      return FixResult(item: item, success: false, error: error)
-    }
+    await handleFix(for: item, shouldReloadItems: false)
+    return FixResult(item: item, success: true, error: nil)
   }
 
   private var fixAllAlert: Alert {
