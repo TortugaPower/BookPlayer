@@ -894,7 +894,14 @@ extension PlayerManager {
         )
         try audioSession.setActive(true)
       } catch {
-        fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+        // Activation can legitimately fail when another process owns the
+        // audio session (phone call, navigation, voice memo) or while the
+        // device is in a state where playback isn't permitted. Bail out of
+        // this play attempt instead of crashing — a missed auto-play is
+        // strictly better than the app dying in the background.
+        NSLog("[PlayerManager] Failed to activate audio session: %@", error.localizedDescription)
+        playbackQueued = nil
+        return
       }
 
       createOrUpdateAutomaticBookmark(
