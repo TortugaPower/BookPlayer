@@ -505,14 +505,26 @@ extension ItemListViewModel {
   /// Returns destination URLs of files that already exist and were not copied.
   func handleFilePickerSelection(_ urls: [URL]) -> [URL] {
     let documentsFolder = DataManager.getDocumentsFolderURL()
+    let processedFolder = DataManager.getProcessedFolderURL()
 
     // Acquire security-scoped access synchronously before URLs expire
     var filesToCopy: [(source: URL, destination: URL)] = []
     var alreadyExisting: [URL] = []
+    var urlsToRegister: [URL] = []
     var skippedOwnFiles = 0
     for url in urls {
       let gotAccess = url.startAccessingSecurityScopedResource()
       guard gotAccess else { continue }
+
+      if DataManager.isURLInProcessedFolder(url) {
+        let relativePath = url.relativePath(to: processedFolder)
+        if libraryService.getItemReference(with: relativePath) == nil {
+          urlsToRegister.append(url)
+        }
+        // Already-registered Processed-folder URLs are a silent no-op.
+        url.stopAccessingSecurityScopedResource()
+        continue
+      }
 
       if DataManager.isInDocumentsFolder(url) {
         skippedOwnFiles += 1
@@ -529,8 +541,18 @@ extension ItemListViewModel {
       }
     }
 
+    if !urlsToRegister.isEmpty {
+      Task { @MainActor in
+        let registered = await libraryService.registerExistingProcessedItems(at: urlsToRegister)
+        guard !registered.isEmpty else { return }
+
+        await syncService.scheduleUpload(items: registered)
+        listState.reloadAll(padding: registered.count)
+      }
+    }
+
     guard !filesToCopy.isEmpty else {
-      if skippedOwnFiles > 0 {
+      if skippedOwnFiles > 0, urlsToRegister.isEmpty {
         loadingState.error = BookPlayerError.runtimeError(
           NSLocalizedString("import_already_loaded_title", comment: "")
         )
