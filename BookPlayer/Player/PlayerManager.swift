@@ -885,6 +885,12 @@ extension PlayerManager {
 
       userActivityManager.resumePlaybackActivity()
 
+      // Bind the interrupt observer up front so we still hear `.ended`
+      // even if activation fails below. iOS posts the resume notification
+      // when the contending session (call, navigation, voice memo) is
+      // released, and the existing handler re-invokes play(autoPlayed:).
+      bindInterruptObserver()
+
       do {
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(
@@ -895,12 +901,12 @@ extension PlayerManager {
         try audioSession.setActive(true)
       } catch {
         // Activation can legitimately fail when another process owns the
-        // audio session (phone call, navigation, voice memo) or while the
-        // device is in a state where playback isn't permitted. Bail out of
-        // this play attempt instead of crashing — a missed auto-play is
-        // strictly better than the app dying in the background.
+        // audio session or while the device is in a state where playback
+        // isn't permitted. Don't crash — leave playbackQueued = true so
+        // the UI shows pending and the interrupt observer above can retry
+        // when the session becomes free.
         NSLog("[PlayerManager] Failed to activate audio session: %@", error.localizedDescription)
-        playbackQueued = nil
+        playbackQueued = true
         return
       }
 
