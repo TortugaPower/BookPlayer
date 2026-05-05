@@ -6,24 +6,47 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import Foundation
 
 enum LibraryNode: Equatable, Hashable {
   case root
-  case book(title: String, relativePath: String)
-  case folder(title: String, relativePath: String)
+  case book(title: String, relativePath: String, uuid: String)
+  case folder(title: String, relativePath: String, uuid: String)
 
   var title: String {
     switch self {
     case .root: "library_title".localized
-    case .book(let title, _), .folder(let title, _): title
+    case .book(let title, _, _), .folder(let title, _, _): title
     }
   }
 
   var folderRelativePath: String? {
     switch self {
     case .root, .book: nil
-    case .folder(_, let relativePath): relativePath
+    case .folder(_, let relativePath, _): relativePath
+    }
+  }
+  
+  var uuid: String {
+    switch self {
+    case .root: ""
+    case .folder(_, _, let uuid), .book(_, _, let uuid): uuid
+    }
+  }
+
+  /// Returns true when `key` is the sticky-sort UserDefaults key that affects
+  /// this node's visible list. Used by `ItemListView` to filter pref-change
+  /// publisher events down to "I need to reload" events.
+  func matchesSortPrefKey(_ key: String) -> Bool {
+    switch self {
+    case .root:
+      return key == Constants.UserDefaults.librarySortDefault
+    case .folder(_, _, let uuid):
+      guard Constants.isRealUuid(uuid) else { return false }
+      return key == Constants.UserDefaults.librarySort(folderUuid: uuid)
+    case .book:
+      return false
     }
   }
 }

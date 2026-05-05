@@ -192,7 +192,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       isFetchingRemoteURL = true
       fileURL =
         try await syncService
-        .getRemoteFileURLs(of: chapter.relativePath, type: .book)[0].url
+        .getRemoteFileURLs(of: chapter.relativePath, for: currentItem?.uuid, type: .book)[0].url
       isFetchingRemoteURL = false
     }
 
@@ -230,6 +230,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
       if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath) {
         currentItem = try playbackService.getPlayableItem(from: libraryItem)
+        if let currentItem {
+          /// `currentItem` was replaced — re-bind the chapter-change subscription
+          /// to the new instance so end-of-chapter sleep timer keeps working.
+          /// `dropInitialReplay: true` is safe only because `PlayableItem.init`
+          /// seeds `currentChapter` from `currentTime` (see PlayableItem.swift).
+          bindPlayableChapterSubscription(to: currentItem, dropInitialReplay: true)
+        }
       }
     } else if currentItem?.isBoundBook == true, chapter.relativePath.hasSuffix(".m4b") {
       /// recently synced m4b files do not have their chapters loaded outright
@@ -324,17 +331,30 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     self.currentItem = item
 
+    bindPlayableChapterSubscription(to: item, dropInitialReplay: false)
+
+    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
+    storeWidgetItem(item)
+  }
+
+  /// Subscribes the chapter-change pipeline to a `PlayableItem` instance.
+  /// Must be called again whenever `currentItem` is swapped, otherwise
+  /// `.chapterChange` (which the end-of-chapter sleep timer listens for)
+  /// publishes on an orphaned instance.
+  private func bindPlayableChapterSubscription(to item: PlayableItem, dropInitialReplay: Bool) {
     self.playableChapterSubscription?.cancel()
-    self.playableChapterSubscription = item.$currentChapter.sink { [weak self] chapter in
+    let publisher = item.$currentChapter
+    let stream: AnyPublisher<PlayableChapter?, Never> =
+      dropInitialReplay
+      ? publisher.dropFirst().eraseToAnyPublisher()
+      : publisher.eraseToAnyPublisher()
+    self.playableChapterSubscription = stream.sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
       self?.setNowPlayingBookTitle(chapter: chapter)
       NotificationCenter.default.post(name: .chapterChange, object: nil, userInfo: nil)
       self?.widgetReloadService.scheduleWidgetReload(of: .sharedNowPlayingWidget)
     }
-
-    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
-    storeWidgetItem(item)
   }
 
   func storeWidgetItem(_ item: PlayableItem) {
@@ -725,6 +745,7 @@ extension PlayerManager {
       self.createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
+        uuid: currentItem.uuid,
         type: .skip
       )
     }
@@ -879,6 +900,7 @@ extension PlayerManager {
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
         relativePath: currentItem.relativePath,
+        uuid: currentItem.uuid,
         type: .play
       )
 
@@ -1333,14 +1355,14 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, type: BookmarkType) {
+  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
     /// Clean up old bookmark
     if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
       libraryService.deleteBookmark(bookmark)
     }
 
     guard
-      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, type: type)
+      let bookmark = libraryService.createBookmark(at: floor(time), relativePath: relativePath, uuid: uuid, type: type)
     else { return }
 
     libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
@@ -1378,6 +1400,7 @@ extension PlayerManager {
     createOrUpdateAutomaticBookmark(
       at: currentItem.currentTime,
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .sleep
     )
   }

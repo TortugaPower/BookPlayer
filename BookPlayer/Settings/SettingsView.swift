@@ -58,6 +58,7 @@ struct SettingsView: View {
         SettingsCreditsSectionView()
       }
       .environment(\.loadingState, loadingState)
+      .loadingOverlay(loadingState.show)
       .navigationTitle("settings_title")
       .navigationBarTitleDisplayMode(.inline)
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
@@ -114,23 +115,21 @@ struct SettingsView: View {
           )
         case .jellyfin:
           view = AnyView(
-            IntegrationSettingsView(
-              viewModel: JellyfinConnectionViewModel(
+            IntegrationSettingsView(integrationName: "Jellyfin") {
+              JellyfinConnectionViewModel(
                 connectionService: jellyfinService,
                 mode: .viewDetails
-              ),
-              integrationName: "Jellyfin"
-            )
+              )
+            }
           )
         case .audiobookshelf:
           view = AnyView(
-            IntegrationSettingsView(
-              viewModel: AudiobookShelfConnectionViewModel(
+            IntegrationSettingsView(integrationName: "AudiobookShelf") {
+              AudiobookShelfConnectionViewModel(
                 connectionService: audiobookshelfService,
                 mode: .viewDetails
-              ),
-              integrationName: "AudiobookShelf"
-            )
+              )
+            }
           )
         case .hardcover:
           view = AnyView(

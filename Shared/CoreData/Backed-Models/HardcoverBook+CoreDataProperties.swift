@@ -37,6 +37,7 @@ extension HardcoverBook {
   @NSManaged public var author: String
   @NSManaged public var status: Status
   @NSManaged public var userBookID: Int32
+  @NSManaged public var libraryItem: LibraryItem?
 
   @objc public enum Status: Int16, Decodable, Comparable {
     case local = 0

@@ -46,6 +46,8 @@
 "delete_completely_button" = "Úplne odstrániť";
 "move_library_button" = "Presunúť do Knižnice";
 "options_button" = "Možnosti";
+"library_options_progress_as_percentage_title" = "Zobraziť priebeh v percentách";
+"library_options_original_filename_title" = "Zobraziť pôvodný názov súboru";
 "select_playlist_title" = "Vyberte Priečinok";
 "title_button" = "názvu";
 "sort_filename_button" = "pôvodného názvu súboru";
@@ -347,6 +349,11 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_username_placeholder" = "Používateľské meno";
 "integration_password_placeholder" = "Heslo";
 "integration_password_remember_me_label" = "Zapamätať si mňa";
+"integration_custom_headers_title" = "Vlastné HTTP hlavičky";
+"integration_custom_headers_footer" = "Hlavičky pridané tu sa pripoja ku každej požiadavke odoslanej na tento server.";
+"integration_custom_headers_key_placeholder" = "Názov hlavičky";
+"integration_custom_headers_value_placeholder" = "Hodnota hlavičky";
+"integration_custom_headers_add_button" = "Pridať hlavičku";
 "settings_integration_manage_connection_title" = "Správa pripojenia";
 "integration_internal_error_invalid_url" = "Interná chyba: URL požiadavky je neplatná: %@";
 "integration_internal_error_build_url" = "Interná chyba: Nepodarilo sa vytvoriť adresu URL požiadavky";

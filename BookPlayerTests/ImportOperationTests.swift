@@ -18,6 +18,8 @@ class ImportOperationTests: XCTestCase {
     // Put setup code here. This method is called before the invocation of each test method in the class.
     let documentsFolder = DataManager.getDocumentsFolderURL()
     DataTestUtils.clearFolderContents(url: documentsFolder)
+    let sharedFolder = DataManager.getSharedFilesFolderURL()
+    DataTestUtils.clearFolderContents(url: sharedFolder)
   }
 
   func testProcessOneFile() {
@@ -59,5 +61,70 @@ class ImportOperationTests: XCTestCase {
     operation.start()
 
     wait(for: [promise, promiseFile], timeout: 15)
+  }
+
+  func testProcessFileFromSharedFolder() {
+    let filename = "shared_file.txt"
+    let bookContents = "sharedbookcontents".data(using: .utf8)!
+    let sharedFolder = DataManager.getSharedFilesFolderURL()
+
+    // Add test file to the App Group SharedFiles folder (Share-extension drop location)
+    let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: sharedFolder)
+
+    let promise = XCTestExpectation(description: "Process shared file")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let audioMetadataService = AudioMetadataService()
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+    let operation = ImportOperation(files: [fileUrl], libraryService: libraryService)
+
+    operation.completionBlock = {
+      // Source in SharedFiles should be cleaned up after import (isAppManagedSource)
+      XCTAssertFalse(FileManager.default.fileExists(atPath: fileUrl.path))
+
+      XCTAssertNotNil(operation.processedFiles.first)
+      let processedFile = operation.processedFiles.first!
+      XCTAssert(FileManager.default.fileExists(atPath: processedFile.path))
+      XCTAssertEqual(FileManager.default.contents(atPath: processedFile.path), bookContents)
+
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
+  }
+
+  func testProcessFileFromInboxFolder() throws {
+    let filename = "inbox_file.txt"
+    let bookContents = "inboxbookcontents".data(using: .utf8)!
+    let inboxFolder = DataManager.getInboxFolderURL()
+    try FileManager.default.createDirectory(at: inboxFolder, withIntermediateDirectories: true)
+
+    // Add test file to the Documents/Inbox folder (system inbox for document interactions)
+    let fileUrl = DataTestUtils.generateTestFile(name: filename, contents: bookContents, destinationFolder: inboxFolder)
+
+    let promise = XCTestExpectation(description: "Process inbox file")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let audioMetadataService = AudioMetadataService()
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+    let operation = ImportOperation(files: [fileUrl], libraryService: libraryService)
+
+    operation.completionBlock = {
+      // Source in Inbox (a Documents subfolder) should be cleaned up after import
+      XCTAssertFalse(FileManager.default.fileExists(atPath: fileUrl.path))
+
+      XCTAssertNotNil(operation.processedFiles.first)
+      let processedFile = operation.processedFiles.first!
+      XCTAssert(FileManager.default.fileExists(atPath: processedFile.path))
+      XCTAssertEqual(FileManager.default.contents(atPath: processedFile.path), bookContents)
+
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
   }
 }

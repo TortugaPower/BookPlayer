@@ -34,8 +34,12 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setLibraryLastBook(with relativePath: String?)
   /// Import and insert items
   @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem]
+  /// Register files/folders already present inside the Processed folder that have no CoreData entry.
+  /// Creates any missing parent `Folder` entries and clears file-protection flags so the new entries
+  /// can be deleted later. URLs already registered are skipped.
+  @MainActor func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
-  func moveItems(_ items: [String], inside relativePath: String?) throws
+  func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws
   /// Delete items
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 
@@ -108,6 +112,15 @@ public protocol LibraryServiceProtocol: AnyObject {
   )
   /// Sort entire list at the given path
   func sortContents(at relativePath: String?, by type: SortType)
+  /// Sort entire list at the given location. `nil` represents the library root.
+  /// Convenience that resolves the relativePath from the ref and delegates.
+  func sortContents(in location: SortLocation, by type: SortType)
+  /// Look up the relativePath for a library item by its uuid.
+  /// Returns nil for placeholder uuids or if no matching item is found.
+  func getRelativePath(forUuid uuid: String) -> String?
+  /// Resolves a path into a `SortLocation`, applying the bound-folder and
+  /// placeholder-UUID gates. See implementation for details.
+  func makeLocation(forRelativePath relativePath: String?) -> SortLocation
   /// Playback
   /// Update playback time for item
   func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool)
@@ -136,7 +149,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Fetch a bookmark at a specific time
   func getBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
   /// Create a bookmark at the given time
-  func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark?
+  func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark?
   /// Add a note to a bookmark
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
@@ -154,6 +167,9 @@ public protocol LibraryServiceProtocol: AnyObject {
 public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   var dataManager: DataManager!
   var audioMetadataService: AudioMetadataServiceProtocol!
+  /// Sticky-sort preference resolver. Injected after construction to break the
+  /// circular dependency with `PreferencesSyncService`.
+  public weak var preferencesService: SortPreferencesResolving?
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
@@ -273,7 +289,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return try? context.fetch(fetchRequest).first
   }
 
-  func getItemReference(with relativePath: String) -> LibraryItem? {
+  public func getItemReference(with relativePath: String) -> LibraryItem? {
     return getItemReference(with: relativePath, context: dataManager.getContext())
   }
 
@@ -349,6 +365,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   func parseFetchedItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SimpleLibraryItem]? {
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
+        let uuid = dictionary["uuid"] as? String,
         let title = dictionary["title"] as? String,
         let speed = dictionary["speed"] as? Float,
         let currentTime = dictionary["currentTime"] as? Double,
@@ -383,7 +400,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         parentFolder: dictionary["folder.relativePath"] as? String,
         originalFileName: originalFileName,
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
-        type: type
+        type: type,
+        uuid: uuid,
       )
     })
   }
@@ -644,7 +662,7 @@ extension LibraryService {
   /// as we don't want this method to throw, and the files are already in the processed folder
   @MainActor
   @discardableResult
-  func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
+  public func insertItems(from files: [URL], parentPath: String? = nil) async -> [SimpleLibraryItem] {
     // Phase 1: Extract metadata and enumerate directories off the main thread
     let preparedItems = await prepareItems(from: files)
 
@@ -690,7 +708,143 @@ extension LibraryService {
 
     dataManager.saveContext()
 
+    // Hook 2: if the parent has an automatic sort, re-rank to put new items in the right slot.
+    if let prefs = preferencesService {
+      let parentLocation = makeLocation(forRelativePath: parentPath)
+      if case .automatic(let sort) = prefs.effectiveSort(forLocation: parentLocation) {
+        sortContents(at: parentPath, by: sort)
+      }
+    }
+
     return processedFiles
+  }
+
+  /// Registers files/folders that physically exist inside the Processed folder but
+  /// have no CoreData entry. Walks each URL's ancestor chain, creates any missing
+  /// parent `Folder` entries, then delegates the leaf to `insertItems(from:parentPath:)`.
+  /// URLs whose `relativePath` already resolves to a registered item are skipped;
+  /// already-registered folders still recurse so unregistered children are picked up.
+  ///
+  /// URLs that do not live inside `DataManager.processedFolderURL` are skipped
+  /// silently (a runtime guard rejects them to prevent a malformed relativePath
+  /// from creating a CoreData entry that points outside Processed). Callers should
+  /// still filter via `DataManager.isURLInProcessedFolder(_:)` for clarity.
+  ///
+  /// - Parameter urls: Absolute URLs inside the Processed folder.
+  /// - Returns: The newly inserted leaves. Excludes items that were already
+  ///   registered or were rejected by the in-Processed check.
+  @MainActor
+  @discardableResult
+  public func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem] {
+    // Process in Finder-style order so the resulting orderRank assignments match
+    // the regular import flow's directory enumeration (see enumerateAndSortDirectory).
+    let sortedURLs = urls.sorted {
+      $0.path.localizedStandardCompare($1.path) == .orderedAscending
+    }
+
+    var registered = [SimpleLibraryItem]()
+
+    for url in sortedURLs {
+      registered.append(contentsOf: await registerExistingProcessedItem(at: url))
+    }
+
+    return registered
+  }
+
+  @MainActor
+  private func registerExistingProcessedItem(at url: URL) async -> [SimpleLibraryItem] {
+    guard DataManager.isURLInProcessedFolder(url) else { return [] }
+
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let relativePath = url.relativePath(to: processedFolderURL)
+
+    guard !relativePath.isEmpty else { return [] }
+
+    let isDirectory =
+      (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
+
+    if getItemReference(with: relativePath) != nil {
+      guard isDirectory else { return [] }
+
+      let children = (try? FileManager.default.contentsOfDirectory(
+        at: url,
+        includingPropertiesForKeys: [.isDirectoryKey],
+        options: [.skipsHiddenFiles]
+      )) ?? []
+
+      var registered = [SimpleLibraryItem]()
+      for child in children {
+        registered.append(contentsOf: await registerExistingProcessedItem(at: child))
+      }
+      return registered
+    }
+
+    let parentPath = ensureAncestorFolders(forRelativePath: relativePath, processedFolderURL: processedFolderURL)
+    // Files placed via Files.app may carry the user-immutable flag or strict
+    // file-protection class, which would crash later deletions. Mirror the
+    // regular import flow's cleanup at ImportOperation.swift:272.
+    url.disableFileProtection()
+    let inserted = await insertItems(from: [url], parentPath: parentPath)
+    if let parentPath {
+      rebuildFolderDetails(parentPath)
+    }
+    return inserted
+  }
+
+  /// Walks the ancestor chain of `relativePath` (excluding the leaf), creating any
+  /// missing `Folder` entries along the way so the leaf can be inserted with its
+  /// correct parent. Saves the context after each new folder so subsequent lookups
+  /// can resolve newly created entries.
+  ///
+  /// - Returns: The relativePath of the leaf's immediate parent, or `nil` if the
+  ///   leaf belongs at the library root.
+  @MainActor
+  private func ensureAncestorFolders(
+    forRelativePath relativePath: String,
+    processedFolderURL: URL
+  ) -> String? {
+    let components = relativePath.split(separator: "/").map(String.init)
+    guard components.count > 1 else { return nil }
+
+    let context = dataManager.getContext()
+    let library = getLibraryReference()
+    let ancestorComponents = components.dropLast()
+
+    var currentPath = ""
+    var currentParent: Folder?
+
+    for component in ancestorComponents {
+      currentPath = currentPath.isEmpty ? component : "\(currentPath)/\(component)"
+
+      let folderURL = processedFolderURL.appendingPathComponent(currentPath)
+      // Clear protection on the ancestor folder itself so the user can later
+      // delete the registered hierarchy. Skip recursion (the leaf already
+      // disables its own subtree).
+      try? (folderURL as NSURL).setResourceValue(URLFileProtection.none, forKey: .fileProtectionKey)
+      try? (folderURL as NSURL).setResourceValue(false, forKey: .isUserImmutableKey)
+
+      if let existing = getItemReference(with: currentPath, context: context) as? Folder {
+        currentParent = existing
+        continue
+      }
+
+      let newFolder = Folder(from: folderURL, context: context)
+      newFolder.orderRank = getNextOrderRank(
+        in: currentParent?.relativePath,
+        context: context
+      )
+
+      if let parent = currentParent {
+        parent.addToItems(newFolder)
+      } else {
+        library.addToItems(newFolder)
+      }
+
+      dataManager.saveContext()
+      currentParent = newFolder
+    }
+
+    return currentParent?.relativePath
   }
 
   /// Inserts already-prepared items into CoreData. Used by directory handling to avoid re-preparing.
@@ -755,7 +909,8 @@ extension LibraryService {
     book.originalFileName = url.lastPathComponent
     book.isFinished = false
     book.type = .book
-
+    book.uuid = UUID().uuidString
+    
     return book
   }
 
@@ -809,14 +964,14 @@ extension LibraryService {
     )
   }
 
-  public func moveItems(_ items: [String], inside relativePath: String?) throws {
+  public func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
     let context = dataManager.getContext()
 
     try moveItems(items, inside: relativePath, context: context)
   }
 
   public func moveItems(
-    _ items: [String],
+    _ items: [LibraryItemRef],
     inside relativePath: String?,
     context: NSManagedObjectContext
   ) throws {
@@ -835,7 +990,7 @@ extension LibraryService {
       originalParentPath =
         getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
-          relativePath: firstPath,
+          relativePath: firstPath.relativePath,
           context: context
         ) as? String
     }
@@ -844,13 +999,13 @@ extension LibraryService {
     let startingIndex = getNextOrderRank(in: relativePath, context: context)
 
     for (index, itemPath) in items.enumerated() {
-      guard let libraryItem = getItemReference(with: itemPath, context: context) else {
+      guard let libraryItem = getItemReference(with: itemPath.relativePath, context: context) else {
         continue
       }
 
       let sourceUrl =
         processedFolderURL
-        .appendingPathComponent(itemPath)
+        .appendingPathComponent(itemPath.relativePath)
 
       try moveFileIfNeeded(
         from: sourceUrl,
@@ -864,7 +1019,7 @@ extension LibraryService {
       if let folder = folder {
         let hasLibraryRef = hasItemProperty(
           #keyPath(LibraryItem.library),
-          relativePath: itemPath,
+          relativePath: itemPath.relativePath,
           context: context
         )
 
@@ -883,7 +1038,7 @@ extension LibraryService {
       } else {
         let previousParentPath = getItemProperty(
           #keyPath(LibraryItem.folder.relativePath),
-          relativePath: itemPath,
+          relativePath: itemPath.relativePath,
           context: context
         ) as? String
 
@@ -914,10 +1069,10 @@ extension LibraryService {
     for itemPath in items {
       let movedPath: String
       if let relativePath {
-        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
         movedPath = "\(relativePath)/\(itemName)"
       } else {
-        let itemName = itemPath.split(separator: "/").last.map(String.init) ?? itemPath
+        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
         movedPath = itemName
       }
       if let movedItem = getItemReference(with: movedPath, context: context),
@@ -929,6 +1084,14 @@ extension LibraryService {
 
     if let originalParentPath {
       rebuildOrderRank(in: originalParentPath)
+    }
+
+    // Hook 3: if the destination has an automatic sort, re-rank to put moved items in the right slot.
+    if let prefs = preferencesService {
+      let destLocation = makeLocation(forRelativePath: relativePath)
+      if case .automatic(let sort) = prefs.effectiveSort(forLocation: destLocation) {
+        sortContents(at: relativePath, by: sort)
+      }
     }
   }
 
@@ -975,7 +1138,7 @@ extension LibraryService {
           try deleteFolderContents(item, context: context)
         case .shallow:
           // Move children to parent folder or library
-          if let items = getItemIdentifiers(in: item.relativePath, context: context),
+          if let items = getItemPair(in: item.relativePath, context: context),
             !items.isEmpty
           {
             try moveItems(items, inside: item.parentFolder, context: context)
@@ -1279,6 +1442,18 @@ extension LibraryService {
 
   func getItemIdentifiers(in parentFolder: String?) -> [String]? {
     return getItemIdentifiers(in: parentFolder, context: dataManager.getContext())
+  }
+  
+  func getItemPair(in parentFolder: String?, context: NSManagedObjectContext) -> [LibraryItemRef]? {
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: ["relativePath", "uuid"],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil
+    )
+
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+    return results?.compactMap({ LibraryItemRef(relativePath: $0["relativePath"] as? String ?? "", uuid: $0["uuid"] as? String ?? "") })
   }
 
   func getItemIdentifiers(in parentFolder: String?, context: NSManagedObjectContext) -> [String]? {
@@ -1654,6 +1829,7 @@ extension LibraryService {
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.type): type.rawValue,
+      #keyPath(LibraryItem.uuid): folder.uuid,
     ]
 
     switch type {
@@ -1673,6 +1849,7 @@ extension LibraryService {
       for item in items {
         item.lastPlayDate = nil
         metadataPassthroughPublisher.send([
+          #keyPath(LibraryItem.uuid): item.uuid,
           #keyPath(LibraryItem.relativePath): item.relativePath!,
           #keyPath(LibraryItem.lastPlayDate): 0,
         ])
@@ -1777,6 +1954,7 @@ extension LibraryService {
       #keyPath(LibraryItem.percentCompleted): progress,
       #keyPath(LibraryItem.duration): folder.duration,
       #keyPath(LibraryItem.details): folder.details!,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
 
     dataManager.saveSyncContext(context)
@@ -1799,6 +1977,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.percentCompleted): progress,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
     /// TODO: verify if necessary to mark the folder as finished
 
@@ -1808,6 +1987,7 @@ extension LibraryService {
       userInfo: [
         "relativePath": relativePath,
         "progress": progress,
+        "uuid": folder.uuid
       ]
     )
 
@@ -1827,6 +2007,7 @@ extension LibraryService {
     item.title = newTitle
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): item.uuid,
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.title): newTitle,
     ])
@@ -1894,6 +2075,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.details): details,
+      #keyPath(LibraryItem.uuid): item.uuid
     ])
     self.dataManager.saveContext()
   }
@@ -1933,12 +2115,20 @@ extension LibraryService {
     fromOffsets source: IndexSet,
     toOffset destination: Int
   ) {
+    // Hook 5: write .custom BEFORE rank rewrite so the orderRank-suppression check
+    // sees the location as custom *during* the rebuild — rank changes correctly DO sync (user-arranged data).
+    if let prefs = preferencesService {
+      let location = makeLocation(forRelativePath: folderRelativePath)
+      prefs.setSort(.custom, forLocation: location)
+    }
+
     guard
       var contents = fetchRawContents(
         at: folderRelativePath,
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.orderRank),
+          #keyPath(LibraryItem.uuid)
         ]
       )
     else { return }
@@ -1951,6 +2141,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid
       ])
     }
 
@@ -1963,6 +2154,12 @@ extension LibraryService {
     sourceIndexPath: IndexPath,
     destinationIndexPath: IndexPath
   ) {
+    // Hook 5: write .custom BEFORE rank rewrite (see reorderItems above for rationale).
+    if let prefs = preferencesService {
+      let location = makeLocation(forRelativePath: folderRelativePath)
+      prefs.setSort(.custom, forLocation: location)
+    }
+
     guard
       var contents = fetchRawContents(
         at: folderRelativePath,
@@ -1982,6 +2179,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid
       ])
     }
 
@@ -1989,6 +2187,12 @@ extension LibraryService {
   }
 
   public func sortContents(at relativePath: String?, by type: SortType) {
+    // Hook 1: write pref BEFORE rank rewrite so the orderRank-suppression check sees the new sort.
+    if let prefs = preferencesService {
+      let location = makeLocation(forRelativePath: relativePath)
+      prefs.setSort(.automatic(type), forLocation: location)
+    }
+
     guard
       let results = fetchRawContents(at: relativePath, propertiesToFetch: type.fetchProperties()),
       !results.isEmpty
@@ -2002,10 +2206,90 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 
     self.dataManager.saveContext()
+  }
+
+  /// Resolves a relativePath into a `SortLocation`.
+  ///
+  /// Three outcomes — keep them distinct so callers (and the resolver) can't
+  /// accidentally route a non-sortable location onto the library-root key:
+  /// - `nil` path → `.libraryRoot`
+  /// - real UUID, non-bound folder → `.folder(LibraryItemRef)`
+  /// - missing/placeholder UUID, or bound folder → `.unresolved` (hooks no-op).
+  ///   Bound folders are explicitly excluded because their children are a
+  ///   single playable unit, not a user-sortable list — even if some path
+  ///   tried to write a sticky sort for the bound's UUID, this gate keeps
+  ///   the children's `orderRank` stable.
+  public func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+    guard let relativePath else { return .libraryRoot }
+    guard
+      let uuid = getItemProperty(#keyPath(LibraryItem.uuid), relativePath: relativePath) as? String,
+      Constants.isRealUuid(uuid)
+    else { return .unresolved }
+    if let rawType = getItemProperty(#keyPath(LibraryItem.type), relativePath: relativePath) as? Int16,
+       rawType == ItemType.bound.rawValue {
+      return .unresolved
+    }
+    return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
+  }
+
+  public func sortContents(in location: SortLocation, by type: SortType) {
+    let relativePath: String?
+    switch location {
+    case .libraryRoot:
+      relativePath = nil
+    case .folder(let ref):
+      relativePath = ref.relativePath
+    case .unresolved:
+      // Folder with placeholder UUID — pref writes are no-ops at the resolver,
+      // so re-sorting the underlying CoreData ranks would be a partial action.
+      // Skip until the UUID is materialized and the caller re-tries.
+      return
+    }
+    sortContents(at: relativePath, by: type)
+  }
+
+  public func getRelativePath(forUuid uuid: String) -> String? {
+    guard Constants.isRealUuid(uuid) else { return nil }
+
+    let context = dataManager.getContext()
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath)]
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.fetchLimit = 1
+
+    do {
+      let results = try context.fetch(fetchRequest)
+      return results.first?[#keyPath(LibraryItem.relativePath)] as? String
+    } catch {
+      return nil
+    }
+  }
+
+  /// Decision 9: returns true when the item's parent location has an automatic sticky sort.
+  /// The sync subscriber uses this to drop `orderRank`-only updates (other devices recompute).
+  public func isParentLocationAutoSorted(itemRelativePath: String) -> Bool {
+    guard let prefs = preferencesService else { return false }
+
+    // Derive parent path from the item's relativePath. Root-level items have no parent path.
+    let components = itemRelativePath.split(separator: "/")
+    let parentPath: String?
+    if components.count <= 1 {
+      parentPath = nil
+    } else {
+      parentPath = components.dropLast().joined(separator: "/")
+    }
+
+    let location = makeLocation(forRelativePath: parentPath)
+    if case .automatic = prefs.effectiveSort(forLocation: location) {
+      return true
+    }
+    return false
   }
 
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {
@@ -2035,6 +2319,7 @@ extension LibraryService {
       #keyPath(LibraryItem.currentTime): time,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
+      #keyPath(LibraryItem.uuid): item.uuid
     ])
   }
 
@@ -2046,6 +2331,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
+      #keyPath(LibraryItem.uuid): folder.uuid
     ])
 
     if let parentFolderPath = getItemProperty(
@@ -2065,6 +2351,7 @@ extension LibraryService {
     metadataPassthroughPublisher.send([
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.speed): speed,
+      #keyPath(LibraryItem.uuid): item.uuid,
     ])
 
     if let folder = item.folder,
@@ -2073,6 +2360,7 @@ extension LibraryService {
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): folderPath,
         #keyPath(LibraryItem.speed): speed,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 
@@ -2102,6 +2390,7 @@ extension LibraryService {
     var metadataUpdates: [String: Any] = [
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
+      #keyPath(LibraryItem.uuid): book.uuid,
     ]
 
     book.isFinished = flag
@@ -2124,6 +2413,7 @@ extension LibraryService {
     folder.isFinished = flag
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): folder.uuid,
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.isFinished): flag,
     ])
@@ -2152,6 +2442,7 @@ extension LibraryService {
     book.isFinished = false
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): book.uuid,
       #keyPath(LibraryItem.relativePath): book.relativePath!,
       #keyPath(LibraryItem.currentTime): Double(0),
       #keyPath(LibraryItem.percentCompleted): Double(0),
@@ -2167,6 +2458,7 @@ extension LibraryService {
     folder.isFinished = false
 
     metadataPassthroughPublisher.send([
+      #keyPath(LibraryItem.uuid): folder.uuid,
       #keyPath(LibraryItem.relativePath): folder.relativePath!,
       #keyPath(LibraryItem.currentTime): Double(0),
       #keyPath(LibraryItem.percentCompleted): Double(0),
@@ -2272,6 +2564,7 @@ extension LibraryService {
       guard
         let time = dictionary["time"] as? Double,
         let relativePath = dictionary["item.relativePath"] as? String,
+        let uuid = dictionary["item.uuid"] as? String,
         let rawType = dictionary["type"] as? Int16,
         let type = BookmarkType(rawValue: rawType)
       else { return nil }
@@ -2280,7 +2573,8 @@ extension LibraryService {
         time: time,
         note: dictionary["note"] as? String,
         type: type,
-        relativePath: relativePath
+        relativePath: relativePath,
+        uuid: uuid
       )
     })
   }
@@ -2335,7 +2629,7 @@ extension LibraryService {
     return parseFetchedBookmarks(from: results)?.first
   }
 
-  public func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
+  public func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark? {
     let finalTime = floor(time)
 
     if let bookmark = self.getBookmark(at: finalTime, relativePath: relativePath, type: type) {
@@ -2353,7 +2647,8 @@ extension LibraryService {
       time: finalTime,
       note: nil,
       type: type,
-      relativePath: relativePath
+      relativePath: relativePath,
+      uuid: uuid
     )
   }
 

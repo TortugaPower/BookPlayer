@@ -33,7 +33,7 @@ final class ItemListViewModel: ObservableObject {
   var reloadScope: ListStateManager.Scope {
     switch libraryNode {
     case .root: return .path("")
-    case .book(_, let relativePath), .folder(_, let relativePath):
+    case .book(_, let relativePath, _), .folder(_, let relativePath, _):
       return .path(relativePath)
     }
   }
@@ -49,7 +49,9 @@ final class ItemListViewModel: ObservableObject {
 
     if !query.isEmpty {
       filteredItems = filteredItems.filter {
-        $0.title.localizedCaseInsensitiveContains(query) || $0.details.localizedCaseInsensitiveContains(query)
+        $0.title.localizedCaseInsensitiveContains(query)
+          || $0.details.localizedCaseInsensitiveContains(query)
+          || $0.originalFileName.localizedCaseInsensitiveContains(query)
       }
     }
     return filteredItems
@@ -79,7 +81,7 @@ final class ItemListViewModel: ObservableObject {
   @Published var selectedItems = [SimpleLibraryItem]()
   /// Stores item identifiers from import operations to avoid race condition
   /// where items may not be loaded in the UI yet when moving to a folder
-  var pendingMoveItemIdentifiers: [String]?
+  var pendingMoveItemIdentifiers: [LibraryItemRef]?
 
   /// Search
   @Published var scope: ItemListSearchScope = .all
@@ -230,7 +232,7 @@ final class ItemListViewModel: ObservableObject {
       .map { String(path.prefix(upTo: $0.lowerBound)) }
       .reversed()
 
-    guard case .folder(_, let folderRelativePath) = libraryNode else {
+    guard case .folder(_, let folderRelativePath, _) = libraryNode else {
       return parentFolders.last
     }
 
@@ -347,7 +349,7 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoLibrary() {
-    let selectedItemPaths = selectedItems.compactMap({ $0.relativePath })
+    let selectedItemPaths = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
     let parentFolder = selectedItems.first?.parentFolder
 
     do {
@@ -364,7 +366,7 @@ extension ItemListViewModel {
     editMode = .inactive
   }
 
-  func importIntoLibrary(_ items: [String]) {
+  func importIntoLibrary(_ items: [LibraryItemRef]) {
     do {
       try libraryService.moveItems(items, inside: nil)
       syncService.scheduleMove(items: items, to: nil)
@@ -375,7 +377,7 @@ extension ItemListViewModel {
     listState.reloadAll(padding: items.count)
   }
 
-  func createFolder(with title: String, items: [String]? = nil, type: SimpleItemType) {
+  func createFolder(with title: String, items: [LibraryItemRef]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -391,7 +393,7 @@ extension ItemListViewModel {
         await syncService.scheduleUpload(items: [folder])
         if let fetchedItems = items {
           try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+          syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
         }
         try libraryService.updateFolder(at: folder.relativePath, type: type)
         libraryService.rebuildFolderDetails(folder.relativePath)
@@ -399,7 +401,7 @@ extension ItemListViewModel {
         // stop playback if folder items contain that current item
         if let items = items,
           let currentRelativePath = playerManager.currentItem?.relativePath,
-          items.contains(currentRelativePath)
+           items.contains(where: { $0.relativePath == currentRelativePath })
         {
           playerManager.stop()
         }
@@ -415,17 +417,17 @@ extension ItemListViewModel {
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
     // Use pendingMoveItemIdentifiers if available (from import operations),
     // otherwise fall back to selectedItems (from manual selection)
-    let fetchedItems: [String]
+    let fetchedItems: [LibraryItemRef]
     if let pendingItems = pendingMoveItemIdentifiers {
       fetchedItems = pendingItems
       pendingMoveItemIdentifiers = nil
     } else {
-      fetchedItems = selectedItems.compactMap({ $0.relativePath })
+      fetchedItems = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
     }
 
     do {
       try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems, to: folder.relativePath)
+      syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
     } catch {
       loadingState.error = error
     }
@@ -503,16 +505,28 @@ extension ItemListViewModel {
   /// Returns destination URLs of files that already exist and were not copied.
   func handleFilePickerSelection(_ urls: [URL]) -> [URL] {
     let documentsFolder = DataManager.getDocumentsFolderURL()
+    let processedFolder = DataManager.getProcessedFolderURL()
 
     // Acquire security-scoped access synchronously before URLs expire
     var filesToCopy: [(source: URL, destination: URL)] = []
     var alreadyExisting: [URL] = []
+    var urlsToRegister: [URL] = []
     var skippedOwnFiles = 0
     for url in urls {
       let gotAccess = url.startAccessingSecurityScopedResource()
       guard gotAccess else { continue }
 
-      if DataManager.isAppOwnFolder(url) {
+      if DataManager.isURLInProcessedFolder(url) {
+        let relativePath = url.relativePath(to: processedFolder)
+        if libraryService.getItemReference(with: relativePath) == nil {
+          urlsToRegister.append(url)
+        }
+        // Already-registered Processed-folder URLs are a silent no-op.
+        url.stopAccessingSecurityScopedResource()
+        continue
+      }
+
+      if DataManager.isInDocumentsFolder(url) {
         skippedOwnFiles += 1
         url.stopAccessingSecurityScopedResource()
         continue
@@ -527,8 +541,18 @@ extension ItemListViewModel {
       }
     }
 
+    if !urlsToRegister.isEmpty {
+      Task { @MainActor in
+        let registered = await libraryService.registerExistingProcessedItems(at: urlsToRegister)
+        guard !registered.isEmpty else { return }
+
+        await syncService.scheduleUpload(items: registered)
+        listState.reloadAll(padding: registered.count)
+      }
+    }
+
     guard !filesToCopy.isEmpty else {
-      if skippedOwnFiles > 0 {
+      if skippedOwnFiles > 0, urlsToRegister.isEmpty {
         loadingState.error = BookPlayerError.runtimeError(
           NSLocalizedString("import_already_loaded_title", comment: "")
         )

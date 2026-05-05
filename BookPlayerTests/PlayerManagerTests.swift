@@ -60,6 +60,7 @@ class PlayerManagerTests: XCTestCase {
       currentTime: 0,
       duration: 100,
       relativePath: "",
+      uuid: "LEGACY_UUID",
       parentFolder: nil,
       percentCompleted: 10,
       lastPlayDate: nil,

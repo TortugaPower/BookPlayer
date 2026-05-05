@@ -88,12 +88,14 @@ class BookmarksViewModel: ObservableObject {
     if let bookmark = libraryService.createBookmark(
       at: floor(currentTime),
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .user
     ) {
       syncService.scheduleSetBookmark(
         relativePath: currentItem.relativePath,
         time: floor(currentTime),
-        note: nil
+        note: nil,
+        uuid: currentItem.uuid
       )
       userBookmarks = getUserBookmarks(for: currentItem.relativePath)
       throw BookmarksAlerts.bookmarkCreated(bookmark: bookmark)

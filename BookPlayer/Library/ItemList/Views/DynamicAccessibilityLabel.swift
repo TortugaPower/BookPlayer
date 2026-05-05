@@ -24,9 +24,30 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
   @State private var accessibilityLabel: String
   @State private var cancellable: AnyCancellable?
 
+  /// Mirrors the same library display preference `BookView` reads, so the
+  /// announcement matches what's visually on screen when the toggle flips.
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayTitleSource,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var useOriginalFileName: Bool
+
   init(item: SimpleLibraryItem) {
     self.item = item
-    self._accessibilityLabel = State(initialValue: VoiceOverService.getAccessibilityLabel(for: item))
+    // Property wrappers aren't readable in `init`, so read the same App
+    // Group key directly to seed the initial label correctly. After init,
+    // `@AppStorage` takes over for live updates and the `.onChange(of:)`
+    // hook below recomputes when the toggle flips.
+    let store = UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+    let initialUseOriginalFileName =
+      store?.bool(forKey: Constants.UserDefaults.libraryDisplayTitleSource) ?? false
+    self._accessibilityLabel = State(
+      initialValue: VoiceOverService.getAccessibilityLabel(
+        for: item,
+        useOriginalFileName: initialUseOriginalFileName
+      )
+    )
   }
 
   func body(content: Content) -> some View {
@@ -75,10 +96,25 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           parentFolder: item.parentFolder,
           originalFileName: item.originalFileName,
           lastPlayDate: item.lastPlayDate,
-          type: item.type
+          type: item.type,
+          uuid: item.uuid
         )
 
-        accessibilityLabel = VoiceOverService.getAccessibilityLabel(for: updatedItem)
+        accessibilityLabel = VoiceOverService.getAccessibilityLabel(
+          for: updatedItem,
+          useOriginalFileName: useOriginalFileName
+        )
+      }
+      .onChange(of: useOriginalFileName) {
+        // The publishers above only fire on progress / playback changes,
+        // so flipping the title-source toggle has no source of refresh
+        // unless we explicitly recompute here. Rebuild against the
+        // construction-time `item` snapshot — the next progress tick will
+        // overwrite this with the current playback state.
+        accessibilityLabel = VoiceOverService.getAccessibilityLabel(
+          for: item,
+          useOriginalFileName: useOriginalFileName
+        )
       }
       .onChange(of: playerManager.currentItem?.relativePath) { oldPath, newPath in
         // Only books need the .bookPlaying subscription for live playback updates
@@ -124,10 +160,13 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           parentFolder: item.parentFolder,
           originalFileName: item.originalFileName,
           lastPlayDate: item.lastPlayDate,
-          type: item.type
+          type: item.type,
+          uuid: item.uuid,
         )
-
-        accessibilityLabel = VoiceOverService.getAccessibilityLabel(for: updatedItem)
+        accessibilityLabel = VoiceOverService.getAccessibilityLabel(
+          for: updatedItem,
+          useOriginalFileName: useOriginalFileName
+        )
       }
   }
 }

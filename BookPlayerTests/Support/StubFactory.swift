@@ -21,7 +21,8 @@ class StubFactory {
     book.isFinished = false
     book.duration = duration
     book.type = .book
-
+    book.uuid = UUID().uuidString
+    
     return book
   }
 

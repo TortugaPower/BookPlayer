@@ -46,6 +46,8 @@
 "delete_completely_button" = "Supprimer entièrement";
 "move_library_button" = "Déplacer vers la Bibliothèque";
 "options_button" = "Options";
+"library_options_progress_as_percentage_title" = "Afficher la progression en pourcentage";
+"library_options_original_filename_title" = "Afficher le nom d'origine du fichier";
 "select_playlist_title" = "Sélectionner le dossier";
 "title_button" = "Titre";
 "sort_filename_button" = "Nom d'origine du fichier";
@@ -346,6 +348,11 @@
 "integration_username_placeholder" = "Nom d'utilisateur";
 "integration_password_placeholder" = "Mot de passe";
 "integration_password_remember_me_label" = "Souviens-toi de moi";
+"integration_custom_headers_title" = "En-têtes HTTP personnalisés";
+"integration_custom_headers_footer" = "Les en-têtes ajoutés ici sont joints à chaque requête envoyée à ce serveur.";
+"integration_custom_headers_key_placeholder" = "Nom de l'en-tête";
+"integration_custom_headers_value_placeholder" = "Valeur de l'en-tête";
+"integration_custom_headers_add_button" = "Ajouter un en-tête";
 "settings_integration_manage_connection_title" = "Gérer la connexion";
 "integration_internal_error_invalid_url" = "Erreur interne : l'URL de la demande n'est pas valide : %@";
 "integration_internal_error_build_url" = "Erreur interne : échec de la création de l'URL de la demande";

@@ -8,7 +8,14 @@ import Foundation
 class VoiceOverService {
   // MARK: - BookCellView
 
-  public static func getAccessibilityLabel(for item: SimpleLibraryItem) -> String {
+  /// - Parameter useOriginalFileName: When true, the announcement uses
+  ///   the imported filename (matching what `BookView` renders under the
+  ///   library display preference). Defaults to false so non-library
+  ///   callers (Watch, etc.) keep their current behavior.
+  public static func getAccessibilityLabel(
+    for item: SimpleLibraryItem,
+    useOriginalFileName: Bool = false
+  ) -> String {
     let displayPercent = item.isFinished ? 100.0 : item.percentCompleted
     let remainingTime = item.duration - item.currentTime
     var remainingTimeLabel = "book_time_remaining_title".localized
@@ -16,11 +23,12 @@ class VoiceOverService {
       let parsedDuration = VoiceOverService.secondsToMinutes(remainingTime)
       remainingTimeLabel += !parsedDuration.isEmpty ? " \(parsedDuration)" : " 0"
     }
+    let displayTitle = item.displayTitle(useOriginalFileName: useOriginalFileName)
     switch item.type {
     case .book:
       return String.localizedStringWithFormat(
         "voiceover_book_progress".localized,
-        item.title,
+        displayTitle,
         item.details,
         displayPercent,
         item.durationFormatted
@@ -28,13 +36,13 @@ class VoiceOverService {
     case .folder:
       return String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
-        item.title,
+        displayTitle,
         displayPercent
       )
     case .bound:
       return String.localizedStringWithFormat(
         "voiceover_bound_books_progress".localized,
-        item.title,
+        displayTitle,
         displayPercent,
         item.durationFormatted
       ) + ", \(remainingTimeLabel)"

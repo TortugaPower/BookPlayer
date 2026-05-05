@@ -15,6 +15,7 @@ extension LibraryItem {
     return NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
   }
 
+  @NSManaged public var uuid: String
   @NSManaged public var currentTime: Double
   @NSManaged public var duration: Double
   @NSManaged public var title: String!

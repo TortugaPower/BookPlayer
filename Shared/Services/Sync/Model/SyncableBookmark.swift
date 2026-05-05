@@ -12,4 +12,5 @@ struct SyncableBookmark: Decodable {
   let key: String
   let time: Double
   let note: String?
+  let uuid: String?
 }

@@ -46,6 +46,8 @@
 "delete_completely_button" = "Διαγραφή εντελώς";
 "move_library_button" = "Μετακίνηση στη Βιβλιοθήκη";
 "options_button" = "Επιλογές";
+"library_options_progress_as_percentage_title" = "Εμφάνιση προόδου ως ποσοστό";
+"library_options_original_filename_title" = "Εμφάνιση αρχικού ονόματος αρχείου";
 "select_playlist_title" = "Επιλέξτε φάκελο";
 "title_button" = "Τίτλος";
 "sort_filename_button" = "Αρχικό όνομα αρχείου";
@@ -347,6 +349,11 @@
 "integration_username_placeholder" = "Όνομα χρήστη";
 "integration_password_placeholder" = "Σύνθημα";
 "integration_password_remember_me_label" = "Να με θυμάσαι";
+"integration_custom_headers_title" = "Προσαρμοσμένες κεφαλίδες HTTP";
+"integration_custom_headers_footer" = "Οι κεφαλίδες που προστίθενται εδώ επισυνάπτονται σε κάθε αίτημα που αποστέλλεται σε αυτόν τον διακομιστή.";
+"integration_custom_headers_key_placeholder" = "Όνομα κεφαλίδας";
+"integration_custom_headers_value_placeholder" = "Τιμή κεφαλίδας";
+"integration_custom_headers_add_button" = "Προσθήκη κεφαλίδας";
 "settings_integration_manage_connection_title" = "Διαχείριση σύνδεσης";
 "integration_internal_error_invalid_url" = "Εσωτερικό σφάλμα: Η διεύθυνση URL αιτήματος δεν είναι έγκυρη: %@";
 "integration_internal_error_build_url" = "Εσωτερικό σφάλμα: Απέτυχε η δημιουργία διεύθυνσης URL αιτήματος";

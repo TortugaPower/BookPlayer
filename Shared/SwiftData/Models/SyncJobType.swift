@@ -18,4 +18,5 @@ public enum SyncJobType: String, CaseIterable, Codable {
   case setBookmark
   case deleteBookmark
   case uploadArtwork
+  case matchUuid
 }

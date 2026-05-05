@@ -46,6 +46,8 @@
 "delete_completely_button" = "完全に削除";
 "move_library_button" = "ライブラリに移動";
 "options_button" = "オプション";
+"library_options_progress_as_percentage_title" = "進捗をパーセントで表示";
+"library_options_original_filename_title" = "元のファイル名を表示";
 "select_playlist_title" = "フォルダを選択";
 "title_button" = "タイトル";
 "sort_filename_button" = "元のファイル名";
@@ -347,6 +349,11 @@
 "integration_username_placeholder" = "ユーザ名";
 "integration_password_placeholder" = "パスワード";
 "integration_password_remember_me_label" = "ログイン状態を保持する";
+"integration_custom_headers_title" = "カスタムHTTPヘッダー";
+"integration_custom_headers_footer" = "ここで追加したヘッダーは、このサーバーへのすべてのリクエストに付加されます。";
+"integration_custom_headers_key_placeholder" = "ヘッダー名";
+"integration_custom_headers_value_placeholder" = "ヘッダーの値";
+"integration_custom_headers_add_button" = "ヘッダーを追加";
 "settings_integration_manage_connection_title" = "接続を管理";
 "integration_internal_error_invalid_url" = "内部エラー: リクエストURLが無効です: %@";
 "integration_internal_error_build_url" = "内部エラー: リクエストURLの構築に失敗しました";

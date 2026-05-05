@@ -72,10 +72,11 @@ final class AppServices: BPLogger {
       return coreServices
     } else {
       let dataManager = DataManager(coreDataStack: stack)
+      MigrationPlan.injectedCoreDataContext = stack.backgroundContext
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService)
+      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService, dataManager: dataManager)
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
@@ -98,6 +99,14 @@ final class AppServices: BPLogger {
       )
       let hardcoverService = makeHardcoverService(libraryService: libraryService)
 
+      let preferencesService = PreferencesSyncService()
+      preferencesService.setup(
+        accountService: accountService,
+        libraryService: libraryService
+      )
+      libraryService.preferencesService = preferencesService
+      Task { await preferencesService.bootstrap() }
+
       let coreServices = CoreServices(
         accountService: accountService,
         dataManager: dataManager,
@@ -106,6 +115,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerLoaderService: playerLoaderService,
         playerManager: playerManager,
+        preferencesService: preferencesService,
         syncService: syncService,
         watchService: watchService
       )
@@ -210,9 +220,9 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeSyncService(accountService: AccountService, libraryService: LibraryService) -> SyncService {
+  private func makeSyncService(accountService: AccountService, libraryService: LibraryService, dataManager: DataManager) -> SyncService {
     let service = SyncService()
-    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService)
+    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService, dataManager: dataManager)
     return service
   }
 

@@ -62,7 +62,8 @@ class CarPlayManager: NSObject {
         let listRefreshService = ListSyncRefreshService(
           playerManager: coreServices.playerManager,
           syncService: coreServices.syncService,
-          playerLoaderService: coreServices.playerLoaderService
+          playerLoaderService: coreServices.playerLoaderService,
+          preferencesService: coreServices.preferencesService
         )
         self?.listSyncRefreshService = listRefreshService
 
@@ -207,12 +208,14 @@ class CarPlayManager: NSObject {
       if let bookmark = libraryService.createBookmark(
         at: currentTime,
         relativePath: currentItem.relativePath,
+        uuid: currentItem.uuid,
         type: .user
       ) {
         coreServices.syncService.scheduleSetBookmark(
           relativePath: currentItem.relativePath,
           time: currentTime,
-          note: nil
+          note: nil,
+          uuid: currentItem.uuid
         )
         let formattedTime = TimeParser.formatTime(bookmark.time)
         alertTitle = String.localizedStringWithFormat("bookmark_created_title".localized, formattedTime)

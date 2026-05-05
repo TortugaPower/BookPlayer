@@ -287,6 +287,9 @@ private struct JellyfinTabRoot: View {
     .sheet(isPresented: $showConnectionDetails) {
       connectionDetailsSheet
     }
+    .task {
+      navigation.dismiss = onDismiss
+    }
   }
 
   @ViewBuilder
@@ -368,13 +371,12 @@ private struct JellyfinTabRoot: View {
 
   private var connectionDetailsSheet: some View {
     NavigationStack {
-      IntegrationSettingsView(
-        viewModel: JellyfinConnectionViewModel(
+      IntegrationSettingsView(integrationName: "Jellyfin") {
+        JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        ),
-        integrationName: "Jellyfin"
-      )
+        )
+      }
       .toolbar {
         if connectionService.connection == nil {
           ToolbarItemGroup(placement: .cancellationAction) {
@@ -483,6 +485,9 @@ where ViewModel.Item == JellyfinLibraryItem {
         dismissAll: dismissAll
       )
     }
+    .task {
+      navigation.dismiss = onDismiss
+    }
   }
 }
 
@@ -583,13 +588,12 @@ extension JellyfinTabRoot {
     dismissAll: DismissAction? = nil
   ) -> some View {
     NavigationStack {
-      IntegrationSettingsView(
-        viewModel: JellyfinConnectionViewModel(
+      IntegrationSettingsView(integrationName: "Jellyfin") {
+        JellyfinConnectionViewModel(
           connectionService: connectionService,
           mode: .viewDetails
-        ),
-        integrationName: "Jellyfin"
-      )
+        )
+      }
       .toolbar {
         if connectionService.connection == nil {
           ToolbarItemGroup(placement: .cancellationAction) {

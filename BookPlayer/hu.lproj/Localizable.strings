@@ -46,6 +46,8 @@
 "delete_completely_button" = "Törlés teljesen";
 "move_library_button" = "Áthelyezés a Főkönyvtárba";
 "options_button" = "Lehetőségek";
+"library_options_progress_as_percentage_title" = "Folyamat megjelenítése százalékban";
+"library_options_original_filename_title" = "Eredeti fájlnév megjelenítése";
 "select_playlist_title" = "Mappa kiválasztása";
 "title_button" = "Cím";
 "sort_filename_button" = "Eredeti fájlnév";
@@ -347,6 +349,11 @@
 "integration_username_placeholder" = "Felhasználónév";
 "integration_password_placeholder" = "Jelszó";
 "integration_password_remember_me_label" = "Emlékezzen rám";
+"integration_custom_headers_title" = "Egyéni HTTP fejlécek";
+"integration_custom_headers_footer" = "Az itt hozzáadott fejlécek minden, erre a kiszolgálóra küldött kéréshez csatolódnak.";
+"integration_custom_headers_key_placeholder" = "Fejléc neve";
+"integration_custom_headers_value_placeholder" = "Fejléc értéke";
+"integration_custom_headers_add_button" = "Fejléc hozzáadása";
 "settings_integration_manage_connection_title" = "Kapcsolat kezelése";
 "integration_internal_error_invalid_url" = "Belső hiba: A kérés URL-je érvénytelen: %@";
 "integration_internal_error_build_url" = "Belső hiba: Nem sikerült létrehozni a kérés URL-jét";

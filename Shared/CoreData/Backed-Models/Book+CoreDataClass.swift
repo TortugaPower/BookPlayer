@@ -39,6 +39,8 @@ public class Book: LibraryItem {
     }
     self.init(entity: entity, insertInto: nil)
 
+    self.uuid = UUID().uuidString
+    
     let values = try decoder.container(keyedBy: CodingKeys.self)
     currentTime = try values.decode(Double.self, forKey: .currentTime)
     duration = try values.decode(Double.self, forKey: .duration)
@@ -98,6 +100,7 @@ extension Book {
       self.lastPlayDate = Date(timeIntervalSince1970: timestamp)
     }
     self.type = .book
+    self.uuid = syncItem.uuid
     // chapters will be loaded after the book is downloaded
   }
 }

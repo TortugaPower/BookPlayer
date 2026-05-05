@@ -28,9 +28,10 @@ public actor SyncTasksStorage: ModelActor {
   public func appendTask(parameters: [String: Any]) async throws {
     guard
       let taskId = parameters["id"] as? String,
-      let relativePath = parameters["relativePath"] as? String,
       let rawJobType = parameters["jobType"] as? String,
-      let jobType = SyncJobType(rawValue: rawJobType)
+      let jobType = SyncJobType(rawValue: rawJobType),
+      let uuid = parameters["uuid"] as? String,
+      let relativePath = parameters["relativePath"] as? String
     else {
       throw BookPlayerError.runtimeError("Missing id or job type when creating task")
     }
@@ -46,11 +47,34 @@ public actor SyncTasksStorage: ModelActor {
       context.insert(tasksContainer)
     }
 
+    // Coalesce matchUuid tasks: if one is already queued and is NOT the task currently
+    // in flight (head of the ordered queue), merge new relativePath→uuid pairs into it.
+    // Prefer existing values so we never overwrite uuids that other queued tasks or
+    // Core Data are already referencing. The in-flight task is skipped because its
+    // parameter snapshot has already been read by `getNextTask`, so mutations would
+    // be silently dropped when the task finishes and gets deleted.
+    if jobType == .matchUuid,
+      let newUuidsDict = parameters["uuids"] as? [String: String],
+      let headTaskID = tasksContainer.orderedTasks.first?.taskID,
+      let candidateTask = try context
+        .fetch(FetchDescriptor<MatchUuidsTaskModel>())
+        .first(where: { $0.id != headTaskID })
+    {
+      var merged = candidateTask.uuids
+      for (path, uuid) in newUuidsDict where merged[path] == nil {
+        merged[path] = uuid
+      }
+      candidateTask.uuids = merged
+      try context.save()
+      tasksDataManager.notifyTasksChanged(context: context)
+      return
+    }
+
     // Check for update task optimization
     if jobType == .update,
       tasksContainer.tasks.count > 1,
       let existingTask = try context.fetch(FetchDescriptor<UpdateTaskModel>())
-        .last(where: { $0.relativePath == relativePath })
+        .last(where: { $0.uuid == uuid })
     {
 
       var parameters = parameters
@@ -66,6 +90,7 @@ public actor SyncTasksStorage: ModelActor {
       let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
       // Create task reference
       let taskReference = SyncTaskReferenceModel(
+        uuid: uuid,
         relativePath: relativePath,
         taskID: taskId,
         jobType: jobType,
@@ -91,7 +116,7 @@ public actor SyncTasksStorage: ModelActor {
     else {
       return nil
     }
-
+    
     guard
       let storedObject = tasksDataManager.getTaskModel(
         with: firstTask.taskID,
@@ -107,6 +132,7 @@ public actor SyncTasksStorage: ModelActor {
 
     return SyncTask(
       id: firstTask.taskID,
+      uuid: firstTask.uuid,
       relativePath: firstTask.relativePath,
       jobType: firstTask.jobType,
       parameters: storedObject.toDictionaryPayload()
@@ -148,11 +174,13 @@ public actor SyncTasksStorage: ModelActor {
       guard let tasksContainer = containers.first else { return [] }
 
       return tasksContainer.orderedTasks.map { task in
-        SyncTaskReference(
+        let key = SyncProgressKey.resolve(uuid: task.uuid, relativePath: task.relativePath)
+        return SyncTaskReference(
           id: task.taskID,
+          uuid: task.uuid,
           relativePath: task.relativePath,
           jobType: task.jobType,
-          progress: progress[task.relativePath] ?? 0.0
+          progress: progress[key] ?? 0.0
         )
       }
 
@@ -181,6 +209,7 @@ public actor SyncTasksStorage: ModelActor {
 
         return SyncTask(
           id: taskRef.taskID,
+          uuid: taskRef.uuid,
           relativePath: taskRef.relativePath,
           jobType: taskRef.jobType,
           parameters: storedObject.toDictionaryPayload()
@@ -198,6 +227,60 @@ public actor SyncTasksStorage: ModelActor {
 
   public func clearAll() async throws {
     try tasksDataManager.deleteAllTasks(with: modelContext)
+  }
+
+  /// Rewrites task reference and task model uuids for each conflict returned by `matchUuid`.
+  /// Each conflict maps a locally-known uuid (`key`) to the uuid the server wants the client
+  /// to adopt (`uuid`). Runs on the actor's serial executor.
+  public func applyMatchUuidConflicts(_ conflicts: [ItemConflict]) throws {
+    for conflict in conflicts {
+      let oldUuid = conflict.key
+      let newUuid = conflict.uuid
+      let refs = try modelContext.fetch(
+        FetchDescriptor<SyncTaskReferenceModel>(predicate: #Predicate { $0.uuid == oldUuid })
+      )
+      for ref in refs {
+        ref.uuid = newUuid
+        let taskId = ref.taskID
+        switch ref.jobType {
+        case .upload:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<UploadTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .update:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<UpdateTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .move:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<MoveTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .renameFolder:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<RenameFolderTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .delete, .shallowDelete:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<DeleteTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .setBookmark:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<SetBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .deleteBookmark:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<DeleteBookmarkTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .uploadArtwork:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<ArtworkUploadTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .matchUuid:
+          break
+        }
+      }
+    }
+    try modelContext.save()
   }
 
   /// Check if there's an upload task queued for the item

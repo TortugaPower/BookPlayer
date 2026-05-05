@@ -13,10 +13,19 @@ class IntegrationConnectionFormViewModel: ObservableObject, IntegrationConnectio
   @Published var serverName: String = ""
   @Published var username: String = ""
   @Published var password: String = ""
+  @Published var customHeaders: [CustomHeaderEntry] = []
 
-  func setValues(url: String, serverName: String, userName: String) {
+  func setValues(
+    url: String,
+    serverName: String,
+    userName: String,
+    customHeaders: [String: String] = [:]
+  ) {
     self.serverUrl = url
     self.serverName = serverName
     self.username = userName
+    self.customHeaders = customHeaders
+      .sorted(by: { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending })
+      .map { CustomHeaderEntry(key: $0.key, value: $0.value) }
   }
 }

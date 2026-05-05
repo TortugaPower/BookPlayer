@@ -170,7 +170,8 @@ extension SimpleLibraryItem {
       parentFolder: nil,
       originalFileName: "",
       lastPlayDate: nil,
-      type: SimpleItemType.book
+      type: SimpleItemType.book,
+      uuid: UUID().uuidString
     )
   }
 }

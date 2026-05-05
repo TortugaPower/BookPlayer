@@ -81,12 +81,14 @@ final class ButtonFreeViewModel: ButtonFreeView.Model {
     if let bookmark = self.libraryService.createBookmark(
       at: currentTime,
       relativePath: currentItem.relativePath,
+      uuid: currentItem.uuid,
       type: .user
     ) {
       syncService.scheduleSetBookmark(
         relativePath: currentItem.relativePath,
         time: currentTime,
-        note: nil
+        note: nil,
+        uuid: currentItem.uuid
       )
       let formattedTime = TimeParser.formatTime(bookmark.time)
       return String.localizedStringWithFormat(

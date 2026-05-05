@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 import Foundation
@@ -132,7 +132,8 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var insertItemsFromReceivedInvocations: [[URL]] = []
     var insertItemsFromReturnValue: [SimpleLibraryItem]!
     var insertItemsFromClosure: (([URL]) async -> [SimpleLibraryItem])?
-    @MainActor func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
+    @MainActor
+    func insertItems(from files: [URL]) async -> [SimpleLibraryItem] {
         insertItemsFromCallsCount += 1
         insertItemsFromReceivedFiles = files
         insertItemsFromReceivedInvocations.append(files)
@@ -142,6 +143,27 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return insertItemsFromReturnValue
         }
     }
+    //MARK: - registerExistingProcessedItems
+
+    var registerExistingProcessedItemsAtCallsCount = 0
+    var registerExistingProcessedItemsAtCalled: Bool {
+        return registerExistingProcessedItemsAtCallsCount > 0
+    }
+    var registerExistingProcessedItemsAtReceivedUrls: [URL]?
+    var registerExistingProcessedItemsAtReceivedInvocations: [[URL]] = []
+    var registerExistingProcessedItemsAtReturnValue: [SimpleLibraryItem]!
+    var registerExistingProcessedItemsAtClosure: (([URL]) async -> [SimpleLibraryItem])?
+    @MainActor
+    func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem] {
+        registerExistingProcessedItemsAtCallsCount += 1
+        registerExistingProcessedItemsAtReceivedUrls = urls
+        registerExistingProcessedItemsAtReceivedInvocations.append(urls)
+        if let registerExistingProcessedItemsAtClosure = registerExistingProcessedItemsAtClosure {
+            return await registerExistingProcessedItemsAtClosure(urls)
+        } else {
+            return registerExistingProcessedItemsAtReturnValue
+        }
+    }
     //MARK: - moveItems
 
     var moveItemsInsideThrowableError: Error?
@@ -149,10 +171,10 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var moveItemsInsideCalled: Bool {
         return moveItemsInsideCallsCount > 0
     }
-    var moveItemsInsideReceivedArguments: (items: [String], relativePath: String?)?
-    var moveItemsInsideReceivedInvocations: [(items: [String], relativePath: String?)] = []
-    var moveItemsInsideClosure: (([String], String?) throws -> Void)?
-    func moveItems(_ items: [String], inside relativePath: String?) throws {
+    var moveItemsInsideReceivedArguments: (items: [LibraryItemRef], relativePath: String?)?
+    var moveItemsInsideReceivedInvocations: [(items: [LibraryItemRef], relativePath: String?)] = []
+    var moveItemsInsideClosure: (([LibraryItemRef], String?) throws -> Void)?
+    func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
         if let error = moveItemsInsideThrowableError {
             throw error
         }
@@ -648,6 +670,61 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         sortContentsAtByReceivedInvocations.append((relativePath: relativePath, type: type))
         sortContentsAtByClosure?(relativePath, type)
     }
+    //MARK: - sortContents
+
+    var sortContentsInByCallsCount = 0
+    var sortContentsInByCalled: Bool {
+        return sortContentsInByCallsCount > 0
+    }
+    var sortContentsInByReceivedArguments: (location: SortLocation, type: SortType)?
+    var sortContentsInByReceivedInvocations: [(location: SortLocation, type: SortType)] = []
+    var sortContentsInByClosure: ((SortLocation, SortType) -> Void)?
+    func sortContents(in location: SortLocation, by type: SortType) {
+        sortContentsInByCallsCount += 1
+        sortContentsInByReceivedArguments = (location: location, type: type)
+        sortContentsInByReceivedInvocations.append((location: location, type: type))
+        sortContentsInByClosure?(location, type)
+    }
+    //MARK: - getRelativePath
+
+    var getRelativePathForUuidCallsCount = 0
+    var getRelativePathForUuidCalled: Bool {
+        return getRelativePathForUuidCallsCount > 0
+    }
+    var getRelativePathForUuidReceivedUuid: String?
+    var getRelativePathForUuidReceivedInvocations: [String] = []
+    var getRelativePathForUuidReturnValue: String?
+    var getRelativePathForUuidClosure: ((String) -> String?)?
+    func getRelativePath(forUuid uuid: String) -> String? {
+        getRelativePathForUuidCallsCount += 1
+        getRelativePathForUuidReceivedUuid = uuid
+        getRelativePathForUuidReceivedInvocations.append(uuid)
+        if let getRelativePathForUuidClosure = getRelativePathForUuidClosure {
+            return getRelativePathForUuidClosure(uuid)
+        } else {
+            return getRelativePathForUuidReturnValue
+        }
+    }
+    //MARK: - makeLocation
+
+    var makeLocationForRelativePathCallsCount = 0
+    var makeLocationForRelativePathCalled: Bool {
+        return makeLocationForRelativePathCallsCount > 0
+    }
+    var makeLocationForRelativePathReceivedRelativePath: String?
+    var makeLocationForRelativePathReceivedInvocations: [String?] = []
+    var makeLocationForRelativePathReturnValue: SortLocation!
+    var makeLocationForRelativePathClosure: ((String?) -> SortLocation)?
+    func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+        makeLocationForRelativePathCallsCount += 1
+        makeLocationForRelativePathReceivedRelativePath = relativePath
+        makeLocationForRelativePathReceivedInvocations.append(relativePath)
+        if let makeLocationForRelativePathClosure = makeLocationForRelativePathClosure {
+            return makeLocationForRelativePathClosure(relativePath)
+        } else {
+            return makeLocationForRelativePathReturnValue
+        }
+    }
     //MARK: - updatePlaybackTime
 
     var updatePlaybackTimeRelativePathTimeDateScheduleSaveCallsCount = 0
@@ -837,22 +914,22 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - createBookmark
 
-    var createBookmarkAtRelativePathTypeCallsCount = 0
-    var createBookmarkAtRelativePathTypeCalled: Bool {
-        return createBookmarkAtRelativePathTypeCallsCount > 0
+    var createBookmarkAtRelativePathUuidTypeCallsCount = 0
+    var createBookmarkAtRelativePathUuidTypeCalled: Bool {
+        return createBookmarkAtRelativePathUuidTypeCallsCount > 0
     }
-    var createBookmarkAtRelativePathTypeReceivedArguments: (time: Double, relativePath: String, type: BookmarkType)?
-    var createBookmarkAtRelativePathTypeReceivedInvocations: [(time: Double, relativePath: String, type: BookmarkType)] = []
-    var createBookmarkAtRelativePathTypeReturnValue: SimpleBookmark?
-    var createBookmarkAtRelativePathTypeClosure: ((Double, String, BookmarkType) -> SimpleBookmark?)?
-    func createBookmark(at time: Double, relativePath: String, type: BookmarkType) -> SimpleBookmark? {
-        createBookmarkAtRelativePathTypeCallsCount += 1
-        createBookmarkAtRelativePathTypeReceivedArguments = (time: time, relativePath: relativePath, type: type)
-        createBookmarkAtRelativePathTypeReceivedInvocations.append((time: time, relativePath: relativePath, type: type))
-        if let createBookmarkAtRelativePathTypeClosure = createBookmarkAtRelativePathTypeClosure {
-            return createBookmarkAtRelativePathTypeClosure(time, relativePath, type)
+    var createBookmarkAtRelativePathUuidTypeReceivedArguments: (time: Double, relativePath: String, uuid: String, type: BookmarkType)?
+    var createBookmarkAtRelativePathUuidTypeReceivedInvocations: [(time: Double, relativePath: String, uuid: String, type: BookmarkType)] = []
+    var createBookmarkAtRelativePathUuidTypeReturnValue: SimpleBookmark?
+    var createBookmarkAtRelativePathUuidTypeClosure: ((Double, String, String, BookmarkType) -> SimpleBookmark?)?
+    func createBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) -> SimpleBookmark? {
+        createBookmarkAtRelativePathUuidTypeCallsCount += 1
+        createBookmarkAtRelativePathUuidTypeReceivedArguments = (time: time, relativePath: relativePath, uuid: uuid, type: type)
+        createBookmarkAtRelativePathUuidTypeReceivedInvocations.append((time: time, relativePath: relativePath, uuid: uuid, type: type))
+        if let createBookmarkAtRelativePathUuidTypeClosure = createBookmarkAtRelativePathUuidTypeClosure {
+            return createBookmarkAtRelativePathUuidTypeClosure(time, relativePath, uuid, type)
         } else {
-            return createBookmarkAtRelativePathTypeReturnValue
+            return createBookmarkAtRelativePathUuidTypeReturnValue
         }
     }
     //MARK: - addNote
@@ -1400,6 +1477,115 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         }
     }
 }
+class PreferencesSyncServiceProtocolMock: PreferencesSyncServiceProtocol {
+    var preferencesChanged: PassthroughSubject<String, Never> {
+        get { return underlyingPreferencesChanged }
+        set(value) { underlyingPreferencesChanged = value }
+    }
+    var underlyingPreferencesChanged: PassthroughSubject<String, Never>!
+    //MARK: - bootstrap
+
+    var bootstrapCallsCount = 0
+    var bootstrapCalled: Bool {
+        return bootstrapCallsCount > 0
+    }
+    var bootstrapClosure: (() async -> Void)?
+    func bootstrap() async {
+        bootstrapCallsCount += 1
+        await bootstrapClosure?()
+    }
+    //MARK: - register
+
+    var registerFolderUuidCallsCount = 0
+    var registerFolderUuidCalled: Bool {
+        return registerFolderUuidCallsCount > 0
+    }
+    var registerFolderUuidReceivedFolderUuid: String?
+    var registerFolderUuidReceivedInvocations: [String] = []
+    var registerFolderUuidClosure: ((String) -> Void)?
+    func register(folderUuid: String) {
+        registerFolderUuidCallsCount += 1
+        registerFolderUuidReceivedFolderUuid = folderUuid
+        registerFolderUuidReceivedInvocations.append(folderUuid)
+        registerFolderUuidClosure?(folderUuid)
+    }
+    //MARK: - pullFromServer
+
+    var pullFromServerForceCallsCount = 0
+    var pullFromServerForceCalled: Bool {
+        return pullFromServerForceCallsCount > 0
+    }
+    var pullFromServerForceReceivedForce: Bool?
+    var pullFromServerForceReceivedInvocations: [Bool] = []
+    var pullFromServerForceClosure: ((Bool) async -> Void)?
+    func pullFromServer(force: Bool) async {
+        pullFromServerForceCallsCount += 1
+        pullFromServerForceReceivedForce = force
+        pullFromServerForceReceivedInvocations.append(force)
+        await pullFromServerForceClosure?(force)
+    }
+    //MARK: - handleLogout
+
+    var handleLogoutCallsCount = 0
+    var handleLogoutCalled: Bool {
+        return handleLogoutCallsCount > 0
+    }
+    var handleLogoutClosure: (() -> Void)?
+    func handleLogout() {
+        handleLogoutCallsCount += 1
+        handleLogoutClosure?()
+    }
+    //MARK: - effectiveSort
+
+    var effectiveSortForLocationCallsCount = 0
+    var effectiveSortForLocationCalled: Bool {
+        return effectiveSortForLocationCallsCount > 0
+    }
+    var effectiveSortForLocationReceivedLocation: SortLocation?
+    var effectiveSortForLocationReceivedInvocations: [SortLocation] = []
+    var effectiveSortForLocationReturnValue: EffectiveSort!
+    var effectiveSortForLocationClosure: ((SortLocation) -> EffectiveSort)?
+    func effectiveSort(forLocation location: SortLocation) -> EffectiveSort {
+        effectiveSortForLocationCallsCount += 1
+        effectiveSortForLocationReceivedLocation = location
+        effectiveSortForLocationReceivedInvocations.append(location)
+        if let effectiveSortForLocationClosure = effectiveSortForLocationClosure {
+            return effectiveSortForLocationClosure(location)
+        } else {
+            return effectiveSortForLocationReturnValue
+        }
+    }
+    //MARK: - setSort
+
+    var setSortForLocationCallsCount = 0
+    var setSortForLocationCalled: Bool {
+        return setSortForLocationCallsCount > 0
+    }
+    var setSortForLocationReceivedArguments: (value: EffectiveSort, location: SortLocation)?
+    var setSortForLocationReceivedInvocations: [(value: EffectiveSort, location: SortLocation)] = []
+    var setSortForLocationClosure: ((EffectiveSort, SortLocation) -> Void)?
+    func setSort(_ value: EffectiveSort, forLocation location: SortLocation) {
+        setSortForLocationCallsCount += 1
+        setSortForLocationReceivedArguments = (value: value, location: location)
+        setSortForLocationReceivedInvocations.append((value: value, location: location))
+        setSortForLocationClosure?(value, location)
+    }
+    //MARK: - clearOverride
+
+    var clearOverrideForLocationCallsCount = 0
+    var clearOverrideForLocationCalled: Bool {
+        return clearOverrideForLocationCallsCount > 0
+    }
+    var clearOverrideForLocationReceivedLocation: SortLocation?
+    var clearOverrideForLocationReceivedInvocations: [SortLocation] = []
+    var clearOverrideForLocationClosure: ((SortLocation) -> Void)?
+    func clearOverride(forLocation location: SortLocation) {
+        clearOverrideForLocationCallsCount += 1
+        clearOverrideForLocationReceivedLocation = location
+        clearOverrideForLocationReceivedInvocations.append(location)
+        clearOverrideForLocationClosure?(location)
+    }
+}
 class ShakeMotionServiceProtocolMock: ShakeMotionServiceProtocol {
     //MARK: - observeFirstShake
 
@@ -1618,26 +1804,26 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - getRemoteFileURLs
 
-    var getRemoteFileURLsOfTypeThrowableError: Error?
-    var getRemoteFileURLsOfTypeCallsCount = 0
-    var getRemoteFileURLsOfTypeCalled: Bool {
-        return getRemoteFileURLsOfTypeCallsCount > 0
+    var getRemoteFileURLsOfForTypeThrowableError: Error?
+    var getRemoteFileURLsOfForTypeCallsCount = 0
+    var getRemoteFileURLsOfForTypeCalled: Bool {
+        return getRemoteFileURLsOfForTypeCallsCount > 0
     }
-    var getRemoteFileURLsOfTypeReceivedArguments: (relativePath: String, type: SimpleItemType)?
-    var getRemoteFileURLsOfTypeReceivedInvocations: [(relativePath: String, type: SimpleItemType)] = []
-    var getRemoteFileURLsOfTypeReturnValue: [RemoteFileURL]!
-    var getRemoteFileURLsOfTypeClosure: ((String, SimpleItemType) async throws -> [RemoteFileURL])?
-    func getRemoteFileURLs(of relativePath: String, type: SimpleItemType) async throws -> [RemoteFileURL] {
-        if let error = getRemoteFileURLsOfTypeThrowableError {
+    var getRemoteFileURLsOfForTypeReceivedArguments: (relativePath: String, uuid: String?, type: SimpleItemType)?
+    var getRemoteFileURLsOfForTypeReceivedInvocations: [(relativePath: String, uuid: String?, type: SimpleItemType)] = []
+    var getRemoteFileURLsOfForTypeReturnValue: [RemoteFileURL]!
+    var getRemoteFileURLsOfForTypeClosure: ((String, String?, SimpleItemType) async throws -> [RemoteFileURL])?
+    func getRemoteFileURLs(of relativePath: String, for uuid: String?, type: SimpleItemType) async throws -> [RemoteFileURL] {
+        if let error = getRemoteFileURLsOfForTypeThrowableError {
             throw error
         }
-        getRemoteFileURLsOfTypeCallsCount += 1
-        getRemoteFileURLsOfTypeReceivedArguments = (relativePath: relativePath, type: type)
-        getRemoteFileURLsOfTypeReceivedInvocations.append((relativePath: relativePath, type: type))
-        if let getRemoteFileURLsOfTypeClosure = getRemoteFileURLsOfTypeClosure {
-            return try await getRemoteFileURLsOfTypeClosure(relativePath, type)
+        getRemoteFileURLsOfForTypeCallsCount += 1
+        getRemoteFileURLsOfForTypeReceivedArguments = (relativePath: relativePath, uuid: uuid, type: type)
+        getRemoteFileURLsOfForTypeReceivedInvocations.append((relativePath: relativePath, uuid: uuid, type: type))
+        if let getRemoteFileURLsOfForTypeClosure = getRemoteFileURLsOfForTypeClosure {
+            return try await getRemoteFileURLsOfForTypeClosure(relativePath, uuid, type)
         } else {
-            return getRemoteFileURLsOfTypeReturnValue
+            return getRemoteFileURLsOfForTypeReturnValue
         }
     }
     //MARK: - downloadRemoteFiles
@@ -1695,10 +1881,10 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     var scheduleMoveItemsToCalled: Bool {
         return scheduleMoveItemsToCallsCount > 0
     }
-    var scheduleMoveItemsToReceivedArguments: (items: [String], parentFolder: String?)?
-    var scheduleMoveItemsToReceivedInvocations: [(items: [String], parentFolder: String?)] = []
-    var scheduleMoveItemsToClosure: (([String], String?) -> Void)?
-    func scheduleMove(items: [String], to parentFolder: String?) {
+    var scheduleMoveItemsToReceivedArguments: (items: [LibraryItemRef], parentFolder: LibraryItemRef?)?
+    var scheduleMoveItemsToReceivedInvocations: [(items: [LibraryItemRef], parentFolder: LibraryItemRef?)] = []
+    var scheduleMoveItemsToClosure: (([LibraryItemRef], LibraryItemRef?) -> Void)?
+    func scheduleMove(items: [LibraryItemRef], to parentFolder: LibraryItemRef?) {
         scheduleMoveItemsToCallsCount += 1
         scheduleMoveItemsToReceivedArguments = (items: items, parentFolder: parentFolder)
         scheduleMoveItemsToReceivedInvocations.append((items: items, parentFolder: parentFolder))
@@ -1706,33 +1892,33 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - scheduleRenameFolder
 
-    var scheduleRenameFolderAtNameCallsCount = 0
-    var scheduleRenameFolderAtNameCalled: Bool {
-        return scheduleRenameFolderAtNameCallsCount > 0
+    var scheduleRenameFolderAtNameForCallsCount = 0
+    var scheduleRenameFolderAtNameForCalled: Bool {
+        return scheduleRenameFolderAtNameForCallsCount > 0
     }
-    var scheduleRenameFolderAtNameReceivedArguments: (relativePath: String, name: String)?
-    var scheduleRenameFolderAtNameReceivedInvocations: [(relativePath: String, name: String)] = []
-    var scheduleRenameFolderAtNameClosure: ((String, String) -> Void)?
-    func scheduleRenameFolder(at relativePath: String, name: String) {
-        scheduleRenameFolderAtNameCallsCount += 1
-        scheduleRenameFolderAtNameReceivedArguments = (relativePath: relativePath, name: name)
-        scheduleRenameFolderAtNameReceivedInvocations.append((relativePath: relativePath, name: name))
-        scheduleRenameFolderAtNameClosure?(relativePath, name)
+    var scheduleRenameFolderAtNameForReceivedArguments: (relativePath: String, name: String, uuid: String)?
+    var scheduleRenameFolderAtNameForReceivedInvocations: [(relativePath: String, name: String, uuid: String)] = []
+    var scheduleRenameFolderAtNameForClosure: ((String, String, String) -> Void)?
+    func scheduleRenameFolder(at relativePath: String, name: String, for uuid: String) {
+        scheduleRenameFolderAtNameForCallsCount += 1
+        scheduleRenameFolderAtNameForReceivedArguments = (relativePath: relativePath, name: name, uuid: uuid)
+        scheduleRenameFolderAtNameForReceivedInvocations.append((relativePath: relativePath, name: name, uuid: uuid))
+        scheduleRenameFolderAtNameForClosure?(relativePath, name, uuid)
     }
     //MARK: - scheduleSetBookmark
 
-    var scheduleSetBookmarkRelativePathTimeNoteCallsCount = 0
-    var scheduleSetBookmarkRelativePathTimeNoteCalled: Bool {
-        return scheduleSetBookmarkRelativePathTimeNoteCallsCount > 0
+    var scheduleSetBookmarkRelativePathTimeNoteUuidCallsCount = 0
+    var scheduleSetBookmarkRelativePathTimeNoteUuidCalled: Bool {
+        return scheduleSetBookmarkRelativePathTimeNoteUuidCallsCount > 0
     }
-    var scheduleSetBookmarkRelativePathTimeNoteReceivedArguments: (relativePath: String, time: Double, note: String?)?
-    var scheduleSetBookmarkRelativePathTimeNoteReceivedInvocations: [(relativePath: String, time: Double, note: String?)] = []
-    var scheduleSetBookmarkRelativePathTimeNoteClosure: ((String, Double, String?) -> Void)?
-    func scheduleSetBookmark(relativePath: String, time: Double, note: String?) {
-        scheduleSetBookmarkRelativePathTimeNoteCallsCount += 1
-        scheduleSetBookmarkRelativePathTimeNoteReceivedArguments = (relativePath: relativePath, time: time, note: note)
-        scheduleSetBookmarkRelativePathTimeNoteReceivedInvocations.append((relativePath: relativePath, time: time, note: note))
-        scheduleSetBookmarkRelativePathTimeNoteClosure?(relativePath, time, note)
+    var scheduleSetBookmarkRelativePathTimeNoteUuidReceivedArguments: (relativePath: String, time: Double, note: String?, uuid: String)?
+    var scheduleSetBookmarkRelativePathTimeNoteUuidReceivedInvocations: [(relativePath: String, time: Double, note: String?, uuid: String)] = []
+    var scheduleSetBookmarkRelativePathTimeNoteUuidClosure: ((String, Double, String?, String) -> Void)?
+    func scheduleSetBookmark(relativePath: String, time: Double, note: String?, uuid: String) {
+        scheduleSetBookmarkRelativePathTimeNoteUuidCallsCount += 1
+        scheduleSetBookmarkRelativePathTimeNoteUuidReceivedArguments = (relativePath: relativePath, time: time, note: note, uuid: uuid)
+        scheduleSetBookmarkRelativePathTimeNoteUuidReceivedInvocations.append((relativePath: relativePath, time: time, note: note, uuid: uuid))
+        scheduleSetBookmarkRelativePathTimeNoteUuidClosure?(relativePath, time, note, uuid)
     }
     //MARK: - scheduleDeleteBookmark
 
@@ -1751,18 +1937,18 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
     }
     //MARK: - scheduleUploadArtwork
 
-    var scheduleUploadArtworkRelativePathCallsCount = 0
-    var scheduleUploadArtworkRelativePathCalled: Bool {
-        return scheduleUploadArtworkRelativePathCallsCount > 0
+    var scheduleUploadArtworkRelativePathUuidCallsCount = 0
+    var scheduleUploadArtworkRelativePathUuidCalled: Bool {
+        return scheduleUploadArtworkRelativePathUuidCallsCount > 0
     }
-    var scheduleUploadArtworkRelativePathReceivedRelativePath: String?
-    var scheduleUploadArtworkRelativePathReceivedInvocations: [String] = []
-    var scheduleUploadArtworkRelativePathClosure: ((String) -> Void)?
-    func scheduleUploadArtwork(relativePath: String) {
-        scheduleUploadArtworkRelativePathCallsCount += 1
-        scheduleUploadArtworkRelativePathReceivedRelativePath = relativePath
-        scheduleUploadArtworkRelativePathReceivedInvocations.append(relativePath)
-        scheduleUploadArtworkRelativePathClosure?(relativePath)
+    var scheduleUploadArtworkRelativePathUuidReceivedArguments: (relativePath: String, uuid: String)?
+    var scheduleUploadArtworkRelativePathUuidReceivedInvocations: [(relativePath: String, uuid: String)] = []
+    var scheduleUploadArtworkRelativePathUuidClosure: ((String, String) -> Void)?
+    func scheduleUploadArtwork(relativePath: String, uuid: String) {
+        scheduleUploadArtworkRelativePathUuidCallsCount += 1
+        scheduleUploadArtworkRelativePathUuidReceivedArguments = (relativePath: relativePath, uuid: uuid)
+        scheduleUploadArtworkRelativePathUuidReceivedInvocations.append((relativePath: relativePath, uuid: uuid))
+        scheduleUploadArtworkRelativePathUuidClosure?(relativePath, uuid)
     }
     //MARK: - getAllQueuedJobs
 

@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import SwiftUI
 
 struct ItemListView: View {
@@ -33,6 +34,7 @@ struct ItemListView: View {
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.jellyfinService) var jellyfinService
   @Environment(\.audiobookshelfService) var audiobookshelfService
+  @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
@@ -72,6 +74,22 @@ struct ItemListView: View {
       .navigationTitle(model.navigationTitle)
       .sheet(item: $activeSheet) { sheet in
         sheetContent(for: sheet)
+      }
+      .onAppear {
+        // Lazily register a KVO observer for this folder's sort key so the
+        // PreferencesSyncService catches local writes (sort tap, drag-reorder).
+        if case .folder(_, _, let uuid) = model.libraryNode,
+           Constants.isRealUuid(uuid) {
+          preferencesService.register(folderUuid: uuid)
+        }
+      }
+      .onReceive(preferencesService.preferencesChanged) { key in
+        // Server-driven sort change for the location currently on screen:
+        // PreferencesSyncService has already rewritten orderRank in CoreData
+        // via dispatchResort → sortContents. The cached `[SimpleLibraryItem]`
+        // in the view model is stale until we trigger a reload here.
+        guard model.libraryNode.matchesSortPrefKey(key) else { return }
+        listState.reloadAll()
       }
   }
 
@@ -334,21 +352,24 @@ struct ItemListView: View {
     .task { await model.loadNextPage() }
   }
 
-  @ViewBuilder
-  private func sortOptions() -> some View {
-    Button("title_button", systemImage: "textformat.size") {
-      model.handleSort(by: .metadataTitle)
-    }
-    Button("sort_filename_button", systemImage: "list.bullet.indent") {
-      model.handleSort(by: .fileName)
-    }
-    Button("sort_most_recent_button", systemImage: "clock") {
-      model.handleSort(by: .mostRecent)
-    }
-    Button("sort_reversed_button", systemImage: "repeat") {
-      model.handleSort(by: .reverseOrder)
+  /// Current location: `.libraryRoot`, `.folder(ref)`, or `.unresolved`.
+  /// Read by the library-options sheet to (a) decide which sort key the checkmark
+  /// reflects, and (b) tell the sticky-sort write path which folder is being changed.
+  ///
+  /// `.book` and folders with placeholder UUIDs map to `.unresolved` — distinct
+  /// from `.libraryRoot` so writes never accidentally mutate the root pref.
+  var currentLocation: SortLocation {
+    switch model.libraryNode {
+    case .root:
+      return .libraryRoot
+    case .book:
+      return .unresolved
+    case .folder(_, let relativePath, let uuid):
+      guard Constants.isRealUuid(uuid) else { return .unresolved }
+      return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
     }
   }
+
 
   @ViewBuilder
   func addFilesOptions() -> some View {
@@ -389,10 +410,10 @@ struct ItemListView: View {
   // MARK: - Toolbar
   @ToolbarContentBuilder
   private func mainToolbar() -> some ToolbarContent {
-    ToolbarItemGroup(placement: .confirmationAction) {
-      if !model.editMode.isEditing {
-        regularToolbarTrailing()
-      } else {
+    if !model.editMode.isEditing {
+      regularToolbarItems()
+    } else {
+      ToolbarItemGroup(placement: .confirmationAction) {
         editingToolbarTrailing()
       }
     }
@@ -417,19 +438,65 @@ struct ItemListView: View {
     }
   }
 
-  @ViewBuilder
-  private func regularToolbarTrailing() -> some View {
-    if importOperationState.isOperationActive {
-      Menu {
-        Text(importOperationState.processingTitle)
-      } label: {
-        Image(systemName: "square.and.arrow.down")
-          .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-          .foregroundStyle(theme.linkColor)
-          .accessibilityLabel("import_preparing_title")
+  /// iOS 26 Liquid Glass toolbar layout: separate `ToolbarItem`s connected by
+  /// `ToolbarSpacer(.fixed, ...)` render as one shared capsule. Without the
+  /// fixed spacer (or with `.flexible`), each item gets its own pill — which is
+  /// what the cascading `.tint(theme.linkColor)` from `LibraryRootView` was
+  /// producing previously. On iOS 18 we fall back to the legacy
+  /// `ToolbarItemGroup` layout since `ToolbarSpacer` isn't available.
+  @ToolbarContentBuilder
+  private func regularToolbarItems() -> some ToolbarContent {
+    if #available(iOS 26.0, *) {
+      if importOperationState.isOperationActive {
+        ToolbarItem(placement: .topBarTrailing) {
+          importOperationButton
+        }
+        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+      }
+
+      ToolbarItem(placement: .topBarTrailing) {
+        libraryOptionsButton
+      }
+
+      ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+      ToolbarItem(placement: .topBarTrailing) {
+        ellipsisMenu
+      }
+    } else {
+      ToolbarItemGroup(placement: .confirmationAction) {
+        if importOperationState.isOperationActive {
+          importOperationButton
+        }
+        libraryOptionsButton
+        ellipsisMenu
       }
     }
+  }
 
+  @ViewBuilder
+  private var importOperationButton: some View {
+    Menu {
+      Text(importOperationState.processingTitle)
+    } label: {
+      Image(systemName: "square.and.arrow.down")
+        .symbolEffect(.pulse.wholeSymbol, options: .repeating)
+        .foregroundStyle(theme.linkColor)
+        .accessibilityLabel("import_preparing_title")
+    }
+  }
+
+  @ViewBuilder
+  private var libraryOptionsButton: some View {
+    Button {
+      activeSheet = .libraryOptions
+    } label: {
+      Label("options_button", systemImage: "square.grid.2x2")
+    }
+  }
+
+  @ViewBuilder
+  private var ellipsisMenu: some View {
     Menu {
       ThemedSection {
         Button {
@@ -446,12 +513,6 @@ struct ItemListView: View {
         addFilesOptions()
       } header: {
         Text("playlist_add_title")
-      }
-
-      ThemedSection {
-        sortOptions()
-      } header: {
-        Text("sort_files_title")
       }
     } label: {
       Label("more_title".localized, systemImage: "ellipsis.circle")

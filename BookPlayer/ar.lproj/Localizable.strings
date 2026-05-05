@@ -46,6 +46,8 @@
 "delete_completely_button" = "الحذف كلياً";
 "move_library_button" = "النقل إلى المكتبة";
 "options_button" = "خيارات";
+"library_options_progress_as_percentage_title" = "عرض التقدم كنسبة مئوية";
+"library_options_original_filename_title" = "عرض اسم الملف الأصلي";
 "select_playlist_title" = "اختر مجلد";
 "title_button" = "العنوان";
 "sort_filename_button" = "اسم الملف الأصلي";
@@ -347,6 +349,11 @@
 "integration_username_placeholder" = "اسم المستخدم";
 "integration_password_placeholder" = "كلمة المرور";
 "integration_password_remember_me_label" = "تذكرني";
+"integration_custom_headers_title" = "رؤوس HTTP مخصصة";
+"integration_custom_headers_footer" = "تُرفق الرؤوس المضافة هنا بكل طلب يُرسل إلى هذا الخادم.";
+"integration_custom_headers_key_placeholder" = "اسم الرأس";
+"integration_custom_headers_value_placeholder" = "قيمة الرأس";
+"integration_custom_headers_add_button" = "إضافة رأس";
 "settings_integration_manage_connection_title" = "إدارة الاتصال";
 "integration_internal_error_invalid_url" = "خطأ داخلي: عنوان URL للطلب غير صالح: %@";
 "integration_internal_error_build_url" = "خطأ داخلي: فشل في بناء عنوان URL للطلب";

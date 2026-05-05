@@ -62,7 +62,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
 
   @MainActor
   func beginDownloadAudiobook(_ item: AudiobookShelfLibraryItem) throws {
-    let url = try connectionService.createItemDownloadUrl(item)
-    singleFileDownloadService.handleDownload(url)
+    let request = try connectionService.createItemDownloadRequest(item)
+    singleFileDownloadService.handleDownload(request)
   }
 }

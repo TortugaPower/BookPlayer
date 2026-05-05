@@ -9,11 +9,10 @@
 import CoreData
 import Foundation
 
-public enum SortType {
+public enum SortType: String, Codable, CaseIterable {
   case metadataTitle
   case fileName
   case mostRecent
-  case reverseOrder
 
   func fetchProperties() -> [String] {
     var properties = [
@@ -28,8 +27,6 @@ public enum SortType {
       properties.append(#keyPath(LibraryItem.originalFileName))
     case .mostRecent:
       properties.append(#keyPath(LibraryItem.lastPlayDate))
-    case .reverseOrder:
-      break
     }
     return properties
   }
@@ -53,8 +50,37 @@ public enum SortType {
         let t2 = b.lastPlayDate ?? distantPast
         return t1 > t2
       }
-    case .reverseOrder:
-      return items.reversed()
     }
   }
 }
+
+/// User-facing sort state for a library location.
+///
+/// Either an automatic rule (auto-sort by some `SortType`), or `.custom`
+/// (no automatic sorting; respect manual order).
+public enum EffectiveSort: Equatable {
+  case automatic(SortType)
+  case custom
+
+  /// Stable string representation for UserDefaults / server storage.
+  /// Returns the SortType raw value when automatic, or "custom".
+  public var rawValue: String {
+    switch self {
+    case .automatic(let sort): return sort.rawValue
+    case .custom: return "custom"
+    }
+  }
+
+  public init?(rawValue: String) {
+    if rawValue == "custom" {
+      self = .custom
+      return
+    }
+    if let sort = SortType(rawValue: rawValue) {
+      self = .automatic(sort)
+      return
+    }
+    return nil
+  }
+}
+

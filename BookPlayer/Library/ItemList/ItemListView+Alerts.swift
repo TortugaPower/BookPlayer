@@ -46,7 +46,7 @@ extension ItemListView {
   @ViewBuilder
   func importCompletionAlert(for alertParameters: ImportOperationState.AlertParameters) -> some View {
     let hasParentFolder = model.libraryNode.folderRelativePath != nil
-    let suggestedFolderName = alertParameters.suggestedFolderName ?? ""
+    let suggestedFolderName = ((alertParameters.suggestedFolderName ?? "") as NSString).deletingPathExtension
     let canCreateBound = alertParameters.hasOnlyBooks || alertParameters.singleFolder != nil
     
     if hasParentFolder {
@@ -60,7 +60,8 @@ extension ItemListView {
     }
     
     Button("new_playlist_button") {
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      folderInput.prepareForFolder(title: suggestedFolderName, placeholder: suggestedFolderName)
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
       activeAlert = nil
       Task { @MainActor in
         activeAlert = .createFolder(type: .folder, placeholder: suggestedFolderName)
@@ -69,7 +70,7 @@ extension ItemListView {
     
     Button("existing_playlist_button") {
       model.pendingMoveItemIdentifiers = alertParameters.itemIdentifiers
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
       activeSheet = .foldersSelection
     }
     .disabled(alertParameters.availableFolders.isEmpty)
@@ -77,7 +78,7 @@ extension ItemListView {
     Button("bound_books_create_button") {
       if alertParameters.hasOnlyBooks {
         folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
-        model.selectedSetItems = Set(alertParameters.itemIdentifiers)
+        model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
         activeAlert = nil
         Task { @MainActor in
           activeAlert = .createFolder(type: .bound, placeholder: suggestedFolderName)
@@ -113,7 +114,7 @@ extension ItemListView {
     .disabled(availableFolders.isEmpty)
 
     Button("bound_books_create_button") {
-      let suggestedFolderName = model.selectedItems.first?.title ?? ""
+      let suggestedFolderName = ((model.selectedItems.first?.title ?? "") as NSString).deletingPathExtension
       folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
       activeAlert = nil
       Task { @MainActor in
@@ -144,7 +145,9 @@ extension ItemListView {
     Button("create_button") {
       model.createFolder(
         with: folderInput.name,
-        items: selectedItems,
+        items: model.selectedItems.map { item in
+          LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid)
+        },
         type: folderInput.type
       )
       folderInput.reset()
