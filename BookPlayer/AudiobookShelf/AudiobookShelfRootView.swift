@@ -10,6 +10,9 @@ import SwiftUI
 
 struct AudiobookShelfRootView: View {
   let connectionService: AudiobookShelfConnectionService
+  /// When `true`, skips the per-integration server picker on launch.
+  /// Used when the caller (e.g. MediaServersView) has already activated the desired server.
+  var skipServerPicker: Bool = false
 
   @StateObject private var connectionViewModel: AudiobookShelfConnectionViewModel
 
@@ -27,8 +30,9 @@ struct AudiobookShelfRootView: View {
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
 
-  init(connectionService: AudiobookShelfConnectionService) {
+  init(connectionService: AudiobookShelfConnectionService, skipServerPicker: Bool = false) {
     self.connectionService = connectionService
+    self.skipServerPicker = skipServerPicker
     self._connectionViewModel = .init(
       wrappedValue: .init(connectionService: connectionService)
     )
@@ -36,6 +40,7 @@ struct AudiobookShelfRootView: View {
 
   @State private var showLibraryPicker = false
   @State private var showConnectionForm = false
+  @State private var showServerPicker = false
   @State private var isLoadingLibraries = false
 
   private var isReady: Bool {
@@ -140,7 +145,7 @@ struct AudiobookShelfRootView: View {
         IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "AudiobookShelf")
           .toolbar {
             ToolbarItemGroup(placement: .cancellationAction) {
-              Button { dismiss() } label: {
+              Button { showConnectionForm = false } label: {
                 Image(systemName: "xmark")
                   .foregroundStyle(theme.linkColor)
               }
@@ -158,11 +163,9 @@ struct AudiobookShelfRootView: View {
       }
       .tint(theme.linkColor)
       .environmentObject(theme)
-      .interactiveDismissDisabled()
     }
     .sheet(isPresented: $showLibraryPicker) {
       libraryPickerSheet
-        .interactiveDismissDisabled(resolvedLibrary == nil)
     }
     .environmentObject(theme)
     .onChange(of: availableLibraries) { _, libraries in
@@ -173,14 +176,41 @@ struct AudiobookShelfRootView: View {
     .onChange(of: connectionViewModel.connectionState) { _, newValue in
       if newValue == .connected {
         showConnectionForm = false
-        if resolvedLibrary == nil {
-          Task { await loadLibraries() }
-        }
+        resolvedLibrary = nil
+        Task { await loadLibraries() }
       }
     }
+    .sheet(isPresented: $showServerPicker) {
+      NavigationStack {
+        IntegrationServerPickerView(viewModel: connectionViewModel) { serverID in
+          connectionViewModel.handleActivateAction(id: serverID)
+          showServerPicker = false
+          resolvedLibrary = nil
+          Task { await loadLibraries() }
+        }
+        .toolbar {
+          ToolbarItem(placement: .principal) {
+            Text("AudiobookShelf")
+              .bpFont(.headline)
+              .foregroundStyle(theme.primaryColor)
+          }
+          ToolbarItemGroup(placement: .cancellationAction) {
+            Button { showServerPicker = false } label: {
+              Image(systemName: "xmark")
+                .foregroundStyle(theme.linkColor)
+            }
+          }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
     .task {
-      if connectionService.connection == nil {
+      if connectionService.connections.isEmpty {
         showConnectionForm = true
+      } else if !skipServerPicker && connectionService.connections.count > 1, resolvedLibrary == nil {
+        showServerPicker = true
       } else if resolvedLibrary == nil {
         await loadLibraries()
       }
@@ -226,9 +256,16 @@ struct AudiobookShelfRootView: View {
       .navigationTitle("library_title".localized)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        if resolvedLibrary != nil {
-          ToolbarItem(placement: .cancellationAction) {
-            Button("done_title".localized) { showLibraryPicker = false }
+        ToolbarItem(placement: .cancellationAction) {
+          Button("cancel_button".localized) {
+            // No library chosen yet — there's nothing to browse, so back out
+            // to the server picker rather than leave the user on a disabled view.
+            if resolvedLibrary == nil {
+              showLibraryPicker = false
+              dismiss()
+            } else {
+              showLibraryPicker = false
+            }
           }
         }
       }
@@ -339,22 +376,21 @@ private struct AudiobookShelfTabRoot: View {
         }
         .toolbar {
           ToolbarItemGroup(placement: .cancellationAction) {
-            Menu {
+            // dismissAll is AudiobookShelfRootView's `@Environment(\.dismiss)`.
+            // ABS root sits inside a sheet from MediaServersView, so calling it
+            // closes that sheet and lands you back on the server list.
+            if let dismissAll {
               Button {
-                showConnectionDetails = true
+                dismissAll()
               } label: {
-                Label("integration_connection_details_title".localized, systemImage: "server.rack")
-              }
-              Button {
-                onDismiss()
-              } label: {
-                Label("voiceover_close_button", systemImage: "xmark")
-              }
-            } label: {
-              Image(systemName: "gearshape")
+                HStack(spacing: 4) {
+                  Image(systemName: "chevron.backward")
+                  Text("media_servers_title".localized)
+                }
                 .foregroundStyle(theme.linkColor)
+              }
+              .accessibilityLabel("media_servers_title".localized)
             }
-            .accessibilityLabel("settings_title")
           }
           if let onSwitchLibrary {
             ToolbarItem(placement: .topBarTrailing) {
@@ -366,6 +402,19 @@ private struct AudiobookShelfTabRoot: View {
               }
               .accessibilityLabel("Switch Library")
             }
+          }
+          ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+              Button {
+                showConnectionDetails = true
+              } label: {
+                Label("integration_connection_details_title".localized, systemImage: "server.rack")
+              }
+            } label: {
+              Image(systemName: "gearshape")
+                .foregroundStyle(theme.linkColor)
+            }
+            .accessibilityLabel("settings_title")
           }
         }
     }
