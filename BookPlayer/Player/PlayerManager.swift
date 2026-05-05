@@ -39,6 +39,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var isFetchingRemoteURL: Bool?
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
+  /// Pending audio-session retry task scheduled when activation fails (beta builds only).
+  private var audioSessionRetryTask: Task<Void, Never>?
+  /// Beta builds (TestFlight or DEBUG) attempt to recover from audio-session
+  /// activation failures instead of crashing. Release builds keep the original
+  /// fatalError so we don't mask the bug in the App Store version until the
+  /// recovery path has proven itself in the field.
+  private static let isBetaBuild: Bool = {
+    #if DEBUG
+    return true
+    #else
+    return Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+    #endif
+  }()
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -143,6 +156,42 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       name: AVAudioSession.interruptionNotification,
       object: nil
     )
+  }
+
+  /// Retry audio-session activation a few times with backoff after a failure.
+  /// Each attempt deactivates first (notifying any contending app it can take
+  /// over) and re-activates — the release/re-grab pattern works around the
+  /// stuck state where iOS won't hand the session back without a force-quit.
+  /// On success, resumes playback. On exhaustion, clears the queued UI flag
+  /// and shows an alert so the user has the same actionable hint the old
+  /// crash provided. Beta builds only.
+  private func scheduleAudioSessionRecovery() {
+    audioSessionRetryTask = Task { @MainActor [weak self] in
+      let backoffSeconds: [UInt64] = [1, 3, 8]
+      for delay in backoffSeconds {
+        try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
+        if Task.isCancelled { return }
+        guard let self else { return }
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setActive(false, options: [.notifyOthersOnDeactivation])
+        do {
+          try audioSession.setCategory(.playback, mode: .spokenAudio, options: [])
+          try audioSession.setActive(true)
+        } catch {
+          NSLog("[PlayerManager] Audio session retry failed: %@", error.localizedDescription)
+          continue
+        }
+        NSLog("[PlayerManager] Audio session recovered; resuming playback")
+        self.play(autoPlayed: true)
+        return
+      }
+      guard let self, !Task.isCancelled else { return }
+      self.playbackQueued = nil
+      self.showErrorAlert(
+        title: "error_title".localized,
+        "audio_session_unavailable_description".localized
+      )
+    }
   }
 
   func setupPlayerInstance() {
@@ -890,6 +939,7 @@ extension PlayerManager {
       // when the contending session (call, navigation, voice memo) is
       // released, and the existing handler re-invokes play(autoPlayed:).
       bindInterruptObserver()
+      audioSessionRetryTask?.cancel()
 
       do {
         let audioSession = AVAudioSession.sharedInstance()
@@ -900,13 +950,19 @@ extension PlayerManager {
         )
         try audioSession.setActive(true)
       } catch {
-        // Activation can legitimately fail when another process owns the
-        // audio session or while the device is in a state where playback
-        // isn't permitted. Don't crash — leave playbackQueued = true so
-        // the UI shows pending and the interrupt observer above can retry
-        // when the session becomes free.
-        NSLog("[PlayerManager] Failed to activate audio session: %@", error.localizedDescription)
+        guard Self.isBetaBuild else {
+          fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
+        }
+        // Beta-only recovery path. Activation can legitimately fail when
+        // another process owns the audio session (e.g. a stuck call route).
+        // The interrupt observer above only fires for sessions that were
+        // *already* active and got interrupted, so it won't recover this
+        // case on its own. Schedule a bounded retry that releases and
+        // re-grabs the session — a known workaround for the stuck state —
+        // and surface an alert if all attempts fail.
+        NSLog("[PlayerManager] Audio session activation failed: %@; scheduling recovery", error.localizedDescription)
         playbackQueued = true
+        scheduleAudioSessionRecovery()
         return
       }
 
@@ -1084,6 +1140,7 @@ extension PlayerManager {
     playbackQueued = nil
     playTask?.cancel()
     loadChapterTask?.cancel()
+    audioSessionRetryTask?.cancel()
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
@@ -1124,6 +1181,7 @@ extension PlayerManager {
     audioPlayer.pause()
     playTask?.cancel()
     loadChapterTask?.cancel()
+    audioSessionRetryTask?.cancel()
 
     userActivityManager.stopPlaybackActivity()
     NotificationCenter.default.removeObserver(

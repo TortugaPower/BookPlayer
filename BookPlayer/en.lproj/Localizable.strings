@@ -121,6 +121,7 @@
 "icon_error_description" = "Changing the app icon wasn't successful. Try again later";
 "error_title" = "Error";
 "generic_retry_description" = "Please try again later";
+"audio_session_unavailable_description" = "Audio is unavailable right now. Please close BookPlayer and reopen it.";
 "network_error_title" = "Network Error";
 "purchases_restored_title" = "Purchases restored!";
 "tip_missing_title" = "You haven't tipped us yet";
