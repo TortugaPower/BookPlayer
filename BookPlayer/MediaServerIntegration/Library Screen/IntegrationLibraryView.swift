@@ -71,7 +71,7 @@ struct IntegrationLibraryView<
             },
             onSync: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
-              viewModel.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+              viewModel.goToSubscribe()
             },
             onCancel: {
               withAnimation { viewModel.showingDownloadConfirmation = false }

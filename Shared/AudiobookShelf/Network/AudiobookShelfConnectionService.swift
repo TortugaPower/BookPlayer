@@ -6,25 +6,24 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
 
 @Observable
-class AudiobookShelfConnectionService: BPLogger {
+public class AudiobookShelfConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
-  var connection: AudiobookShelfConnectionData?
+  public var connection: AudiobookShelfConnectionData?
   private var urlSession: URLSession
 
 
-  init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
     let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 15
     self.urlSession = URLSession(configuration: configuration)
   }
 
-  func setup() {
+  public func setup() {
     reloadConnection()
   }
 
@@ -127,21 +126,21 @@ class AudiobookShelfConnectionService: BPLogger {
     self.connection = connectionData
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard var data = connection else { return }
     data.customHeaders = headers
     connection = data
     try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard var data = connection else { return }
     data.selectedLibraryId = id
     connection = data
     try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     do {
       try keychainService.remove(.audiobookshelfConnection)
     } catch {
@@ -257,7 +256,7 @@ class AudiobookShelfConnectionService: BPLogger {
 
     let decoder = JSONDecoder()
     let itemsResponse = try decoder.decode(AudiobookShelfItemsResponse.self, from: data)
-
+    
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)

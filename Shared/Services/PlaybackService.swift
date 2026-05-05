@@ -225,11 +225,19 @@ public final class PlaybackService: PlaybackServiceProtocol {
         let storedConnection: JellyfinConnectionData? = try? keychainService.get(.jellyfinConnection)
         let urlString = (storedConnection != nil && externalResource != nil)
           ? storedConnection!.buildDownloadUrl(providerId: externalResource!.providerId)
-        : ""
+          : ""
+        externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        let storedConnection: AudiobookShelfConnectionData? = try? keychainService.get(.audiobookshelfConnection)
+        let urlString = (storedConnection != nil && externalResource != nil)
+          ? storedConnection!.buildAudiobookshelfDownloadUrl(providerId: externalResource!.providerId)
+          : ""
         externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
       default:
         externalUrl = nil
       }
+
       return [
         PlayableChapter(
           title: book.title,

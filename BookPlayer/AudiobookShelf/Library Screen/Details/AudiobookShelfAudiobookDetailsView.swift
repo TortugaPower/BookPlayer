@@ -16,12 +16,16 @@ struct AudiobookShelfAudiobookDetailsView<
 where Model.Item == AudiobookShelfLibraryItem, Model.Details == AudiobookShelfAudiobookDetailsData {
 
   @ObservedObject var viewModel: Model
+  var showSubscribeButton: Bool = false
+  var allowStream: Bool = false
   var onDownloadTap: () -> Void
   var onStreamTap: () -> Void
   
   var body: some View {
     IntegrationAudiobookDetailsView(
       viewModel: viewModel,
+      showSubscribeButton: showSubscribeButton,
+      allowStream: allowStream,
       onDownloadTap: onDownloadTap,
       onStreamTap: onStreamTap,
       imageContent: {

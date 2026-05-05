@@ -471,13 +471,7 @@
 		638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C72E67F327009EE79E /* TasksDataManager.swift */; };
 		638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C52E67F327009EE79E /* SyncTasksModels.swift */; };
 		638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638352C82E67F327009EE79E /* SwiftDataModels+Extensions.swift */; };
-		638487A22EC7722400DF442B /* AudiobookShelfLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879F2EC7722400DF442B /* AudiobookShelfLibrary.swift */; };
-		638487A32EC7722400DF442B /* AudiobookShelfLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879A2EC7722400DF442B /* AudiobookShelfLibraryItem.swift */; };
-		638487A42EC7722400DF442B /* AudiobookShelfConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */; };
-		638487A52EC7722400DF442B /* AudiobookShelfConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */; };
-		638487A72EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487962EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift */; };
 		638487B32EC7750100DF442B /* AudiobookShelfConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487AB2EC7750100DF442B /* AudiobookShelfConnectionViewModel.swift */; };
-		638487B72EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487B62EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift */; };
 		638487BB2EC7764800DF442B /* AudiobookShelfLibraryListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487B82EC7764800DF442B /* AudiobookShelfLibraryListItemView.swift */; };
 		638487BF2EC7765000DF442B /* AudiobookShelfLibraryGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487BC2EC7765000DF442B /* AudiobookShelfLibraryGridItemView.swift */; };
 		638487C32EC7767000DF442B /* AudiobookShelfLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487C22EC7767000DF442B /* AudiobookShelfLibraryViewModel.swift */; };
@@ -679,6 +673,18 @@
 		9925427E2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		9925427F2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		992D6E102FA2BD290091849F /* DynamicWaveLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */; };
+		992D6E132FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */; };
+		992D6E142FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */; };
+		992D6E152FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */; };
+		992D6E162FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */; };
+		992D6E172FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879A2EC7722400DF442B /* AudiobookShelfLibraryItem.swift */; };
+		992D6E182FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879A2EC7722400DF442B /* AudiobookShelfLibraryItem.swift */; };
+		992D6E192FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487B62EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift */; };
+		992D6E1A2FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487B62EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift */; };
+		992D6E1B2FA98CBE0091849F /* AudiobookShelfLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879F2EC7722400DF442B /* AudiobookShelfLibrary.swift */; };
+		992D6E1C2FA98CBE0091849F /* AudiobookShelfLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879F2EC7722400DF442B /* AudiobookShelfLibrary.swift */; };
+		992D6E1D2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487962EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift */; };
+		992D6E1E2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487962EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift */; };
 		99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */; };
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
@@ -2334,6 +2340,7 @@
 			children = (
 				996D4CD02F98A41E00FC3B57 /* Integrations */,
 				99D9958B2F719ECF00BAF216 /* Jellyfin */,
+				992D6E112FA98AEF0091849F /* AudiobookShelf */,
 				9F22DE3A288D771800056FCD /* Styleguide */,
 				9FC1E4572814E09700522FA8 /* Network */,
 				62AAE22F274AA6E9001EB9FF /* Services */,
@@ -2927,7 +2934,6 @@
 		638487972EC7722400DF442B /* Details */ = {
 			isa = PBXGroup;
 			children = (
-				638487962EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift */,
 				638487CA2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsView.swift */,
 				638487CB2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsViewModel.swift */,
 			);
@@ -2956,8 +2962,6 @@
 				638487972EC7722400DF442B /* Details */,
 				638487982EC7722400DF442B /* GridLayout */,
 				638487992EC7722400DF442B /* ListLayout */,
-				6384879A2EC7722400DF442B /* AudiobookShelfLibraryItem.swift */,
-				638487B62EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift */,
 				638487C02EC7767000DF442B /* AudiobookShelfLibraryItemImageView.swift */,
 				638487C12EC7767000DF442B /* AudiobookShelfLibraryView.swift */,
 				638487C22EC7767000DF442B /* AudiobookShelfLibraryViewModel.swift */,
@@ -2968,9 +2972,6 @@
 		638487A02EC7722400DF442B /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */,
-				6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */,
-				6384879F2EC7722400DF442B /* AudiobookShelfLibrary.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -3227,6 +3228,27 @@
 				9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */,
 			);
 			path = ConcurrentSync;
+			sourceTree = "<group>";
+		};
+		992D6E112FA98AEF0091849F /* AudiobookShelf */ = {
+			isa = PBXGroup;
+			children = (
+				638487962EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift */,
+				638487B62EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift */,
+				6384879A2EC7722400DF442B /* AudiobookShelfLibraryItem.swift */,
+				992D6E122FA98B410091849F /* Network */,
+			);
+			path = AudiobookShelf;
+			sourceTree = "<group>";
+		};
+		992D6E122FA98B410091849F /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */,
+				6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */,
+				6384879F2EC7722400DF442B /* AudiobookShelfLibrary.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		99329DB22F3A9B9C003F8E73 /* Views */ = {
@@ -4441,6 +4463,7 @@
 				63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
 				638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
+				992D6E1C2FA98CBE0091849F /* AudiobookShelfLibrary.swift in Sources */,
 				63125D132C36D97400D35533 /* EventsService.swift in Sources */,
 				3F6640902E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				3FF5BA672E10EA6F00B82BCC /* HardcoverBook+CoreDataProperties.swift in Sources */,
@@ -4487,6 +4510,7 @@
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
 				9911FBAF2F71D03800DC9A2B /* ConcurrenceService.swift in Sources */,
+				992D6E1A2FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */,
 				638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */,
 				638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
@@ -4497,7 +4521,9 @@
 				9FAFC9F52995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				4140EA77227289B90009F794 /* Chapter+CoreDataProperties.swift in Sources */,
 				4140EA7B227289C40009F794 /* Book+CoreDataProperties.swift in Sources */,
+				992D6E182FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */,
 				4140EA81227289D80009F794 /* Folder+CoreDataProperties.swift in Sources */,
+				992D6E1E2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				41EB07192752F1BA00EFEE13 /* PlayableChapter.swift in Sources */,
 				9FC1E44B2814C4DE00522FA8 /* NetworkClient.swift in Sources */,
 				3FA43BF92E110B4900DF9B1F /* SimpleHardcoverBook.swift in Sources */,
@@ -4512,6 +4538,8 @@
 				9911FBC72F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */,
 				9F9F3B71280E4E4B004359DA /* SyncService.swift in Sources */,
 				996D4CC62F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
+				992D6E152FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */,
+				992D6E162FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */,
 				996D4CD42F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				9F7B64722803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
@@ -4779,12 +4807,7 @@
 				99329DC12F3AAB57003F8E73 /* DismissableRegionView.swift in Sources */,
 				639DF4982E634C8600B29BBB /* MiniPlayerArtworkView.swift in Sources */,
 				9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */,
-				638487A22EC7722400DF442B /* AudiobookShelfLibrary.swift in Sources */,
-				638487A32EC7722400DF442B /* AudiobookShelfLibraryItem.swift in Sources */,
-				638487A42EC7722400DF442B /* AudiobookShelfConnectionService.swift in Sources */,
-				638487A52EC7722400DF442B /* AudiobookShelfConnectionData.swift in Sources */,
 				99F3C21F2F69D0AF00AC91A2 /* ExternalImportView.swift in Sources */,
-				638487A72EC7722400DF442B /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				3F7B64362E0F71E900299D97 /* HardcoverSettingsView.swift in Sources */,
 				631908A12E33EF50009249C1 /* ConfettiView.swift in Sources */,
 				6399EA352F12BA5B0077BB13 /* PasskeyService.swift in Sources */,
@@ -4826,7 +4849,6 @@
 				F50163BEFB92FB6B1B778C5E /* WindowHelper.swift in Sources */,
 				63E54C342D50576C0040355D /* TipJarView.swift in Sources */,
 				63AD93DD2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift in Sources */,
-				638487B72EC7752000DF442B /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				631908B62E36B007009249C1 /* SettingsAppIconsView.swift in Sources */,
 				63AD93D92E3C754B0077E73A /* ProfileListenedSectionView.swift in Sources */,
 				631686102E372FE7004A322F /* ThemesView.swift in Sources */,
@@ -4989,6 +5011,7 @@
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */,
+				992D6E172FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */,
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
 				4138CE1626E584B60014F11E /* BookmarkType.swift in Sources */,
@@ -5018,6 +5041,8 @@
 				4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */,
 				41A90C4827564DAA00C30394 /* BookPlayerError.swift in Sources */,
 				41C23401272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
+				992D6E132FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */,
+				992D6E142FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */,
 				41A1B124226F88C500EA0400 /* Book+CoreDataProperties.swift in Sources */,
 				3FF5BA692E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
 				41A1B108226E9DF800EA0400 /* DataManager.swift in Sources */,
@@ -5035,9 +5060,11 @@
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,
 				9911FBB52F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */,
+				992D6E192FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				99D995892F719E7E00BAF216 /* (null) in Sources */,
 				41C23403272E1965006BC7B8 /* PlaybackState.swift in Sources */,
 				99F3C2052F5FC76D00AC91A2 /* MigrationPlan.swift in Sources */,
+				992D6E1B2FA98CBE0091849F /* AudiobookShelfLibrary.swift in Sources */,
 				41A1B120226F88C500EA0400 /* Chapter+CoreDataProperties.swift in Sources */,
 				41CE44A9227215B500C900AF /* Notification+BookPlayerKit.swift in Sources */,
 				99F3C2422F6E322800AC91A2 /* SchemaV3SyncTasksModels.swift in Sources */,
@@ -5093,6 +5120,7 @@
 				9F9F3B70280E4E4B004359DA /* SyncService.swift in Sources */,
 				41A1B104226E9DBA00EA0400 /* UIColor+BookPlayer.swift in Sources */,
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
+				992D6E1D2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9911FBB02F71D03800DC9A2B /* ConcurrenceService.swift in Sources */,

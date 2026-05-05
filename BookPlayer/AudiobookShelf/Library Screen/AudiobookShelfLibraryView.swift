@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 /// Thin wrapper providing AudiobookShelf-specific cell, row, sort picker, and environment
 /// to the shared `IntegrationLibraryView`.

@@ -421,6 +421,11 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     importManager?.externalFiles.append(contentsOf: libraryItems)
     importManager?.isShowingExternalImportView = true
   }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+  }
 }
 
 // MARK: - Author Books ViewModel
@@ -643,6 +648,11 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
       items = allItems.filter { $0.name.localizedCaseInsensitiveContains(query) }
     }
     totalItems = items.count
+  }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
   }
 }
 
@@ -868,6 +878,11 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     }
     totalItems = items.count
   }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+  }
 }
 
 // MARK: - Authors List ViewModel
@@ -967,6 +982,11 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
     items = query.isEmpty ? allItems : allItems.filter { $0.name.localizedCaseInsensitiveContains(query) }
     totalItems = items.count
   }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
+  }
 }
 
 // MARK: - Narrators List ViewModel
@@ -1065,5 +1085,10 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
     let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
     items = query.isEmpty ? allItems : allItems.filter { $0.name.localizedCaseInsensitiveContains(query) }
     totalItems = items.count
+  }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
   }
 }

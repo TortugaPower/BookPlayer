@@ -420,12 +420,26 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     var remoteURLs: [RemoteFileURL] = []
     if item.type == .book,
-       let external = item.externalResources?.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
-       let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
-       let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
-      remoteURLs = [
-        RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
-      ]
+       let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+      switch ExternalResource.ProviderName(rawValue: external.providerName) {
+      case .jellyfin:
+        if let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
+           let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
+          ]
+        }
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        if let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
+           let downloadUrl = URL(string: storedConnection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
+          ]
+        }
+      default:
+        break
+      }
     } else {
       remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
     }

@@ -155,7 +155,7 @@ struct IntegrationAudiobookDetailsView<
     } label: {
       HStack {
         Image(systemName: "square.and.arrow.down")
-        Text("Download")
+        Text("Download 2")
           .fontWeight(.semibold)
       }
       .frame(height: 24)
