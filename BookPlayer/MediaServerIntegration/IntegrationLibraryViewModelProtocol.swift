@@ -35,7 +35,6 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   
   var importManager: ImportManager? { get set }
   var accountService: AccountService { get set }
-  //var connectionService: JellyfinConnectionService { get }
   
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
@@ -59,6 +58,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onDownloadTapped()
   @MainActor func onDownloadFolderTapped()
   @MainActor func confirmDownloadFolder()
+  @MainActor func goToSubscribe()
 }
 
 extension IntegrationLibraryViewModelProtocol {
@@ -70,6 +70,4 @@ extension IntegrationLibraryViewModelProtocol {
     get { false }
     set {}
   }
-  func onDownloadFolderTapped() {}
-  func confirmDownloadFolder() {}
 }

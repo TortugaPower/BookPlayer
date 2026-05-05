@@ -6,18 +6,17 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
 
 @MainActor
 @Observable
-class AudiobookShelfConnectionService: BPLogger {
+public class AudiobookShelfConnectionService: BPLogger {
   private static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
 
   private nonisolated let keychainService: KeychainServiceProtocol
 
-  var connections: [AudiobookShelfConnectionData] = []
-  var connection: AudiobookShelfConnectionData? {
+  public var connections: [AudiobookShelfConnectionData] = []
+  public var connection: AudiobookShelfConnectionData? {
     if let activeConnectionID,
        let active = connections.first(where: { $0.id == activeConnectionID }) {
       return active
@@ -31,14 +30,14 @@ class AudiobookShelfConnectionService: BPLogger {
     set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
   }
 
-  nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
     let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 15
     self.urlSession = URLSession(configuration: configuration)
   }
 
-  func setup() {
+  public func setup() {
     reloadConnections()
   }
 
@@ -164,31 +163,31 @@ class AudiobookShelfConnectionService: BPLogger {
     }
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard let activeID = connection?.id else { return }
     updateCustomHeaders(id: activeID, headers)
   }
 
   /// Persist `headers` to the connection with the given id, regardless of which is active.
-  func updateCustomHeaders(id: String, _ headers: [String: String]) {
+  public func updateCustomHeaders(id: String, _ headers: [String: String]) {
     guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
     connections[index].customHeaders = headers
     saveConnections()
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard let activeID = connection?.id,
           let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
     connections[index].selectedLibraryId = id
     saveConnections()
   }
 
-  func activateConnection(id: String) {
+  public func activateConnection(id: String) {
     guard connections.contains(where: { $0.id == id }) else { return }
     activeConnectionID = id
   }
 
-  func deleteConnection(id: String) {
+  public func deleteConnection(id: String) {
     // Capture the connection BEFORE removing so we can fire a server-side logout.
     let removed = connections.first(where: { $0.id == id })
 
@@ -213,7 +212,7 @@ class AudiobookShelfConnectionService: BPLogger {
     }
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     if let id = connection?.id {
       deleteConnection(id: id)
     }
@@ -313,7 +312,7 @@ class AudiobookShelfConnectionService: BPLogger {
 
     let decoder = JSONDecoder()
     let itemsResponse = try decoder.decode(AudiobookShelfItemsResponse.self, from: data)
-
+    
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)

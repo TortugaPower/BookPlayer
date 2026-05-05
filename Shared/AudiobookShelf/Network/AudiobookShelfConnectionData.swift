@@ -8,21 +8,21 @@
 
 import Foundation
 
-struct AudiobookShelfConnectionData: Codable, Identifiable {
-  let id: String
-  let url: URL
-  let serverName: String
-  let userID: String
-  let userName: String
-  let apiToken: String
-  var selectedLibraryId: String?
-  var customHeaders: [String: String] = [:]
+public struct AudiobookShelfConnectionData: Codable, Identifiable {
+  public let id: String
+  public let url: URL
+  public let serverName: String
+  public let userID: String
+  public let userName: String
+  public let apiToken: String
+  public var selectedLibraryId: String?
+  public var customHeaders: [String: String] = [:]
 
-  enum CodingKeys: String, CodingKey {
-    case id, url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
+  public enum CodingKeys: String, CodingKey {
+    case url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
   }
 
-  init(
+  public init(
     id: String = UUID().uuidString,
     url: URL,
     serverName: String,
@@ -42,7 +42,7 @@ struct AudiobookShelfConnectionData: Codable, Identifiable {
     self.customHeaders = customHeaders
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
     self.url = try container.decode(URL.self, forKey: .url)
@@ -56,8 +56,12 @@ struct AudiobookShelfConnectionData: Codable, Identifiable {
 }
 
 extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
-  var debugDescription: String {
+  public var debugDescription: String {
     let apiTokenDebugDesc = apiToken.isEmpty ? "<empty>" : "<redacted>"
     return "AudiobookShelfConnectionData(\(url), \(serverName), \(userID), \(userName), \(apiTokenDebugDesc))"
+  }
+  
+  public func buildAudiobookshelfDownloadUrl(providerId: String) -> String {
+    return "\(self.url.absoluteString)/api/items/\(providerId)/download?token=\(self.apiToken)"
   }
 }

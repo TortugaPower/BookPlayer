@@ -12,6 +12,8 @@ import Foundation
 class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   let item: AudiobookShelfLibraryItem
   let connectionService: AudiobookShelfConnectionService
+  let accountService: AccountService
+  let importManager: ImportManager?
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
   private var singleFileDownloadService: SingleFileDownloadService
@@ -21,11 +23,15 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   init(
     item: AudiobookShelfLibraryItem,
     connectionService: AudiobookShelfConnectionService,
-    singleFileDownloadService: SingleFileDownloadService
+    singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
+    importManager: ImportManager?,
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
+    self.importManager = importManager
   }
 
   @MainActor
@@ -66,8 +72,47 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   }
   
   @MainActor
-  func virtualImportAudiobook(_ item: AudiobookShelfLibraryItem) throws { }
+  func handleImportAudiobook(_ item: AudiobookShelfLibraryItem) throws {
+    if accountService.hasLiteEnabled() {
+      virtualImportAudiobook(item)
+    } else {
+      try beginDownloadAudiobook(item)
+    }
+  }
   
   @MainActor
-  func handleImportAudiobook(_ item: AudiobookShelfLibraryItem) throws { }
+  func virtualImportAudiobook(_ item: AudiobookShelfLibraryItem) {
+    let fileExt = item.fileExtension ?? "m4a"
+    let libraryItem = SimpleLibraryItem(
+      title: item.title,
+      details: item.authorName ?? "voiceover_unknown_author".localized,
+      speed: 1,
+      currentTime: Double(item.currentTime ?? 0),
+      duration: Double(item.duration ?? 0),
+      percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
+        ? Double(item.progress!) / Double(item.duration!) : 0,
+      isFinished: item.isFinished ?? false,
+      relativePath: "",
+      remoteURL: nil,
+      artworkURL: item.coverPath != nil ? URL(string: item.coverPath!) : nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "\(item.title).\(fileExt)",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+    
+    let externalItem = SimpleExternalResource(
+      id: UUID().hashValue,
+      providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
+      providerId: item.id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: libraryItem
+    )
+    
+    importManager?.externalFiles.append(externalItem)
+    importManager?.isShowingExternalImportView = true
+  }
 }
