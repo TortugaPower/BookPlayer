@@ -39,19 +39,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var isFetchingRemoteURL: Bool?
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
-  /// Pending audio-session retry task scheduled when activation fails (beta builds only).
+  /// Pending audio-session retry task scheduled when activation fails (TestFlight builds only).
   private var audioSessionRetryTask: Task<Void, Never>?
-  /// Beta builds (TestFlight or DEBUG) attempt to recover from audio-session
-  /// activation failures instead of crashing. Release builds keep the original
-  /// fatalError so we don't mask the bug in the App Store version until the
-  /// recovery path has proven itself in the field.
-  private static let isBetaBuild: Bool = {
-    #if DEBUG
-    return true
-    #else
-    return Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
-    #endif
-  }()
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -164,7 +153,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// stuck state where iOS won't hand the session back without a force-quit.
   /// On success, resumes playback. On exhaustion, clears the queued UI flag
   /// and shows an alert so the user has the same actionable hint the old
-  /// crash provided. Beta builds only.
+  /// crash provided. TestFlight builds only.
   private func scheduleAudioSessionRecovery() {
     audioSessionRetryTask = Task { @MainActor [weak self] in
       let backoffSeconds: [UInt64] = [1, 3, 8]
@@ -950,10 +939,10 @@ extension PlayerManager {
         )
         try audioSession.setActive(true)
       } catch {
-        guard Self.isBetaBuild else {
+        guard AppEnvironment.isTestFlight else {
           fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
         }
-        // Beta-only recovery path. Activation can legitimately fail when
+        // TestFlight-only recovery. Activation can legitimately fail when
         // another process owns the audio session (e.g. a stuck call route).
         // The interrupt observer above only fires for sessions that were
         // *already* active and got interrupted, so it won't recover this
