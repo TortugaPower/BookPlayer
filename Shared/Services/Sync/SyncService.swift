@@ -573,7 +573,7 @@ extension SyncService {
       
       if let externalResources = item.externalResources {
         for externalResource in externalResources {
-          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: PathUuidPair(relativePath: item.relativePath, uuid: item.uuid))
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid))
         }
       }
     }
