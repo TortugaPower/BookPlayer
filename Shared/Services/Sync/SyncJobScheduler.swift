@@ -50,7 +50,7 @@ public protocol JobSchedulerProtocol {
   /// Check if there's an upload task queued for the item
   func hasUploadTask(for relativePath: String) async -> Bool
   
-  func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async
+  func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: LibraryItemRef) async
   
   func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
 }
@@ -168,7 +168,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: parameters)
   }
   
-  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: PathUuidPair) async {    
+  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: LibraryItemRef) async {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "providerId": externalResource.providerId,
