@@ -494,6 +494,71 @@ public class AudiobookShelfConnectionService: BPLogger {
 
     return AudiobookShelfAudiobookDetailsData(apiResponse: detailsResponse)
   }
+  
+  public func fetchItem(for id: String) async throws -> AudiobookShelfLibraryItem? {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("me")
+      .appendingPathComponent("progress")
+      .appendingPathComponent(id)
+    
+    var request = URLRequest(url: url)
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    let (data, response) = try await urlSession.data(for: request)
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+    let decoder = JSONDecoder()
+    let detailsResponse = try decoder.decode(AudiobookShelfAPIItem.UserMediaProgress.self, from: data)
+    return AudiobookShelfLibraryItem(progressItem: detailsResponse)
+  }
+  
+  public func updateProgress(
+    for id: String,
+    progress: Double,
+    currentTime: Double
+  ) async throws {
+    
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+    
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("me")
+      .appendingPathComponent("progress")
+      .appendingPathComponent(id)
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "PATCH"
+    
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    let body: [String: Any] = [
+      "progress": progress,
+      "currentTime": currentTime
+    ]
+    
+    request.httpBody = try JSONSerialization.data(withJSONObject: body)
+    let (_, response) = try await urlSession.data(for: request)
+    
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+  }
 
   public func createItemDownloadUrl(_ item: AudiobookShelfLibraryItem) throws -> URL {
     guard let connection else {

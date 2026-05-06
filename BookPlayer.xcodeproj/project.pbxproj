@@ -613,11 +613,9 @@
 		63FCBBBE2DF7404000C50035 /* JellyfinLibraryListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */; };
 		66DF1F3E6AFECB623A558F04 /* IntegrationDisconnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FDA0B60D7BE4CFE100A612 /* IntegrationDisconnectedView.swift */; };
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
-		FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
-		760180C62F243705DE6B3224 /* IntegrationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D0FA9BA32EDF5F367C757B /* IntegrationError.swift */; };
 		78D8C50324731BBDF9E9281E /* LibraryOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */; };
 		7CAD4B67352939D0A1E54A21 /* IntegrationConnectionFormViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3724BB21B1B88177C60BE4D8 /* IntegrationConnectionFormViewModelProtocol.swift */; };
 		8322A3C6479B099448C63C47 /* IntegrationLibraryViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */; };
@@ -650,8 +648,8 @@
 		9911FBB02F71D03800DC9A2B /* ConcurrenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */; };
 		9911FBB22F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */; };
 		9911FBB32F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */; };
-		9911FBB52F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* JellyfinUpdateProgressOperation.swift */; };
-		9911FBB62F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* JellyfinUpdateProgressOperation.swift */; };
+		9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
+		9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
 		9911FBB82F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
 		9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
 		9911FBBB2F736C0500DC9A2B /* ConcurrentSyncTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */; };
@@ -715,8 +713,6 @@
 		996D4CD42F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A823609A5B7EFC6D2D5D120 /* IntegrationLibraryItemProtocol.swift */; };
 		99B367FA2F4575C900C38F7F /* MediaAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367F92F4575C600C38F7F /* MediaAction.swift */; };
 		99B367FC2F5108BF00C38F7F /* MediaActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */; };
-		99F3C1EC2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
-		99F3C1ED2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
 		99C919CC2F99609F00F66081 /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 99C919CB2F99609F00F66081 /* Get */; };
 		99C919CE2F9960A400F66081 /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 99C919CD2F9960A400F66081 /* Get */; };
 		99C919CF2F99A8C100F66081 /* IntegrationDetailsViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E351A8B30ABCBA9EC00EF /* IntegrationDetailsViewModelProtocol.swift */; };
@@ -732,6 +728,8 @@
 		99D995962F71ABBD00BAF216 /* JellyfinAudiobookDetailsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D995942F71ABB700BAF216 /* JellyfinAudiobookDetailsData.swift */; };
 		99D995982F71B02D00BAF216 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 99D995972F71B02D00BAF216 /* JellyfinAPI */; };
 		99D9959A2F71B05700BAF216 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 99D995992F71B05700BAF216 /* JellyfinAPI */; };
+		99F3C1EC2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
+		99F3C1ED2F5BCE1600AC91A2 /* LibraryItemRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */; };
 		99F3C1F72F5F873900AC91A2 /* UUIDMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1F62F5F873500AC91A2 /* UUIDMigrationPolicy.swift */; };
 		99F3C1F82F5F873900AC91A2 /* UUIDMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1F62F5F873500AC91A2 /* UUIDMigrationPolicy.swift */; };
 		99F3C1F92F5F873900AC91A2 /* UUIDMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F3C1F62F5F873500AC91A2 /* UUIDMigrationPolicy.swift */; };
@@ -926,6 +924,7 @@
 		F50163BEFB92FB6B1B778C5E /* WindowHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */; };
 		F906EF4FC85B1CCE138B230D /* PasskeyEmailInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */; };
 		F9FA95F9A4AE359006A85B88 /* PreferencesAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */; };
+		FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */; };
 		FF95F8C692908D744A32D761 /* PreferencesAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */; };
 /* End PBXBuildFile section */
 
@@ -1077,6 +1076,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		0FC8B923A5506F865253B97C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		13C407B5BD19D3CF9CC64EC7 /* IntegrationLibraryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryView.swift; sourceTree = "<group>"; };
 		2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryViewModelProtocol.swift; sourceTree = "<group>"; };
@@ -1641,7 +1641,6 @@
 		63FCBBBD2DF7404000C50035 /* JellyfinLibraryListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryListItemView.swift; sourceTree = "<group>"; };
 		643E169A5F153B754F726AE1 /* IntegrationTagsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationTagsView.swift; sourceTree = "<group>"; };
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
-		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
@@ -1676,7 +1675,7 @@
 		9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrenceService.swift; sourceTree = "<group>"; };
 		9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksRepository.swift; sourceTree = "<group>"; };
-		9911FBB42F72486400DC9A2B /* JellyfinUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinUpdateProgressOperation.swift; sourceTree = "<group>"; };
+		9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUpdateProgressOperation.swift; sourceTree = "<group>"; };
 		9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTask.swift; sourceTree = "<group>"; };
 		9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTasksView.swift; sourceTree = "<group>"; };
 		9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTaskProgressMonitor.swift; sourceTree = "<group>"; };
@@ -1707,10 +1706,10 @@
 		996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v10_to_v11.xcmappingmodel; sourceTree = "<group>"; };
 		99B367F92F4575C600C38F7F /* MediaAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAction.swift; sourceTree = "<group>"; };
 		99B367FB2F5108BF00C38F7F /* MediaActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActionRow.swift; sourceTree = "<group>"; };
-		99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemRef.swift; sourceTree = "<group>"; };
 		99C919C92F98AE4700F66081 /* Get */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Get; path = "/Users/pedro.aim/Library/Developer/Xcode/DerivedData/BookPlayer-aehtalmtnvnplqeabppyoncpqrlc/SourcePackages/checkouts/Get"; sourceTree = "<absolute>"; };
 		99D995942F71ABB700BAF216 /* JellyfinAudiobookDetailsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAudiobookDetailsData.swift; sourceTree = "<group>"; };
 		99D9959D2F71B67100BAF216 /* Kingfisher */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Kingfisher; path = "/Users/pedro.aim/Library/Developer/Xcode/DerivedData/BookPlayer-aehtalmtnvnplqeabppyoncpqrlc/SourcePackages/checkouts/Kingfisher"; sourceTree = "<absolute>"; };
+		99F3C1EB2F5BCE1000AC91A2 /* LibraryItemRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemRef.swift; sourceTree = "<group>"; };
 		99F3C1F62F5F873500AC91A2 /* UUIDMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUIDMigrationPolicy.swift; sourceTree = "<group>"; };
 		99F3C1FD2F5FC2E600AC91A2 /* SchemaV1SyncTasksModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV1SyncTasksModels.swift; sourceTree = "<group>"; };
 		99F3C2032F5FC76700AC91A2 /* MigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPlan.swift; sourceTree = "<group>"; };
@@ -3140,7 +3139,6 @@
 				E4D25EF2A5FFF30CF12F2C21 /* PreferencesSyncService.swift */,
 				5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */,
 			);
-			name = Preferences;
 			path = Preferences;
 			sourceTree = "<group>";
 		};
@@ -3224,7 +3222,7 @@
 				9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */,
 				9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */,
 				9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */,
-				9911FBB42F72486400DC9A2B /* JellyfinUpdateProgressOperation.swift */,
+				9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */,
 				9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */,
 			);
 			path = ConcurrentSync;
@@ -4553,7 +4551,7 @@
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
 				9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
-				9911FBB62F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */,
+				9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				996D4CD22F98A45300FC3B57 /* IntegrationError.swift in Sources */,
 				9911FBC12F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */,
@@ -5059,7 +5057,7 @@
 				41A1B125226F88C500EA0400 /* LibraryItem+CoreDataClass.swift in Sources */,
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,
-				9911FBB52F72486D00DC9A2B /* JellyfinUpdateProgressOperation.swift in Sources */,
+				9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */,
 				992D6E192FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				99D995892F719E7E00BAF216 /* (null) in Sources */,
 				41C23403272E1965006BC7B8 /* PlaybackState.swift in Sources */,

@@ -226,6 +226,18 @@ extension AudiobookShelfLibraryItem {
       isFinished: apiItem.userMediaProgress?.isFinished
     )
   }
+  
+  public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {
+    self.init(
+      id: "",
+      title: "",
+      kind: Kind.audiobook,
+      libraryId: "",
+      progress: progressItem.progress,
+      currentTime: progressItem.currentTime,
+      isFinished: progressItem.isFinished
+    )
+  }
 }
 
 // MARK: - API Response Models

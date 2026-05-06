@@ -821,17 +821,38 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
       let jellyfinService = JellyfinConnectionService()
       jellyfinService.setup()
       
-      guard let externalResources = libraryService.findResources(for: playableItem.uuid),
-            let jellyfinSource = externalResources.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
-            let jellyfinItem = try await jellyfinService.fetchItem(for: jellyfinSource.providerId) else  { return }
+      let audiobookShelfService = AudiobookShelfConnectionService()
+      audiobookShelfService.setup()
       
-      let threshold: TimeInterval = 15
-      let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
-      let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
-      let isExternalSecondsFarther = TimeInterval(jellyfinItem.currentSeconds ?? 0) > (playableItem.currentTime + threshold)
-      if  isExternalDateNewer || isExternalSecondsFarther {
-        playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
-        playerState.showResumePopup = true
+      guard let externalResources = libraryService.findResources(for: playableItem.uuid) else { return }
+            
+      for externalResource in externalResources {
+        switch ExternalResource.ProviderName(rawValue: externalResource.providerName) {
+        case .jellyfin:
+          if let jellyfinItem = try await jellyfinService.fetchItem(for: externalResource.providerId) {
+            let threshold: TimeInterval = 15
+            let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
+            let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+            let isExternalSecondsFarther = TimeInterval(jellyfinItem.currentSeconds ?? 0) > (playableItem.currentTime + threshold)
+            if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+              playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
+              playerState.showResumePopup = true
+            }
+          }
+        case .audiobookshelf:
+          if let audiobookShelfItem = try await audiobookShelfService.fetchItem(for: externalResource.providerId) {
+            let threshold: TimeInterval = 15
+            let externalPlayDate = Date.distantPast
+            let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+            let isExternalSecondsFarther = TimeInterval(audiobookShelfItem.currentTime ?? 0) > (playableItem.currentTime + threshold)
+            if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+              playerState.remotePlayTime = Double(audiobookShelfItem.currentTime ?? 0)
+              playerState.showResumePopup = true
+            }
+          }
+        default:
+          break
+        }
       }
     }
   }

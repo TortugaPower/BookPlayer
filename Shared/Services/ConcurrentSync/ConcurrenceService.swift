@@ -40,7 +40,6 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
   private var listeningTask: Task<Void, Never>?
   public var tasksCountService: ConcurrentTasksCountService!
   // Services
-  private let jellyfinService = JellyfinConnectionService()
   
   required public init(maxConcurrentTasks: Int = 4) {
     self.operationQueue = OperationQueue()
@@ -54,7 +53,6 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     let tasksDataManager = TasksDataManager()
     self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
-    jellyfinService.setup()
     startListeningForNewTasks()
     bindObservers()
     wakeUpWorkers()
@@ -185,12 +183,13 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     // Example generation
     switch task.jobType {
     case .update:
-      guard let providerId = task.parameters["providerId"] as? String,
+      guard let providerName = task.parameters["providerName"] as? String,
+            let providerId = task.parameters["providerId"] as? String,
             let currentTime = task.parameters["currentTime"] as? Double,
             let percentCompleted = task.parameters["percentCompleted"] as? Double else {
         return nil
       }
-      return JellyfinUpdateProgressOperation(providerItemId: providerId, positionTicks: Int(currentTime * 10_000_000), percentCompleted: percentCompleted, service: jellyfinService)
+      return ExternalUpdateProgressOperation(providerName: providerName, providerItemId: providerId, positionTicks: Int(currentTime * 10_000_000), percentCompleted: percentCompleted)
     case .uploadFile:
       guard let filePath = task.parameters["filePath"] as? String,
             let remotePath = task.parameters["remotePath"] as? String,
