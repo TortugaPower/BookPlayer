@@ -48,6 +48,7 @@
 "options_button" = "Opcions";
 "library_options_progress_as_percentage_title" = "Mostra el progrés en percentatge";
 "library_options_original_filename_title" = "Mostra el nom del fitxer original";
+"library_options_quick_actions_title" = "Accions ràpides";
 "select_playlist_title" = "Seleccioneu Carpeta";
 "title_button" = "Títol";
 "sort_filename_button" = "Nom del fitxer original";

@@ -48,6 +48,7 @@
 "options_button" = "Možnosti";
 "library_options_progress_as_percentage_title" = "Zobraziť priebeh v percentách";
 "library_options_original_filename_title" = "Zobraziť pôvodný názov súboru";
+"library_options_quick_actions_title" = "Rýchle akcie";
 "select_playlist_title" = "Vyberte Priečinok";
 "title_button" = "názvu";
 "sort_filename_button" = "pôvodného názvu súboru";

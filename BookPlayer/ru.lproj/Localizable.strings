@@ -48,6 +48,7 @@
 "options_button" = "Опции";
 "library_options_progress_as_percentage_title" = "Показывать прогресс в процентах";
 "library_options_original_filename_title" = "Показывать исходное имя файла";
+"library_options_quick_actions_title" = "Быстрые действия";
 "select_playlist_title" = "Выберите папку";
 "title_button" = "Название";
 "sort_filename_button" = "Исходное имя файла";

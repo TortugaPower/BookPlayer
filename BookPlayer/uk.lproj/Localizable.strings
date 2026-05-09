@@ -48,6 +48,7 @@
 "options_button" = "Параметри";
 "library_options_progress_as_percentage_title" = "Показувати прогрес у відсотках";
 "library_options_original_filename_title" = "Показувати оригінальне ім'я файлу";
+"library_options_quick_actions_title" = "Швидкі дії";
 "select_playlist_title" = "Виберіть теку";
 "title_button" = "Назва";
 "sort_filename_button" = "Оригінальне ім'я файлу";
