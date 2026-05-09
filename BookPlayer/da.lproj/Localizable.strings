@@ -48,6 +48,7 @@
 "options_button" = "Valgmuligheder";
 "library_options_progress_as_percentage_title" = "Vis fremgang som procent";
 "library_options_original_filename_title" = "Vis oprindeligt filnavn";
+"library_options_quick_actions_title" = "Hurtighandlinger";
 "select_playlist_title" = "Vælg Mappe";
 "title_button" = "Titel";
 "sort_filename_button" = "Oprindelige filnavn";

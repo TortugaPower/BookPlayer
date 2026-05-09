@@ -48,6 +48,7 @@
 "options_button" = "Opciones";
 "library_options_progress_as_percentage_title" = "Mostrar progreso en porcentaje";
 "library_options_original_filename_title" = "Mostrar nombre de archivo original";
+"library_options_quick_actions_title" = "Acciones rápidas";
 "select_playlist_title" = "Seleccione la carpeta";
 "title_button" = "Título";
 "sort_filename_button" = "Nombre de Archivo Original";
