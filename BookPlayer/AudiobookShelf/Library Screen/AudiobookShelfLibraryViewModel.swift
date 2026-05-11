@@ -17,6 +17,7 @@ enum AudiobookShelfLayout {
   }
 }
 
+@MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done

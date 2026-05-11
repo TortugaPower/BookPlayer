@@ -20,26 +20,26 @@ enum IntegrationImageSizing {
   /// large enough that small layout jitter (e.g. 100 → 104 px) doesn't churn the URL.
   static let bucket: CGFloat = 64
 
-  /// Maximum thumbnail edge in pixels. Comfortably sharp for a ~80-pt cell at 3x
-  /// (240 px), and much cheaper to encode/transfer than full-resolution covers.
+  /// Maximum thumbnail edge in pixels. 192 px is comfortably sharp for the
+  /// ~50-pt list / library-picker cells we use today (≤ 150 px at 3x) and the
+  /// small folder-grid tiles, while being a fraction of a full-resolution
+  /// cover's payload.
   static let thumbnailCap: CGFloat = 192
 
   /// Resolve the server-image-URL size query for a cell.
   ///
   /// - Parameters:
-  ///   - width: cell width in points.
-  ///   - height: cell height in points.
+  ///   - size: cell size in points (typically from `GeometryReader.proxy.size`).
   ///   - displayScale: current `Environment(\.displayScale)` value.
   ///   - isThumbnail: when true, applies `thumbnailCap` so browsing cells stay snappy.
   static func bucketedSize(
-    width: CGFloat,
-    height: CGFloat,
+    for size: CGSize,
     displayScale: CGFloat,
     isThumbnail: Bool
   ) -> CGSize {
     let cap: CGFloat = isThumbnail ? thumbnailCap : .greatestFiniteMagnitude
-    let pixelWidth = min(max(width, 1) * displayScale, cap)
-    let pixelHeight = min(max(height, 1) * displayScale, cap)
+    let pixelWidth = min(max(size.width, 1) * displayScale, cap)
+    let pixelHeight = min(max(size.height, 1) * displayScale, cap)
     return CGSize(
       width: max(bucket, ceil(pixelWidth / bucket) * bucket),
       height: max(bucket, ceil(pixelHeight / bucket) * bucket)

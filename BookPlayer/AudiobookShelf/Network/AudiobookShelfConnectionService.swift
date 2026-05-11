@@ -498,7 +498,8 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   /// Creates an image URL for a library item. The API token is delivered via the
-  /// `Authorization` header (see `createItemImageRequest`) rather than in the URL,
+  /// `Authorization: Bearer` header — applied in the Kingfisher `requestModifier`
+  /// inside `AudiobookShelfLibraryItemImageViewWrapper` — rather than in the URL,
   /// so that rotated tokens don't leave stale entries in Kingfisher's disk cache.
   public func createItemImageURL(_ item: AudiobookShelfLibraryItem, size: CGSize) -> URL? {
     guard let connection = connection else { return nil }

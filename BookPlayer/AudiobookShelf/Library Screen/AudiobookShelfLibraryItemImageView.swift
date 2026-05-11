@@ -24,20 +24,20 @@ struct AudiobookShelfLibraryItemImageView: View {
 
   var body: some View {
     GeometryReader { proxy in
+      let hasSize = proxy.size.width > 0 && proxy.size.height > 0
       let imageSize = IntegrationImageSizing.bucketedSize(
-        width: proxy.size.width,
-        height: proxy.size.height,
+        for: proxy.size,
         displayScale: displayScale,
         isThumbnail: isThumbnail
       )
       AudiobookShelfLibraryItemImageViewWrapper(
         item: item,
-        url: connectionService.createItemImageURL(item, size: imageSize),
+        url: hasSize ? connectionService.createItemImageURL(item, size: imageSize) : nil,
         apiToken: connectionService.connection?.apiToken,
         customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize
       )
-      .cornerRadius(max(3, min(proxy.size.width, proxy.size.height) * 0.02))
+      .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
     .aspectRatio(1.0, contentMode: .fit)
   }

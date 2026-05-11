@@ -29,24 +29,26 @@ struct JellyfinLibraryItemImageView: View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
 
     GeometryReader { proxy in
+      let hasSize = proxy.size.width > 0 && proxy.size.height > 0
       let imageSize = IntegrationImageSizing.bucketedSize(
-        width: proxy.size.width,
-        height: proxy.size.height,
+        for: proxy.size,
         displayScale: displayScale,
         isThumbnail: isThumbnail
       )
       JellyfinLibraryItemImageViewWrapper(
         item: item,
-        url: try? connectionService.createItemImageURL(
-          item,
-          size: imageSize,
-          quality: isThumbnail ? 70 : nil
-        ),
+        url: hasSize
+          ? (try? connectionService.createItemImageURL(
+            item,
+            size: imageSize,
+            quality: isThumbnail ? 70 : nil
+          ))
+          : nil,
         customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize,
         aspectRatio: aspectRatio
       )
-      .cornerRadius(max(3, min(proxy.size.width, proxy.size.height) * 0.02))
+      .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
     .aspectRatio(aspectRatio, contentMode: .fit)
   }

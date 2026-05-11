@@ -27,6 +27,7 @@ enum JellyfinLayout {
   }
 }
 
+@MainActor
 final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
@@ -44,6 +45,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       guard let folderID = folderID else { return }
       items = []
       nextStartItemIndex = 0
+      totalItems = Int.max
       fetchFolderItems(folderID: folderID)
     }
   }
@@ -193,6 +195,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       defer { self.fetchTask = nil }
 
       let capturedQuery = searchQuery
+      let previousNextStart = nextStartItemIndex
       do {
         let (newItems, nextStart, maxNumItems) = try await connectionService.fetchItems(
           in: nil,
@@ -205,7 +208,8 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         guard searchQuery == capturedQuery, !Task.isCancelled else { return }
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStart)
         self.items.append(contentsOf: newItems)
-        self.totalItems = updatedTotal(forNewlyAdded: newItems.count, serverTotal: maxNumItems)
+        let rawAdded = max(0, nextStart - previousNextStart)
+        self.totalItems = updatedTotal(forRawAdded: rawAdded, serverTotal: maxNumItems)
       } catch is CancellationError {
         // ignore
       } catch {
@@ -220,6 +224,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
       let capturedQuery = searchQuery
       let capturedFolderID = folderID
+      let previousNextStart = nextStartItemIndex
       do {
         let searchParam: String? = capturedQuery.isEmpty ? nil : capturedQuery
         let (newItems, nextStart, maxNumItems) = try await connectionService.fetchItems(
@@ -234,7 +239,8 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         guard searchQuery == capturedQuery, !Task.isCancelled else { return }
         self.nextStartItemIndex = max(self.nextStartItemIndex, nextStart)
         self.items.append(contentsOf: newItems)
-        self.totalItems = updatedTotal(forNewlyAdded: newItems.count, serverTotal: maxNumItems)
+        let rawAdded = max(0, nextStart - previousNextStart)
+        self.totalItems = updatedTotal(forRawAdded: rawAdded, serverTotal: maxNumItems)
       } catch is CancellationError {
         // ignore
       } catch {
@@ -244,11 +250,16 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   }
 
   /// Resolves the value to publish for `totalItems` after a paginated fetch.
-  /// A short page means we've reached the end. Otherwise prefer the server's
-  /// total when available, falling back to a sentinel that keeps pagination
-  /// alive without exposing `Int.max` to the UI.
-  private func updatedTotal(forNewlyAdded added: Int, serverTotal: Int) -> Int {
-    if added < Self.itemBatchSize {
+  /// A short page (the server returned fewer raw items than we asked for) means
+  /// we've reached the end. Otherwise prefer the server's total when available,
+  /// falling back to a sentinel that keeps pagination alive without exposing
+  /// `Int.max` to the UI.
+  ///
+  /// `rawAdded` must be the count *as returned by the server*, before any
+  /// client-side filtering — otherwise dropped items would be mistaken for the
+  /// end of the list.
+  private func updatedTotal(forRawAdded rawAdded: Int, serverTotal: Int) -> Int {
+    if rawAdded < Self.itemBatchSize {
       return self.items.count
     }
     if serverTotal < Int.max {
@@ -352,6 +363,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
 // MARK: - Author Books ViewModel
 
+@MainActor
 final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let authorID: String
   let parentID: String?
@@ -499,6 +511,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
 
 // MARK: - Narrator Books ViewModel
 
+@MainActor
 final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let personID: String
   let parentID: String?
@@ -647,6 +660,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
 
 // MARK: - Authors List ViewModel
 
+@MainActor
 final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let parentID: String?
 
@@ -737,6 +751,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
 
 // MARK: - Narrators List ViewModel
 
+@MainActor
 final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   let parentID: String?
 

@@ -226,6 +226,10 @@ class JellyfinConnectionService: BPLogger {
   }
 
   /// Fetch audiobooks filtered by album artist ID.
+  ///
+  /// Current callers pass `limit: nil` to fetch all matches in a single response
+  /// and ignore the returned `nextStartIndex` / `maxCountItems`. Those fields are
+  /// kept for symmetry with `fetchItems` so future paginated callers can adopt them.
   public func fetchItemsByArtist(
     artistID: String,
     parentID: String?,
@@ -351,6 +355,10 @@ class JellyfinConnectionService: BPLogger {
   }
 
   /// Fetch audiobooks by a specific narrator (person name or ID).
+  ///
+  /// Current callers pass `limit: nil` to fetch all matches in a single response
+  /// and ignore the returned `nextStartIndex` / `maxCountItems`. Those fields are
+  /// kept for symmetry with `fetchItems` so future paginated callers can adopt them.
   public func fetchItemsByPerson(
     personID: String,
     personName: String?,
