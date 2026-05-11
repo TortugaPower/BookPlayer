@@ -392,6 +392,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
+  private var disposeBag = Set<AnyCancellable>()
 
   init(
     authorID: String,
@@ -407,6 +408,13 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+
+    $searchQuery
+      .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] _ in self?.applySearch() }
+      .store(in: &disposeBag)
   }
 
   func fetchInitialItems() {
@@ -540,6 +548,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
+  private var disposeBag = Set<AnyCancellable>()
 
   init(
     personID: String,
@@ -555,6 +564,13 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     self.singleFileDownloadService = singleFileDownloadService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
+
+    $searchQuery
+      .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] _ in self?.applySearch() }
+      .store(in: &disposeBag)
   }
 
   func fetchInitialItems() {

@@ -381,14 +381,24 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       defer { self.fetchTask = nil }
 
       do {
-        let (items, _) = try await connectionService.fetchItems(
-          in: libraryID,
-          limit: 0,
-          page: 0,
-          sortBy: sortParameter,
-          desc: sortDescending,
-          filter: filter
-        )
+        let items: [AudiobookShelfLibraryItem]
+        if let filter, filter.group == .authors {
+          // The items+filter endpoint joins through `bookAuthors`, which can
+          // hold stale rows after ABS dedups authors on import. The dedicated
+          // author endpoint hydrates books from the author record directly
+          // and is what the official web client uses on the author-detail page.
+          items = try await connectionService.fetchAuthorItems(authorID: filter.value)
+        } else {
+          let (fetched, _) = try await connectionService.fetchItems(
+            in: libraryID,
+            limit: 0,
+            page: 0,
+            sortBy: sortParameter,
+            desc: sortDescending,
+            filter: filter
+          )
+          items = fetched
+        }
 
         loadLocalItems(items)
       } catch is CancellationError {
