@@ -15,14 +15,33 @@ struct JellyfinLibraryItemImageView: View {
   @Environment(\.jellyfinService) var connectionService: JellyfinConnectionService
   @Environment(\.displayScale) private var displayScale
 
+  /// Browsing covers (folders, libraries, authors, narrators) are downloaded as
+  /// low-res thumbnails so navigating large folders stays snappy. Audiobook covers
+  /// stay full-res because they're shown larger and at the details screen.
+  private var isThumbnail: Bool {
+    switch item.kind {
+    case .audiobook: false
+    case .folder, .userView, .author, .narrator: true
+    }
+  }
+
   var body: some View {
     let aspectRatio: CGFloat? = if let v = item.imageAspectRatio { CGFloat(v) } else { nil }
 
     GeometryReader { proxy in
-      let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
+      let imageSize = IntegrationImageSizing.bucketedSize(
+        width: proxy.size.width,
+        height: proxy.size.height,
+        displayScale: displayScale,
+        isThumbnail: isThumbnail
+      )
       JellyfinLibraryItemImageViewWrapper(
         item: item,
-        url: try? connectionService.createItemImageURL(item, size: imageSize),
+        url: try? connectionService.createItemImageURL(
+          item,
+          size: imageSize,
+          quality: isThumbnail ? 70 : nil
+        ),
         customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize,
         aspectRatio: aspectRatio
@@ -55,7 +74,6 @@ fileprivate struct JellyfinLibraryItemImageViewWrapper: View, Equatable {
         return request
       })
       .cancelOnDisappear(true)
-      .cacheMemoryOnly()
       .resizable()
       .placeholder { placeholderImageView(aspectRatio: aspectRatio) }
       .fade(duration: 0.5)

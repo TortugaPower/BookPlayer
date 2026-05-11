@@ -15,12 +15,25 @@ struct AudiobookShelfLibraryItemImageView: View {
   @Environment(\.audiobookshelfService) var connectionService: AudiobookShelfConnectionService
   @Environment(\.displayScale) private var displayScale
 
+  /// Browsing covers (collections, etc.) are downloaded as low-res thumbnails so
+  /// navigating large libraries stays snappy. Audiobook/podcast covers stay full-res
+  /// because they're shown larger and again on the details screen.
+  private var isThumbnail: Bool {
+    !item.isDownloadable
+  }
+
   var body: some View {
     GeometryReader { proxy in
-      let imageSize = CGSize(width: proxy.size.width * displayScale, height: proxy.size.height * displayScale)
+      let imageSize = IntegrationImageSizing.bucketedSize(
+        width: proxy.size.width,
+        height: proxy.size.height,
+        displayScale: displayScale,
+        isThumbnail: isThumbnail
+      )
       AudiobookShelfLibraryItemImageViewWrapper(
         item: item,
         url: connectionService.createItemImageURL(item, size: imageSize),
+        apiToken: connectionService.connection?.apiToken,
         customHeaders: connectionService.connection?.customHeaders ?? [:],
         imageSize: imageSize
       )
@@ -34,6 +47,7 @@ struct AudiobookShelfLibraryItemImageView: View {
 fileprivate struct AudiobookShelfLibraryItemImageViewWrapper: View, Equatable {
   let item: AudiobookShelfLibraryItem
   let url: URL?
+  let apiToken: String?
   let customHeaders: [String: String]
   let imageSize: CGSize
 
@@ -47,18 +61,21 @@ fileprivate struct AudiobookShelfLibraryItemImageViewWrapper: View, Equatable {
         for (key, value) in customHeaders {
           request.setValue(value, forHTTPHeaderField: key)
         }
+        if let apiToken {
+          request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        }
         return request
       })
       .cancelOnDisappear(true)
-      .cacheMemoryOnly()
       .resizable()
       .placeholder { placeholderImageView() }
       .fade(duration: 0.5)
   }
-  
+
   static func == (lhs: Self, rhs: Self) -> Bool {
     return lhs.item.id == rhs.item.id
       && lhs.url == rhs.url
+      && lhs.apiToken == rhs.apiToken
       && lhs.customHeaders == rhs.customHeaders
   }
   

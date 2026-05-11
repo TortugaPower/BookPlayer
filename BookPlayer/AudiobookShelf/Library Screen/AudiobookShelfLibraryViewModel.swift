@@ -148,9 +148,12 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   }
 
   func fetchMoreItemsIfNeeded(currentItem: AudiobookShelfLibraryItem) {
-    guard canFetchMoreItems, items.count >= Self.itemFetchMargin else { return }
-    let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
-    if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
+    guard canFetchMoreItems,
+          items.count >= Self.itemFetchMargin,
+          let idx = items.firstIndex(where: { $0.id == currentItem.id })
+    else { return }
+    let thresholdIndex = items.count - Self.itemFetchMargin
+    if idx >= thresholdIndex {
       fetchBooksPage()
     }
   }

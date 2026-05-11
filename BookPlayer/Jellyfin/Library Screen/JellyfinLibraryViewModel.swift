@@ -110,9 +110,11 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   }
 
   func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {
-    guard items.count >= Self.itemFetchMargin else { return }
-    let thresholdIndex = items.index(items.endIndex, offsetBy: -Self.itemFetchMargin)
-    if items.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
+    guard items.count >= Self.itemFetchMargin,
+          let idx = items.firstIndex(where: { $0.id == currentItem.id })
+    else { return }
+    let thresholdIndex = items.count - Self.itemFetchMargin
+    if idx >= thresholdIndex {
       fetchMoreItems()
     }
   }
@@ -192,7 +194,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
       let capturedQuery = searchQuery
       do {
-        let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
+        let (newItems, nextStart, maxNumItems) = try await connectionService.fetchItems(
           in: nil,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
@@ -201,9 +203,9 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         )
 
         guard searchQuery == capturedQuery, !Task.isCancelled else { return }
-        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
-        self.totalItems = maxNumItems
-        self.items.append(contentsOf: items)
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStart)
+        self.items.append(contentsOf: newItems)
+        self.totalItems = updatedTotal(forNewlyAdded: newItems.count, serverTotal: maxNumItems)
       } catch is CancellationError {
         // ignore
       } catch {
@@ -220,7 +222,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       let capturedFolderID = folderID
       do {
         let searchParam: String? = capturedQuery.isEmpty ? nil : capturedQuery
-        let (items, nextStartItemIndex, maxNumItems) = try await connectionService.fetchItems(
+        let (newItems, nextStart, maxNumItems) = try await connectionService.fetchItems(
           in: capturedFolderID,
           startIndex: nextStartItemIndex,
           limit: Self.itemBatchSize,
@@ -230,15 +232,29 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         )
 
         guard searchQuery == capturedQuery, !Task.isCancelled else { return }
-        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStartItemIndex)
-        self.totalItems = maxNumItems
-        self.items.append(contentsOf: items)
+        self.nextStartItemIndex = max(self.nextStartItemIndex, nextStart)
+        self.items.append(contentsOf: newItems)
+        self.totalItems = updatedTotal(forNewlyAdded: newItems.count, serverTotal: maxNumItems)
       } catch is CancellationError {
         // ignore
       } catch {
         self.error = error
       }
     }
+  }
+
+  /// Resolves the value to publish for `totalItems` after a paginated fetch.
+  /// A short page means we've reached the end. Otherwise prefer the server's
+  /// total when available, falling back to a sentinel that keeps pagination
+  /// alive without exposing `Int.max` to the UI.
+  private func updatedTotal(forNewlyAdded added: Int, serverTotal: Int) -> Int {
+    if added < Self.itemBatchSize {
+      return self.items.count
+    }
+    if serverTotal < Int.max {
+      return max(serverTotal, self.items.count)
+    }
+    return self.items.count + Self.itemBatchSize
   }
 
   @MainActor

@@ -202,19 +202,19 @@ class JellyfinConnectionService: BPLogger {
       fields: [.sortName],
       includeItemTypes: itemTypes,
       sortBy: orderBy,
-      imageTypeLimit: 1
+      enableUserData: false,
+      imageTypeLimit: 1,
+      enableImageTypes: [.primary]
     )
 
     let response = try await send(Paths.getItems(parameters: parameters))
     try Task.checkCancellation()
 
-    let nextStartItemIndex =
-      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
-        startIndex + numItems
-      } else {
-        -1
-      }
-    let maxNumItems = response.value.totalRecordCount ?? 0
+    // Compute the next page offset from what we sent, not from the response echo —
+    // some Jellyfin server configurations omit `startIndex` / `totalRecordCount`,
+    // which previously stalled pagination at the first page.
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
 
     let items = (response.value.items ?? [])
       .filter { item in item.id != nil }
@@ -256,20 +256,17 @@ class JellyfinConnectionService: BPLogger {
       fields: [.sortName],
       includeItemTypes: [.audioBook],
       sortBy: orderBy,
+      enableUserData: false,
       imageTypeLimit: 1,
+      enableImageTypes: [.primary],
       albumArtistIDs: [artistID]
     )
 
     let response = try await send(Paths.getItems(parameters: parameters))
     try Task.checkCancellation()
 
-    let nextStartItemIndex =
-      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
-        startIndex + numItems
-      } else {
-        -1
-      }
-    let maxNumItems = response.value.totalRecordCount ?? 0
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
 
     let items = (response.value.items ?? [])
       .compactMap { JellyfinLibraryItem(apiItem: $0) }
@@ -318,7 +315,9 @@ class JellyfinConnectionService: BPLogger {
       parentID: parentID,
       fields: [.people],
       includeItemTypes: [.audioBook],
-      imageTypeLimit: 0
+      enableUserData: false,
+      imageTypeLimit: 0,
+      enableImages: false
     )
 
     let response = try await send(Paths.getItems(parameters: parameters))
@@ -384,20 +383,17 @@ class JellyfinConnectionService: BPLogger {
       fields: [.sortName],
       includeItemTypes: [.audioBook],
       sortBy: orderBy,
+      enableUserData: false,
       imageTypeLimit: 1,
+      enableImageTypes: [.primary],
       person: personName ?? personID
     )
 
     let response = try await send(Paths.getItems(parameters: parameters))
     try Task.checkCancellation()
 
-    let nextStartItemIndex =
-      if let startIndex = response.value.startIndex, let numItems = response.value.items?.count {
-        startIndex + numItems
-      } else {
-        -1
-      }
-    let maxNumItems = response.value.totalRecordCount ?? 0
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
 
     let items = (response.value.items ?? [])
       .compactMap { JellyfinLibraryItem(apiItem: $0) }
@@ -431,7 +427,9 @@ class JellyfinConnectionService: BPLogger {
     let parameters = Paths.GetItemsParameters(
       isRecursive: false,
       parentID: folderID,
-      includeItemTypes: [.audioBook]
+      includeItemTypes: [.audioBook],
+      enableUserData: false,
+      enableImages: false
     )
 
     let response = try await send(Paths.getItems(parameters: parameters))
@@ -552,13 +550,14 @@ class JellyfinConnectionService: BPLogger {
     return request
   }
 
-  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?) throws -> URL {
+  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
     var parameters = Paths.GetItemImageParameters()
 
     if let size {
       parameters.fillWidth = Int(size.width)
       parameters.fillHeight = Int(size.height)
     }
+    parameters.quality = quality
 
     let request = Paths.getItemImage(itemID: item.id, imageType: "Primary", parameters: parameters)
     let components = try createUrlComponentsForApiRequest(request)
