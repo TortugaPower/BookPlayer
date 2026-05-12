@@ -277,7 +277,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     return asset
   }
 
-  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws {
+  @MainActor
+  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
     let asset: AVURLAsset
@@ -288,7 +289,22 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
          (forceRefreshURL || chapter.externalUrl == nil) {
         asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
       } else if let externalUrl = chapter.externalUrl {
-        asset = AVURLAsset(url: externalUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+        asset = AVURLAsset(url: externalUrl, options: [
+          AVURLAssetPreferPreciseDurationAndTimingKey: true,
+          "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
+        ])
+
+        // Load just duration and playable as suggested to avoid bottleneck
+        await asset.loadValues(forKeys: ["duration", "playable"])
+
+        // If duration is 0, we must update the chapter info to avoid failure in loadChapterOperation
+        if chapter.duration == 0 {
+          await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
+          if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
+             let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
+            currentItem = updatedItem
+          }
+        }
       } else {
         asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
       }
@@ -305,6 +321,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
     setupPlayerItemObservers(playerItem: playerItem)
+
+    return self.currentItem?.currentChapter ?? chapter
   }
   
   func setupPlayerItemObservers(playerItem: AVPlayerItem?) {
@@ -448,8 +466,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
-        try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
-        self.loadChapterOperation(chapter)
+        let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
+        self.loadChapterOperation(updatedChapter)
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {

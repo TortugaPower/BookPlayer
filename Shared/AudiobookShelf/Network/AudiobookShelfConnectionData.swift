@@ -58,6 +58,6 @@ extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
   }
   
   public func buildAudiobookshelfDownloadUrl(providerId: String) -> String {
-    return "\(self.url.absoluteString)/api/items/\(providerId)/download?token=\(self.apiToken)"
+    return "\(self.url.absoluteString)/api/items/\(providerId)/download"
   }
 }

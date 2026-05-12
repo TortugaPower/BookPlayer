@@ -205,8 +205,6 @@ extension AudiobookShelfLibraryItem {
           let kind = Kind(rawValue: mediaType) else {
       return nil
     }
-    let fileExtension = apiItem.relPath?.split(separator: ".").last?.description ?? nil
-
     self.init(
       id: apiItem.id,
       title: apiItem.media.metadata.title,
@@ -218,7 +216,7 @@ extension AudiobookShelfLibraryItem {
       size: apiItem.size,
       series: apiItem.media.metadata.series,
       addedAt: apiItem.addedAt,
-      fileExtension: fileExtension,
+      fileExtension: apiItem.media.audioFiles?.first?.ext ?? nil,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
@@ -257,7 +255,8 @@ public struct AudiobookShelfAPIItem: Codable {
     public let metadata: Metadata
     public let coverPath: String?
     public let duration: TimeInterval?
-
+    public let audioFiles: [AudioFile]?
+    
     public struct Metadata: Codable {
       public let title: String
       public let authorName: String?
@@ -305,6 +304,11 @@ public struct AudiobookShelfAPIItem: Codable {
     public struct NamedEntity: Codable {
       public let id: String
       public let name: String
+    }
+    
+    public struct AudioFile: Codable {
+        let filename: String
+        let ext: String
     }
   }
 

@@ -48,36 +48,32 @@ struct ExternalSyncIntroView: View {
       }
       .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
       .safeAreaInset(edge: .bottom) {
-        Color.clear
-          .frame(height: 88)
-      }
-      
-      // Bottom Call-to-Action Area
-      VStack(spacing: Spacing.S) {
-        if accountService.account.id.isEmpty {
-          AppleSignInLink { hasSubscription in
-            handleSignInResult(hasSubscription: hasSubscription)
-          }
+        VStack(spacing: Spacing.S) {
+          if accountService.account.id.isEmpty {
+            AppleSignInLink { hasSubscription in
+              handleSignInResult(hasSubscription: hasSubscription)
+            }
 
-          // Continue with Passkey - goes to registration/sign-in screen
-          ContinueWithPasskeyButton {
-            showPasskeyRegistration = true
+            // Continue with Passkey - goes to registration/sign-in screen
+            ContinueWithPasskeyButton {
+              showPasskeyRegistration = true
+            }
+            .padding(.bottom, Spacing.S)
+          } else {
+            Button {
+              showCompleteAccount = true
+            } label: {
+              Text("continue_title".localized)
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(theme.linkColor) // Or whatever your primary button color is
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, Spacing.S)
           }
-          .padding(.bottom, Spacing.S)
-        } else {
-          Button {
-            showCompleteAccount = true
-          } label: {
-            Text("continue_title".localized)
-              .font(.headline)
-              .foregroundColor(.white)
-              .frame(maxWidth: .infinity)
-              .padding()
-              .background(theme.linkColor) // Or whatever your primary button color is
-              .cornerRadius(12)
-          }
-          .padding(.horizontal)
-          .padding(.bottom, Spacing.S)
         }
       }
     }

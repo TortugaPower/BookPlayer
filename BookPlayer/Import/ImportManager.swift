@@ -171,6 +171,7 @@ final class ImportManager: ObservableObject {
     return false
   }
   
+  @MainActor
   func processExternalFiles() {
     guard self.externalFiles.count > 0 else {
       return

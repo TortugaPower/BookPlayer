@@ -20,7 +20,6 @@ class ExternalImportViewModel: ExternalViewModelProtocol {
   
   var resources: [SimpleExternalResource] {
     get {
-      print(importManager.externalFiles.description)
       return importManager.externalFiles
     }
     set {

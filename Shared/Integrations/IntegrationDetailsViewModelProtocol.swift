@@ -51,6 +51,6 @@ public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   func fetchData()
   func cancelFetchData()
   func beginDownloadAudiobook(_ item: Item) throws
-  func virtualImportAudiobook(_ item: Item) throws
+  func virtualImportAudiobook(_ item: Item)
   func handleImportAudiobook(_ item: Item) throws
 }

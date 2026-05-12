@@ -426,7 +426,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         if let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
            let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
           remoteURLs = [
-            RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "MediaBrowser Token=\"\(storedConnection.accessToken)\""]
+            )
           ]
         }
       case .audiobookshelf:
@@ -434,7 +440,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         if let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
            let downloadUrl = URL(string: storedConnection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
           remoteURLs = [
-            RemoteFileURL(url: downloadUrl, relativePath: item.relativePath, type: .book, externalResources: nil)
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "Bearer \(storedConnection.apiToken)"]
+            )
           ]
         }
       default:
@@ -461,23 +473,30 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     for remoteURL in bookURLs {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
-      var downloadUrl = remoteURL.url
+      let downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
-      if let externalResource = remoteURL.externalResources?.first(where: { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }),
-         let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection)
-        {
-        let urlString = storedConnection.buildDownloadUrl(providerId: externalResource.providerId)
-        downloadUrl = URL(string: urlString) ?? localURL
-      }
       
-      let task = await provider.client.download(
-        url: downloadUrl,
-        taskDescription: remoteURL.relativePath,
-        session: downloadURLSession.backgroundSession
-      )
+      if let bearer = remoteURL.headers?["Authorization"] {
+        var request = URLRequest(url: downloadUrl)
+        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        
+        let task = await provider.client.download(
+          request: request,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      tasks.append(task)
+        tasks.append(task)
+      } else {
+        let task = await provider.client.download(
+          url: downloadUrl,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
+
+        tasks.append(task)
+      }
     }
 
     downloadTasksDictionary[item.relativePath] = tasks

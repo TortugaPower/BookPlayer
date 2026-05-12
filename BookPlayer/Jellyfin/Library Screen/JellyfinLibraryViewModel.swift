@@ -37,6 +37,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   var sortBy: JellyfinLayout.SortBy = .smart {
     didSet {
       guard let folderID = folderID else { return }
+      fetchTask?.cancel()
       items = []
       nextStartItemIndex = 0
       totalItems = Int.max
@@ -384,7 +385,9 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
+      let fileExt = item.details?.fileExtension != nil
+        ? ".\(item.details!.fileExtension!)"
+        : ""
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,
@@ -399,14 +402,14 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
         orderRank: 0,
         parentFolder: nil,
-        originalFileName: "\(item.name).\(fileExt)",
+        originalFileName: "\(item.name)\(fileExt)",
         lastPlayDate: item.lastPlayedDate,
         type: .book,
         uuid: UUID().uuidString
       )
       
       let externalItem = SimpleExternalResource(
-        id: UUID().hashValue,
+        id: Int(Date.timeIntervalBetween1970AndReferenceDate),
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
@@ -599,7 +602,9 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
+      let fileExt = item.details?.fileExtension != nil
+        ? ".\(item.details!.fileExtension!)"
+        : ""
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,
@@ -621,7 +626,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
       )
       
       let externalItem = SimpleExternalResource(
-        id: UUID().hashValue,
+        id: Int(Date.timeIntervalBetween1970AndReferenceDate),
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
@@ -828,7 +833,9 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.filePath?.split(separator: ".").last ?? "m4a"
+      let fileExt = item.details?.fileExtension != nil
+        ? ".\(item.details!.fileExtension!)"
+        : ""
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,
@@ -850,7 +857,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
       )
       
       let externalItem = SimpleExternalResource(
-        id: UUID().hashValue,
+        id: Int(Date.timeIntervalBetween1970AndReferenceDate),
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,

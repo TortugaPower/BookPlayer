@@ -13,9 +13,10 @@ public struct RemoteFileURL: Decodable {
   public let relativePath: String
   public let type: SimpleItemType
   public let externalResources: [SyncableExternalResource]?
+  public let headers: [String: String]?
 
   enum CodingKeys: CodingKey {
-    case url, relativePath, type, externalResources
+    case url, relativePath, type, externalResources, headers
   }
 }
 

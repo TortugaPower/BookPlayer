@@ -92,10 +92,15 @@ extension JellyfinLibraryItem {
       let filePath = apiItem.mediaSources?.first?.path ?? apiItem.path,
       let fileSize = apiItem.mediaSources?.first?.size,
        let runtimeInSeconds = (apiItem.runTimeTicks != nil) ? TimeInterval(apiItem.runTimeTicks!) / 10000000.0 : nil {
+      
+      var fileExtension = apiItem.mediaSources?.first?.container?.components(separatedBy: ",").first
+        ?? apiItem.mediaSources?.first?.container ?? nil
+      
       myDetails = JellyfinAudiobookDetailsData(
         artist: artist,
         filePath: filePath,
         fileSize: fileSize,
+        fileExtension: fileExtension,
         overview: apiItem.overview,
         runtimeInSeconds: runtimeInSeconds,
         genres: apiItem.genres,

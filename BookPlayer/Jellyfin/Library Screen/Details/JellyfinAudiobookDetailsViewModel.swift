@@ -93,7 +93,9 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func virtualImportAudiobook(_ item: JellyfinLibraryItem) {
-    let fileExt = self.details?.filePath?.split(separator: ".").last ?? "m4a"
+    let fileExt = self.details?.fileExtension != nil
+      ? ".\(self.details!.fileExtension!)"
+      : ""
     let libraryItem = SimpleLibraryItem(
       title: item.name,
       details: self.details?.artist ?? "voiceover_unknown_author".localized,
@@ -108,7 +110,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
       orderRank: 0,
       parentFolder: nil,
-      originalFileName: "\(item.name).\(fileExt)",
+      originalFileName: "\(item.name)\(fileExt)",
       lastPlayDate: item.lastPlayedDate,
       type: .book,
       uuid: UUID().uuidString

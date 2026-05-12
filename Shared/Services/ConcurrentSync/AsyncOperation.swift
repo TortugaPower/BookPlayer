@@ -37,8 +37,8 @@ class AsyncOperation: Operation, @unchecked Sendable {
       state = .finished
       return
     }
-    main()
     state = .executing
+    main()
   }
   
   // Subclasses must call this when their async work is totally done

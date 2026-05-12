@@ -1803,6 +1803,7 @@ extension LibraryService {
     external.providerName = externalResource.providerName
     external.syncStatus = externalResource.syncStatus
     external.lastSyncedAt = externalResource.lastSyncedAt
+    external.processedFile = externalResource.processedFile
     
     external.libraryItem = book
     book.addToExternalResources(external)

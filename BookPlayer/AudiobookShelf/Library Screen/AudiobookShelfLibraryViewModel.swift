@@ -275,7 +275,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       )
       
       let externalItem = SimpleExternalResource(
-        id: UUID().hashValue,
+        id: Int(Date.timeIntervalBetween1970AndReferenceDate),
         providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,

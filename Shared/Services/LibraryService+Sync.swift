@@ -200,6 +200,7 @@ extension LibraryService: LibrarySyncProtocol {
         external.providerName = remoteData.providerName
         external.syncStatus = remoteData.syncStatus
         external.lastSyncedAt = remoteData.lastSyncedAt
+        external.processedFile = remoteData.processedFile
         
         external.libraryItem = storedItem
         storedItem.addToExternalResources(external)
@@ -299,6 +300,7 @@ extension LibraryService: LibrarySyncProtocol {
         external.providerName = externalResource.providerName
         external.syncStatus = externalResource.syncStatus
         external.lastSyncedAt = externalResource.lastSyncedAt
+        external.processedFile = externalResource.processedFile
         
         external.libraryItem = newBook
         newBook.addToExternalResources(external)

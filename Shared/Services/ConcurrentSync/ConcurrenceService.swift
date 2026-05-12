@@ -25,17 +25,32 @@ public protocol ConcurrenceServiceProtocol {
   func scheduleMetadataUpdate(params: [String: Any])
   
   func scheduleFileUpload(params: [String: Any])
+  
+  func updateConcurrentService(_ accessLevel: AccessLevel)
 }
 
-public class ConcurrenceService: ConcurrenceServiceProtocol {
+public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   let operationQueue: OperationQueue
   var taskContainer: ConcurrentTasksRepositoryProtocol! // Your DB model
   var libraryService: LibrarySyncProtocol!
   
-  public var accessPolicy: [ExternalSyncJobType: Bool] = [:]
+  private var _accessPolicy: [ExternalSyncJobType: Bool] = [:]
+  public var accessPolicy: [ExternalSyncJobType: Bool] {
+    get {
+      policyLock.withLock {
+        return _accessPolicy
+      }
+    }
+    set {
+      policyLock.withLock {
+        _accessPolicy = newValue
+      }
+    }
+  }
   // Tracks which queueKeys currently have an active worker looping
   private var activeQueueKeys = Set<String>()
   private let stateLock = NSLock()
+  private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
   private var listeningTask: Task<Void, Never>?
   public var tasksCountService: ConcurrentTasksCountService!
@@ -47,6 +62,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     // This still caps the total number of operations running simultaneously across all keys
     self.operationQueue.maxConcurrentOperationCount = maxConcurrentTasks
   }
+  
+  deinit { listeningTask?.cancel() }
   
   public func setup(libraryService: LibrarySyncProtocol, accessLevel: AccessLevel) {
     self.libraryService = libraryService
@@ -131,12 +148,18 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     // 1. AWAIT the actor to safely fetch the next task
     guard let nextTask = await taskContainer.getNextTask(for: queueKey) else {
       // The queue is empty! Use scoped locking to remove the key.
-      stateLock.withLock {
+      let _ = stateLock.withLock {
         activeQueueKeys.remove(queueKey)
       }
       return
     }
-    guard let operation = createOperation(for: nextTask) else { return }
+    guard let operation = createOperation(for: nextTask) else {
+      Task {
+        await self.taskContainer.pop(nextTask)
+        await self.enqueueNextTask(for: queueKey)
+      }
+      return
+    }
 
     operation.onProgress = { progress in
       Task { @MainActor in
@@ -152,8 +175,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
         if operation.didSucceed {
           await self.taskContainer.pop(nextTask)
         } else {
-          try? await Task.sleep(for: .seconds(15))
-          await self.taskContainer.pop(nextTask)
+          try? await Task.sleep(for: .seconds(5))
         }
         
         // 3. AWAIT the recursive call
@@ -200,7 +222,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol {
     }
   }
   
-  func updateConcurrentService(_ accessLevel: AccessLevel) {
+  public func updateConcurrentService(_ accessLevel: AccessLevel) {
     switch accessLevel {
     case .lite:
       accessPolicy = [
@@ -239,7 +261,12 @@ extension ConcurrenceService {
       if let lastPlayDate = params.removeValue(forKey: #keyPath(LibraryItem.lastPlayDate)) {
         params["lastPlayDateTimestamp"] = lastPlayDate
       }
-      try await taskContainer.storeTask(parameters: params)
+      
+      do {
+        try await taskContainer.storeTask(parameters: params)
+      } catch {
+        Self.logger.error("Failed to schedule metadata update task: \(error)")
+      }
     }
   }
   
@@ -255,7 +282,11 @@ extension ConcurrenceService {
       params["jobType"] = ExternalSyncJobType.uploadFile.rawValue
       params["queueKey"] = queueKey
       
-      try await taskContainer.storeTask(parameters: params)
+      do {
+        try await taskContainer.storeTask(parameters: params)
+      } catch {
+        Self.logger.error("Failed to schedule upload file task: \(error)")
+      }
     }
   }
 }

@@ -50,16 +50,7 @@ struct SyncTasksCardView: View {
           )
         }
       }
-          
-      Image(systemName: "chevron.right")
-        .foregroundStyle(theme.primaryColor)
-        .padding(.leading, 16)
     }
-    .padding(16)
-    .background(theme.tertiarySystemBackgroundColor)
-    .cornerRadius(16)
-    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
-    .padding(.horizontal)
     .onReceive(
       syncService.observeTasksCount()
       .dropFirst()

@@ -664,12 +664,12 @@
 		9911FBD12F7C1FBF00DC9A2B /* ConcurrentTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */; };
 		9911FBD32F7C3AC700DC9A2B /* SyncTasksCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */; };
 		9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */; };
-		9925427A2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9925427B2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9925427C2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9925427D2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9925427E2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
-		9925427F2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673AF2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673B02FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673B12FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673B22FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673B32FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
+		992673B42FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		992D6E102FA2BD290091849F /* DynamicWaveLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */; };
 		992D6E132FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */; };
 		992D6E142FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */; };
@@ -1685,7 +1685,7 @@
 		9911FBD02F7C1FB800DC9A2B /* ConcurrentTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksCardView.swift; sourceTree = "<group>"; };
 		9911FBD22F7C3ABA00DC9A2B /* SyncTasksCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCardView.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
-		992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
+		992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v11_to_v12.xcmappingmodel; sourceTree = "<group>"; };
 		992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicWaveLoadingView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
@@ -2457,7 +2457,7 @@
 				9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */,
 				3F66408C2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel */,
 				996D4CC42F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel */,
-				992542792FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel */,
+				992673AE2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel */,
 			);
 			path = Migrations;
 			sourceTree = "<group>";
@@ -4415,7 +4415,7 @@
 				6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */,
 				41C3396225E04103003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */,
-				9925427D2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				992673B02FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9FA334C727C28D650064E8EA /* PlaybackControlsView.swift in Sources */,
 				4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */,
 				63CD851D2CE2964900EDBEA8 /* SettingsView.swift in Sources */,
@@ -4456,7 +4456,6 @@
 				9911FBA92F71BD3000DC9A2B /* JellyfinConnectionService.swift in Sources */,
 				99F3C2352F6BBECC00AC91A2 /* JellyfinConnectionData.swift in Sources */,
 				41A90C4927564DAA00C30394 /* BookPlayerError.swift in Sources */,
-				9925427F2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				3FF5BA6A2E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
 				63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
@@ -4493,6 +4492,7 @@
 				9FDDD2E2289BFCE20020C428 /* LibraryService+Sync.swift in Sources */,
 				4140EA72227289A50009F794 /* UIColor+Sweetercolor.swift in Sources */,
 				63E1FF912E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
+				992673B12FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
 				9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
@@ -4606,7 +4606,7 @@
 				416A29DA256AB6A900605395 /* BookPlayer.xcdatamodeld in Sources */,
 				630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */,
 				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,
-				9925427E2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				992673B22FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
 				63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
@@ -4927,7 +4927,6 @@
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				99329DC52F3AE9C4003F8E73 /* PlayerJumpView.swift in Sources */,
 				632D5A582E58C3CC006D10BC /* VerticalLabelStyle.swift in Sources */,
-				9925427C2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				63C48C822E3DC2BE005FBB96 /* LoginSignInButton.swift in Sources */,
 				63C48CA12E4181F0005FBB96 /* ContinueWithPasskeyButton.swift in Sources */,
 				63C48CA32E418200005FBB96 /* AppleSignInLink.swift in Sources */,
@@ -4956,6 +4955,7 @@
 				CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */,
 				7CAD4B67352939D0A1E54A21 /* IntegrationConnectionFormViewModelProtocol.swift in Sources */,
 				18D0AD99D1AAA10976F75C11 /* BPNavigation.swift in Sources */,
+				992673AF2FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9236C57F833C70652BDD1FA3 /* TabEditingEnvironmentKey.swift in Sources */,
 				11A972EC3C4426DD4D02867E /* TagsFlowLayout.swift in Sources */,
 				D080B0A77D9844C3A0737170 /* IntegrationConnectionFormViewModel.swift in Sources */,
@@ -5006,6 +5006,7 @@
 			files = (
 				996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
+				992673B42FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */,
@@ -5088,7 +5089,6 @@
 				9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */,
 				9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
-				9925427A2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				996D4CD12F98A45300FC3B57 /* IntegrationError.swift in Sources */,
 				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
@@ -5162,7 +5162,7 @@
 				630826012AF29538002ACE0D /* SharedWidgetEntry.swift in Sources */,
 				6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */,
 				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
-				9925427B2FA07E0D00E421CE /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
+				992673B32FAD4FCE0086BC47 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,
 				630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */,

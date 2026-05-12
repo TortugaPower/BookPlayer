@@ -218,6 +218,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
 
     guard !chapters.isEmpty else {
       var externalUrl: URL?
+      var externalHeaders: [String: String] = [:]
       let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
       switch ExternalResource.ProviderName(rawValue: externalResource?.providerName ?? "") {
       case .jellyfin:
@@ -227,6 +228,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           ? storedConnection!.buildDownloadUrl(providerId: externalResource!.providerId)
           : ""
         externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
+        externalHeaders = ["Authorization": "MediaBrowser Token=\"\(storedConnection?.accessToken ?? "")\""]
       case .audiobookshelf:
         let keychainService = KeychainService()
         let storedConnection: AudiobookShelfConnectionData? = try? keychainService.get(.audiobookshelfConnection)
@@ -234,6 +236,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           ? storedConnection!.buildAudiobookshelfDownloadUrl(providerId: externalResource!.providerId)
           : ""
         externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
+        externalHeaders = ["Authorization": "Bearer \(storedConnection?.apiToken ?? "")"]
       default:
         externalUrl = nil
       }
@@ -247,7 +250,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
           externalURL: externalUrl,
-          index: 1
+          index: 1,
+          externalHeaders: externalHeaders
         )
       ]
     }
