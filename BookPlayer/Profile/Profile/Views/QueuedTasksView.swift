@@ -15,22 +15,23 @@ struct QueuedTasksView: View {
   @EnvironmentObject private var theme: ThemeViewModel
   
   var body: some View {
-    VStack(spacing: 0) {
+    List {
       if accountService.account.hasSubscription,
         !accountService.account.id.isEmpty
       {
         NavigationLink(value: ProfileScreen.tasks) {
           SyncTasksCardView()
         }
-        .padding(.vertical, Spacing.S1)
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
         
         NavigationLink(value: ProfileScreen.concurrentTasks) {
           ConcurrentTasksCardView()
         }
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
-      
-      Spacer()
     }
+    .listStyle(.insetGrouped)
+    .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("Queued Tasks")

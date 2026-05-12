@@ -62,6 +62,6 @@ extension JellyfinConnectionData: CustomDebugStringConvertible {
   }
   
   public func buildDownloadUrl(providerId: String) -> String {
-    return "\(self.url.absoluteString)/items/\(providerId)/Download?api_key=\(self.accessToken)"
+    return "\(self.url.absoluteString)/items/\(providerId)/Download"
   }
 }

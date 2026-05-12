@@ -139,22 +139,17 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
+    
     Self.logger.trace("[Request] PUT \(remoteURL.absoluteString)")
-
+    
     let (responseData, response) = try await URLSession.shared.upload(for: request, from: data)
-        
+    
     // Cast the response to HTTPURLResponse to check the status code
     if let httpResponse = response as? HTTPURLResponse {
-        print("HTTP Status Code: \(httpResponse.statusCode)")
-        
-        if (200...299).contains(httpResponse.statusCode) {
-            print("Upload successful!")
-        } else {
-            // If it failed, print the server's error message (often XML or JSON)
-            let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
-            print("Upload failed. Server said: \(errorMessage)")
-        }
+      if !(200...299).contains(httpResponse.statusCode) {
+        let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
+        throw URLError(.badServerResponse, userInfo: ["error": errorMessage])
+      }
     }
   }
 

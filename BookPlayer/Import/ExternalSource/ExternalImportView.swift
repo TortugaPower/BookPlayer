@@ -19,17 +19,16 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
         .ignoresSafeArea()
       
       VStack(alignment: .leading, spacing: 20) {
-        
         HStack {
           Button {
             dismiss()
           } label: {
             Image(systemName: "xmark")
               .font(.system(size: 16, weight: .semibold))
-              .foregroundColor(.white)
+              .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
               .background(
-                Circle().stroke(Color.white.opacity(0.3), lineWidth: 1)
+                Circle().stroke(theme.systemBackgroundColor.opacity(0.3), lineWidth: 1)
               )
           }
           
@@ -43,32 +42,32 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           } label: {
             Image(systemName: "checkmark")
               .font(.system(size: 16, weight: .semibold))
-              .foregroundColor(.white)
+              .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
               .background(
-                Circle().stroke(Color.white.opacity(0.3), lineWidth: 1)
+                Circle().stroke(theme.systemBackgroundColor.opacity(0.3), lineWidth: 1)
               )
           }
         }
-        .padding(.top, 10)
+        .safeAreaPadding(.top)
         
         // Headers
         Text("Import")
           .font(.system(size: 34, weight: .bold))
-          .foregroundColor(.white)
+          .foregroundColor(theme.primaryColor)
         
         Text("import_warning_description".localized)
           .font(.subheadline)
-          .foregroundColor(Color.white.opacity(0.6))
+          .foregroundColor(theme.primaryColor.opacity(0.6))
           .lineSpacing(4)
         
         Text("\(viewModel.resources.count) File\(viewModel.resources.count == 1 ? "" : "s")")
           .font(.headline)
-          .foregroundColor(Color.white.opacity(0.6))
+          .foregroundColor(theme.primaryColor.opacity(0.6))
           .padding(.top, 10)
         
         ScrollView {
-          VStack(spacing: 0) {
+          LazyVStack(spacing: 0) {
             ForEach(viewModel.resources) { resource in
               HStack(spacing: 16) {
                 Button {
@@ -87,7 +86,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                 
                 // File Name
                 Text(resource.libraryItem?.title ?? "Unknown Item")
-                  .foregroundColor(.white)
+                  .foregroundColor(theme.primaryColor)
                   .font(.system(size: 14))
                   .lineLimit(1)
                 
@@ -97,7 +96,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
               
               // Separator
               Divider()
-                .background(Color.white.opacity(0.2))
+                .background(theme.systemBackgroundColor.opacity(0.2))
             }
           }
         }

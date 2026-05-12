@@ -38,26 +38,32 @@ struct DynamicWaveLoadingView: View {
       .opacity(isPulsing ? 1.0 : 0.0) // Fades completely out
     }
     .task {
-      // This loop runs continuously as long as the view exists
-      while !Task.isCancelled {
-        // Step 1: Generate new random heights while the wave is invisible
-        waveHeights = (0..<barCount).map { _ in CGFloat.random(in: 0.2...1.0) }
-        
-        // Step 2: Fade Everything In
-        withAnimation(.easeInOut(duration: animationDuration)) {
-          isPulsing = true
+      do {
+        // This loop runs continuously as long as the view exists
+        while !Task.isCancelled {
+          // Step 1: Generate new random heights while the wave is invisible
+          waveHeights = (0..<barCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+          
+          // Step 2: Fade Everything In
+          withAnimation(.easeInOut(duration: animationDuration)) {
+            isPulsing = true
+          }
+          
+          // Wait for the fade-in to finish
+          try await Task.sleep(nanoseconds: UInt64(animationDuration * 1_000_000_000))
+          
+          // Step 3: Fade Everything Out
+          withAnimation(.easeInOut(duration: animationDuration)) {
+            isPulsing = false
+          }
+          
+          // Wait for the fade-out to finish before looping to change shapes
+          try await Task.sleep(nanoseconds: UInt64(animationDuration * 1_000_000_000))
         }
-        
-        // Wait for the fade-in to finish
-        try? await Task.sleep(nanoseconds: UInt64(animationDuration * 1_000_000_000))
-        
-        // Step 3: Fade Everything Out
+      } catch {
         withAnimation(.easeInOut(duration: animationDuration)) {
           isPulsing = false
         }
-        
-        // Wait for the fade-out to finish before looping to change shapes
-        try? await Task.sleep(nanoseconds: UInt64(animationDuration * 1_000_000_000))
       }
     }
   }

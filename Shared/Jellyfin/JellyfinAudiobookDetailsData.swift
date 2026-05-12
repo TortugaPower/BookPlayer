@@ -15,6 +15,7 @@ public struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
   public let runtimeInSeconds: TimeInterval?
   public let genres: [String]?
   public let tags: [String]?
+  public let fileExtension: String?
   
   public let narrator: String?
   public var seriesEntries: [IntegrationSeriesEntry] = []
@@ -42,6 +43,7 @@ public struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
     artist: String? = nil,
     filePath: String? = nil,
     fileSize: Int? = nil,
+    fileExtension: String? = nil,
     overview: String? = nil,
     runtimeInSeconds: TimeInterval? = nil,
     genres: [String]? = nil,
@@ -56,6 +58,7 @@ public struct JellyfinAudiobookDetailsData: IntegrationDetailsDataProtocol {
     self.tags = tags
     self.narrator = nil
     self.seriesEntries = []
+    self.fileExtension = fileExtension
   }
 }
 

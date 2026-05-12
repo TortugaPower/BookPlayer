@@ -144,7 +144,8 @@ struct IntegrationAudiobookDetailsView<
     .scrollIndicators(.hidden)
   }
   
-  var DownloadButton: some View {
+  @ViewBuilder
+  private var DownloadButton: some View {
     Button {
       do {
         try viewModel.handleImportAudiobook(viewModel.item)
@@ -167,7 +168,8 @@ struct IntegrationAudiobookDetailsView<
     }
   }
   
-  var SmallDownloadButton: some View {
+  @ViewBuilder
+  private var SmallDownloadButton: some View {
     Button {
       do {
         try viewModel.handleImportAudiobook(viewModel.item)
@@ -187,7 +189,8 @@ struct IntegrationAudiobookDetailsView<
     }
   }
   
-  var SynchronizeButton: some View {
+  @ViewBuilder
+  private var SynchronizeButton: some View {
     Button {
       if allowStream {
         do {
@@ -210,7 +213,7 @@ struct IntegrationAudiobookDetailsView<
       .frame(maxWidth: .infinity)
       .padding()
       .foregroundStyle(theme.primaryColor)
-      .background(theme.secondarySystemBackgroundColor)
+      .background(theme.linkColor)
       .cornerRadius(10)
     }
   }

@@ -14,10 +14,8 @@ struct SubscriptionPillView: View {
   let foregroundColor: Color
   
   var body: some View {
-    HStack(spacing: 4) {
-      Text(title)
-        .bpFont(.caption)
-    }
+    Text(title)
+    .bpFont(.caption)
     // The padding here dictates the thickness and width of the pill
     .padding(.horizontal, 8)
     .padding(.vertical, 4)

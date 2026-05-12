@@ -123,7 +123,7 @@ struct MainView: View {
       )
       .presentationBackground(.clear)
       .environmentObject(importManager)
-      .environmentObject(ThemeViewModel())
+      .environmentObject(theme)
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

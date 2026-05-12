@@ -10,9 +10,9 @@ public struct ConcurrentSyncTask: Identifiable {
   public let id: String
   public let queueKey: String
   public let jobType: ExternalSyncJobType
-  public let parameters: [String: Any]
+  public let parameters: [String: Sendable]
 
-  public init(id: String, queueKey: String, jobType: ExternalSyncJobType, parameters: [String: Any]) {
+  public init(id: String, queueKey: String, jobType: ExternalSyncJobType, parameters: [String: Sendable]) {
     self.id = id
     self.queueKey = queueKey
     self.jobType = jobType

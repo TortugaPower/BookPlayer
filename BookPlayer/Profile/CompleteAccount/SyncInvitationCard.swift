@@ -54,6 +54,8 @@ struct SyncInvitationCard: View {
             .foregroundColor(.white)
             .cornerRadius(14)
           }
+          .accessibilityLabel("Learn more")
+          .accessibilityHint("Learn more about streaming and syncing items from your server.")
         }
         
         Button {
@@ -67,6 +69,8 @@ struct SyncInvitationCard: View {
             .foregroundColor(.primary)
             .cornerRadius(14)
         }
+        .accessibilityLabel(subscription == .lite ? "Import" : "Download Locally")
+        .accessibilityHint(subscription == .lite ? "Import \(totalItems) items to your library." : "Download \(totalItems) items to your device storage.")
       }
     }
     .padding(24)
@@ -78,8 +82,11 @@ struct SyncInvitationCard: View {
         Image(systemName: "xmark.circle.fill")
           .font(.title2)
           .foregroundStyle(.tertiary)
+          .frame(width: 44, height: 44)
       }
       .padding(16)
+      .accessibilityLabel("Close")
+      .accessibilityHint("Dismisses the invitation card.")
     }
   }
 }

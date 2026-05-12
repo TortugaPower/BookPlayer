@@ -11,7 +11,6 @@ import BookPlayerKit
 import SwiftData
 
 struct ConcurrentTasksCardView: View {
-  var monitor = ConcurrentTaskProgressMonitor.shared
   @State private var queuedJobs = [ConcurrentSyncTask]()
   @State private var jobsCount = 0
   
@@ -40,7 +39,7 @@ struct ConcurrentTasksCardView: View {
       Spacer()
       
       if let job = queuedJobs.first {
-        let progress = monitor.getTaskProgress(taskID: job.id)
+        let progress = ConcurrentTaskProgressMonitor.shared.getTaskProgress(taskID: job.id)
         
         if progress == 0 {
           ProgressView()
@@ -52,18 +51,10 @@ struct ConcurrentTasksCardView: View {
           )
         }
       }
-      
-      Image(systemName: "chevron.right")
-        .foregroundStyle(theme.primaryColor)
-        .padding(.leading, 16)
     }
-    .padding(16)
-    .background(theme.tertiarySystemBackgroundColor)
-    .cornerRadius(16)
-    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
-    .padding(.horizontal)
     .onReceive(
       concurrenceService.observeConcurrentTasksCount()
+        .dropFirst()
     ) { count in
       guard jobsCount != count else { return }
 
@@ -77,7 +68,7 @@ struct ConcurrentTasksCardView: View {
   
   func reloadQueuedJobs() {
     Task { @MainActor in
-      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTasks: monitor.activeTasks)
+      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTasks: ConcurrentTaskProgressMonitor.shared.activeTasks)
       jobsCount = allJobs.count
       queuedJobs = allJobs
     }

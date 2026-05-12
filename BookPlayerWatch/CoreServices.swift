@@ -56,22 +56,6 @@ class CoreServices: ObservableObject {
   }
   
   func updateConcurrentService(_ accessLevel: AccessLevel) {
-    switch accessLevel {
-    case .lite:
-      concurrenceService.accessPolicy = [
-        .update: true,
-        .uploadFile: false,
-      ]
-    case .pro:
-      concurrenceService.accessPolicy = [
-        .update: true,
-        .uploadFile: true,
-      ]
-    default:
-      concurrenceService.accessPolicy = [
-        .update: false,
-        .uploadFile: false,
-      ]
-    }
+    concurrenceService.updateConcurrentService(accessLevel)
   }
 }
