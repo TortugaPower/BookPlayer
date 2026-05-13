@@ -26,7 +26,7 @@ struct SyncTasksCardView: View {
     HStack {
       
       VStack(alignment: .leading, spacing: 6) {
-        Text("Queued sync tasks (\(jobsCount))")
+        Text(String(format: "sync_tasks_queued_count_title".localized, jobsCount))
           .bpFont(.titleRegular)
           .foregroundStyle(theme.primaryColor)
         
