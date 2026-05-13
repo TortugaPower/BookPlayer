@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol IntegrationDetailsDataProtocol {
+public protocol IntegrationDetailsDataProtocol: Hashable, Identifiable {
   var artist: String? { get }
   var filePath: String? { get }
   var overview: String? { get }
@@ -27,14 +27,20 @@ extension IntegrationDetailsDataProtocol {
   var seriesEntries: [IntegrationSeriesEntry] { [] }
 }
 
-struct IntegrationSeriesEntry: Identifiable, Hashable {
-  let id: String
-  let name: String
+public struct IntegrationSeriesEntry: Identifiable, Hashable {
+  public let id: String
+  public let name: String
   let sequence: String?
+  
+  public init(id: String, name: String, sequence: String?) {
+    self.id = id
+    self.name = name
+    self.sequence = sequence
+  }
 }
 
 @MainActor
-protocol IntegrationDetailsViewModelProtocol: ObservableObject {
+public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   associatedtype Item: IntegrationLibraryItemProtocol
   associatedtype Details: IntegrationDetailsDataProtocol
 
@@ -45,4 +51,6 @@ protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   func fetchData()
   func cancelFetchData()
   func beginDownloadAudiobook(_ item: Item) throws
+  func virtualImportAudiobook(_ item: Item)
+  func handleImportAudiobook(_ item: Item) throws
 }

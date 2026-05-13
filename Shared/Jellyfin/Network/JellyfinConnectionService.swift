@@ -6,10 +6,15 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Get
 import JellyfinAPI
 import os
+
+#if os(watchOS)
+import WatchKit
+#else
+import UIKit
+#endif
 
 /// Applies user-defined custom HTTP headers (e.g. Cloudflare Access Service Tokens)
 /// to every outgoing `JellyfinClient` request. Skips `Authorization` so the Jellyfin
@@ -18,7 +23,7 @@ import os
 /// `willSendRequest` is invoked on `Get.APIClient`'s actor executor, while
 /// `setCustomHeaders(_:)` is typically called from `@MainActor`. The dictionary
 /// is therefore guarded by `OSAllocatedUnfairLock`.
-final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
+public final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
   private let lockedHeaders: OSAllocatedUnfairLock<[String: String]>
 
   init(customHeaders: [String: String] = [:]) {
@@ -29,7 +34,7 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
     lockedHeaders.withLock { $0 = headers }
   }
 
-  func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
+  public func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
     let headers = lockedHeaders.withLock { $0 }
     for (key, value) in headers where key.caseInsensitiveCompare("Authorization") != .orderedSame {
       request.setValue(value, forHTTPHeaderField: key)
@@ -38,19 +43,28 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
 }
 
 @Observable
-class JellyfinConnectionService: BPLogger {
+public class JellyfinConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
-  var connection: JellyfinConnectionData?
-  var client: JellyfinClient?
-  private var headerInjector: JellyfinHeaderInjector?
+  public var connection: JellyfinConnectionData?
+  public var client: JellyfinClient?
+  public var headerInjector: JellyfinHeaderInjector?
+
+  public var deviceIdentifier: String? {
+#if os(watchOS)
+    return WKInterfaceDevice.current().identifierForVendor?.uuidString
+#else
+    // This covers iOS, iPadOS, and tvOS
+    return UIDevice.current.identifierForVendor?.uuidString
+#endif
+  }
 
 
-  init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
   }
 
-  func setup() {
+  public func setup() {
     reloadConnection()
   }
 
@@ -109,7 +123,7 @@ class JellyfinConnectionService: BPLogger {
     headerInjector?.setCustomHeaders(customHeaders)
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard var data = connection else { return }
     data.customHeaders = headers
     connection = data
@@ -117,14 +131,14 @@ class JellyfinConnectionService: BPLogger {
     headerInjector?.setCustomHeaders(headers)
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard var data = connection else { return }
     data.selectedLibraryId = id
     connection = data
     try? keychainService.set(data, key: .jellyfinConnection)
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     if let client {
       Task {
         // we don't care if this throws
@@ -199,7 +213,12 @@ class JellyfinConnectionService: BPLogger {
       searchTerm: searchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
-      fields: [.sortName],
+      fields: [
+        .sortName,
+        .overview,
+        .mediaSources,
+        .path
+      ],
       includeItemTypes: itemTypes,
       sortBy: orderBy,
       enableUserData: false,
@@ -419,7 +438,7 @@ class JellyfinConnectionService: BPLogger {
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
     let runtimeInSeconds: TimeInterval? =
       (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
-
+    
     return JellyfinAudiobookDetailsData(
       artist: artist,
       filePath: filePath,
@@ -429,6 +448,15 @@ class JellyfinConnectionService: BPLogger {
       genres: itemInfo.genres,
       tags: itemInfo.tags
     )
+  }
+  
+  public func fetchItem(for id: String) async throws -> JellyfinLibraryItem? {
+    let response = try await send(Paths.getItem(itemID: id))
+    try Task.checkCancellation()
+    
+    let itemInfo = response.value
+
+    return JellyfinLibraryItem(apiItem: itemInfo)
   }
 
   public func fetchAudiobookDownloadRequests(for folderID: String) async throws -> [URLRequest] {
@@ -498,7 +526,7 @@ class JellyfinConnectionService: BPLogger {
     let mainBundleInfo = Bundle.main.infoDictionary
     let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
     let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
-    let deviceID = UIDevice.current.identifierForVendor
+    let deviceID = deviceIdentifier
     guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
       Self.logger.error(
         "cannot build Jellyfin API client. \(serverUrlString), \(clientName), \(clientVersion), \(String(reflecting: deviceID))"
@@ -508,8 +536,8 @@ class JellyfinConnectionService: BPLogger {
     let configuration = JellyfinClient.Configuration(
       url: url,
       client: clientName,
-      deviceName: UIDevice.current.name,
-      deviceID: "\(deviceID.uuidString)-\(clientName)",
+      deviceName: getDeviceName(),
+      deviceID: "\(deviceID)-\(clientName)",
       version: clientVersion
     )
     let injector = JellyfinHeaderInjector(customHeaders: customHeaders)
@@ -521,7 +549,7 @@ class JellyfinConnectionService: BPLogger {
     )
   }
 
-  func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
+  public func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     guard let client else {
       throw IntegrationError.noClient("Jellyfin")
     }
@@ -542,7 +570,7 @@ class JellyfinConnectionService: BPLogger {
 
   /// Returns a URLRequest for downloading a library item, carrying the user-defined
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
-  func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
+  public func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
     let url = try createItemDownloadUrl(item)
     return wrapWithCustomHeaders(url)
   }
@@ -558,7 +586,7 @@ class JellyfinConnectionService: BPLogger {
     return request
   }
 
-  func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
+  public func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
     var parameters = Paths.GetItemImageParameters()
 
     if let size {
@@ -602,5 +630,49 @@ class JellyfinConnectionService: BPLogger {
     }
 
     return components
+  }
+  
+  public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double, ) async throws {
+    guard let client else {
+      throw IntegrationError.noClient("jellyfin")
+    }
+    
+    let userDataDto = UpdateUserItemDataDto(
+        playbackPositionTicks: positionTicks,
+        playedPercentage: percentCompleted
+    )
+
+    let request = Paths.updateItemUserData(itemID: itemId, userDataDto)
+
+    let _ = try await client.send(request)
+  }
+  
+  public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
+    guard !externalResources.isEmpty, let client, let myId = connection?.userID else { return [:] }
+            
+    let request = Paths.getItems(parameters: Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId)))
+    let response = try await client.send(request)
+
+    var itemsDictionary: [String: JellyfinLibraryItem] = [:]
+
+    for item in response.value.items ?? [] {
+        // 1. Safely grab the ID (assuming it might be optional in the generated client)
+        guard let jellyfinItem = JellyfinLibraryItem(apiItem: item) else {
+            continue
+        }
+        
+        // 3. Assign it to the dictionary
+        itemsDictionary[jellyfinItem.id] = jellyfinItem
+    }
+    
+    return itemsDictionary
+  }
+  
+  func getDeviceName() -> String {
+#if os(watchOS)
+    return WKInterfaceDevice.current().name
+#else
+    return UIDevice.current.name
+#endif
   }
 }

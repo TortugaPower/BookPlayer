@@ -8,14 +8,14 @@
 
 import Foundation
 
-enum AudiobookShelfBrowseCategory: String, CaseIterable, Codable, Hashable {
+public enum AudiobookShelfBrowseCategory: String, CaseIterable, Codable, Hashable {
   case books
   case series
   case collections
   case authors
   case narrators
 
-  var title: String {
+  public var title: String {
     switch self {
     case .books: "Books"
     case .series: "Series"
@@ -26,30 +26,30 @@ enum AudiobookShelfBrowseCategory: String, CaseIterable, Codable, Hashable {
   }
 }
 
-enum AudiobookShelfItemFilterGroup: String, Codable, Hashable {
+public enum AudiobookShelfItemFilterGroup: String, Codable, Hashable {
   case authors
   case series
   case narrators
 }
 
-struct AudiobookShelfItemFilter: Codable, Hashable {
-  let group: AudiobookShelfItemFilterGroup
-  let value: String
-  let title: String
+public struct AudiobookShelfItemFilter: Codable, Hashable {
+  public let group: AudiobookShelfItemFilterGroup
+  public let value: String
+  public let title: String
 
-  var queryValue: String {
+  public var queryValue: String {
     let base64Value = Data(value.utf8).base64EncodedString()
     return "\(group.rawValue).\(base64Value)"
   }
 }
 
-enum AudiobookShelfLibraryViewSource: Equatable, Hashable {
+public enum AudiobookShelfLibraryViewSource: Equatable, Hashable {
   case libraries
   case books(libraryID: String, filter: AudiobookShelfItemFilter?)
   case entities(libraryID: String, category: AudiobookShelfBrowseCategory)
   case collection(id: String)
 
-  var libraryID: String {
+  public var libraryID: String {
     switch self {
     case .libraries: ""
     case .books(let libraryID, _): libraryID
@@ -59,7 +59,8 @@ enum AudiobookShelfLibraryViewSource: Equatable, Hashable {
   }
 }
 
-enum AudiobookShelfLibraryLevelData: Equatable, Hashable {
+public enum AudiobookShelfLibraryLevelData: Equatable, Hashable {
   case library(source: AudiobookShelfLibraryViewSource, title: String)
   case details(data: AudiobookShelfLibraryItem)
+  case subscribe
 }

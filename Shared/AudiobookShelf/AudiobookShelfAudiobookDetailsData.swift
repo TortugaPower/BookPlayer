@@ -6,40 +6,40 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
 
-struct AudiobookShelfAudiobookDetailsData: IntegrationDetailsDataProtocol {
-  let artist: String?
-  let narrator: String?
-  let filePath: String?
-  let fileSize: Int64?
-  let overview: String?
-  let runtimeInSeconds: TimeInterval?
-  let genres: [String]?
-  let tags: [String]?
-  let publishedYear: String?
-  let publisher: String?
-  let series: [Series]?
+public struct AudiobookShelfAudiobookDetailsData: IntegrationDetailsDataProtocol {
+  public let id: String = UUID().uuidString
+  public let artist: String?
+  public let narrator: String?
+  public let filePath: String?
+  public let fileSize: Int64?
+  public let overview: String?
+  public let runtimeInSeconds: TimeInterval?
+  public let genres: [String]?
+  public let tags: [String]?
+  public let publishedYear: String?
+  public let publisher: String?
+  public let series: [Series]?
   
-  struct Series: Identifiable, Hashable {
-    let id: String
-    let name: String
-    let sequence: String?
+  public struct Series: Identifiable, Hashable {
+    public let id: String
+    public let name: String
+    public let sequence: String?
   }
   
-  var runtimeString: String {
+  public var runtimeString: String {
     guard let runtime = runtimeInSeconds else {
       return "runtime_unknown".localized
     }
     return TimeParser.formatTotalDuration(runtime)
   }
   
-  var seriesEntries: [IntegrationSeriesEntry] {
+  public var seriesEntries: [IntegrationSeriesEntry] {
     (series ?? []).map { IntegrationSeriesEntry(id: $0.id, name: $0.name, sequence: $0.sequence) }
   }
 
-  var fileSizeString: String {
+  public var fileSizeString: String {
     guard let size = fileSize else {
       return "file_size_unknown".localized
     }
@@ -52,7 +52,7 @@ struct AudiobookShelfAudiobookDetailsData: IntegrationDetailsDataProtocol {
 
 // MARK: - API Response Model
 
-struct AudiobookShelfItemDetailsResponse: Codable {
+public struct AudiobookShelfItemDetailsResponse: Codable {
   let id: String
   let libraryId: String
   let media: Media

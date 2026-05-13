@@ -6,25 +6,24 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-import BookPlayerKit
 import Foundation
 
 @Observable
-class AudiobookShelfConnectionService: BPLogger {
+public class AudiobookShelfConnectionService: BPLogger {
   private let keychainService: KeychainServiceProtocol
 
-  var connection: AudiobookShelfConnectionData?
+  public var connection: AudiobookShelfConnectionData?
   private var urlSession: URLSession
 
 
-  init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  public init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
     let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 15
     self.urlSession = URLSession(configuration: configuration)
   }
 
-  func setup() {
+  public func setup() {
     reloadConnection()
   }
 
@@ -127,21 +126,21 @@ class AudiobookShelfConnectionService: BPLogger {
     self.connection = connectionData
   }
 
-  func updateCustomHeaders(_ headers: [String: String]) {
+  public func updateCustomHeaders(_ headers: [String: String]) {
     guard var data = connection else { return }
     data.customHeaders = headers
     connection = data
     try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
-  func saveSelectedLibrary(id: String?) {
+  public func saveSelectedLibrary(id: String?) {
     guard var data = connection else { return }
     data.selectedLibraryId = id
     connection = data
     try? keychainService.set(data, key: .audiobookshelfConnection)
   }
 
-  func deleteConnection() {
+  public func deleteConnection() {
     do {
       try keychainService.remove(.audiobookshelfConnection)
     } catch {
@@ -257,7 +256,7 @@ class AudiobookShelfConnectionService: BPLogger {
 
     let decoder = JSONDecoder()
     let itemsResponse = try decoder.decode(AudiobookShelfItemsResponse.self, from: data)
-
+    
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)
@@ -494,6 +493,71 @@ class AudiobookShelfConnectionService: BPLogger {
     let detailsResponse = try decoder.decode(AudiobookShelfItemDetailsResponse.self, from: data)
 
     return AudiobookShelfAudiobookDetailsData(apiResponse: detailsResponse)
+  }
+  
+  public func fetchItem(for id: String) async throws -> AudiobookShelfLibraryItem? {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("me")
+      .appendingPathComponent("progress")
+      .appendingPathComponent(id)
+    
+    var request = URLRequest(url: url)
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    let (data, response) = try await urlSession.data(for: request)
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+    let decoder = JSONDecoder()
+    let detailsResponse = try decoder.decode(AudiobookShelfAPIItem.UserMediaProgress.self, from: data)
+    return AudiobookShelfLibraryItem(progressItem: detailsResponse)
+  }
+  
+  public func updateProgress(
+    for id: String,
+    progress: Double,
+    currentTime: Double
+  ) async throws {
+    
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+    
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("me")
+      .appendingPathComponent("progress")
+      .appendingPathComponent(id)
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "PATCH"
+    
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    let body: [String: Any] = [
+      "progress": progress,
+      "currentTime": currentTime
+    ]
+    
+    request.httpBody = try JSONSerialization.data(withJSONObject: body)
+    let (_, response) = try await urlSession.data(for: request)
+    
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
   }
 
   public func createItemDownloadUrl(_ item: AudiobookShelfLibraryItem) throws -> URL {

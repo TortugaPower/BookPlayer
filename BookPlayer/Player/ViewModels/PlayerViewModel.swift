@@ -43,6 +43,7 @@ final class PlayerViewModel: ObservableObject {
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
+  let concurrenceService: ConcurrenceServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private var isSliderDragging = false
@@ -103,12 +104,14 @@ final class PlayerViewModel: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
-    syncService: SyncService
+    syncService: SyncService,
+    concurrenceService: ConcurrenceService
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
     self.syncService = syncService
+    self.concurrenceService = concurrenceService
     let sharedDefaults = UserDefaults.sharedDefaults
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
     self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)

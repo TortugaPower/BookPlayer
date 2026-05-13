@@ -15,6 +15,7 @@ extension EnvironmentValues {
   @Entry var syncService: SyncService = .init()
   @Entry var playerLoaderService: PlayerLoaderService = .init()
   @Entry var playbackService: PlaybackService = .init()
+  @Entry var concurrenceService: ConcurrenceService = .init()
   @Entry var jellyfinService: JellyfinConnectionService = .init()
   @Entry var audiobookshelfService: AudiobookShelfConnectionService = .init()
   @Entry var hardcoverService: HardcoverService = .init()

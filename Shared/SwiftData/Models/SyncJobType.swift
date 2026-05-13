@@ -19,4 +19,11 @@ public enum SyncJobType: String, CaseIterable, Codable {
   case deleteBookmark
   case uploadArtwork
   case matchUuid
+  case externalResource
+  case externalResourceToDownload
+}
+
+public enum ExternalSyncJobType: String, CaseIterable, Codable {
+  case update
+  case uploadFile
 }

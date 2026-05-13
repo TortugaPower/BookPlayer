@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct AudiobookShelfRootView: View {
   let connectionService: AudiobookShelfConnectionService
@@ -22,11 +23,13 @@ struct AudiobookShelfRootView: View {
   }
 
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
+  @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
-
+  @Environment(\.accountService) private var accountService
+  
   init(connectionService: AudiobookShelfConnectionService) {
     self.connectionService = connectionService
     self._connectionViewModel = .init(
@@ -55,6 +58,8 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
+          importManager: importManager,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -69,6 +74,8 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
+          importManager: importManager,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -83,6 +90,8 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
+          importManager: importManager,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -97,6 +106,8 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
+          importManager: importManager,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -111,6 +122,8 @@ struct AudiobookShelfRootView: View {
           libraryTitle: resolvedLibrary?.title ?? "",
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
+          importManager: importManager,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -262,7 +275,6 @@ struct AudiobookShelfRootView: View {
   }
 }
 
-
 // MARK: - Per-Tab NavigationStack
 
 /// Each tab owns its own NavigationStack and BPNavigation.
@@ -270,6 +282,8 @@ struct AudiobookShelfRootView: View {
 private struct AudiobookShelfTabRoot: View {
   let connectionService: AudiobookShelfConnectionService
   let singleFileDownloadService: SingleFileDownloadService
+  let accountService: AccountService
+  let importManager: ImportManager?
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
   var dismissAll: DismissAction?
@@ -286,12 +300,16 @@ private struct AudiobookShelfTabRoot: View {
     libraryTitle: String,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
+    importManager: ImportManager,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
     dismissAll: DismissAction? = nil
   ) {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
+    self.importManager = importManager
     self.dismissAll = dismissAll
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
@@ -303,6 +321,8 @@ private struct AudiobookShelfTabRoot: View {
         source: source,
         connectionService: connectionService,
         singleFileDownloadService: singleFileDownloadService,
+        accountService: accountService,
+        importManager: importManager,
         navigation: navigation,
         navigationTitle: libraryTitle
       )
@@ -321,6 +341,8 @@ private struct AudiobookShelfTabRoot: View {
                 source: source,
                 connectionService: connectionService,
                 singleFileDownloadService: singleFileDownloadService,
+                accountService: accountService,
+                importManager: importManager,
                 navigation: navigation,
                 navigationTitle: title
               )
@@ -330,11 +352,19 @@ private struct AudiobookShelfTabRoot: View {
               viewModel: AudiobookShelfAudiobookDetailsViewModel(
                 item: item,
                 connectionService: connectionService,
-                singleFileDownloadService: singleFileDownloadService
-              )
+                singleFileDownloadService: singleFileDownloadService,
+                accountService: accountService,
+                importManager: importManager
+              ),
+              showSubscribeButton: !accountService.hasSyncEnabled(),
+              allowStream: accountService.hasLiteEnabled(),
             ) {
               onDismiss()
+            } onStreamTap: {
+              navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
             }
+          case .subscribe:
+            ExternalSyncIntroView()
           }
         }
         .toolbar {
