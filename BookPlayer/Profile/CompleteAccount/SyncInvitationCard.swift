@@ -27,14 +27,17 @@ struct SyncInvitationCard: View {
       
       if !(subscription == .pro || subscription == .lite) {
         VStack(spacing: 8) {
-          Text("Save Your Storage!")
+          Text("sync_invitation_save_storage_title".localized)
             .font(.title2)
             .fontWeight(.bold)
             .multilineTextAlignment(.center)
         }
       }
         
-      Text("You're about to \(subscription == .lite ? "import" : "download") \(totalItems) items. \((subscription == .pro || subscription == .lite) ? "" : "Instead of taking up space, stream them directly from your server and keep your progress synced.")")
+      Text(String(format: "sync_invitation_description".localized, 
+                  (subscription == .lite ? "import_verb" : "download_verb").localized, 
+                  totalItems, 
+                  ((subscription == .pro || subscription == .lite) ? "" : "sync_invitation_stream_description".localized)))
           .font(.subheadline)
           .foregroundColor(.secondary)
           .multilineTextAlignment(.center)
@@ -45,7 +48,7 @@ struct SyncInvitationCard: View {
             onSync()
           } label: {
             HStack {
-              Text("Learn more")
+              Text("sync_invitation_learn_more_button".localized)
                 .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -61,7 +64,7 @@ struct SyncInvitationCard: View {
         Button {
           onDownload()
         } label: {
-          Text(subscription == .lite ? "Import" : "Download Locally")
+          Text(subscription == .lite ? "import_button".localized : "download_title".localized)
             .fontWeight(.medium)
             .frame(maxWidth: .infinity)
             .padding()

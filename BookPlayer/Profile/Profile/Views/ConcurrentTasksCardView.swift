@@ -21,7 +21,7 @@ struct ConcurrentTasksCardView: View {
     HStack {
       
       VStack(alignment: .leading, spacing: 6) {
-        Text("Concurrent Tasks (\(jobsCount))")
+        Text(String(format: "sync_tasks_concurrent_count_title".localized, jobsCount))
           .bpFont(.titleRegular)
           .foregroundStyle(theme.primaryColor)
         
@@ -30,7 +30,7 @@ struct ConcurrentTasksCardView: View {
             .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
         } else {
-          Text("No running tasks")
+          Text("sync_tasks_running_empty_title".localized)
             .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
         }
@@ -77,9 +77,9 @@ struct ConcurrentTasksCardView: View {
   func parseLabel(_ jobType: ExternalSyncJobType, _ queueKey: String) -> String {
     switch jobType {
     case .update:
-      return "Updating progress for \(queueKey)"
+      return String(format: "sync_task_update_progress_label".localized, queueKey)
     case .uploadFile:
-      return "Uploading file"
+      return "sync_task_upload_file_label".localized
     }
   }
 }

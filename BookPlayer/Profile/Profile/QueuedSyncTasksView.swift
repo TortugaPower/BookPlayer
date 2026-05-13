@@ -31,10 +31,10 @@ struct QueuedSyncTasksView: View {
               .font(.system(size: 40))
               .foregroundStyle(.secondary)
             
-            Text("No queued tasks")
+            Text("sync_tasks_empty_title".localized)
               .font(.headline)
             
-            Text("All your sync tasks are up to date.")
+            Text("sync_tasks_empty_description".localized)
               .font(.subheadline)
               .foregroundStyle(.secondary)
               .multilineTextAlignment(.center)

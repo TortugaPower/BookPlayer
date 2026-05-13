@@ -32,7 +32,7 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 1")
+        Text(String(format: "quick_action_label".localized, 1))
           .bpFont(.body)
       }
       .pickerStyle(.menu)
@@ -44,7 +44,7 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 2")
+        Text(String(format: "quick_action_label".localized, 2))
           .bpFont(.body)
       }
       .pickerStyle(.menu)
@@ -56,12 +56,12 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 3")
+        Text(String(format: "quick_action_label".localized, 3))
           .bpFont(.body)
       }
       .pickerStyle(.menu)
       Toggle(isOn: $globalSpeedEnabled) {
-        Text("settings_globalspeed_title")
+        Text("settings_globalspeed_title".localized)
           .bpFont(.body)
       }
     } header: {
@@ -69,7 +69,7 @@ struct GlobalSpeedSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
-      Text("settings_globalspeed_description")
+      Text("settings_globalspeed_description".localized)
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }

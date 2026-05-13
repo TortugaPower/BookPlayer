@@ -60,7 +60,7 @@ struct IntegrationAudiobookDetailsView<
         }
 
         if let narrator = viewModel.details?.narrator, !narrator.isEmpty {
-          Text("Narrated by \(narrator)")
+          Text(String(format: "audiobook_details_narrator_label".localized, narrator))
             .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
             .lineLimit(1)
@@ -94,32 +94,32 @@ struct IntegrationAudiobookDetailsView<
         if let details = viewModel.details {
           VStack {
             if let filePath = details.filePath {
-              DisclosureGroup("File Path", isExpanded: $isFilePathExpanded) {
+              DisclosureGroup("file_path_title".localized, isExpanded: $isFilePathExpanded) {
                 Text(filePath)
               }
               .accessibilityHidden(true)
             }
 
             if let genres = details.genres, !genres.isEmpty {
-              DisclosureGroup("Genres", isExpanded: $isGenresExpanded) {
+              DisclosureGroup("genres_title".localized, isExpanded: $isGenresExpanded) {
                 IntegrationTagsView(tags: genres)
               }
             }
 
             if let overview = details.overview {
-              DisclosureGroup("Overview", isExpanded: $isOverviewExpanded) {
+              DisclosureGroup("overview_title".localized, isExpanded: $isOverviewExpanded) {
                 Text(overview)
               }
             }
 
             if let tags = details.tags, !tags.isEmpty {
-              DisclosureGroup("Tags", isExpanded: $isTagsExpanded) {
+              DisclosureGroup("tags_title".localized, isExpanded: $isTagsExpanded) {
                 IntegrationTagsView(tags: tags)
               }
             }
 
             if !details.seriesEntries.isEmpty {
-              DisclosureGroup("Series", isExpanded: .constant(true)) {
+              DisclosureGroup("series_title".localized, isExpanded: .constant(true)) {
                 VStack(alignment: .leading, spacing: 8) {
                   ForEach(details.seriesEntries) { item in
                     Text(item.name)
@@ -156,7 +156,7 @@ struct IntegrationAudiobookDetailsView<
     } label: {
       HStack {
         Image(systemName: "square.and.arrow.down")
-        Text("Download 2")
+        Text("download_title".localized)
           .fontWeight(.semibold)
       }
       .frame(height: 24)
@@ -205,7 +205,7 @@ struct IntegrationAudiobookDetailsView<
     } label: {
       HStack {
         Image(systemName: "arrow.down.circle.dotted")
-        Text("Stream")
+        Text("stream_button".localized)
           .foregroundStyle(theme.primaryColor)
           .bpFont(.title)
       }
