@@ -40,6 +40,11 @@ extension ItemListView {
           // on, sync will push rank changes since the location is no longer auto-sorted.
           preferencesService.setSort(.custom, forLocation: location)
         }
+      },
+      onReverseOrder: {
+        // Reverses orderRank locally; LibraryService writes `.custom` ahead of the rebuild,
+        // so the sticky picker re-renders to "Custom" via @AppStorage.
+        model.handleReverseOrder()
       }
     )
   }

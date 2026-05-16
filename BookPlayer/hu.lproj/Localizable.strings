@@ -48,6 +48,7 @@
 "options_button" = "Lehetőségek";
 "library_options_progress_as_percentage_title" = "Folyamat megjelenítése százalékban";
 "library_options_original_filename_title" = "Eredeti fájlnév megjelenítése";
+"library_options_quick_actions_title" = "Gyors műveletek";
 "select_playlist_title" = "Mappa kiválasztása";
 "title_button" = "Cím";
 "sort_filename_button" = "Eredeti fájlnév";

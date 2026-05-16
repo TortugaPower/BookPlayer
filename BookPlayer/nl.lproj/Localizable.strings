@@ -48,6 +48,7 @@
 "options_button" = "Opties";
 "library_options_progress_as_percentage_title" = "Voortgang als percentage tonen";
 "library_options_original_filename_title" = "Oorspronkelijke bestandsnaam tonen";
+"library_options_quick_actions_title" = "Snelle acties";
 "select_playlist_title" = "Selecteer map";
 "title_button" = "Titel";
 "sort_filename_button" = "Oorspronkelijke bestandsnaam";

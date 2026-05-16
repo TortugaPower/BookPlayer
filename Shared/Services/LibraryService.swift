@@ -115,6 +115,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Sort entire list at the given location. `nil` represents the library root.
   /// Convenience that resolves the relativePath from the ref and delegates.
   func sortContents(in location: SortLocation, by type: SortType)
+  /// One-off reverse: flips the current order at the given path and transitions the
+  /// location's sticky sort to `.custom` (same transition as a manual drag-drop).
+  func reverseContents(at relativePath: String?)
   /// Look up the relativePath for a library item by its uuid.
   /// Returns nil for placeholder uuids or if no matching item is found.
   func getRelativePath(forUuid uuid: String) -> String?
@@ -763,8 +766,20 @@ extension LibraryService {
     let isDirectory =
       (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
 
-    if getItemReference(with: relativePath) != nil {
-      guard isDirectory else { return [] }
+    if let existing = getItemReference(with: relativePath) {
+      var registered = [SimpleLibraryItem]()
+
+      // Reattach orphans — entries that exist in CoreData but are detached
+      // from the library hierarchy. Typically left behind by failed prior
+      // recovery attempts (e.g. the old StorageView Fix flow throwing after
+      // creating the Book but before attaching it).
+      if existing.getLibrary() == nil {
+        let parentPath = ensureAncestorFolders(forRelativePath: relativePath, processedFolderURL: processedFolderURL)
+        relinkOrphan(existing, parentPath: parentPath)
+        registered.append(SimpleLibraryItem(from: existing))
+      }
+
+      guard isDirectory else { return registered }
 
       let children = (try? FileManager.default.contentsOfDirectory(
         at: url,
@@ -772,7 +787,6 @@ extension LibraryService {
         options: [.skipsHiddenFiles]
       )) ?? []
 
-      var registered = [SimpleLibraryItem]()
       for child in children {
         registered.append(contentsOf: await registerExistingProcessedItem(at: child))
       }
@@ -845,6 +859,28 @@ extension LibraryService {
     }
 
     return currentParent?.relativePath
+  }
+
+  /// Reattaches an orphaned LibraryItem (one whose `getLibrary()` returns nil) to
+  /// the library hierarchy at the given parent path (or library root if nil).
+  /// Assigns a fresh `orderRank` and rebuilds parent folder details.
+  @MainActor
+  private func relinkOrphan(_ item: LibraryItem, parentPath: String?) {
+    let context = dataManager.getContext()
+
+    if let parentPath, let parent = getItemReference(with: parentPath, context: context) as? Folder {
+      parent.addToItems(item)
+    } else {
+      getLibraryReference().addToItems(item)
+    }
+    item.orderRank = getNextOrderRank(in: parentPath, context: context)
+    dataManager.saveContext()
+
+    // Recompute the relinked item's stats (no-op for books) and propagate up the chain.
+    rebuildFolderDetails(item.relativePath)
+    if let parentPath {
+      rebuildFolderDetails(parentPath)
+    }
   }
 
   /// Inserts already-prepared items into CoreData. Used by directory handling to avoid re-preparing.
@@ -2180,6 +2216,42 @@ extension LibraryService {
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
         #keyPath(LibraryItem.uuid): item.uuid
+      ])
+    }
+
+    self.dataManager.saveContext()
+  }
+
+  /// One-off reverse: flips the current order and transitions the location's sticky sort to `.custom`,
+  /// the same transition a manual drag-drop produces. Same Hook 5 ordering as `reorderItems` —
+  /// write `.custom` BEFORE rebuilding ranks so the orderRank-suppression check sees the new sort
+  /// during the rebuild and the rank changes correctly flow to sync.
+  public func reverseContents(at relativePath: String?) {
+    if let prefs = preferencesService {
+      let location = makeLocation(forRelativePath: relativePath)
+      prefs.setSort(.custom, forLocation: location)
+    }
+
+    guard
+      var contents = fetchRawContents(
+        at: relativePath,
+        propertiesToFetch: [
+          #keyPath(LibraryItem.relativePath),
+          #keyPath(LibraryItem.orderRank),
+          #keyPath(LibraryItem.uuid)
+        ]
+      ),
+      !contents.isEmpty
+    else { return }
+
+    contents.reverse()
+
+    for (index, item) in contents.enumerated() {
+      item.orderRank = Int16(index)
+      metadataPassthroughPublisher.send([
+        #keyPath(LibraryItem.relativePath): item.relativePath!,
+        #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 

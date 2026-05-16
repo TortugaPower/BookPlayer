@@ -152,9 +152,9 @@ public class DataManager {
   }
 
   public class func isURLInProcessedFolder(_ url: URL) -> Bool {
-    let absoluteUrl = url.resolvingSymlinksInPath().absoluteString
-    let processedFolderUrl = getProcessedFolderURL().absoluteString
-    return absoluteUrl.contains(processedFolderUrl)
+    let resolvedPath = url.resolvingSymlinksInPath().path
+    let processedPath = getProcessedFolderURL().resolvingSymlinksInPath().path
+    return resolvedPath == processedPath || resolvedPath.hasPrefix(processedPath + "/")
   }
 
   /// Check if a URL points into the app's Documents folder (or any subfolder).
