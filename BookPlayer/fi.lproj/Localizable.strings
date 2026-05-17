@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Yhteyden tiedot";
 "integration_connect_button" = "Yhdistä";
 "integration_sign_in_button" = "Kirjaudu sisään";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Palvelimen URL-osoite";
 "integration_section_server_url_footer" = "Yhdistä %@-palvelimeesi";
 "integration_section_server" = "Palvelin";

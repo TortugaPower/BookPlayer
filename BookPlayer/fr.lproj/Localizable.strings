@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Détails de connexion";
 "integration_connect_button" = "Connecter";
 "integration_sign_in_button" = "Se connecter";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "URL du serveur";
 "integration_section_server_url_footer" = "Connectez-vous à votre serveur %@";
 "integration_section_server" = "Serveur";

@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Bağlantı Ayrıntıları";
 "integration_connect_button" = "Bağlamak";
 "integration_sign_in_button" = "Kayıt olmak";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Sunucu URL'si";
 "integration_section_server_url_footer" = "%@ sunucunuza bağlanın";
 "integration_section_server" = "Sunucu";

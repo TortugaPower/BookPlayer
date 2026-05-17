@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Detalii de conectare";
 "integration_connect_button" = "Conectați-vă";
 "integration_sign_in_button" = "Conectare";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Adresa URL a serverului";
 "integration_section_server_url_footer" = "Conectați-vă la serverul dvs. %@";
 "integration_section_server" = "Server";

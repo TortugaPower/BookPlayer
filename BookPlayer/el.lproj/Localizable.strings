@@ -341,6 +341,7 @@
 "integration_connection_details_title" = "Στοιχεία σύνδεσης";
 "integration_connect_button" = "Συνδέω";
 "integration_sign_in_button" = "Είσοδος";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "URL διακομιστή";
 "integration_section_server_url_footer" = "Συνδεθείτε στον διακομιστή %@";
 "integration_section_server" = "Υπηρέτης";

@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Podrobnosti o připojení";
 "integration_connect_button" = "Připojit";
 "integration_sign_in_button" = "Přihlaste se";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Adresa URL serveru";
 "integration_section_server_url_footer" = "Připojte se k serveru %@";
 "integration_section_server" = "Server";

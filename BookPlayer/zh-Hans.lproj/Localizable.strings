@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "连接详细信息";
 "integration_connect_button" = "连接";
 "integration_sign_in_button" = "登入";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "服务器 URL";
 "integration_section_server_url_footer" = "连接到您的 %@ 服务器";
 "integration_section_server" = "服务器";

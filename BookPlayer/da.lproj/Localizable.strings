@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Tilslutningsdetaljer";
 "integration_connect_button" = "Forbinde";
 "integration_sign_in_button" = "Log ind";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Opret forbindelse til din %@-server";
 "integration_section_server" = "Server";

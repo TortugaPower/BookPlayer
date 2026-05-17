@@ -340,6 +340,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_connection_details_title" = "Tilkoblingsdetaljer";
 "integration_connect_button" = "Koble til";
 "integration_sign_in_button" = "Logg på";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Koble til %@-serveren din";
 "integration_section_server" = "Server";

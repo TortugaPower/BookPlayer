@@ -341,6 +341,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "integration_connection_details_title" = "Detalls de connexió";
 "integration_connect_button" = "Connecta't";
 "integration_sign_in_button" = "Inicieu la sessió";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "URL del servidor";
 "integration_section_server_url_footer" = "Connecteu-vos al vostre servidor %@";
 "integration_section_server" = "Servidor";

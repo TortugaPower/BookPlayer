@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Verbindingsgegevens";
 "integration_connect_button" = "Verbinden";
 "integration_sign_in_button" = "Aanmelden";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server-URL";
 "integration_section_server_url_footer" = "Maak verbinding met uw %@-server";
 "integration_section_server" = "Server";

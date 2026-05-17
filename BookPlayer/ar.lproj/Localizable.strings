@@ -341,6 +341,7 @@
 "integration_connection_details_title" = "تفاصيل الاتصال";
 "integration_connect_button" = "الاتصال";
 "integration_sign_in_button" = "تسجيل الدخول";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "عنوان URL للخادم";
 "integration_section_server_url_footer" = "الاتصال بخادم @% الخاص بك";
 "integration_section_server" = "الخادم";

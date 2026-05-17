@@ -341,6 +341,7 @@
 "integration_connection_details_title" = "接続の詳細";
 "integration_connect_button" = "接続";
 "integration_sign_in_button" = "サインイン";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "サーバURL";
 "integration_section_server_url_footer" = "%@サーバに接続する";
 "integration_section_server" = "サーバ";

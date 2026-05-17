@@ -133,9 +133,22 @@ struct AudiobookShelfRootView: View {
       "error_title".localized,
       isPresented: .init(get: { loadError != nil }, set: { if !$0 { loadError = nil } }),
       actions: {
-        Button("ok_button".localized) {
+        // Library/identity loads can fail for many reasons (transient network, token
+        // expired, server moved, custom-header proxy issue). The previous "OK" button
+        // unconditionally pushed the user into the add-server form, which led people
+        // to re-add their server and end up with a duplicate. Distinguish the three
+        // useful actions and let the user pick.
+        Button("integration_sign_in_button".localized) {
           loadError = nil
           showConnectionForm = true
+        }
+        Button("integration_retry_button".localized) {
+          loadError = nil
+          Task { await loadLibraries() }
+        }
+        Button("cancel_button".localized, role: .cancel) {
+          loadError = nil
+          dismiss()
         }
       },
       message: { Text(loadError?.localizedDescription ?? "") }

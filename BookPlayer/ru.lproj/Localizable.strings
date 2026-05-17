@@ -340,6 +340,7 @@
 "integration_connection_details_title" = "Подробности подключения";
 "integration_connect_button" = "Подключиться";
 "integration_sign_in_button" = "Войти";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "URL-адрес сервера";
 "integration_section_server_url_footer" = "Подключитесь к вашему серверу %@";
 "integration_section_server" = "Сервер";
