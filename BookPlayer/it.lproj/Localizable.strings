@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Risposta imprevista del server";
 "integration_error_unexpected_response_with_code" = "Risposta imprevista del server (codice: %d - %@ )";
 "integration_error_unauthorized" = "Accesso non riuscito. Controlla il tuo nome utente e la tua password.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d di %d Elementi";
 "file_size_unknown" = "Dimensioni sconosciute";
 "runtime_unknown" = "Durata sconosciuta";

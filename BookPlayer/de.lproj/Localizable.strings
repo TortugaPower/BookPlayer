@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Unerwartete Serverantwort";
 "integration_error_unexpected_response_with_code" = "Unerwartete Serverantwort (Code: %d - %@ )";
 "integration_error_unauthorized" = "Anmeldung fehlgeschlagen. Überprüfe deinen Benutzernamen und dein Passwort.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d von %d Elementen";
 "file_size_unknown" = "Unbekannte Größe";
 "runtime_unknown" = "Unbekannte Dauer";

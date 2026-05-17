@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Неочікувана відповідь сервера";
 "integration_error_unexpected_response_with_code" = "Неочікувана відповідь сервера (Код: %d - %@ )";
 "integration_error_unauthorized" = "Помилка входу. Перевірте своє ім'я користувача та пароль.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d з %d Елементів";
 "file_size_unknown" = "Невідомий розмір";
 "runtime_unknown" = "Невідома тривалість";

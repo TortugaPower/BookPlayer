@@ -363,6 +363,7 @@
 "integration_error_unexpected_response" = "Απροσδόκητη απόκριση διακομιστή";
 "integration_error_unexpected_response_with_code" = "Μη αναμενόμενη απόκριση διακομιστή (Κωδικός: %d - %@ )";
 "integration_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d από %d Στοιχεία";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";

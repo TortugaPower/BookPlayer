@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Oväntat serversvar";
 "integration_error_unexpected_response_with_code" = "Oväntat serversvar (kod: %d - %@ )";
 "integration_error_unauthorized" = "Inloggning misslyckades. Kontrollera ditt användarnamn och lösenord.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d av %d Objekt";
 "file_size_unknown" = "Okänd storlek";
 "runtime_unknown" = "Okänd varaktighet";

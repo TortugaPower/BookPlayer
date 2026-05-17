@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Răspuns neașteptat al serverului";
 "integration_error_unexpected_response_with_code" = "Răspuns neașteptat al serverului (Cod: %d - %@ )";
 "integration_error_unauthorized" = "Conectarea a eșuat. Verificați-vă numele de utilizator și parola.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d din %d Elemente";
 "file_size_unknown" = "Dimensiune necunoscută";
 "runtime_unknown" = "Durată necunoscută";

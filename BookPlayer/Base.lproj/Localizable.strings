@@ -368,6 +368,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_error_unexpected_response" = "Unexpected server response";
 "integration_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "integration_error_unauthorized" = "Sign In failed. Check your username and password.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d of %d Items";
 "file_size_unknown" = "Unknown size";
 "runtime_unknown" = "Unknown duration";

@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Неожиданный ответ сервера";
 "integration_error_unexpected_response_with_code" = "Неожиданный ответ сервера (Код: %d - %@)";
 "integration_error_unauthorized" = "Ошибка входа. Проверьте имя пользователя и пароль.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d из %d Элементов";
 "file_size_unknown" = "Неизвестный размер";
 "runtime_unknown" = "Неизвестная продолжительность";

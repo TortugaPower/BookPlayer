@@ -99,19 +99,34 @@ struct JellyfinRootView: View {
         // Library/identity loads can fail for many reasons (transient network, token
         // expired, server moved, custom-header proxy issue). The previous "OK" button
         // unconditionally pushed the user into the add-server form, which led people
-        // to re-add their server and end up with a duplicate. Distinguish the three
-        // useful actions and let the user pick.
-        Button("integration_sign_in_button".localized) {
-          loadError = nil
-          showConnectionForm = true
-        }
-        Button("integration_retry_button".localized) {
-          loadError = nil
-          Task { await loadLibraries() }
-        }
-        Button("cancel_button".localized, role: .cancel) {
-          loadError = nil
-          dismiss()
+        // to re-add their server and end up with a duplicate.
+        //
+        // For the specific "session expired" case (401/403 mid-session) we already know
+        // the URL and customHeaders are fine — just the token is stale — so we show a
+        // narrower set of actions that funnel into the existing connection's sign-in
+        // form (which preserves customHeaders + selectedLibraryId).
+        if (loadError as? IntegrationError)?.isSessionExpired == true {
+          Button("integration_sign_in_button".localized) {
+            loadError = nil
+            showConnectionForm = true
+          }
+          Button("cancel_button".localized, role: .cancel) {
+            loadError = nil
+            dismiss()
+          }
+        } else {
+          Button("integration_sign_in_button".localized) {
+            loadError = nil
+            showConnectionForm = true
+          }
+          Button("integration_retry_button".localized) {
+            loadError = nil
+            Task { await loadLibraries() }
+          }
+          Button("cancel_button".localized, role: .cancel) {
+            loadError = nil
+            dismiss()
+          }
         }
       },
       message: { Text(loadError?.localizedDescription ?? "") }

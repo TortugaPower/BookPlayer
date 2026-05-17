@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Onverwachte serverreactie";
 "integration_error_unexpected_response_with_code" = "Onverwachte serverrespons (Code: %d - %@ )";
 "integration_error_unauthorized" = "Aanmelden mislukt. Controleer uw gebruikersnaam en wachtwoord.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d van %d Items";
 "file_size_unknown" = "Onbekende grootte";
 "runtime_unknown" = "Onbekende duur";

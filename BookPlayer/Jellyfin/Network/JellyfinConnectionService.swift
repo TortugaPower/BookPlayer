@@ -107,16 +107,26 @@ class JellyfinConnectionService: BPLogger {
       throw IntegrationError.unexpectedResponse(code: nil)
     }
 
+    // If this is a re-auth on an existing (canonical-url, userID) pair, preserve the
+    // existing connection's id and selectedLibraryId so the user picks up exactly where
+    // they left off — same library context, same outbound references — and not a fresh
+    // connection record they have to re-configure.
+    let existing = connections.first {
+      $0.url.canonicalDedupKey == client.configuration.url.canonicalDedupKey
+        && $0.userID == userID
+    }
     let data = JellyfinConnectionData(
+      id: existing?.id ?? UUID().uuidString,
       url: client.configuration.url,
       serverName: serverName,
       userID: userID,
       userName: username,
       accessToken: accessToken,
+      selectedLibraryId: existing?.selectedLibraryId,
       customHeaders: customHeaders
     )
 
-    // Deduplicate on url + userID
+    // Deduplicate on canonical-url + userID — at most one of these can match `existing` above.
     connections.removeAll {
       $0.url.canonicalDedupKey == data.url.canonicalDedupKey && $0.userID == data.userID
     }
@@ -533,7 +543,22 @@ class JellyfinConnectionService: BPLogger {
       throw IntegrationError.noClient("Jellyfin")
     }
 
-    return try await client.send(request)
+    do {
+      return try await client.send(request)
+    } catch APIError.unacceptableStatusCode(let status)
+            where (status == 401 || status == 403) && connection != nil {
+      // Mid-session unauthorized — the saved access token is no longer accepted (server
+      // invalidated, revoked, or password rotated). Surface this as a typed re-auth signal so
+      // the UI can offer a "sign in again to {server}" path instead of dumping the user into
+      // the generic add-server form (which is the C2 trap: users re-add the same server and
+      // end up with duplicates).
+      //
+      // The `connection != nil` clause guards pre-sign-in calls (e.g. the api-client probe
+      // inside `findServer`) — we only re-auth when there's actually a session to re-auth.
+      throw IntegrationError.sessionExpired(
+        serverName: connection?.serverName ?? "Jellyfin"
+      )
+    }
   }
 
   private func reloadConnections() {

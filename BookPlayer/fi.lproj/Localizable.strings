@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Odottamaton palvelimen vastaus";
 "integration_error_unexpected_response_with_code" = "Odottamaton palvelimen vastaus (Koodi: %d - %@ )";
 "integration_error_unauthorized" = "Kirjautuminen epäonnistui. Tarkista käyttäjätunnuksesi ja salasanasi.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d / %d Kohdetta";
 "file_size_unknown" = "Tuntematon koko";
 "runtime_unknown" = "Tuntematon kesto";

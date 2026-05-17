@@ -363,6 +363,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "integration_error_unexpected_response" = "Resposta del servidor inesperada";
 "integration_error_unexpected_response_with_code" = "Resposta del servidor inesperada (Codi: %d - %@)";
 "integration_error_unauthorized" = "No s'ha pogut iniciar la sessió. Comproveu el vostre nom d'usuari i contrasenya.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d de %d Elements";
 "file_size_unknown" = "Mida desconeguda";
 "runtime_unknown" = "Durada desconeguda";

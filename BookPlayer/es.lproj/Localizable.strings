@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Respuesta inesperada del servidor";
 "integration_error_unexpected_response_with_code" = "Respuesta inesperada del servidor (Código: %d - %@ )";
 "integration_error_unauthorized" = "Error al iniciar sesión. Verifique su nombre de usuario y contraseña.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d de %d Elementos";
 "file_size_unknown" = "Tamaño desconocido";
 "runtime_unknown" = "Duración desconocida";

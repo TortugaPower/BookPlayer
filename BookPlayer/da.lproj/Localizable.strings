@@ -362,6 +362,7 @@
 "integration_error_unexpected_response" = "Uventet serversvar";
 "integration_error_unexpected_response_with_code" = "Uventet serversvar (Kode: %d - %@ )";
 "integration_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d af %d Elementer";
 "file_size_unknown" = "Ukendt størrelse";
 "runtime_unknown" = "Ukendt varighed";

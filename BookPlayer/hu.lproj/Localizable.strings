@@ -363,6 +363,7 @@
 "integration_error_unexpected_response" = "Váratlan szerver válasz";
 "integration_error_unexpected_response_with_code" = "Váratlan szerverválasz (Kód: %d - %@ )";
 "integration_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "file_size_unknown" = "Ismeretlen méret";
 "runtime_unknown" = "Ismeretlen időtartam";
 "Swipe rows to see download options" = "Csúsztassa el a sorokat a letöltési lehetőségek megtekintéséhez";
