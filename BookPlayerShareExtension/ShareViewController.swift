@@ -94,6 +94,14 @@ class ShareViewController: UIViewController {
   /// process if the extension survives long enough — see `kickOffBackgroundDownloads`.
   private var backgroundDownloadCoordinator: BackgroundDownloadCoordinator?
 
+  /// Tracks the in-flight background download tasks plus the share IDs we tagged them with.
+  /// Two paths consume this on cancel:
+  ///   1. Best-effort `task.cancel()` to abort while the extension still owns control.
+  ///   2. Write the share IDs into `ShareCancelStore` so the main app's download delegate
+  ///      can still suppress the completion if iOS killed the extension before step 1 took
+  ///      effect — the durable belt to step 1's suspenders.
+  private var activeDownloadTasks: [(shareID: String, task: URLSessionDownloadTask)] = []
+
   /// File extensions BookPlayer can fetch from a remote `http(s)` URL.
   ///
   /// File-URL shares (AirDrop, Files app) are accepted unconditionally — they're already
@@ -196,7 +204,23 @@ class ShareViewController: UIViewController {
   }
 
   @objc func didPressCancel() {
+    cancelInFlightDownloads()
     extensionContext?.cancelRequest(withError: ShareExtensionError.cancelled)
+  }
+
+  /// Best-effort cancellation of any background downloads kicked off via the share sheet.
+  ///
+  /// `task.cancel()` only works while the extension's process is still alive and still holds
+  /// the task reference — which is unreliable once iOS starts tearing the extension down.
+  /// Persist the share IDs in the App Group too, so the main app's download delegate can
+  /// still drop the completion event if iOS kills us before the cancel propagates to
+  /// `nsurlsessiond`.
+  private func cancelInFlightDownloads() {
+    guard !activeDownloadTasks.isEmpty else { return }
+    let ids = activeDownloadTasks.map(\.shareID)
+    ShareCancelStore.markCanceled(ids)
+    for (_, task) in activeDownloadTasks { task.cancel() }
+    activeDownloadTasks.removeAll()
   }
 
   @objc func didPressDone() {
@@ -282,7 +306,15 @@ class ShareViewController: UIViewController {
     self.backgroundDownloadCoordinator = coordinator
     let session = URLSession(configuration: config, delegate: coordinator, delegateQueue: nil)
     for url in urls {
-      session.downloadTask(with: url).resume()
+      // Tag each task with a stable share id (via `taskDescription`, which iOS preserves
+      // across extension teardown). The cancel path writes these ids into
+      // ShareCancelStore so the main app's download delegate can suppress completions
+      // even after the extension's process is gone.
+      let task = session.downloadTask(with: url)
+      let shareID = UUID().uuidString
+      task.taskDescription = shareID
+      activeDownloadTasks.append((shareID: shareID, task: task))
+      task.resume()
     }
     session.finishTasksAndInvalidate()
   }
@@ -371,6 +403,14 @@ final class BackgroundDownloadCoordinator: NSObject, URLSessionDownloadDelegate 
   ) {
     let originalURL = downloadTask.originalRequest?.url
     let source = originalURL?.absoluteString ?? "shared file"
+
+    // If the user canceled this share before the download finished, drop the temp file
+    // and bail out — don't import or persist a failure (the cancel is intentional).
+    if let shareID = downloadTask.taskDescription, ShareCancelStore.isCanceled(shareID) {
+      try? FileManager.default.removeItem(at: location)
+      ShareCancelStore.clear(shareID)
+      return
+    }
 
     /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
     /// file just contains the error body. Record the failure so the host app can surface it.

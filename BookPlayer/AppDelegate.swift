@@ -535,6 +535,17 @@ final class BackgroundShareDownloadDelegate: NSObject, URLSessionDownloadDelegat
     let originalURL = downloadTask.originalRequest?.url
     let source = originalURL?.absoluteString ?? "shared file"
 
+    // If the user canceled this share before iOS finished the download, drop the temp
+    // file and bail out. Important for the case where the share extension was killed
+    // before its in-memory `task.cancel()` could propagate — the durable cancel marker
+    // in ShareCancelStore is the only signal left to honor the user's intent.
+    if let shareID = downloadTask.taskDescription, ShareCancelStore.isCanceled(shareID) {
+      Self.logger.info("share download \(source) canceled by user; dropping temp file")
+      try? FileManager.default.removeItem(at: location)
+      ShareCancelStore.clear(shareID)
+      return
+    }
+
     /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
     /// file just contains the error body. Don't deposit garbage into the library, and
     /// surface the failure to the user (via the share-import failure store) so they know
