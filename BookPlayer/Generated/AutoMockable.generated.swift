@@ -685,6 +685,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         sortContentsInByReceivedInvocations.append((location: location, type: type))
         sortContentsInByClosure?(location, type)
     }
+    //MARK: - reverseContents
+
+    var reverseContentsAtCallsCount = 0
+    var reverseContentsAtCalled: Bool {
+        return reverseContentsAtCallsCount > 0
+    }
+    var reverseContentsAtReceivedRelativePath: String?
+    var reverseContentsAtReceivedInvocations: [String?] = []
+    var reverseContentsAtClosure: ((String?) -> Void)?
+    func reverseContents(at relativePath: String?) {
+        reverseContentsAtCallsCount += 1
+        reverseContentsAtReceivedRelativePath = relativePath
+        reverseContentsAtReceivedInvocations.append(relativePath)
+        reverseContentsAtClosure?(relativePath)
+    }
     //MARK: - getRelativePath
 
     var getRelativePathForUuidCallsCount = 0

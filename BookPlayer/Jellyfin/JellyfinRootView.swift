@@ -322,7 +322,7 @@ private struct JellyfinTabRoot: View {
         }
     }
     .environment(\.tabEditing, $isEditing)
-    .toolbar(isEditing ? .hidden : .visible, for: .tabBar)
+    .toolbar((isEditing || !navigation.path.isEmpty) ? .hidden : .visible, for: .tabBar)
     .tint(theme.linkColor)
     .sheet(isPresented: $showConnectionDetails) {
       connectionDetailsSheet
@@ -513,7 +513,7 @@ where ViewModel.Item == JellyfinLibraryItem {
         }
     }
     .environment(\.tabEditing, $isEditing)
-    .toolbar(isEditing ? .hidden : .visible, for: .tabBar)
+    .toolbar((isEditing || !navigation.path.isEmpty) ? .hidden : .visible, for: .tabBar)
     .tint(theme.linkColor)
     .sheet(isPresented: $showConnectionDetails) {
       JellyfinTabRoot.connectionDetailsSheetView(
