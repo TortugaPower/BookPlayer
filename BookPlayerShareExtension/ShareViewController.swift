@@ -389,14 +389,24 @@ final class BackgroundDownloadCoordinator: NSObject, URLSessionDownloadDelegate 
       return
     }
 
-    let filename =
+    let suggested =
       downloadTask.response?.suggestedFilename
       ?? originalURL?.lastPathComponent
       ?? "shared-\(UUID().uuidString)"
-    let destinationURL = DataManager.getSharedFilesFolderURL().appendingPathComponent(filename)
+    let filename = ShareDownloadSupport.sanitizedFilename(suggested)
+    let mime = (downloadTask.response as? HTTPURLResponse)?.mimeType?.lowercased()
 
-    /// Replace any same-named stale download from a previous attempt.
-    try? FileManager.default.removeItem(at: destinationURL)
+    if let rejection = ShareDownloadSupport.rejectionReason(forMIME: mime, filename: filename) {
+      ShareImportFailureStore.append(
+        ShareImportFailure(source: source, message: rejection)
+      )
+      try? FileManager.default.removeItem(at: location)
+      return
+    }
+
+    // Avoid collisions from concurrent shares of the same URL by prefixing a short UUID.
+    let destinationURL = DataManager.getSharedFilesFolderURL()
+      .appendingPathComponent(ShareDownloadSupport.uniqueDestinationName(for: filename))
     do {
       try FileManager.default.moveItem(at: location, to: destinationURL)
     } catch {
