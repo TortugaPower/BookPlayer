@@ -532,18 +532,31 @@ final class BackgroundShareDownloadDelegate: NSObject, URLSessionDownloadDelegat
     downloadTask: URLSessionDownloadTask,
     didFinishDownloadingTo location: URL
   ) {
+    let originalURL = downloadTask.originalRequest?.url
+    let source = originalURL?.absoluteString ?? "shared file"
+
     /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
-    /// file just contains the error body. Don't deposit garbage into the library.
+    /// file just contains the error body. Don't deposit garbage into the library, and
+    /// surface the failure to the user (via the share-import failure store) so they know
+    /// the share didn't actually succeed.
     if let httpResponse = downloadTask.response as? HTTPURLResponse,
        !(200..<300).contains(httpResponse.statusCode)
     {
       Self.logger.error(
-        "share download \(downloadTask.originalRequest?.url?.absoluteString ?? "?") returned status \(httpResponse.statusCode)"
+        "share download \(source) returned status \(httpResponse.statusCode)"
+      )
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: source,
+          message: String(
+            format: "share_import_failure_http_status".localized,
+            httpResponse.statusCode
+          )
+        )
       )
       return
     }
 
-    let originalURL = downloadTask.originalRequest?.url
     let filename =
       downloadTask.response?.suggestedFilename
       ?? originalURL?.lastPathComponent
@@ -557,6 +570,16 @@ final class BackgroundShareDownloadDelegate: NSObject, URLSessionDownloadDelegat
       Self.logger.info("share download landed at \(destinationURL.lastPathComponent)")
     } catch {
       Self.logger.error("share download move failed: \(error.localizedDescription)")
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: filename,
+          message: String(
+            format: "share_import_failure_move_failed".localized,
+            filename,
+            error.localizedDescription
+          )
+        )
+      )
     }
   }
 

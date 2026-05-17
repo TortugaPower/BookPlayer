@@ -223,7 +223,23 @@ class ShareViewController: UIViewController {
 
     for item in fileItems {
       let destinationURL = sharedFolder.appendingPathComponent(item.lastPathComponent)
-      try? FileManager.default.copyItem(at: item, to: destinationURL)
+      do {
+        try FileManager.default.copyItem(at: item, to: destinationURL)
+      } catch {
+        // Don't swallow disk-full / permission / collision errors. The user is blind
+        // and the share sheet is already gone by the time the main app foregrounds, so
+        // we persist the failure into the App Group for the host to surface.
+        ShareImportFailureStore.append(
+          ShareImportFailure(
+            source: item.lastPathComponent,
+            message: String(
+              format: "share_import_failure_copy_failed".localized,
+              item.lastPathComponent,
+              error.localizedDescription
+            )
+          )
+        )
+      }
     }
 
     if !webItems.isEmpty {
@@ -353,15 +369,26 @@ final class BackgroundDownloadCoordinator: NSObject, URLSessionDownloadDelegate 
     downloadTask: URLSessionDownloadTask,
     didFinishDownloadingTo location: URL
   ) {
+    let originalURL = downloadTask.originalRequest?.url
+    let source = originalURL?.absoluteString ?? "shared file"
+
     /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
-    /// file just contains the error body.
+    /// file just contains the error body. Record the failure so the host app can surface it.
     if let httpResponse = downloadTask.response as? HTTPURLResponse,
        !(200..<300).contains(httpResponse.statusCode)
     {
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: source,
+          message: String(
+            format: "share_import_failure_http_status".localized,
+            httpResponse.statusCode
+          )
+        )
+      )
       return
     }
 
-    let originalURL = downloadTask.originalRequest?.url
     let filename =
       downloadTask.response?.suggestedFilename
       ?? originalURL?.lastPathComponent
@@ -370,6 +397,19 @@ final class BackgroundDownloadCoordinator: NSObject, URLSessionDownloadDelegate 
 
     /// Replace any same-named stale download from a previous attempt.
     try? FileManager.default.removeItem(at: destinationURL)
-    try? FileManager.default.moveItem(at: location, to: destinationURL)
+    do {
+      try FileManager.default.moveItem(at: location, to: destinationURL)
+    } catch {
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: filename,
+          message: String(
+            format: "share_import_failure_move_failed".localized,
+            filename,
+            error.localizedDescription
+          )
+        )
+      )
+    }
   }
 }

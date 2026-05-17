@@ -341,6 +341,11 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_connection_details_title" = "Podrobnosti pripojenia";
 "integration_connect_button" = "Pripojiť sa";
 "integration_sign_in_button" = "Prihlásiť sa";
+"share_import_failure_alert_title" = "Some shared files didn’t import";
+"share_import_failure_copy_failed" = "Couldn’t copy “%1$@” to BookPlayer: %2$@";
+"share_import_failure_move_failed" = "Couldn’t save “%1$@” to BookPlayer: %2$@";
+"share_import_failure_http_status" = "Download failed with HTTP status %d.";
+"share_import_failure_announcement_multiple" = "%d shared imports failed.";
 "integration_section_server_url" = "URL servera";
 "integration_section_server_url_footer" = "Pripojenie sa k serveru %@";
 "integration_section_server" = "Server";

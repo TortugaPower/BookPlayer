@@ -22,6 +22,11 @@ struct LibraryRootView: View {
   @State private var importOperationState = ImportOperationState()
   @State private var loadingState = LoadingOverlayState()
 
+  /// Failures recovered from `ShareImportFailureStore` on foreground — drained once per scene
+  /// activation, surfaced in an alert plus a VoiceOver announcement. Cleared when the user
+  /// dismisses the alert.
+  @State private var pendingShareImportFailures: [ShareImportFailure] = []
+
   @StateObject private var documentFolderWatcher = DirectoryWatcher.watch(
     DataManager.getDocumentsFolderURL(),
     ignoreDirectories: false
@@ -93,7 +98,21 @@ struct LibraryRootView: View {
       .onChange(of: scenePhase) {
         guard scenePhase == .active else { return }
         showImport()
+        drainShareImportFailures()
       }
+      .alert(
+        "share_import_failure_alert_title".localized,
+        isPresented: Binding(
+          get: { !pendingShareImportFailures.isEmpty },
+          set: { if !$0 { pendingShareImportFailures = [] } }
+        ),
+        actions: {
+          Button("ok_button".localized) { pendingShareImportFailures = [] }
+        },
+        message: {
+          Text(pendingShareImportFailures.map { "• \($0.message)" }.joined(separator: "\n"))
+        }
+      )
       .onReceive(syncService.downloadErrorPublisher) { (relativePath, error) in
         let errorMessage = "\(relativePath)\n\(error.localizedDescription)"
         loadingState.error = BookPlayerError.networkError(errorMessage)
@@ -142,6 +161,28 @@ struct LibraryRootView: View {
     for action in pendingActions {
       ActionParserService.handleAction(action)
     }
+  }
+
+  /// Drain share-import failures that piled up while the app wasn't foregrounded — these come
+  /// from the share extension's synchronous copy errors and the main app's background-download
+  /// delegate move/HTTP errors. We surface them via the alert (visible) and a VoiceOver
+  /// announcement so a blind user knows the share didn't actually succeed.
+  func drainShareImportFailures() {
+    let failures = ShareImportFailureStore.drain()
+    guard !failures.isEmpty else { return }
+    pendingShareImportFailures = failures
+
+    let announcement: String = {
+      if failures.count == 1 {
+        return failures[0].message
+      }
+      let summary = String(
+        format: "share_import_failure_announcement_multiple".localized,
+        failures.count
+      )
+      return summary + " " + failures.map(\.message).joined(separator: ". ")
+    }()
+    UIAccessibility.post(notification: .announcement, argument: announcement)
   }
 
   func loadLastBookIfNeeded() async {
