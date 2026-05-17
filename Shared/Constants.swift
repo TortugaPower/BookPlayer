@@ -131,6 +131,14 @@ public enum Constants {
   public static let UserActivityPlayback = Bundle.main.bundleIdentifier! + ".activity.playback"
   public static let ApplicationGroupIdentifier = "group.\(Bundle.main.configurationString(for: .bundleIdentifier)).files"
 
+  /// `URLSessionConfiguration.background` identifier used by the share extension to download
+  /// shared web URLs. The main app re-creates a session with the same identifier in
+  /// `application(_:handleEventsForBackgroundURLSession:completionHandler:)` so the
+  /// `BackgroundShareDownloadDelegate` receives completion and can move the resulting file
+  /// into the app group's shared folder.
+  public static let shareExtensionBackgroundSessionIdentifier =
+    "\(Bundle.main.configurationString(for: .bundleIdentifier)).shareext.background"
+
   public enum Widgets: String {
     case sharedNowPlayingWidget = "com.bookplayer.shared.widget"
     case sharedIconWidget = "com.bookplayer.shared.icon.widget"
