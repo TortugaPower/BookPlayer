@@ -17,6 +17,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   @State private var isLoading = false
   @State private var error: Error?
 
+  /// Tracks the in-flight network task for connect/sign-in/Quick-Connect-start so the view
+  /// can cancel it on dismissal. Without this, swiping the sheet down while a sign-in is
+  /// still in flight would let the view model persist a connection the user thought they
+  /// gave up on.
+  @State private var actionTask: Task<Void, Never>?
+
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
@@ -142,31 +148,41 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       }
     }
     .tint(theme.linkColor)
+    .onDisappear {
+      actionTask?.cancel()
+      actionTask = nil
+    }
   }
 
   // MARK: Utils
 
   func onConnect() {
+    actionTask?.cancel()
     isLoading = true
-    Task {
+    actionTask = Task { @MainActor in
+      defer { isLoading = false }
       do {
         try await viewModel.handleConnectAction()
-        isLoading = false
+        try Task.checkCancellation()
+      } catch is CancellationError {
+        // Sheet dismissed mid-flight; nothing to surface.
       } catch {
-        isLoading = false
         self.error = error
       }
     }
   }
 
   func onSignIn() {
+    actionTask?.cancel()
     isLoading = true
-    Task {
+    actionTask = Task { @MainActor in
+      defer { isLoading = false }
       do {
         try await viewModel.handleSignInAction()
-        isLoading = false
+        try Task.checkCancellation()
+      } catch is CancellationError {
+        return
       } catch {
-        isLoading = false
         self.error = error
       }
     }

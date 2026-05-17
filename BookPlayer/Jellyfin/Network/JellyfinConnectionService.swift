@@ -95,6 +95,10 @@ class JellyfinConnectionService: BPLogger {
     }
 
     let result = try await client.signIn(username: username, password: password)
+    // Bail out before persisting if the caller cancelled while the auth round-trip was
+    // in flight (e.g. the user swiped the sheet down). Otherwise the cancelled sign-in
+    // still ends up saved.
+    try Task.checkCancellation()
 
     guard
       let accessToken = result.accessToken,

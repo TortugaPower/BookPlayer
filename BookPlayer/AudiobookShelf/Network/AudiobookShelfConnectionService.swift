@@ -102,6 +102,10 @@ class AudiobookShelfConnectionService: BPLogger {
     request.httpBody = try JSONSerialization.data(withJSONObject: credentials)
 
     let (data, response) = try await urlSession.data(for: request)
+    // Bail out before persisting if the caller cancelled while the auth round-trip was
+    // in flight (e.g. the user swiped the sheet down). Otherwise the cancelled sign-in
+    // still ends up saved.
+    try Task.checkCancellation()
 
     guard let httpResponse = response as? HTTPURLResponse else {
       throw IntegrationError.unexpectedResponse(code: nil)
