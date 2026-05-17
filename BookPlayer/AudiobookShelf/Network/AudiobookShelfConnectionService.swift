@@ -136,8 +136,11 @@ class AudiobookShelfConnectionService: BPLogger {
       customHeaders: customHeaders
     )
 
-    // Deduplicate on url + userID
-    connections.removeAll { $0.url == url && $0.userID == userID }
+    // Deduplicate on canonical-url + userID so that trailing-slash, port, and scheme-case
+    // variants of the same logical server don't accumulate as separate connections.
+    connections.removeAll {
+      $0.url.canonicalDedupKey == url.canonicalDedupKey && $0.userID == userID
+    }
     connections.append(connectionData)
     activeConnectionID = connectionData.id
     saveConnections()

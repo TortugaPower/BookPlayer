@@ -117,7 +117,9 @@ class JellyfinConnectionService: BPLogger {
     )
 
     // Deduplicate on url + userID
-    connections.removeAll { $0.url == data.url && $0.userID == data.userID }
+    connections.removeAll {
+      $0.url.canonicalDedupKey == data.url.canonicalDedupKey && $0.userID == data.userID
+    }
     connections.append(data)
     activeConnectionID = data.id
     saveConnections()

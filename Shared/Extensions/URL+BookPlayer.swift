@@ -5,6 +5,37 @@ public extension URL {
     return self.deletingPathExtension().lastPathComponent
   }
 
+  /// Canonical form used for media-server connection deduplication. Two URLs that point at the
+  /// same server but differ only in trivial ways — scheme/host case, default ports, trailing
+  /// slash — collapse to the same canonical string here.
+  ///
+  /// Used by `JellyfinConnectionService` and `AudiobookShelfConnectionService` to dedupe saved
+  /// connections so the user doesn't end up with two entries for one server when they re-type
+  /// the URL after a token expiry (or add the same server from two slightly-different inputs).
+  var canonicalDedupKey: String {
+    guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
+      return absoluteString
+    }
+    components.scheme = components.scheme?.lowercased()
+    components.host = components.host?.lowercased()
+    components.user = nil
+    components.password = nil
+    components.fragment = nil
+    components.query = nil
+
+    if let port = components.port,
+       (components.scheme == "http" && port == 80)
+       || (components.scheme == "https" && port == 443) {
+      components.port = nil
+    }
+
+    if components.path.count > 1, components.path.hasSuffix("/") {
+      components.path.removeLast()
+    }
+
+    return components.url?.absoluteString ?? absoluteString
+  }
+
   func relativePath(to baseURL: URL) -> String {
     let lastPath = self.path.components(separatedBy: baseURL.path).last ?? ""
     if !lastPath.isEmpty,
