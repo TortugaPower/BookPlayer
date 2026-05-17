@@ -48,6 +48,7 @@
 "options_button" = "Alternativ";
 "library_options_progress_as_percentage_title" = "Visa förlopp som procent";
 "library_options_original_filename_title" = "Visa ursprungligt filnamn";
+"library_options_quick_actions_title" = "Snabbåtgärder";
 "select_playlist_title" = "Välj mapp";
 "title_button" = "Titel";
 "sort_filename_button" = "Ursprungligt filnamn";

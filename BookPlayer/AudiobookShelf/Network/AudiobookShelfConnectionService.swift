@@ -216,12 +216,26 @@ class AudiobookShelfConnectionService: BPLogger {
         queryItems.append(URLQueryItem(name: "desc", value: desc ? "1" : "0"))
       }
     }
-    if let filter {
-      queryItems.append(URLQueryItem(name: "filter", value: filter.queryValue))
-    }
 
     if !queryItems.isEmpty {
       urlComponents.queryItems = queryItems
+    }
+
+    // Append the filter param via `percentEncodedQuery` rather than
+    // `URLQueryItem`. The filter value is `<group>.<base64>`, and base64 can
+    // include `+` / `/`. `URLQueryItem` leaves both unencoded, but Express on
+    // the ABS server interprets `+` in a query value as a space (form-encoding
+    // convention) which silently corrupts the base64-encoded ID — typically
+    // collapsing it to a 0- or 1-match. Only `+` and `/` need fixing; `=`
+    // padding is already escaped by URLComponents elsewhere.
+    if let filter {
+      let safeValue = filter.queryValue
+        .replacingOccurrences(of: "+", with: "%2B")
+        .replacingOccurrences(of: "/", with: "%2F")
+      let existingQuery = urlComponents.percentEncodedQuery ?? ""
+      urlComponents.percentEncodedQuery = existingQuery.isEmpty
+        ? "filter=\(safeValue)"
+        : "\(existingQuery)&filter=\(safeValue)"
     }
 
     guard let url = urlComponents.url else {
@@ -247,6 +261,55 @@ class AudiobookShelfConnectionService: BPLogger {
     let items = itemsResponse.results.compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     return (items, itemsResponse.total)
+  }
+
+  /// Fetch the books linked to a specific author via the dedicated author endpoint.
+  ///
+  /// The `/items?filter=authors.<base64>` route joins through the `bookAuthors`
+  /// table. ABS rewrites author IDs on dedup/import, which can leave that table
+  /// pointing some books at stale author IDs — the filter endpoint then returns
+  /// only the one book still attached to the current ID. `/api/authors/:id?include=items`
+  /// hydrates `libraryItems` from the author record itself and is what the
+  /// official Vue web client uses on the author-detail page.
+  public func fetchAuthorItems(authorID: String) async throws -> [AudiobookShelfLibraryItem] {
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    guard
+      var urlComponents = URLComponents(
+        url: connection.url
+          .appendingPathComponent("api")
+          .appendingPathComponent("authors")
+          .appendingPathComponent(authorID),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw URLError(.badURL)
+    }
+
+    urlComponents.queryItems = [URLQueryItem(name: "include", value: "items")]
+
+    guard let url = urlComponents.url else {
+      throw IntegrationError.urlFromComponents(urlComponents)
+    }
+
+    var request = URLRequest(url: url)
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+
+    let (data, response) = try await urlSession.data(for: request)
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    let decoder = JSONDecoder()
+    let authorResponse = try decoder.decode(AudiobookShelfAuthorWithItemsResponse.self, from: data)
+    return (authorResponse.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
   }
 
   public func fetchFilterData(in libraryId: String) async throws -> AudiobookShelfLibraryFilterData {
@@ -497,7 +560,10 @@ class AudiobookShelfConnectionService: BPLogger {
     request.setValue("Bearer \(connection.apiToken)", forHTTPHeaderField: "Authorization")
   }
 
-  /// Creates an image URL for a library item
+  /// Creates an image URL for a library item. The API token is delivered via the
+  /// `Authorization: Bearer` header — applied in the Kingfisher `requestModifier`
+  /// inside `AudiobookShelfLibraryItemImageViewWrapper` — rather than in the URL,
+  /// so that rotated tokens don't leave stale entries in Kingfisher's disk cache.
   public func createItemImageURL(_ item: AudiobookShelfLibraryItem, size: CGSize) -> URL? {
     guard let connection = connection else { return nil }
 
@@ -514,9 +580,6 @@ class AudiobookShelfConnectionService: BPLogger {
     let width = Int(size.width)
     let height = Int(size.height)
     urlString += "?width=\(width)&height=\(height)&format=webp"
-
-    // Add token for authentication
-    urlString += "&token=\(connection.apiToken)"
 
     return URL(string: urlString)
   }

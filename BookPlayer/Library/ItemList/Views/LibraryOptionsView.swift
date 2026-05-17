@@ -15,6 +15,9 @@ struct LibraryOptionsView: View {
   let location: SortLocation
   /// Triggered when the user changes the effective sort.
   let onSelectionChange: (EffectiveSort) -> Void
+  /// Triggered when the user taps the one-off "Reverse Order" action.
+  /// Reverses the current order locally and transitions the sticky sort to `.custom`.
+  let onReverseOrder: () -> Void
 
   /// Bound to the matching UserDefaults key. The view re-renders automatically when
   /// the value changes — including when `PreferencesSyncService` applies a remote pull,
@@ -44,10 +47,12 @@ struct LibraryOptionsView: View {
 
   init(
     location: SortLocation,
-    onSelectionChange: @escaping (EffectiveSort) -> Void
+    onSelectionChange: @escaping (EffectiveSort) -> Void,
+    onReverseOrder: @escaping () -> Void
   ) {
     self.location = location
     self.onSelectionChange = onSelectionChange
+    self.onReverseOrder = onReverseOrder
 
     // Pick the matching UserDefaults key for the picker binding.
     // `.unresolved` falls back to the default key only because `@AppStorage`
@@ -65,6 +70,17 @@ struct LibraryOptionsView: View {
       key,
       store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
     )
+  }
+
+  /// Localized title shown on the right side of the menu trigger row, mirroring the
+  /// label that `Picker(.menu)` rendered before the menu got a one-off section.
+  private var currentSortDisplayKey: LocalizedStringKey {
+    switch pickerSelection.wrappedValue {
+    case .metadataTitle: return "title_button"
+    case .fileName: return "sort_filename_button"
+    case .mostRecent: return "sort_most_recent_button"
+    case .none: return "sleeptimer_option_custom"
+    }
   }
 
   /// Picker selection bound to the resolved effective sort:
@@ -105,16 +121,40 @@ struct LibraryOptionsView: View {
             oneShotSortRow(.fileName, titleKey: "sort_filename_button")
             oneShotSortRow(.mostRecent, titleKey: "sort_most_recent_button")
           } else {
-            Picker(selection: pickerSelection) {
-              Text("title_button").tag(Optional(SortType.metadataTitle))
-              Text("sort_filename_button").tag(Optional(SortType.fileName))
-              Text("sort_most_recent_button").tag(Optional(SortType.mostRecent))
-              Text("sleeptimer_option_custom").tag(SortType?.none)
+            Menu {
+              // Sticky picker — selection persists.
+              Picker(selection: pickerSelection) {
+                Text("title_button").tag(Optional(SortType.metadataTitle))
+                Text("sort_filename_button").tag(Optional(SortType.fileName))
+                Text("sort_most_recent_button").tag(Optional(SortType.mostRecent))
+                Text("sleeptimer_option_custom").tag(SortType?.none)
+              } label: {
+                Text("sort_files_title")
+              }
+
+              // One-off section: reverses the current order and transitions
+              // the sticky sort to `.custom`.
+              Section {
+                Button {
+                  onReverseOrder()
+                } label: {
+                  Text("sort_reversed_button")
+                }
+              } header: {
+                Text("library_options_quick_actions_title")
+              }
             } label: {
-              Text("sort_files_title")
-                .bpFont(.body)
+              HStack {
+                Text("sort_files_title")
+                  .bpFont(.body)
+                  .foregroundStyle(theme.primaryColor)
+                Spacer()
+                Text(currentSortDisplayKey)
+                  .bpFont(.body)
+                  .foregroundStyle(theme.linkColor)
+              }
+              .contentShape(Rectangle())
             }
-            .pickerStyle(.menu)
           }
 
           Toggle(isOn: $progressAsPercentage) {
