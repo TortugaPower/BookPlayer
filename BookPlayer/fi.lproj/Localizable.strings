@@ -48,6 +48,7 @@
 "options_button" = "Valinnat";
 "library_options_progress_as_percentage_title" = "Näytä edistyminen prosentteina";
 "library_options_original_filename_title" = "Näytä alkuperäinen tiedostonimi";
+"library_options_quick_actions_title" = "Pikatoiminnot";
 "select_playlist_title" = "Valitse kansio";
 "title_button" = "Otsikko";
 "sort_filename_button" = "Alkuperäinen tiedostonimi";

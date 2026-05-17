@@ -1991,4 +1991,36 @@ class RegisterExistingProcessedItemsTests: LibraryServiceTests {
     let folder = self.sut.getItem(with: "Mistborn") as? Folder
     XCTAssertEqual(folder?.items?.count, 2)
   }
+
+  /// An orphaned Book (entity with valid relativePath but no library/folder relationship)
+  /// should be relinked to the library hierarchy when registered.
+  func testRegisterRelinksOrphanedBook() async throws {
+    let processedFolder = DataManager.getProcessedFolderURL()
+    let bookContents = "bookcontents".data(using: .utf8)!
+    let fileURL = DataTestUtils.generateTestFile(
+      name: "orphan.txt",
+      contents: bookContents,
+      destinationFolder: processedFolder
+    )
+
+    // Insert normally, then detach from library to simulate the orphan state.
+    let initial = await self.sut.insertItems(from: [fileURL])
+    XCTAssertEqual(initial.count, 1)
+    let book = try XCTUnwrap(self.sut.getItem(with: "orphan.txt") as? Book)
+    let library = self.sut.getLibrary()
+    library.removeFromItems(book)
+    book.library = nil
+    self.sut.dataManager.saveContext()
+
+    XCTAssertNil(book.getLibrary())
+    XCTAssertEqual(library.items?.count, 0)
+
+    // Picking the same file via the register flow should reattach the orphan.
+    let registered = await self.sut.registerExistingProcessedItems(at: [fileURL])
+
+    XCTAssertEqual(registered.count, 1)
+    XCTAssertEqual(registered.first?.relativePath, "orphan.txt")
+    XCTAssertNotNil(book.getLibrary())
+    XCTAssertEqual(library.items?.count, 1)
+  }
 }

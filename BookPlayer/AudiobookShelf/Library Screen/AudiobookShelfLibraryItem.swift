@@ -312,6 +312,16 @@ struct AudiobookShelfSearchResponse: Codable {
   }
 }
 
+/// Response from `GET /api/authors/:id?include=items` (the endpoint the official
+/// Vue web client uses for the author-detail page). `libraryItems` is hydrated
+/// directly from the author record rather than via the `bookAuthors` join, which
+/// avoids orphan-row matches that can occur after ABS dedups authors on import.
+struct AudiobookShelfAuthorWithItemsResponse: Codable {
+  let id: String
+  let name: String
+  let libraryItems: [AudiobookShelfAPIItem]?
+}
+
 struct AudiobookShelfLibraryFilterData: Codable {
   let authors: [NamedEntity]
   let genres: [String]
