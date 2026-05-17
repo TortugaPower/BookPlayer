@@ -58,8 +58,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
 
   @MainActor
   func handleConnectAction() async throws {
+    let normalizedURL = Self.normalizedServerURL(form.serverUrl)
+    // Reflect the normalization back into the form so the user sees what we actually used.
+    if normalizedURL != form.serverUrl {
+      form.serverUrl = normalizedURL
+    }
     let serverName = try await connectionService.pingServer(
-      at: form.serverUrl,
+      at: normalizedURL,
       customHeaders: form.customHeadersDictionary()
     )
     connectionState = .foundServer
@@ -70,9 +75,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   func handleSignInAction() async throws {
     do {
       let wasAdding = isAddingServer
+      // ABS auth doesn't trim whitespace server-side, so iOS autocorrect inserting a trailing
+      // space on the username is enough to silently reject otherwise-correct credentials.
+      let username = form.username.trimmingCharacters(in: .whitespacesAndNewlines)
+      let password = form.password.trimmingCharacters(in: .whitespacesAndNewlines)
       try await connectionService.signIn(
-        username: form.username,
-        password: form.password,
+        username: username,
+        password: password,
         serverUrl: form.serverUrl,
         serverName: form.serverName,
         customHeaders: form.customHeadersDictionary()
@@ -91,6 +100,21 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     } catch {
       throw error
     }
+  }
+
+  /// Normalize the user-typed server URL before we send a request:
+  ///   - Trim whitespace.
+  ///   - Prepend `https://` if no scheme is present, so `URL(string:)` parses it as an absolute
+  ///     URL rather than a relative path. Without this, "abs.example.com" becomes a URL with
+  ///     a nil host and the eventual /ping POST fails with an opaque URLError.
+  static func normalizedServerURL(_ raw: String) -> String {
+    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return trimmed }
+    let lowered = trimmed.lowercased()
+    if lowered.hasPrefix("http://") || lowered.hasPrefix("https://") {
+      return trimmed
+    }
+    return "https://" + trimmed
   }
 
   @MainActor
