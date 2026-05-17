@@ -7,9 +7,7 @@
 //
 
 import BookPlayerKit
-import Combine
 import Get
-import JellyfinAPI
 import SwiftUI
 
 @MainActor
@@ -19,8 +17,19 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   @Published var form: IntegrationConnectionFormViewModel
   @Published var viewMode: IntegrationViewMode = .regular
   @Published var connectionState: IntegrationConnectionState
+  @Published var isAddingServer: Bool = false
 
-  private var disposeBag = Set<AnyCancellable>()
+  var servers: [IntegrationServerInfo] {
+    connectionService.connections.map { data in
+      IntegrationServerInfo(
+        id: data.id,
+        serverName: data.serverName,
+        serverUrl: data.url.absoluteString,
+        userName: data.userName,
+        isActive: data.id == connectionService.connection?.id
+      )
+    }
+  }
 
   init(
     connectionService: JellyfinConnectionService,
@@ -58,6 +67,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   @MainActor
   func handleSignInAction() async throws {
     do {
+      let wasAdding = isAddingServer
       try await connectionService.signIn(
         username: form.username,
         password: form.password,
@@ -65,6 +75,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         customHeaders: form.customHeadersDictionary()
       )
 
+      if wasAdding {
+        isAddingServer = false
+      }
+
+      if let data = connectionService.connection {
+        form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      }
       connectionState = .connected
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
@@ -82,7 +99,40 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   func handleSignOutAction() {
     connectionService.deleteConnection()
     form = IntegrationConnectionFormViewModel()
-    connectionState = .disconnected
+    connectionState = connectionService.connections.isEmpty ? .disconnected : .connected
+    if let data = connectionService.connection {
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+    }
+  }
+
+  func handleSignOutAction(id: String) {
+    connectionService.deleteConnection(id: id)
+    if connectionService.connections.isEmpty {
+      form = IntegrationConnectionFormViewModel()
+      connectionState = .disconnected
+    } else if let data = connectionService.connection {
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+    }
+  }
+
+  func handleActivateAction(id: String) {
+    connectionService.activateConnection(id: id)
+    if let data = connectionService.connection {
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+    }
+  }
+
+  func handleAddServerAction() {
+    isAddingServer = true
+    form = IntegrationConnectionFormViewModel()
+  }
+
+  func handleCancelAddServerAction() {
+    isAddingServer = false
+    if let data = connectionService.connection {
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+    }
+    connectionState = .connected
   }
 
   @MainActor

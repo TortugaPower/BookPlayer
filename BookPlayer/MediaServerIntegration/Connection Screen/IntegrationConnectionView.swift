@@ -21,42 +21,73 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
 
   var body: some View {
     Form {
-      switch viewModel.connectionState {
-      case .disconnected:
-        IntegrationDisconnectedView(
-          serverUrl: $viewModel.form.serverUrl,
-          placeholderURL: integrationName == "Jellyfin"
-            ? "http://jellyfin.example.com:8096"
-            : "http://audiobookshelf.example.com",
-          integrationName: integrationName,
-          onCommit: onConnect
-        )
-        IntegrationCustomHeadersSectionView(
-          customHeaders: $viewModel.form.customHeaders
-        )
-      case .foundServer:
-        IntegrationServerInformationSectionView(
-          serverName: viewModel.form.serverName,
-          serverUrl: viewModel.form.serverUrl
-        )
-        IntegrationServerFoundView(
-          username: $viewModel.form.username,
-          password: $viewModel.form.password,
-          onCommit: onSignIn
-        )
-        IntegrationCustomHeadersSectionView(
-          customHeaders: $viewModel.form.customHeaders
-        )
-      case .connected:
-        IntegrationServerInformationSectionView(
-          serverName: viewModel.form.serverName,
-          serverUrl: viewModel.form.serverUrl
-        )
-        IntegrationCustomHeadersSectionView(
-          customHeaders: $viewModel.form.customHeaders,
-          onCommit: { viewModel.handleCustomHeadersUpdate() }
-        )
-        IntegrationConnectedView(viewModel: viewModel)
+      if viewModel.isAddingServer {
+        // Adding a new server from settings — show the connection flow
+        switch viewModel.connectionState {
+        case .disconnected, .connected:
+          IntegrationDisconnectedView(
+            serverUrl: $viewModel.form.serverUrl,
+            placeholderURL: integrationName == "Jellyfin"
+              ? "http://jellyfin.example.com:8096"
+              : "http://audiobookshelf.example.com",
+            integrationName: integrationName,
+            onCommit: onConnect
+          )
+          IntegrationCustomHeadersSectionView(
+            customHeaders: $viewModel.form.customHeaders
+          )
+        case .foundServer:
+          IntegrationServerInformationSectionView(
+            serverName: viewModel.form.serverName,
+            serverUrl: viewModel.form.serverUrl
+          )
+          IntegrationServerFoundView(
+            username: $viewModel.form.username,
+            password: $viewModel.form.password,
+            onCommit: onSignIn
+          )
+          IntegrationCustomHeadersSectionView(
+            customHeaders: $viewModel.form.customHeaders
+          )
+        }
+      } else {
+        switch viewModel.connectionState {
+        case .disconnected:
+          IntegrationDisconnectedView(
+            serverUrl: $viewModel.form.serverUrl,
+            placeholderURL: integrationName == "Jellyfin"
+              ? "http://jellyfin.example.com:8096"
+              : "http://audiobookshelf.example.com",
+            integrationName: integrationName,
+            onCommit: onConnect
+          )
+          IntegrationCustomHeadersSectionView(
+            customHeaders: $viewModel.form.customHeaders
+          )
+        case .foundServer:
+          IntegrationServerInformationSectionView(
+            serverName: viewModel.form.serverName,
+            serverUrl: viewModel.form.serverUrl
+          )
+          IntegrationServerFoundView(
+            username: $viewModel.form.username,
+            password: $viewModel.form.password,
+            onCommit: onSignIn
+          )
+          IntegrationCustomHeadersSectionView(
+            customHeaders: $viewModel.form.customHeaders
+          )
+        case .connected:
+          IntegrationServerInformationSectionView(
+            serverName: viewModel.form.serverName,
+            serverUrl: viewModel.form.serverUrl
+          )
+          IntegrationCustomHeadersSectionView(
+            customHeaders: $viewModel.form.customHeaders,
+            onCommit: { viewModel.handleCustomHeadersUpdate() }
+          )
+          IntegrationConnectedView(viewModel: viewModel)
+        }
       }
     }
     .scrollContentBackground(.hidden)
@@ -78,19 +109,35 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       }
     }
     .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text(localizedNavigationTitle)
-          .bpFont(.headline)
-          .foregroundStyle(theme.primaryColor)
-      }
-      ToolbarItemGroup(placement: .confirmationAction) {
-        switch viewModel.connectionState {
-        case .disconnected:
-          connectToolbarButton
-        case .foundServer:
-          signInToolbarButton
-        case .connected:
-          EmptyView()
+      if viewModel.isAddingServer {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("cancel_button".localized) {
+            viewModel.handleCancelAddServerAction()
+          }
+          .foregroundStyle(theme.linkColor)
+        }
+        ToolbarItemGroup(placement: .confirmationAction) {
+          if viewModel.connectionState == .foundServer {
+            signInToolbarButton
+          } else {
+            connectToolbarButton
+          }
+        }
+      } else {
+        ToolbarItem(placement: .principal) {
+          Text(localizedNavigationTitle)
+            .bpFont(.headline)
+            .foregroundStyle(theme.primaryColor)
+        }
+        ToolbarItemGroup(placement: .confirmationAction) {
+          switch viewModel.connectionState {
+          case .disconnected:
+            connectToolbarButton
+          case .foundServer:
+            signInToolbarButton
+          case .connected:
+            EmptyView()
+          }
         }
       }
     }
