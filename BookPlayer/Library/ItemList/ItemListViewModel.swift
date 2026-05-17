@@ -276,6 +276,11 @@ final class ItemListViewModel: ObservableObject {
     reloadItems()
   }
 
+  func handleReverseOrder() {
+    libraryService.reverseContents(at: libraryNode.folderRelativePath)
+    reloadItems()
+  }
+
   func getNextPlayableBookPath(in item: SimpleLibraryItem) -> String? {
     guard item.type == .folder else { return nil }
 

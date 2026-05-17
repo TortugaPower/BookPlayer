@@ -48,6 +48,7 @@
 "options_button" = "选项";
 "library_options_progress_as_percentage_title" = "以百分比显示进度";
 "library_options_original_filename_title" = "显示原始文件名";
+"library_options_quick_actions_title" = "快速操作";
 "select_playlist_title" = "选择文件夹";
 "title_button" = "标题";
 "sort_filename_button" = "原始文件名";
