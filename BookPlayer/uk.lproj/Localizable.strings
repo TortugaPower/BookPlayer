@@ -362,6 +362,11 @@
 "integration_retry_button" = "Повторити";
 "integration_add_server_button" = "Додати сервер";
 "media_servers_title" = "Медіасервери";
+"share_import_failure_alert_title" = "Some shared files didn’t import";
+"share_import_failure_copy_failed" = "Couldn’t copy “%1$@” to BookPlayer: %2$@";
+"share_import_failure_move_failed" = "Couldn’t save “%1$@” to BookPlayer: %2$@";
+"share_import_failure_http_status" = "Download failed with HTTP status %d.";
+"share_import_failure_announcement_multiple" = "%d shared imports failed.";
 "integration_section_server_url" = "URL-адреса сервера";
 "integration_section_server_url_footer" = "Підключіться до свого сервера %@";
 "integration_section_server" = "Сервер";
