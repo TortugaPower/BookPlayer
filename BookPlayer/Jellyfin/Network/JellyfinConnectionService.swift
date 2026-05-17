@@ -139,22 +139,18 @@ class JellyfinConnectionService: BPLogger {
 
   func activateConnection(id: String) {
     activeConnectionID = id
-    if let data = connection {
-      client = createClient(
-        serverUrlString: data.url.absoluteString,
-        accessToken: data.accessToken
-      )
-    }
+    rebuildClient(for: connection)
   }
 
   func deleteConnection(id: String) {
-    if let data = connections.first(where: { $0.id == id }),
-       data.id == connection?.id,
-       let client {
-      Task {
-        try await client.signOut()
-      }
-    }
+    // Capture the old client BEFORE we mutate state, so the fire-and-forget
+    // signOut doesn't race with the rebuildClient call below (and so signOut
+    // is invoked on the connection the user actually asked us to remove).
+    let oldClientToSignOut: JellyfinClient? = {
+      guard let data = connections.first(where: { $0.id == id }),
+            data.id == connection?.id else { return nil }
+      return client
+    }()
 
     connections.removeAll { $0.id == id }
 
@@ -163,7 +159,7 @@ class JellyfinConnectionService: BPLogger {
     }
 
     if connections.isEmpty {
-      client = nil
+      rebuildClient(for: nil)
       do {
         try keychainService.remove(.jellyfinConnection)
       } catch {
@@ -171,13 +167,34 @@ class JellyfinConnectionService: BPLogger {
       }
     } else {
       saveConnections()
-      if let data = connection {
-        client = createClient(
-          serverUrlString: data.url.absoluteString,
-          accessToken: data.accessToken
-        )
+      rebuildClient(for: connection)
+    }
+
+    if let oldClientToSignOut {
+      Task {
+        do {
+          try await oldClientToSignOut.signOut()
+        } catch {
+          Self.logger.warning("Jellyfin signOut during delete failed: \(error.localizedDescription)")
+        }
       }
     }
+  }
+
+  /// Rebuilds `client` (and the underlying `headerInjector`) for the given saved connection,
+  /// or clears it when `data == nil`. Centralized so callers can't forget to forward
+  /// `customHeaders` — earlier copies of `activateConnection` / `deleteConnection` dropped them,
+  /// which broke connections behind Cloudflare Access until the next app launch.
+  private func rebuildClient(for data: JellyfinConnectionData?) {
+    guard let data else {
+      client = nil
+      return
+    }
+    client = createClient(
+      serverUrlString: data.url.absoluteString,
+      accessToken: data.accessToken,
+      customHeaders: data.customHeaders
+    )
   }
 
   func deleteConnection() {
