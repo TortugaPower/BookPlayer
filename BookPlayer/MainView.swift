@@ -19,6 +19,7 @@ struct MainView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
+  @Environment(\.concurrenceService) private var concurrenceService
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.audiobookshelfService) private var audiobookshelfService
@@ -29,6 +30,7 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -99,10 +101,25 @@ struct MainView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
-          syncService: syncService
+          syncService: syncService,
+          concurrenceService: concurrenceService
         )
       }
       .presentationBackground(.clear)
+      .alert("Resume Playback", isPresented: playerState.showResumePopupBinding) {
+        Button("Yes") { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+        Button("Ignore", role: .cancel) { }
+      } message: {
+        Text("There is another source with current play time \(TimeParser.formatTime(playerState.remotePlayTime ?? 0)). Play from this time?")
+      }
+    }
+    .sheet(isPresented: $importManager.isShowingExternalImportView) {
+      ExternalImportView(
+        viewModel: ExternalImportViewModel(importManager: importManager)
+      )
+      .presentationBackground(.clear)
+      .environmentObject(importManager)
+      .environmentObject(theme)
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

@@ -62,16 +62,42 @@ public class CoreDataStack {
     }
   }
 
+  private let saveLock = NSRecursiveLock()
+  private var isSaving = false
+  private var pendingSave = false
+
   public func saveContext() {
     saveContext(managedContext)
   }
 
   public func saveContext(_ context: NSManagedObjectContext) {
-    guard context.hasChanges else { return }
-    do {
-      try context.save()
-    } catch let error as NSError {
-      fatalError("Unresolved error \(error), \(error.userInfo)")
+    saveLock.lock()
+    if isSaving {
+      pendingSave = true
+      saveLock.unlock()
+      return
+    }
+    isSaving = true
+    saveLock.unlock()
+
+    context.performAndWait {
+      guard context.hasChanges else { return }
+      do {
+        try context.save()
+      } catch let error as NSError {
+        // Only crash in debug to allow investigation, or keep fatalError if strictly required
+        assertionFailure("Unresolved error \(error), \(error.userInfo)")
+      }
+    }
+
+    saveLock.lock()
+    isSaving = false
+    let shouldRetry = pendingSave
+    pendingSave = false
+    saveLock.unlock()
+
+    if shouldRetry {
+      saveContext(context)
     }
   }
 }

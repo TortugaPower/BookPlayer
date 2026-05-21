@@ -104,6 +104,7 @@ extension ChaptersView {
     duration: 300,
     relativePath: "book1.m4b",
     remoteURL: nil,
+    externalURL: nil,
     index: 0
   )
 
@@ -118,6 +119,7 @@ extension ChaptersView {
           duration: 300,
           relativePath: "book1.m4b",
           remoteURL: nil,
+          externalURL: nil,
           index: 1
         ),
       ],

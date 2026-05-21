@@ -13,6 +13,7 @@ import Combine
 public final class TasksDataManager {
   public let container: ModelContainer
   private let tasksCountSubject = CurrentValueSubject<Int, Never>(0)
+  private let concurrentTasksCountSubject = CurrentValueSubject<Int, Never>(0)
 
   public init() {
     let schema = Schema([
@@ -26,7 +27,13 @@ public final class TasksDataManager {
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self
+      MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self,
+      ConcurrentTasksContainer.self,
+      ConcurrentTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      ConcurrentUploadTaskModel.self,
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
@@ -54,6 +61,12 @@ public final class TasksDataManager {
       .eraseToAnyPublisher()
   }
   
+  public func observeConcurrentTasksCount() -> AnyPublisher<Int, Never> {
+    return concurrentTasksCountSubject
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
+  }
+  
   public func notifyTasksChanged(context: ModelContext) {
     let descriptor = FetchDescriptor<SyncTasksContainer>()
 
@@ -63,6 +76,18 @@ public final class TasksDataManager {
       tasksCountSubject.send(count)
     } catch {
       tasksCountSubject.send(0)
+    }
+  }
+  
+  public func notifyConcurrentTasksChanged(context: ModelContext) {
+    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
+
+    do {
+      let containers = try context.fetch(descriptor)
+      let count = containers.first?.tasks.count ?? 0
+      concurrentTasksCountSubject.send(count)
+    } catch {
+      concurrentTasksCountSubject.send(0)
     }
   }
   
@@ -76,9 +101,14 @@ public final class TasksDataManager {
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
+    try context.delete(model: UploadExternalResourceTaskModel.self)
     try context.delete(model: SyncTaskReferenceModel.self)
     try context.delete(model: SyncTasksContainer.self)
     
+    try context.delete(model: ConcurrentUploadTaskModel.self)
+    try context.delete(model: ExternalUpdateTaskModel.self)
+    try context.delete(model: ConcurrentTaskReferenceModel.self)
+    try context.delete(model: ConcurrentTasksContainer.self)
     try context.save()
   }
 
@@ -158,6 +188,20 @@ public final class TasksDataManager {
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
       }
+    case .externalResource:
+      let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+        predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .externalResourceToDownload:
+      let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+        predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
     }
   }
 
@@ -182,24 +226,7 @@ public final class TasksDataManager {
   ) {
     switch jobType {
     case .upload:
-      let task = UploadTaskModel(
-        id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
-        relativePath: parameters["relativePath"] as! String,
-        originalFileName: parameters["originalFileName"] as! String,
-        title: parameters["title"] as! String,
-        details: parameters["details"] as! String,
-        speed: parameters["speed"] as? Float,
-        currentTime: parameters["currentTime"] as! Double,
-        duration: parameters["duration"] as! Double,
-        percentCompleted: parameters["percentCompleted"] as! Double,
-        isFinished: parameters["isFinished"] as! Bool,
-        orderRank: parameters["orderRank"] as! Int,
-        lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        type: parameters["type"] as! Int16,
-      )
-      context.insert(task)
-
+      context.insert(buildUploadTask(parameters))
     case .update:
       let task = UpdateTaskModel(
         id: parameters["id"] as! String,
@@ -278,7 +305,39 @@ public final class TasksDataManager {
         uuids: parameters["uuids"] as! [String: String]
       )
       context.insert(task)
+    case .externalResource:
+      let task = UploadExternalResourceTaskModel(
+        id: parameters["id"] as! String, uuid: parameters["uuid"] as! String, providerId: parameters["providerId"] as! String, providerName: parameters["providerName"] as! String, lastSyncedAt: parameters["lastSyncedAt"] as? Date, syncStatus: parameters["syncStatus"] as! String, processedFile: parameters["processedFile"] as! Bool
+      )
+      context.insert(task)
+    case .externalResourceToDownload:
+      let task = ExternalResourceToDownloadTaskModel(
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        uploaded: parameters["uploaded"] as? Bool ?? false
+      )
+      context.insert(task)
     }
+  }
+  
+  private func buildUploadTask(_ parameters: [String: Any]) -> UploadTaskModel {
+    return UploadTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      relativePath: parameters["relativePath"] as! String,
+      originalFileName: parameters["originalFileName"] as! String,
+      title: parameters["title"] as! String,
+      details: parameters["details"] as! String,
+      speed: parameters["speed"] as? Float,
+      currentTime: parameters["currentTime"] as! Double,
+      duration: parameters["duration"] as! Double,
+      percentCompleted: parameters["percentCompleted"] as! Double,
+      isFinished: parameters["isFinished"] as! Bool,
+      orderRank: parameters["orderRank"] as! Int,
+      lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+      type: parameters["type"] as! Int16,
+      provider: parameters["provider"] as? String
+    )
   }
 
   // swiftlint:enable force_cast
@@ -342,6 +401,16 @@ public final class TasksDataManager {
           predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
+      case .externalResource:
+        let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+          predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .externalResourceToDownload:
+        let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+          predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
       }
     } catch {
       return nil
@@ -375,6 +444,54 @@ public final class TasksDataManager {
     } catch {
       // If there's an error reading from the database, keep the default value of 0
       tasksCountSubject.send(0)
+    }
+  }
+  
+  public func createConcurrentTaskModel(
+    for jobType: ExternalSyncJobType,
+    with parameters: [String: Any],
+    in context: ModelContext
+  ) {
+    switch jobType {
+    case .update:
+      if let id = parameters["id"] as? String, let providerName = parameters["providerName"] as? String, let providerId = parameters["providerId"] as? String {
+        let task = ExternalUpdateTaskModel(
+          id: id,
+          providerName: providerName,
+          providerId: providerId,
+          title: parameters["title"] as? String,
+          details: parameters["details"] as? String,
+          currentTime: parameters["currentTime"] as? Double,
+          percentCompleted: parameters["percentCompleted"] as? Double,
+          isFinished: parameters["isFinished"] as? Bool,
+          lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+        )
+        context.insert(task)
+      }
+    case .uploadFile:
+      if let id = parameters["id"] as? String,
+         let filePath = parameters["filePath"] as? String,
+         let remotePath = parameters["remotePath"] as? String,
+         let uuid = parameters["uuid"] as? String {
+        let task = ConcurrentUploadTaskModel(id: id, uuid: uuid, filePath: filePath, remotePath: remotePath)
+        
+        context.insert(task)
+      }
+    }
+  }
+  
+  public func updateExternalUpdateTaskModel(
+    for task: ExternalUpdateTaskModel,
+    with parameters: [String: Any],
+    in context: ModelContext
+  ) {
+    if let title = parameters["title"] as? String { task.title = title }
+    if let details = parameters["details"] as? String { task.details = details }
+    if let currentTime = parameters["currentTime"] as? Double { task.currentTime = currentTime }
+    if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
+    if let isFinished = parameters["isFinished"] as? Bool { task.isFinished = isFinished }
+    if let lastPlayDateTimestamp = parameters["lastPlayDateTimestamp"] as? Double {
+      task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
   }
 }

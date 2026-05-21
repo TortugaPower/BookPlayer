@@ -277,6 +277,14 @@ public actor SyncTasksStorage: ModelActor {
           ).first { task.uuid = newUuid }
         case .matchUuid:
           break
+        case .externalResource:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<UploadExternalResourceTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
+        case .externalResourceToDownload:
+          if let task = try modelContext.fetch(
+            FetchDescriptor<ExternalResourceToDownloadTaskModel>(predicate: #Predicate { $0.id == taskId })
+          ).first { task.uuid = newUuid }
         }
       }
     }

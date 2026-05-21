@@ -304,8 +304,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if let lastItemPlayed = response.lastItemPlayed {
       filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
     }
-    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
+    
     await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
@@ -417,8 +418,44 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
-    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
-
+    var remoteURLs: [RemoteFileURL] = []
+    if item.type == .book,
+       let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+      switch ExternalResource.ProviderName(rawValue: external.providerName) {
+      case .jellyfin:
+        if let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
+           let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "MediaBrowser Token=\"\(storedConnection.accessToken)\""]
+            )
+          ]
+        }
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        if let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
+           let downloadUrl = URL(string: storedConnection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "Bearer \(storedConnection.apiToken)"]
+            )
+          ]
+        }
+      default:
+        break
+      }
+    } else {
+      remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    }
+    
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
@@ -436,16 +473,30 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     for remoteURL in bookURLs {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+      let downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
+      
+      if let bearer = remoteURL.headers?["Authorization"] {
+        var request = URLRequest(url: downloadUrl)
+        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        
+        let task = await provider.client.download(
+          request: request,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      let task = await provider.client.download(
-        url: remoteURL.url,
-        taskDescription: remoteURL.relativePath,
-        session: downloadURLSession.backgroundSession
-      )
+        tasks.append(task)
+      } else {
+        let task = await provider.client.download(
+          url: downloadUrl,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      tasks.append(task)
+        tasks.append(task)
+      }
     }
 
     downloadTasksDictionary[item.relativePath] = tasks
@@ -538,6 +589,12 @@ extension SyncService {
   func handleItemsToUpload(_ items: [SyncableItem]) async {
     for item in items {
       await jobManager.scheduleLibraryItemUploadJob(for: item)
+      
+      if let externalResources = item.externalResources {
+        for externalResource in externalResources {
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid))
+        }
+      }
     }
 
     /// Handle bookmarks in separate loop, as the viewContext can be unreliable
@@ -689,6 +746,15 @@ extension SyncService {
 
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
+      
+      guard let item = self.libraryService.getItemWithResources(with: relativePath),
+            let externalResource = item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) else { return }
+      
+      Task {
+        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true)
+        await self.libraryService.updateExternalResource(for: externalSyncItem)
+        await self.jobManager.scheduleResourceToDownload(with: item.relativePath, for: item.uuid, uploaded: false)
+      }
     }
   }
 

@@ -49,6 +49,10 @@ public protocol JobSchedulerProtocol {
   func resetAllJobs() async
   /// Check if there's an upload task queued for the item
   func hasUploadTask(for relativePath: String) async -> Bool
+  
+  func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: LibraryItemRef) async
+  
+  func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
 }
 
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
@@ -58,12 +62,12 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let dataManager: DataManager
   
   /// Reference for observer
-  private var syncTasksObserver: NSKeyValueObservation?
   private var disposeBag = Set<AnyCancellable>()
   private let lockQueue = DispatchQueue(label: "com.bookplayer.synctask.schedule")
   /// Reference to ongoing library fetch task
   private var initializeStoreTask: Task<(), Error>?
   private var taskStore: SyncTasksStorage!
+  private var concurrentTasksRepository: ConcurrentTasksRepositoryProtocol!
   private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?
@@ -79,27 +83,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     self.networkClient = networkClient
     self.tasksDataManager = tasksDataManager
     self.dataManager = dataManager
-    
+    self.concurrentTasksRepository = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
     bindObservers()
   }
   
-  func bindObservers() {
-    NotificationCenter.default.publisher(for: .uploadCompleted)
-      .sink { notification in
-        guard
-          let task = notification.object as? URLSessionTask,
-          let relativePath = task.taskDescription
-        else { return }
-        
-        do {
-          let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(relativePath)
-          try FileManager.default.removeItem(at: hardLinkURL)
-        } catch {
-          Self.logger.warning("Failed to delete hard link for \(relativePath): \(error.localizedDescription)")
-        }
-      }
-      .store(in: &disposeBag)
-    
+  func bindObservers() {    
     NotificationCenter.default.publisher(for: .uploadProgressUpdated)
       .receive(on: DispatchQueue.main)
       .sink { [weak self] notification in
@@ -172,6 +160,26 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     if let speed = item.speed {
       parameters["speed"] = speed
     }
+    
+    if let provider = item.externalResources?.first?.providerName {
+      parameters["provider"] = provider
+    }
+    
+    await persistTask(parameters: parameters)
+  }
+  
+  public func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: LibraryItemRef) async {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "providerId": externalResource.providerId,
+      "providerName": externalResource.providerName,
+      "lastSyncedAt": externalResource.lastSyncedAt as Any,
+      "processedFile": externalResource.processedFile,
+      "syncStatus": externalResource.syncStatus,
+      "jobType": SyncJobType.externalResource.rawValue,
+      "uuid": itemOrigin.uuid,
+      "relativePath": itemOrigin.relativePath
+    ]
     
     await persistTask(parameters: parameters)
   }
@@ -289,6 +297,21 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
   
+  public func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async {
+    var params: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": relativePath,
+      "jobType": SyncJobType.externalResourceToDownload.rawValue,
+      "uploaded": uploaded
+    ]
+    
+    if let uuid = uuid {
+      params["uuid"] = uuid
+    }
+    
+    await persistTask(parameters: params)
+  }
+  
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     _ = await initializeStoreTask?.result
     let currentProgress = await MainActor.run { tasksProgress }
@@ -350,7 +373,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           self.retryQueuedTask()
           return
         }
-        
+
         let operationTask = LibraryItemSyncOperation(
           client: networkClient,
           task: task
@@ -381,6 +404,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
                 switch results {
                 case .matchUuid(let response):
                   await self.handleMatchUuidsResponse(response)
+                case .uploadMetadata(let result):
+                  if task.parameters["provider"] as? String == nil {
+                    self.handleUploadResult(result)
+                  }
                 }
               }
               self.handleFinishedTask(task)
@@ -459,6 +486,22 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
           continuation.resume(throwing: error)
         }
       }
+    }
+  }
+  
+  private func handleUploadResult(_ result: UploadResponse) {
+    Task {
+      let queueKey = "uploadFile"
+      let params = [
+        "id": UUID().uuidString,
+        "jobType": ExternalSyncJobType.uploadFile.rawValue,
+        "queueKey": queueKey,
+        "filePath": result.filePath,
+        "remotePath": result.remotePath ?? "",
+        "uuid": result.uuid
+      ]
+      
+      try await concurrentTasksRepository.storeTask(parameters: params)
     }
   }
 }

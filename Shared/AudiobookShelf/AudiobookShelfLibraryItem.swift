@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct AudiobookShelfSeriesReference: Codable, Hashable {
+public struct AudiobookShelfSeriesReference: Codable, Hashable {
   let id: String
   let name: String
   let sequence: String?
 }
 
-struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
-  enum Kind: String, Codable {
+public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
+  public enum Kind: String, Codable {
     case audiobook = "book"
     case podcast = "podcast"
     case library = "library"
@@ -26,35 +26,36 @@ struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
     case narrator = "narrator"
   }
 
-  let id: String
-  let title: String
-  let kind: Kind
-  let libraryId: String
+  public let id: String
+  public let title: String
+  public let kind: Kind
+  public let libraryId: String
 
   // Metadata
-  let authorName: String?
-  let narratorName: String?
-  let duration: TimeInterval?
-  let size: Int64?
-  let subtitle: String?
-  let series: [AudiobookShelfSeriesReference]?
-  let addedAt: Int64?
-  let updatedAt: Int64?
-
+  public let authorName: String?
+  public let narratorName: String?
+  public let duration: TimeInterval?
+  public let size: Int64?
+  public let subtitle: String?
+  public let series: [AudiobookShelfSeriesReference]?
+  public let addedAt: Int64?
+  public let updatedAt: Int64?
+  public let fileExtension: String?
+  
   // Cover image
-  let coverPath: String?
-  let coverItemId: String?
+  public let coverPath: String?
+  public let coverItemId: String?
 
   // Progress (if included)
-  let progress: Double?
-  let currentTime: TimeInterval?
-  let isFinished: Bool?
+  public let progress: Double?
+  public let currentTime: TimeInterval?
+  public let isFinished: Bool?
 
   // Browse metadata
-  let browseCategory: AudiobookShelfBrowseCategory?
-  let filter: AudiobookShelfItemFilter?
+  public let browseCategory: AudiobookShelfBrowseCategory?
+  public let filter: AudiobookShelfItemFilter?
 
-  init(
+  public init(
     id: String,
     title: String,
     kind: Kind,
@@ -66,6 +67,7 @@ struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
     subtitle: String? = nil,
     series: [AudiobookShelfSeriesReference]? = nil,
     addedAt: Int64? = nil,
+    fileExtension: String? = nil,
     updatedAt: Int64? = nil,
     coverPath: String? = nil,
     coverItemId: String? = nil,
@@ -85,6 +87,7 @@ struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
     self.size = size
     self.subtitle = subtitle
     self.series = series
+    self.fileExtension = fileExtension
     self.addedAt = addedAt
     self.updatedAt = updatedAt
     self.coverPath = coverPath
@@ -98,17 +101,17 @@ struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
 }
 
 extension AudiobookShelfLibraryItem {
-  var displayName: String { title }
+  public var displayName: String { title }
 
-  var isDownloadable: Bool {
+  public var isDownloadable: Bool {
     kind == .audiobook || kind == .podcast
   }
 
-  var isNavigable: Bool {
+  public var isNavigable: Bool {
     !isDownloadable
   }
 
-  var placeholderImageName: String {
+  public var placeholderImageName: String {
     switch kind {
     case .podcast, .audiobook: "waveform"
     case .library: "folder"
@@ -128,11 +131,11 @@ extension AudiobookShelfLibraryItem {
     }
   }
 
-  func seriesSequence(for seriesID: String) -> String? {
+  public func seriesSequence(for seriesID: String) -> String? {
     series?.first(where: { $0.id == seriesID })?.sequence
   }
 
-  init(library: AudiobookShelfLibrary) {
+  public init(library: AudiobookShelfLibrary) {
     self.init(
       id: library.id,
       title: library.name,
@@ -142,7 +145,7 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init(category: AudiobookShelfBrowseCategory, libraryId: String) {
+  public init(category: AudiobookShelfBrowseCategory, libraryId: String) {
     self.init(
       id: category.rawValue,
       title: category.title,
@@ -153,7 +156,7 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init(author: AudiobookShelfLibraryFilterData.NamedEntity, libraryId: String) {
+  public init(author: AudiobookShelfLibraryFilterData.NamedEntity, libraryId: String) {
     self.init(
       id: author.id,
       title: author.name,
@@ -164,7 +167,7 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init(series: AudiobookShelfLibraryFilterData.NamedEntity, libraryId: String) {
+  public init(series: AudiobookShelfLibraryFilterData.NamedEntity, libraryId: String) {
     self.init(
       id: series.id,
       title: series.name,
@@ -175,7 +178,7 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init(narrator: String, libraryId: String) {
+  public init(narrator: String, libraryId: String) {
     self.init(
       id: narrator,
       title: narrator,
@@ -186,7 +189,7 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init(collection: AudiobookShelfCollection) {
+  public init(collection: AudiobookShelfCollection) {
     self.init(
       id: collection.id,
       title: collection.name,
@@ -197,12 +200,11 @@ extension AudiobookShelfLibraryItem {
     )
   }
 
-  init?(apiItem: AudiobookShelfAPIItem) {
+  public init?(apiItem: AudiobookShelfAPIItem) {
     guard let mediaType = apiItem.mediaType,
           let kind = Kind(rawValue: mediaType) else {
       return nil
     }
-    
     self.init(
       id: apiItem.id,
       title: apiItem.media.metadata.title,
@@ -214,6 +216,7 @@ extension AudiobookShelfLibraryItem {
       size: apiItem.size,
       series: apiItem.media.metadata.series,
       addedAt: apiItem.addedAt,
+      fileExtension: apiItem.media.audioFiles?.first?.ext ?? nil,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
@@ -221,34 +224,48 @@ extension AudiobookShelfLibraryItem {
       isFinished: apiItem.userMediaProgress?.isFinished
     )
   }
+  
+  public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {
+    self.init(
+      id: "",
+      title: "",
+      kind: Kind.audiobook,
+      libraryId: "",
+      progress: progressItem.progress,
+      currentTime: progressItem.currentTime,
+      isFinished: progressItem.isFinished
+    )
+  }
 }
 
 // MARK: - API Response Models
 
-struct AudiobookShelfAPIItem: Codable {
-  let id: String
-  let libraryId: String
-  let addedAt: Int64?
-  let updatedAt: Int64?
-  let mediaType: String?
-  let media: Media
-  let size: Int64?
-  let userMediaProgress: UserMediaProgress?
+public struct AudiobookShelfAPIItem: Codable {
+  public let id: String
+  public let libraryId: String
+  public let addedAt: Int64?
+  public let updatedAt: Int64?
+  public let mediaType: String?
+  public let media: Media
+  public let size: Int64?
+  public let userMediaProgress: UserMediaProgress?
+  public let relPath: String?
+  
+  public struct Media: Codable {
+    public let metadata: Metadata
+    public let coverPath: String?
+    public let duration: TimeInterval?
+    public let audioFiles: [AudioFile]?
+    
+    public struct Metadata: Codable {
+      public let title: String
+      public let authorName: String?
+      public let narratorName: String?
+      public let authors: [NamedEntity]?
+      public let narrators: [String]?
+      public let series: [AudiobookShelfSeriesReference]?
 
-  struct Media: Codable {
-    let metadata: Metadata
-    let coverPath: String?
-    let duration: TimeInterval?
-
-    struct Metadata: Codable {
-      let title: String
-      let authorName: String?
-      let narratorName: String?
-      let authors: [NamedEntity]?
-      let narrators: [String]?
-      let series: [AudiobookShelfSeriesReference]?
-
-      enum CodingKeys: String, CodingKey {
+      public enum CodingKeys: String, CodingKey {
         case title
         case authorName
         case narratorName
@@ -257,7 +274,7 @@ struct AudiobookShelfAPIItem: Codable {
         case series
       }
 
-      init(from decoder: Decoder) throws {
+      public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         title = try container.decode(String.self, forKey: .title)
@@ -275,40 +292,45 @@ struct AudiobookShelfAPIItem: Codable {
         }
       }
 
-      var primaryAuthorName: String? {
+      public var primaryAuthorName: String? {
         authorName ?? authors?.first?.name
       }
 
-      var primaryNarratorName: String? {
+      public var primaryNarratorName: String? {
         narratorName ?? narrators?.first
       }
     }
 
-    struct NamedEntity: Codable {
-      let id: String
-      let name: String
+    public struct NamedEntity: Codable {
+      public let id: String
+      public let name: String
+    }
+    
+    public struct AudioFile: Codable {
+        let filename: String
+        let ext: String
     }
   }
 
-  struct UserMediaProgress: Codable {
-    let progress: Double
-    let currentTime: TimeInterval
-    let isFinished: Bool
+  public struct UserMediaProgress: Codable {
+    public let progress: Double
+    public let currentTime: TimeInterval
+    public let isFinished: Bool
   }
 }
 
-struct AudiobookShelfItemsResponse: Codable {
-  let results: [AudiobookShelfAPIItem]
-  let total: Int
-  let limit: Int?
-  let page: Int?
+public struct AudiobookShelfItemsResponse: Codable {
+  public let results: [AudiobookShelfAPIItem]
+  public let total: Int
+  public let limit: Int?
+  public let page: Int?
 }
 
-struct AudiobookShelfSearchResponse: Codable {
-  let book: [SearchResult]
+public struct AudiobookShelfSearchResponse: Codable {
+  public let book: [SearchResult]
 
-  struct SearchResult: Codable {
-    let libraryItem: AudiobookShelfAPIItem
+  public struct SearchResult: Codable {
+    public let libraryItem: AudiobookShelfAPIItem
   }
 }
 
@@ -316,34 +338,34 @@ struct AudiobookShelfSearchResponse: Codable {
 /// Vue web client uses for the author-detail page). `libraryItems` is hydrated
 /// directly from the author record rather than via the `bookAuthors` join, which
 /// avoids orphan-row matches that can occur after ABS dedups authors on import.
-struct AudiobookShelfAuthorWithItemsResponse: Codable {
-  let id: String
-  let name: String
-  let libraryItems: [AudiobookShelfAPIItem]?
+public struct AudiobookShelfAuthorWithItemsResponse: Codable {
+  public let id: String
+  public let name: String
+  public let libraryItems: [AudiobookShelfAPIItem]?
 }
 
-struct AudiobookShelfLibraryFilterData: Codable {
-  let authors: [NamedEntity]
-  let genres: [String]
-  let tags: [String]
-  let series: [NamedEntity]
-  let narrators: [String]
-  let languages: [String]
+public struct AudiobookShelfLibraryFilterData: Codable {
+  public let authors: [NamedEntity]
+  public let genres: [String]
+  public let tags: [String]
+  public let series: [NamedEntity]
+  public let narrators: [String]
+  public let languages: [String]
 
-  struct NamedEntity: Codable, Hashable {
-    let id: String
-    let name: String
+  public struct NamedEntity: Codable, Hashable {
+    public let id: String
+    public let name: String
   }
 }
 
-struct AudiobookShelfCollection: Codable {
-  let id: String
-  let libraryId: String
-  let name: String
-  let description: String?
-  let books: [AudiobookShelfAPIItem]
+public struct AudiobookShelfCollection: Codable {
+  public let id: String
+  public let libraryId: String
+  public let name: String
+  public let description: String?
+  public let books: [AudiobookShelfAPIItem]
 }
 
-struct AudiobookShelfCollectionsResponse: Codable {
-  let results: [AudiobookShelfCollection]
+public struct AudiobookShelfCollectionsResponse: Codable {
+  public let results: [AudiobookShelfCollection]
 }

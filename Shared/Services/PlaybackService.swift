@@ -217,6 +217,30 @@ public final class PlaybackService: PlaybackServiceProtocol {
     chapters = chapters.filter { $0.duration > 0 }
 
     guard !chapters.isEmpty else {
+      var externalUrl: URL?
+      var externalHeaders: [String: String] = [:]
+      let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+      switch ExternalResource.ProviderName(rawValue: externalResource?.providerName ?? "") {
+      case .jellyfin:
+        let keychainService = KeychainService()
+        let storedConnection: JellyfinConnectionData? = try? keychainService.get(.jellyfinConnection)
+        let urlString = (storedConnection != nil && externalResource != nil)
+          ? storedConnection!.buildDownloadUrl(providerId: externalResource!.providerId)
+          : ""
+        externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
+        externalHeaders = ["Authorization": "MediaBrowser Token=\"\(storedConnection?.accessToken ?? "")\""]
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        let storedConnection: AudiobookShelfConnectionData? = try? keychainService.get(.audiobookshelfConnection)
+        let urlString = (storedConnection != nil && externalResource != nil)
+          ? storedConnection!.buildAudiobookshelfDownloadUrl(providerId: externalResource!.providerId)
+          : ""
+        externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
+        externalHeaders = ["Authorization": "Bearer \(storedConnection?.apiToken ?? "")"]
+      default:
+        externalUrl = nil
+      }
+
       return [
         PlayableChapter(
           title: book.title,
@@ -225,7 +249,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: 1
+          externalURL: externalUrl,
+          index: 1,
+          externalHeaders: externalHeaders
         )
       ]
     }
@@ -239,6 +265,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: chapter.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
+          externalURL: nil,
           index: Int16(index + 1)
         )
       })
@@ -320,6 +347,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: nestedChapter.relativePath,
           remoteURL: nestedChapter.remoteURL,
+          externalURL: nestedChapter.externalUrl,
           index: index,
           chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
         )

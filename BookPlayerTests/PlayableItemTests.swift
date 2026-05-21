@@ -24,6 +24,7 @@ class PlayableItemTests: XCTestCase {
       duration: 50,
       relativePath: "",
       remoteURL: nil,
+      externalURL: nil,
       index: 1
     )
     let testChapter2 = PlayableChapter(
@@ -33,6 +34,7 @@ class PlayableItemTests: XCTestCase {
       duration: 100,
       relativePath: "",
       remoteURL: nil,
+      externalURL: nil,
       index: 1
     )
     self.sut = PlayableItem(

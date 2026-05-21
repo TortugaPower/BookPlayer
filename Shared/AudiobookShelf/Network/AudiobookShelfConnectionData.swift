@@ -8,20 +8,20 @@
 
 import Foundation
 
-struct AudiobookShelfConnectionData: Codable {
-  let url: URL
-  let serverName: String
-  let userID: String
-  let userName: String
-  let apiToken: String
-  var selectedLibraryId: String?
-  var customHeaders: [String: String] = [:]
+public struct AudiobookShelfConnectionData: Codable {
+  public let url: URL
+  public let serverName: String
+  public let userID: String
+  public let userName: String
+  public let apiToken: String
+  public var selectedLibraryId: String?
+  public var customHeaders: [String: String] = [:]
 
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
   }
 
-  init(
+  public init(
     url: URL,
     serverName: String,
     userID: String,
@@ -39,7 +39,7 @@ struct AudiobookShelfConnectionData: Codable {
     self.customHeaders = customHeaders
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.url = try container.decode(URL.self, forKey: .url)
     self.serverName = try container.decode(String.self, forKey: .serverName)
@@ -52,8 +52,12 @@ struct AudiobookShelfConnectionData: Codable {
 }
 
 extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
-  var debugDescription: String {
+  public var debugDescription: String {
     let apiTokenDebugDesc = apiToken.isEmpty ? "<empty>" : "<redacted>"
     return "AudiobookShelfConnectionData(\(url), \(serverName), \(userID), \(userName), \(apiTokenDebugDesc))"
+  }
+  
+  public func buildAudiobookshelfDownloadUrl(providerId: String) -> String {
+    return "\(self.url.absoluteString)/api/items/\(providerId)/download"
   }
 }

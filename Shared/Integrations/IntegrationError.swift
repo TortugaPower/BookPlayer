@@ -8,14 +8,14 @@
 
 import Foundation
 
-enum IntegrationError: Error, LocalizedError {
+public enum IntegrationError: Error, LocalizedError {
   case urlMalformed(_ url: URL?)
   case urlFromComponents(_ components: URLComponents)
   case noClient(_ integrationName: String)
   case unexpectedResponse(code: Int?)
   case clientError(code: Int)
 
-  var errorDescription: String? {
+  public var errorDescription: String? {
     switch self {
     case .urlMalformed(let url):
       String(format: "integration_internal_error_invalid_url".localized, String(reflecting: url))

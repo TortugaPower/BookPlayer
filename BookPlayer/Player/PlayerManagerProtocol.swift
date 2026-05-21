@@ -13,13 +13,14 @@
 #endif
 import Combine
 import Foundation
-
 /// sourcery: AutoMockable
 public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
   var isPlaying: Bool { get }
+  var playerIsLoadingURL: Bool { get }
   var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
+  var storedConnection: JellyfinConnectionData? { get set }
 
   func load(_ item: PlayableItem, autoplay: Bool)
   func awaitCurrentLoad() async
@@ -52,4 +53,5 @@ public protocol PlayerManagerProtocol: AnyObject {
 /// Delegate that hooks into the playback sequence
 public protocol PlaybackSyncProgressDelegate: AnyObject {
   func waitForSyncInProgress() async
+  func fetchExternalResource(_ playableItem: PlayableItem) async
 }

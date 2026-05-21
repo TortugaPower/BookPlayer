@@ -19,6 +19,9 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+  var importManager: ImportManager?
+  var accountService: AccountService
+  
   enum Routes {
     case done
   }
@@ -44,7 +47,9 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
-
+  @Published var useSelectedItems: Bool = false
+  @Published var showingDownloadConfirmation = false
+  
   var onTransition: BPTransition<Routes>?
 
   let connectionService: AudiobookShelfConnectionService
@@ -122,12 +127,16 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     source: AudiobookShelfLibraryViewSource,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
+    importManager: ImportManager?,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.source = source
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
+    self.importManager = importManager
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -222,6 +231,88 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       selectedItems.removeAll()
     }
   }
+  
+  func handleImportItems(useSelectedItems: Bool) {
+    if accountService.hasLiteEnabled() {
+      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        confirmDownloadFolder()
+      }
+    }
+  }
+  
+  @MainActor
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+    let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
+      let fileExt = item.fileExtension ?? "m4a"
+      let libraryItem = SimpleLibraryItem(
+        title: item.title,
+        details: item.authorName ?? "voiceover_unknown_author".localized,
+        speed: 1,
+        currentTime: Double(item.currentTime ?? 0),
+        duration: Double(item.duration ?? 0),
+        percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
+          ? Double(item.progress!) / Double(item.duration!) : 0,
+        isFinished: item.isFinished ?? false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: item.coverPath != nil ? URL(string: item.coverPath!) : nil,
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: "\(item.title).\(fileExt)",
+        lastPlayDate: nil,
+        type: .book,
+        uuid: UUID().uuidString
+      )
+      
+      let externalItem = SimpleExternalResource(
+        id: Int(Date.timeIntervalBetween1970AndReferenceDate),
+        providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
+        providerId: item.id,
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+        lastSyncedAt: nil,
+        libraryItem: libraryItem
+      )
+      
+      return externalItem
+    }
+    
+    navigation.dismiss?()
+    importManager?.externalFiles.append(contentsOf: libraryItems)
+    importManager?.isShowingExternalImportView = true
+  }
+  
+  @MainActor
+  func onDownloadFolderTapped() {
+    useSelectedItems = false
+    showingDownloadConfirmation = true
+  }
+  
+  @MainActor
+  func confirmDownloadFolder() {
+   var requests = [URLRequest]()
+    for item in self.items {
+      do {
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
+      } catch {
+        self.error = error
+      }
+    }
+
+    guard !requests.isEmpty else { return }
+    singleFileDownloadService.handleDownload(requests)
+    navigation.dismiss?()
+  }
 
   @MainActor
   func onDownloadTapped() {
@@ -242,6 +333,11 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     guard !requests.isEmpty else { return }
     singleFileDownloadService.handleDownload(requests)
     navigation.dismiss?()
+  }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
   }
 
   private func handleSortChanged() {
