@@ -14,6 +14,19 @@ enum IntegrationError: Error, LocalizedError {
   case noClient(_ integrationName: String)
   case unexpectedResponse(code: Int?)
   case clientError(code: Int)
+  /// The server rejected our credentials mid-session (401/403 from a non-sign-in call). Carries
+  /// the offending connection's server name so the UI can prompt "Sign in again to {name}"
+  /// instead of showing the generic add-server form. The view layer special-cases this so the
+  /// existing connection (URL, custom headers, selected library) is preserved across re-auth.
+  case sessionExpired(serverName: String)
+
+  /// True when the error is a recoverable re-auth case — the UI should offer a Sign-In-only
+  /// recovery path that preserves the existing connection instead of treating it as a generic
+  /// load failure with the full Retry / Sign-In / Cancel set.
+  var isSessionExpired: Bool {
+    if case .sessionExpired = self { return true }
+    return false
+  }
 
   var errorDescription: String? {
     switch self {
@@ -44,6 +57,8 @@ enum IntegrationError: Error, LocalizedError {
           HTTPURLResponse.localizedString(forStatusCode: code)
         )
       }
+    case .sessionExpired(let serverName):
+      String(format: "integration_error_session_expired".localized, serverName)
     }
   }
 }

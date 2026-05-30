@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import Security
 
-public protocol KeychainServiceProtocol {
+public protocol KeychainServiceProtocol: Sendable {
   /// Publishes anytime a value of the `KeychainKeys` is modified
   var valueUpdatedPublisher: PassthroughSubject<KeychainUpdateValue, Never> { get }
 
@@ -36,13 +36,19 @@ public enum KeychainKeys: String {
   case hardcoverToken = "hardcover_token"
 }
 
-public class KeychainService: KeychainServiceProtocol {
+public final class KeychainService: KeychainServiceProtocol, Sendable {
   let service = Bundle.main.configurationString(for: .bundleIdentifier)
 
-  private let encoder: JSONEncoder = JSONEncoder()
-  private let decoder: JSONDecoder = JSONDecoder()
+  /// JSONEncoder/Decoder aren't Sendable in Foundation, but we only use them
+  /// inside synchronous methods on transient state — never share them across
+  /// concurrency domains. `nonisolated(unsafe)` documents that exception
+  /// without weakening the class-level Sendable guarantee.
+  nonisolated(unsafe) private let encoder: JSONEncoder = JSONEncoder()
+  nonisolated(unsafe) private let decoder: JSONDecoder = JSONDecoder()
 
-  public var valueUpdatedPublisher = PassthroughSubject<KeychainUpdateValue, Never>()
+  /// PassthroughSubject isn't marked Sendable in Combine at our deployment target.
+  /// It's internally thread-safe via Combine's send() implementation.
+  nonisolated(unsafe) public let valueUpdatedPublisher = PassthroughSubject<KeychainUpdateValue, Never>()
 
   public init() {}
 

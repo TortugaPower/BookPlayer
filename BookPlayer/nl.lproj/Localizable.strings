@@ -340,6 +340,9 @@
 "integration_connection_details_title" = "Verbindingsgegevens";
 "integration_connect_button" = "Verbinden";
 "integration_sign_in_button" = "Aanmelden";
+"integration_retry_button" = "Opnieuw proberen";
+"integration_add_server_button" = "Server toevoegen";
+"media_servers_title" = "Mediaservers";
 "integration_section_server_url" = "Server-URL";
 "integration_section_server_url_footer" = "Maak verbinding met uw %@-server";
 "integration_section_server" = "Server";
@@ -361,6 +364,7 @@
 "integration_error_unexpected_response" = "Onverwachte serverreactie";
 "integration_error_unexpected_response_with_code" = "Onverwachte serverrespons (Code: %d - %@ )";
 "integration_error_unauthorized" = "Aanmelden mislukt. Controleer uw gebruikersnaam en wachtwoord.";
+"integration_error_session_expired" = "Je sessie voor %@ is verlopen. Meld je opnieuw aan om door te gaan.";
 "integration_selection_count" = "%d van %d Items";
 "file_size_unknown" = "Onbekende grootte";
 "runtime_unknown" = "Onbekende duur";

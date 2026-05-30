@@ -340,6 +340,9 @@
 "integration_connection_details_title" = "Verbindungsdetails";
 "integration_connect_button" = "Verbinden";
 "integration_sign_in_button" = "Anmelden";
+"integration_retry_button" = "Erneut versuchen";
+"integration_add_server_button" = "Server hinzufügen";
+"media_servers_title" = "Medienserver";
 "integration_section_server_url" = "Server-URL";
 "integration_section_server_url_footer" = "Stelle eine Verbindung zu deinem %@-Server her";
 "integration_section_server" = "Server";
@@ -361,6 +364,7 @@
 "integration_error_unexpected_response" = "Unerwartete Serverantwort";
 "integration_error_unexpected_response_with_code" = "Unerwartete Serverantwort (Code: %d - %@ )";
 "integration_error_unauthorized" = "Anmeldung fehlgeschlagen. Überprüfe deinen Benutzernamen und dein Passwort.";
+"integration_error_session_expired" = "Deine Sitzung für %@ ist abgelaufen. Melde dich erneut an, um fortzufahren.";
 "integration_selection_count" = "%d von %d Elementen";
 "file_size_unknown" = "Unbekannte Größe";
 "runtime_unknown" = "Unbekannte Dauer";

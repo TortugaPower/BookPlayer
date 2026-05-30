@@ -340,6 +340,9 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_connection_details_title" = "Tilkoblingsdetaljer";
 "integration_connect_button" = "Koble til";
 "integration_sign_in_button" = "Logg på";
+"integration_retry_button" = "Prøv igjen";
+"integration_add_server_button" = "Legg til server";
+"media_servers_title" = "Medieservere";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Koble til %@-serveren din";
 "integration_section_server" = "Server";
@@ -361,6 +364,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_error_unexpected_response" = "Uventet serverrespons";
 "integration_error_unexpected_response_with_code" = "Uventet serverrespons (kode: %d - %@ )";
 "integration_error_unauthorized" = "Pålogging mislyktes. Sjekk brukernavnet og passordet ditt.";
+"integration_error_session_expired" = "Økten din for %@ er utløpt. Logg inn på nytt for å fortsette.";
 "integration_selection_count" = "%d av %d Elementer";
 "file_size_unknown" = "Ukjent størrelse";
 "runtime_unknown" = "Ukjent varighet";

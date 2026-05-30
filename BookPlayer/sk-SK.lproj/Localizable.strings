@@ -341,6 +341,9 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_connection_details_title" = "Podrobnosti pripojenia";
 "integration_connect_button" = "Pripojiť sa";
 "integration_sign_in_button" = "Prihlásiť sa";
+"integration_retry_button" = "Skúsiť znova";
+"integration_add_server_button" = "Pridať server";
+"media_servers_title" = "Mediálne servery";
 "integration_section_server_url" = "URL servera";
 "integration_section_server_url_footer" = "Pripojenie sa k serveru %@";
 "integration_section_server" = "Server";
@@ -362,6 +365,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_error_unexpected_response" = "Neočakávaná odpoveď servera";
 "integration_error_unexpected_response_with_code" = "Neočakávaná odpoveď servera (kód: %d – %@)";
 "integration_error_unauthorized" = "Prihlásenie zlyhalo. Skontrolujte svoje používateľské meno a heslo.";
+"integration_error_session_expired" = "Vaša relácia pre %@ vypršala. Pre pokračovanie sa znova prihláste.";
 "integration_selection_count" = "%d z %d Položiek";
 "file_size_unknown" = "Neznáma veľkosť";
 "runtime_unknown" = "Neznáme trvanie";

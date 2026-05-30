@@ -343,6 +343,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_connection_details_title" = "Connection Details";
 "integration_connect_button" = "Connect";
 "integration_sign_in_button" = "Sign In";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Connect to your %@ server";
 "integration_section_server" = "Server";
@@ -352,6 +353,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_username_placeholder" = "Username";
 "integration_password_placeholder" = "Password";
 "integration_password_remember_me_label" = "Remember Me";
+"integration_add_server_button" = "Add Server";
+"media_servers_title" = "Media Servers";
 "integration_custom_headers_title" = "Custom HTTP Headers";
 "integration_custom_headers_footer" = "Headers added here are attached to every request sent to this server.";
 "integration_custom_headers_key_placeholder" = "Header name";
@@ -364,6 +367,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_error_unexpected_response" = "Unexpected server response";
 "integration_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "integration_error_unauthorized" = "Sign In failed. Check your username and password.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d of %d Items";
 "file_size_unknown" = "Unknown size";
 "runtime_unknown" = "Unknown duration";
