@@ -10,9 +10,6 @@ import SwiftUI
 
 struct JellyfinRootView: View {
   let connectionService: JellyfinConnectionService
-  /// When `true`, skips the per-integration server picker on launch.
-  /// Used when the caller (e.g. MediaServersView) has already activated the desired server.
-  var skipServerPicker: Bool = false
 
   @StateObject private var connectionViewModel: JellyfinConnectionViewModel
 
@@ -30,9 +27,8 @@ struct JellyfinRootView: View {
   @Environment(\.dismiss) var dismiss
   @Environment(\.listState) private var listState
 
-  init(connectionService: JellyfinConnectionService, skipServerPicker: Bool = false) {
+  init(connectionService: JellyfinConnectionService) {
     self.connectionService = connectionService
-    self.skipServerPicker = skipServerPicker
     self._connectionViewModel = .init(
       wrappedValue: .init(connectionService: connectionService)
     )
@@ -40,7 +36,6 @@ struct JellyfinRootView: View {
 
   @State private var showLibraryPicker = false
   @State private var showConnectionForm = false
-  @State private var showServerPicker = false
   @State private var isLoadingLibraries = false
 
   private var isReady: Bool {
@@ -97,17 +92,14 @@ struct JellyfinRootView: View {
       isPresented: .init(get: { loadError != nil }, set: { if !$0 { loadError = nil } }),
       actions: {
         // Library/identity loads can fail for many reasons (transient network, token
-        // expired, server moved, custom-header proxy issue). The previous "OK" button
-        // unconditionally pushed the user into the add-server form, which led people
-        // to re-add their server and end up with a duplicate.
-        //
-        // For the specific "session expired" case (401/403 mid-session) we already know
-        // the URL and customHeaders are fine — just the token is stale — so we show a
-        // narrower set of actions that funnel into the existing connection's sign-in
-        // form (which preserves customHeaders + selectedLibraryId).
+        // expired, server moved, custom-header proxy issue). Offer Retry where it
+        // could help, and Connection Details as the manual recovery path (shows the
+        // saved-server list with sign-out, matching prod behavior).
         if (loadError as? IntegrationError)?.isSessionExpired == true {
-          Button("integration_sign_in_button".localized) {
+          // Session expired: Retry would just hit the same 401, so omit it.
+          Button("integration_connection_details_title".localized) {
             loadError = nil
+            connectionViewModel.signInFlow = nil
             showConnectionForm = true
           }
           Button("cancel_button".localized, role: .cancel) {
@@ -115,13 +107,14 @@ struct JellyfinRootView: View {
             dismiss()
           }
         } else {
-          Button("integration_sign_in_button".localized) {
-            loadError = nil
-            showConnectionForm = true
-          }
           Button("integration_retry_button".localized) {
             loadError = nil
             Task { await loadLibraries() }
+          }
+          Button("integration_connection_details_title".localized) {
+            loadError = nil
+            connectionViewModel.signInFlow = nil
+            showConnectionForm = true
           }
           Button("cancel_button".localized, role: .cancel) {
             loadError = nil
@@ -135,17 +128,13 @@ struct JellyfinRootView: View {
       NavigationStack {
         IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "Jellyfin")
           .toolbar {
-            ToolbarItemGroup(placement: .cancellationAction) {
-              Button { showConnectionForm = false } label: {
-                Image(systemName: "xmark")
-                  .foregroundStyle(theme.linkColor)
-              }
-            }
-            if connectionService.connection != nil {
-              ToolbarItemGroup(placement: .confirmationAction) {
-                Button("integration_connect_button") {
-                  showConnectionForm = false
-                  Task { await loadLibraries() }
+            // Outer X only when we're NOT in Add Server mode — IntegrationConnectionView's
+            // own Cancel button handles that case (and just dismisses the form sheet).
+            if !connectionViewModel.isAddingServer {
+              ToolbarItemGroup(placement: .cancellationAction) {
+                Button { dismiss() } label: {
+                  Image(systemName: "xmark")
+                    .foregroundStyle(theme.linkColor)
                 }
               }
             }
@@ -164,44 +153,15 @@ struct JellyfinRootView: View {
         showLibraryPicker = true
       }
     }
-    .onChange(of: connectionViewModel.connectionState) { _, newValue in
-      if newValue == .connected {
-        showConnectionForm = false
-        resolvedLibrary = nil
-        Task { await loadLibraries() }
-      }
-    }
-    .sheet(isPresented: $showServerPicker) {
-      NavigationStack {
-        IntegrationServerPickerView(viewModel: connectionViewModel) { serverID in
-          connectionViewModel.handleActivateAction(id: serverID)
-          showServerPicker = false
-          resolvedLibrary = nil
-          Task { await loadLibraries() }
-        }
-        .toolbar {
-          ToolbarItem(placement: .principal) {
-            Text("Jellyfin")
-              .bpFont(.headline)
-              .foregroundStyle(theme.primaryColor)
-          }
-          ToolbarItemGroup(placement: .cancellationAction) {
-            Button { showServerPicker = false } label: {
-              Image(systemName: "xmark")
-                .foregroundStyle(theme.linkColor)
-            }
-          }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-      }
-      .tint(theme.linkColor)
-      .environmentObject(theme)
+    .onChange(of: connectionViewModel.signInCompletedAt) { _, newValue in
+      guard newValue != nil else { return }
+      showConnectionForm = false
+      resolvedLibrary = nil
+      Task { await loadLibraries() }
     }
     .task {
       if connectionService.connections.isEmpty {
         showConnectionForm = true
-      } else if !skipServerPicker && connectionService.connections.count > 1, resolvedLibrary == nil {
-        showServerPicker = true
       } else if resolvedLibrary == nil {
         await loadLibraries()
       }
@@ -330,8 +290,8 @@ private struct JellyfinTabRoot: View {
           destinationView(for: destination)
         }
         .toolbar {
-          ToolbarItemGroup(placement: .cancellationAction) {
-            JellyfinTabRoot.serversBackButton(theme: theme, dismissAll: dismissAll)
+          ToolbarItem(placement: .cancellationAction) {
+            cogMenu
           }
           if let onSwitchLibrary {
             ToolbarItem(placement: .topBarTrailing) {
@@ -343,9 +303,6 @@ private struct JellyfinTabRoot: View {
               }
               .accessibilityLabel("Switch Library")
             }
-          }
-          ToolbarItem(placement: .topBarTrailing) {
-            cogMenu
           }
         }
     }
@@ -424,6 +381,11 @@ private struct JellyfinTabRoot: View {
         showConnectionDetails = true
       } label: {
         Label("integration_connection_details_title".localized, systemImage: "server.rack")
+      }
+      Button {
+        onDismiss()
+      } label: {
+        Label("voiceover_close_button", systemImage: "xmark")
       }
     } label: {
       Image(systemName: "gearshape")
@@ -516,8 +478,13 @@ where ViewModel.Item == JellyfinLibraryItem {
           )
         }
         .toolbar {
-          ToolbarItemGroup(placement: .cancellationAction) {
-            JellyfinTabRoot.serversBackButton(theme: theme, dismissAll: dismissAll)
+          ToolbarItem(placement: .cancellationAction) {
+            JellyfinTabRoot.cogMenuView(
+              theme: theme,
+              connectionService: connectionService,
+              showConnectionDetails: $showConnectionDetails,
+              onDismiss: onDismiss
+            )
           }
           if let onSwitchLibrary {
             ToolbarItem(placement: .topBarTrailing) {
@@ -529,14 +496,6 @@ where ViewModel.Item == JellyfinLibraryItem {
               }
               .accessibilityLabel("Switch Library")
             }
-          }
-          ToolbarItem(placement: .topBarTrailing) {
-            JellyfinTabRoot.cogMenuView(
-              theme: theme,
-              connectionService: connectionService,
-              showConnectionDetails: $showConnectionDetails,
-              onDismiss: onDismiss
-            )
           }
         }
     }
@@ -636,31 +595,16 @@ extension JellyfinTabRoot {
       } label: {
         Label("integration_connection_details_title".localized, systemImage: "server.rack")
       }
+      Button {
+        onDismiss()
+      } label: {
+        Label("voiceover_close_button", systemImage: "xmark")
+      }
     } label: {
       Image(systemName: "gearshape")
         .foregroundStyle(theme.linkColor)
     }
     .accessibilityLabel("settings_title")
-  }
-
-  /// Back button in each tab's leading toolbar slot. Calls `dismissAll`, which
-  /// is JellyfinRootView's `@Environment(\.dismiss)` — and since this whole
-  /// view is presented as a sheet from MediaServersView, that dismiss tears
-  /// down the sheet and lands you back on the server list.
-  @ViewBuilder
-  static func serversBackButton(theme: ThemeViewModel, dismissAll: DismissAction?) -> some View {
-    if let dismissAll {
-      Button {
-        dismissAll()
-      } label: {
-        HStack(spacing: 4) {
-          Image(systemName: "chevron.backward")
-          Text("media_servers_title".localized)
-        }
-        .foregroundStyle(theme.linkColor)
-      }
-      .accessibilityLabel("media_servers_title".localized)
-    }
   }
 
   static func connectionDetailsSheetView(

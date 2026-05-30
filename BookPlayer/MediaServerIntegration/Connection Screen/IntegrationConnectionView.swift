@@ -24,76 +24,47 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   @State private var actionTask: Task<Void, Never>?
 
   @EnvironmentObject var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     Form {
-      if viewModel.isAddingServer {
-        // Adding a new server from settings — show the connection flow
-        switch viewModel.connectionState {
-        case .disconnected, .connected:
-          IntegrationDisconnectedView(
-            serverUrl: $viewModel.form.serverUrl,
-            placeholderURL: integrationName == "Jellyfin"
-              ? "http://jellyfin.example.com:8096"
-              : "http://audiobookshelf.example.com",
-            integrationName: integrationName,
-            onCommit: onConnect
-          )
-          IntegrationCustomHeadersSectionView(
-            customHeaders: $viewModel.form.customHeaders
-          )
-        case .foundServer:
-          IntegrationServerInformationSectionView(
-            serverName: viewModel.form.serverName,
-            serverUrl: viewModel.form.serverUrl
-          )
-          IntegrationServerFoundView(
-            username: $viewModel.form.username,
-            password: $viewModel.form.password,
-            onCommit: onSignIn
-          )
-          IntegrationCustomHeadersSectionView(
-            customHeaders: $viewModel.form.customHeaders
-          )
-        }
-      } else {
-        switch viewModel.connectionState {
-        case .disconnected:
-          IntegrationDisconnectedView(
-            serverUrl: $viewModel.form.serverUrl,
-            placeholderURL: integrationName == "Jellyfin"
-              ? "http://jellyfin.example.com:8096"
-              : "http://audiobookshelf.example.com",
-            integrationName: integrationName,
-            onCommit: onConnect
-          )
-          IntegrationCustomHeadersSectionView(
-            customHeaders: $viewModel.form.customHeaders
-          )
-        case .foundServer:
-          IntegrationServerInformationSectionView(
-            serverName: viewModel.form.serverName,
-            serverUrl: viewModel.form.serverUrl
-          )
-          IntegrationServerFoundView(
-            username: $viewModel.form.username,
-            password: $viewModel.form.password,
-            onCommit: onSignIn
-          )
-          IntegrationCustomHeadersSectionView(
-            customHeaders: $viewModel.form.customHeaders
-          )
-        case .connected:
-          IntegrationServerInformationSectionView(
-            serverName: viewModel.form.serverName,
-            serverUrl: viewModel.form.serverUrl
-          )
-          IntegrationCustomHeadersSectionView(
-            customHeaders: $viewModel.form.customHeaders,
-            onCommit: { viewModel.handleCustomHeadersUpdate() }
-          )
-          IntegrationConnectedView(viewModel: viewModel)
-        }
+      switch viewModel.signInFlow {
+      case .enteringServerURL:
+        IntegrationDisconnectedView(
+          serverUrl: $viewModel.form.serverUrl,
+          placeholderURL: integrationName == "Jellyfin"
+            ? "http://jellyfin.example.com:8096"
+            : "http://audiobookshelf.example.com",
+          integrationName: integrationName,
+          onCommit: onConnect
+        )
+        IntegrationCustomHeadersSectionView(
+          customHeaders: $viewModel.form.customHeaders
+        )
+      case .enteringCredentials:
+        IntegrationServerInformationSectionView(
+          serverName: viewModel.form.serverName,
+          serverUrl: viewModel.form.serverUrl
+        )
+        IntegrationServerFoundView(
+          username: $viewModel.form.username,
+          password: $viewModel.form.password,
+          onCommit: onSignIn
+        )
+        IntegrationCustomHeadersSectionView(
+          customHeaders: $viewModel.form.customHeaders
+        )
+      case .none:
+        // Not in sign-in flow → render the saved-servers list.
+        IntegrationServerInformationSectionView(
+          serverName: viewModel.form.serverName,
+          serverUrl: viewModel.form.serverUrl
+        )
+        IntegrationCustomHeadersSectionView(
+          customHeaders: $viewModel.form.customHeaders,
+          onCommit: { viewModel.handleCustomHeadersUpdate() }
+        )
+        IntegrationConnectedView(viewModel: viewModel)
       }
     }
     .scrollContentBackground(.hidden)
@@ -119,14 +90,14 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
         ToolbarItem(placement: .cancellationAction) {
           Button("cancel_button".localized) {
             viewModel.handleCancelAddServerAction()
+            dismiss()
           }
           .foregroundStyle(theme.linkColor)
         }
         ToolbarItemGroup(placement: .confirmationAction) {
-          if viewModel.connectionState == .foundServer {
-            signInToolbarButton
-          } else {
-            connectToolbarButton
+          switch viewModel.signInFlow {
+          case .enteringCredentials: signInToolbarButton
+          case .enteringServerURL, .none: connectToolbarButton
           }
         }
       } else {
@@ -136,13 +107,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
             .foregroundStyle(theme.primaryColor)
         }
         ToolbarItemGroup(placement: .confirmationAction) {
-          switch viewModel.connectionState {
-          case .disconnected:
-            connectToolbarButton
-          case .foundServer:
-            signInToolbarButton
-          case .connected:
-            EmptyView()
+          switch viewModel.signInFlow {
+          case .enteringServerURL: connectToolbarButton
+          case .enteringCredentials: signInToolbarButton
+          case .none: EmptyView()
           }
         }
       }
@@ -191,10 +159,9 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   // MARK: - Navigation Title
 
   private var localizedNavigationTitle: String {
-    switch viewModel.connectionState {
-    case .disconnected, .foundServer: integrationName
-    case .connected: "integration_connection_details_title".localized
-    }
+    viewModel.signInFlow == nil
+      ? "integration_connection_details_title".localized
+      : integrationName
   }
 
   // MARK: - Navigation Buttons

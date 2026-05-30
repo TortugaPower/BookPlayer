@@ -355,8 +355,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_password_remember_me_label" = "Remember Me";
 "integration_add_server_button" = "Add Server";
 "media_servers_title" = "Media Servers";
-"media_servers_choose_type_title" = "Choose Server Type";
-"media_servers_add_prompt" = "Add a media server to get started";
 "integration_custom_headers_title" = "Custom HTTP Headers";
 "integration_custom_headers_footer" = "Headers added here are attached to every request sent to this server.";
 "integration_custom_headers_key_placeholder" = "Header name";

@@ -16,10 +16,17 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
 
   @Published var form: IntegrationConnectionFormViewModel
   @Published var viewMode: IntegrationViewMode = .regular
-  @Published var connectionState: IntegrationConnectionState
+  @Published var signInFlow: SignInStep?
+  @Published private(set) var signInCompletedAt: Date?
   @Published var isAddingServer: Bool = false
 
   private var disposeBag = Set<AnyCancellable>()
+
+  /// When non-nil, the VM operates on this specific connection (read its data on init,
+  /// route logout / custom-headers updates to its id) regardless of which connection is
+  /// active in the service. Used by `MediaServersView`'s per-server info sheet so editing
+  /// one server doesn't change the active connection.
+  let targetConnectionId: String?
 
   var servers: [IntegrationServerInfo] {
     connectionService.connections.map { data in
@@ -27,30 +34,44 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         id: data.id,
         serverName: data.serverName,
         serverUrl: data.url.absoluteString,
-        userName: data.userName,
-        isActive: data.id == connectionService.connection?.id
+        userName: data.userName
       )
     }
   }
 
   init(
     connectionService: AudiobookShelfConnectionService,
-    mode: IntegrationViewMode = .regular
+    mode: IntegrationViewMode = .regular,
+    connectionId: String? = nil
   ) {
     self.connectionService = connectionService
+    self.targetConnectionId = connectionId
     self._viewMode = .init(initialValue: mode)
     let form = IntegrationConnectionFormViewModel()
 
-    if let data = connectionService.connection {
-      form.setValues(
-        url: data.url.absoluteString,
-        serverName: data.serverName,
-        userName: data.userName,
-        customHeaders: data.customHeaders
-      )
-      self._connectionState = .init(initialValue: .connected)
-    } else {
-      self._connectionState = .init(initialValue: .disconnected)
+    switch mode {
+    case .addServer:
+      // Dedicated Add Server flow: start clean, no pre-population from active connection.
+      self._signInFlow = .init(initialValue: .enteringServerURL)
+      self._isAddingServer = .init(initialValue: true)
+    case .regular, .viewDetails:
+      // If `connectionId` is provided, pull from that specific saved connection so this VM
+      // can edit a non-active server. Otherwise fall back to whichever one is active.
+      let data = connectionId.flatMap { id in
+        connectionService.connections.first(where: { $0.id == id })
+      } ?? connectionService.connection
+
+      if let data {
+        form.setValues(
+          url: data.url.absoluteString,
+          serverName: data.serverName,
+          userName: data.userName,
+          customHeaders: data.customHeaders
+        )
+        self._signInFlow = .init(initialValue: nil)
+      } else {
+        self._signInFlow = .init(initialValue: .enteringServerURL)
+      }
     }
 
     self._form = .init(initialValue: form)
@@ -67,14 +88,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       at: normalizedURL,
       customHeaders: form.customHeadersDictionary()
     )
-    connectionState = .foundServer
+    signInFlow = .enteringCredentials
     form.serverName = serverName
   }
 
   @MainActor
   func handleSignInAction() async throws {
     do {
-      let wasAdding = isAddingServer
       // ABS auth doesn't trim whitespace server-side, so iOS autocorrect inserting a trailing
       // space on the username is enough to silently reject otherwise-correct credentials.
       let username = form.username.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -87,14 +107,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         customHeaders: form.customHeadersDictionary()
       )
 
-      if wasAdding {
-        isAddingServer = false
-      }
+      isAddingServer = false
 
       if let data = connectionService.connection {
         form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
       }
-      connectionState = .connected
+      signInFlow = nil
+      signInCompletedAt = Date()
     } catch let error as IntegrationError {
       throw error
     } catch {
@@ -119,9 +138,15 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
 
   @MainActor
   func handleSignOutAction() {
-    connectionService.deleteConnection()
+    // If this VM was scoped to a specific connection, route the deletion there.
+    // Otherwise act on the active one (the cog → Connection Details flow).
+    if let targetId = targetConnectionId {
+      connectionService.deleteConnection(id: targetId)
+    } else {
+      connectionService.deleteConnection()
+    }
     form = IntegrationConnectionFormViewModel()
-    connectionState = connectionService.connections.isEmpty ? .disconnected : .connected
+    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }
@@ -131,7 +156,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      connectionState = .disconnected
+      signInFlow = .enteringServerURL
     } else if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }
@@ -146,19 +171,25 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
 
   func handleAddServerAction() {
     isAddingServer = true
+    signInFlow = .enteringServerURL
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
+    signInFlow = nil
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }
-    connectionState = .connected
   }
 
   @MainActor
   func handleCustomHeadersUpdate() {
-    connectionService.updateCustomHeaders(form.customHeadersDictionary())
+    let headers = form.customHeadersDictionary()
+    if let targetId = targetConnectionId {
+      connectionService.updateCustomHeaders(id: targetId, headers)
+    } else {
+      connectionService.updateCustomHeaders(headers)
+    }
   }
 }

@@ -9,7 +9,7 @@
 import BookPlayerKit
 import Combine
 
-class KeychainServiceMock: KeychainServiceProtocol {
+final class KeychainServiceMock: KeychainServiceProtocol, @unchecked Sendable {
   var valueUpdatedPublisher = PassthroughSubject<BookPlayerKit.KeychainUpdateValue, Never>()
   
   private let encoder = JSONEncoder()

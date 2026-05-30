@@ -9,11 +9,12 @@
 import BookPlayerKit
 import Foundation
 
+@MainActor
 @Observable
 class AudiobookShelfConnectionService: BPLogger {
   private static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
 
-  private let keychainService: KeychainServiceProtocol
+  private nonisolated let keychainService: KeychainServiceProtocol
 
   var connections: [AudiobookShelfConnectionData] = []
   var connection: AudiobookShelfConnectionData? {
@@ -23,14 +24,14 @@ class AudiobookShelfConnectionService: BPLogger {
     }
     return connections.first
   }
-  private var urlSession: URLSession
+  private let urlSession: URLSession
 
   private(set) var activeConnectionID: String? {
     get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
     set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
   }
 
-  init(keychainService: KeychainServiceProtocol = KeychainService()) {
+  nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
     self.keychainService = keychainService
     let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 15
@@ -149,8 +150,13 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {
-    guard let activeID = connection?.id,
-          let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
+    guard let activeID = connection?.id else { return }
+    updateCustomHeaders(id: activeID, headers)
+  }
+
+  /// Persist `headers` to the connection with the given id, regardless of which is active.
+  func updateCustomHeaders(id: String, _ headers: [String: String]) {
+    guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
     connections[index].customHeaders = headers
     saveConnections()
   }
@@ -163,6 +169,7 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   func activateConnection(id: String) {
+    guard connections.contains(where: { $0.id == id }) else { return }
     activeConnectionID = id
   }
 
@@ -522,6 +529,9 @@ class AudiobookShelfConnectionService: BPLogger {
     // Try array format first
     if let storedConnections: [AudiobookShelfConnectionData] = try? keychainService.get(.audiobookshelfConnection) {
       connections = storedConnections.filter { isConnectionValid($0) }
+      if connections.count != storedConnections.count {
+        saveConnections()
+      }
     } else if let single: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
               isConnectionValid(single) {
       // Migrate from single-connection format

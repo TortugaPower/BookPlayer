@@ -23,8 +23,8 @@ final class ListStateManager {
   public var isEditing = false
 
   /// Integration sheet presented at MainView level for state preservation.
-  /// MediaServersView is the unified entry point; per-server browsing is
-  /// pushed onto its NavigationStack rather than swapped via this binding.
+  /// MediaServersView is the unified entry point — per-integration libraries are
+  /// pushed on top of it as sub-sheets when the user taps a server row.
   enum IntegrationSheet: String, Identifiable {
     case mediaServers
     var id: String { rawValue }
