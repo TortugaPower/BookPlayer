@@ -14,12 +14,8 @@ struct SettingsIntegrationsSectionView: View {
 
   var body: some View {
     ThemedSection {
-      NavigationLink(value: SettingsScreen.jellyfin) {
-        Text("Jellyfin")
-          .bpFont(.body)
-      }
-      NavigationLink(value: SettingsScreen.audiobookshelf) {
-        Text("AudiobookShelf")
+      NavigationLink(value: SettingsScreen.mediaServers) {
+        Text("media_servers_title")
           .bpFont(.body)
       }
       NavigationLink(value: SettingsScreen.hardcover) {

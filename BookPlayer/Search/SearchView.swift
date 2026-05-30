@@ -22,7 +22,7 @@ struct SearchView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Group {
         if viewModel.searchText.isEmpty {
           recentItemsView
@@ -50,10 +50,13 @@ struct SearchView: View {
 
   private var recentItemsView: some View {
     List {
-      Section("recent_title".localized) {
+      ThemedSection {
         ForEach(viewModel.filteredRecentItems) { item in
           rowView(item)
         }
+      } header: {
+        Text("recent_title".localized)
+          .foregroundStyle(theme.secondaryColor)
       }
     }
     .listStyle(.insetGrouped)
@@ -62,10 +65,13 @@ struct SearchView: View {
   private var searchResultsView: some View {
     List {
       ForEach(viewModel.searchSections, id: \.folderName) { section in
-        Section(section.displayName) {
+        ThemedSection {
           ForEach(section.items) { item in
             rowView(item)
           }
+        } header: {
+          Text(section.displayName)
+            .foregroundStyle(theme.secondaryColor)
         }
       }
     }

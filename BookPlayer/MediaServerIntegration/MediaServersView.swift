@@ -8,13 +8,38 @@
 
 import SwiftUI
 
-/// Unified entry-point screen for media-server integrations.
-/// Two sections (Jellyfin / AudiobookShelf), per-section `[+]` button to add a
-/// new server, per-row `(i)` button for server details, Edit mode + swipe-to-delete
-/// for removal. Tapping a row activates that server and opens its library.
+/// Unified screen for media-server integrations. Has two presentation styles:
+///
+/// - `.libraryEntry`: sheet presented from the Library tab. Tap a row to activate
+///   that server and open its library; `(i)` row accessory opens Connection Details
+///   without changing the active connection.
+/// - `.settings`: pushed into the Settings navigation stack. Row tap opens
+///   Connection Details directly (no library entry from here); `(i)` is hidden
+///   because the whole row is the same action.
+///
+/// In both styles: per-section `[+]` button to add a server, Edit mode + swipe-to-
+/// delete to remove servers.
 struct MediaServersView: View {
+  enum Style {
+    /// Sheet from Library tab. Row tap activates + opens library. `(i)` is visible.
+    case libraryEntry
+    /// Pushed into Settings nav stack. Row tap opens Connection Details. `(i)` hidden.
+    case settings
+  }
+
   let jellyfinService: JellyfinConnectionService
   let audiobookshelfService: AudiobookShelfConnectionService
+  let style: Style
+
+  init(
+    jellyfinService: JellyfinConnectionService,
+    audiobookshelfService: AudiobookShelfConnectionService,
+    style: Style = .libraryEntry
+  ) {
+    self.jellyfinService = jellyfinService
+    self.audiobookshelfService = audiobookshelfService
+    self.style = style
+  }
 
   @State private var presentedAddServer: IntegrationKind?
   @State private var presentedLibrary: IntegrationKind?
@@ -25,38 +50,37 @@ struct MediaServersView: View {
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    NavigationStack {
-      Form {
-        section(
-          title: "Jellyfin",
-          kind: .jellyfin,
-          servers: jellyfinService.connections.map(ServerRow.init)
-        )
-        section(
-          title: "AudiobookShelf",
-          kind: .audiobookshelf,
-          servers: audiobookshelfService.connections.map(ServerRow.init)
-        )
-      }
-      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-      .navigationTitle("media_servers_title".localized)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
+    Form {
+      section(
+        title: "Jellyfin",
+        kind: .jellyfin,
+        servers: jellyfinService.connections.map(ServerRow.init)
+      )
+      section(
+        title: "AudiobookShelf",
+        kind: .audiobookshelf,
+        servers: audiobookshelfService.connections.map(ServerRow.init)
+      )
+    }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+    .navigationTitle("media_servers_title".localized)
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      if style == .libraryEntry {
+        // In settings, the parent NavigationStack provides a back button — no X needed.
         ToolbarItem(placement: .cancellationAction) {
           Button { dismiss() } label: {
             Image(systemName: "xmark")
               .foregroundStyle(theme.linkColor)
           }
         }
-        ToolbarItem(placement: .primaryAction) {
-          EditButton()
-            .foregroundStyle(theme.linkColor)
-        }
       }
-      .environment(\.editMode, $editMode)
+      ToolbarItem(placement: .primaryAction) {
+        EditButton()
+      }
     }
+    .environment(\.editMode, $editMode)
     .tint(theme.linkColor)
-    .environmentObject(theme)
     .sheet(item: $presentedAddServer) { kind in
       addServerSheet(for: kind)
     }
@@ -101,7 +125,14 @@ struct MediaServersView: View {
   private func rowView(_ server: ServerRow, kind: IntegrationKind) -> some View {
     HStack {
       Button {
-        select(server, kind: kind)
+        switch style {
+        case .libraryEntry:
+          select(server, kind: kind)
+        case .settings:
+          // In Settings we don't navigate into the server; the row IS the
+          // Connection Details action.
+          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+        }
       } label: {
         VStack(alignment: .leading, spacing: 2) {
           Text(server.serverName)
@@ -115,17 +146,19 @@ struct MediaServersView: View {
       }
       .buttonStyle(.plain)
 
-      Button {
-        // Show Connection Details scoped to THIS server (without activating it,
-        // so the user's current active connection isn't changed by tapping info).
-        presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
-      } label: {
-        Image(systemName: "info.circle")
-          .imageScale(.large)
-          .foregroundStyle(theme.linkColor)
+      if style == .libraryEntry {
+        Button {
+          // Show Connection Details scoped to THIS server (without activating it,
+          // so the user's current active connection isn't changed by tapping info).
+          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+        } label: {
+          Image(systemName: "info.circle")
+            .imageScale(.large)
+            .foregroundStyle(theme.linkColor)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityHidden(true)
       }
-      .buttonStyle(.borderless)
-      .accessibilityHidden(true)
     }
     .swipeActions(edge: .trailing) {
       Button(role: .destructive) {
@@ -134,10 +167,15 @@ struct MediaServersView: View {
         Label("logout_title".localized, systemImage: "trash")
       }
     }
-    // VoiceOver merges the row's main button + trailing `(i)` button into a single
-    // element, hiding the info action. Surface it explicitly via the actions rotor.
-    .accessibilityAction(named: Text("integration_connection_details_title".localized)) {
-      presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+    // In `.libraryEntry` mode, VoiceOver merges the row's main button + trailing
+    // `(i)` button into a single element, hiding the info action. Surface it via
+    // the actions rotor. (In `.settings`, row tap already opens Connection Details.)
+    .accessibilityActions {
+      if style == .libraryEntry {
+        Button("integration_connection_details_title".localized) {
+          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+        }
+      }
     }
   }
 

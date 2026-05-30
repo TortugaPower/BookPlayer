@@ -88,10 +88,13 @@ struct MainView: View {
     .sheet(item: $listState.activeIntegrationSheet) { sheet in
       switch sheet {
       case .mediaServers:
-        MediaServersView(
-          jellyfinService: jellyfinService,
-          audiobookshelfService: audiobookshelfService
-        )
+        NavigationStack {
+          MediaServersView(
+            jellyfinService: jellyfinService,
+            audiobookshelfService: audiobookshelfService,
+            style: .libraryEntry
+          )
+        }
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {
