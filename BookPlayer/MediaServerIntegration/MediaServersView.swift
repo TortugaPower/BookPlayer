@@ -115,7 +115,8 @@ struct MediaServersView: View {
         Button {
           presentedSheet = .addServer(kind)
         } label: {
-          Image(systemName: "plus")
+          Image(systemName: "plus.circle.fill")
+            .imageScale(.large)
             .foregroundStyle(theme.linkColor)
         }
         .accessibilityLabel("integration_add_server_button".localized)
