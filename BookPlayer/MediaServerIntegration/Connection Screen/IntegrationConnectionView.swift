@@ -55,7 +55,9 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           customHeaders: $viewModel.form.customHeaders
         )
       case .none:
-        // Not in sign-in flow → render the saved-servers list.
+        // Not in sign-in flow → render the connection-details UI (server info, custom
+        // headers, logout) for the active connection. Multi-server management is in
+        // `MediaServersView`, not here.
         IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl

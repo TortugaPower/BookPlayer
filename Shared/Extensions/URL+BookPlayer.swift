@@ -29,7 +29,10 @@ public extension URL {
       components.port = nil
     }
 
-    if components.path.count > 1, components.path.hasSuffix("/") {
+    // Trim any trailing slash, including the root "/". Without this, `https://example.com`
+    // and `https://example.com/` produced different canonical keys, defeating dedup for
+    // the most common user variation.
+    while components.path.hasSuffix("/") {
       components.path.removeLast()
     }
 

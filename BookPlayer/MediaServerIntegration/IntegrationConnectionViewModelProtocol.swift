@@ -9,7 +9,9 @@
 import SwiftUI
 
 /// Current step of the sign-in flow. `nil` means the user is not actively
-/// signing in — the view should show the saved-servers list.
+/// signing in — the view should show the connection-details UI for the
+/// active connection (server info + custom headers + logout). Multi-server
+/// management lives in `MediaServersView`, not here.
 enum SignInStep {
   /// User is entering the server URL (initial step).
   case enteringServerURL
@@ -20,7 +22,7 @@ enum SignInStep {
 enum IntegrationViewMode {
   /// Bound to a live library session; pre-populates form from the active connection.
   case regular
-  /// Cog → Connection Details flow; pre-populates form, shows saved-list view.
+  /// Cog → Connection Details flow; pre-populates form, shows connection-details UI.
   case viewDetails
   /// Dedicated Add Server flow; starts with empty form, no active-connection state leaks.
   case addServer
@@ -41,7 +43,7 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   var viewMode: IntegrationViewMode { get set }
 
   /// Drives what the view renders.
-  /// `.enteringServerURL` → URL form; `.enteringCredentials` → credentials form; `nil` → saved-servers list.
+  /// `.enteringServerURL` → URL form; `.enteringCredentials` → credentials form; `nil` → connection-details UI.
   var signInFlow: SignInStep? { get set }
 
   /// Timestamp of the last successful sign-in. Observers use this as a signal
