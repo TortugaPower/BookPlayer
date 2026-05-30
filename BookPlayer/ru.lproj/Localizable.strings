@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Подробности подключения";
 "integration_connect_button" = "Подключиться";
 "integration_sign_in_button" = "Войти";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Повторить";
+"integration_add_server_button" = "Добавить сервер";
+"media_servers_title" = "Медиасерверы";
 "integration_section_server_url" = "URL-адрес сервера";
 "integration_section_server_url_footer" = "Подключитесь к вашему серверу %@";
 "integration_section_server" = "Сервер";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Неожиданный ответ сервера";
 "integration_error_unexpected_response_with_code" = "Неожиданный ответ сервера (Код: %d - %@)";
 "integration_error_unauthorized" = "Ошибка входа. Проверьте имя пользователя и пароль.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Срок действия сеанса для %@ истёк. Войдите снова, чтобы продолжить.";
 "integration_selection_count" = "%d из %d Элементов";
 "file_size_unknown" = "Неизвестный размер";
 "runtime_unknown" = "Неизвестная продолжительность";

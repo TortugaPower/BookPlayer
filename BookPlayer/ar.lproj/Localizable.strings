@@ -341,7 +341,9 @@
 "integration_connection_details_title" = "تفاصيل الاتصال";
 "integration_connect_button" = "الاتصال";
 "integration_sign_in_button" = "تسجيل الدخول";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "إعادة المحاولة";
+"integration_add_server_button" = "إضافة خادم";
+"media_servers_title" = "خوادم الوسائط";
 "integration_section_server_url" = "عنوان URL للخادم";
 "integration_section_server_url_footer" = "الاتصال بخادم @% الخاص بك";
 "integration_section_server" = "الخادم";
@@ -363,7 +365,7 @@
 "integration_error_unexpected_response" = "استجابة غير متوقعة من الخادم";
 "integration_error_unexpected_response_with_code" = "استجابة غير متوقعة من الخادم (الرمز: %d - %@ )";
 "integration_error_unauthorized" = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "انتهت صلاحية جلستك على %@. سجّل الدخول مرة أخرى للمتابعة.";
 "integration_selection_count" = "%d من %d عناصر";
 "file_size_unknown" = "حجم غير معروف";
 "runtime_unknown" = "مدة غير معروفة";

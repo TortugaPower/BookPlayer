@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Szczegóły połączenia";
 "integration_connect_button" = "Łączyć";
 "integration_sign_in_button" = "Zalogować się";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Spróbuj ponownie";
+"integration_add_server_button" = "Dodaj serwer";
+"media_servers_title" = "Serwery multimediów";
 "integration_section_server_url" = "Adres URL serwera";
 "integration_section_server_url_footer" = "Połącz się ze swoim serwerem %@";
 "integration_section_server" = "Serwer";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Nieoczekiwana odpowiedź serwera";
 "integration_error_unexpected_response_with_code" = "Nieoczekiwana odpowiedź serwera (Kod: %d - %@ )";
 "integration_error_unauthorized" = "Logowanie nie powiodło się. Sprawdź swoją nazwę użytkownika i hasło.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Twoja sesja dla %@ wygasła. Zaloguj się ponownie, aby kontynuować.";
 "integration_selection_count" = "%d z %d Elementów";
 "file_size_unknown" = "Nieznany rozmiar";
 "runtime_unknown" = "Nieznany czas trwania";

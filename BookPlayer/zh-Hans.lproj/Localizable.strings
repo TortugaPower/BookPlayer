@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "连接详细信息";
 "integration_connect_button" = "连接";
 "integration_sign_in_button" = "登入";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "重试";
+"integration_add_server_button" = "添加服务器";
+"media_servers_title" = "媒体服务器";
 "integration_section_server_url" = "服务器 URL";
 "integration_section_server_url_footer" = "连接到您的 %@ 服务器";
 "integration_section_server" = "服务器";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "意外的服务器响应";
 "integration_error_unexpected_response_with_code" = "意外的服务器响应（代码： %d - %@ ）";
 "integration_error_unauthorized" = "登录失败。请检查您的用户名和密码。";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "您在 %@ 的会话已过期。请重新登录以继续。";
 "integration_selection_count" = "%d / %d 项";
 "file_size_unknown" = "未知尺寸";
 "runtime_unknown" = "持续时间未知";

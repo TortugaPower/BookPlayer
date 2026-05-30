@@ -341,7 +341,9 @@
 "integration_connection_details_title" = "Στοιχεία σύνδεσης";
 "integration_connect_button" = "Συνδέω";
 "integration_sign_in_button" = "Είσοδος";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Επανάληψη";
+"integration_add_server_button" = "Προσθήκη διακομιστή";
+"media_servers_title" = "Διακομιστές πολυμέσων";
 "integration_section_server_url" = "URL διακομιστή";
 "integration_section_server_url_footer" = "Συνδεθείτε στον διακομιστή %@";
 "integration_section_server" = "Υπηρέτης";
@@ -363,7 +365,7 @@
 "integration_error_unexpected_response" = "Απροσδόκητη απόκριση διακομιστή";
 "integration_error_unexpected_response_with_code" = "Μη αναμενόμενη απόκριση διακομιστή (Κωδικός: %d - %@ )";
 "integration_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Η συνεδρία σας για το %@ έληξε. Συνδεθείτε ξανά για να συνεχίσετε.";
 "integration_selection_count" = "%d από %d Στοιχεία";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";

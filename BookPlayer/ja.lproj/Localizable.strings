@@ -341,7 +341,9 @@
 "integration_connection_details_title" = "接続の詳細";
 "integration_connect_button" = "接続";
 "integration_sign_in_button" = "サインイン";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "再試行";
+"integration_add_server_button" = "サーバーを追加";
+"media_servers_title" = "メディアサーバー";
 "integration_section_server_url" = "サーバURL";
 "integration_section_server_url_footer" = "%@サーバに接続する";
 "integration_section_server" = "サーバ";
@@ -363,7 +365,7 @@
 "integration_error_unexpected_response" = "サーバからの予期しない応答";
 "integration_error_unexpected_response_with_code" = "サーバからの予期しない応答（コード: %d - %@）";
 "integration_error_unauthorized" = "サインインできませんでした。ユーザ名とパスワードを確認してください。";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "%@ のセッションの有効期限が切れました。続行するには再度サインインしてください。";
 "integration_selection_count" = "%d / %d アイテム";
 "file_size_unknown" = "不明なサイズ";
 "runtime_unknown" = "不明な再生時間";

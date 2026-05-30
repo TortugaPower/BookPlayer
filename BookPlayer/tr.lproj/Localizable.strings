@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Bağlantı Ayrıntıları";
 "integration_connect_button" = "Bağlamak";
 "integration_sign_in_button" = "Kayıt olmak";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Yeniden dene";
+"integration_add_server_button" = "Sunucu ekle";
+"media_servers_title" = "Medya sunucuları";
 "integration_section_server_url" = "Sunucu URL'si";
 "integration_section_server_url_footer" = "%@ sunucunuza bağlanın";
 "integration_section_server" = "Sunucu";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Beklenmeyen sunucu yanıtı";
 "integration_error_unexpected_response_with_code" = "Beklenmeyen sunucu yanıtı (Kod: %d - %@ )";
 "integration_error_unauthorized" = "Giriş başarısız. Kullanıcı adınızı ve şifrenizi kontrol edin.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "%@ için oturumunuzun süresi doldu. Devam etmek için tekrar oturum açın.";
 "integration_selection_count" = "%d / %d Öğe";
 "file_size_unknown" = "Bilinmeyen boyut";
 "runtime_unknown" = "Bilinmeyen süre";

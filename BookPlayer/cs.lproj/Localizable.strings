@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Podrobnosti o připojení";
 "integration_connect_button" = "Připojit";
 "integration_sign_in_button" = "Přihlaste se";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Zkusit znovu";
+"integration_add_server_button" = "Přidat server";
+"media_servers_title" = "Mediální servery";
 "integration_section_server_url" = "Adresa URL serveru";
 "integration_section_server_url_footer" = "Připojte se k serveru %@";
 "integration_section_server" = "Server";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Neočekávaná odpověď serveru";
 "integration_error_unexpected_response_with_code" = "Neočekávaná odpověď serveru (kód: %d – %@ )";
 "integration_error_unauthorized" = "Přihlášení se nezdařilo. Zkontrolujte své uživatelské jméno a heslo.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Vaše relace pro %@ vypršela. Pro pokračování se znovu přihlaste.";
 "integration_selection_count" = "%d z %d Poživek";
 "file_size_unknown" = "Neznámá velikost";
 "runtime_unknown" = "Neznámá doba trvání";

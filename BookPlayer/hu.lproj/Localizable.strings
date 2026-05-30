@@ -341,7 +341,9 @@
 "integration_connection_details_title" = "Csatlakozás részletei";
 "integration_connect_button" = "Csatlakozás";
 "integration_sign_in_button" = "Bejelentkezés";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Újrapróbálkozás";
+"integration_add_server_button" = "Kiszolgáló hozzáadása";
+"media_servers_title" = "Médiakiszolgálók";
 "integration_section_server_url" = "Szerver URL";
 "integration_section_server_url_footer" = "Csatlakozás %@ szerverhez";
 "integration_section_server" = "Szerver";
@@ -363,7 +365,7 @@
 "integration_error_unexpected_response" = "Váratlan szerver válasz";
 "integration_error_unexpected_response_with_code" = "Váratlan szerverválasz (Kód: %d - %@ )";
 "integration_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "A(z) %@ munkamenete lejárt. A folytatáshoz jelentkezz be újra.";
 "file_size_unknown" = "Ismeretlen méret";
 "runtime_unknown" = "Ismeretlen időtartam";
 "Swipe rows to see download options" = "Csúsztassa el a sorokat a letöltési lehetőségek megtekintéséhez";

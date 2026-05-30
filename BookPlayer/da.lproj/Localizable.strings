@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Tilslutningsdetaljer";
 "integration_connect_button" = "Forbinde";
 "integration_sign_in_button" = "Log ind";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Prøv igen";
+"integration_add_server_button" = "Tilføj server";
+"media_servers_title" = "Medieservere";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Opret forbindelse til din %@-server";
 "integration_section_server" = "Server";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Uventet serversvar";
 "integration_error_unexpected_response_with_code" = "Uventet serversvar (Kode: %d - %@ )";
 "integration_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Din session for %@ er udløbet. Log ind igen for at fortsætte.";
 "integration_selection_count" = "%d af %d Elementer";
 "file_size_unknown" = "Ukendt størrelse";
 "runtime_unknown" = "Ukendt varighed";

@@ -340,7 +340,9 @@
 "integration_connection_details_title" = "Detalii de conectare";
 "integration_connect_button" = "Conectați-vă";
 "integration_sign_in_button" = "Conectare";
-"integration_retry_button" = "Retry";
+"integration_retry_button" = "Reîncearcă";
+"integration_add_server_button" = "Adaugă server";
+"media_servers_title" = "Servere media";
 "integration_section_server_url" = "Adresa URL a serverului";
 "integration_section_server_url_footer" = "Conectați-vă la serverul dvs. %@";
 "integration_section_server" = "Server";
@@ -362,7 +364,7 @@
 "integration_error_unexpected_response" = "Răspuns neașteptat al serverului";
 "integration_error_unexpected_response_with_code" = "Răspuns neașteptat al serverului (Cod: %d - %@ )";
 "integration_error_unauthorized" = "Conectarea a eșuat. Verificați-vă numele de utilizator și parola.";
-"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
+"integration_error_session_expired" = "Sesiunea ta pentru %@ a expirat. Conectează-te din nou pentru a continua.";
 "integration_selection_count" = "%d din %d Elemente";
 "file_size_unknown" = "Dimensiune necunoscută";
 "runtime_unknown" = "Durată necunoscută";

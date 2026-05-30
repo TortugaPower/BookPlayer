@@ -342,7 +342,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_connection_details_title" = "Connection Details";
 "integration_connect_button" = "Connect";
 "integration_sign_in_button" = "Sign In";
-"integration_switch_library_button" = "Switch Library";
 "integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Connect to your %@ server";
