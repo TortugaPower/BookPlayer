@@ -28,6 +28,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// one server doesn't change the active connection.
   let targetConnectionId: String?
 
+  /// URL captured at `handleConnectAction` time, after normalization and a successful
+  /// `pingServer`. `handleSignInAction` uses this rather than `form.serverUrl` so that
+  /// any edit the user makes to the form between Connect and Sign In can't redirect the
+  /// credentials to a server we never validated. Mirrors Jellyfin's `pendingServer`.
+  private var pingedURL: String?
+
   var servers: [IntegrationServerInfo] {
     connectionService.connections.map { data in
       IntegrationServerInfo(
@@ -88,12 +94,19 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       at: normalizedURL,
       customHeaders: form.customHeadersDictionary()
     )
+    pingedURL = normalizedURL
     signInFlow = .enteringCredentials
     form.serverName = serverName
   }
 
   @MainActor
   func handleSignInAction() async throws {
+    guard let serverUrl = pingedURL else {
+      throw IntegrationError.urlMalformed(nil)
+    }
+    // Drop the captured URL after this method runs — on success the connection is
+    // persisted, on failure the user must re-validate via Connect anyway.
+    defer { pingedURL = nil }
     do {
       // ABS auth doesn't trim whitespace server-side, so iOS autocorrect inserting a trailing
       // space on the username is enough to silently reject otherwise-correct credentials.
@@ -102,7 +115,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       try await connectionService.signIn(
         username: username,
         password: password,
-        serverUrl: form.serverUrl,
+        serverUrl: serverUrl,
         serverName: form.serverName,
         customHeaders: form.customHeadersDictionary()
       )
@@ -178,6 +191,9 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    // Drop any URL captured from a half-finished Connect → Sign In flow so a stale
+    // value can't get reused by a later sign-in attempt.
+    pingedURL = nil
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }

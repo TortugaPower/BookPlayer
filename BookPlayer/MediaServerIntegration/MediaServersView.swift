@@ -41,9 +41,10 @@ struct MediaServersView: View {
     self.style = style
   }
 
-  @State private var presentedAddServer: IntegrationKind?
-  @State private var presentedLibrary: IntegrationKind?
-  @State private var presentedConnectionDetails: ConnectionDetailsRoute?
+  /// Single sheet-presentation state, driven by an enum so SwiftUI only ever sees
+  /// one `.sheet(item:)` modifier. Stacking multiple sibling `.sheet(item:)` lets
+  /// the second presentation drop silently when state changes happen back-to-back.
+  @State private var presentedSheet: SheetRoute?
   @State private var editMode: EditMode = .inactive
 
   @EnvironmentObject private var theme: ThemeViewModel
@@ -81,14 +82,15 @@ struct MediaServersView: View {
     }
     .environment(\.editMode, $editMode)
     .tint(theme.linkColor)
-    .sheet(item: $presentedAddServer) { kind in
-      addServerSheet(for: kind)
-    }
-    .sheet(item: $presentedLibrary) { kind in
-      librarySheet(for: kind)
-    }
-    .sheet(item: $presentedConnectionDetails) { route in
-      connectionDetailsSheet(for: route)
+    .sheet(item: $presentedSheet) { route in
+      switch route {
+      case .addServer(let kind):
+        addServerSheet(for: kind)
+      case .library(let kind):
+        librarySheet(for: kind)
+      case .connectionDetails(let connectionId, let kind):
+        connectionDetailsSheet(connectionId: connectionId, kind: kind)
+      }
     }
   }
 
@@ -111,7 +113,7 @@ struct MediaServersView: View {
           .foregroundStyle(theme.secondaryColor)
         Spacer()
         Button {
-          presentedAddServer = kind
+          presentedSheet = .addServer(kind)
         } label: {
           Image(systemName: "plus")
             .foregroundStyle(theme.linkColor)
@@ -131,7 +133,7 @@ struct MediaServersView: View {
         case .settings:
           // In Settings we don't navigate into the server; the row IS the
           // Connection Details action.
-          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+          presentedSheet = .connectionDetails(connectionId: server.id, kind: kind)
         }
       } label: {
         VStack(alignment: .leading, spacing: 2) {
@@ -150,7 +152,7 @@ struct MediaServersView: View {
         Button {
           // Show Connection Details scoped to THIS server (without activating it,
           // so the user's current active connection isn't changed by tapping info).
-          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+          presentedSheet = .connectionDetails(connectionId: server.id, kind: kind)
         } label: {
           Image(systemName: "info.circle")
             .imageScale(.large)
@@ -173,7 +175,7 @@ struct MediaServersView: View {
     .accessibilityActions {
       if style == .libraryEntry {
         Button("integration_connection_details_title".localized) {
-          presentedConnectionDetails = ConnectionDetailsRoute(connectionId: server.id, kind: kind)
+          presentedSheet = .connectionDetails(connectionId: server.id, kind: kind)
         }
       }
     }
@@ -188,7 +190,7 @@ struct MediaServersView: View {
     case .audiobookshelf:
       audiobookshelfService.activateConnection(id: server.id)
     }
-    presentedLibrary = kind
+    presentedSheet = .library(kind)
   }
 
   private func delete(_ server: ServerRow, kind: IntegrationKind) {
@@ -225,28 +227,40 @@ struct MediaServersView: View {
   }
 
   @ViewBuilder
-  private func connectionDetailsSheet(for route: ConnectionDetailsRoute) -> some View {
-    switch route.kind {
+  private func connectionDetailsSheet(connectionId: String, kind: IntegrationKind) -> some View {
+    switch kind {
     case .jellyfin:
       ConnectionDetailsJellyfinSheet(
         connectionService: jellyfinService,
-        connectionId: route.connectionId
+        connectionId: connectionId
       )
       .environmentObject(theme)
     case .audiobookshelf:
       ConnectionDetailsAudiobookShelfSheet(
         connectionService: audiobookshelfService,
-        connectionId: route.connectionId
+        connectionId: connectionId
       )
       .environmentObject(theme)
     }
   }
 }
 
-private struct ConnectionDetailsRoute: Identifiable {
-  let connectionId: String
-  let kind: IntegrationKind
-  var id: String { "\(kind.rawValue)-\(connectionId)" }
+/// Unified route enum driving the single `.sheet(item:)` modifier on MediaServersView.
+private enum SheetRoute: Identifiable {
+  case addServer(IntegrationKind)
+  case library(IntegrationKind)
+  case connectionDetails(connectionId: String, kind: IntegrationKind)
+
+  var id: String {
+    switch self {
+    case .addServer(let kind):
+      return "add-\(kind.rawValue)"
+    case .library(let kind):
+      return "lib-\(kind.rawValue)"
+    case .connectionDetails(let connectionId, let kind):
+      return "details-\(kind.rawValue)-\(connectionId)"
+    }
+  }
 }
 
 // MARK: - Helper types

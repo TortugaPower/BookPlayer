@@ -301,7 +301,7 @@ private struct JellyfinTabRoot: View {
                 Image(systemName: "building.columns")
                   .foregroundStyle(theme.linkColor)
               }
-              .accessibilityLabel("Switch Library")
+              .accessibilityLabel("integration_switch_library_button")
             }
           }
         }
@@ -494,7 +494,7 @@ where ViewModel.Item == JellyfinLibraryItem {
                 Image(systemName: "building.columns")
                   .foregroundStyle(theme.linkColor)
               }
-              .accessibilityLabel("Switch Library")
+              .accessibilityLabel("integration_switch_library_button")
             }
           }
         }

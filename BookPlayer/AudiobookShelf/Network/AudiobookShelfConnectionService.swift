@@ -60,7 +60,16 @@ class AudiobookShelfConnectionService: BPLogger {
 
     let (data, response) = try await urlSession.data(for: request)
 
-    _ = try validateAuthenticatedResponse(response)
+    // `pingServer` is an unauthenticated probe (typically for Add Server). Do NOT route
+    // its non-2xx responses through `validateAuthenticatedResponse`, which would mis-throw
+    // `.sessionExpired(serverName: <some-other-saved-server>)` and push the user toward
+    // re-authenticating an unrelated connection.
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
 
     // Try to parse server info - /ping returns a simple success message
     // Return the server URL as the "name" since /ping doesn't return version info
@@ -147,6 +156,12 @@ class AudiobookShelfConnectionService: BPLogger {
     connections.append(connectionData)
     activeConnectionID = connectionData.id
     saveConnections()
+
+    // If we just replaced a previous token for this same logical server, revoke the old
+    // one server-side so it doesn't linger in ABS's token list.
+    if let stale = existing, stale.apiToken != apiToken {
+      revokeTokenInBackground(connection: stale)
+    }
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {
@@ -174,6 +189,9 @@ class AudiobookShelfConnectionService: BPLogger {
   }
 
   func deleteConnection(id: String) {
+    // Capture the connection BEFORE removing so we can fire a server-side logout.
+    let removed = connections.first(where: { $0.id == id })
+
     connections.removeAll { $0.id == id }
 
     if activeConnectionID == id {
@@ -188,6 +206,10 @@ class AudiobookShelfConnectionService: BPLogger {
       }
     } else {
       saveConnections()
+    }
+
+    if let removed {
+      revokeTokenInBackground(connection: removed)
     }
   }
 
@@ -555,6 +577,25 @@ class AudiobookShelfConnectionService: BPLogger {
 
   private func saveConnections() {
     try? keychainService.set(connections, key: .audiobookshelfConnection)
+  }
+
+  /// Fire-and-forget POST to ABS's `/logout` to revoke a connection's apiToken server-side.
+  /// Called after we drop a connection locally (delete, or re-auth replacing a stale token)
+  /// so the server doesn't accumulate orphan tokens. Failures are intentionally swallowed —
+  /// the local state has already moved on and there's no UX-meaningful recovery.
+  private func revokeTokenInBackground(connection: AudiobookShelfConnectionData) {
+    let url = connection.url.appendingPathComponent("logout")
+    let apiToken = connection.apiToken
+    let headers = connection.customHeaders
+    Task { [urlSession] in
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+      for (key, value) in headers {
+        request.setValue(value, forHTTPHeaderField: key)
+      }
+      _ = try? await urlSession.data(for: request)
+    }
   }
 
   /// Validates the HTTP response from an authenticated data-fetch call.

@@ -394,7 +394,7 @@ private struct AudiobookShelfTabRoot: View {
                 Image(systemName: "building.columns")
                   .foregroundStyle(theme.linkColor)
               }
-              .accessibilityLabel("Switch Library")
+              .accessibilityLabel("integration_switch_library_button")
             }
           }
         }

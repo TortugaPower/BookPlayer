@@ -95,6 +95,10 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     guard let pending = pendingServer else {
       throw IntegrationError.noClient("Jellyfin")
     }
+    // Always drop the transient `pending` after this method runs — on success the
+    // service commits it as `self.client`, on failure it's no longer reusable
+    // (credentials may be wrong, URL may be stale relative to what the user typed next).
+    defer { pendingServer = nil }
     do {
       try await connectionService.signIn(
         pending: pending,
@@ -105,7 +109,6 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       )
 
       isAddingServer = false
-      pendingServer = nil
 
       if let data = connectionService.connection {
         form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
@@ -166,6 +169,9 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    // Drop any transient `pending` from a half-finished Connect → Sign In flow,
+    // so a stale `JellyfinClient` can't get reused by a later sign-in attempt.
+    pendingServer = nil
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }
