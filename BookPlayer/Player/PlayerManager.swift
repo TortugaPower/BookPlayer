@@ -11,6 +11,7 @@ import AVFoundation
 import Combine
 import Foundation
 import MediaPlayer
+import Sentry
 
 // swiftlint:disable:next file_length
 
@@ -39,8 +40,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var isFetchingRemoteURL: Bool?
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
-  /// Pending audio-session retry task scheduled when activation fails (TestFlight builds only).
-  private var audioSessionRetryTask: Task<Void, Never>?
+  /// Set when audio-session activation fails in the current process, so a later
+  /// successful activation can tell whether recovery required an app relaunch.
+  private var audioSessionFailedThisSession = false
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -145,42 +147,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       name: AVAudioSession.interruptionNotification,
       object: nil
     )
-  }
-
-  /// Retry audio-session activation a few times with backoff after a failure.
-  /// Each attempt deactivates first (notifying any contending app it can take
-  /// over) and re-activates — the release/re-grab pattern works around the
-  /// stuck state where iOS won't hand the session back without a force-quit.
-  /// On success, resumes playback. On exhaustion, clears the queued UI flag
-  /// and shows an alert so the user has the same actionable hint the old
-  /// crash provided. TestFlight builds only.
-  private func scheduleAudioSessionRecovery() {
-    audioSessionRetryTask = Task { @MainActor [weak self] in
-      let backoffSeconds: [UInt64] = [1, 3, 8]
-      for delay in backoffSeconds {
-        try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
-        if Task.isCancelled { return }
-        guard let self else { return }
-        let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setActive(false, options: [.notifyOthersOnDeactivation])
-        do {
-          try audioSession.setCategory(.playback, mode: .spokenAudio, options: [])
-          try audioSession.setActive(true)
-        } catch {
-          NSLog("[PlayerManager] Audio session retry failed: %@", error.localizedDescription)
-          continue
-        }
-        NSLog("[PlayerManager] Audio session recovered; resuming playback")
-        self.play(autoPlayed: true)
-        return
-      }
-      guard let self, !Task.isCancelled else { return }
-      self.playbackQueued = nil
-      self.showErrorAlert(
-        title: "error_title".localized,
-        "audio_session_unavailable_description".localized
-      )
-    }
   }
 
   func setupPlayerInstance() {
@@ -910,6 +876,45 @@ extension PlayerManager {
     play(autoPlayed: false)
   }
 
+  /// Persist a marker so the next successful activation can report whether — and how —
+  /// the audio session recovered. Beta builds only.
+  private func markAudioSessionFailure(_ error: NSError) {
+    let defaults = UserDefaults.standard
+    defaults.set(Date().timeIntervalSince1970, forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
+    defaults.set(error.code, forKey: Constants.UserDefaults.audioSessionFailureCode)
+    audioSessionFailedThisSession = true
+  }
+
+  /// If a prior activation failure was recorded, report to Sentry that the session
+  /// recovered — including whether it took an app relaunch (force-quit / OS kill) to
+  /// get audio back. Beta builds only.
+  private func reportAudioSessionRecoveryIfNeeded() {
+    guard AppEnvironment.isTestFlight else { return }
+    let defaults = UserDefaults.standard
+    guard
+      let failedAt = defaults.object(forKey: Constants.UserDefaults.audioSessionFailureTimestamp) as? Double
+    else { return }
+
+    // A marker written in this same process means the session self-healed; a marker
+    // from a previous launch means audio only returned after the process restarted.
+    let requiredRelaunch = !audioSessionFailedThisSession
+
+    SentrySDK.capture(message: "Audio session recovered after activation failure") { scope in
+      scope.setLevel(.info)
+      scope.setFingerprint(["audio-session-recovery"])
+      scope.setTag(value: "audio_session_recovery", key: "playback_failure")
+      scope.setContext(value: [
+        "secondsSinceFailure": Int(Date().timeIntervalSince1970 - failedAt),
+        "requiredAppRelaunch": requiredRelaunch,
+        "previousErrorCode": defaults.integer(forKey: Constants.UserDefaults.audioSessionFailureCode),
+      ], key: "audio_session")
+    }
+
+    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
+    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureCode)
+    audioSessionFailedThisSession = false
+  }
+
   func play(autoPlayed: Bool) {
     playTask?.cancel()
     playTask = Task { @MainActor in
@@ -923,13 +928,6 @@ extension PlayerManager {
 
       userActivityManager.resumePlaybackActivity()
 
-      // Bind the interrupt observer up front so we still hear `.ended`
-      // even if activation fails below. iOS posts the resume notification
-      // when the contending session (call, navigation, voice memo) is
-      // released, and the existing handler re-invokes play(autoPlayed:).
-      bindInterruptObserver()
-      audioSessionRetryTask?.cancel()
-
       do {
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(
@@ -938,20 +936,34 @@ extension PlayerManager {
           options: []
         )
         try audioSession.setActive(true)
+        reportAudioSessionRecoveryIfNeeded()
       } catch {
         guard AppEnvironment.isTestFlight else {
           fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
         }
-        // TestFlight-only recovery. Activation can legitimately fail when
-        // another process owns the audio session (e.g. a stuck call route).
-        // The interrupt observer above only fires for sessions that were
-        // *already* active and got interrupted, so it won't recover this
-        // case on its own. Schedule a bounded retry that releases and
-        // re-grabs the session — a known workaround for the stuck state —
-        // and surface an alert if all attempts fail.
-        NSLog("[PlayerManager] Audio session activation failed: %@; scheduling recovery", error.localizedDescription)
-        playbackQueued = true
-        scheduleAudioSessionRecovery()
+        /// Beta-only: don't hard-crash when the audio session can't be activated.
+        /// This happens when another process holds the session in a stuck state
+        /// that (so far) only a force-quit clears. Report it to Sentry so we can
+        /// confirm whether the stuck state still occurs, and leave the play button
+        /// inert — a missed auto-play is strictly better than the app dying in the
+        /// background.
+        let nsError = error as NSError
+        SentrySDK.capture(error: error) { scope in
+          scope.setLevel(.error)
+          scope.setFingerprint(["audio-session-activation-failure"])
+          scope.setTag(value: "audio_session_activation", key: "playback_failure")
+          scope.setContext(value: [
+            "errorCode": nsError.code,
+            "errorDomain": nsError.domain,
+            "isOtherAudioPlaying": AVAudioSession.sharedInstance().isOtherAudioPlaying,
+            "applicationState": UIApplication.shared.applicationState == .active ? "active" : "background",
+            "autoPlayed": autoPlayed,
+            "relativePath": currentItem.relativePath,
+          ], key: "audio_session")
+        }
+        markAudioSessionFailure(nsError)
+        NSLog("[PlayerManager] Audio session activation failed: %@", error.localizedDescription)
+        playbackQueued = nil
         return
       }
 
@@ -1129,7 +1141,6 @@ extension PlayerManager {
     playbackQueued = nil
     playTask?.cancel()
     loadChapterTask?.cancel()
-    audioSessionRetryTask?.cancel()
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
@@ -1170,7 +1181,6 @@ extension PlayerManager {
     audioPlayer.pause()
     playTask?.cancel()
     loadChapterTask?.cancel()
-    audioSessionRetryTask?.cancel()
 
     userActivityManager.stopPlaybackActivity()
     NotificationCenter.default.removeObserver(
