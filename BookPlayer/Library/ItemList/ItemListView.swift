@@ -166,8 +166,13 @@ struct ItemListView: View {
             }
           }
           .overlay {
-            if !model.query.isEmpty && model.filteredResults.isEmpty {
-              ContentUnavailableView.search(text: model.query)
+            if model.isFiltering && model.filteredResults.isEmpty {
+              if model.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                /// Scope-only filter (e.g. "Folders") with no matches — no query text to echo.
+                ContentUnavailableView.search
+              } else {
+                ContentUnavailableView.search(text: model.query)
+              }
             }
           }
           .accessibilityElement(children: .contain)
