@@ -449,3 +449,24 @@
 "Series" = "Serier";
 "Collections" = "Samlinger";
 "Narrators" = "Fortællere";
+
+"sync_invitation_save_storage_title" = "Spar din lagerplads!";
+"sync_invitation_learn_more_button" = "Læs mere";
+"sync_invitation_description" = "Du er ved at %1 %2 emner. %3";
+"sync_invitation_stream_description" = "I stedet for at optage plads kan du streame dem direkte fra din server og holde din fremgang synkroniseret.";
+"sync_tasks_concurrent_count_title" = "Samtidige opgaver (%d)";
+"sync_tasks_running_empty_title" = "Ingen aktive opgaver";
+"sync_tasks_empty_title" = "Ingen opgaver i kø";
+"sync_tasks_empty_description" = "Alle dine synkroniseringsopgaver er opdaterede.";
+"sync_task_update_progress_label" = "Opdaterer fremdrift for %@";
+"sync_task_upload_file_label" = "Uploader fil";
+"audiobook_details_narrator_label" = "Indtalt af %@";
+"stream_button" = "Stream";
+"integrations_title" = "Integrationer";
+"import_verb" = "importere";
+"download_verb" = "downloade";
+"passkey_title" = "Adgangsnøgle";
+"create_profile_title" = "Opret din profil";
+"create_profile_description" = "For at aktivere skysynkronisering skal du logge ind på din profil. Du kan altid gøre dette senere fra fanen Profil.";
+"not_now_button" = "Ikke nu";
+"quick_action_label" = "Hurtig handling %d";

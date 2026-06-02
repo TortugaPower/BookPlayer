@@ -449,3 +449,24 @@
 "Series" = "系列";
 "Collections" = "合集";
 "Narrators" = "朗读者";
+
+"sync_invitation_save_storage_title" = "节省您的存储空间！";
+"sync_invitation_learn_more_button" = "了解更多";
+"sync_invitation_description" = "您即将 %1 %2 个项目。%3";
+"sync_invitation_stream_description" = "无需占用空间，直接从服务器流式传输并保持进度同步。";
+"sync_tasks_concurrent_count_title" = "并发任务 (%d)";
+"sync_tasks_running_empty_title" = "无正在运行的任务";
+"sync_tasks_empty_title" = "无排队任务";
+"sync_tasks_empty_description" = "您的所有同步任务均已完成。";
+"sync_task_update_progress_label" = "正在更新 %@ 的进度";
+"sync_task_upload_file_label" = "正在上传文件";
+"audiobook_details_narrator_label" = "讲述人：%@";
+"stream_button" = "流式传输";
+"integrations_title" = "集成";
+"import_verb" = "导入";
+"download_verb" = "下载";
+"passkey_title" = "通行密钥";
+"create_profile_title" = "创建您的个人资料";
+"create_profile_description" = "要启用云同步，请登录您的个人资料。您稍后可以随时在“个人资料”选项卡中执行此操作。";
+"not_now_button" = "以后再说";
+"quick_action_label" = "快速操作 %d";

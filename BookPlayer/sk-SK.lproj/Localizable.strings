@@ -449,3 +449,24 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "Series" = "Série";
 "Collections" = "Kolekcie";
 "Narrators" = "Rozprávači";
+
+"sync_invitation_save_storage_title" = "Šetrite svoje úložisko!";
+"sync_invitation_learn_more_button" = "Dozvedieť sa viac";
+"sync_invitation_description" = "Chystáte sa %1 %2 položiek. %3";
+"sync_invitation_stream_description" = "Namiesto zaberania miesta ich streamujte priamo zo svojho servera a udržujte svoj pokrok synchronizovaný.";
+"sync_tasks_concurrent_count_title" = "Súbežné úlohy (%d)";
+"sync_tasks_running_empty_title" = "Žiadne bežiace úlohy";
+"sync_tasks_empty_title" = "Žiadne úlohy v poradí";
+"sync_tasks_empty_description" = "Všetky vaše synchronizačné úlohy sú aktuálne.";
+"sync_task_update_progress_label" = "Aktualizácia priebehu pre %@";
+"sync_task_upload_file_label" = "Nahrávanie súboru";
+"audiobook_details_narrator_label" = "Rozpráva %@";
+"stream_button" = "Streamovať";
+"integrations_title" = "Integrácie";
+"import_verb" = "importovať";
+"download_verb" = "stiahnuť";
+"passkey_title" = "Prístupový kľúč";
+"create_profile_title" = "Vytvorte si profil";
+"create_profile_description" = "Ak chcete povoliť synchronizáciu v cloude, prihláste sa do svojho profilu. Môžete to urobiť kedykoľvek neskôr na karte Profil.";
+"not_now_button" = "Teraz nie";
+"quick_action_label" = "Rýchla akcia %d";

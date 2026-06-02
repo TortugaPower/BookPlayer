@@ -449,3 +449,24 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "Series" = "Sèries";
 "Collections" = "Col·leccions";
 "Narrators" = "Narradors";
+
+"sync_invitation_save_storage_title" = "Estalvia espai d'emmagatzematge!";
+"sync_invitation_learn_more_button" = "Més informació";
+"sync_invitation_description" = "Estàs a punt de %1 %2 elements. %3";
+"sync_invitation_stream_description" = "En lloc d'ocupar espai, reprodueix-los directament des del teu servidor i mantén el teu progrés sincronitzat.";
+"sync_tasks_concurrent_count_title" = "Tasques simultànies (%d)";
+"sync_tasks_running_empty_title" = "No hi ha tasques en curs";
+"sync_tasks_empty_title" = "No hi ha tasques a la cua";
+"sync_tasks_empty_description" = "Totes les tasques de sincronització estan al dia.";
+"sync_task_update_progress_label" = "S'està actualitzant el progrés de %@";
+"sync_task_upload_file_label" = "S'està pujant el fitxer";
+"audiobook_details_narrator_label" = "Narrat per %@";
+"stream_button" = "Reprodueix";
+"integrations_title" = "Integracions";
+"import_verb" = "importar";
+"download_verb" = "descarregar";
+"passkey_title" = "Clau d'accés";
+"create_profile_title" = "Crea el teu perfil";
+"create_profile_description" = "Per habilitar la sincronització al núvol, inicia sessió al teu perfil. Pots fer-ho més tard des de la pestanya Perfil.";
+"not_now_button" = "Ara no";
+"quick_action_label" = "Acció ràpida %d";

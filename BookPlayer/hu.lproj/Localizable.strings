@@ -449,3 +449,24 @@
 "Series" = "Sorozatok";
 "Collections" = "Gyűjtemények";
 "Narrators" = "Felolvasók";
+
+"sync_invitation_save_storage_title" = "Spóroljon a tárhellyel!";
+"sync_invitation_learn_more_button" = "Tudjon meg többet";
+"sync_invitation_description" = "Éppen %1 %2 elemet. %3";
+"sync_invitation_stream_description" = "Ahelyett, hogy helyet foglalna, streamelje őket közvetlenül a szerveréről, és tartsa szinkronban a haladását.";
+"sync_tasks_concurrent_count_title" = "Párhuzamos feladatok (%d)";
+"sync_tasks_running_empty_title" = "Nincsenek futó feladatok";
+"sync_tasks_empty_title" = "Nincsenek várakozó feladatok";
+"sync_tasks_empty_description" = "Minden szinkronizálási feladata naprakész.";
+"sync_task_update_progress_label" = "Haladás frissítése a következőhöz: %@";
+"sync_task_upload_file_label" = "Fájl feltöltése";
+"audiobook_details_narrator_label" = "Felolvassa: %@";
+"stream_button" = "Streamelés";
+"integrations_title" = "Integrációk";
+"import_verb" = "importálni";
+"download_verb" = "letölteni";
+"passkey_title" = "Jelkulcs";
+"create_profile_title" = "Hozza létre profilját";
+"create_profile_description" = "A felhőalapú szinkronizálás engedélyezéséhez jelentkezzen be profiljába. Ezt később bármikor megteheti a Profil lapon.";
+"not_now_button" = "Most nem";
+"quick_action_label" = "Gyorsművelet %d";

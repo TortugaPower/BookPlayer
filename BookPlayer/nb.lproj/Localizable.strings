@@ -449,3 +449,24 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "Series" = "Serier";
 "Collections" = "Samlinger";
 "Narrators" = "Fortellere";
+
+"sync_invitation_save_storage_title" = "Spar lagringsplass!";
+"sync_invitation_learn_more_button" = "Lær mer";
+"sync_invitation_description" = "Du er i ferd med å %1 %2 elementer. %3";
+"sync_invitation_stream_description" = "I stedet for å ta opp plass, kan du strømme dem direkte fra serveren din og holde fremgangen din synkronisert.";
+"sync_tasks_concurrent_count_title" = "Samtidige oppgaver (%d)";
+"sync_tasks_running_empty_title" = "Ingen oppgaver kjører";
+"sync_tasks_empty_title" = "Ingen oppgaver i kø";
+"sync_tasks_empty_description" = "Alle synkroniseringsoppgavene dine er oppdatert.";
+"sync_task_update_progress_label" = "Oppdaterer fremdrift for %@";
+"sync_task_upload_file_label" = "Laster opp fil";
+"audiobook_details_narrator_label" = "Lest av %@";
+"stream_button" = "Strøm";
+"integrations_title" = "Integrasjoner";
+"import_verb" = "importere";
+"download_verb" = "laste ned";
+"passkey_title" = "Passnøkkel";
+"create_profile_title" = "Opprett din profil";
+"create_profile_description" = "Logg inn på profilen din for å aktivere skysynkronisering. Du kan alltid gjøre dette senere fra Profil-fanen.";
+"not_now_button" = "Ikke nå";
+"quick_action_label" = "Hurtighandling %d";

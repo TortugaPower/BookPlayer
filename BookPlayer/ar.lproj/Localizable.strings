@@ -449,3 +449,24 @@
 "Series" = "سلاسل";
 "Collections" = "مجموعات";
 "Narrators" = "الرواة";
+
+"sync_invitation_save_storage_title" = "وفر مساحة التخزين الخاصة بك!";
+"sync_invitation_learn_more_button" = "معرفة المزيد";
+"sync_invitation_description" = "أنت على وشك %1 %2 من العناصر. %3";
+"sync_invitation_stream_description" = "بدلاً من استهلاك المساحة، قم ببثها مباشرة من خادمك وحافظ على مزامنة تقدمك.";
+"sync_tasks_concurrent_count_title" = "المهام المتزامنة (%d)";
+"sync_tasks_running_empty_title" = "لا توجد مهام قيد التشغيل";
+"sync_tasks_empty_title" = "لا توجد مهام في الانتظار";
+"sync_tasks_empty_description" = "جميع مهام المزامنة الخاصة بك محدثة.";
+"sync_task_update_progress_label" = "جاري تحديث التقدم لـ %@";
+"sync_task_upload_file_label" = "جاري رفع الملف";
+"audiobook_details_narrator_label" = "رواية %@";
+"stream_button" = "بث";
+"integrations_title" = "التكاملات";
+"import_verb" = "استيراد";
+"download_verb" = "تنزيل";
+"passkey_title" = "مفتاح المرور";
+"create_profile_title" = "أنشئ ملفك الشخصي";
+"create_profile_description" = "لتمكين المزامنة السحابية، قم بتسجيل الدخول إلى ملفك الشخصي. يمكنك القيام بذلك لاحقًا من علامة تبويب الملف الشخصي.";
+"not_now_button" = "ليس الآن";
+"quick_action_label" = "إجراء سريع %d";

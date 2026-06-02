@@ -449,3 +449,24 @@
 "Series" = "Sarjat";
 "Collections" = "Kokoelmat";
 "Narrators" = "Lukijat";
+
+"sync_invitation_save_storage_title" = "Säästä tallennustilaasi!";
+"sync_invitation_learn_more_button" = "Lue lisää";
+"sync_invitation_description" = "Olet aikeissa %1 %2 kohdetta. %3";
+"sync_invitation_stream_description" = "Tilan viemisen sijaan voit suoratoistaa ne suoraan palvelimeltasi ja pitää edistymisesi synkronoituna.";
+"sync_tasks_concurrent_count_title" = "Samanaikaiset tehtävät (%d)";
+"sync_tasks_running_empty_title" = "Ei käynnissä olevia tehtäviä";
+"sync_tasks_empty_title" = "Ei jonossa olevia tehtäviä";
+"sync_tasks_empty_description" = "Kaikki synkronointitehtäväsi ovat ajan tasalla.";
+"sync_task_update_progress_label" = "Päivitetään edistymistä kohteelle %@";
+"sync_task_upload_file_label" = "Ladataan tiedostoa";
+"audiobook_details_narrator_label" = "Lukija: %@";
+"stream_button" = "Suoratoista";
+"integrations_title" = "Integraatiot";
+"import_verb" = "tuoda";
+"download_verb" = "ladata";
+"passkey_title" = "Pääsyavain";
+"create_profile_title" = "Luo profiilisi";
+"create_profile_description" = "Ota pilvisynkronointi käyttöön kirjautumalla profiiliisi. Voit tehdä tämän myöhemmin Profiili-välilehdeltä.";
+"not_now_button" = "Ei nyt";
+"quick_action_label" = "Pikatoiminto %d";

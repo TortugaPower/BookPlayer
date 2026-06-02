@@ -449,3 +449,24 @@
 "Series" = "Серии";
 "Collections" = "Коллекции";
 "Narrators" = "Чтецы";
+
+"sync_invitation_save_storage_title" = "Экономьте место!";
+"sync_invitation_learn_more_button" = "Узнать больше";
+"sync_invitation_description" = "Вы собираетесь %1 %2 элементов. %3";
+"sync_invitation_stream_description" = "Вместо того чтобы занимать место, транслируйте их прямо со своего сервера и синхронизируйте прогресс.";
+"sync_tasks_concurrent_count_title" = "Параллельные задачи (%d)";
+"sync_tasks_running_empty_title" = "Нет запущенных задач";
+"sync_tasks_empty_title" = "В очереди нет задач";
+"sync_tasks_empty_description" = "Все задачи синхронизации выполнены.";
+"sync_task_update_progress_label" = "Обновление прогресса для %@";
+"sync_task_upload_file_label" = "Загрузка файла";
+"audiobook_details_narrator_label" = "Текст читает %@";
+"stream_button" = "Транслировать";
+"integrations_title" = "Интеграции";
+"import_verb" = "импортировать";
+"download_verb" = "скачать";
+"passkey_title" = "Ключ доступа";
+"create_profile_title" = "Создайте свой профиль";
+"create_profile_description" = "Чтобы включить облачную синхронизацию, войдите в свой профиль. Вы всегда можете сделать это позже во вкладке «Профиль».";
+"not_now_button" = "Не сейчас";
+"quick_action_label" = "Быстрое действие %d";

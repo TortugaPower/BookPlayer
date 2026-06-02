@@ -451,3 +451,24 @@ We're working hard on providing a seamless experience, if possible, please conta
 "Series" = "Series";
 "Collections" = "Collections";
 "Narrators" = "Narrators";
+
+"sync_invitation_save_storage_title" = "Save Your Storage!";
+"sync_invitation_learn_more_button" = "Learn more";
+"sync_invitation_description" = "You're about to %1 %2 items. %3";
+"sync_invitation_stream_description" = "Instead of taking up space, stream them directly from your server and keep your progress synced.";
+"sync_tasks_concurrent_count_title" = "Concurrent Tasks (%d)";
+"sync_tasks_running_empty_title" = "No running tasks";
+"sync_tasks_empty_title" = "No queued tasks";
+"sync_tasks_empty_description" = "All your sync tasks are up to date.";
+"sync_task_update_progress_label" = "Updating progress for %@";
+"sync_task_upload_file_label" = "Uploading file";
+"audiobook_details_narrator_label" = "Narrated by %@";
+"stream_button" = "Stream";
+"integrations_title" = "Integrations";
+"import_verb" = "import";
+"download_verb" = "download";
+"passkey_title" = "Passkey";
+"create_profile_title" = "Create your profile";
+"create_profile_description" = "To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab";
+"not_now_button" = "Not now";
+"quick_action_label" = "Quick Action %d";

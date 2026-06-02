@@ -449,3 +449,24 @@
 "Series" = "Seriler";
 "Collections" = "Koleksiyonlar";
 "Narrators" = "Anlatıcılar";
+
+"sync_invitation_save_storage_title" = "Depolama Alanınızdan Tasarruf Edin!";
+"sync_invitation_learn_more_button" = "Daha fazla bilgi al";
+"sync_invitation_description" = "%2 öğeyi %1 etmek üzeresiniz. %3";
+"sync_invitation_stream_description" = "Yer kaplamak yerine, onları doğrudan sunucunuzdan yayınlayın ve ilerlemenizi senkronize tutun.";
+"sync_tasks_concurrent_count_title" = "Eşzamanlı Görevler (%d)";
+"sync_tasks_running_empty_title" = "Çalışan görev yok";
+"sync_tasks_empty_title" = "Sırada bekleyen görev yok";
+"sync_tasks_empty_description" = "Tüm senkronizasyon görevleriniz güncel.";
+"sync_task_update_progress_label" = "%@ için ilerleme güncelleniyor";
+"sync_task_upload_file_label" = "Dosya yükleniyor";
+"audiobook_details_narrator_label" = "Seslendiren: %@";
+"stream_button" = "Yayınla";
+"integrations_title" = "Entegrasyonlar";
+"import_verb" = "içe aktarmak";
+"download_verb" = "indirmek";
+"passkey_title" = "Geçiş Anahtarı";
+"create_profile_title" = "Profilinizi oluşturun";
+"create_profile_description" = "Bulut senkronizasyonunu etkinleştirmek için profilinize giriş yapın. Bunu daha sonra Profil sekmesinden istediğiniz zaman yapabilirsiniz.";
+"not_now_button" = "Şimdi değil";
+"quick_action_label" = "Hızlı Eylem %d";

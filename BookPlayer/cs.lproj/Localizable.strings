@@ -449,3 +449,24 @@
 "Series" = "Série";
 "Collections" = "Kolekce";
 "Narrators" = "Vypravěči";
+
+"sync_invitation_save_storage_title" = "Šetřete své úložiště!";
+"sync_invitation_learn_more_button" = "Dozvědět se více";
+"sync_invitation_description" = "Chystáte se %1 %2 položek. %3";
+"sync_invitation_stream_description" = "Místo zabírání místa je streamujte přímo ze svého serveru a udržujte svůj pokrok synchronizovaný.";
+"sync_tasks_concurrent_count_title" = "Souběžné úkoly (%d)";
+"sync_tasks_running_empty_title" = "Žádné běžící úkoly";
+"sync_tasks_empty_title" = "Žádné úkoly ve frontě";
+"sync_tasks_empty_description" = "Všechny vaše synchronizační úkoly jsou aktuální.";
+"sync_task_update_progress_label" = "Aktualizace průběhu pro %@";
+"sync_task_upload_file_label" = "Nahrávání souboru";
+"audiobook_details_narrator_label" = "Vypráví %@";
+"stream_button" = "Streamovat";
+"integrations_title" = "Integrace";
+"import_verb" = "importovat";
+"download_verb" = "stáhnout";
+"passkey_title" = "Passkey";
+"create_profile_title" = "Vytvořte si profil";
+"create_profile_description" = "Chcete-li povolit synchronizaci v cloudu, přihlaste se ke svému profilu. To můžete provést kdykoli později na kartě Profil.";
+"not_now_button" = "Nyní ne";
+"quick_action_label" = "Rychlá akce %d";

@@ -449,3 +449,24 @@
 "Series" = "シリーズ";
 "Collections" = "コレクション";
 "Narrators" = "ナレーター";
+
+"sync_invitation_save_storage_title" = "ストレージを節約しましょう！";
+"sync_invitation_learn_more_button" = "詳細はこちら";
+"sync_invitation_description" = "%2$d 個のアイテムを %1$@ しようとしています。%3$@";
+"sync_invitation_stream_description" = "容量を占有する代わりに、サーバーから直接ストリーミングして進捗を同期させることができます。";
+"sync_tasks_concurrent_count_title" = "同時タスク (%d)";
+"sync_tasks_running_empty_title" = "実行中のタスクはありません";
+"sync_tasks_empty_title" = "待機中のタスクはありません";
+"sync_tasks_empty_description" = "すべての同期タスクは最新です。";
+"sync_task_update_progress_label" = "%@ の進捗を更新中";
+"sync_task_upload_file_label" = "ファイルをアップロード中";
+"audiobook_details_narrator_label" = "ナレーション: %@";
+"stream_button" = "ストリーム";
+"integrations_title" = "連携";
+"import_verb" = "インポート";
+"download_verb" = "ダウンロード";
+"passkey_title" = "パスキー";
+"create_profile_title" = "プロフィールを作成";
+"create_profile_description" = "クラウド同期を有効にするには、プロフィールにサインインしてください。これは後でプロフィールタブからいつでも行えます。";
+"not_now_button" = "後で";
+"quick_action_label" = "クイックアクション %d";

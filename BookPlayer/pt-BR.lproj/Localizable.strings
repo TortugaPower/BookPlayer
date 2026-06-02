@@ -449,3 +449,24 @@
 "Series" = "Séries";
 "Collections" = "Coleções";
 "Narrators" = "Narradores";
+
+"sync_invitation_save_storage_title" = "Economize seu armazenamento!";
+"sync_invitation_learn_more_button" = "Saiba mais";
+"sync_invitation_description" = "Você está prestes a %1 %2 itens. %3";
+"sync_invitation_stream_description" = "Em vez de ocupar espaço, transmita-os diretamente do seu servidor e mantenha seu progresso sincronizado.";
+"sync_tasks_concurrent_count_title" = "Tarefas Simultâneas (%d)";
+"sync_tasks_running_empty_title" = "Nenhuma tarefa em execução";
+"sync_tasks_empty_title" = "Nenhuma tarefa na fila";
+"sync_tasks_empty_description" = "Todas as suas tarefas de sincronização estão em dia.";
+"sync_task_update_progress_label" = "Atualizando progresso para %@";
+"sync_task_upload_file_label" = "Enviando arquivo";
+"audiobook_details_narrator_label" = "Narrado por %@";
+"stream_button" = "Transmitir";
+"integrations_title" = "Integrações";
+"import_verb" = "importar";
+"download_verb" = "baixar";
+"passkey_title" = "Chave de Acesso";
+"create_profile_title" = "Crie seu perfil";
+"create_profile_description" = "Para ativar a sincronização na nuvem, entre no seu perfil. Você pode fazer isso mais tarde na aba Perfil.";
+"not_now_button" = "Agora não";
+"quick_action_label" = "Ação Rápida %d";

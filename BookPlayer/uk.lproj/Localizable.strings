@@ -449,3 +449,24 @@
 "Series" = "Серії";
 "Collections" = "Колекції";
 "Narrators" = "Оповідачі";
+
+"sync_invitation_save_storage_title" = "Економте місце на пристрої!";
+"sync_invitation_learn_more_button" = "Докладніше";
+"sync_invitation_description" = "Ви збираєтеся %1 %2 елементів. %3";
+"sync_invitation_stream_description" = "Замість того, щоб займати місце, транслюйте їх безпосередньо з вашого сервера та синхронізуйте прогрес.";
+"sync_tasks_concurrent_count_title" = "Паралельні завдання (%d)";
+"sync_tasks_running_empty_title" = "Немає запущених завдань";
+"sync_tasks_empty_title" = "Немає завдань у черзі";
+"sync_tasks_empty_description" = "Усі ваші завдання синхронізації виконані.";
+"sync_task_update_progress_label" = "Оновлення прогресу для %@";
+"sync_task_upload_file_label" = "Завантаження файлу";
+"audiobook_details_narrator_label" = "Читає %@";
+"stream_button" = "Транслювати";
+"integrations_title" = "Інтеграції";
+"import_verb" = "імпортувати";
+"download_verb" = "завантажити";
+"passkey_title" = "Ключ доступу";
+"create_profile_title" = "Створіть свій профіль";
+"create_profile_description" = "Щоб увімкнути хмарну синхронізацію, увійдіть у свій профіль. Ви завжди можете зробити це пізніше у вкладці «Профіль».";
+"not_now_button" = "Не зараз";
+"quick_action_label" = "Швидка дія %d";

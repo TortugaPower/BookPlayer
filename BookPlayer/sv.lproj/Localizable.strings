@@ -449,3 +449,24 @@
 "Series" = "Serier";
 "Collections" = "Samlingar";
 "Narrators" = "Berättare";
+
+"sync_invitation_save_storage_title" = "Spara ditt lagringsutrymme!";
+"sync_invitation_learn_more_button" = "Läs mer";
+"sync_invitation_description" = "Du är på väg att %1 %2 objekt. %3";
+"sync_invitation_stream_description" = "Istället för att ta upp plats kan du streama dem direkt från din server och hålla dina framsteg synkroniserade.";
+"sync_tasks_concurrent_count_title" = "Samtidiga uppgifter (%d)";
+"sync_tasks_running_empty_title" = "Inga pågående uppgifter";
+"sync_tasks_empty_title" = "Inga uppgifter i kön";
+"sync_tasks_empty_description" = "Alla dina synkroniseringsuppgifter är uppdaterade.";
+"sync_task_update_progress_label" = "Uppdaterar framsteg för %@";
+"sync_task_upload_file_label" = "Laddar upp fil";
+"audiobook_details_narrator_label" = "Uppläst av %@";
+"stream_button" = "Streama";
+"integrations_title" = "Integrationer";
+"import_verb" = "importera";
+"download_verb" = "ladda ner";
+"passkey_title" = "Nyckelkod";
+"create_profile_title" = "Skapa din profil";
+"create_profile_description" = "För att aktivera molnsynkronisering, logga in på din profil. Du kan alltid göra detta senare från Profil-fliken.";
+"not_now_button" = "Inte nu";
+"quick_action_label" = "Snabbåtgärd %d";

@@ -449,3 +449,24 @@
 "Series" = "Σειρές";
 "Collections" = "Συλλογές";
 "Narrators" = "Αφηγητές";
+
+"sync_invitation_save_storage_title" = "Εξοικονομήστε χώρο αποθήκευσης!";
+"sync_invitation_learn_more_button" = "Μάθετε περισσότερα";
+"sync_invitation_description" = "Πρόκειται να %1 %2 στοιχεία. %3";
+"sync_invitation_stream_description" = "Αντί να καταλαμβάνουν χώρο, μεταδώστε τα απευθείας από τον διακομιστή σας και διατηρήστε την πρόοδό σας συγχρονισμένη.";
+"sync_tasks_concurrent_count_title" = "Ταυτόχρονες εργασίες (%d)";
+"sync_tasks_running_empty_title" = "Δεν υπάρχουν εργασίες σε εκτέλεση";
+"sync_tasks_empty_title" = "Δεν υπάρχουν εργασίες σε αναμονή";
+"sync_tasks_empty_description" = "Όλες οι εργασίες συγχρονισμού είναι ενημερωμένες.";
+"sync_task_update_progress_label" = "Ενημέρωση προόδου για %@";
+"sync_task_upload_file_label" = "Μεταφόρτωση αρχείου";
+"audiobook_details_narrator_label" = "Αφήγηση από %@";
+"stream_button" = "Μετάδοση";
+"integrations_title" = "Ενσωματώσεις";
+"import_verb" = "εισαγωγή";
+"download_verb" = "λήψη";
+"passkey_title" = "Κλειδί πρόσβασης";
+"create_profile_title" = "Δημιουργήστε το προφίλ σας";
+"create_profile_description" = "Για να ενεργοποιήσετε τον συγχρονισμό στο cloud, συνδεθείτε στο προφίλ σας. Μπορείτε να το κάνετε αργότερα από την καρτέλα Προφίλ.";
+"not_now_button" = "Όχι τώρα";
+"quick_action_label" = "Γρήγορη ενέργεια %d";

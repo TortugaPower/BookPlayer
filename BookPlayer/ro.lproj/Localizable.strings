@@ -449,3 +449,24 @@
 "Series" = "Serii";
 "Collections" = "Colecții";
 "Narrators" = "Naratori";
+
+"sync_invitation_save_storage_title" = "Economisiți spațiu de stocare!";
+"sync_invitation_learn_more_button" = "Aflați mai multe";
+"sync_invitation_description" = "Sunteți pe cale să %1 %2 elemente. %3";
+"sync_invitation_stream_description" = "În loc să ocupați spațiu, redați-le direct de pe server și păstrați progresul sincronizat.";
+"sync_tasks_concurrent_count_title" = "Sarcini simultane (%d)";
+"sync_tasks_running_empty_title" = "Nicio sarcină în curs";
+"sync_tasks_empty_title" = "Nicio sarcină în coadă";
+"sync_tasks_empty_description" = "Toate sarcinile de sincronizare sunt la zi.";
+"sync_task_update_progress_label" = "Se actualizează progresul pentru %@";
+"sync_task_upload_file_label" = "Se încarcă fișierul";
+"audiobook_details_narrator_label" = "Narat de %@";
+"stream_button" = "Redare";
+"integrations_title" = "Integrări";
+"import_verb" = "importa";
+"download_verb" = "descărca";
+"passkey_title" = "Cheie de acces";
+"create_profile_title" = "Creați-vă profilul";
+"create_profile_description" = "Pentru a activa sincronizarea în cloud, conectați-vă la profilul dvs. Puteți face acest lucru mai târziu din fila Profil.";
+"not_now_button" = "Nu acum";
+"quick_action_label" = "Acțiune rapidă %d";

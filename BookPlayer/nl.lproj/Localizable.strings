@@ -449,3 +449,24 @@
 "Series" = "Series";
 "Collections" = "Collecties";
 "Narrators" = "Vertellers";
+
+"sync_invitation_save_storage_title" = "Bespaar opslagruimte!";
+"sync_invitation_learn_more_button" = "Meer informatie";
+"sync_invitation_description" = "Je staat op het punt om %2 items te %1. %3";
+"sync_invitation_stream_description" = "In plaats van ruimte in beslag te nemen, kun je ze rechtstreeks vanaf je server streamen en je voortgang gesynchroniseerd houden.";
+"sync_tasks_concurrent_count_title" = "Gelijktijdige taken (%d)";
+"sync_tasks_running_empty_title" = "Geen lopende taken";
+"sync_tasks_empty_title" = "Geen taken in de wachtrij";
+"sync_tasks_empty_description" = "Al je synchronisatietaken zijn up-to-date.";
+"sync_task_update_progress_label" = "Voortgang bijwerken voor %@";
+"sync_task_upload_file_label" = "Bestand uploaden";
+"audiobook_details_narrator_label" = "Verteld door %@";
+"stream_button" = "Streamen";
+"integrations_title" = "Integraties";
+"import_verb" = "importeren";
+"download_verb" = "downloaden";
+"passkey_title" = "Toegangssleutel";
+"create_profile_title" = "Maak je profiel aan";
+"create_profile_description" = "Log in op je profiel om cloudsynchronisatie in te schakelen. Je kunt dit later altijd doen via het tabblad Profiel.";
+"not_now_button" = "Niet nu";
+"quick_action_label" = "Snelle actie %d";
