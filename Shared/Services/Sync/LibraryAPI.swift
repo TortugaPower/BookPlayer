@@ -11,17 +11,17 @@ import Foundation
 public enum LibraryAPI {
   case syncedIdentifiers
   case contents(path: String)
-  case upload(params: [String: Any])
+  case upload(params: [String: Any]) //check
   case externalResource(params: [String: Any])
-  case update(params: [String: Any])
+  case update(params: [String: Any]) //check
   case move(origin: String, destination: String, uuid: String)
   case renameFolder(path: String, name: String, uuid: String)
   case remoteFileURL(path: String, uuid: String?)
   case remoteContentsURL(path: String, uuid: String?)
-  case delete(path: String, uuid: String)
+  case delete(path: String, uuid: String) //check
   case shallowDelete(path: String, uuid: String)
   case bookmarks(path: String, uuid: String?)
-  case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String)
+  case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String) //check
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
   case matchUuids(uuidsDictionary: [String: String])
   case externalResourceToDownload(uuid: String, uploaded: Bool)
