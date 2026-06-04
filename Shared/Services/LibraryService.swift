@@ -1137,6 +1137,11 @@ extension LibraryService {
         sortContents(at: relativePath, by: sort)
       }
     }
+
+    /// The moved items' stored relativePaths (and any folder descendants, via the
+    /// path-prefix rule) are now stale, so prune them from the Last Played widget
+    /// snapshot. They reappear once played again at the new location.
+    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
   }
 
   func rebuildOrderRank(in folderRelativePath: String?) {
@@ -2113,6 +2118,10 @@ extension LibraryService {
     }
 
     self.dataManager.saveContext()
+
+    /// The old folder path and all its descendants are now stale in the Last Played
+    /// widget snapshot; prune them via the path-prefix rule using the old path.
+    SharedWidgetStore.removeItems(matching: [relativePath])
 
     return newRelativePath
   }
