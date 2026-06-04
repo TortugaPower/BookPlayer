@@ -1195,6 +1195,12 @@ extension LibraryService {
       /// Clean up artwork cache
       ArtworkService.removeCache(for: item.relativePath)
     }
+
+    /// Prune deleted items (and their descendants) from the Last Played widget snapshot.
+    /// Covers both the local delete path and the remote/sync delete path, which both
+    /// funnel through here. Deep folder deletes recurse into this method, so this runs
+    /// once per level, but the debounced reload coalesces them into a single refresh.
+    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
   }
 
   func deleteItem(_ item: SimpleLibraryItem) throws {
