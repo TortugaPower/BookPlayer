@@ -67,23 +67,32 @@ class SharedWidgetStoreTests: XCTestCase {
     return items.map(\.relativePath)
   }
 
+  /// `store`/`removeItems` mutate asynchronously on a serial queue, so flush before asserting.
+  private func prune(_ paths: [String]) {
+    SharedWidgetStore.removeItems(matching: paths)
+    SharedWidgetStore.waitForPendingMutations()
+  }
+
+  private func store(_ relativePath: String) {
+    SharedWidgetStore.store(makeItem(relativePath: relativePath))
+    SharedWidgetStore.waitForPendingMutations()
+  }
+
   // MARK: - removeItems
 
   func testRemoveExactBookMatch() {
     seedSnapshot(["Book1", "Folder/Book2", "Folder/Book3", "Foobar"])
 
-    let changed = SharedWidgetStore.removeItems(matching: ["Book1"])
+    prune(["Book1"])
 
-    XCTAssertTrue(changed)
     XCTAssertEqual(snapshotPaths(), ["Folder/Book2", "Folder/Book3", "Foobar"])
   }
 
   func testRemoveFolderPrunesDescendants() {
     seedSnapshot(["Book1", "Folder/Book2", "Folder/Book3", "Foobar"])
 
-    let changed = SharedWidgetStore.removeItems(matching: ["Folder"])
+    prune(["Folder"])
 
-    XCTAssertTrue(changed)
     // Folder's children removed; Book1 and the similarly-named Foobar are retained.
     XCTAssertEqual(snapshotPaths(), ["Book1", "Foobar"])
   }
@@ -92,40 +101,38 @@ class SharedWidgetStoreTests: XCTestCase {
     seedSnapshot(["Foo", "Foobar"])
 
     // Deleting "Foo" must not prune "Foobar" (only exact match or "Foo/" descendants).
-    let changed = SharedWidgetStore.removeItems(matching: ["Foo"])
+    prune(["Foo"])
 
-    XCTAssertTrue(changed)
     XCTAssertEqual(snapshotPaths(), ["Foobar"])
   }
 
   func testRemoveWithNoMatchLeavesSnapshotUnchanged() {
     seedSnapshot(["Book1", "Book2"])
-    let before = UserDefaults.sharedDefaults.data(forKey: key)
 
-    let changed = SharedWidgetStore.removeItems(matching: ["DoesNotExist"])
+    prune(["DoesNotExist"])
 
-    XCTAssertFalse(changed)
-    XCTAssertEqual(UserDefaults.sharedDefaults.data(forKey: key), before)
+    XCTAssertEqual(snapshotPaths(), ["Book1", "Book2"])
   }
 
   func testRemoveWithEmptyInputIsNoOp() {
     seedSnapshot(["Book1"])
 
-    XCTAssertFalse(SharedWidgetStore.removeItems(matching: []))
+    prune([])
+
     XCTAssertEqual(snapshotPaths(), ["Book1"])
   }
 
   func testRemoveOnEmptySnapshotIsNoOp() {
-    XCTAssertFalse(SharedWidgetStore.removeItems(matching: ["Book1"]))
+    prune(["Book1"])
+
     XCTAssertEqual(snapshotPaths(), [])
   }
 
   func testRemoveMultiplePaths() {
     seedSnapshot(["Book1", "Book2", "Book3"])
 
-    let changed = SharedWidgetStore.removeItems(matching: ["Book1", "Book3"])
+    prune(["Book1", "Book3"])
 
-    XCTAssertTrue(changed)
     XCTAssertEqual(snapshotPaths(), ["Book2"])
   }
 
@@ -134,7 +141,7 @@ class SharedWidgetStoreTests: XCTestCase {
   func testStorePrependsAndDedupes() {
     seedSnapshot(["Book1", "Book2"])
 
-    SharedWidgetStore.store(makeItem(relativePath: "Book2"))
+    store("Book2")
 
     // Book2 moves to the front; no duplicate entry.
     XCTAssertEqual(snapshotPaths(), ["Book2", "Book1"])
@@ -143,11 +150,37 @@ class SharedWidgetStoreTests: XCTestCase {
   func testStoreCapsAtTenItems() {
     seedSnapshot((1...10).map { "Book\($0)" })
 
-    SharedWidgetStore.store(makeItem(relativePath: "BookNew"))
+    store("BookNew")
 
     let paths = snapshotPaths()
     XCTAssertEqual(paths.count, 10)
     XCTAssertEqual(paths.first, "BookNew")
     XCTAssertFalse(paths.contains("Book10"))
+  }
+
+  // MARK: - Concurrency
+
+  /// Smoke test: hammer `store`/`removeItems` from many threads at once. The serial
+  /// mutation queue must keep the snapshot well-formed — decodable, within the cap, and
+  /// free of duplicate paths — with no torn read-modify-write. (Probabilistic, not a proof.)
+  func testConcurrentMutationsKeepSnapshotWellFormed() {
+    seedSnapshot((1...5).map { "Book\($0)" })
+
+    let group = DispatchGroup()
+    for index in 0..<100 {
+      DispatchQueue.global().async(group: group) {
+        if index.isMultiple(of: 2) {
+          SharedWidgetStore.store(self.makeItem(relativePath: "Extra\(index)"))
+        } else {
+          SharedWidgetStore.removeItems(matching: ["Book\((index % 5) + 1)"])
+        }
+      }
+    }
+    group.wait()
+    SharedWidgetStore.waitForPendingMutations()
+
+    let paths = snapshotPaths()
+    XCTAssertLessThanOrEqual(paths.count, 10, "store must keep the snapshot within the cap")
+    XCTAssertEqual(Set(paths).count, paths.count, "no duplicate relativePaths")
   }
 }
