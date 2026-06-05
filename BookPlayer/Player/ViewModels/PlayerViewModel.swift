@@ -293,12 +293,11 @@ final class PlayerViewModel: ObservableObject {
   }
   
   /// Audible-style "Xh Ym left" label for the total time remaining in the book,
-  /// scaled by the current playback speed.
-  func bookRemainingLabel(for item: PlayableItem) -> String {
+  /// scaled by the current playback speed. `currentTime` is the absolute book
+  /// position (live playback position, or the dragged position while scrubbing).
+  func bookRemainingLabel(currentTime: TimeInterval, duration: TimeInterval) -> String {
     let speed = Double(self.playerManager.currentSpeed)
-    let remaining = speed > 0
-      ? (item.duration - item.currentTime) / speed
-      : item.duration - item.currentTime
+    let remaining = (duration - currentTime) / (speed > 0 ? speed : 1)
 
     return String.localizedStringWithFormat(
       "player_book_remaining_title".localized,
@@ -336,13 +335,9 @@ final class PlayerViewModel: ObservableObject {
       }
 
       if prefersBookRemaining {
-        let speed = Double(playerManager.currentSpeed)
-        let remaining = speed > 0
-          ? (currentItem.duration - absoluteTime) / speed
-          : currentItem.duration - absoluteTime
-        progressData.progress = String.localizedStringWithFormat(
-          "player_book_remaining_title".localized,
-          TimeParser.formatRemaining(remaining)
+        progressData.progress = bookRemainingLabel(
+          currentTime: absoluteTime,
+          duration: currentItem.duration
         )
       }
 
@@ -404,7 +399,10 @@ final class PlayerViewModel: ObservableObject {
        let currentChapter = currentItem.currentChapter
     {
       progress = self.prefersBookRemaining
-        ? self.bookRemainingLabel(for: currentItem)
+        ? self.bookRemainingLabel(
+          currentTime: currentItem.currentTime,
+          duration: currentItem.duration
+        )
         : String.localizedStringWithFormat(
           "player_chapter_description".localized,
           currentChapter.index,

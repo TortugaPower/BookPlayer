@@ -286,7 +286,10 @@ public class TimeParser {
   /// - `>= 1 minute` -> "Xm Ys"
   /// - `< 1 minute`  -> "Xs"
   public class func formatRemaining(_ time: TimeInterval) -> String {
-    let remaining = max(0, time)
+    // Guard against non-finite input (e.g. a malformed asset duration), which
+    // would otherwise make DateComponentsFormatter return nil and render an
+    // empty "%@ left" string.
+    let remaining = time.isFinite ? max(0, time) : 0
     let allowedUnits: NSCalendar.Unit
 
     if remaining >= 3600 {
