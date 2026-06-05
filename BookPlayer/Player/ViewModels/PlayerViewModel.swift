@@ -49,6 +49,7 @@ final class PlayerViewModel: ObservableObject {
   private let sharedDefaults: UserDefaults
   private var prefersChapterContext: Bool
   private var prefersRemainingTime: Bool
+  private var prefersBookRemaining: Bool
   private var disposeBag = Set<AnyCancellable>()
   private var playingProgressSubscriber: AnyCancellable?
   private var listeningProgressSubscriber: AnyCancellable?
@@ -112,6 +113,7 @@ final class PlayerViewModel: ObservableObject {
     let sharedDefaults = UserDefaults.sharedDefaults
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
     self.prefersRemainingTime = sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    self.prefersBookRemaining = sharedDefaults.bool(forKey: Constants.UserDefaults.bookRemainingTimeEnabled)
     self.sharedDefaults = sharedDefaults
     self.playbackSpeed = playerManager.currentSpeed
   }
@@ -138,6 +140,7 @@ final class PlayerViewModel: ObservableObject {
       Task { @MainActor in
         self.prefersChapterContext = UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
         self.prefersRemainingTime = UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.remainingTimeEnabled)
+        self.prefersBookRemaining = UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.bookRemainingTimeEnabled)
         self.recalculateProgress()
       }
       
@@ -289,6 +292,20 @@ final class PlayerViewModel: ObservableObject {
     ) ?? 0
   }
   
+  /// Audible-style "Xh Ym left" label for the total time remaining in the book,
+  /// scaled by the current playback speed.
+  func bookRemainingLabel(for item: PlayableItem) -> String {
+    let speed = Double(self.playerManager.currentSpeed)
+    let remaining = speed > 0
+      ? (item.duration - item.currentTime) / speed
+      : item.duration - item.currentTime
+
+    return String.localizedStringWithFormat(
+      "player_book_remaining_title".localized,
+      TimeParser.formatRemaining(remaining)
+    )
+  }
+
   func processToggleMaxTime() {
     self.prefersRemainingTime = !self.prefersRemainingTime
     sharedDefaults.set(self.prefersRemainingTime, forKey: Constants.UserDefaults.remainingTimeEnabled)
@@ -316,6 +333,17 @@ final class PlayerViewModel: ObservableObject {
       if prefersRemainingTime {
         let elapsed = TimeInterval(value) * chapter.duration
         progressData.maxTime = (elapsed - chapter.duration) / Double(playerManager.currentSpeed)
+      }
+
+      if prefersBookRemaining {
+        let speed = Double(playerManager.currentSpeed)
+        let remaining = speed > 0
+          ? (currentItem.duration - absoluteTime) / speed
+          : currentItem.duration - absoluteTime
+        progressData.progress = String.localizedStringWithFormat(
+          "player_book_remaining_title".localized,
+          TimeParser.formatRemaining(remaining)
+        )
       }
 
       hasPreviousChapter = hasChapter(before: chapter)
@@ -375,11 +403,13 @@ final class PlayerViewModel: ObservableObject {
        let currentItem = currentItem,
        let currentChapter = currentItem.currentChapter
     {
-      progress = String.localizedStringWithFormat(
-        "player_chapter_description".localized,
-        currentChapter.index,
-        currentItem.chapters.count
-      )
+      progress = self.prefersBookRemaining
+        ? self.bookRemainingLabel(for: currentItem)
+        : String.localizedStringWithFormat(
+          "player_chapter_description".localized,
+          currentChapter.index,
+          currentItem.chapters.count
+        )
       sliderValue = Float((currentItem.currentTime - currentChapter.start) / currentChapter.duration)
     } else {
       progress = "\(Int(round((currentItem?.progressPercentage ?? 0) * 100)))%"

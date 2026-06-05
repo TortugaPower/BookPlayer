@@ -23,6 +23,7 @@ public enum Constants {
     public static let systemThemeVariantEnabled = "userSettingsSystemThemeVariant"
     public static let chapterContextEnabled = "userSettingsChapterContext"
     public static let remainingTimeEnabled = "userSettingsRemainingTime"
+    public static let bookRemainingTimeEnabled = "userSettingsBookRemainingTime"
     public static let smartRewindEnabled = "userSettingsSmartRewind"
     public static let smartRewindMaxInterval = "userSettingsSmartRewindMaxInterval"
     public static let boostVolumeEnabled = "userSettingsBoostVolume"

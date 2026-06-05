@@ -99,6 +99,7 @@
 "player_sleep_title" = "Afspelen pauzeren";
 "sleep_chapter_option_title" = "Einde van het huidige hoofdstuk";
 "player_chapter_description" = "Hoofdstuk %d van %d";
+"player_book_remaining_title" = "Nog %@";
 "chapters_title" = "Hoofdstukken";
 "chapters_item_description" = "Start: %@ - Duur: %@";
 "restore_title" = "Herstellen";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Resterende tijd gebruiken";
 "settings_chaptercontext_title" = "Hoofdstukcontext gebruiken";
 "settings_progresslabels_description" = "Schakel tussen weergave van de resterende tijd, totale duur en voortgang van het hoofdstuk of het boek in het spelerscherm";
+"settings_bookremaining_title" = "Totale resterende tijd tonen";
 "settings_playerinterface_list_description" = "Pas aan wat de lijstknop in het spelerscherm opent";
 "settings_autoplay_section_title" = "AUTOMATISCH AFSPELEN";
 "settings_autoplay_restart_title" = "Herstart voltooide boeken";

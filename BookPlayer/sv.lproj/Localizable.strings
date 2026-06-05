@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pausa uppspelningen";
 "sleep_chapter_option_title" = "Vid slutet av detta kapitel";
 "player_chapter_description" = "Kapitel %d av %d";
+"player_book_remaining_title" = "%@ kvar";
 "chapters_title" = "Kapitel";
 "chapters_item_description" = "Start: %@ - Längd: %@";
 "restore_title" = "Återställ";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Använd Återstående Tid";
 "settings_chaptercontext_title" = "Använd Kapitelkontext";
 "settings_progresslabels_description" = "Välj mellan att visa återstående tid, total längd och spelläge relaterat till antingen kapitlet eller boken i spelaren";
+"settings_bookremaining_title" = "Visa total återstående tid";
 "settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";
 "settings_autoplay_section_title" = "AUTOSPELA";
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";

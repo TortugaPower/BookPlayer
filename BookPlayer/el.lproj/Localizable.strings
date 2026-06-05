@@ -99,6 +99,7 @@
 "player_sleep_title" = "Παύση αναπαραγωγής";
 "sleep_chapter_option_title" = "Τέλος τρέχοντος κεφαλαίου";
 "player_chapter_description" = "Κεφάλαιο %d από %d";
+"player_book_remaining_title" = "Απομένουν %@";
 "chapters_title" = "Κεφάλαια";
 "chapters_item_description" = "Έναρξη: %@ - Διάρκεια: %@";
 "restore_title" = "Επαναφέρω";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Χρησιμοποιήστε τον υπολειπόμενο χρόνο";
 "settings_chaptercontext_title" = "Χρησιμοποιήστε το πλαίσιο του κεφαλαίου";
 "settings_progresslabels_description" = "Εναλλαγή μεταξύ της εμφάνισης του υπολειπόμενου χρόνου, της συνολικής διάρκειας και της προόδου είτε του κεφαλαίου είτε του βιβλίου στην οθόνη του προγράμματος αναπαραγωγής";
+"settings_bookremaining_title" = "Εμφάνιση συνολικού χρόνου που απομένει";
 "settings_playerinterface_list_description" = "Προσαρμόστε τι ανοίγει το κουμπί λίστας στην οθόνη του προγράμματος αναπαραγωγής";
 "settings_autoplay_section_title" = "ΑΥΤΟΜΑΤΗ ΑΝΑΠΑΡΑΓΩΓΗ";
 "settings_autoplay_restart_title" = "Επανεκκινήστε τα ολοκληρωμένα βιβλία";

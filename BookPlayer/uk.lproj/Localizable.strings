@@ -99,6 +99,7 @@
 "player_sleep_title" = "Призупинити відтворення";
 "sleep_chapter_option_title" = "Кінець розділу";
 "player_chapter_description" = "Розділ %d з %d";
+"player_book_remaining_title" = "Залишилось %@";
 "chapters_title" = "Розділи";
 "chapters_item_description" = "Початок: %@ - Тривалість: %@";
 "restore_title" = "Відновити";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Використовуйте час, що залишився";
 "settings_chaptercontext_title" = "Використовуйте контекст розділу";
 "settings_progresslabels_description" = "Перемикання між відображенням часу, що залишився, загальної тривалості та прогресу розділу або книги на екрані програвача";
+"settings_bookremaining_title" = "Показувати загальний залишковий час";
 "settings_playerinterface_list_description" = "Оберіть, що відкриватиме кнопка переліку на екрані програвача";
 "settings_autoplay_section_title" = "АВТОМАТИЧНЕ ВІДТВОРЕННЯ";
 "settings_autoplay_restart_title" = "Перезапускати закінчені книги";

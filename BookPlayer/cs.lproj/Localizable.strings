@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pozastavit přehrávání";
 "sleep_chapter_option_title" = "Konec aktuální kapitoly";
 "player_chapter_description" = "Kapitola %d z %d";
+"player_book_remaining_title" = "Zbývá %@";
 "chapters_title" = "Kapitoly";
 "chapters_item_description" = "Začátek: %@ - Doba trvání: %@";
 "restore_title" = "Obnovit";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Použijte zbývající čas";
 "settings_chaptercontext_title" = "Použijte kontext kapitoly";
 "settings_progresslabels_description" = "Přepínání mezi zobrazením zbývajícího času, celkové doby trvání a průběhu kapitoly nebo knihy na obrazovce přehrávače";
+"settings_bookremaining_title" = "Zobrazit celkový zbývající čas";
 "settings_playerinterface_list_description" = "Upravte, co otevře tlačítko seznamu na obrazovce přehrávače";
 "settings_autoplay_section_title" = "AUTOMATICKÉ PŘEHRÁVÁNÍ";
 "settings_autoplay_restart_title" = "Restartujte hotové knihy";

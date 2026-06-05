@@ -99,6 +99,7 @@
 "player_sleep_title" = "Lejátszás megállítása";
 "sleep_chapter_option_title" = "Az aktuális fejezet végén";
 "player_chapter_description" = "%d/%d fejezet";
+"player_book_remaining_title" = "%@ van hátra";
 "chapters_title" = "Fejezetek";
 "chapters_item_description" = "Kezdés: %@ - Hossz: %@";
 "restore_title" = "Visszaállítás";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Hátralévő idő használata";
 "settings_chaptercontext_title" = "Fejezet kontextus használata";
 "settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
+"settings_bookremaining_title" = "Teljes hátralévő idő megjelenítése";
 "settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
 "settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
 "settings_autoplay_restart_title" = "Már befejezettek újrahallgatása";
