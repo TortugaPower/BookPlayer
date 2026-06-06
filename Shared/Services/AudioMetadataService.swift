@@ -156,7 +156,17 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
         return await extractStandardChapters(from: asset, locales: availableChapterLocales)
       }
 
-      // Second try: Check what metadata identifiers exist
+      // Second try: Malformed QuickTime/MP4 chapter tracks that AVFoundation refuses
+      // to expose. Older tools (e.g. "MarkAble") create a valid `chap`-referenced text
+      // chapter track but tag it with an external `alis` data reference and/or an invalid
+      // media language. AVFoundation then reports no `availableChapterLocales`, even though
+      // the chapter samples are physically present in the file. Parse them directly.
+      if let url = (asset as? AVURLAsset)?.url,
+         let textChapters = extractQuickTimeTextChapters(from: url, duration: duration) {
+        return textChapters
+      }
+
+      // Third try: Check what metadata identifiers exist
       let identifiers = metadata.compactMap { $0.identifier?.rawValue }
 
       // FLAC/Vorbis chapters (CHAPTER tags)
@@ -384,5 +394,387 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     }
 
     return finalChapters.isEmpty ? nil : finalChapters
+  }
+
+  // MARK: - QuickTime / MP4 text chapter track fallback
+
+  /// Parse chapters from a QuickTime-style text chapter track by reading the MP4 box
+  /// structure directly. Used when AVFoundation declines to expose chapters that are
+  /// nonetheless present (malformed data reference or invalid track language).
+  /// - Returns: The parsed chapters, or `nil` if the file has no readable text chapter track.
+  private func extractQuickTimeTextChapters(from url: URL, duration: TimeInterval) -> [ChapterMetadata]? {
+    guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+    defer { try? handle.close() }
+
+    guard
+      let fileSize = try? handle.seekToEnd(),
+      let moov = readTopLevelBox(named: "moov", handle: handle, fileSize: fileSize)
+    else { return nil }
+
+    // Gather every track, then resolve the one referenced as the chapter track.
+    let traks = childBoxes(moov, 0, moov.count).filter { $0.type == "trak" }
+    guard !traks.isEmpty else { return nil }
+
+    var trackByID: [UInt32: (start: Int, end: Int)] = [:]
+    var chapterTrackID: UInt32?
+
+    for trak in traks {
+      guard let trackID = trackID(of: moov, trak.start, trak.end) else { continue }
+      trackByID[trackID] = (trak.start, trak.end)
+
+      // A track's `tref` of type `chap` lists the IDs of its chapter tracks.
+      if chapterTrackID == nil,
+         let tref = firstChild(moov, trak.start, trak.end, "tref"),
+         let chap = firstChild(moov, tref.start, tref.end, "chap"),
+         tref.end >= chap.start + 4 {
+        chapterTrackID = beUInt32(moov, chap.start)
+      }
+    }
+
+    guard
+      let chapterID = chapterTrackID,
+      let chapterTrak = trackByID[chapterID]
+    else { return nil }
+
+    return parseTextChapters(
+      moov: moov,
+      trakStart: chapterTrak.start,
+      trakEnd: chapterTrak.end,
+      handle: handle,
+      totalDuration: duration
+    )
+  }
+
+  /// Parse the sample table of a text chapter track and read each chapter's title and timing.
+  private func parseTextChapters(
+    moov: [UInt8],
+    trakStart: Int,
+    trakEnd: Int,
+    handle: FileHandle,
+    totalDuration: TimeInterval
+  ) -> [ChapterMetadata]? {
+    guard
+      let mdhd = descend(moov, trakStart, trakEnd, ["mdia", "mdhd"]),
+      let stbl = descend(moov, trakStart, trakEnd, ["mdia", "minf", "stbl"])
+    else { return nil }
+
+    // mdhd timescale: version (0/1) changes the field offset.
+    let mdhdVersion = moov[mdhd.start]
+    let timescaleOffset = mdhd.start + (mdhdVersion == 1 ? 20 : 12)
+    guard timescaleOffset + 4 <= mdhd.end else { return nil }
+    let timescale = beUInt32(moov, timescaleOffset)
+    guard timescale > 0 else { return nil }
+
+    guard
+      let sampleDeltas = parseSTTS(moov, stbl),
+      let sampleSizes = parseSTSZ(moov, stbl),
+      let chunkOffsets = parseChunkOffsets(moov, stbl),
+      let sampleToChunk = parseSTSC(moov, stbl)
+    else { return nil }
+
+    let locations = sampleLocations(
+      sizes: sampleSizes,
+      chunkOffsets: chunkOffsets,
+      sampleToChunk: sampleToChunk
+    )
+    guard !locations.isEmpty else { return nil }
+
+    // Sample start times are the cumulative sum of per-sample durations (stts), in
+    // the track's timescale. Chapter durations are derived from consecutive starts so
+    // that empty/degenerate samples don't produce negative or zero-length spans.
+    var starts: [TimeInterval] = []
+    var cumulative: UInt64 = 0
+    for index in locations.indices {
+      starts.append(TimeInterval(cumulative) / TimeInterval(timescale))
+      if index < sampleDeltas.count {
+        cumulative += UInt64(sampleDeltas[index])
+      }
+    }
+
+    var chapters: [ChapterMetadata] = []
+    for (index, location) in locations.enumerated() {
+      guard
+        location.size >= 2,
+        let sampleData = readBytes(handle: handle, offset: location.offset, length: location.size),
+        sampleData.count >= 2
+      else { continue }
+
+      let titleLength = Int(beUInt16([UInt8](sampleData), 0))
+      let titleBytes = sampleData.dropFirst(2).prefix(titleLength)
+      let title = decodeText(Array(titleBytes))
+
+      let start = starts[index]
+      let nextStart = index < starts.count - 1 ? starts[index + 1] : totalDuration
+      let chapterDuration = max(0, nextStart - start)
+
+      chapters.append(
+        ChapterMetadata(
+          title: title,
+          start: start,
+          duration: chapterDuration,
+          index: index + 1
+        )
+      )
+    }
+
+    return chapters.isEmpty ? nil : chapters
+  }
+
+  // MARK: - Sample table parsing
+
+  /// Per-sample durations expanded from the run-length encoded `stts` box.
+  private func parseSTTS(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [UInt32]? {
+    guard let box = firstChild(data, stbl.start, stbl.end, "stts"), box.start + 8 <= box.end else { return nil }
+    let entryCount = Int(beUInt32(data, box.start + 4))
+    var deltas: [UInt32] = []
+    var cursor = box.start + 8
+    for _ in 0..<entryCount {
+      guard cursor + 8 <= box.end else { break }
+      let sampleCount = Int(beUInt32(data, cursor))
+      let sampleDelta = beUInt32(data, cursor + 4)
+      // Guard against pathological counts that would exhaust memory.
+      guard sampleCount >= 0, sampleCount < 1_000_000 else { return nil }
+      deltas.append(contentsOf: repeatElement(sampleDelta, count: sampleCount))
+      cursor += 8
+    }
+    return deltas
+  }
+
+  /// Per-sample byte sizes from the `stsz` box (handles the shared-size form).
+  private func parseSTSZ(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [Int]? {
+    guard let box = firstChild(data, stbl.start, stbl.end, "stsz"), box.start + 12 <= box.end else { return nil }
+    let uniformSize = beUInt32(data, box.start + 4)
+    let sampleCount = Int(beUInt32(data, box.start + 8))
+    guard sampleCount >= 0, sampleCount < 1_000_000 else { return nil }
+
+    if uniformSize != 0 {
+      return Array(repeating: Int(uniformSize), count: sampleCount)
+    }
+
+    var sizes: [Int] = []
+    var cursor = box.start + 12
+    for _ in 0..<sampleCount {
+      guard cursor + 4 <= box.end else { break }
+      sizes.append(Int(beUInt32(data, cursor)))
+      cursor += 4
+    }
+    return sizes
+  }
+
+  /// Chunk file offsets from `stco` (32-bit) or `co64` (64-bit).
+  private func parseChunkOffsets(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [UInt64]? {
+    if let box = firstChild(data, stbl.start, stbl.end, "stco"), box.start + 8 <= box.end {
+      let count = Int(beUInt32(data, box.start + 4))
+      var offsets: [UInt64] = []
+      var cursor = box.start + 8
+      for _ in 0..<count {
+        guard cursor + 4 <= box.end else { break }
+        offsets.append(UInt64(beUInt32(data, cursor)))
+        cursor += 4
+      }
+      return offsets
+    }
+
+    if let box = firstChild(data, stbl.start, stbl.end, "co64"), box.start + 8 <= box.end {
+      let count = Int(beUInt32(data, box.start + 4))
+      var offsets: [UInt64] = []
+      var cursor = box.start + 8
+      for _ in 0..<count {
+        guard cursor + 8 <= box.end else { break }
+        offsets.append(beUInt64(data, cursor))
+        cursor += 8
+      }
+      return offsets
+    }
+
+    return nil
+  }
+
+  /// `stsc` run table mapping chunk indices to samples-per-chunk.
+  private func parseSTSC(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [(firstChunk: Int, samplesPerChunk: Int)]? {
+    guard let box = firstChild(data, stbl.start, stbl.end, "stsc"), box.start + 8 <= box.end else { return nil }
+    let entryCount = Int(beUInt32(data, box.start + 4))
+    var entries: [(Int, Int)] = []
+    var cursor = box.start + 8
+    for _ in 0..<entryCount {
+      guard cursor + 12 <= box.end else { break }
+      let firstChunk = Int(beUInt32(data, cursor))
+      let samplesPerChunk = Int(beUInt32(data, cursor + 4))
+      entries.append((firstChunk, samplesPerChunk))
+      cursor += 12
+    }
+    return entries.isEmpty ? nil : entries
+  }
+
+  /// Resolve each sample's absolute file offset and size by walking chunks (stsc + stco + stsz).
+  private func sampleLocations(
+    sizes: [Int],
+    chunkOffsets: [UInt64],
+    sampleToChunk: [(firstChunk: Int, samplesPerChunk: Int)]
+  ) -> [(offset: UInt64, size: Int)] {
+    var locations: [(UInt64, Int)] = []
+    var sampleIndex = 0
+
+    for chunkIndex in 0..<chunkOffsets.count {
+      // The applicable run is the last entry whose firstChunk <= this chunk (1-based).
+      let chunkNumber = chunkIndex + 1
+      var samplesPerChunk = sampleToChunk[0].samplesPerChunk
+      for entry in sampleToChunk {
+        if entry.firstChunk <= chunkNumber {
+          samplesPerChunk = entry.samplesPerChunk
+        } else {
+          break
+        }
+      }
+
+      var offsetWithinChunk = chunkOffsets[chunkIndex]
+      for _ in 0..<samplesPerChunk {
+        guard sampleIndex < sizes.count else { return locations }
+        let size = sizes[sampleIndex]
+        locations.append((offsetWithinChunk, size))
+        offsetWithinChunk += UInt64(size)
+        sampleIndex += 1
+      }
+    }
+
+    return locations
+  }
+
+  // MARK: - Box navigation helpers
+
+  /// Scan top-level boxes and return the payload bytes of the first box with the given type.
+  private func readTopLevelBox(named name: String, handle: FileHandle, fileSize: UInt64) -> [UInt8]? {
+    var offset: UInt64 = 0
+    while offset + 8 <= fileSize {
+      try? handle.seek(toOffset: offset)
+      guard
+        let headerData = try? handle.read(upToCount: 16),
+        headerData.count >= 8
+      else { return nil }
+
+      let header = [UInt8](headerData)
+      let size32 = beUInt32(header, 0)
+      var boxSize = UInt64(size32)
+      var headerSize: UInt64 = 8
+
+      if size32 == 1 {
+        guard header.count >= 16 else { return nil }
+        boxSize = beUInt64(header, 8)
+        headerSize = 16
+      } else if size32 == 0 {
+        boxSize = fileSize - offset
+      }
+
+      guard boxSize >= headerSize else { return nil }
+
+      if typeString(header, 4) == name {
+        try? handle.seek(toOffset: offset + headerSize)
+        let payloadLength = Int(boxSize - headerSize)
+        guard
+          let payload = try? handle.read(upToCount: payloadLength),
+          payload.count == payloadLength
+        else { return nil }
+        return [UInt8](payload)
+      }
+
+      offset += boxSize
+    }
+    return nil
+  }
+
+  /// Immediate child boxes within the byte range `[start, end)`.
+  private func childBoxes(_ data: [UInt8], _ start: Int, _ end: Int) -> [(type: String, start: Int, end: Int)] {
+    var children: [(String, Int, Int)] = []
+    var cursor = start
+    while cursor + 8 <= end {
+      let size32 = beUInt32(data, cursor)
+      var size = Int(size32)
+      var headerSize = 8
+      if size32 == 1 {
+        guard cursor + 16 <= end else { break }
+        size = Int(beUInt64(data, cursor + 8))
+        headerSize = 16
+      } else if size32 == 0 {
+        size = end - cursor
+      }
+      guard size >= headerSize, cursor + size <= end else { break }
+      children.append((typeString(data, cursor + 4), cursor + headerSize, cursor + size))
+      cursor += size
+    }
+    return children
+  }
+
+  /// The first immediate child box of the given type within `[start, end)`.
+  private func firstChild(_ data: [UInt8], _ start: Int, _ end: Int, _ type: String) -> (start: Int, end: Int)? {
+    for child in childBoxes(data, start, end) where child.type == type {
+      return (child.start, child.end)
+    }
+    return nil
+  }
+
+  /// Follow a chain of nested child box types, returning the innermost range.
+  private func descend(_ data: [UInt8], _ start: Int, _ end: Int, _ path: [String]) -> (start: Int, end: Int)? {
+    var current = (start: start, end: end)
+    for type in path {
+      guard let next = firstChild(data, current.start, current.end, type) else { return nil }
+      current = next
+    }
+    return current
+  }
+
+  /// Read a track's ID from its `tkhd` box (version 0 and 1 layouts differ).
+  private func trackID(of data: [UInt8], _ trakStart: Int, _ trakEnd: Int) -> UInt32? {
+    guard let tkhd = firstChild(data, trakStart, trakEnd, "tkhd") else { return nil }
+    let version = data[tkhd.start]
+    let trackIDOffset = tkhd.start + (version == 1 ? 20 : 12)
+    guard trackIDOffset + 4 <= tkhd.end else { return nil }
+    return beUInt32(data, trackIDOffset)
+  }
+
+  // MARK: - Primitive readers
+
+  /// Decode QuickTime text sample bytes, trying UTF-16 (when a BOM is present), then
+  /// UTF-8, then Mac Roman (the legacy default for text tracks).
+  private func decodeText(_ bytes: [UInt8]) -> String {
+    guard !bytes.isEmpty else { return "" }
+
+    if bytes.count >= 2, (bytes[0] == 0xFE && bytes[1] == 0xFF) || (bytes[0] == 0xFF && bytes[1] == 0xFE) {
+      if let utf16 = String(bytes: bytes, encoding: .utf16) { return utf16 }
+    }
+    if let utf8 = String(bytes: bytes, encoding: .utf8) { return utf8 }
+    if let macRoman = String(bytes: bytes, encoding: .macOSRoman) { return macRoman }
+    return String(bytes: bytes, encoding: .isoLatin1) ?? ""
+  }
+
+  private func readBytes(handle: FileHandle, offset: UInt64, length: Int) -> Data? {
+    guard length > 0, (try? handle.seek(toOffset: offset)) != nil else { return nil }
+    return try? handle.read(upToCount: length)
+  }
+
+  private func beUInt16(_ data: [UInt8], _ offset: Int) -> UInt16 {
+    guard offset + 2 <= data.count else { return 0 }
+    return (UInt16(data[offset]) << 8) | UInt16(data[offset + 1])
+  }
+
+  private func beUInt32(_ data: [UInt8], _ offset: Int) -> UInt32 {
+    guard offset + 4 <= data.count else { return 0 }
+    return (UInt32(data[offset]) << 24)
+      | (UInt32(data[offset + 1]) << 16)
+      | (UInt32(data[offset + 2]) << 8)
+      | UInt32(data[offset + 3])
+  }
+
+  private func beUInt64(_ data: [UInt8], _ offset: Int) -> UInt64 {
+    guard offset + 8 <= data.count else { return 0 }
+    var value: UInt64 = 0
+    for index in 0..<8 {
+      value = (value << 8) | UInt64(data[offset + index])
+    }
+    return value
+  }
+
+  private func typeString(_ data: [UInt8], _ offset: Int) -> String {
+    guard offset + 4 <= data.count else { return "" }
+    return String(bytes: data[offset..<offset + 4], encoding: .isoLatin1) ?? ""
   }
 }
