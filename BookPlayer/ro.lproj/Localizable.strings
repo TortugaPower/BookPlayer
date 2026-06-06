@@ -99,6 +99,7 @@
 "player_sleep_title" = "Întrerupeți redarea";
 "sleep_chapter_option_title" = "Sfârșitul capitolului curent";
 "player_chapter_description" = "Capitolul %d din %d";
+"player_book_remaining_title" = "%@ rămase";
 "chapters_title" = "Capitole";
 "chapters_item_description" = "Start: %@ - Durata: %@";
 "restore_title" = "Restabilire";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Utilizați timpul rămas";
 "settings_chaptercontext_title" = "Utilizați contextul capitolului";
 "settings_progresslabels_description" = "Comutați între afișarea timpului rămas, a duratei totale și a progresului fie al capitolului, fie al cărții în ecranul playerului";
+"settings_bookremaining_title" = "Afișează timpul total rămas";
 "settings_playerinterface_list_description" = "Ajustați ce se deschide butonul de listă din ecranul playerului";
 "settings_autoplay_section_title" = "REDARE AUTOMATA";
 "settings_autoplay_restart_title" = "Reporniți cărțile terminate";

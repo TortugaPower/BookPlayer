@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pausar audio";
 "sleep_chapter_option_title" = "Fin del capítulo actual";
 "player_chapter_description" = "Capítulo %d de %d";
+"player_book_remaining_title" = "%@ restante";
 "chapters_title" = "Capítulos";
 "chapters_item_description" = "Inicio: %@ - Duración: %@";
 "restore_title" = "Restaurar";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Usar el tiempo restante";
 "settings_chaptercontext_title" = "Usar el contexto del capítulo";
 "settings_progresslabels_description" = "Alterna entre mostrar el tiempo restante, la duración total y el progreso del capítulo o del libro en la pantalla del reproductor";
+"settings_bookremaining_title" = "Mostrar el tiempo total restante";
 "settings_playerinterface_list_description" = "Ajusta lo que el botón de lista abre en la pantalla del reproductor";
 "settings_autoplay_section_title" = "AUTO-REPRODUCCIÓN";
 "settings_autoplay_restart_title" = "Reiniciar libros terminados";

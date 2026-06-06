@@ -99,6 +99,7 @@
 "player_sleep_title" = "Posa en pausa la reproducció";
 "sleep_chapter_option_title" = "Final del capítol actual";
 "player_chapter_description" = "Capítol %d de %d";
+"player_book_remaining_title" = "%@ restant";
 "chapters_title" = "Capítols";
 "chapters_item_description" = "Inici: %@ - Durada: %@";
 "restore_title" = "Restaura";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Utilitzeu el temps restant";
 "settings_chaptercontext_title" = "Utilitzeu el context del capítol";
 "settings_progresslabels_description" = "Canvia entre mostrar el temps restant, la durada total i el progrés del capítol o del llibre a la pantalla del reproductor.";
+"settings_bookremaining_title" = "Mostra el temps total restant";
 "settings_playerinterface_list_description" = "Ajusteu el que obre el botó de llista a la pantalla del reproductor";
 "settings_autoplay_section_title" = "REPRODUCCIÓ AUTOMÀTICA";
 "settings_autoplay_restart_title" = "Reinicieu els llibres acabats";

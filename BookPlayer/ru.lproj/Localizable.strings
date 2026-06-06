@@ -99,6 +99,7 @@
 "player_sleep_title" = "Остановить воспроизведение";
 "sleep_chapter_option_title" = "До конца текущей главы";
 "player_chapter_description" = "Глава %d из %d";
+"player_book_remaining_title" = "Осталось %@";
 "chapters_title" = "Главы";
 "chapters_item_description" = "Начало: %@ - Длительность: %@";
 "restore_title" = "Восстановить покупки";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Использовать оставшееся время";
 "settings_chaptercontext_title" = "Использовать контекст главы";
 "settings_progresslabels_description" = "Переключение между отображением оставшегося времени, общей продолжительности и хода выполнения главы или книги на экране проигрывателя.";
+"settings_bookremaining_title" = "Показывать общее оставшееся время";
 "settings_playerinterface_list_description" = "Отрегулируйте, что открывает кнопка списка на экране плеера";
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";

@@ -99,6 +99,7 @@
 "player_sleep_title" = "暂停播放";
 "sleep_chapter_option_title" = "当前章节的结尾";
 "player_chapter_description" = "第%d章，共%d章";
+"player_book_remaining_title" = "剩余 %@";
 "chapters_title" = "章节";
 "chapters_item_description" = "开始： %@  - 时长： %@";
 "restore_title" = "恢复";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "使用剩余时间";
 "settings_chaptercontext_title" = "使用章节上下文";
 "settings_progresslabels_description" = "在播放器屏幕中显示章节或书籍的剩余时间、总持续时间和进度之间切换";
+"settings_bookremaining_title" = "显示剩余总时长";
 "settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
 "settings_autoplay_section_title" = "自动播放";
 "settings_autoplay_restart_title" = "重新启动完成的书籍";

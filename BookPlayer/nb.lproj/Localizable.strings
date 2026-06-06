@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pause avspilling";
 "sleep_chapter_option_title" = "Slutt på gjeldende kapittel";
 "player_chapter_description" = "Kapittel %d av %d";
+"player_book_remaining_title" = "%@ igjen";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighet: %@";
 "restore_title" = "Gjenopprett";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Bruk gjenværende tid";
 "settings_chaptercontext_title" = "Bruk kappittelkontekst";
 "settings_progresslabels_description" = "Veksle mellom å vise gjenværende tid, total varighet og fremdrift for enten kapittelet eller hele boken på spillerskjermen";
+"settings_bookremaining_title" = "Vis total gjenværende tid";
 "settings_playerinterface_list_description" = "Juster hva \"liste\" knappen på spillerskjermen åpner";
 "settings_autoplay_section_title" = "AUTOPLAY";
 "settings_autoplay_restart_title" = "Les fullførte bøker på nytt";

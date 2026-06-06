@@ -99,6 +99,7 @@
 "player_sleep_title" = "إيقاف التشغيل مؤقتًا";
 "sleep_chapter_option_title" = "نهاية الفصل الحالي";
 "player_chapter_description" = "الفصل %d من %d";
+"player_book_remaining_title" = "متبقّي %@";
 "chapters_title" = "الفصول";
 "chapters_item_description" = "البداية: %@ - المدة: %@";
 "restore_title" = "استعادة";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "استخدم الوقت المتبقي";
 "settings_chaptercontext_title" = "استخدم سياق الفصل";
 "settings_progresslabels_description" = "قم بالتبديل بين عرض الوقت المتبقي والمدة الإجمالية والتقدم في الفصل أو الكتاب في شاشة المشغل";
+"settings_bookremaining_title" = "إظهار إجمالي الوقت المتبقّي";
 "settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
 "settings_autoplay_section_title" = "التشغيل التلقائي";
 "settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";

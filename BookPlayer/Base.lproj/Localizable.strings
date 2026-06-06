@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pause playback";
 "sleep_chapter_option_title" = "End of current chapter";
 "player_chapter_description" = "Chapter %d of %d";
+"player_book_remaining_title" = "%@ left";
 "chapters_title" = "Chapters";
 "chapters_item_description" = "Start: %@ - Duration: %@";
 "restore_title" = "Restore";
@@ -218,6 +219,7 @@
 "settings_playerinterface_list_title" = "Opens";
 "settings_remainingtime_title" = "Use Remaining Time";
 "settings_chaptercontext_title" = "Use Chapter Context";
+"settings_bookremaining_title" = "Show Total Remaining Time";
 "settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
 "settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
 "settings_autoplay_section_title" = "AUTOPLAY";

@@ -99,6 +99,7 @@
 "player_sleep_title" = "再生を一時停止";
 "sleep_chapter_option_title" = "このチャプタの終わり";
 "player_chapter_description" = "チャプタ %d/%d";
+"player_book_remaining_title" = "残り%@";
 "chapters_title" = "チャプタ";
 "chapters_item_description" = "開始: %@ - 長さ: %@";
 "restore_title" = "復元";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "残り時間を使用";
 "settings_chaptercontext_title" = "チャプタ情報の使用";
 "settings_progresslabels_description" = "プレーヤー画面で、チャプタまたはブックの残り時間、合計再生時間、進行状況を表示するかどうかを切り替えます。";
+"settings_bookremaining_title" = "残り合計時間を表示";
 "settings_playerinterface_list_description" = "プレーヤー画面のリストボタンから開く項目を選択します。";
 "settings_autoplay_section_title" = "自動再生";
 "settings_autoplay_restart_title" = "再生済みのブックを最初から再生";

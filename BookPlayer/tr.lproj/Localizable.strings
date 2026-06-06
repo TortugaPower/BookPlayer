@@ -99,6 +99,7 @@
 "player_sleep_title" = "Oynatmayı duraklat";
 "sleep_chapter_option_title" = "Geçerli bölüm sonunda";
 "player_chapter_description" = "Bölüm %d / %d";
+"player_book_remaining_title" = "%@ kaldı";
 "chapters_title" = "Bölümler";
 "chapters_item_description" = "Başlangıç: %@ - Süre: %@";
 "restore_title" = "Geri Yükle";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Kalan Süreyi Kullan";
 "settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
 "settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
+"settings_bookremaining_title" = "Toplam kalan süreyi göster";
 "settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
 "settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";

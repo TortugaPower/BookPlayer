@@ -99,6 +99,7 @@
 "player_sleep_title" = "Keskeytä toisto";
 "sleep_chapter_option_title" = "Nykyisen luvun loppu";
 "player_chapter_description" = "Luku %d (Lukuja %d)";
+"player_book_remaining_title" = "%@ jäljellä";
 "chapters_title" = "Kappaleet";
 "chapters_item_description" = "Aloitus: %@ - Kesto: %@";
 "restore_title" = "Palauta";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Käytä jäljellä oleva aika";
 "settings_chaptercontext_title" = "Käytä luvun kontekstia";
 "settings_progresslabels_description" = "Vaihda jäljellä olevan ajan, kokonaiskeston ja joko luvun tai kirjan edistymisen näyttämisen välillä soittimen näytössä";
+"settings_bookremaining_title" = "Näytä jäljellä oleva kokonaisaika";
 "settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
 "settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
