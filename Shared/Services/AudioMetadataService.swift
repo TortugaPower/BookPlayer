@@ -32,20 +32,17 @@ public struct AudioMetadata {
   public let title: String
   public let artist: String
   public let duration: TimeInterval
-  public let artwork: Data?
   public let chapters: [ChapterMetadata]?
-  
+
   public init(
     title: String,
     artist: String = "",
     duration: TimeInterval = 0,
-    artwork: Data? = nil,
     chapters: [ChapterMetadata]? = nil
   ) {
     self.title = title
     self.artist = artist
     self.duration = duration
-    self.artwork = artwork
     self.chapters = chapters
   }
 }
@@ -101,14 +98,12 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
       let title = await extractTitle(from: metadata)
       let artist = await extractArtist(from: metadata)
-      let artwork = await extractArtwork(from: metadata)
       let chapters = await extractChapters(from: asset, metadata: metadata, duration: durationSeconds)
 
       return AudioMetadata(
         title: title,
         artist: artist,
         duration: durationSeconds,
-        artwork: artwork,
         chapters: chapters
       )
 
@@ -158,15 +153,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     
     return ""
   }
-  
-  private func extractArtwork(from metadata: [AVMetadataItem]) async -> Data? {
-    guard let artworkItem = metadata.first(where: { $0.commonKey == .commonKeyArtwork }) else {
-      return nil
-    }
-    
-    return try? await artworkItem.load(.dataValue)
-  }
-  
+
   // MARK: - Chapter Extraction
   
   private func extractChapters(from asset: AVAsset, metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
