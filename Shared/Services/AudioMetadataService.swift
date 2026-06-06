@@ -80,9 +80,11 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   /// A 100-hour book at one chapter per minute is ~6,000 — this is generous headroom.
   private static let maxChapterSampleCount = 100_000
 
-  /// Upper bound on the `moov` box we'll read into memory. Even chapter-rich audiobooks
-  /// keep `moov` well under a megabyte; this caps memory if a file declares a huge one.
-  private static let maxMoovSize = 256 * 1024 * 1024
+  /// Upper bound on the `moov` box we'll read into memory. `moov` is dominated by the main
+  /// audio track's sample tables (stsz/stco), so even a very long audiobook stays in the tens
+  /// of MB; 64 MB is generous headroom while avoiding a transient allocation large enough to
+  /// risk memory pressure / jetsam on constrained devices.
+  private static let maxMoovSize = 64 * 1024 * 1024
 
   public init() {}
   
@@ -197,6 +199,9 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
         if let textChapters {
           return textChapters
         }
+        // Unlike the other parsers, this path returns nil silently at many guards; log once
+        // so a "chapters missing" report on an MP4 file leaves a diagnostic trail.
+        Self.logger.debug("QuickTime text chapter parser found no chapters in \(url.lastPathComponent)")
       }
 
       // Third try: Check what metadata identifiers exist
@@ -343,7 +348,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
             identifier.hasPrefix("id3/CHAP"),
             let data = try? await item.load(.dataValue) else { continue }
 
-      if let parsed = parseID3ChapterFrame([UInt8](data)) {
+      if let parsed = parseID3ChapterFrame(data) {
         chapterData.append(parsed)
       }
     }
@@ -378,7 +383,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Parse a single ID3 `CHAP` frame body into its start/end times (seconds) and title.
-  private func parseID3ChapterFrame(_ body: [UInt8]) -> (start: Double, end: Double?, title: String)? {
+  private func parseID3ChapterFrame(_ body: Data) -> (start: Double, end: Double?, title: String)? {
     // Element ID is a null-terminated string.
     guard let terminator = body.firstIndex(of: 0) else { return nil }
     var cursor = terminator + 1
@@ -398,7 +403,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Walk the sub-frames of a CHAP frame and return the `TIT2` (title) text, if present.
-  private func parseID3ChapterTitle(_ body: [UInt8], from start: Int) -> String {
+  private func parseID3ChapterTitle(_ body: Data, from start: Int) -> String {
     var cursor = start
 
     // Each sub-frame: 4-byte frame ID, 4-byte size, 2-byte flags, then the payload.
@@ -588,7 +593,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   /// Parse the sample table of a text chapter track and read each chapter's title and timing.
   private func parseTextChapters(
-    moov: [UInt8],
+    moov: Data,
     trakStart: Int,
     trakEnd: Int,
     handle: FileHandle,
@@ -646,7 +651,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
         sampleData.count >= 2
       else { continue }
 
-      let titleLength = Int(beUInt16([UInt8](sampleData), 0))
+      let titleLength = Int(beUInt16(sampleData, 0))
       let titleBytes = sampleData.dropFirst(2).prefix(titleLength)
       let title = decodeText(Array(titleBytes))
 
@@ -670,7 +675,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   // MARK: - Sample table parsing
 
   /// Per-sample durations expanded from the run-length encoded `stts` box.
-  private func parseSTTS(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [UInt32]? {
+  private func parseSTTS(_ data: Data, _ stbl: (start: Int, end: Int)) -> [UInt32]? {
     guard let box = firstChild(data, stbl.start, stbl.end, "stts"), box.start + 8 <= box.end else { return nil }
     let entryCount = Int(beUInt32(data, box.start + 4))
     var deltas: [UInt32] = []
@@ -689,7 +694,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Per-sample byte sizes from the `stsz` box (handles the shared-size form).
-  private func parseSTSZ(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [Int]? {
+  private func parseSTSZ(_ data: Data, _ stbl: (start: Int, end: Int)) -> [Int]? {
     guard let box = firstChild(data, stbl.start, stbl.end, "stsz"), box.start + 12 <= box.end else { return nil }
     let uniformSize = beUInt32(data, box.start + 4)
     let sampleCount = Int(beUInt32(data, box.start + 8))
@@ -710,7 +715,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Chunk file offsets from `stco` (32-bit) or `co64` (64-bit).
-  private func parseChunkOffsets(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [UInt64]? {
+  private func parseChunkOffsets(_ data: Data, _ stbl: (start: Int, end: Int)) -> [UInt64]? {
     if let box = firstChild(data, stbl.start, stbl.end, "stco") {
       return chunkOffsets(data, box, entrySize: 4) { UInt64(beUInt32(data, $0)) }
     }
@@ -722,7 +727,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   /// Shared `stco`/`co64` reader: walk `entrySize`-byte chunk offsets, decoding each with `read`.
   private func chunkOffsets(
-    _ data: [UInt8],
+    _ data: Data,
     _ box: (start: Int, end: Int),
     entrySize: Int,
     read: (Int) -> UInt64
@@ -741,7 +746,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// `stsc` run table mapping chunk indices to samples-per-chunk.
-  private func parseSTSC(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [(firstChunk: Int, samplesPerChunk: Int)]? {
+  private func parseSTSC(_ data: Data, _ stbl: (start: Int, end: Int)) -> [(firstChunk: Int, samplesPerChunk: Int)]? {
     guard let box = firstChild(data, stbl.start, stbl.end, "stsc"), box.start + 8 <= box.end else { return nil }
     let entryCount = Int(beUInt32(data, box.start + 4))
     guard entryCount <= Self.maxChapterSampleCount else { return nil }
@@ -794,16 +799,15 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   // MARK: - Box navigation helpers
 
   /// Scan top-level boxes and return the payload bytes of the first box with the given type.
-  private func readTopLevelBox(named name: String, handle: FileHandle, fileSize: UInt64) -> [UInt8]? {
+  private func readTopLevelBox(named name: String, handle: FileHandle, fileSize: UInt64) -> Data? {
     var offset: UInt64 = 0
     while offset + 8 <= fileSize {
       try? handle.seek(toOffset: offset)
       guard
-        let headerData = try? handle.read(upToCount: 16),
-        headerData.count >= 8
+        let header = try? handle.read(upToCount: 16),
+        header.count >= 8
       else { return nil }
 
-      let header = [UInt8](headerData)
       let size32 = beUInt32(header, 0)
       var boxSize = UInt64(size32)
       var headerSize: UInt64 = 8
@@ -830,7 +834,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
           let payload = try? handle.read(upToCount: payloadLength),
           payload.count == payloadLength
         else { return nil }
-        return [UInt8](payload)
+        return payload
       }
 
       offset += boxSize
@@ -839,7 +843,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Immediate child boxes within the byte range `[start, end)`.
-  private func childBoxes(_ data: [UInt8], _ start: Int, _ end: Int) -> [(type: String, start: Int, end: Int)] {
+  private func childBoxes(_ data: Data, _ start: Int, _ end: Int) -> [(type: String, start: Int, end: Int)] {
     var children: [(String, Int, Int)] = []
     var cursor = start
     while cursor + 8 <= end {
@@ -864,7 +868,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// The first immediate child box of the given type within `[start, end)`.
-  private func firstChild(_ data: [UInt8], _ start: Int, _ end: Int, _ type: String) -> (start: Int, end: Int)? {
+  private func firstChild(_ data: Data, _ start: Int, _ end: Int, _ type: String) -> (start: Int, end: Int)? {
     for child in childBoxes(data, start, end) where child.type == type {
       return (child.start, child.end)
     }
@@ -872,7 +876,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Follow a chain of nested child box types, returning the innermost range.
-  private func descend(_ data: [UInt8], _ start: Int, _ end: Int, _ path: [String]) -> (start: Int, end: Int)? {
+  private func descend(_ data: Data, _ start: Int, _ end: Int, _ path: [String]) -> (start: Int, end: Int)? {
     var current = (start: start, end: end)
     for type in path {
       guard let next = firstChild(data, current.start, current.end, type) else { return nil }
@@ -882,7 +886,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Read a track's ID from its `tkhd` box (version 0 and 1 layouts differ).
-  private func trackID(of data: [UInt8], _ trakStart: Int, _ trakEnd: Int) -> UInt32? {
+  private func trackID(of data: Data, _ trakStart: Int, _ trakEnd: Int) -> UInt32? {
     guard let tkhd = firstChild(data, trakStart, trakEnd, "tkhd"), tkhd.start < tkhd.end else { return nil }
     let version = data[tkhd.start]
     let trackIDOffset = tkhd.start + (version == 1 ? 20 : 12)
@@ -907,15 +911,25 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   private func readBytes(handle: FileHandle, offset: UInt64, length: Int) -> Data? {
     guard length > 0, (try? handle.seek(toOffset: offset)) != nil else { return nil }
-    return try? handle.read(upToCount: length)
+    // `read(upToCount:)` can return fewer bytes than requested (e.g. a truncated file). Treat
+    // a short read as a failure so callers never parse a partial sample as if it were complete.
+    guard let data = try? handle.read(upToCount: length), data.count == length else { return nil }
+    return data
   }
 
-  private func beUInt16(_ data: [UInt8], _ offset: Int) -> UInt16 {
+  // Primitive readers operate on `Data` directly so the (potentially large) `moov` and the
+  // ID3 frame blobs are parsed in place — no intermediate `[UInt8]` copy. They assume the
+  // passed `Data` is zero-based (a fresh buffer from `read`/`load(.dataValue)`, never a slice),
+  // since they index by absolute offset. A `Data` slice keeps its parent's indices, so the
+  // debug assert catches a future caller that passes one (it would read the wrong bytes).
+  private func beUInt16(_ data: Data, _ offset: Int) -> UInt16 {
+    assert(data.startIndex == 0, "byte readers require a zero-based Data")
     guard offset + 2 <= data.count else { return 0 }
     return (UInt16(data[offset]) << 8) | UInt16(data[offset + 1])
   }
 
-  private func beUInt32(_ data: [UInt8], _ offset: Int) -> UInt32 {
+  private func beUInt32(_ data: Data, _ offset: Int) -> UInt32 {
+    assert(data.startIndex == 0, "byte readers require a zero-based Data")
     guard offset + 4 <= data.count else { return 0 }
     return (UInt32(data[offset]) << 24)
       | (UInt32(data[offset + 1]) << 16)
@@ -924,7 +938,8 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   /// Read a 28-bit ID3v2 synchsafe integer (7 bits per byte, MSB always zero).
-  private func synchsafeUInt32(_ data: [UInt8], _ offset: Int) -> UInt32 {
+  private func synchsafeUInt32(_ data: Data, _ offset: Int) -> UInt32 {
+    assert(data.startIndex == 0, "byte readers require a zero-based Data")
     guard offset + 4 <= data.count else { return 0 }
     return (UInt32(data[offset] & 0x7F) << 21)
       | (UInt32(data[offset + 1] & 0x7F) << 14)
@@ -932,7 +947,8 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       | UInt32(data[offset + 3] & 0x7F)
   }
 
-  private func beUInt64(_ data: [UInt8], _ offset: Int) -> UInt64 {
+  private func beUInt64(_ data: Data, _ offset: Int) -> UInt64 {
+    assert(data.startIndex == 0, "byte readers require a zero-based Data")
     guard offset + 8 <= data.count else { return 0 }
     var value: UInt64 = 0
     for index in 0..<8 {
@@ -941,7 +957,8 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     return value
   }
 
-  private func typeString(_ data: [UInt8], _ offset: Int) -> String {
+  private func typeString(_ data: Data, _ offset: Int) -> String {
+    assert(data.startIndex == 0, "byte readers require a zero-based Data")
     guard offset + 4 <= data.count else { return "" }
     return String(bytes: data[offset..<offset + 4], encoding: .isoLatin1) ?? ""
   }
