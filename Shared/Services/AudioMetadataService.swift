@@ -179,9 +179,10 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
         return await extractOverdriveChapters(from: metadata, duration: duration)
       }
 
-      // MP3 standard chapters (ID3v2.3+ CHAP frames)
-      // Note: Currently AVFoundation doesn't fully expose CHAP frame data,
-      // but this may be supported in future iOS releases.
+      // MP3 standard chapters (ID3v2.3+ CHAP frames).
+      // AVFoundation only assembles ID3 chapters into `availableChapterLocales` when a
+      // `CTOC` (table of contents) frame is present. Without it, the `CHAP` frames are
+      // surfaced only as opaque data blobs, so we parse them ourselves.
       if identifiers.contains(where: { $0.hasPrefix("id3/CHAP") }) {
         return await extractID3Chapters(from: metadata, duration: duration)
       }
@@ -293,21 +294,24 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   private func extractID3Chapters(from metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
-    var chapterData: [(start: Double, title: String)] = []
+    // AVFoundation surfaces each CHAP frame as an opaque data blob (its `numberValue`
+    // and `stringValue` are nil), so we parse the raw frame body ourselves. The CHAP
+    // frame layout (ID3v2.3/2.4) is:
+    //   element ID  : null-terminated string
+    //   start time  : UInt32 BE, milliseconds
+    //   end time    : UInt32 BE, milliseconds
+    //   start offset: UInt32 BE, byte offset (0xFFFFFFFF when unused)
+    //   end offset  : UInt32 BE, byte offset (0xFFFFFFFF when unused)
+    //   sub-frames  : embedded ID3 frames (e.g. TIT2 for the chapter title)
+    var chapterData: [(start: Double, end: Double?, title: String)] = []
 
     for item in metadata {
       guard let identifier = item.identifier?.rawValue,
-            identifier.hasPrefix("id3/CHAP") else { continue }
+            identifier.hasPrefix("id3/CHAP"),
+            let data = try? await item.load(.dataValue) else { continue }
 
-      // Extract chapter start time and title from CHAP frame.
-      // CHAP timestamps are relative offsets from the start of the audio (not absolute dates).
-      // Note: AVFoundation may not fully expose CHAP frame timing data currently,
-      // but we attempt to load what's available for future compatibility.
-      if let numberValue = try? await item.load(.numberValue),
-         numberValue.doubleValue >= 0 {
-        let startTime = numberValue.doubleValue
-        let title = (try? await item.load(.stringValue)) ?? ""
-        chapterData.append((start: startTime, title: title))
+      if let parsed = parseID3ChapterFrame([UInt8](data)) {
+        chapterData.append(parsed)
       }
     }
 
@@ -316,10 +320,12 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
     var chapters: [ChapterMetadata] = []
     for (index, data) in chapterData.enumerated() {
+      // Prefer the frame's own end time; otherwise derive from the next chapter or the
+      // total duration. Guard against malformed end times that precede the start.
       let chapterDuration: TimeInterval
-
-      // Calculate duration
-      if index < chapterData.count - 1 {
+      if let end = data.end, end > data.start {
+        chapterDuration = end - data.start
+      } else if index < chapterData.count - 1 {
         chapterDuration = chapterData[index + 1].start - data.start
       } else {
         chapterDuration = duration - data.start
@@ -328,7 +334,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       let chapter = ChapterMetadata(
         title: data.title,
         start: data.start,
-        duration: chapterDuration,
+        duration: max(0, chapterDuration),
         index: index + 1
       )
 
@@ -336,6 +342,79 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     }
 
     return chapters.isEmpty ? nil : chapters
+  }
+
+  /// Parse a single ID3 `CHAP` frame body into its start/end times (seconds) and title.
+  private func parseID3ChapterFrame(_ body: [UInt8]) -> (start: Double, end: Double?, title: String)? {
+    // Element ID is a null-terminated string.
+    guard let terminator = body.firstIndex(of: 0) else { return nil }
+    var cursor = terminator + 1
+
+    // Need 16 bytes for the four UInt32 timing/offset fields.
+    guard cursor + 16 <= body.count else { return nil }
+    let startMS = beUInt32(body, cursor)
+    let endMS = beUInt32(body, cursor + 4)
+    cursor += 16
+
+    let start = Double(startMS) / 1000.0
+    // 0xFFFFFFFF / a non-increasing end signals "unset"; let the caller derive duration.
+    let end: Double? = (endMS == 0xFFFFFFFF || endMS <= startMS) ? nil : Double(endMS) / 1000.0
+
+    let title = parseID3ChapterTitle(body, from: cursor)
+    return (start: start, end: end, title: title)
+  }
+
+  /// Walk the sub-frames of a CHAP frame and return the `TIT2` (title) text, if present.
+  private func parseID3ChapterTitle(_ body: [UInt8], from start: Int) -> String {
+    var cursor = start
+
+    // Each sub-frame: 4-byte frame ID, 4-byte size, 2-byte flags, then the payload.
+    while cursor + 10 <= body.count {
+      let frameID = typeString(body, cursor)
+      let declaredSize = Int(beUInt32(body, cursor + 4))
+      let payloadStart = cursor + 10
+
+      // ID3v2.4 uses synchsafe sizes; v2.3 uses plain UInt32. When the plain size
+      // overruns the buffer, fall back to the synchsafe interpretation.
+      var size = declaredSize
+      if payloadStart + size > body.count {
+        size = Int(synchsafeUInt32(body, cursor + 4))
+      }
+      guard size > 0, payloadStart + size <= body.count else { break }
+
+      if frameID == "TIT2" {
+        return decodeID3Text(Array(body[payloadStart..<payloadStart + size]))
+      }
+
+      cursor = payloadStart + size
+    }
+
+    return ""
+  }
+
+  /// Decode an ID3 text-frame payload (a leading encoding byte followed by the text).
+  private func decodeID3Text(_ payload: [UInt8]) -> String {
+    guard let encoding = payload.first else { return "" }
+    var bytes = Array(payload.dropFirst())
+    // Strip a trailing null terminator (one byte for 8-bit encodings, two for UTF-16).
+    let trimmed: String
+
+    switch encoding {
+    case 0: // ISO-8859-1 (Latin-1)
+      if bytes.last == 0 { bytes.removeLast() }
+      trimmed = String(bytes: bytes, encoding: .isoLatin1) ?? ""
+    case 1: // UTF-16 with BOM
+      if bytes.count >= 2, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
+      trimmed = String(bytes: bytes, encoding: .utf16) ?? ""
+    case 2: // UTF-16BE without BOM
+      if bytes.count >= 2, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
+      trimmed = String(bytes: bytes, encoding: .utf16BigEndian) ?? ""
+    default: // 3 = UTF-8 (and any unknown value, treated leniently)
+      if bytes.last == 0 { bytes.removeLast() }
+      trimmed = String(bytes: bytes, encoding: .utf8) ?? ""
+    }
+
+    return trimmed
   }
 
   private func extractOverdriveChapters(from metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
@@ -762,6 +841,15 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       | (UInt32(data[offset + 1]) << 16)
       | (UInt32(data[offset + 2]) << 8)
       | UInt32(data[offset + 3])
+  }
+
+  /// Read a 28-bit ID3v2 synchsafe integer (7 bits per byte, MSB always zero).
+  private func synchsafeUInt32(_ data: [UInt8], _ offset: Int) -> UInt32 {
+    guard offset + 4 <= data.count else { return 0 }
+    return (UInt32(data[offset] & 0x7F) << 21)
+      | (UInt32(data[offset + 1] & 0x7F) << 14)
+      | (UInt32(data[offset + 2] & 0x7F) << 7)
+      | UInt32(data[offset + 3] & 0x7F)
   }
 
   private func beUInt64(_ data: [UInt8], _ offset: Int) -> UInt64 {
