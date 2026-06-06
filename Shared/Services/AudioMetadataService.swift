@@ -63,7 +63,27 @@ public protocol AudioMetadataServiceProtocol {
 }
 
 public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
-  
+
+  /// File extensions whose containers can hold a QuickTime/MP4 text chapter track. This is
+  /// an explicit list rather than a `UTType` conformance check on purpose: no system UTType
+  /// models "ISO-BMFF container" — `m4b` resolves to `com.apple.protected-mpeg-4-audio-b`,
+  /// which conforms to none of `.mpeg4Audio`/`.mpeg4Movie`/`.quickTimeMovie`, and the only
+  /// broad-enough type, `.audiovisualContent`, also matches `mp3`/`flac`/`wav` (defeating the
+  /// gate) while still missing the unregistered `aaxc` UTI.
+  private static let quickTimeFileExtensions: Set<String> = ["m4b", "m4a", "mp4", "m4v", "mov", "aax", "aaxc"]
+
+  /// Upper bound on a single chapter text sample we'll read from disk. Chapter titles are
+  /// tiny; this caps memory use if a malformed `stsz` table declares an enormous sample.
+  private static let maxChapterSampleSize = 64 * 1024
+
+  /// Upper bound on the total number of samples we'll expand from a chapter track's tables.
+  /// A 100-hour book at one chapter per minute is ~6,000 — this is generous headroom.
+  private static let maxChapterSampleCount = 100_000
+
+  /// Upper bound on the `moov` box we'll read into memory. Even chapter-rich audiobooks
+  /// keep `moov` well under a megabyte; this caps memory if a file declares a huge one.
+  private static let maxMoovSize = 256 * 1024 * 1024
+
   public init() {}
   
   public func extractMetadata(from fileURL: URL) async -> AudioMetadata? {
@@ -151,9 +171,11 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     do {
       let availableChapterLocales = try await asset.load(.availableChapterLocales)
 
-      // First try: Native chapter support (works for M4B, some M4A, properly tagged files)
-      if !availableChapterLocales.isEmpty {
-        return await extractStandardChapters(from: asset, locales: availableChapterLocales)
+      // First try: Native chapter support (works for M4B, some M4A, properly tagged files).
+      // If locales exist but yield no usable chapters, fall through to the manual fallbacks.
+      if !availableChapterLocales.isEmpty,
+         let standardChapters = await extractStandardChapters(from: asset, locales: availableChapterLocales) {
+        return standardChapters
       }
 
       // Second try: Malformed QuickTime/MP4 chapter tracks that AVFoundation refuses
@@ -161,9 +183,20 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       // chapter track but tag it with an external `alis` data reference and/or an invalid
       // media language. AVFoundation then reports no `availableChapterLocales`, even though
       // the chapter samples are physically present in the file. Parse them directly.
+      // Gated to MP4/QuickTime containers so non-MP4 files (e.g. MP3) skip the box scan.
+      // The parser does blocking FileHandle I/O, so run it off the cooperative thread pool.
+      // This runs during import while the user waits for the book to appear, so use
+      // `.userInitiated` — `.utility` would let the OS throttle the disk reads.
       if let url = (asset as? AVURLAsset)?.url,
-         let textChapters = extractQuickTimeTextChapters(from: url, duration: duration) {
-        return textChapters
+         Self.quickTimeFileExtensions.contains(url.pathExtension.lowercased()) {
+        let textChapters = await withCheckedContinuation { continuation in
+          DispatchQueue.global(qos: .userInitiated).async {
+            continuation.resume(returning: self.extractQuickTimeTextChapters(from: url, duration: duration))
+          }
+        }
+        if let textChapters {
+          return textChapters
+        }
       }
 
       // Third try: Check what metadata identifiers exist
@@ -371,14 +404,26 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     // Each sub-frame: 4-byte frame ID, 4-byte size, 2-byte flags, then the payload.
     while cursor + 10 <= body.count {
       let frameID = typeString(body, cursor)
-      let declaredSize = Int(beUInt32(body, cursor + 4))
       let payloadStart = cursor + 10
 
-      // ID3v2.4 uses synchsafe sizes; v2.3 uses plain UInt32. When the plain size
-      // overruns the buffer, fall back to the synchsafe interpretation.
-      var size = declaredSize
+      // ID3v2.4 encodes frame sizes as synchsafe integers (every byte has bit 7 clear);
+      // v2.3 uses a plain UInt32. The CHAP blob doesn't carry the tag version, so we infer
+      // it: if all four size bytes have bit 7 clear the field is a valid synchsafe integer,
+      // which agrees with the plain value below 128 and is the correct reading for v2.4.
+      // Otherwise it can only be a plain v2.3 size. We fall back to the other interpretation
+      // if the chosen one overruns the buffer.
+      let plainSize = Int(beUInt32(body, cursor + 4))
+      let synchsafeSize = Int(synchsafeUInt32(body, cursor + 4))
+      let sizeBytesAreSynchsafe = (4...7).allSatisfy { (body[cursor + $0] & 0x80) == 0 }
+      var size = sizeBytesAreSynchsafe ? synchsafeSize : plainSize
       if payloadStart + size > body.count {
-        size = Int(synchsafeUInt32(body, cursor + 4))
+        // The chosen interpretation overruns; the other one must be correct.
+        size = sizeBytesAreSynchsafe ? plainSize : synchsafeSize
+      } else if sizeBytesAreSynchsafe, plainSize != synchsafeSize, payloadStart + plainSize == body.count {
+        // Ambiguous: the size bytes are valid synchsafe but also a valid plain UInt32. When
+        // the plain size lands exactly on the frame boundary it's a v2.3 frame whose size
+        // bytes happen to all have bit 7 clear (e.g. a 256-byte title) — prefer it.
+        size = plainSize
       }
       guard size > 0, payloadStart + size <= body.count else { break }
 
@@ -404,10 +449,10 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       if bytes.last == 0 { bytes.removeLast() }
       trimmed = String(bytes: bytes, encoding: .isoLatin1) ?? ""
     case 1: // UTF-16 with BOM
-      if bytes.count >= 2, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
-      trimmed = String(bytes: bytes, encoding: .utf16) ?? ""
+      if bytes.count >= 2, bytes.count % 2 == 0, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
+      trimmed = decodeUTF16WithBOM(bytes)
     case 2: // UTF-16BE without BOM
-      if bytes.count >= 2, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
+      if bytes.count >= 2, bytes.count % 2 == 0, bytes[bytes.count - 1] == 0, bytes[bytes.count - 2] == 0 { bytes.removeLast(2) }
       trimmed = String(bytes: bytes, encoding: .utf16BigEndian) ?? ""
     default: // 3 = UTF-8 (and any unknown value, treated leniently)
       if bytes.last == 0 { bytes.removeLast() }
@@ -415,6 +460,23 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     }
 
     return trimmed
+  }
+
+  /// Decode UTF-16 bytes, honoring a leading BOM. The ID3 spec requires a BOM for this
+  /// encoding, but some taggers omit it; we then default to little-endian (the common case
+  /// for Windows-authored tags) before falling back to big-endian.
+  private func decodeUTF16WithBOM(_ bytes: [UInt8]) -> String {
+    if bytes.count >= 2 {
+      if bytes[0] == 0xFF, bytes[1] == 0xFE {
+        return String(bytes: bytes.dropFirst(2), encoding: .utf16LittleEndian) ?? ""
+      }
+      if bytes[0] == 0xFE, bytes[1] == 0xFF {
+        return String(bytes: bytes.dropFirst(2), encoding: .utf16BigEndian) ?? ""
+      }
+    }
+    return String(bytes: bytes, encoding: .utf16LittleEndian)
+      ?? String(bytes: bytes, encoding: .utf16BigEndian)
+      ?? ""
   }
 
   private func extractOverdriveChapters(from metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
@@ -505,7 +567,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       if chapterTrackID == nil,
          let tref = firstChild(moov, trak.start, trak.end, "tref"),
          let chap = firstChild(moov, tref.start, tref.end, "chap"),
-         tref.end >= chap.start + 4 {
+         chap.end >= chap.start + 4 {
         chapterTrackID = beUInt32(moov, chap.start)
       }
     }
@@ -537,7 +599,9 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       let stbl = descend(moov, trakStart, trakEnd, ["mdia", "minf", "stbl"])
     else { return nil }
 
-    // mdhd timescale: version (0/1) changes the field offset.
+    // mdhd timescale: version (0/1) changes the field offset. Guard the version-byte read
+    // against a zero-payload mdhd box (mdhd.start could equal moov.count).
+    guard mdhd.start < mdhd.end else { return nil }
     let mdhdVersion = moov[mdhd.start]
     let timescaleOffset = mdhd.start + (mdhdVersion == 1 ? 20 : 12)
     guard timescaleOffset + 4 <= mdhd.end else { return nil }
@@ -556,24 +620,28 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       chunkOffsets: chunkOffsets,
       sampleToChunk: sampleToChunk
     )
-    guard !locations.isEmpty else { return nil }
+    // A well-formed chapter track has one stts duration per sample. If the tables
+    // disagree (malformed), only trust as many samples as both tables describe so we
+    // don't emit trailing chapters that all share the same timestamp.
+    let sampleCount = min(locations.count, sampleDeltas.count)
+    guard sampleCount > 0 else { return nil }
 
     // Sample start times are the cumulative sum of per-sample durations (stts), in
     // the track's timescale. Chapter durations are derived from consecutive starts so
     // that empty/degenerate samples don't produce negative or zero-length spans.
     var starts: [TimeInterval] = []
     var cumulative: UInt64 = 0
-    for index in locations.indices {
+    for index in 0..<sampleCount {
       starts.append(TimeInterval(cumulative) / TimeInterval(timescale))
-      if index < sampleDeltas.count {
-        cumulative += UInt64(sampleDeltas[index])
-      }
+      cumulative += UInt64(sampleDeltas[index])
     }
 
     var chapters: [ChapterMetadata] = []
-    for (index, location) in locations.enumerated() {
+    for index in 0..<sampleCount {
+      let location = locations[index]
       guard
         location.size >= 2,
+        location.size <= Self.maxChapterSampleSize,
         let sampleData = readBytes(handle: handle, offset: location.offset, length: location.size),
         sampleData.count >= 2
       else { continue }
@@ -611,8 +679,9 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       guard cursor + 8 <= box.end else { break }
       let sampleCount = Int(beUInt32(data, cursor))
       let sampleDelta = beUInt32(data, cursor + 4)
-      // Guard against pathological counts that would exhaust memory.
-      guard sampleCount >= 0, sampleCount < 1_000_000 else { return nil }
+      // Guard against pathological counts that would exhaust memory — bounded cumulatively,
+      // since many entries could otherwise expand past the overall limit.
+      guard deltas.count + sampleCount <= Self.maxChapterSampleCount else { return nil }
       deltas.append(contentsOf: repeatElement(sampleDelta, count: sampleCount))
       cursor += 8
     }
@@ -624,7 +693,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
     guard let box = firstChild(data, stbl.start, stbl.end, "stsz"), box.start + 12 <= box.end else { return nil }
     let uniformSize = beUInt32(data, box.start + 4)
     let sampleCount = Int(beUInt32(data, box.start + 8))
-    guard sampleCount >= 0, sampleCount < 1_000_000 else { return nil }
+    guard sampleCount <= Self.maxChapterSampleCount else { return nil }
 
     if uniformSize != 0 {
       return Array(repeating: Int(uniformSize), count: sampleCount)
@@ -642,37 +711,40 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   /// Chunk file offsets from `stco` (32-bit) or `co64` (64-bit).
   private func parseChunkOffsets(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [UInt64]? {
-    if let box = firstChild(data, stbl.start, stbl.end, "stco"), box.start + 8 <= box.end {
-      let count = Int(beUInt32(data, box.start + 4))
-      var offsets: [UInt64] = []
-      var cursor = box.start + 8
-      for _ in 0..<count {
-        guard cursor + 4 <= box.end else { break }
-        offsets.append(UInt64(beUInt32(data, cursor)))
-        cursor += 4
-      }
-      return offsets
+    if let box = firstChild(data, stbl.start, stbl.end, "stco") {
+      return chunkOffsets(data, box, entrySize: 4) { UInt64(beUInt32(data, $0)) }
     }
-
-    if let box = firstChild(data, stbl.start, stbl.end, "co64"), box.start + 8 <= box.end {
-      let count = Int(beUInt32(data, box.start + 4))
-      var offsets: [UInt64] = []
-      var cursor = box.start + 8
-      for _ in 0..<count {
-        guard cursor + 8 <= box.end else { break }
-        offsets.append(beUInt64(data, cursor))
-        cursor += 8
-      }
-      return offsets
+    if let box = firstChild(data, stbl.start, stbl.end, "co64") {
+      return chunkOffsets(data, box, entrySize: 8) { beUInt64(data, $0) }
     }
-
     return nil
+  }
+
+  /// Shared `stco`/`co64` reader: walk `entrySize`-byte chunk offsets, decoding each with `read`.
+  private func chunkOffsets(
+    _ data: [UInt8],
+    _ box: (start: Int, end: Int),
+    entrySize: Int,
+    read: (Int) -> UInt64
+  ) -> [UInt64]? {
+    guard box.start + 8 <= box.end else { return nil }
+    let count = Int(beUInt32(data, box.start + 4))
+    guard count <= Self.maxChapterSampleCount else { return nil }
+    var offsets: [UInt64] = []
+    var cursor = box.start + 8
+    for _ in 0..<count {
+      guard cursor + entrySize <= box.end else { break }
+      offsets.append(read(cursor))
+      cursor += entrySize
+    }
+    return offsets
   }
 
   /// `stsc` run table mapping chunk indices to samples-per-chunk.
   private func parseSTSC(_ data: [UInt8], _ stbl: (start: Int, end: Int)) -> [(firstChunk: Int, samplesPerChunk: Int)]? {
     guard let box = firstChild(data, stbl.start, stbl.end, "stsc"), box.start + 8 <= box.end else { return nil }
     let entryCount = Int(beUInt32(data, box.start + 4))
+    guard entryCount <= Self.maxChapterSampleCount else { return nil }
     var entries: [(Int, Int)] = []
     var cursor = box.start + 8
     for _ in 0..<entryCount {
@@ -744,11 +816,16 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
         boxSize = fileSize - offset
       }
 
-      guard boxSize >= headerSize else { return nil }
+      // A box must be at least its header and must fit within the remaining file. This
+      // also prevents both a UInt64->Int overflow trap below and an `offset` wraparound
+      // (an infinite loop) when a malformed file declares an absurd box size.
+      guard boxSize >= headerSize, boxSize <= fileSize - offset else { return nil }
 
       if typeString(header, 4) == name {
-        try? handle.seek(toOffset: offset + headerSize)
         let payloadLength = Int(boxSize - headerSize)
+        // Don't read an absurdly large box into memory.
+        guard payloadLength <= Self.maxMoovSize else { return nil }
+        try? handle.seek(toOffset: offset + headerSize)
         guard
           let payload = try? handle.read(upToCount: payloadLength),
           payload.count == payloadLength
@@ -771,7 +848,10 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       var headerSize = 8
       if size32 == 1 {
         guard cursor + 16 <= end else { break }
-        size = Int(beUInt64(data, cursor + 8))
+        // Clamp to the enclosing range so an oversized 64-bit size can't trap on the
+        // UInt64->Int conversion; the bounds guard below then rejects it.
+        let extendedSize = beUInt64(data, cursor + 8)
+        size = extendedSize > UInt64(end - cursor) ? (end - cursor + 1) : Int(extendedSize)
         headerSize = 16
       } else if size32 == 0 {
         size = end - cursor
@@ -803,7 +883,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   /// Read a track's ID from its `tkhd` box (version 0 and 1 layouts differ).
   private func trackID(of data: [UInt8], _ trakStart: Int, _ trakEnd: Int) -> UInt32? {
-    guard let tkhd = firstChild(data, trakStart, trakEnd, "tkhd") else { return nil }
+    guard let tkhd = firstChild(data, trakStart, trakEnd, "tkhd"), tkhd.start < tkhd.end else { return nil }
     let version = data[tkhd.start]
     let trackIDOffset = tkhd.start + (version == 1 ? 20 : 12)
     guard trackIDOffset + 4 <= tkhd.end else { return nil }
