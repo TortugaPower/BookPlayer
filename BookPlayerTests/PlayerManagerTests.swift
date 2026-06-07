@@ -24,6 +24,11 @@ class PlayerManagerTests: XCTestCase {
     UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
 
     self.playbackServiceMock = PlaybackServiceProtocolMock()
+    /// Mirror production `PlaybackService.updatePlaybackTime(item:time:)`, which advances the
+    /// playhead, so seek targets are observable in tests instead of staying frozen.
+    self.playbackServiceMock.updatePlaybackTimeItemTimeClosure = { item, time in
+      item.currentTime = time
+    }
     self.sut = PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
       playbackService: playbackServiceMock,
@@ -246,8 +251,9 @@ class PlayerManagerTests: XCTestCase {
 
     sut.skipToPreviousChapter()
 
-    // Restarts the current chapter rather than stepping back
+    // Restarts the current chapter (seeks to its start) rather than stepping back
     XCTAssertEqual(sut.currentItem?.currentChapter?.index, 2)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? 0, 51.1, accuracy: 0.0001)
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
   }
 
@@ -259,8 +265,9 @@ class PlayerManagerTests: XCTestCase {
 
     sut.skipToPreviousChapter()
 
-    // Steps back to the previous chapter
+    // Steps back to the previous chapter's start
     XCTAssertEqual(sut.currentItem?.currentChapter?.index, 1)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 0.1, accuracy: 0.0001)
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
   }
 
@@ -272,8 +279,9 @@ class PlayerManagerTests: XCTestCase {
 
     sut.skipToPreviousChapter()
 
-    // Restarts chapter 1 instead of jumping to the previous item
+    // Restarts chapter 1 (seeks to its start) instead of jumping to the previous item
     XCTAssertEqual(sut.currentItem?.currentChapter?.index, 1)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 0.1, accuracy: 0.0001)
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
   }
 
@@ -285,7 +293,8 @@ class PlayerManagerTests: XCTestCase {
 
     sut.skipToPreviousChapter()
 
-    // Falls back to the previous item
+    // Falls back to the previous item without seeking within the current one
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 1)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 1, accuracy: 0.0001)
   }
 }
