@@ -244,6 +244,7 @@
 "sort_button_title" = "Sortere";
 "search_title" = "Søg";
 "books_title" = "Bøger";
+"book_title" = "Bog";
 "folders_title" = "Mapper";
 "section_item_title" = "Titel";
 "section_item_author" = "Forfatter";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Genoptag sidste spillede bog";
 "intent_lastbook_empty_error" = "Der er ingen sidst spillet bog";
 "intent_playback_pause_title" = "Sæt afspilning på pause";
+"intent_play_book_title" = "Afspil en bog";
+"intent_play_book_request_title" = "Hvilken bog?";
 "storage_artwork_cache_title" = "Artwork cache størrelse";
 "settings_share_debug_information" = "Del fejlretningsoplysninger";
 "settings_autlock_section_title" = "Autolås";

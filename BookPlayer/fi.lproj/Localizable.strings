@@ -244,6 +244,7 @@
 "sort_button_title" = "Järjestellä";
 "search_title" = "Hae";
 "books_title" = "Kirjat";
+"book_title" = "Kirja";
 "folders_title" = "Kansiot";
 "section_item_title" = "Otsikko";
 "section_item_author" = "Tekijä";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Jatka viimeksi toistettua kirjaa";
 "intent_lastbook_empty_error" = "Ei ole viimeksi pelattua kirjaa";
 "intent_playback_pause_title" = "Keskeytä toisto";
+"intent_play_book_title" = "Toista kirja";
+"intent_play_book_request_title" = "Mikä kirja?";
 "storage_artwork_cache_title" = "Taideteoksen välimuistin koko";
 "settings_share_debug_information" = "Jaa virheenkorjaustiedot";
 "settings_autlock_section_title" = "Automaattinen lukitus";

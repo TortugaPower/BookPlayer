@@ -244,6 +244,7 @@
 "sort_button_title" = "Sorter";
 "search_title" = "Søk";
 "books_title" = "Bøker";
+"book_title" = "Bok";
 "folders_title" = "Mapper";
 "section_item_title" = "Tittle";
 "section_item_author" = "Forfatter";
@@ -315,6 +316,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "intent_lastbook_play_title" = "Fortsett sist spilte bok";
 "intent_lastbook_empty_error" = "Det er ingen sist spilte bok";
 "intent_playback_pause_title" = "Sett avspilling på pause";
+"intent_play_book_title" = "Spill av en bok";
+"intent_play_book_request_title" = "Hvilken bok?";
 "storage_artwork_cache_title" = "Artwork cache-størrelse";
 "settings_share_debug_information" = "Del feilsøkingsinformasjon";
 "settings_autlock_section_title" = "Automatisk lås";

@@ -244,6 +244,7 @@
 "sort_button_title" = "Ordina";
 "search_title" = "Ricerca";
 "books_title" = "Libri";
+"book_title" = "Libro";
 "folders_title" = "Cartelle";
 "section_item_title" = "Titolo";
 "section_item_author" = "Autore";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Riprendi l'ultimo libro riprodotto";
 "intent_lastbook_empty_error" = "Non c'è l'ultimo libro giocato";
 "intent_playback_pause_title" = "Mettere in pausa la riproduzione";
+"intent_play_book_title" = "Riproduci un libro";
+"intent_play_book_request_title" = "Quale libro?";
 "storage_artwork_cache_title" = "Dimensioni della cache della grafica";
 "settings_share_debug_information" = "Condividi le informazioni di debug";
 "settings_autlock_section_title" = "Chiusura automatica";

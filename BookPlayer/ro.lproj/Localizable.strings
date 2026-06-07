@@ -244,6 +244,7 @@
 "sort_button_title" = "Fel";
 "search_title" = "Căutare";
 "books_title" = "Cărți";
+"book_title" = "Carte";
 "folders_title" = "Foldere";
 "section_item_title" = "Titlu";
 "section_item_author" = "Autor";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Reluați ultima carte jucată";
 "intent_lastbook_empty_error" = "Nu există ultima carte jucată";
 "intent_playback_pause_title" = "Întrerupeți redarea";
+"intent_play_book_title" = "Redă o carte";
+"intent_play_book_request_title" = "Care carte?";
 "storage_artwork_cache_title" = "Dimensiunea memoriei cache a lucrărilor de artă";
 "settings_share_debug_information" = "Partajați informațiile de depanare";
 "settings_autlock_section_title" = "Închidere automată";

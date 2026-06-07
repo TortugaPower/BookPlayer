@@ -244,6 +244,7 @@
 "sort_button_title" = "Сортировать";
 "search_title" = "Поиск";
 "books_title" = "Книги";
+"book_title" = "Книга";
 "folders_title" = "Папки";
 "section_item_title" = "Заголовок";
 "section_item_author" = "Автор";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Продолжить последнюю книгу";
 "intent_lastbook_empty_error" = "Нет последней прослушанной книги";
 "intent_playback_pause_title" = "Приостановить воспроизведение";
+"intent_play_book_title" = "Воспроизвести книгу";
+"intent_play_book_request_title" = "Какую книгу?";
 "storage_artwork_cache_title" = "Размер кэша обложек";
 "settings_share_debug_information" = "Поделиться отладочной информацией";
 "settings_autlock_section_title" = "Автоматическая блокировка";

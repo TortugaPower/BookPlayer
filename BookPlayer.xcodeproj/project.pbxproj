@@ -444,6 +444,8 @@
 		6356F9CD2AC8A1CE00B7A027 /* DatabaseInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */; };
 		6356F9CE2AC8A1CE00B7A027 /* DatabaseInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */; };
 		6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */; };
+		D2B95B92F8F84F2FA4B41BF6 /* BookEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33D03D266EF46B5B02FBF40 /* BookEntity.swift */; };
+		C744B2254A1146AC9F78A68F /* PlayBookIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F847DAE94054533AACF8D85 /* PlayBookIntent.swift */; };
 		635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635771D52F378EE800BB5F59 /* ThemedSection.swift */; };
 		6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
 		6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6357F1182A8BA084007947FC /* BPURLSession.swift */; };
@@ -1399,6 +1401,8 @@
 		6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAppShortcuts.swift; sourceTree = "<group>"; };
 		6356F9C92AC8A1B700B7A027 /* DatabaseInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseInitializer.swift; sourceTree = "<group>"; };
 		6356F9CF2ACB01C700B7A027 /* PausePlaybackIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PausePlaybackIntent.swift; sourceTree = "<group>"; };
+		B33D03D266EF46B5B02FBF40 /* BookEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookEntity.swift; sourceTree = "<group>"; };
+		5F847DAE94054533AACF8D85 /* PlayBookIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayBookIntent.swift; sourceTree = "<group>"; };
 		635771D52F378EE800BB5F59 /* ThemedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemedSection.swift; sourceTree = "<group>"; };
 		6357F1182A8BA084007947FC /* BPURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPURLSession.swift; sourceTree = "<group>"; };
 		636086002C5B3EB400341D78 /* CustomRewindIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRewindIntent.swift; sourceTree = "<group>"; };
@@ -2713,6 +2717,8 @@
 				6356D48B2C584EFD00994B71 /* CustomSkipForwardIntent.swift */,
 				636086002C5B3EB400341D78 /* CustomRewindIntent.swift */,
 				63388BE12DB6D7D00042C103 /* CreateBookmarkIntent.swift */,
+				B33D03D266EF46B5B02FBF40 /* BookEntity.swift */,
+				5F847DAE94054533AACF8D85 /* PlayBookIntent.swift */,
 				6356F9C42AC86D9200B7A027 /* BPAppShortcuts.swift */,
 			);
 			path = AppIntents;
@@ -4537,6 +4543,8 @@
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,
 				6356F9D02ACB01C700B7A027 /* PausePlaybackIntent.swift in Sources */,
+				D2B95B92F8F84F2FA4B41BF6 /* BookEntity.swift in Sources */,
+				C744B2254A1146AC9F78A68F /* PlayBookIntent.swift in Sources */,
 				634BA5952C1611230015314D /* StoryProgress.swift in Sources */,
 				4151A6E026E4A17900E49DBE /* Coordinator.swift in Sources */,
 				418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */,
