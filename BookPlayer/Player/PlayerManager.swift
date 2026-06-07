@@ -791,14 +791,24 @@ extension PlayerManager {
   }
 
   func skipToPreviousChapter() {
-    if let currentChapter = currentItem?.currentChapter,
-      let previousChapter = currentItem?.previousChapter(before: currentChapter)
-    {
+    defer { NotificationCenter.default.post(name: .listeningProgressChanged, object: nil) }
+
+    guard let currentItem,
+      let currentChapter = currentItem.currentChapter
+    else {
+      playPreviousItem()
+      return
+    }
+
+    if !currentItem.isNearChapterStart {
+      /// First press while into the chapter goes back to its start
+      jumpToChapter(currentChapter)
+    } else if let previousChapter = currentItem.previousChapter(before: currentChapter) {
+      /// Already near the chapter start, so step back to the previous chapter
       jumpToChapter(previousChapter)
     } else {
       playPreviousItem()
     }
-    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
   }
 
   func skip(_ interval: TimeInterval) {

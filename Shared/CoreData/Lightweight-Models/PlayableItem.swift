@@ -128,6 +128,18 @@ public final class PlayableItem: NSObject, Identifiable {
       : self.duration
   }
 
+  /// Seconds from a chapter's start within which the playhead is still considered to be "at the start".
+  /// Shared by rewind clamping and the previous-chapter button so they stay in lockstep.
+  private static let chapterStartThreshold: TimeInterval = 3
+
+  /// Whether the playhead is close enough to the current chapter's start that a backward action
+  /// should step into the previous chapter rather than restart the current one.
+  public var isNearChapterStart: Bool {
+    guard let chapter = self.currentChapter else { return false }
+
+    return self.currentTime < chapter.start + Self.chapterStartThreshold
+  }
+
   public func getInterval(from proposedInterval: TimeInterval) -> TimeInterval {
     let interval =
       proposedInterval > 0
@@ -144,9 +156,7 @@ public final class PlayableItem: NSObject, Identifiable {
       return proposedInterval
     }
 
-    let chapterThreshold: TimeInterval = 3
-
-    if chapter.start + chapterThreshold > currentTime {
+    if self.isNearChapterStart {
       return proposedInterval
     }
 
