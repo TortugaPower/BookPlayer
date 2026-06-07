@@ -69,6 +69,43 @@ class PlayerManagerTests: XCTestCase {
     )
   }
 
+  /// Two-chapter item using production's 1-based chapter indexing, so
+  /// `nextChapter`/`previousChapter` navigation resolves correctly.
+  private func generateChapteredItem() -> PlayableItem {
+    let chapter1 = PlayableChapter(
+      title: "chapter 1",
+      author: "author",
+      start: 0,
+      duration: 50,
+      relativePath: "",
+      remoteURL: nil,
+      index: 1
+    )
+    let chapter2 = PlayableChapter(
+      title: "chapter 2",
+      author: "author",
+      start: 51,
+      duration: 100,
+      relativePath: "",
+      remoteURL: nil,
+      index: 2
+    )
+    return PlayableItem(
+      title: "test book",
+      author: "test author",
+      chapters: [chapter1, chapter2],
+      currentTime: 0,
+      duration: 151,
+      relativePath: "",
+      uuid: "LEGACY_UUID",
+      parentFolder: nil,
+      percentCompleted: 10,
+      lastPlayDate: nil,
+      isFinished: false,
+      isBoundBook: false
+    )
+  }
+
   func testUpdatingEmptyNowPlayingBookTime() {
     self.sut.setNowPlayingBookTime()
 
@@ -197,5 +234,58 @@ class PlayerManagerTests: XCTestCase {
 
     XCTAssertNil(nextItem)
     XCTAssertTrue(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount == 2)
+  }
+
+  // MARK: - skipToPreviousChapter
+
+  func testSkipToPreviousChapterMidChapterRestartsCurrentChapter() {
+    let item = generateChapteredItem()
+    item.currentChapter = item.chapters[1]  // chapter 2, starts at 51
+    item.currentTime = 100  // well past the start threshold
+    sut.currentItem = item
+
+    sut.skipToPreviousChapter()
+
+    // Restarts the current chapter rather than stepping back
+    XCTAssertEqual(sut.currentItem?.currentChapter?.index, 2)
+    XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
+  }
+
+  func testSkipToPreviousChapterNearStartStepsToPreviousChapter() {
+    let item = generateChapteredItem()
+    item.currentChapter = item.chapters[1]  // chapter 2, starts at 51
+    item.currentTime = 52  // within the start threshold
+    sut.currentItem = item
+
+    sut.skipToPreviousChapter()
+
+    // Steps back to the previous chapter
+    XCTAssertEqual(sut.currentItem?.currentChapter?.index, 1)
+    XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
+  }
+
+  func testSkipToPreviousChapterFirstChapterMidChapterRestartsInstead() {
+    let item = generateChapteredItem()
+    item.currentChapter = item.chapters[0]  // chapter 1, starts at 0
+    item.currentTime = 30  // mid-chapter, past the threshold
+    sut.currentItem = item
+
+    sut.skipToPreviousChapter()
+
+    // Restarts chapter 1 instead of jumping to the previous item
+    XCTAssertEqual(sut.currentItem?.currentChapter?.index, 1)
+    XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 0)
+  }
+
+  func testSkipToPreviousChapterFirstChapterNearStartPlaysPreviousItem() {
+    let item = generateChapteredItem()
+    item.currentChapter = item.chapters[0]  // chapter 1, starts at 0
+    item.currentTime = 1  // within the start threshold, no previous chapter
+    sut.currentItem = item
+
+    sut.skipToPreviousChapter()
+
+    // Falls back to the previous item
+    XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 1)
   }
 }

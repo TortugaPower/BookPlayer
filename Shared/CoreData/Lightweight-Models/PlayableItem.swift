@@ -130,7 +130,7 @@ public final class PlayableItem: NSObject, Identifiable {
 
   /// Seconds from a chapter's start within which the playhead is still considered to be "at the start".
   /// Shared by rewind clamping and the previous-chapter button so they stay in lockstep.
-  public static let chapterStartThreshold: TimeInterval = 3
+  private static let chapterStartThreshold: TimeInterval = 3
 
   /// Whether the playhead is close enough to the current chapter's start that a backward action
   /// should step into the previous chapter rather than restart the current one.
