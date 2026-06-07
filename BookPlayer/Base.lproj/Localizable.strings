@@ -246,6 +246,7 @@
 "sort_button_title" = "Sort";
 "search_title" = "Search";
 "books_title" = "Books";
+"book_title" = "Book";
 "folders_title" = "Folders";
 "section_item_title" = "Title";
 "section_item_author" = "Author";
@@ -317,6 +318,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "intent_lastbook_play_title" = "Resume last played book";
 "intent_lastbook_empty_error" = "There's no last played book";
 "intent_playback_pause_title" = "Pause playback";
+"intent_play_book_title" = "Play a book";
+"intent_play_book_request_title" = "Which book?";
 "storage_artwork_cache_title" = "Artwork cache size";
 "settings_share_debug_information" = "Share debug information";
 "settings_autlock_section_title" = "Autolock";

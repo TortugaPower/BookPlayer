@@ -244,6 +244,7 @@
 "sort_button_title" = "Zoradiť podľa";
 "search_title" = "Vyhľadávanie";
 "books_title" = "Knihy";
+"book_title" = "Kniha";
 "folders_title" = "Priečinky";
 "section_item_title" = "Názov";
 "section_item_author" = "Autor";
@@ -315,6 +316,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_lastbook_play_title" = "Obnovenie poslednej prehrávanej knihy";
 "intent_lastbook_empty_error" = "Žiadna naposledy prehrávaná kniha";
 "intent_playback_pause_title" = "Pozastavenie prehrávania";
+"intent_play_book_title" = "Prehrať knihu";
+"intent_play_book_request_title" = "Ktorú knihu?";
 "storage_artwork_cache_title" = "Veľkosť vyrovnávacej pamäte obalov kníh";
 "settings_share_debug_information" = "Zdieľať informácie o ladení";
 "settings_autlock_section_title" = "Automatické uzamknutie";

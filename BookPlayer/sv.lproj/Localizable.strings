@@ -244,6 +244,7 @@
 "sort_button_title" = "Sort";
 "search_title" = "Sök";
 "books_title" = "Böcker";
+"book_title" = "Bok";
 "folders_title" = "Mappar";
 "section_item_title" = "Titel";
 "section_item_author" = "Författare";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Återuppta senast spelade bok";
 "intent_lastbook_empty_error" = "Det finns ingen senast spelad bok";
 "intent_playback_pause_title" = "Pausa uppspelningen";
+"intent_play_book_title" = "Spela upp en bok";
+"intent_play_book_request_title" = "Vilken bok?";
 "storage_artwork_cache_title" = "Artwork cachestorlek";
 "settings_share_debug_information" = "Dela felsökningsinformation";
 "settings_autlock_section_title" = "Auto lås";

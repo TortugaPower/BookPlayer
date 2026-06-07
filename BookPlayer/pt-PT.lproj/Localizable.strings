@@ -244,6 +244,7 @@
 "sort_button_title" = "Ordenar";
 "search_title" = "Procurar";
 "books_title" = "Livros";
+"book_title" = "Livro";
 "folders_title" = "Pastas";
 "section_item_title" = "Título";
 "section_item_author" = "Autor";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Continuar o último audiolivro reproduzido";
 "intent_lastbook_empty_error" = "Último audiolivro reproduzido não encontrado";
 "intent_playback_pause_title" = "Pausar reprodução";
+"intent_play_book_title" = "Reproduzir um livro";
+"intent_play_book_request_title" = "Que livro?";
 "storage_artwork_cache_title" = "Tamanho do cache de imagens";
 "settings_share_debug_information" = "Partilhar informações de depuração";
 "settings_autlock_section_title" = "Bloqueio automático";

@@ -244,6 +244,7 @@
 "sort_button_title" = "Sortuj";
 "search_title" = "Szukaj";
 "books_title" = "Książki";
+"book_title" = "Książka";
 "folders_title" = "Foldery";
 "section_item_title" = "Tytuł";
 "section_item_author" = "Autor";
@@ -315,6 +316,8 @@
 "intent_lastbook_play_title" = "Wznów ostatnio odtwarzaną książkę";
 "intent_lastbook_empty_error" = "Nie ma ostatnio odtwarzanej książki";
 "intent_playback_pause_title" = "Wstrzymaj odtwarzanie";
+"intent_play_book_title" = "Odtwórz książkę";
+"intent_play_book_request_title" = "Która książka?";
 "storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
 "settings_share_debug_information" = "Udostępnij informacje debugowania";
 "settings_autlock_section_title" = "Automatyczna blokada";
