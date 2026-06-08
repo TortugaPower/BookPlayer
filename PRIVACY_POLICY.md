@@ -1,16 +1,15 @@
 # Privacy Policy
-###### version 2.0.0 of This Agreement was created on May 25, 2023.
+###### version 2.0.1 of This Agreement was created on May 18, 2026.
 
 BookPlayer is an audio book player app, and we believe that an audio book player should provide a good listening experience which also includes peace of mind when it comes to data responsibility.
 
-This Privacy Policy explains what information we collect and why. It applies to the iOS, iPadOS and MacOS apps.
+This Privacy Policy explains what information we collect and why. It applies to the iOS, iPadOS, MacOS, WatchOS and Android apps.
 
 ## What information do you collect about me?
 
 For our base functionality, BookPlayer collects two types of information:
 
 - App crash data and performance (using [Sentry](https://sentry.io)).
-- App usage (using [TelemetryDeck](https://telemetrydeck.com/privacy)).
 
 If you choose to create an account in our app, we store the email address that you share via the Sign in with Apple integration,
 
@@ -47,4 +46,4 @@ We may need to update this Policy to reflect changes in our provided services, o
 
 If you have any questions or concerns about our Privacy Policy, please contact us at [support@bookplayer.app](mailto:support@bookplayer.app)
 
-Effective Date: 27 May 2023
+Effective Date: 18 May 2026

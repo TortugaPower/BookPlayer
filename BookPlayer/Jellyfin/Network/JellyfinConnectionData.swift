@@ -8,7 +8,8 @@
 
 import Foundation
 
-struct JellyfinConnectionData: Codable {
+struct JellyfinConnectionData: Codable, Identifiable {
+  let id: String
   let url: URL
   let serverName: String
   let userID: String
@@ -18,10 +19,11 @@ struct JellyfinConnectionData: Codable {
   var customHeaders: [String: String] = [:]
 
   enum CodingKeys: String, CodingKey {
-    case url, serverName, userID, userName, accessToken, selectedLibraryId, customHeaders
+    case id, url, serverName, userID, userName, accessToken, selectedLibraryId, customHeaders
   }
 
   init(
+    id: String = UUID().uuidString,
     url: URL,
     serverName: String,
     userID: String,
@@ -30,6 +32,7 @@ struct JellyfinConnectionData: Codable {
     selectedLibraryId: String? = nil,
     customHeaders: [String: String] = [:]
   ) {
+    self.id = id
     self.url = url
     self.serverName = serverName
     self.userID = userID
@@ -41,6 +44,7 @@ struct JellyfinConnectionData: Codable {
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
     self.url = try container.decode(URL.self, forKey: .url)
     self.serverName = try container.decode(String.self, forKey: .serverName)
     self.userID = try container.decode(String.self, forKey: .userID)

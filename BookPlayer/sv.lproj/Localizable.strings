@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pausa uppspelningen";
 "sleep_chapter_option_title" = "Vid slutet av detta kapitel";
 "player_chapter_description" = "Kapitel %d av %d";
+"player_book_remaining_title" = "%@ kvar";
 "chapters_title" = "Kapitel";
 "chapters_item_description" = "Start: %@ - Längd: %@";
 "restore_title" = "Återställ";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Använd Återstående Tid";
 "settings_chaptercontext_title" = "Använd Kapitelkontext";
 "settings_progresslabels_description" = "Välj mellan att visa återstående tid, total längd och spelläge relaterat till antingen kapitlet eller boken i spelaren";
+"settings_bookremaining_title" = "Visa total återstående tid";
 "settings_playerinterface_list_description" = "Välj vad listknappen på spelarkontrollen öppnar";
 "settings_autoplay_section_title" = "AUTOSPELA";
 "settings_autoplay_restart_title" = "Starta om färdiga böcker";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Sort";
 "search_title" = "Sök";
 "books_title" = "Böcker";
+"book_title" = "Bok";
 "folders_title" = "Mappar";
 "section_item_title" = "Titel";
 "section_item_author" = "Författare";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Återuppta senast spelade bok";
 "intent_lastbook_empty_error" = "Det finns ingen senast spelad bok";
 "intent_playback_pause_title" = "Pausa uppspelningen";
+"intent_play_book_title" = "Spela upp en bok";
+"intent_play_book_request_title" = "Vilken bok?";
 "storage_artwork_cache_title" = "Artwork cachestorlek";
 "settings_share_debug_information" = "Dela felsökningsinformation";
 "settings_autlock_section_title" = "Auto lås";
@@ -347,6 +352,9 @@
 "share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
 "share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
 "share_import_failure_announcement_multiple" = "%d shared imports failed.";
+"integration_retry_button" = "Försök igen";
+"integration_add_server_button" = "Lägg till server";
+"media_servers_title" = "Medieservrar";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Anslut till din %@-server";
 "integration_section_server" = "Server";
@@ -368,6 +376,7 @@
 "integration_error_unexpected_response" = "Oväntat serversvar";
 "integration_error_unexpected_response_with_code" = "Oväntat serversvar (kod: %d - %@ )";
 "integration_error_unauthorized" = "Inloggning misslyckades. Kontrollera ditt användarnamn och lösenord.";
+"integration_error_session_expired" = "Din session för %@ har upphört. Logga in igen för att fortsätta.";
 "integration_selection_count" = "%d av %d Objekt";
 "file_size_unknown" = "Okänd storlek";
 "runtime_unknown" = "Okänd varaktighet";

@@ -8,6 +8,9 @@
 
 import SwiftUI
 
+/// In-library "Connection Details" view: shows only the *active* connection's
+/// username and a Log out action. Multi-server management lives in
+/// `MediaServersView`, not here.
 struct IntegrationConnectedView<VM: IntegrationConnectionViewModelProtocol>: View {
   @ObservedObject var viewModel: VM
   @EnvironmentObject var theme: ThemeViewModel

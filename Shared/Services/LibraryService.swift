@@ -60,11 +60,12 @@ public protocol LibraryServiceProtocol: AnyObject {
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
   /// Fetch a property from a stored library item
   func getItemProperty(_ property: String, relativePath: String) -> Any?
-  /// Search
+  /// Search the items within a folder subtree (recursive). A `nil` relativePath searches the
+  /// whole library; a `nil` scope matches all item types.
   func filterContents(
     at relativePath: String?,
     query: String?,
-    scope: SimpleItemType,
+    scope: SimpleItemType?,
     limit: Int?,
     offset: Int?
   ) -> [SimpleLibraryItem]?
@@ -446,7 +447,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   private func buildFilterPredicate(
     relativePath: String?,
     query: String?,
-    scope: SimpleItemType
+    scope: SimpleItemType?
   ) -> NSPredicate {
     var predicates = [NSPredicate]()
 
@@ -459,6 +460,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
       predicates.append(
         NSPredicate(format: "%K != \(SimpleItemType.folder.rawValue)", #keyPath(LibraryItem.type))
       )
+    case .none:
+      break
     }
 
     if let query = query,
@@ -466,18 +469,23 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     {
       predicates.append(
         NSPredicate(
-          format: "%K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@",
+          format: "%K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@ OR %K CONTAINS[cd] %@",
           #keyPath(LibraryItem.title),
           query,
           #keyPath(LibraryItem.details),
+          query,
+          #keyPath(LibraryItem.originalFileName),
           query
         )
       )
     }
 
+    /// Scope to the folder's subtree (recursive). Matching the item's own `relativePath` against
+    /// the `"<folder>/"` prefix catches direct children and nested items, while the trailing slash
+    /// avoids matching sibling folders that share a name prefix (e.g. "Sci-Fi" vs "Sci-Fi 2").
     if let relativePath = relativePath {
       predicates.append(
-        NSPredicate(format: "%K == %@", #keyPath(LibraryItem.folder.relativePath), relativePath)
+        NSPredicate(format: "%K BEGINSWITH %@", #keyPath(LibraryItem.relativePath), relativePath + "/")
       )
     }
 
@@ -1129,6 +1137,11 @@ extension LibraryService {
         sortContents(at: relativePath, by: sort)
       }
     }
+
+    /// The moved items' stored relativePaths (and any folder descendants, via the
+    /// path-prefix rule) are now stale, so prune them from the Last Played widget
+    /// snapshot. They reappear once played again at the new location.
+    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
   }
 
   func rebuildOrderRank(in folderRelativePath: String?) {
@@ -1187,6 +1200,12 @@ extension LibraryService {
       /// Clean up artwork cache
       ArtworkService.removeCache(for: item.relativePath)
     }
+
+    /// Prune deleted items (and their descendants) from the Last Played widget snapshot.
+    /// Covers both the local delete path and the remote/sync delete path, which both
+    /// funnel through here. Deep folder deletes recurse into this method, so this runs
+    /// once per level, but the debounced reload coalesces them into a single refresh.
+    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
   }
 
   func deleteItem(_ item: SimpleLibraryItem) throws {
@@ -1507,7 +1526,7 @@ extension LibraryService {
   public func filterContents(
     at relativePath: String?,
     query: String?,
-    scope: SimpleItemType,
+    scope: SimpleItemType?,
     limit: Int?,
     offset: Int?
   ) -> [SimpleLibraryItem]? {
@@ -2099,6 +2118,10 @@ extension LibraryService {
     }
 
     self.dataManager.saveContext()
+
+    /// The old folder path and all its descendants are now stale in the Last Played
+    /// widget snapshot; prune them via the path-prefix rule using the old path.
+    SharedWidgetStore.removeItems(matching: [relativePath])
 
     return newRelativePath
   }

@@ -99,6 +99,7 @@
 "player_sleep_title" = "暂停播放";
 "sleep_chapter_option_title" = "当前章节的结尾";
 "player_chapter_description" = "第%d章，共%d章";
+"player_book_remaining_title" = "剩余 %@";
 "chapters_title" = "章节";
 "chapters_item_description" = "开始： %@  - 时长： %@";
 "restore_title" = "恢复";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "使用剩余时间";
 "settings_chaptercontext_title" = "使用章节上下文";
 "settings_progresslabels_description" = "在播放器屏幕中显示章节或书籍的剩余时间、总持续时间和进度之间切换";
+"settings_bookremaining_title" = "显示剩余总时长";
 "settings_playerinterface_list_description" = "调整播放器屏幕中的列表按钮打开的内容";
 "settings_autoplay_section_title" = "自动播放";
 "settings_autoplay_restart_title" = "重新启动完成的书籍";
@@ -242,6 +244,7 @@
 "sort_button_title" = "种类";
 "search_title" = "搜索";
 "books_title" = "图书";
+"book_title" = "图书";
 "folders_title" = "文件夹";
 "section_item_title" = "标题";
 "section_item_author" = "作者";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "继续上次播放的书";
 "intent_lastbook_empty_error" = "没有最后玩过的书";
 "intent_playback_pause_title" = "暂停播放";
+"intent_play_book_title" = "播放图书";
+"intent_play_book_request_title" = "哪本图书？";
 "storage_artwork_cache_title" = "艺术品缓存大小";
 "settings_share_debug_information" = "共享调试信息";
 "settings_autlock_section_title" = "自动锁";
@@ -347,6 +352,9 @@
 "share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
 "share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
 "share_import_failure_announcement_multiple" = "%d shared imports failed.";
+"integration_retry_button" = "重试";
+"integration_add_server_button" = "添加服务器";
+"media_servers_title" = "媒体服务器";
 "integration_section_server_url" = "服务器 URL";
 "integration_section_server_url_footer" = "连接到您的 %@ 服务器";
 "integration_section_server" = "服务器";
@@ -368,6 +376,7 @@
 "integration_error_unexpected_response" = "意外的服务器响应";
 "integration_error_unexpected_response_with_code" = "意外的服务器响应（代码： %d - %@ ）";
 "integration_error_unauthorized" = "登录失败。请检查您的用户名和密码。";
+"integration_error_session_expired" = "您在 %@ 的会话已过期。请重新登录以继续。";
 "integration_selection_count" = "%d / %d 项";
 "file_size_unknown" = "未知尺寸";
 "runtime_unknown" = "持续时间未知";

@@ -99,6 +99,7 @@
 "player_sleep_title" = "Sæt afspilningen på pause";
 "sleep_chapter_option_title" = "Slutningen af nuværende kapitel";
 "player_chapter_description" = "Kapitel %d af %d";
+"player_book_remaining_title" = "%@ tilbage";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighed: %@";
 "restore_title" = "Gendan";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Brug den resterende tid";
 "settings_chaptercontext_title" = "Brug kapitelkontekst";
 "settings_progresslabels_description" = "Skift mellem at vise den resterende tid, den samlede varighed og fremskridt for enten kapitlet eller bogen på afspillerskærmen";
+"settings_bookremaining_title" = "Vis samlet resterende tid";
 "settings_playerinterface_list_description" = "Juster, hvad listeknappen på afspillerskærmen åbner";
 "settings_autoplay_section_title" = "AUTOMATISK AFSPILNING";
 "settings_autoplay_restart_title" = "Genstart færdige bøger";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Sortere";
 "search_title" = "Søg";
 "books_title" = "Bøger";
+"book_title" = "Bog";
 "folders_title" = "Mapper";
 "section_item_title" = "Titel";
 "section_item_author" = "Forfatter";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Genoptag sidste spillede bog";
 "intent_lastbook_empty_error" = "Der er ingen sidst spillet bog";
 "intent_playback_pause_title" = "Sæt afspilning på pause";
+"intent_play_book_title" = "Afspil en bog";
+"intent_play_book_request_title" = "Hvilken bog?";
 "storage_artwork_cache_title" = "Artwork cache størrelse";
 "settings_share_debug_information" = "Del fejlretningsoplysninger";
 "settings_autlock_section_title" = "Autolås";
@@ -347,6 +352,9 @@
 "share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
 "share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
 "share_import_failure_announcement_multiple" = "%d shared imports failed.";
+"integration_retry_button" = "Prøv igen";
+"integration_add_server_button" = "Tilføj server";
+"media_servers_title" = "Medieservere";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Opret forbindelse til din %@-server";
 "integration_section_server" = "Server";
@@ -368,6 +376,7 @@
 "integration_error_unexpected_response" = "Uventet serversvar";
 "integration_error_unexpected_response_with_code" = "Uventet serversvar (Kode: %d - %@ )";
 "integration_error_unauthorized" = "Log ind mislykkedes. Tjek dit brugernavn og adgangskode.";
+"integration_error_session_expired" = "Din session for %@ er udløbet. Log ind igen for at fortsætte.";
 "integration_selection_count" = "%d af %d Elementer";
 "file_size_unknown" = "Ukendt størrelse";
 "runtime_unknown" = "Ukendt varighed";

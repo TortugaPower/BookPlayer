@@ -99,6 +99,7 @@
 "player_sleep_title" = "Posa en pausa la reproducció";
 "sleep_chapter_option_title" = "Final del capítol actual";
 "player_chapter_description" = "Capítol %d de %d";
+"player_book_remaining_title" = "%@ restant";
 "chapters_title" = "Capítols";
 "chapters_item_description" = "Inici: %@ - Durada: %@";
 "restore_title" = "Restaura";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Utilitzeu el temps restant";
 "settings_chaptercontext_title" = "Utilitzeu el context del capítol";
 "settings_progresslabels_description" = "Canvia entre mostrar el temps restant, la durada total i el progrés del capítol o del llibre a la pantalla del reproductor.";
+"settings_bookremaining_title" = "Mostra el temps total restant";
 "settings_playerinterface_list_description" = "Ajusteu el que obre el botó de llista a la pantalla del reproductor";
 "settings_autoplay_section_title" = "REPRODUCCIÓ AUTOMÀTICA";
 "settings_autoplay_restart_title" = "Reinicieu els llibres acabats";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Ordena";
 "search_title" = "Cerca";
 "books_title" = "Llibres";
+"book_title" = "Llibre";
 "folders_title" = "Carpetes";
 "section_item_title" = "Títol";
 "section_item_author" = "Autor";
@@ -313,6 +316,8 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "intent_lastbook_play_title" = "Reprèn l'últim llibre reproduït";
 "intent_lastbook_empty_error" = "No hi ha l'últim llibre reproduït";
 "intent_playback_pause_title" = "Posa en pausa la reproducció";
+"intent_play_book_title" = "Reprodueix un llibre";
+"intent_play_book_request_title" = "Quin llibre?";
 "storage_artwork_cache_title" = "Mida de la memòria cau de les imatges";
 "settings_share_debug_information" = "Comparteix informació de depuració";
 "settings_autlock_section_title" = "Bloqueig automàtic";
@@ -348,6 +353,9 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
 "share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
 "share_import_failure_announcement_multiple" = "%d shared imports failed.";
+"integration_retry_button" = "Torna-ho a provar";
+"integration_add_server_button" = "Afegeix un servidor";
+"media_servers_title" = "Servidors multimèdia";
 "integration_section_server_url" = "URL del servidor";
 "integration_section_server_url_footer" = "Connecteu-vos al vostre servidor %@";
 "integration_section_server" = "Servidor";
@@ -369,6 +377,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "integration_error_unexpected_response" = "Resposta del servidor inesperada";
 "integration_error_unexpected_response_with_code" = "Resposta del servidor inesperada (Codi: %d - %@)";
 "integration_error_unauthorized" = "No s'ha pogut iniciar la sessió. Comproveu el vostre nom d'usuari i contrasenya.";
+"integration_error_session_expired" = "La teva sessió a %@ ha caducat. Torna a iniciar la sessió per continuar.";
 "integration_selection_count" = "%d de %d Elements";
 "file_size_unknown" = "Mida desconeguda";
 "runtime_unknown" = "Durada desconeguda";

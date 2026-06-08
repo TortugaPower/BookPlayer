@@ -84,4 +84,35 @@ class PlayableItemTests: XCTestCase {
 
     XCTAssert(remainingTimeInBook == -50)
   }
+
+  // MARK: - isNearChapterStart
+
+  func testIsNearChapterStartWithinThreshold() {
+    sut.currentChapter = sut.chapters[0]  // starts at 0
+    sut.currentTime = 2
+
+    XCTAssertTrue(sut.isNearChapterStart)
+  }
+
+  func testIsNearChapterStartAtChapterStart() {
+    sut.currentChapter = sut.chapters[1]  // starts at 51
+    sut.currentTime = 51
+
+    XCTAssertTrue(sut.isNearChapterStart)
+  }
+
+  func testIsNotNearChapterStartAtThresholdBoundary() {
+    /// Exactly `chapterStartThreshold` (3s) past the start is NOT near the start
+    sut.currentChapter = sut.chapters[1]  // starts at 51
+    sut.currentTime = 54
+
+    XCTAssertFalse(sut.isNearChapterStart)
+  }
+
+  func testIsNotNearChapterStartMidChapter() {
+    sut.currentChapter = sut.chapters[1]  // starts at 51
+    sut.currentTime = 100
+
+    XCTAssertFalse(sut.isNearChapterStart)
+  }
 }

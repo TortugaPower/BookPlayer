@@ -23,6 +23,7 @@ public enum Constants {
     public static let systemThemeVariantEnabled = "userSettingsSystemThemeVariant"
     public static let chapterContextEnabled = "userSettingsChapterContext"
     public static let remainingTimeEnabled = "userSettingsRemainingTime"
+    public static let bookRemainingTimeEnabled = "userSettingsBookRemainingTime"
     public static let smartRewindEnabled = "userSettingsSmartRewind"
     public static let smartRewindMaxInterval = "userSettingsSmartRewindMaxInterval"
     public static let boostVolumeEnabled = "userSettingsBoostVolume"
@@ -111,6 +112,11 @@ public enum Constants {
 
     /// JSON-encoded `[String: ISO-8601-Date]` of synced-pref keys awaiting server flush
     public static let userPreferencesDirty = "userPreferences.dirty"
+
+    /// Beta-only audio-session recovery telemetry: epoch seconds of the last activation failure
+    public static let audioSessionFailureTimestamp = "audioSession.failureTimestamp"
+    /// Beta-only audio-session recovery telemetry: error code of the last activation failure
+    public static let audioSessionFailureCode = "audioSession.failureCode"
   }
 
   public enum SkipInterval {

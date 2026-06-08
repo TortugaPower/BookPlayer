@@ -99,6 +99,7 @@
 "player_sleep_title" = "Wstrzymaj odtwarzanie";
 "sleep_chapter_option_title" = "Koniec bieżącego rozdziału";
 "player_chapter_description" = "Rozdział %d z %d";
+"player_book_remaining_title" = "Pozostało %@";
 "chapters_title" = "Rozdziały";
 "chapters_item_description" = "Start: %@ - Czas trwania: %@";
 "restore_title" = "Przywróć";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Użyj Pozostały czas";
 "settings_chaptercontext_title" = "Użyj Kontekstu rozdziału";
 "settings_progresslabels_description" = "Przełącz między wyświetlaniem pozostałego czasu, całkowitego czasu trwania i postępu rozdziału lub książki na ekranie odtwarzacza";
+"settings_bookremaining_title" = "Pokaż całkowity pozostały czas";
 "settings_playerinterface_list_description" = "Dostosuj, co otwiera przycisk listy na ekranie odtwarzacza";
 "settings_autoplay_section_title" = "AUTOMATYCZNE ODTWARZANIE";
 "settings_autoplay_restart_title" = "Uruchom ponownie ukończone książki";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Sortuj";
 "search_title" = "Szukaj";
 "books_title" = "Książki";
+"book_title" = "Książka";
 "folders_title" = "Foldery";
 "section_item_title" = "Tytuł";
 "section_item_author" = "Autor";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Wznów ostatnio odtwarzaną książkę";
 "intent_lastbook_empty_error" = "Nie ma ostatnio odtwarzanej książki";
 "intent_playback_pause_title" = "Wstrzymaj odtwarzanie";
+"intent_play_book_title" = "Odtwórz książkę";
+"intent_play_book_request_title" = "Która książka?";
 "storage_artwork_cache_title" = "Rozmiar pamięci podręcznej grafiki";
 "settings_share_debug_information" = "Udostępnij informacje debugowania";
 "settings_autlock_section_title" = "Automatyczna blokada";
@@ -347,6 +352,9 @@
 "share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
 "share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
 "share_import_failure_announcement_multiple" = "%d shared imports failed.";
+"integration_retry_button" = "Spróbuj ponownie";
+"integration_add_server_button" = "Dodaj serwer";
+"media_servers_title" = "Serwery multimediów";
 "integration_section_server_url" = "Adres URL serwera";
 "integration_section_server_url_footer" = "Połącz się ze swoim serwerem %@";
 "integration_section_server" = "Serwer";
@@ -368,6 +376,7 @@
 "integration_error_unexpected_response" = "Nieoczekiwana odpowiedź serwera";
 "integration_error_unexpected_response_with_code" = "Nieoczekiwana odpowiedź serwera (Kod: %d - %@ )";
 "integration_error_unauthorized" = "Logowanie nie powiodło się. Sprawdź swoją nazwę użytkownika i hasło.";
+"integration_error_session_expired" = "Twoja sesja dla %@ wygasła. Zaloguj się ponownie, aby kontynuować.";
 "integration_selection_count" = "%d z %d Elementów";
 "file_size_unknown" = "Nieznany rozmiar";
 "runtime_unknown" = "Nieznany czas trwania";

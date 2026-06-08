@@ -378,15 +378,20 @@ public final class AccountService: AccountServiceProtocol {
 
     try self.keychain.set(response.token, key: .token)
 
-    let (customerInfo, _) = try await Purchases.shared.logIn(userId)
-    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
+    // Identify to RevenueCat with the server's canonical id (the account's
+    // external_id) as the single source of truth, so a user signing in with
+    // Apple lands on the same RevenueCat user as their other credentials.
+    // Fall back to the Apple credential id only if an older response omits it.
+    let rcUserId = response.revenuecatId ?? userId
+    let (customerInfo, _) = try await Purchases.shared.logIn(rcUserId)
+    UserDefaults.sharedDefaults.set(rcUserId, forKey: "rcUserId")
 
     if let existingAccount = self.getAccount() {
       // Preserve donation made flag from stored account
       let donationMade = existingAccount.donationMade || !customerInfo.nonSubscriptions.isEmpty
 
       self.updateAccount(
-        id: userId,
+        id: rcUserId,
         email: response.email,
         donationMade: donationMade,
         hasSubscription: !customerInfo.activeSubscriptions.isEmpty

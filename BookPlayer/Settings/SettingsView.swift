@@ -113,23 +113,13 @@ struct SettingsView: View {
                 StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
             )
           )
-        case .jellyfin:
+        case .mediaServers:
           view = AnyView(
-            IntegrationSettingsView(integrationName: "Jellyfin") {
-              JellyfinConnectionViewModel(
-                connectionService: jellyfinService,
-                mode: .viewDetails
-              )
-            }
-          )
-        case .audiobookshelf:
-          view = AnyView(
-            IntegrationSettingsView(integrationName: "AudiobookShelf") {
-              AudiobookShelfConnectionViewModel(
-                connectionService: audiobookshelfService,
-                mode: .viewDetails
-              )
-            }
+            MediaServersView(
+              jellyfinService: jellyfinService,
+              audiobookshelfService: audiobookshelfService,
+              style: .settings
+            )
           )
         case .hardcover:
           view = AnyView(

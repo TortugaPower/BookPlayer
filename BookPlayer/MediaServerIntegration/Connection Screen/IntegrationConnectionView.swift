@@ -17,12 +17,19 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   @State private var isLoading = false
   @State private var error: Error?
 
+  /// Tracks the in-flight network task for connect/sign-in/Quick-Connect-start so the view
+  /// can cancel it on dismissal. Without this, swiping the sheet down while a sign-in is
+  /// still in flight would let the view model persist a connection the user thought they
+  /// gave up on.
+  @State private var actionTask: Task<Void, Never>?
+
   @EnvironmentObject var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     Form {
-      switch viewModel.connectionState {
-      case .disconnected:
+      switch viewModel.signInFlow {
+      case .enteringServerURL:
         IntegrationDisconnectedView(
           serverUrl: $viewModel.form.serverUrl,
           placeholderURL: integrationName == "Jellyfin"
@@ -34,7 +41,7 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
         IntegrationCustomHeadersSectionView(
           customHeaders: $viewModel.form.customHeaders
         )
-      case .foundServer:
+      case .enteringCredentials:
         IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
@@ -47,7 +54,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
         IntegrationCustomHeadersSectionView(
           customHeaders: $viewModel.form.customHeaders
         )
-      case .connected:
+      case .none:
+        // Not in sign-in flow → render the connection-details UI (server info, custom
+        // headers, logout) for the active connection. Multi-server management is in
+        // `MediaServersView`, not here.
         IntegrationServerInformationSectionView(
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
@@ -78,48 +88,71 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       }
     }
     .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text(localizedNavigationTitle)
-          .bpFont(.headline)
-          .foregroundStyle(theme.primaryColor)
-      }
-      ToolbarItemGroup(placement: .confirmationAction) {
-        switch viewModel.connectionState {
-        case .disconnected:
-          connectToolbarButton
-        case .foundServer:
-          signInToolbarButton
-        case .connected:
-          EmptyView()
+      if viewModel.isAddingServer {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("cancel_button".localized) {
+            viewModel.handleCancelAddServerAction()
+            dismiss()
+          }
+          .foregroundStyle(theme.linkColor)
+        }
+        ToolbarItemGroup(placement: .confirmationAction) {
+          switch viewModel.signInFlow {
+          case .enteringCredentials: signInToolbarButton
+          case .enteringServerURL, .none: connectToolbarButton
+          }
+        }
+      } else {
+        ToolbarItem(placement: .principal) {
+          Text(localizedNavigationTitle)
+            .bpFont(.headline)
+            .foregroundStyle(theme.primaryColor)
+        }
+        ToolbarItemGroup(placement: .confirmationAction) {
+          switch viewModel.signInFlow {
+          case .enteringServerURL: connectToolbarButton
+          case .enteringCredentials: signInToolbarButton
+          case .none: EmptyView()
+          }
         }
       }
     }
     .tint(theme.linkColor)
+    .onDisappear {
+      actionTask?.cancel()
+      actionTask = nil
+    }
   }
 
   // MARK: Utils
 
   func onConnect() {
+    actionTask?.cancel()
     isLoading = true
-    Task {
+    actionTask = Task { @MainActor in
+      defer { isLoading = false }
       do {
         try await viewModel.handleConnectAction()
-        isLoading = false
+        try Task.checkCancellation()
+      } catch is CancellationError {
+        // Sheet dismissed mid-flight; nothing to surface.
       } catch {
-        isLoading = false
         self.error = error
       }
     }
   }
 
   func onSignIn() {
+    actionTask?.cancel()
     isLoading = true
-    Task {
+    actionTask = Task { @MainActor in
+      defer { isLoading = false }
       do {
         try await viewModel.handleSignInAction()
-        isLoading = false
+        try Task.checkCancellation()
+      } catch is CancellationError {
+        return
       } catch {
-        isLoading = false
         self.error = error
       }
     }
@@ -128,10 +161,9 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   // MARK: - Navigation Title
 
   private var localizedNavigationTitle: String {
-    switch viewModel.connectionState {
-    case .disconnected, .foundServer: integrationName
-    case .connected: "integration_connection_details_title".localized
-    }
+    viewModel.signInFlow == nil
+      ? "integration_connection_details_title".localized
+      : integrationName
   }
 
   // MARK: - Navigation Buttons

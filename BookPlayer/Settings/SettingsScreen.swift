@@ -13,7 +13,7 @@ enum SettingsScreen: String, Hashable {
   case controls, autoplay, autolock
   case storage, syncbackup
   case shortcuts
-  case jellyfin, audiobookshelf, hardcover
+  case mediaServers, hardcover
   case tipjar
   case credits
 }
