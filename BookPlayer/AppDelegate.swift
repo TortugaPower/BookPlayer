@@ -79,7 +79,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Setup core services
     AppServices.shared.setupCoreServices()
 
+    /// Hook the URLSession delegate that handles share-extension background downloads.
+    /// Touching the lazy session re-attaches us as delegate for any transfer iOS already
+    /// has in flight from a prior share — without this, completions queued before the app
+    /// launched would be silently dropped.
+    BackgroundShareDownloadDelegate.shared.ensureSessionReady()
+
     return true
+  }
+
+  func application(
+    _ application: UIApplication,
+    handleEventsForBackgroundURLSession identifier: String,
+    completionHandler: @escaping () -> Void
+  ) {
+    /// iOS calls this when a background URLSession we own has events to deliver and the app
+    /// was suspended/terminated. We only own the share-extension session; ignore others.
+    guard identifier == Constants.shareExtensionBackgroundSessionIdentifier else {
+      completionHandler()
+      return
+    }
+    BackgroundShareDownloadDelegate.shared.backgroundCompletionHandler = completionHandler
+    BackgroundShareDownloadDelegate.shared.ensureSessionReady()
   }
 
   func application(
@@ -466,5 +487,141 @@ extension AppDelegate {
     queue.maxConcurrentOperationCount = 1
 
     queue.addOperation(backupOperation)
+  }
+}
+
+/// Receives completion events for the background `URLSession` that the share extension
+/// uses to download shared web URLs. The share extension cannot keep its own foreground
+/// session alive after dismissal, so it kicks off the transfer with a background session
+/// keyed by `Constants.shareExtensionBackgroundSessionIdentifier`. When the download
+/// completes, iOS launches BookPlayer (in the background if needed) and routes events
+/// here. The delegate moves the temp file into the app group's shared folder, where
+/// BookPlayer's normal `ImportManager` pipeline picks it up the next time the user
+/// foregrounds the app.
+final class BackgroundShareDownloadDelegate: NSObject, URLSessionDownloadDelegate, BPLogger {
+  static let shared = BackgroundShareDownloadDelegate()
+
+  /// Stored from `application(_:handleEventsForBackgroundURLSession:completionHandler:)` —
+  /// must be invoked once `urlSessionDidFinishEvents` fires so iOS can take a fresh app
+  /// snapshot.
+  var backgroundCompletionHandler: (() -> Void)?
+
+  /// The session is recreated lazily with the same identifier the share extension uses,
+  /// which connects this delegate to any in-flight transfers iOS is already running for us.
+  private(set) lazy var session: URLSession = {
+    let config = URLSessionConfiguration.background(
+      withIdentifier: Constants.shareExtensionBackgroundSessionIdentifier
+    )
+    config.sharedContainerIdentifier = Constants.ApplicationGroupIdentifier
+    config.sessionSendsLaunchEvents = true
+    config.isDiscretionary = false
+    return URLSession(configuration: config, delegate: self, delegateQueue: nil)
+  }()
+
+  /// Touch the lazy session so it hooks up as the delegate for any pending transfers. Call
+  /// from `AppDelegate.didFinishLaunching` so completions don't get lost when the app cold-
+  /// starts after a download finished while the app was suspended.
+  func ensureSessionReady() {
+    _ = session
+  }
+
+  // MARK: - URLSessionDownloadDelegate
+
+  func urlSession(
+    _ session: URLSession,
+    downloadTask: URLSessionDownloadTask,
+    didFinishDownloadingTo location: URL
+  ) {
+    let originalURL = downloadTask.originalRequest?.url
+    let source = originalURL?.absoluteString ?? "shared file"
+
+    // If the user canceled this share before iOS finished the download, drop the temp
+    // file and bail out. Important for the case where the share extension was killed
+    // before its in-memory `task.cancel()` could propagate — the durable cancel marker
+    // in ShareCancelStore is the only signal left to honor the user's intent.
+    if let shareID = downloadTask.taskDescription, ShareCancelStore.isCanceled(shareID) {
+      Self.logger.info("share download \(source) canceled by user; dropping temp file")
+      try? FileManager.default.removeItem(at: location)
+      ShareCancelStore.clear(shareID)
+      return
+    }
+
+    /// Reject non-2xx HTTP responses — `URLSession` reports success on a 404 and the temp
+    /// file just contains the error body. Don't deposit garbage into the library, and
+    /// surface the failure to the user (via the share-import failure store) so they know
+    /// the share didn't actually succeed.
+    if let httpResponse = downloadTask.response as? HTTPURLResponse,
+       !(200..<300).contains(httpResponse.statusCode)
+    {
+      Self.logger.error(
+        "share download \(source) returned status \(httpResponse.statusCode)"
+      )
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: source,
+          message: String(
+            format: "share_import_failure_http_status".localized,
+            httpResponse.statusCode
+          )
+        )
+      )
+      return
+    }
+
+    let suggested =
+      downloadTask.response?.suggestedFilename
+      ?? originalURL?.lastPathComponent
+      ?? "shared-\(UUID().uuidString)"
+    let filename = ShareDownloadSupport.sanitizedFilename(suggested)
+    let mime = (downloadTask.response as? HTTPURLResponse)?.mimeType?.lowercased()
+
+    if let rejection = ShareDownloadSupport.rejectionReason(forMIME: mime, filename: filename) {
+      Self.logger.error("share download \(source) rejected: \(rejection)")
+      ShareImportFailureStore.append(
+        ShareImportFailure(source: source, message: rejection)
+      )
+      try? FileManager.default.removeItem(at: location)
+      return
+    }
+
+    // Avoid collisions from concurrent shares of the same URL by prefixing a short UUID.
+    let destinationURL = DataManager.getSharedFilesFolderURL()
+      .appendingPathComponent(ShareDownloadSupport.uniqueDestinationName(for: filename))
+    do {
+      try FileManager.default.moveItem(at: location, to: destinationURL)
+      Self.logger.info("share download landed at \(destinationURL.lastPathComponent)")
+    } catch {
+      Self.logger.error("share download move failed: \(error.localizedDescription)")
+      ShareImportFailureStore.append(
+        ShareImportFailure(
+          source: filename,
+          message: String(
+            format: "share_import_failure_move_failed".localized,
+            filename,
+            error.localizedDescription
+          )
+        )
+      )
+    }
+  }
+
+  func urlSession(
+    _ session: URLSession,
+    task: URLSessionTask,
+    didCompleteWithError error: Error?
+  ) {
+    if let error {
+      Self.logger.error(
+        "share download task error: \(error.localizedDescription) for \(task.originalRequest?.url?.absoluteString ?? "?")"
+      )
+    }
+  }
+
+  func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    DispatchQueue.main.async { [weak self] in
+      let handler = self?.backgroundCompletionHandler
+      self?.backgroundCompletionHandler = nil
+      handler?()
+    }
   }
 }

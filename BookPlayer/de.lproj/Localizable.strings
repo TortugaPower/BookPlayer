@@ -345,6 +345,13 @@
 "integration_connection_details_title" = "Verbindungsdetails";
 "integration_connect_button" = "Verbinden";
 "integration_sign_in_button" = "Anmelden";
+"share_import_failure_alert_title" = "Some shared files didn’t import";
+"share_import_failure_copy_failed" = "Couldn’t copy “%1$@” to BookPlayer: %2$@";
+"share_import_failure_move_failed" = "Couldn’t save “%1$@” to BookPlayer: %2$@";
+"share_import_failure_http_status" = "Download failed with HTTP status %d.";
+"share_import_failure_unsupported_type" = "Download returned content type “%@”, which isn’t an audiobook file. Try the direct download link.";
+"share_import_failure_unsupported_extension" = "Download did not look like an audiobook file (no recognized extension on “%@”). Try the direct download link.";
+"share_import_failure_announcement_multiple" = "%d shared imports failed.";
 "integration_retry_button" = "Erneut versuchen";
 "integration_add_server_button" = "Server hinzufügen";
 "media_servers_title" = "Medienserver";
