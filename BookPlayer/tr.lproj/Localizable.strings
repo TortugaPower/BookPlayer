@@ -99,6 +99,7 @@
 "player_sleep_title" = "Oynatmayı duraklat";
 "sleep_chapter_option_title" = "Geçerli bölüm sonunda";
 "player_chapter_description" = "Bölüm %d / %d";
+"player_book_remaining_title" = "%@ kaldı";
 "chapters_title" = "Bölümler";
 "chapters_item_description" = "Başlangıç: %@ - Süre: %@";
 "restore_title" = "Geri Yükle";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Kalan Süreyi Kullan";
 "settings_chaptercontext_title" = "Bölüm İçeriğini Kullan";
 "settings_progresslabels_description" = "Oynatıcı ekranında bölümün veya kitabın kalan süresini, toplam süresini ve ilerlemesini görüntüleme arasında geçiş yapın";
+"settings_bookremaining_title" = "Toplam kalan süreyi göster";
 "settings_playerinterface_list_description" = "Oynatıcı ekranındaki liste düğmesinin ne açacağını ayarlayın";
 "settings_autoplay_section_title" = "OTOMATİK OYNATMA";
 "settings_autoplay_restart_title" = "Biten kitapları yeniden başlat";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Tür";
 "search_title" = "Aramak";
 "books_title" = "Kitabın";
+"book_title" = "Kitap";
 "folders_title" = "Klasörler";
 "section_item_title" = "Başlık";
 "section_item_author" = "Yazar";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Son oynatılan kitabı devam ettir";
 "intent_lastbook_empty_error" = "Son çalınan kitap yok";
 "intent_playback_pause_title" = "Oynatmayı duraklat";
+"intent_play_book_title" = "Bir kitap oynat";
+"intent_play_book_request_title" = "Hangi kitap?";
 "storage_artwork_cache_title" = "Resim önbellek boyutu";
 "settings_share_debug_information" = "Hata ayıklama bilgilerini paylaşın";
 "settings_autlock_section_title" = "Otomatik kilit";
@@ -340,6 +345,9 @@
 "integration_connection_details_title" = "Bağlantı Ayrıntıları";
 "integration_connect_button" = "Bağlamak";
 "integration_sign_in_button" = "Kayıt olmak";
+"integration_retry_button" = "Yeniden dene";
+"integration_add_server_button" = "Sunucu ekle";
+"media_servers_title" = "Medya sunucuları";
 "integration_section_server_url" = "Sunucu URL'si";
 "integration_section_server_url_footer" = "%@ sunucunuza bağlanın";
 "integration_section_server" = "Sunucu";
@@ -361,6 +369,7 @@
 "integration_error_unexpected_response" = "Beklenmeyen sunucu yanıtı";
 "integration_error_unexpected_response_with_code" = "Beklenmeyen sunucu yanıtı (Kod: %d - %@ )";
 "integration_error_unauthorized" = "Giriş başarısız. Kullanıcı adınızı ve şifrenizi kontrol edin.";
+"integration_error_session_expired" = "%@ için oturumunuzun süresi doldu. Devam etmek için tekrar oturum açın.";
 "integration_selection_count" = "%d / %d Öğe";
 "file_size_unknown" = "Bilinmeyen boyut";
 "runtime_unknown" = "Bilinmeyen süre";

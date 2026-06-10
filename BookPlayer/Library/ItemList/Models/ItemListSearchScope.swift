@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 enum ItemListSearchScope: String, CaseIterable, Identifiable {
@@ -18,6 +19,16 @@ enum ItemListSearchScope: String, CaseIterable, Identifiable {
     case .all: "All"
     case .books: "books_title"
     case .folders: "folders_title"
+    }
+  }
+
+  /// Maps the UI scope to the Core Data item type used by `LibraryService.filterContents`.
+  /// `nil` means no type restriction (all items).
+  var itemTypeScope: SimpleItemType? {
+    switch self {
+    case .all: nil
+    case .books: .book
+    case .folders: .folder
     }
   }
 }

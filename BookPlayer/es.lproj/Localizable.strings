@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pausar audio";
 "sleep_chapter_option_title" = "Fin del capítulo actual";
 "player_chapter_description" = "Capítulo %d de %d";
+"player_book_remaining_title" = "%@ restante";
 "chapters_title" = "Capítulos";
 "chapters_item_description" = "Inicio: %@ - Duración: %@";
 "restore_title" = "Restaurar";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Usar el tiempo restante";
 "settings_chaptercontext_title" = "Usar el contexto del capítulo";
 "settings_progresslabels_description" = "Alterna entre mostrar el tiempo restante, la duración total y el progreso del capítulo o del libro en la pantalla del reproductor";
+"settings_bookremaining_title" = "Mostrar el tiempo total restante";
 "settings_playerinterface_list_description" = "Ajusta lo que el botón de lista abre en la pantalla del reproductor";
 "settings_autoplay_section_title" = "AUTO-REPRODUCCIÓN";
 "settings_autoplay_restart_title" = "Reiniciar libros terminados";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Ordenar";
 "search_title" = "Buscar";
 "books_title" = "Libros";
+"book_title" = "Libro";
 "folders_title" = "Carpetas";
 "section_item_title" = "Título";
 "section_item_author" = "Autor";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Reanudar el último libro reproducido";
 "intent_lastbook_empty_error" = "No hay ningún último libro reproducido";
 "intent_playback_pause_title" = "Pausar la reproducción";
+"intent_play_book_title" = "Reproducir un libro";
+"intent_play_book_request_title" = "¿Qué libro?";
 "storage_artwork_cache_title" = "Tamaño de caché de ilustraciones";
 "settings_share_debug_information" = "Compartir información de depuración";
 "settings_autlock_section_title" = "Bloqueo automático";
@@ -340,6 +345,9 @@
 "integration_connection_details_title" = "Detalles de la conexión";
 "integration_connect_button" = "Conectar";
 "integration_sign_in_button" = "Iniciar sesión";
+"integration_retry_button" = "Reintentar";
+"integration_add_server_button" = "Añadir servidor";
+"media_servers_title" = "Servidores multimedia";
 "integration_section_server_url" = "URL del servidor";
 "integration_section_server_url_footer" = "Conéctese a su servidor %@";
 "integration_section_server" = "Servidor";
@@ -361,6 +369,7 @@
 "integration_error_unexpected_response" = "Respuesta inesperada del servidor";
 "integration_error_unexpected_response_with_code" = "Respuesta inesperada del servidor (Código: %d - %@ )";
 "integration_error_unauthorized" = "Error al iniciar sesión. Verifique su nombre de usuario y contraseña.";
+"integration_error_session_expired" = "Tu sesión en %@ ha caducado. Inicia sesión de nuevo para continuar.";
 "integration_selection_count" = "%d de %d Elementos";
 "file_size_unknown" = "Tamaño desconocido";
 "runtime_unknown" = "Duración desconocida";

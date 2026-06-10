@@ -99,6 +99,7 @@
 "player_sleep_title" = "إيقاف التشغيل مؤقتًا";
 "sleep_chapter_option_title" = "نهاية الفصل الحالي";
 "player_chapter_description" = "الفصل %d من %d";
+"player_book_remaining_title" = "متبقّي %@";
 "chapters_title" = "الفصول";
 "chapters_item_description" = "البداية: %@ - المدة: %@";
 "restore_title" = "استعادة";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "استخدم الوقت المتبقي";
 "settings_chaptercontext_title" = "استخدم سياق الفصل";
 "settings_progresslabels_description" = "قم بالتبديل بين عرض الوقت المتبقي والمدة الإجمالية والتقدم في الفصل أو الكتاب في شاشة المشغل";
+"settings_bookremaining_title" = "إظهار إجمالي الوقت المتبقّي";
 "settings_playerinterface_list_description" = "اضبط ما يفتحه زر القائمة في شاشة المشغل";
 "settings_autoplay_section_title" = "التشغيل التلقائي";
 "settings_autoplay_restart_title" = "أعد تشغيل الكتب المنتهية";
@@ -242,6 +244,7 @@
 "sort_button_title" = "نوع";
 "search_title" = "يبحث";
 "books_title" = "كتب";
+"book_title" = "كتاب";
 "folders_title" = "المجلدات";
 "section_item_title" = "عنوان";
 "section_item_author" = "مؤلف";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "استئناف آخر كتاب تم تشغيله";
 "intent_lastbook_empty_error" = "لا يوجد كتاب تم تشغيله مؤخراً";
 "intent_playback_pause_title" = "إيقاف التشغيل مؤقتًا";
+"intent_play_book_title" = "تشغيل كتاب";
+"intent_play_book_request_title" = "أي كتاب؟";
 "storage_artwork_cache_title" = "حجم ذاكرة التخزين المؤقت للعمل الفني";
 "settings_share_debug_information" = "مشاركة معلومات التصحيح";
 "settings_autlock_section_title" = "القفل التلقائي";
@@ -341,6 +346,9 @@
 "integration_connection_details_title" = "تفاصيل الاتصال";
 "integration_connect_button" = "الاتصال";
 "integration_sign_in_button" = "تسجيل الدخول";
+"integration_retry_button" = "إعادة المحاولة";
+"integration_add_server_button" = "إضافة خادم";
+"media_servers_title" = "خوادم الوسائط";
 "integration_section_server_url" = "عنوان URL للخادم";
 "integration_section_server_url_footer" = "الاتصال بخادم @% الخاص بك";
 "integration_section_server" = "الخادم";
@@ -362,6 +370,7 @@
 "integration_error_unexpected_response" = "استجابة غير متوقعة من الخادم";
 "integration_error_unexpected_response_with_code" = "استجابة غير متوقعة من الخادم (الرمز: %d - %@ )";
 "integration_error_unauthorized" = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
+"integration_error_session_expired" = "انتهت صلاحية جلستك على %@. سجّل الدخول مرة أخرى للمتابعة.";
 "integration_selection_count" = "%d من %d عناصر";
 "file_size_unknown" = "حجم غير معروف";
 "runtime_unknown" = "مدة غير معروفة";

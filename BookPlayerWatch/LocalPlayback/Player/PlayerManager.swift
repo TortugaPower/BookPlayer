@@ -58,8 +58,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var playTask: Task<(), Error>?
   private var playerItem: AVPlayerItem?
   private var loadChapterTask: Task<(), Never>?
-  private let encoder = JSONEncoder()
-  private let decoder = JSONDecoder()
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
   @Published private(set) var currentPlaybackTime: TimeInterval = 0
@@ -339,21 +337,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   }
 
   func storeWidgetItem(_ item: PlayableItem) {
-    var widgetItems: [PlayableItem] = [item]
-
-    if let itemsData = UserDefaults.sharedDefaults.data(forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems),
-      let items = try? decoder.decode([PlayableItem].self, from: itemsData)
-    {
-      widgetItems.append(contentsOf: items.filter({ $0.relativePath != item.relativePath }))
-      widgetItems = Array(widgetItems.prefix(10))
-    }
-
-    guard let data = try? encoder.encode(widgetItems) else {
-      return
-    }
-
-    UserDefaults.sharedDefaults.set(data, forKey: Constants.UserDefaults.sharedWidgetLastPlayedItems)
-    widgetReloadService.reloadWidget(.lastPlayedWidget)
+    SharedWidgetStore.store(item)
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
@@ -761,14 +745,24 @@ extension PlayerManager {
   }
 
   func skipToPreviousChapter() {
-    if let currentChapter = currentItem?.currentChapter,
-      let previousChapter = currentItem?.previousChapter(before: currentChapter)
-    {
+    defer { NotificationCenter.default.post(name: .listeningProgressChanged, object: nil) }
+
+    guard let currentItem,
+      let currentChapter = currentItem.currentChapter
+    else {
+      playPreviousItem()
+      return
+    }
+
+    if !currentItem.isNearChapterStart {
+      /// First press while into the chapter goes back to its start
+      jumpToChapter(currentChapter)
+    } else if let previousChapter = currentItem.previousChapter(before: currentChapter) {
+      /// Already near the chapter start, so step back to the previous chapter
       jumpToChapter(previousChapter)
     } else {
       playPreviousItem()
     }
-    NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
   }
 
   func skip(_ interval: TimeInterval) {

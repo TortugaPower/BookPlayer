@@ -99,6 +99,7 @@
 "player_sleep_title" = "再生を一時停止";
 "sleep_chapter_option_title" = "このチャプタの終わり";
 "player_chapter_description" = "チャプタ %d/%d";
+"player_book_remaining_title" = "残り%@";
 "chapters_title" = "チャプタ";
 "chapters_item_description" = "開始: %@ - 長さ: %@";
 "restore_title" = "復元";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "残り時間を使用";
 "settings_chaptercontext_title" = "チャプタ情報の使用";
 "settings_progresslabels_description" = "プレーヤー画面で、チャプタまたはブックの残り時間、合計再生時間、進行状況を表示するかどうかを切り替えます。";
+"settings_bookremaining_title" = "残り合計時間を表示";
 "settings_playerinterface_list_description" = "プレーヤー画面のリストボタンから開く項目を選択します。";
 "settings_autoplay_section_title" = "自動再生";
 "settings_autoplay_restart_title" = "再生済みのブックを最初から再生";
@@ -242,6 +244,7 @@
 "sort_button_title" = "並べ替え";
 "search_title" = "検索";
 "books_title" = "ブック";
+"book_title" = "ブック";
 "folders_title" = "フォルダ";
 "section_item_title" = "タイトル";
 "section_item_author" = "作成者";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "前回再生していたブックを続きから再生";
 "intent_lastbook_empty_error" = "前回再生していたブックがありません";
 "intent_playback_pause_title" = "再生を一時停止";
+"intent_play_book_title" = "ブックを再生";
+"intent_play_book_request_title" = "どのブック？";
 "storage_artwork_cache_title" = "アートワークのキャッシュサイズ";
 "settings_share_debug_information" = "デバッグ情報を共有";
 "settings_autlock_section_title" = "自動ロック";
@@ -341,6 +346,9 @@
 "integration_connection_details_title" = "接続の詳細";
 "integration_connect_button" = "接続";
 "integration_sign_in_button" = "サインイン";
+"integration_retry_button" = "再試行";
+"integration_add_server_button" = "サーバーを追加";
+"media_servers_title" = "メディアサーバー";
 "integration_section_server_url" = "サーバURL";
 "integration_section_server_url_footer" = "%@サーバに接続する";
 "integration_section_server" = "サーバ";
@@ -362,6 +370,7 @@
 "integration_error_unexpected_response" = "サーバからの予期しない応答";
 "integration_error_unexpected_response_with_code" = "サーバからの予期しない応答（コード: %d - %@）";
 "integration_error_unauthorized" = "サインインできませんでした。ユーザ名とパスワードを確認してください。";
+"integration_error_session_expired" = "%@ のセッションの有効期限が切れました。続行するには再度サインインしてください。";
 "integration_selection_count" = "%d / %d アイテム";
 "file_size_unknown" = "不明なサイズ";
 "runtime_unknown" = "不明な再生時間";

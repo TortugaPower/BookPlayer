@@ -24,6 +24,17 @@ struct BPAppShortcuts: AppShortcutsProvider {
         systemImageName: "play.fill"
       ),
       AppShortcut(
+        intent: PlayBookIntent(),
+        phrases: [
+          "Play \(\.$book) in \(.applicationName)",
+          "Play the book \(\.$book) in \(.applicationName)",
+          "Listen to \(\.$book) in \(.applicationName)",
+          "Start \(\.$book) in \(.applicationName)"
+        ],
+        shortTitle: "intent_play_book_title",
+        systemImageName: "play.circle.fill"
+      ),
+      AppShortcut(
         intent: PausePlaybackIntent(),
         phrases: [
           "Pause the current book in \(.applicationName)",

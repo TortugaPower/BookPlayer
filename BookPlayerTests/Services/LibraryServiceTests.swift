@@ -1499,6 +1499,96 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedResults?.first?.relativePath == book4.relativePath)
     XCTAssert(fetchedResults?.last?.relativePath == book3.relativePath)
   }
+
+  func testFilterContentsSearchesFolderSubtreeRecursively() throws {
+    let parent = try StubFactory.folder(dataManager: self.sut.dataManager, title: "Parent")
+    try self.sut.moveItems([LibraryItemRef(relativePath: parent.relativePath, uuid: parent.uuid)], inside: nil)
+
+    let child = try StubFactory.folder(dataManager: self.sut.dataManager, title: "Child")
+    try self.sut.moveItems([LibraryItemRef(relativePath: child.relativePath, uuid: child.uuid)], inside: parent.relativePath)
+
+    let nestedBook = StubFactory.book(dataManager: self.sut.dataManager, title: "nestedBook", duration: 100)
+    try self.sut.moveItems([LibraryItemRef(relativePath: nestedBook.relativePath, uuid: nestedBook.uuid)], inside: child.relativePath)
+    self.sut.dataManager.saveContext()
+
+    // A book two levels deep is found when searching the parent folder (recursive subtree).
+    let nestedResults = self.sut.filterContents(at: parent.relativePath, query: "nestedBook", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(nestedResults?.count == 1)
+    XCTAssert(nestedResults?.first?.relativePath == nestedBook.relativePath)
+  }
+
+  func testFilterContentsExcludesSiblingFolderWithSharedPrefix() throws {
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "Folder")
+    let folderTwo = try StubFactory.folder(dataManager: self.sut.dataManager, title: "FolderTwo")
+    try self.sut.moveItems([
+      LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid),
+      LibraryItemRef(relativePath: folderTwo.relativePath, uuid: folderTwo.uuid),
+    ], inside: nil)
+
+    let bookA = StubFactory.book(dataManager: self.sut.dataManager, title: "bookA", duration: 100)
+    try self.sut.moveItems([LibraryItemRef(relativePath: bookA.relativePath, uuid: bookA.uuid)], inside: folder.relativePath)
+    let bookB = StubFactory.book(dataManager: self.sut.dataManager, title: "bookB", duration: 100)
+    try self.sut.moveItems([LibraryItemRef(relativePath: bookB.relativePath, uuid: bookB.uuid)], inside: folderTwo.relativePath)
+    self.sut.dataManager.saveContext()
+
+    // Scoping to "Folder" must not leak items from the prefix-sharing sibling "FolderTwo".
+    let results = self.sut.filterContents(at: folder.relativePath, query: nil, scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.relativePath == bookA.relativePath)
+  }
+
+  func testFilterContentsGlobalSearchAcrossFolders() throws {
+    let rootBook = StubFactory.book(dataManager: self.sut.dataManager, title: "alphaRoot", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
+    try self.sut.moveItems([
+      LibraryItemRef(relativePath: rootBook.relativePath, uuid: rootBook.uuid),
+      LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid),
+    ], inside: nil)
+    let nestedBook = StubFactory.book(dataManager: self.sut.dataManager, title: "alphaNested", duration: 100)
+    try self.sut.moveItems([LibraryItemRef(relativePath: nestedBook.relativePath, uuid: nestedBook.uuid)], inside: folder.relativePath)
+    self.sut.dataManager.saveContext()
+
+    // A nil path searches the whole library, matching books at the root and inside folders.
+    let results = self.sut.filterContents(at: nil, query: "alpha", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 2)
+  }
+
+  func testFilterContentsNilScopeReturnsBooksAndFolders() throws {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "matchBook", duration: 100)
+    let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "matchFolder")
+    try self.sut.moveItems([
+      LibraryItemRef(relativePath: book.relativePath, uuid: book.uuid),
+      LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid),
+    ], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    // A nil scope matches all item types.
+    let all = self.sut.filterContents(at: nil, query: "match", scope: nil, limit: nil, offset: nil)
+    XCTAssert(all?.count == 2)
+
+    let onlyBooks = self.sut.filterContents(at: nil, query: "match", scope: .book, limit: nil, offset: nil)
+    XCTAssert(onlyBooks?.count == 1)
+    XCTAssert(onlyBooks?.first?.relativePath == book.relativePath)
+
+    let onlyFolders = self.sut.filterContents(at: nil, query: "match", scope: .folder, limit: nil, offset: nil)
+    XCTAssert(onlyFolders?.count == 1)
+    XCTAssert(onlyFolders?.first?.relativePath == folder.relativePath)
+  }
+
+  func testFilterContentsMatchesOriginalFileName() throws {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "Pride and Prejudice", duration: 100)
+    try self.sut.moveItems([LibraryItemRef(relativePath: book.relativePath, uuid: book.uuid)], inside: nil)
+    self.sut.dataManager.saveContext()
+
+    // The title/details don't contain ".txt"; the match comes from originalFileName.
+    let results = self.sut.filterContents(at: nil, query: ".txt", scope: .book, limit: nil, offset: nil)
+
+    XCTAssert(results?.count == 1)
+    XCTAssert(results?.first?.relativePath == book.relativePath)
+  }
   // swiftlint:enable force_cast
 }
 

@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pozastavit přehrávání";
 "sleep_chapter_option_title" = "Konec aktuální kapitoly";
 "player_chapter_description" = "Kapitola %d z %d";
+"player_book_remaining_title" = "Zbývá %@";
 "chapters_title" = "Kapitoly";
 "chapters_item_description" = "Začátek: %@ - Doba trvání: %@";
 "restore_title" = "Obnovit";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Použijte zbývající čas";
 "settings_chaptercontext_title" = "Použijte kontext kapitoly";
 "settings_progresslabels_description" = "Přepínání mezi zobrazením zbývajícího času, celkové doby trvání a průběhu kapitoly nebo knihy na obrazovce přehrávače";
+"settings_bookremaining_title" = "Zobrazit celkový zbývající čas";
 "settings_playerinterface_list_description" = "Upravte, co otevře tlačítko seznamu na obrazovce přehrávače";
 "settings_autoplay_section_title" = "AUTOMATICKÉ PŘEHRÁVÁNÍ";
 "settings_autoplay_restart_title" = "Restartujte hotové knihy";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Seřadit";
 "search_title" = "Vyhledávání";
 "books_title" = "knihy";
+"book_title" = "Kniha";
 "folders_title" = "Složky";
 "section_item_title" = "Titul";
 "section_item_author" = "Autor";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Obnovit naposledy přehrávanou knihu";
 "intent_lastbook_empty_error" = "Neexistuje žádná naposledy hraná kniha";
 "intent_playback_pause_title" = "Pozastavit přehrávání";
+"intent_play_book_title" = "Přehrát knihu";
+"intent_play_book_request_title" = "Kterou knihu?";
 "storage_artwork_cache_title" = "Velikost mezipaměti uměleckých děl";
 "settings_share_debug_information" = "Sdílejte informace o ladění";
 "settings_autlock_section_title" = "Automatický zámek";
@@ -340,6 +345,9 @@
 "integration_connection_details_title" = "Podrobnosti o připojení";
 "integration_connect_button" = "Připojit";
 "integration_sign_in_button" = "Přihlaste se";
+"integration_retry_button" = "Zkusit znovu";
+"integration_add_server_button" = "Přidat server";
+"media_servers_title" = "Mediální servery";
 "integration_section_server_url" = "Adresa URL serveru";
 "integration_section_server_url_footer" = "Připojte se k serveru %@";
 "integration_section_server" = "Server";
@@ -361,6 +369,7 @@
 "integration_error_unexpected_response" = "Neočekávaná odpověď serveru";
 "integration_error_unexpected_response_with_code" = "Neočekávaná odpověď serveru (kód: %d – %@ )";
 "integration_error_unauthorized" = "Přihlášení se nezdařilo. Zkontrolujte své uživatelské jméno a heslo.";
+"integration_error_session_expired" = "Vaše relace pro %@ vypršela. Pro pokračování se znovu přihlaste.";
 "integration_selection_count" = "%d z %d Poživek";
 "file_size_unknown" = "Neznámá velikost";
 "runtime_unknown" = "Neznámá doba trvání";

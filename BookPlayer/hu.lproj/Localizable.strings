@@ -99,6 +99,7 @@
 "player_sleep_title" = "Lejátszás megállítása";
 "sleep_chapter_option_title" = "Az aktuális fejezet végén";
 "player_chapter_description" = "%d/%d fejezet";
+"player_book_remaining_title" = "%@ van hátra";
 "chapters_title" = "Fejezetek";
 "chapters_item_description" = "Kezdés: %@ - Hossz: %@";
 "restore_title" = "Visszaállítás";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Hátralévő idő használata";
 "settings_chaptercontext_title" = "Fejezet kontextus használata";
 "settings_progresslabels_description" = "Váltás a hátralévő idő, a teljes időtartam és a fejezet vagy a teljes könyv előrehaladásának megjelenítése között a lejátszó képernyőn";
+"settings_bookremaining_title" = "Teljes hátralévő idő megjelenítése";
 "settings_playerinterface_list_description" = "A lejátszó képernyőn mi nyíljon meg a lista gomb megnyomására";
 "settings_autoplay_section_title" = "AUTOMATIKUS LEJÁTSZÁS";
 "settings_autoplay_restart_title" = "Már befejezettek újrahallgatása";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Rendezés";
 "search_title" = "Keresés";
 "books_title" = "Könyvek";
+"book_title" = "Könyv";
 "folders_title" = "Mappák";
 "section_item_title" = "Cím";
 "section_item_author" = "Szerző";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Utoljára lejátszott könyv folytatása";
 "intent_lastbook_empty_error" = "Nincs utoljára játszott könyv";
 "intent_playback_pause_title" = "Lejátszás szüneteltetése";
+"intent_play_book_title" = "Könyv lejátszása";
+"intent_play_book_request_title" = "Melyik könyv?";
 "storage_artwork_cache_title" = "Artwork gyorsítótár mérete";
 "settings_share_debug_information" = "Hibakeresési információk megosztása";
 "settings_autlock_section_title" = "Automatikus zárolás";
@@ -341,6 +346,9 @@
 "integration_connection_details_title" = "Csatlakozás részletei";
 "integration_connect_button" = "Csatlakozás";
 "integration_sign_in_button" = "Bejelentkezés";
+"integration_retry_button" = "Újrapróbálkozás";
+"integration_add_server_button" = "Kiszolgáló hozzáadása";
+"media_servers_title" = "Médiakiszolgálók";
 "integration_section_server_url" = "Szerver URL";
 "integration_section_server_url_footer" = "Csatlakozás %@ szerverhez";
 "integration_section_server" = "Szerver";
@@ -362,6 +370,7 @@
 "integration_error_unexpected_response" = "Váratlan szerver válasz";
 "integration_error_unexpected_response_with_code" = "Váratlan szerverválasz (Kód: %d - %@ )";
 "integration_error_unauthorized" = "Sikertelen bejelentkezés. Ellenőrizze felhasználónevét és jelszavát.";
+"integration_error_session_expired" = "A(z) %@ munkamenete lejárt. A folytatáshoz jelentkezz be újra.";
 "file_size_unknown" = "Ismeretlen méret";
 "runtime_unknown" = "Ismeretlen időtartam";
 "Swipe rows to see download options" = "Csúsztassa el a sorokat a letöltési lehetőségek megtekintéséhez";

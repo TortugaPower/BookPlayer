@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pause avspilling";
 "sleep_chapter_option_title" = "Slutt på gjeldende kapittel";
 "player_chapter_description" = "Kapittel %d av %d";
+"player_book_remaining_title" = "%@ igjen";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighet: %@";
 "restore_title" = "Gjenopprett";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Bruk gjenværende tid";
 "settings_chaptercontext_title" = "Bruk kappittelkontekst";
 "settings_progresslabels_description" = "Veksle mellom å vise gjenværende tid, total varighet og fremdrift for enten kapittelet eller hele boken på spillerskjermen";
+"settings_bookremaining_title" = "Vis total gjenværende tid";
 "settings_playerinterface_list_description" = "Juster hva \"liste\" knappen på spillerskjermen åpner";
 "settings_autoplay_section_title" = "AUTOPLAY";
 "settings_autoplay_restart_title" = "Les fullførte bøker på nytt";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Sorter";
 "search_title" = "Søk";
 "books_title" = "Bøker";
+"book_title" = "Bok";
 "folders_title" = "Mapper";
 "section_item_title" = "Tittle";
 "section_item_author" = "Forfatter";
@@ -313,6 +316,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "intent_lastbook_play_title" = "Fortsett sist spilte bok";
 "intent_lastbook_empty_error" = "Det er ingen sist spilte bok";
 "intent_playback_pause_title" = "Sett avspilling på pause";
+"intent_play_book_title" = "Spill av en bok";
+"intent_play_book_request_title" = "Hvilken bok?";
 "storage_artwork_cache_title" = "Artwork cache-størrelse";
 "settings_share_debug_information" = "Del feilsøkingsinformasjon";
 "settings_autlock_section_title" = "Automatisk lås";
@@ -340,6 +345,9 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_connection_details_title" = "Tilkoblingsdetaljer";
 "integration_connect_button" = "Koble til";
 "integration_sign_in_button" = "Logg på";
+"integration_retry_button" = "Prøv igjen";
+"integration_add_server_button" = "Legg til server";
+"media_servers_title" = "Medieservere";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Koble til %@-serveren din";
 "integration_section_server" = "Server";
@@ -361,6 +369,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_error_unexpected_response" = "Uventet serverrespons";
 "integration_error_unexpected_response_with_code" = "Uventet serverrespons (kode: %d - %@ )";
 "integration_error_unauthorized" = "Pålogging mislyktes. Sjekk brukernavnet og passordet ditt.";
+"integration_error_session_expired" = "Økten din for %@ er utløpt. Logg inn på nytt for å fortsette.";
 "integration_selection_count" = "%d av %d Elementer";
 "file_size_unknown" = "Ukjent størrelse";
 "runtime_unknown" = "Ukjent varighet";

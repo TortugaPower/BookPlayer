@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pozastavenie prehrávania";
 "sleep_chapter_option_title" = "Na konci aktuálnej kapitoly";
 "player_chapter_description" = "Kapitola %d z %d";
+"player_book_remaining_title" = "Zostáva %@";
 "chapters_title" = "Kapitoly";
 "chapters_item_description" = "Začiatok: %@ - Trvanie: %@";
 "restore_title" = "Obnoviť";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Zostávajúci čas";
 "settings_chaptercontext_title" = "Kontext kapitoly";
 "settings_progresslabels_description" = "Prepínanie medzi zobrazením zostávajúceho času, celkového trvania a priebehu spracovania kapitoly alebo knihy na obrazovke prehrávača";
+"settings_bookremaining_title" = "Zobraziť celkový zostávajúci čas";
 "settings_playerinterface_list_description" = "Úprava správania sa tlačidla zoznamu na obrazovke prehrávača";
 "settings_autoplay_section_title" = "AUTOMATICKÉ PREHRÁVANIE";
 "settings_autoplay_restart_title" = "Reštartuje hotové knihy";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Zoradiť podľa";
 "search_title" = "Vyhľadávanie";
 "books_title" = "Knihy";
+"book_title" = "Kniha";
 "folders_title" = "Priečinky";
 "section_item_title" = "Názov";
 "section_item_author" = "Autor";
@@ -313,6 +316,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "intent_lastbook_play_title" = "Obnovenie poslednej prehrávanej knihy";
 "intent_lastbook_empty_error" = "Žiadna naposledy prehrávaná kniha";
 "intent_playback_pause_title" = "Pozastavenie prehrávania";
+"intent_play_book_title" = "Prehrať knihu";
+"intent_play_book_request_title" = "Ktorú knihu?";
 "storage_artwork_cache_title" = "Veľkosť vyrovnávacej pamäte obalov kníh";
 "settings_share_debug_information" = "Zdieľať informácie o ladení";
 "settings_autlock_section_title" = "Automatické uzamknutie";
@@ -341,6 +346,9 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_connection_details_title" = "Podrobnosti pripojenia";
 "integration_connect_button" = "Pripojiť sa";
 "integration_sign_in_button" = "Prihlásiť sa";
+"integration_retry_button" = "Skúsiť znova";
+"integration_add_server_button" = "Pridať server";
+"media_servers_title" = "Mediálne servery";
 "integration_section_server_url" = "URL servera";
 "integration_section_server_url_footer" = "Pripojenie sa k serveru %@";
 "integration_section_server" = "Server";
@@ -362,6 +370,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "integration_error_unexpected_response" = "Neočakávaná odpoveď servera";
 "integration_error_unexpected_response_with_code" = "Neočakávaná odpoveď servera (kód: %d – %@)";
 "integration_error_unauthorized" = "Prihlásenie zlyhalo. Skontrolujte svoje používateľské meno a heslo.";
+"integration_error_session_expired" = "Vaša relácia pre %@ vypršala. Pre pokračovanie sa znova prihláste.";
 "integration_selection_count" = "%d z %d Položiek";
 "file_size_unknown" = "Neznáma veľkosť";
 "runtime_unknown" = "Neznáme trvanie";

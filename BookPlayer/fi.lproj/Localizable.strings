@@ -99,6 +99,7 @@
 "player_sleep_title" = "Keskeytä toisto";
 "sleep_chapter_option_title" = "Nykyisen luvun loppu";
 "player_chapter_description" = "Luku %d (Lukuja %d)";
+"player_book_remaining_title" = "%@ jäljellä";
 "chapters_title" = "Kappaleet";
 "chapters_item_description" = "Aloitus: %@ - Kesto: %@";
 "restore_title" = "Palauta";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Käytä jäljellä oleva aika";
 "settings_chaptercontext_title" = "Käytä luvun kontekstia";
 "settings_progresslabels_description" = "Vaihda jäljellä olevan ajan, kokonaiskeston ja joko luvun tai kirjan edistymisen näyttämisen välillä soittimen näytössä";
+"settings_bookremaining_title" = "Näytä jäljellä oleva kokonaisaika";
 "settings_playerinterface_list_description" = "Säädä, mitä luettelopainike avautuu soittimen näytössä";
 "settings_autoplay_section_title" = "AUTOMAATTINEN TOISTO";
 "settings_autoplay_restart_title" = "Käynnistä valmiit kirjat uudelleen";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Järjestellä";
 "search_title" = "Hae";
 "books_title" = "Kirjat";
+"book_title" = "Kirja";
 "folders_title" = "Kansiot";
 "section_item_title" = "Otsikko";
 "section_item_author" = "Tekijä";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Jatka viimeksi toistettua kirjaa";
 "intent_lastbook_empty_error" = "Ei ole viimeksi pelattua kirjaa";
 "intent_playback_pause_title" = "Keskeytä toisto";
+"intent_play_book_title" = "Toista kirja";
+"intent_play_book_request_title" = "Mikä kirja?";
 "storage_artwork_cache_title" = "Taideteoksen välimuistin koko";
 "settings_share_debug_information" = "Jaa virheenkorjaustiedot";
 "settings_autlock_section_title" = "Automaattinen lukitus";
@@ -340,6 +345,9 @@
 "integration_connection_details_title" = "Yhteyden tiedot";
 "integration_connect_button" = "Yhdistä";
 "integration_sign_in_button" = "Kirjaudu sisään";
+"integration_retry_button" = "Yritä uudelleen";
+"integration_add_server_button" = "Lisää palvelin";
+"media_servers_title" = "Mediapalvelimet";
 "integration_section_server_url" = "Palvelimen URL-osoite";
 "integration_section_server_url_footer" = "Yhdistä %@-palvelimeesi";
 "integration_section_server" = "Palvelin";
@@ -361,6 +369,7 @@
 "integration_error_unexpected_response" = "Odottamaton palvelimen vastaus";
 "integration_error_unexpected_response_with_code" = "Odottamaton palvelimen vastaus (Koodi: %d - %@ )";
 "integration_error_unauthorized" = "Kirjautuminen epäonnistui. Tarkista käyttäjätunnuksesi ja salasanasi.";
+"integration_error_session_expired" = "Istuntosi palvelimelle %@ on vanhentunut. Kirjaudu uudelleen jatkaaksesi.";
 "integration_selection_count" = "%d / %d Kohdetta";
 "file_size_unknown" = "Tuntematon koko";
 "runtime_unknown" = "Tuntematon kesto";

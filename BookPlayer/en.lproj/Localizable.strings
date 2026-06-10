@@ -99,6 +99,7 @@
 "player_sleep_title" = "Pause playback";
 "sleep_chapter_option_title" = "End of current chapter";
 "player_chapter_description" = "Chapter %d of %d";
+"player_book_remaining_title" = "%@ left";
 "chapters_title" = "Chapters";
 "chapters_item_description" = "Start: %@ - Duration: %@";
 "restore_title" = "Restore";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Use Remaining Time";
 "settings_chaptercontext_title" = "Use Chapter Context";
 "settings_progresslabels_description" = "Toggle between displaying the remaining time, total duration and progress of either the chapter or the book in the player screen";
+"settings_bookremaining_title" = "Show Total Remaining Time";
 "settings_playerinterface_list_description" = "Adjust what the list button in the player screen opens";
 "settings_autoplay_section_title" = "AUTOPLAY";
 "settings_autoplay_restart_title" = "Restart finished books";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Sort";
 "search_title" = "Search";
 "books_title" = "Books";
+"book_title" = "Book";
 "folders_title" = "Folders";
 "section_item_title" = "Title";
 "section_item_author" = "Author";
@@ -316,6 +319,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "intent_lastbook_play_title" = "Resume last played book";
 "intent_lastbook_empty_error" = "There's no last played book";
 "intent_playback_pause_title" = "Pause playback";
+"intent_play_book_title" = "Play a book";
+"intent_play_book_request_title" = "Which book?";
 "storage_artwork_cache_title" = "Artwork cache size";
 "settings_share_debug_information" = "Share debug information";
 "settings_autlock_section_title" = "Autolock";
@@ -343,6 +348,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_connection_details_title" = "Connection Details";
 "integration_connect_button" = "Connect";
 "integration_sign_in_button" = "Sign In";
+"integration_retry_button" = "Retry";
 "integration_section_server_url" = "Server URL";
 "integration_section_server_url_footer" = "Connect to your %@ server";
 "integration_section_server" = "Server";
@@ -352,6 +358,8 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_username_placeholder" = "Username";
 "integration_password_placeholder" = "Password";
 "integration_password_remember_me_label" = "Remember Me";
+"integration_add_server_button" = "Add Server";
+"media_servers_title" = "Media Servers";
 "integration_custom_headers_title" = "Custom HTTP Headers";
 "integration_custom_headers_footer" = "Headers added here are attached to every request sent to this server.";
 "integration_custom_headers_key_placeholder" = "Header name";
@@ -364,6 +372,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_error_unexpected_response" = "Unexpected server response";
 "integration_error_unexpected_response_with_code" = "Unexpected server response (Code: %d - %@)";
 "integration_error_unauthorized" = "Sign In failed. Check your username and password.";
+"integration_error_session_expired" = "Your session for %@ expired. Sign in again to continue.";
 "integration_selection_count" = "%d of %d Items";
 "file_size_unknown" = "Unknown size";
 "runtime_unknown" = "Unknown duration";

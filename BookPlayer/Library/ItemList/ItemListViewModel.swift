@@ -38,27 +38,19 @@ final class ItemListViewModel: ObservableObject {
     }
   }
 
-  var filteredResults: [SimpleLibraryItem] {
-    var filteredItems = items
+  /// Query and scope are now applied at the database layer (see `scheduleSearch`), so the rendered
+  /// results are simply the loaded items.
+  var filteredResults: [SimpleLibraryItem] { items }
 
-    switch scope {
-    case .books: filteredItems.removeAll { $0.type == .folder }
-    case .folders: filteredItems.removeAll { $0.type != .folder }
-    case .all: break
-    }
-
-    if !query.isEmpty {
-      filteredItems = filteredItems.filter {
-        $0.title.localizedCaseInsensitiveContains(query)
-          || $0.details.localizedCaseInsensitiveContains(query)
-          || $0.originalFileName.localizedCaseInsensitiveContains(query)
-      }
-    }
-    return filteredItems
+  /// True when the list should show database-filtered results instead of the paginated browse.
+  var isFiltering: Bool {
+    !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || scope != .all
   }
 
   var isListEmpty: Bool {
-    items.isEmpty && !canLoadMore
+    /// While searching, an empty result set must keep showing the list (with its search bar), not
+    /// the "add files" empty state.
+    items.isEmpty && !canLoadMore && !isFiltering
   }
 
   var navigationTitle: String {
@@ -84,8 +76,18 @@ final class ItemListViewModel: ObservableObject {
   var pendingMoveItemIdentifiers: [LibraryItemRef]?
 
   /// Search
-  @Published var scope: ItemListSearchScope = .all
-  @Published var query = ""
+  @Published var scope: ItemListSearchScope = .all {
+    didSet {
+      guard oldValue != scope else { return }
+      scheduleSearch()
+    }
+  }
+  @Published var query = "" {
+    didSet {
+      guard oldValue != query else { return }
+      scheduleSearch()
+    }
+  }
   @Published var isSearchFocused: Bool = false {
     didSet {
       listState.isSearching = isSearchFocused
@@ -94,6 +96,8 @@ final class ItemListViewModel: ObservableObject {
       }
     }
   }
+  /// Debounced, cancellable task backing the database search.
+  private var searchTask: Task<Void, Never>?
 
   init(
     libraryNode: LibraryNode,
@@ -160,6 +164,64 @@ final class ItemListViewModel: ObservableObject {
 
     canLoadMore = fetchedItems.count == pageSize
     isLoading = false
+  }
+
+  // MARK: - Search
+
+  /// Reacts to query/scope changes: debounces then runs a scoped database search, or restores the
+  /// paginated browse immediately when the search is cleared.
+  ///
+  /// Because the view model is `@MainActor`, `runSearch` (after its `Task.sleep`) and
+  /// `restoreBrowse` can never interleave; cancelling the in-flight task and re-checking
+  /// `Task.isCancelled` after the only suspension point keeps a stale search from overwriting a
+  /// restored browse.
+  private func scheduleSearch() {
+    searchTask?.cancel()
+
+    guard isFiltering else {
+      restoreBrowse()
+      return
+    }
+
+    let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+    let scope = self.scope.itemTypeScope
+
+    searchTask = Task { [weak self] in
+      try? await Task.sleep(nanoseconds: 300_000_000)
+      guard !Task.isCancelled, let self else { return }
+      self.runSearch(query: trimmedQuery.isEmpty ? nil : trimmedQuery, scope: scope)
+    }
+  }
+
+  private func runSearch(query: String?, scope: SimpleItemType?) {
+    let results =
+      libraryService.filterContents(
+        at: libraryNode.folderRelativePath,
+        query: query,
+        scope: scope,
+        limit: nil,
+        offset: nil
+      ) ?? []
+
+    items = results
+    offset = items.count
+    /// Search returns the full result set in a single fetch, so there is nothing left to page in.
+    canLoadMore = false
+  }
+
+  /// Restores the first page of the normal paginated browse after a search is cleared.
+  private func restoreBrowse() {
+    let pageSize = 13
+    let fetchedItems =
+      libraryService.fetchContents(
+        at: libraryNode.folderRelativePath,
+        limit: pageSize,
+        offset: 0
+      ) ?? []
+
+    items = fetchedItems
+    offset = items.count
+    canLoadMore = fetchedItems.count == pageSize
   }
 
   func prefetchIfNeeded(for item: SimpleLibraryItem) async {
@@ -253,6 +315,9 @@ final class ItemListViewModel: ObservableObject {
     source: IndexSet,
     destination: Int
   ) {
+    /// Reordering a filtered subset would corrupt orderRank, so ignore moves while searching.
+    guard !isFiltering else { return }
+
     libraryService.reorderItems(
       inside: libraryNode.folderRelativePath,
       fromOffsets: source,

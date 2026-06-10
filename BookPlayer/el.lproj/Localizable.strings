@@ -99,6 +99,7 @@
 "player_sleep_title" = "Παύση αναπαραγωγής";
 "sleep_chapter_option_title" = "Τέλος τρέχοντος κεφαλαίου";
 "player_chapter_description" = "Κεφάλαιο %d από %d";
+"player_book_remaining_title" = "Απομένουν %@";
 "chapters_title" = "Κεφάλαια";
 "chapters_item_description" = "Έναρξη: %@ - Διάρκεια: %@";
 "restore_title" = "Επαναφέρω";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Χρησιμοποιήστε τον υπολειπόμενο χρόνο";
 "settings_chaptercontext_title" = "Χρησιμοποιήστε το πλαίσιο του κεφαλαίου";
 "settings_progresslabels_description" = "Εναλλαγή μεταξύ της εμφάνισης του υπολειπόμενου χρόνου, της συνολικής διάρκειας και της προόδου είτε του κεφαλαίου είτε του βιβλίου στην οθόνη του προγράμματος αναπαραγωγής";
+"settings_bookremaining_title" = "Εμφάνιση συνολικού χρόνου που απομένει";
 "settings_playerinterface_list_description" = "Προσαρμόστε τι ανοίγει το κουμπί λίστας στην οθόνη του προγράμματος αναπαραγωγής";
 "settings_autoplay_section_title" = "ΑΥΤΟΜΑΤΗ ΑΝΑΠΑΡΑΓΩΓΗ";
 "settings_autoplay_restart_title" = "Επανεκκινήστε τα ολοκληρωμένα βιβλία";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Ταξινόμηση";
 "search_title" = "Αναζήτηση";
 "books_title" = "Βιβλία";
+"book_title" = "Βιβλίο";
 "folders_title" = "Φάκελοι";
 "section_item_title" = "Τίτλος";
 "section_item_author" = "Συγγραφέας";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Συνέχιση βιβλίου που παίχτηκε τελευταία";
 "intent_lastbook_empty_error" = "Δεν υπάρχει βιβλίο που παίχτηκε τελευταία";
 "intent_playback_pause_title" = "Παύση αναπαραγωγής";
+"intent_play_book_title" = "Αναπαραγωγή βιβλίου";
+"intent_play_book_request_title" = "Ποιο βιβλίο;";
 "storage_artwork_cache_title" = "Μέγεθος κρυφής μνήμης";
 "settings_share_debug_information" = "Κοινή χρήση πληροφοριών εντοπισμού σφαλμάτων";
 "settings_autlock_section_title" = "Αυτόματο κλείδωμα";
@@ -341,6 +346,9 @@
 "integration_connection_details_title" = "Στοιχεία σύνδεσης";
 "integration_connect_button" = "Συνδέω";
 "integration_sign_in_button" = "Είσοδος";
+"integration_retry_button" = "Επανάληψη";
+"integration_add_server_button" = "Προσθήκη διακομιστή";
+"media_servers_title" = "Διακομιστές πολυμέσων";
 "integration_section_server_url" = "URL διακομιστή";
 "integration_section_server_url_footer" = "Συνδεθείτε στον διακομιστή %@";
 "integration_section_server" = "Υπηρέτης";
@@ -362,6 +370,7 @@
 "integration_error_unexpected_response" = "Απροσδόκητη απόκριση διακομιστή";
 "integration_error_unexpected_response_with_code" = "Μη αναμενόμενη απόκριση διακομιστή (Κωδικός: %d - %@ )";
 "integration_error_unauthorized" = "Η σύνδεση απέτυχε. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασής σας.";
+"integration_error_session_expired" = "Η συνεδρία σας για το %@ έληξε. Συνδεθείτε ξανά για να συνεχίσετε.";
 "integration_selection_count" = "%d από %d Στοιχεία";
 "file_size_unknown" = "Άγνωστο μέγεθος";
 "runtime_unknown" = "Άγνωστη διάρκεια";

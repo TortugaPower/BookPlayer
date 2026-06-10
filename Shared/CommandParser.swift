@@ -281,6 +281,34 @@ public class TimeParser {
     return durationFormatter.string(from: duration)!
   }
 
+  /// Formats a remaining time interval into an abbreviated, tiered string.
+  /// - `>= 1 hour`  -> "Xh Ym"
+  /// - `>= 1 minute` -> "Xm Ys"
+  /// - `< 1 minute`  -> "Xs"
+  public class func formatRemaining(_ time: TimeInterval) -> String {
+    // Guard against non-finite input (e.g. a malformed asset duration), which
+    // would otherwise make DateComponentsFormatter return nil and render an
+    // empty "%@ left" string.
+    let remaining = time.isFinite ? max(0, time) : 0
+    let allowedUnits: NSCalendar.Unit
+
+    if remaining >= 3600 {
+      allowedUnits = [.hour, .minute]
+    } else if remaining >= 60 {
+      allowedUnits = [.minute, .second]
+    } else {
+      allowedUnits = [.second]
+    }
+
+    let durationFormatter = DateComponentsFormatter()
+    durationFormatter.unitsStyle = .abbreviated
+    durationFormatter.allowsFractionalUnits = false
+    durationFormatter.collapsesLargestUnit = false
+    durationFormatter.allowedUnits = allowedUnits
+
+    return durationFormatter.string(from: remaining) ?? ""
+  }
+
   public class func formatTotalDuration(
     _ duration: TimeInterval,
     allowedUnits: NSCalendar.Unit = [.hour, .minute, .second]

@@ -99,6 +99,7 @@
 "player_sleep_title" = "Остановить воспроизведение";
 "sleep_chapter_option_title" = "До конца текущей главы";
 "player_chapter_description" = "Глава %d из %d";
+"player_book_remaining_title" = "Осталось %@";
 "chapters_title" = "Главы";
 "chapters_item_description" = "Начало: %@ - Длительность: %@";
 "restore_title" = "Восстановить покупки";
@@ -217,6 +218,7 @@
 "settings_remainingtime_title" = "Использовать оставшееся время";
 "settings_chaptercontext_title" = "Использовать контекст главы";
 "settings_progresslabels_description" = "Переключение между отображением оставшегося времени, общей продолжительности и хода выполнения главы или книги на экране проигрывателя.";
+"settings_bookremaining_title" = "Показывать общее оставшееся время";
 "settings_playerinterface_list_description" = "Отрегулируйте, что открывает кнопка списка на экране плеера";
 "settings_autoplay_section_title" = "АВТОВОСПРОИЗВЕДЕНИЕ";
 "settings_autoplay_restart_title" = "Перезапустить готовые книги";
@@ -242,6 +244,7 @@
 "sort_button_title" = "Сортировать";
 "search_title" = "Поиск";
 "books_title" = "Книги";
+"book_title" = "Книга";
 "folders_title" = "Папки";
 "section_item_title" = "Заголовок";
 "section_item_author" = "Автор";
@@ -313,6 +316,8 @@
 "intent_lastbook_play_title" = "Продолжить последнюю книгу";
 "intent_lastbook_empty_error" = "Нет последней прослушанной книги";
 "intent_playback_pause_title" = "Приостановить воспроизведение";
+"intent_play_book_title" = "Воспроизвести книгу";
+"intent_play_book_request_title" = "Какую книгу?";
 "storage_artwork_cache_title" = "Размер кэша обложек";
 "settings_share_debug_information" = "Поделиться отладочной информацией";
 "settings_autlock_section_title" = "Автоматическая блокировка";
@@ -340,6 +345,9 @@
 "integration_connection_details_title" = "Подробности подключения";
 "integration_connect_button" = "Подключиться";
 "integration_sign_in_button" = "Войти";
+"integration_retry_button" = "Повторить";
+"integration_add_server_button" = "Добавить сервер";
+"media_servers_title" = "Медиасерверы";
 "integration_section_server_url" = "URL-адрес сервера";
 "integration_section_server_url_footer" = "Подключитесь к вашему серверу %@";
 "integration_section_server" = "Сервер";
@@ -361,6 +369,7 @@
 "integration_error_unexpected_response" = "Неожиданный ответ сервера";
 "integration_error_unexpected_response_with_code" = "Неожиданный ответ сервера (Код: %d - %@)";
 "integration_error_unauthorized" = "Ошибка входа. Проверьте имя пользователя и пароль.";
+"integration_error_session_expired" = "Срок действия сеанса для %@ истёк. Войдите снова, чтобы продолжить.";
 "integration_selection_count" = "%d из %d Элементов";
 "file_size_unknown" = "Неизвестный размер";
 "runtime_unknown" = "Неизвестная продолжительность";

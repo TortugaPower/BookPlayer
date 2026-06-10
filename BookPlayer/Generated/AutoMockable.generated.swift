@@ -364,11 +364,11 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var filterContentsAtQueryScopeLimitOffsetCalled: Bool {
         return filterContentsAtQueryScopeLimitOffsetCallsCount > 0
     }
-    var filterContentsAtQueryScopeLimitOffsetReceivedArguments: (relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?)?
-    var filterContentsAtQueryScopeLimitOffsetReceivedInvocations: [(relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?)] = []
+    var filterContentsAtQueryScopeLimitOffsetReceivedArguments: (relativePath: String?, query: String?, scope: SimpleItemType?, limit: Int?, offset: Int?)?
+    var filterContentsAtQueryScopeLimitOffsetReceivedInvocations: [(relativePath: String?, query: String?, scope: SimpleItemType?, limit: Int?, offset: Int?)] = []
     var filterContentsAtQueryScopeLimitOffsetReturnValue: [SimpleLibraryItem]?
-    var filterContentsAtQueryScopeLimitOffsetClosure: ((String?, String?, SimpleItemType, Int?, Int?) -> [SimpleLibraryItem]?)?
-    func filterContents(at relativePath: String?, query: String?, scope: SimpleItemType, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
+    var filterContentsAtQueryScopeLimitOffsetClosure: ((String?, String?, SimpleItemType?, Int?, Int?) -> [SimpleLibraryItem]?)?
+    func filterContents(at relativePath: String?, query: String?, scope: SimpleItemType?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
         filterContentsAtQueryScopeLimitOffsetCallsCount += 1
         filterContentsAtQueryScopeLimitOffsetReceivedArguments = (relativePath: relativePath, query: query, scope: scope, limit: limit, offset: offset)
         filterContentsAtQueryScopeLimitOffsetReceivedInvocations.append((relativePath: relativePath, query: query, scope: scope, limit: limit, offset: offset))

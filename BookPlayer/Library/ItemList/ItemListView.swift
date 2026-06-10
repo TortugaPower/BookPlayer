@@ -149,6 +149,7 @@ struct ItemListView: View {
             ForEach(model.filteredResults, id: \.id) { item in
               rowView(item)
                 .accessibilityRotorEntry(id: item.id, in: customRotorNamespace)
+                .moveDisabled(model.isFiltering)
             }
             .onMove { source, destination in
               model.reorderItems(source: source, destination: destination)
@@ -162,6 +163,16 @@ struct ItemListView: View {
             let _ = { model.selectedSetItems = itemIDs }()
             if !model.selectedItems.isEmpty {
               contextMenuContent()
+            }
+          }
+          .overlay {
+            if model.isFiltering && model.filteredResults.isEmpty {
+              if model.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                /// Scope-only filter (e.g. "Folders") with no matches — no query text to echo.
+                ContentUnavailableView.search
+              } else {
+                ContentUnavailableView.search(text: model.query)
+              }
             }
           }
           .accessibilityElement(children: .contain)
@@ -379,25 +390,8 @@ struct ItemListView: View {
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
     }
-    Button(
-      String(
-        format:
-          "download_from_integration_title".localized,
-        "Jellyfin"
-      ),
-      image: .jellyfinIcon
-    ) {
-      listState.activeIntegrationSheet = .jellyfin
-    }
-    Button(
-      String(
-        format:
-          "download_from_integration_title".localized,
-        "AudiobookShelf"
-      ),
-      image: .audiobookshelfIcon
-    ) {
-      listState.activeIntegrationSheet = .audiobookshelf
+    Button("media_servers_title".localized, systemImage: "server.rack") {
+      listState.activeIntegrationSheet = .mediaServers
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
