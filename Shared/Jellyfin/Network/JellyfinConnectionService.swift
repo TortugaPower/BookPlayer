@@ -49,8 +49,8 @@ public class JellyfinConnectionService: BPLogger {
 
   private nonisolated let keychainService: KeychainServiceProtocol
 
-  var connections: [JellyfinConnectionData] = []
-  var connection: JellyfinConnectionData? {
+  public var connections: [JellyfinConnectionData] = []
+  public var connection: JellyfinConnectionData? {
     if let activeConnectionID,
        let active = connections.first(where: { $0.id == activeConnectionID }) {
       return active
@@ -78,7 +78,7 @@ public class JellyfinConnectionService: BPLogger {
     self.keychainService = keychainService
   }
 
-  func setup() {
+  public func setup() {
     reloadConnections()
   }
 
@@ -87,10 +87,10 @@ public class JellyfinConnectionService: BPLogger {
   /// the connection. Until that commit, neither `self.client` nor `self.headerInjector`
   /// are mutated, so an in-flight Add Server flow can't corrupt the active library
   /// session.
-  struct PendingServer {
-    let serverName: String
-    let client: JellyfinClient
-    let injector: JellyfinHeaderInjector
+  public struct PendingServer {
+    public let serverName: String
+    public let client: JellyfinClient
+    public let injector: JellyfinHeaderInjector
   }
 
   /// Validates server reachability without mutating service state. Returns a

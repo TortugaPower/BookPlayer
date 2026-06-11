@@ -168,18 +168,6 @@ struct JellyfinRootView: View {
     }
   }
   
-  private func handleConnectionChange(to state: IntegrationConnectionState) {
-    guard state == .connected else { return }
-    
-    showConnectionForm = false
-    
-    if resolvedLibrary == nil {
-      Task {
-        await loadLibraries()
-      }
-    }
-  }
-  
   private var tabRootView: some View {
     JellyfinTabRoot(
       library: resolvedLibrary,

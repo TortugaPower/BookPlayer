@@ -19,7 +19,7 @@ public struct AudiobookShelfConnectionData: Codable, Identifiable {
   public var customHeaders: [String: String] = [:]
 
   public enum CodingKeys: String, CodingKey {
-    case url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
+    case id, url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
   }
 
   public init(

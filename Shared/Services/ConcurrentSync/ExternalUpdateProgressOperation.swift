@@ -61,7 +61,7 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
   
   func doJellyfinUpdate() async throws {
     let jellyfinService = JellyfinConnectionService()
-    jellyfinService.setup()
+    await jellyfinService.setup()
     
     try await jellyfinService.updateItemProgress(
       self.providerItemId,
@@ -72,7 +72,7 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
   
   func doAudiobookshelfUpdate() async throws {
     let audiobookshelfService = AudiobookShelfConnectionService()
-    audiobookshelfService.setup()
+    await audiobookshelfService.setup()
     
     try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks / 10_000_000))
   }
