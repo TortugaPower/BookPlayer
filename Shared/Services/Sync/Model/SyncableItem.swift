@@ -105,13 +105,7 @@ extension SyncableItem {
     self.type = item.type
     self.uuid = item.uuid
     self.externalResources = item.externalResources?.map({
-      SyncableExternalResource(
-        providerName: $0.providerName,
-        providerId: $0.providerId,
-        syncStatus: $0.syncStatus,
-        lastSyncedAt: $0.lastSyncedAt,
-        processedFile: $0.processedFile
-      )
+      SyncableExternalResource(from: $0)
     })
   }
   

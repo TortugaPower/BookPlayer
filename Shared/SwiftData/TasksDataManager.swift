@@ -325,7 +325,15 @@ public final class TasksDataManager {
       context.insert(task)
     case .externalResource:
       let task = UploadExternalResourceTaskModel(
-        id: parameters["id"] as! String, uuid: parameters["uuid"] as! String, providerId: parameters["providerId"] as! String, providerName: parameters["providerName"] as! String, lastSyncedAt: parameters["lastSyncedAt"] as? Date, syncStatus: parameters["syncStatus"] as! String, processedFile: parameters["processedFile"] as! Bool
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        providerId: parameters["providerId"] as! String,
+        providerName: parameters["providerName"] as! String,
+        lastSyncedAt: parameters["lastSyncedAt"] as? Date,
+        syncStatus: parameters["syncStatus"] as! String,
+        processedFile: parameters["processedFile"] as! Bool,
+        host: parameters["host"] as? String,
+        hostSession: parameters["hostSession"] as? String
       )
       context.insert(task)
     case .externalResourceToDownload:

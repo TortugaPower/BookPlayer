@@ -16,12 +16,20 @@ public class AudiobookShelfConnectionService: BPLogger {
   private nonisolated let keychainService: KeychainServiceProtocol
 
   public var connections: [AudiobookShelfConnectionData] = []
+  private var manualConnection: AudiobookShelfConnectionData?
   public var connection: AudiobookShelfConnectionData? {
+    if let manualConnection {
+      return manualConnection
+    }
     if let activeConnectionID,
        let active = connections.first(where: { $0.id == activeConnectionID }) {
       return active
     }
     return connections.first
+  }
+
+  public func useConnection(_ connection: AudiobookShelfConnectionData) {
+    self.manualConnection = connection
   }
   private let urlSession: URLSession
 

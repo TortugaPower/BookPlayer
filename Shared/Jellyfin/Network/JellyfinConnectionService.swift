@@ -50,12 +50,21 @@ public class JellyfinConnectionService: BPLogger {
   private nonisolated let keychainService: KeychainServiceProtocol
 
   public var connections: [JellyfinConnectionData] = []
+  private var manualConnection: JellyfinConnectionData?
   public var connection: JellyfinConnectionData? {
+    if let manualConnection {
+      return manualConnection
+    }
     if let activeConnectionID,
        let active = connections.first(where: { $0.id == activeConnectionID }) {
       return active
     }
     return connections.first
+  }
+
+  public func useConnection(_ connection: JellyfinConnectionData) {
+    self.manualConnection = connection
+    rebuildClient(for: connection)
   }
   public var client: JellyfinClient?
   public var headerInjector: JellyfinHeaderInjector?

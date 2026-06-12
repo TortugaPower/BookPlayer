@@ -458,29 +458,48 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
        let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
       switch ExternalResource.ProviderName(rawValue: external.providerName) {
       case .jellyfin:
-        if let storedConnection: JellyfinConnectionData = try? KeychainService().get(.jellyfinConnection),
-           let downloadUrl = URL(string: storedConnection.buildDownloadUrl(providerId: external.providerId)) {
+        let keychainService = KeychainService()
+        var connection: JellyfinConnectionData?
+        if let host = external.host, !host.isEmpty {
+          let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+          connection = connections.first(where: { $0.url.absoluteString == host })
+        }
+        if connection == nil {
+          connection = try? keychainService.get(.jellyfinConnection)
+        }
+
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
           remoteURLs = [
             RemoteFileURL(
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
               externalResources: nil,
-              headers: ["Authorization": "MediaBrowser Token=\"\(storedConnection.accessToken)\""]
+              headers: ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
             )
           ]
         }
       case .audiobookshelf:
         let keychainService = KeychainService()
-        if let storedConnection: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
-           let downloadUrl = URL(string: storedConnection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+        var connection: AudiobookShelfConnectionData?
+        if let host = external.host, !host.isEmpty {
+          let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+          connection = connections.first(where: { $0.url.absoluteString == host })
+        }
+        if connection == nil {
+          connection = try? keychainService.get(.audiobookshelfConnection)
+        }
+
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
           remoteURLs = [
             RemoteFileURL(
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
               externalResources: nil,
-              headers: ["Authorization": "Bearer \(storedConnection.apiToken)"]
+              headers: ["Authorization": "Bearer \(connection.apiToken)"]
             )
           ]
         }
@@ -858,7 +877,7 @@ extension SyncService {
             let externalResource = item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) else { return }
       
       Task {
-        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true)
+        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true, host: externalResource.host, hostSession: externalResource.hostSession)
         await self.libraryService.updateExternalResource(for: externalSyncItem)
         await self.jobManager.scheduleResourceToDownload(with: item.relativePath, for: item.uuid, uploaded: false)
       }

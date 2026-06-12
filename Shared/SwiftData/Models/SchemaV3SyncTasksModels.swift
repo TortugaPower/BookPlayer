@@ -296,6 +296,8 @@ public enum SchemaV3: VersionedSchema {
     public var lastSyncedAt: Date?
     public var syncStatus: String
     public var processedFile: Bool
+    public var host: String?
+    public var hostSession: String?
     public var uuid: String
     
     public init(
@@ -305,7 +307,9 @@ public enum SchemaV3: VersionedSchema {
       providerName: String,
       lastSyncedAt: Date?,
       syncStatus: String,
-      processedFile: Bool
+      processedFile: Bool,
+      host: String? = nil,
+      hostSession: String? = nil
     ) {
       self.id = id
       self.uuid = uuid
@@ -314,6 +318,8 @@ public enum SchemaV3: VersionedSchema {
       self.lastSyncedAt = lastSyncedAt
       self.syncStatus = syncStatus
       self.processedFile = processedFile
+      self.host = host
+      self.hostSession = hostSession
     }
   }
   

@@ -122,6 +122,8 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       providerId: item.id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
+      host: connectionService.connection?.url.absoluteString,
+      hostSession: connectionService.connection?.userName,
       libraryItem: libraryItem
     )
     
