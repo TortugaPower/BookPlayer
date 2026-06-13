@@ -332,8 +332,7 @@ public final class TasksDataManager {
         lastSyncedAt: parameters["lastSyncedAt"] as? Date,
         syncStatus: parameters["syncStatus"] as! String,
         processedFile: parameters["processedFile"] as! Bool,
-        host: parameters["host"] as? String,
-        hostSession: parameters["hostSession"] as? String
+        hostId: parameters["hostId"] as? String
       )
       context.insert(task)
     case .externalResourceToDownload:

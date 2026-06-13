@@ -14,8 +14,7 @@ public struct SyncableExternalResource {
   public let syncStatus: String
   public let lastSyncedAt: Date?
   public let processedFile: Bool
-  public let host: String?
-  public let hostSession: String?
+  public let hostId: String?
 
   static var fetchRequestProperties = [
     "providerName",
@@ -23,8 +22,7 @@ public struct SyncableExternalResource {
     "syncStatus",
     "lastSyncedAt",
     "processedFile",
-    "host",
-    "hostSession"
+    "hostId"
   ]
 }
 
@@ -35,8 +33,7 @@ extension SyncableExternalResource: Decodable {
     case syncStatus
     case lastSyncedAt
     case processedFile
-    case host
-    case hostSession
+    case hostId
   }
 
   public init(from decoder: Decoder) throws {
@@ -46,8 +43,7 @@ extension SyncableExternalResource: Decodable {
     self.syncStatus = try container.decode(String.self, forKey: .syncStatus)
     self.lastSyncedAt = try? container.decode(Date.self, forKey: .lastSyncedAt)
     self.processedFile = try container.decode(Bool.self, forKey: .processedFile)
-    self.host = try? container.decode(String.self, forKey: .host)
-    self.hostSession = try? container.decode(String.self, forKey: .hostSession)
+    self.hostId = try? container.decode(String.self, forKey: .hostId)
   }
 }
 
@@ -58,7 +54,6 @@ extension SyncableExternalResource {
     self.syncStatus = item.syncStatus
     self.lastSyncedAt = item.lastSyncedAt
     self.processedFile = true
-    self.host = item.host
-    self.hostSession = item.hostSession
+    self.hostId = item.hostId
   }
 }

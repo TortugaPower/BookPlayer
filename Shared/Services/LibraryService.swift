@@ -1826,8 +1826,7 @@ extension LibraryService {
     external.syncStatus = externalResource.syncStatus
     external.lastSyncedAt = externalResource.lastSyncedAt
     external.processedFile = externalResource.processedFile
-    external.host = externalResource.host
-    external.hostSession = externalResource.hostSession
+    external.hostId = externalResource.hostId
     
     external.libraryItem = book
     book.addToExternalResources(external)
@@ -2537,7 +2536,7 @@ extension LibraryService {
     if let externalResource = item.resourcesArray.first {
       params[#keyPath(ExternalResource.providerId)] = externalResource.providerId
       params[#keyPath(ExternalResource.providerName)] = externalResource.providerName
-      params["host"] = externalResource.host
+      params["hostId"] = externalResource.hostId
     }
     
     progressPassthroughPublisher.send(params)

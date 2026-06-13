@@ -176,12 +176,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     setupPlayerObservers(player: audioPlayer)
   }
   
+  private func updatePlayerIsLoadingURL(_ isLoading: Bool) {
+    if Thread.isMainThread {
+      self.playerIsLoadingURL = isLoading
+    } else {
+      DispatchQueue.main.async {
+        self.playerIsLoadingURL = isLoading
+      }
+    }
+  }
+
   private func setupPlayerObservers(player: AVPlayer?) {
     guard let player = player else { return }
     
     // 2. Observe Buffering (AVPlayer TimeControlStatus)
     player.publisher(for: \.timeControlStatus)
-      .receive(on: DispatchQueue.main)
       .sink { [weak self, weak player] status in
         guard let self = self, let player = player else { return }
         
@@ -189,13 +198,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         case .waitingToPlayAtSpecifiedRate:
           if player.reasonForWaitingToPlay == .toMinimizeStalls {
             // We are actively buffering mid-playback (or right after hitting play)
-            self.playerIsLoadingURL = true
+            self.updatePlayerIsLoadingURL(true)
           }
         case .playing, .paused:
-          // If the item status is still .unknown, we don't want to hide the
-          // spinner just because the player is technically "paused".
+          // If the item status is still .unknown, we are still preparing
           if self.playerItem?.status == .readyToPlay {
-            self.playerIsLoadingURL = false
+            self.updatePlayerIsLoadingURL(false)
           }
         @unknown default:
           break
@@ -235,16 +243,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
-    await asset.loadValues(forKeys: [
-      "duration",
-      "playable",
-      "preferredRate",
-      "preferredVolume",
-      "hasProtectedContent",
-      "providesPreciseDurationAndTiming",
-      "commonMetadata",
-      "metadata",
-    ])
+    _ = try? await asset.load(
+      .duration,
+      .isPlayable,
+      .preferredRate,
+      .preferredVolume,
+      .hasProtectedContent,
+      .providesPreciseDurationAndTiming,
+      .commonMetadata,
+      .metadata
+    )
 
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask
@@ -294,15 +302,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
       } else if let externalUrl = chapter.externalUrl {
         asset = AVURLAsset(url: externalUrl, options: [
-          AVURLAssetPreferPreciseDurationAndTimingKey: true,
+          AVURLAssetPreferPreciseDurationAndTimingKey: false,
           "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
         ])
 
-        // Load just duration and playable as suggested to avoid bottleneck
-        await asset.loadValues(forKeys: ["duration", "playable"])
-
-        // If duration is 0, we must update the chapter info to avoid failure in loadChapterOperation
+        // Only load metadata if duration is unknown, to avoid network bottleneck
         if chapter.duration == 0 {
+          _ = try? await asset.load(.duration, .isPlayable)
+
           await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
           if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
              let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
@@ -310,7 +317,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           }
         }
       } else {
-        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
       }
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -321,9 +328,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       self.playerItem?.removeObserver(self, forKeyPath: "status")
       self.hasObserverRegistered = false
     }
-
+    
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
+    
+    if chapter.externalUrl != nil {
+      // Buffer a reasonable amount for streaming (20 seconds)
+      self.playerItem?.preferredForwardBufferDuration = 20
+    }
+    
     setupPlayerItemObservers(playerItem: playerItem)
 
     return self.currentItem?.currentChapter ?? chapter
@@ -333,30 +346,26 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     guard let playerItem else {
       return
     }
-    
+
     playerItem.publisher(for: \.status)
-      .receive(on: DispatchQueue.main)
       .sink { [weak self] status in
         guard let self = self else { return }
-        
+
         switch status {
         case .readyToPlay:
           // The item is fully loaded and ready to be played
-          self.playerIsLoadingURL = false
-          print("Item is ready to play")
+          self.updatePlayerIsLoadingURL(false)
         case .failed:
-          self.playerIsLoadingURL = false
-          print("Failed to load: \(String(describing: playerItem.error))")
+          self.updatePlayerIsLoadingURL(false)
         case .unknown:
           // Still evaluating the asset
-          self.playerIsLoadingURL = true
+          self.updatePlayerIsLoadingURL(true)
         @unknown default:
           break
         }
       }
       .store(in: &disposeBag)
   }
-
   func load(_ item: PlayableItem, autoplay: Bool) {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
@@ -453,7 +462,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     if let autoplay {
       playbackQueued = autoplay
     }
-
+    
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
         let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
@@ -461,10 +470,20 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {
+        var actions = [BPActionItem.okAction]
+        
+        if chapter.externalUrl != nil {
+          actions.append(
+            BPActionItem(title: "media_servers_title".localized) {
+              NotificationCenter.default.post(name: .showMediaServers, object: nil)
+            }
+          )
+        }
+        
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription)
+        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription, actions: actions)
         return
       }
     }
@@ -491,6 +510,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       // Update UI on main thread
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
+        
         self.audioPlayer.replaceCurrentItem(with: playerItem)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
@@ -1254,6 +1274,16 @@ extension PlayerManager {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item
         if playbackQueued == true {
+          var actions = [BPActionItem.okAction]
+          
+          if currentItem?.currentChapter.externalUrl != nil {
+            actions.append(
+              BPActionItem(title: "media_servers_title".localized) {
+                NotificationCenter.default.post(name: .showMediaServers, object: nil)
+              }
+            )
+          }
+
           if let nsError = item.error as? NSError {
             let errorDescription = """
               \(nsError.localizedDescription)
@@ -1264,9 +1294,9 @@ extension PlayerManager {
               Additional Info
               \(nsError.userInfo)
               """
-            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
+            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription, actions: actions)
           } else {
-            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
+            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription, actions: actions)
           }
         }
 
@@ -1601,11 +1631,22 @@ extension PlayerManager {
 }
 
 extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?) {
+  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]? = nil) {
     DispatchQueue.main.async {
-      WindowHelper.activeWindow?.rootViewController?
-        .getTopVisibleViewController()?
-        .showAlert(title, message: message)
+      let viewController = WindowHelper.activeWindow?.rootViewController?
+        .getTopVisibleViewController()
+      
+      if let actions = actions {
+        let content = BPAlertContent(
+          title: title,
+          message: message,
+          style: .alert,
+          actionItems: actions
+        )
+        viewController?.showAlert(content)
+      } else {
+        viewController?.showAlert(title, message: message)
+      }
     }
   }
 }

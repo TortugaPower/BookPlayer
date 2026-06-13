@@ -467,6 +467,11 @@ We're working hard on providing a seamless experience, if possible, please conta
 "hours" = "Hours";
 "minutes" = "Minutes";
 
+"provider_title" = "Provider";
+"provider_id_title" = "Item ID";
+"host_title" = "Host";
+"external_resources_title" = "External Resources";
+
 // Passkey Authentication
 "passkey_continue_button" = "Continue with Passkey";
 "passkey_signin_button" = "Sign in with Passkey";

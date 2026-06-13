@@ -155,8 +155,14 @@ public class JellyfinConnectionService: BPLogger {
       $0.url.canonicalDedupKey == pending.client.configuration.url.canonicalDedupKey
         && $0.userID == userID
     }
+    
+    // Attempt to get the serverId from the pending client's info if available
+    let publicSystemInfo = try? await pending.client.send(Paths.getPublicSystemInfo)
+    let serverId = publicSystemInfo?.value.id
+
     let data = JellyfinConnectionData(
       id: existing?.id ?? UUID().uuidString,
+      serverId: serverId ?? existing?.serverId,
       url: pending.client.configuration.url,
       serverName: serverName,
       userID: userID,

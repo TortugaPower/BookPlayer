@@ -15,8 +15,7 @@ public struct SimpleExternalResource: Identifiable {
   public let syncStatus: String
   public var lastSyncedAt: Date?
   public var processedFile = false
-  public var host: String?
-  public var hostSession: String?
+  public var hostId: String?
   public var libraryItemUuid: String?
   public var libraryItemName: String?
   public var libraryItem: SimpleLibraryItem?
@@ -27,8 +26,7 @@ public struct SimpleExternalResource: Identifiable {
     providerId: String,
     syncStatus: String,
     lastSyncedAt: Date?,
-    host: String? = nil,
-    hostSession: String? = nil,
+    hostId: String? = nil,
     libraryItemUuid: String? = nil,
     libraryItemName: String? = nil,
     libraryItem: SimpleLibraryItem? = nil
@@ -38,8 +36,7 @@ public struct SimpleExternalResource: Identifiable {
     self.providerId = providerId
     self.syncStatus = syncStatus
     self.lastSyncedAt = lastSyncedAt
-    self.host = host
-    self.hostSession = hostSession
+    self.hostId = hostId
     self.libraryItemUuid = libraryItemUuid
     self.libraryItemName = libraryItemName
     self.libraryItem = libraryItem
@@ -53,8 +50,7 @@ extension SimpleExternalResource {
     self.providerId = item.providerId
     self.syncStatus = item.syncStatus
     self.lastSyncedAt = item.lastSyncedAt
-    self.host = item.host
-    self.hostSession = item.hostSession
+    self.hostId = item.hostId
     self.libraryItemUuid = item.libraryItem?.uuid
     self.libraryItemName = item.libraryItem?.title
     self.libraryItem = (!ignoreLibraryItem && item.libraryItem != nil) ? SimpleLibraryItem(from: item.libraryItem!) : nil

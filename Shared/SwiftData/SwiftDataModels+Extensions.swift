@@ -186,8 +186,7 @@ extension UploadExternalResourceTaskModel: DictionaryConvertible {
       "lastSyncedAt": lastSyncedAt as Any,
       "processedFile": processedFile,
       "syncStatus": syncStatus,
-      "host": host as Any,
-      "hostSession": hostSession as Any
+      "hostId": hostId as Any
     ]
   }
 }

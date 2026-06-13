@@ -10,6 +10,7 @@ import Foundation
 
 public struct JellyfinConnectionData: Codable, Identifiable {
   public let id: String
+  public let serverId: String?
   public let url: URL
   public let serverName: String
   public let userID: String
@@ -19,11 +20,12 @@ public struct JellyfinConnectionData: Codable, Identifiable {
   public var customHeaders: [String: String] = [:]
 
   enum CodingKeys: String, CodingKey {
-    case id, url, serverName, userID, userName, accessToken, selectedLibraryId, customHeaders
+    case id, serverId, url, serverName, userID, userName, accessToken, selectedLibraryId, customHeaders
   }
 
   init(
     id: String = UUID().uuidString,
+    serverId: String? = nil,
     url: URL,
     serverName: String,
     userID: String,
@@ -33,6 +35,7 @@ public struct JellyfinConnectionData: Codable, Identifiable {
     customHeaders: [String: String] = [:]
   ) {
     self.id = id
+    self.serverId = serverId
     self.url = url
     self.serverName = serverName
     self.userID = userID
@@ -45,6 +48,7 @@ public struct JellyfinConnectionData: Codable, Identifiable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
+    self.serverId = try? container.decodeIfPresent(String.self, forKey: .serverId)
     self.url = try container.decode(URL.self, forKey: .url)
     self.serverName = try container.decode(String.self, forKey: .serverName)
     self.userID = try container.decode(String.self, forKey: .userID)
@@ -58,7 +62,8 @@ public struct JellyfinConnectionData: Codable, Identifiable {
 extension JellyfinConnectionData: CustomDebugStringConvertible {
   public var debugDescription: String {
     let accessTokenDebugDesc = accessToken.isEmpty ? "<empty>" : "<redacted>"
-    return "JellyfinConnectionData(\(url), \(serverName), \(userID), \(userName), \(accessTokenDebugDesc))"
+    let serverIdDesc = serverId ?? "<none>"
+    return "JellyfinConnectionData(\(url), serverId: \(serverIdDesc), \(serverName), \(userID), \(userName), \(accessTokenDebugDesc))"
   }
   
   public func buildDownloadUrl(providerId: String) -> String {

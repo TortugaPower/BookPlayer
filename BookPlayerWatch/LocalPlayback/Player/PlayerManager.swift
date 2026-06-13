@@ -195,16 +195,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
-    await asset.loadValues(forKeys: [
-      "duration",
-      "playable",
-      "preferredRate",
-      "preferredVolume",
-      "hasProtectedContent",
-      "providesPreciseDurationAndTiming",
-      "commonMetadata",
-      "metadata",
-    ])
+    _ = try? await asset.load(
+      .duration,
+      .isPlayable,
+      .preferredRate,
+      .preferredVolume,
+      .providesPreciseDurationAndTiming,
+      .commonMetadata,
+      .metadata
+    )
 
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask

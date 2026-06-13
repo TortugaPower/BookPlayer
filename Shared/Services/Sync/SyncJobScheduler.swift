@@ -176,8 +176,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       "lastSyncedAt": externalResource.lastSyncedAt as Any,
       "processedFile": externalResource.processedFile,
       "syncStatus": externalResource.syncStatus,
-      "host": externalResource.host as Any,
-      "hostSession": externalResource.hostSession as Any,
+      "hostId": externalResource.hostId as Any,
       "jobType": SyncJobType.externalResource.rawValue,
       "uuid": itemOrigin.uuid,
       "relativePath": itemOrigin.relativePath

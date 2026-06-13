@@ -14,4 +14,5 @@ extension Notification.Name {
   static let downloadEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.end")
   static let requestReview = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).requestreview")
   static let donationMade = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).donation.made")
+  static let showMediaServers = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).show.mediaservers")
 }

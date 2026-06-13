@@ -463,8 +463,7 @@ extension LibraryService: LibrarySyncProtocol {
             syncStatus: $0.syncStatus,
             lastSyncedAt: $0.lastSyncedAt,
             processedFile: $0.processedFile,
-            host: $0.host,
-            hostSession: $0.hostSession
+            hostId: $0.hostId
           )
         })
       )

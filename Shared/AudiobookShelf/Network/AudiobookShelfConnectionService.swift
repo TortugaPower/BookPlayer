@@ -137,6 +137,10 @@ public class AudiobookShelfConnectionService: BPLogger {
     else {
       throw IntegrationError.unexpectedResponse(code: nil)
     }
+    
+    // serverId is usually in the "server" object in the login response
+    let server = json["server"] as? [String: Any]
+    let serverId = server?["id"] as? String
 
     // On re-auth, preserve the existing connection's id + selectedLibraryId so the user
     // picks up exactly where they left off (same library context, same outbound references)
@@ -146,6 +150,7 @@ public class AudiobookShelfConnectionService: BPLogger {
     }
     let connectionData = AudiobookShelfConnectionData(
       id: existing?.id ?? UUID().uuidString,
+      serverId: serverId ?? existing?.serverId,
       url: url,
       serverName: serverName,
       userID: userID,

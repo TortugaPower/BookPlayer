@@ -79,9 +79,7 @@ struct IntegrationAudiobookDetailsView<
         }
 
         HStack(spacing: 12) {
-          if allowStream {
-            SynchronizeButton
-          } else if showSubscribeButton {
+          if allowStream || showSubscribeButton {
             SmallDownloadButton
             SynchronizeButton
           } else {
@@ -135,7 +133,7 @@ struct IntegrationAudiobookDetailsView<
     .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .tint(theme.linkColor)
     .errorAlert(error: $viewModel.error)
-    .onAppear {
+    .task(id: viewModel.item.id) {
       viewModel.fetchData()
     }
     .onDisappear {

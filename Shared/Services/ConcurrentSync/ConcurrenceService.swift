@@ -211,13 +211,13 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
             let percentCompleted = task.parameters["percentCompleted"] as? Double else {
         return nil
       }
-      let host = task.parameters["host"] as? String
+      let hostId = task.parameters["hostId"] as? String
       return ExternalUpdateProgressOperation(
         providerName: providerName,
         providerItemId: providerId,
         positionTicks: Int(currentTime * 10_000_000),
         percentCompleted: percentCompleted,
-        host: host
+        hostId: hostId
       )
     case .uploadFile:
       guard let filePath = task.parameters["filePath"] as? String,

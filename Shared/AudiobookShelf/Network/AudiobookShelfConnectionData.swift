@@ -10,6 +10,7 @@ import Foundation
 
 public struct AudiobookShelfConnectionData: Codable, Identifiable {
   public let id: String
+  public let serverId: String?
   public let url: URL
   public let serverName: String
   public let userID: String
@@ -19,11 +20,12 @@ public struct AudiobookShelfConnectionData: Codable, Identifiable {
   public var customHeaders: [String: String] = [:]
 
   public enum CodingKeys: String, CodingKey {
-    case id, url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
+    case id, serverId, url, serverName, userID, userName, apiToken, selectedLibraryId, customHeaders
   }
 
   public init(
     id: String = UUID().uuidString,
+    serverId: String? = nil,
     url: URL,
     serverName: String,
     userID: String,
@@ -33,6 +35,7 @@ public struct AudiobookShelfConnectionData: Codable, Identifiable {
     customHeaders: [String: String] = [:]
   ) {
     self.id = id
+    self.serverId = serverId
     self.url = url
     self.serverName = serverName
     self.userID = userID
@@ -45,6 +48,7 @@ public struct AudiobookShelfConnectionData: Codable, Identifiable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
+    self.serverId = try? container.decodeIfPresent(String.self, forKey: .serverId)
     self.url = try container.decode(URL.self, forKey: .url)
     self.serverName = try container.decode(String.self, forKey: .serverName)
     self.userID = try container.decode(String.self, forKey: .userID)
@@ -58,7 +62,8 @@ public struct AudiobookShelfConnectionData: Codable, Identifiable {
 extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
   public var debugDescription: String {
     let apiTokenDebugDesc = apiToken.isEmpty ? "<empty>" : "<redacted>"
-    return "AudiobookShelfConnectionData(\(url), \(serverName), \(userID), \(userName), \(apiTokenDebugDesc))"
+    let serverIdDesc = serverId ?? "<none>"
+    return "AudiobookShelfConnectionData(\(url), serverId: \(serverIdDesc), \(serverName), \(userID), \(userName), \(apiTokenDebugDesc))"
   }
   
   public func buildAudiobookshelfDownloadUrl(providerId: String) -> String {

@@ -21,8 +21,7 @@ public class ExternalResource: NSManagedObject {
   @NSManaged public var syncStatus: String
   @NSManaged public var lastSyncedAt: Date?
   @NSManaged public var processedFile: Bool
-  @NSManaged public var host: String?
-  @NSManaged public var hostSession: String?
+  @NSManaged public var hostId: String?
   
   @NSManaged public var libraryItem: LibraryItem?
   
@@ -40,8 +39,7 @@ public class ExternalResource: NSManagedObject {
     entity.lastSyncedAt = item.lastSyncedAt
     entity.syncStatus = item.syncStatus
     entity.processedFile = false
-    entity.host = item.host
-    entity.hostSession = item.hostSession
+    entity.hostId = item.hostId
     
     if let item = libraryItem {
       entity.libraryItem = item
@@ -63,8 +61,7 @@ public class ExternalResource: NSManagedObject {
     entity.lastSyncedAt = item.lastSyncedAt
     entity.syncStatus = item.syncStatus
     entity.processedFile = false
-    entity.host = item.host
-    entity.hostSession = item.hostSession
+    entity.hostId = item.hostId
     
     if let item = libraryItem {
       entity.libraryItem = item

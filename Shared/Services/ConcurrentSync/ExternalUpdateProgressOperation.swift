@@ -14,14 +14,14 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
   let providerItemId: String
   let positionTicks: Int
   let percentCompleted: Double
-  let host: String?
+  let hostId: String?
 
-  init(providerName: String, providerItemId: String, positionTicks: Int, percentCompleted: Double, host: String? = nil) {
+  init(providerName: String, providerItemId: String, positionTicks: Int, percentCompleted: Double, hostId: String? = nil) {
     self.providerName = providerName
     self.providerItemId = providerItemId
     self.positionTicks = positionTicks
     self.percentCompleted = percentCompleted
-    self.host = host
+    self.hostId = hostId
     super.init()
   }
 
@@ -65,8 +65,8 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     let jellyfinService = JellyfinConnectionService()
     await jellyfinService.setup()
 
-    if let host = self.host, !host.isEmpty {
-      if let targetConnection = await jellyfinService.connections.first(where: { $0.url.absoluteString == host }) {
+    if let hostId = self.hostId, !hostId.isEmpty {
+      if let targetConnection = await jellyfinService.connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
         await jellyfinService.useConnection(targetConnection)
       }
     }
@@ -82,8 +82,8 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     let audiobookshelfService = AudiobookShelfConnectionService()
     await audiobookshelfService.setup()
 
-    if let host = self.host, !host.isEmpty {
-      if let targetConnection = await audiobookshelfService.connections.first(where: { $0.url.absoluteString == host }) {
+    if let hostId = self.hostId, !hostId.isEmpty {
+      if let targetConnection = await audiobookshelfService.connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
         await audiobookshelfService.useConnection(targetConnection)
       }
     }

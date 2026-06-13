@@ -216,47 +216,47 @@ public final class PlaybackService: PlaybackServiceProtocol {
     /// Ignore chapters that don't have the duration set properly
     chapters = chapters.filter { $0.duration > 0 }
 
-    guard !chapters.isEmpty else {
-      var externalUrl: URL?
-      var externalHeaders: [String: String] = [:]
-      let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
-      switch ExternalResource.ProviderName(rawValue: externalResource?.providerName ?? "") {
+    // Resolve connection info once for the book
+    var externalUrl: URL?
+    var externalHeaders: [String: String] = [:]
+    
+    let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+    if let providerRaw = externalResource?.providerName,
+       let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
+      
+      let keychainService = KeychainService()
+      let hostId = externalResource?.hostId ?? ""
+      
+      switch provider {
       case .jellyfin:
-        let keychainService = KeychainService()
-        var connection: JellyfinConnectionData?
-        if let host = externalResource?.host, !host.isEmpty {
-          let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-          connection = connections.first(where: { $0.url.absoluteString == host })
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+          ?? connections.first
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          externalHeaders = ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
         }
-        if connection == nil {
-          connection = try? keychainService.get(.jellyfinConnection)
-        }
-
-        let urlString = (connection != nil && externalResource != nil)
-          ? connection!.buildDownloadUrl(providerId: externalResource!.providerId)
-          : ""
-        externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
-        externalHeaders = ["Authorization": "MediaBrowser Token=\"\(connection?.accessToken ?? "")\""]
+        
       case .audiobookshelf:
-        let keychainService = KeychainService()
-        var connection: AudiobookShelfConnectionData?
-        if let host = externalResource?.host, !host.isEmpty {
-          let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-          connection = connections.first(where: { $0.url.absoluteString == host })
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+          ?? connections.first
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          externalHeaders = ["Authorization": "Bearer \(connection.apiToken)"]
         }
-        if connection == nil {
-          connection = try? keychainService.get(.audiobookshelfConnection)
-        }
-
-        let urlString = (connection != nil && externalResource != nil)
-          ? connection!.buildAudiobookshelfDownloadUrl(providerId: externalResource!.providerId)
-          : ""
-        externalUrl = !urlString.isEmpty ? URL(string: urlString) : book.remoteURL
-        externalHeaders = ["Authorization": "Bearer \(connection?.apiToken ?? "")"]
+        
       default:
-        externalUrl = nil
+        break
       }
+    }
 
+    // If no chapters, create a single one using the book metadata
+    guard !chapters.isEmpty else {
       return [
         PlayableChapter(
           title: book.title,
@@ -265,13 +265,14 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          externalURL: externalUrl,
+          externalURL: externalUrl ?? book.remoteURL,
           index: 1,
           externalHeaders: externalHeaders
         )
       ]
     }
 
+    // Map existing chapters and apply resolved connection info
     return chapters.enumerated()
       .map({ (index, chapter) in
         return PlayableChapter(
@@ -281,8 +282,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: chapter.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          externalURL: nil,
-          index: Int16(index + 1)
+          externalURL: externalUrl,
+          index: Int16(index + 1),
+          externalHeaders: externalHeaders
         )
       })
   }

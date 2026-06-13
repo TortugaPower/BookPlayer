@@ -135,6 +135,9 @@ struct LibraryRootView: View {
           self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
         }
       }
+      .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
+        listState.activeIntegrationSheet = .mediaServers
+      }
     }
     .tint(theme.linkColor)
     .environmentObject(theme)

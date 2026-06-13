@@ -459,13 +459,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       switch ExternalResource.ProviderName(rawValue: external.providerName) {
       case .jellyfin:
         let keychainService = KeychainService()
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
         var connection: JellyfinConnectionData?
-        if let host = external.host, !host.isEmpty {
-          let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-          connection = connections.first(where: { $0.url.absoluteString == host })
+        
+        if let hostId = external.hostId, !hostId.isEmpty {
+          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
         }
+        
         if connection == nil {
-          connection = try? keychainService.get(.jellyfinConnection)
+          connection = connections.first
         }
 
         if let connection = connection,
@@ -482,13 +484,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         }
       case .audiobookshelf:
         let keychainService = KeychainService()
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
         var connection: AudiobookShelfConnectionData?
-        if let host = external.host, !host.isEmpty {
-          let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-          connection = connections.first(where: { $0.url.absoluteString == host })
+        
+        if let hostId = external.hostId, !hostId.isEmpty {
+          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
         }
+        
         if connection == nil {
-          connection = try? keychainService.get(.audiobookshelfConnection)
+          connection = connections.first
         }
 
         if let connection = connection,
@@ -877,7 +881,7 @@ extension SyncService {
             let externalResource = item.resourcesArray.first(where: { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }) else { return }
       
       Task {
-        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true, host: externalResource.host, hostSession: externalResource.hostSession)
+        let externalSyncItem = SyncableExternalResource(providerName: externalResource.providerName, providerId: externalResource.providerId, syncStatus: externalResource.syncStatus, lastSyncedAt: nil, processedFile: true, hostId: externalResource.hostId)
         await self.libraryService.updateExternalResource(for: externalSyncItem)
         await self.jobManager.scheduleResourceToDownload(with: item.relativePath, for: item.uuid, uploaded: false)
       }
@@ -1015,9 +1019,10 @@ extension SyncService {
 
   /// Get download state of an item
   public func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
-    /// Only process if subscription is active
-    guard isActive else { return .downloaded }
-
+    let hasExternalResources = !(item.externalResources?.isEmpty ?? true)
+    /// Only process if subscription is active or it has external resources
+    guard isActive || hasExternalResources else { return .downloaded }
+    
     if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
       return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
     }
