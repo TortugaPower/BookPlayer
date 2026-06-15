@@ -385,9 +385,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension != nil
-        ? ".\(item.details!.fileExtension!)"
-        : ""
+      let fileExt = item.details?.fileExtension ?? "m4a"
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,
@@ -402,7 +400,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
         orderRank: 0,
         parentFolder: nil,
-        originalFileName: "\(item.name)\(fileExt)",
+        originalFileName: "\(item.name).\(fileExt)",
         lastPlayDate: item.lastPlayedDate,
         type: .book,
         uuid: UUID().uuidString
@@ -603,9 +601,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension != nil
-        ? ".\(item.details!.fileExtension!)"
-        : ""
+      let fileExt = item.details?.fileExtension ?? "m4a"
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,
@@ -835,9 +831,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     : self.items.filter { $0.kind == .audiobook }
     
     let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension != nil
-        ? ".\(item.details!.fileExtension!)"
-        : ""
+      let fileExt = item.details?.fileExtension ?? "m4a"
       let libraryItem = SimpleLibraryItem(
         title: item.name,
         details: item.details?.artist ?? "voiceover_unknown_author".localized,

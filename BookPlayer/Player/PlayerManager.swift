@@ -472,7 +472,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       } catch {
         var actions = [BPActionItem.okAction]
         
-        if chapter.externalUrl != nil {
+        if chapter.externalUrl != nil,
+           !FileManager.default.fileExists(atPath: chapter.fileURL.path) {
           actions.append(
             BPActionItem(title: "media_servers_title".localized) {
               NotificationCenter.default.post(name: .showMediaServers, object: nil)
@@ -1276,7 +1277,9 @@ extension PlayerManager {
         if playbackQueued == true {
           var actions = [BPActionItem.okAction]
           
-          if currentItem?.currentChapter.externalUrl != nil {
+          if let chapter = currentItem?.currentChapter,
+             chapter.externalUrl != nil,
+             !FileManager.default.fileExists(atPath: chapter.fileURL.path) {
             actions.append(
               BPActionItem(title: "media_servers_title".localized) {
                 NotificationCenter.default.post(name: .showMediaServers, object: nil)

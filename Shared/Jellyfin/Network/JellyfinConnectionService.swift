@@ -558,11 +558,16 @@ public class JellyfinConnectionService: BPLogger {
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
     let runtimeInSeconds: TimeInterval? =
       (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
-    
+
+    let fileExtension = itemInfo.mediaSources?.first?.container?.components(separatedBy: ",").first
+      ?? itemInfo.mediaSources?.first?.container
+      ?? (itemInfo.path as NSString?)?.pathExtension
+
     return JellyfinAudiobookDetailsData(
       artist: artist,
       filePath: filePath,
       fileSize: fileSize,
+      fileExtension: fileExtension,
       overview: itemInfo.overview,
       runtimeInSeconds: runtimeInSeconds,
       genres: itemInfo.genres,

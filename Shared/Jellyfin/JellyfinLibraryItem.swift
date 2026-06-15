@@ -86,20 +86,19 @@ extension JellyfinLibraryItem {
     let name = apiItem.name ?? id
     let blurHash = apiItem.imageBlurHashes?.primary?.first?.value
     
+    let artist = apiItem.albumArtist ?? apiItem.artists?.first
+    let filePath = apiItem.mediaSources?.first?.path ?? apiItem.path
+    let runtimeInSeconds = (apiItem.runTimeTicks != nil) ? TimeInterval(apiItem.runTimeTicks!) / 10000000.0 : nil
+    let fileExtension = apiItem.mediaSources?.first?.container?.components(separatedBy: ",").first
+      ?? apiItem.mediaSources?.first?.container
+      ?? (filePath as NSString?)?.pathExtension
+
     var myDetails: JellyfinAudiobookDetailsData? = nil
-    
-    if let artist = apiItem.albumArtist,
-      let filePath = apiItem.mediaSources?.first?.path ?? apiItem.path,
-      let fileSize = apiItem.mediaSources?.first?.size,
-       let runtimeInSeconds = (apiItem.runTimeTicks != nil) ? TimeInterval(apiItem.runTimeTicks!) / 10000000.0 : nil {
-      
-      var fileExtension = apiItem.mediaSources?.first?.container?.components(separatedBy: ",").first
-        ?? apiItem.mediaSources?.first?.container ?? nil
-      
+    if artist != nil || filePath != nil || runtimeInSeconds != nil || fileExtension != nil {
       myDetails = JellyfinAudiobookDetailsData(
         artist: artist,
         filePath: filePath,
-        fileSize: fileSize,
+        fileSize: apiItem.mediaSources?.first?.size,
         fileExtension: fileExtension,
         overview: apiItem.overview,
         runtimeInSeconds: runtimeInSeconds,

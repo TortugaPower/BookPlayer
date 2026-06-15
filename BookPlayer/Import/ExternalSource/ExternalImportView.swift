@@ -21,6 +21,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
       VStack(alignment: .leading, spacing: 20) {
         HStack {
           Button {
+            viewModel.resources = []
             dismiss()
           } label: {
             Image(systemName: "xmark")
@@ -36,8 +37,8 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           
           Button {
             Task {
-              dismiss()
               await viewModel.handleImportResources()
+              dismiss()
             }
           } label: {
             Image(systemName: "checkmark")
@@ -68,7 +69,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
         
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(viewModel.resources) { resource in
+            ForEach(viewModel.resources, id: \.providerId) { resource in
               HStack(spacing: 16) {
                 Button {
                   withAnimation {
@@ -85,7 +86,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                   .foregroundColor(.pink)
                 
                 // File Name
-                Text(resource.libraryItem?.title ?? "Unknown Item")
+                Text(resource.libraryItem?.originalFileName ?? "Unknown Item")
                   .foregroundColor(theme.primaryColor)
                   .font(.system(size: 14))
                   .lineLimit(1)
@@ -104,6 +105,9 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
         Spacer()
       }
       .padding(.horizontal, 24)
+    }
+    .onDisappear {
+      viewModel.resources = []
     }
   }
 }

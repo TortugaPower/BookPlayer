@@ -304,6 +304,7 @@
 "choose_plan_title" = "Wähle deinen Plan";
 "tasks_title" = "Aufgaben";
 "queued_sync_tasks_title" = "Synchronisierungsaufgaben in der Warteschlange (%d)";
+"sync_tasks_queued_count_title" = "Warteschlangen-Aufgaben (%d)";
 "sync_tasks_alert_description" = "Wenn eine Synchronisierungsaufgabe hängen bleibt und nach einer aktiven Internetverbindung nicht gelöscht werden kann, kannst du dich abmelden und wieder anmelden, um die aktuellen Aufgaben zu löschen. Dadurch wird deine Bibliothek auf den letzten mit unseren Servern synchronisierten Status zurückgesetzt.
 
  Beachte, dass Upload-Aufgaben einige Zeit in Anspruch nehmen können und der Fortschritt regelmäßig auf dem vorherigen Bildschirm angezeigt wird.

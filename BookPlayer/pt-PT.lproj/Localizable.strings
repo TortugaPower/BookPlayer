@@ -304,6 +304,7 @@
 "choose_plan_title" = "Escolha o seu plano";
 "tasks_title" = "Tarefas";
 "queued_sync_tasks_title" = "Tarefas de sincronização em fila (%d)";
+"sync_tasks_queued_count_title" = "Tarefas em fila (%d)";
 "sync_tasks_alert_description" = "Se houver uma tarefa de sincronização que está bloquada e não é eliminada após uma ligação activa à Internet, você pode fazer logout e login novamente para limpar as tarefas actuais. Isso irá repor a sua biblioteca para o último estado sincronizado com nossos servidores.
 
  Tenha em atenção de que as tarefas de upload poderão levar algum tempo e o progresso será notificado periodicamente no ecrã anterior.
