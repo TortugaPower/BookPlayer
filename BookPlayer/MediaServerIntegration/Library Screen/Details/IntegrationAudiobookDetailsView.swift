@@ -133,7 +133,7 @@ struct IntegrationAudiobookDetailsView<
     .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .tint(theme.linkColor)
     .errorAlert(error: $viewModel.error)
-    .task(id: viewModel.item.id) {
+    .task(id: ObjectIdentifier(viewModel)) {
       viewModel.fetchData()
     }
     .onDisappear {
