@@ -736,7 +736,6 @@
 		9F4A33E0292B0C710034CD4C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A33DF292B0C710034CD4C /* ShareViewController.swift */; };
 		9F4A33E3292B0C710034CD4C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F4A33E1292B0C710034CD4C /* MainInterface.storyboard */; };
 		9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		9F5011F72A620D140075FEBA /* PlayerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5011F62A620D140075FEBA /* PlayerViewModelTests.swift */; };
 		9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5011F82A6580800075FEBA /* ShakeMotionService.swift */; };
 		9F56C84D287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
 		9F56C84E287B734C00EA9751 /* BPLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56C84C287B734C00EA9751 /* BPLogger.swift */; };
@@ -3095,7 +3094,6 @@
 				E4D25EF2A5FFF30CF12F2C21 /* PreferencesSyncService.swift */,
 				5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */,
 			);
-			name = Preferences;
 			path = Preferences;
 			sourceTree = "<group>";
 		};
@@ -5044,19 +5042,19 @@
 		};
 		41342D0424435D9900F0905B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 41342CFD24435D9900F0905B /* BookPlayerIntents */;
 			targetProxy = 41342D0324435D9900F0905B /* PBXContainerItemProxy */;
 		};
 		4140EA4D227288EF0009F794 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 4140EA2E227288ED0009F794 /* BookPlayerWatch */;
 			targetProxy = 4140EA4C227288EF0009F794 /* PBXContainerItemProxy */;
 		};
 		416A29AF2569658300605395 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 416A29A22569658100605395 /* BookPlayerWidgetsPhone */;
 			targetProxy = 416A29AE2569658300605395 /* PBXContainerItemProxy */;
 		};
@@ -5093,7 +5091,7 @@
 		};
 		9F4A33E6292B0C710034CD4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */;
 			targetProxy = 9F4A33E5292B0C710034CD4C /* PBXContainerItemProxy */;
 		};
