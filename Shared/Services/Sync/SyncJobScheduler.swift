@@ -51,7 +51,9 @@ public protocol JobSchedulerProtocol {
   func hasUploadTask(for relativePath: String) async -> Bool
   
   func scheduleExternalResourceUpload(for externalResource: SyncableExternalResource, itemOrigin: LibraryItemRef) async
-  
+  /// Delete an external resource on the server
+  func scheduleDeleteExternalResource(providerName: String, providerId: String, itemOrigin: LibraryItemRef) async
+
   func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
 }
 
@@ -184,7 +186,24 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     
     await persistTask(parameters: parameters)
   }
-  
+
+  public func scheduleDeleteExternalResource(
+    providerName: String,
+    providerId: String,
+    itemOrigin: LibraryItemRef
+  ) async {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "providerName": providerName,
+      "providerId": providerId,
+      "jobType": SyncJobType.deleteExternalResource.rawValue,
+      "uuid": itemOrigin.uuid,
+      "relativePath": itemOrigin.relativePath
+    ]
+
+    await persistTask(parameters: parameters)
+  }
+
   public func scheduleMoveItemJob(with itemOrigin: LibraryItemRef, to parentFolder: LibraryItemRef?) async {
     let useUuids = Constants.isRealUuid(itemOrigin.uuid)
 

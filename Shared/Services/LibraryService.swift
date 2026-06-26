@@ -173,7 +173,13 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
-    
+  /// Create an external resource linking the item (by uuid) to a provider's resource.
+  /// Returns the syncable representation to upload, or nil if it already exists or the item is missing.
+  func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource?
+  /// Remove the external resource of the given provider from the item (by uuid).
+  /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
+  func removeExternalResource(providerName: String, for uuid: String) async -> String?
+
   func getExternalResource(for providerId: String) async -> ExternalResource?
   
   func findResource(for providerId: String, context: NSManagedObjectContext?) -> ExternalResource?
@@ -2996,6 +3002,79 @@ extension LibraryService {
         dataManager.saveSyncContext(context)
 
         continuation.resume()
+      }
+    }
+  }
+
+  public func setExternalResource(
+    providerName: String,
+    providerId: String,
+    for uuid: String
+  ) async -> SyncableExternalResource? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard let item = try? context.fetch(fetchRequest).first else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        /// Skip if the same resource is already linked
+        if item.resourcesArray.contains(where: {
+          $0.providerName == providerName && $0.providerId == providerId
+        }) {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let syncable = SyncableExternalResource(
+          providerName: providerName,
+          providerId: providerId,
+          syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+          lastSyncedAt: nil,
+          processedFile: true,
+          hostId: nil
+        )
+
+        _ = ExternalResource.create(syncable, libraryItem: item, in: context)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: syncable)
+      }
+    }
+  }
+
+  public func removeExternalResource(
+    providerName: String,
+    for uuid: String
+  ) async -> String? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard
+          let item = try? context.fetch(fetchRequest).first,
+          let resource = item.resourcesArray.first(where: { $0.providerName == providerName })
+        else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let providerId = resource.providerId
+        item.removeFromExternalResources(resource)
+        context.delete(resource)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: providerId)
       }
     }
   }

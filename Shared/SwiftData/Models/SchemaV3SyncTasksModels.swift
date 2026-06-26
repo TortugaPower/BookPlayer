@@ -32,7 +32,8 @@ public enum SchemaV3: VersionedSchema {
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
       ConcurrentUploadTaskModel.self,
-      ExternalResourceToDownloadTaskModel.self
+      ExternalResourceToDownloadTaskModel.self,
+      DeleteExternalResourceTaskModel.self
     ]
   }
   
@@ -419,7 +420,7 @@ public enum SchemaV3: VersionedSchema {
     @Attribute(.unique) public var id: String
     public var uuid: String
     public var uploaded: Bool
-    
+
     public init(
       id: String,
       uuid: String,
@@ -428,6 +429,29 @@ public enum SchemaV3: VersionedSchema {
       self.id = id
       self.uuid = uuid
       self.uploaded = uploaded
+    }
+  }
+
+  @Model
+  public class DeleteExternalResourceTaskModel {
+    @Attribute(.unique) public var id: String
+    public var uuid: String
+    public var relativePath: String
+    public var providerName: String
+    public var providerId: String
+
+    public init(
+      id: String,
+      uuid: String,
+      relativePath: String,
+      providerName: String,
+      providerId: String
+    ) {
+      self.id = id
+      self.uuid = uuid
+      self.relativePath = relativePath
+      self.providerName = providerName
+      self.providerId = providerId
     }
   }
 }

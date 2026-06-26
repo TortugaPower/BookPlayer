@@ -30,6 +30,7 @@ public final class TasksDataManager {
       MatchUuidsTaskModel.self,
       UploadExternalResourceTaskModel.self,
       ExternalResourceToDownloadTaskModel.self,
+      DeleteExternalResourceTaskModel.self,
       ConcurrentTasksContainer.self,
       ConcurrentTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
@@ -104,6 +105,8 @@ public final class TasksDataManager {
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
     try context.delete(model: UploadExternalResourceTaskModel.self)
+    try context.delete(model: ExternalResourceToDownloadTaskModel.self)
+    try context.delete(model: DeleteExternalResourceTaskModel.self)
     try context.delete(model: SyncTaskReferenceModel.self)
     try context.delete(model: SyncTasksContainer.self)
     
@@ -216,6 +219,13 @@ public final class TasksDataManager {
     case .externalResourceToDownload:
       let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
         predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .deleteExternalResource:
+      let descriptor = FetchDescriptor<DeleteExternalResourceTaskModel>(
+        predicate: #Predicate<DeleteExternalResourceTaskModel> { task in task.id == id }
       )
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
@@ -342,6 +352,15 @@ public final class TasksDataManager {
         uploaded: parameters["uploaded"] as? Bool ?? false
       )
       context.insert(task)
+    case .deleteExternalResource:
+      let task = DeleteExternalResourceTaskModel(
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        relativePath: parameters["relativePath"] as! String,
+        providerName: parameters["providerName"] as! String,
+        providerId: parameters["providerId"] as! String
+      )
+      context.insert(task)
     }
   }
   
@@ -434,6 +453,11 @@ public final class TasksDataManager {
       case .externalResourceToDownload:
         let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
           predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .deleteExternalResource:
+        let descriptor = FetchDescriptor<DeleteExternalResourceTaskModel>(
+          predicate: #Predicate<DeleteExternalResourceTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
       }

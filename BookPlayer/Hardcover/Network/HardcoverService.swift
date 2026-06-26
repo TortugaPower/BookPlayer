@@ -50,6 +50,7 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
+  private var syncService: SyncServiceProtocol?
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
@@ -71,10 +72,12 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   func setup(
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol? = nil,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
   ) {
     self.libraryService = libraryService
+    self.syncService = syncService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
 
@@ -325,6 +328,7 @@ extension HardcoverService {
         }
 
         await libraryService.setHardcoverBook(book, for: match.item.relativePath)
+        await uploadExternalResource(for: book, to: match.item)
         Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
         processedCount += 1
       } catch {
@@ -343,6 +347,9 @@ extension HardcoverService {
     _ book: SimpleHardcoverBook?,
     to item: SimpleLibraryItem
   ) async {
+    /// Remove any existing hardcover resource first (handles both unlink and swap)
+    await deleteExternalResource(for: item)
+
     guard let book else {
       await libraryService.setHardcoverBook(nil, for: item.relativePath)
       Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
@@ -351,26 +358,66 @@ extension HardcoverService {
 
     Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
 
-    guard autoAddWantToReadEnabled, authorization != nil else {
+    if autoAddWantToReadEnabled, authorization != nil {
+      do {
+        let response = try await insertUserBook(
+          bookID: book.id,
+          status: .library
+        )
+        Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+
+        var updated = book
+        updated.status = .library
+        updated.userBookID = response.insertUserBook.id
+        await libraryService.setHardcoverBook(updated, for: item.relativePath)
+      } catch {
+        Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
+        await libraryService.setHardcoverBook(book, for: item.relativePath)
+      }
+    } else {
       await libraryService.setHardcoverBook(book, for: item.relativePath)
-      return
     }
 
-    do {
-      let response = try await insertUserBook(
-        bookID: book.id,
-        status: .library
+    await uploadExternalResource(for: book, to: item)
+  }
+
+  /// Create the hardcover external resource for the item and sync-upload it if a sync service is available.
+  private func uploadExternalResource(
+    for book: SimpleHardcoverBook,
+    to item: SimpleLibraryItem
+  ) async {
+    guard
+      let syncable = await libraryService.setExternalResource(
+        providerName: ExternalResource.ProviderName.hardcover.rawValue,
+        providerId: String(book.id),
+        for: item.uuid
       )
-      Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+    else { return }
 
-      var updated = book
-      updated.status = .library
-      updated.userBookID = response.insertUserBook.id
-      await libraryService.setHardcoverBook(updated, for: item.relativePath)
-    } catch {
-      Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
-      await libraryService.setHardcoverBook(book, for: item.relativePath)
-    }
+    syncService?.scheduleExternalResourceUpload(
+      syncable,
+      relativePath: item.relativePath,
+      uuid: item.uuid
+    )
+  }
+
+  /// Delete the hardcover external resource for the item and schedule a delete sync task if a sync service is available.
+  private func deleteExternalResource(for item: SimpleLibraryItem) async {
+    let providerName = ExternalResource.ProviderName.hardcover.rawValue
+
+    guard
+      let providerId = await libraryService.removeExternalResource(
+        providerName: providerName,
+        for: item.uuid
+      )
+    else { return }
+
+    syncService?.scheduleExternalResourceDeletion(
+      providerName: providerName,
+      providerId: providerId,
+      relativePath: item.relativePath,
+      uuid: item.uuid
+    )
   }
 
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {

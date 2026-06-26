@@ -22,6 +22,7 @@ public typealias ArtworkUploadTaskModel = SchemaV3.ArtworkUploadTaskModel
 public typealias MatchUuidsTaskModel = SchemaV3.MatchUuidsTaskModel
 public typealias UploadExternalResourceTaskModel = SchemaV3.UploadExternalResourceTaskModel
 public typealias ExternalResourceToDownloadTaskModel = SchemaV3.ExternalResourceToDownloadTaskModel
+public typealias DeleteExternalResourceTaskModel = SchemaV3.DeleteExternalResourceTaskModel
 
 public typealias ConcurrentTasksContainer = SchemaV3.ConcurrentTasksContainer
 public typealias ConcurrentTaskReferenceModel = SchemaV3.ConcurrentTaskReferenceModel

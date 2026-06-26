@@ -83,7 +83,13 @@ public protocol SyncServiceProtocol {
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
   func scheduleUploadArtwork(relativePath: String, uuid: String)
-  
+
+  /// Upload a newly linked external resource
+  func scheduleExternalResourceUpload(_ resource: SyncableExternalResource, relativePath: String, uuid: String)
+
+  /// Delete an external resource on the server
+  func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String)
+
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
@@ -573,6 +579,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     Task {
       await jobManager.scheduleArtworkUpload(with: relativePath, for: uuid)
+    }
+  }
+
+  public func scheduleExternalResourceUpload(
+    _ resource: SyncableExternalResource,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleExternalResourceUpload(
+        for: resource,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
+    }
+  }
+
+  public func scheduleExternalResourceDeletion(
+    providerName: String,
+    providerId: String,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleDeleteExternalResource(
+        providerName: providerName,
+        providerId: providerId,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
     }
   }
 

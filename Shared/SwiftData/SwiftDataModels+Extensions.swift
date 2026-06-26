@@ -201,6 +201,18 @@ extension ExternalResourceToDownloadTaskModel: DictionaryConvertible {
   }
 }
 
+extension DeleteExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "relativePath": relativePath,
+      "providerName": providerName,
+      "providerId": providerId
+    ]
+  }
+}
+
 extension ExternalUpdateTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dictionary: [String: Any] = [

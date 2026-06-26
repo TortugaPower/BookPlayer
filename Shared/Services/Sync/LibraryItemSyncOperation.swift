@@ -147,6 +147,17 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .externalResourceToDownload:
           try await handleExternalResourceToDownload()
           finish()
+        case .deleteExternalResource:
+          guard
+            let providerName = parameters["providerName"] as? String,
+            let providerId = parameters["providerId"] as? String
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for deleting an external resource")
+          }
+          let _: Empty = try await self.provider.request(
+            .deleteExternalResource(uuid: uuid, providerName: providerName, providerId: providerId)
+          )
+          finish()
         }
       } catch {
         self.error = error

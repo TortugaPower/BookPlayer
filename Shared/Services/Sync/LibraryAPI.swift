@@ -25,6 +25,7 @@ public enum LibraryAPI {
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
   case matchUuids(uuidsDictionary: [String: String])
   case externalResourceToDownload(uuid: String, uploaded: Bool)
+  case deleteExternalResource(uuid: String, providerName: String, providerId: String)
 }
 
 extension LibraryAPI: Endpoint {
@@ -62,6 +63,8 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/external"
     case .externalResourceToDownload:
       return "/v1/library/external_set"
+    case .deleteExternalResource:
+      return "/v1/library/external"
     }
   }
 
@@ -99,6 +102,8 @@ extension LibraryAPI: Endpoint {
       return .put
     case .externalResourceToDownload:
       return .post
+    case .deleteExternalResource:
+      return .delete
     }
   }
 
@@ -180,6 +185,12 @@ extension LibraryAPI: Endpoint {
       return [
         "uuid": uuid,
         "uploaded": uploaded
+      ]
+    case .deleteExternalResource(let uuid, let providerName, let providerId):
+      return [
+        "uuid": uuid,
+        "providerName": providerName,
+        "providerId": providerId
       ]
     }
   }

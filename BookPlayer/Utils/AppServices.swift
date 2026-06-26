@@ -98,7 +98,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService)
+      let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
 
       let preferencesService = PreferencesSyncService()
       preferencesService.setup(
@@ -268,9 +268,9 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
+  private func makeHardcoverService(libraryService: LibraryService, syncService: SyncService) -> HardcoverService {
     let service = HardcoverService()
-    service.setup(libraryService: libraryService)
+    service.setup(libraryService: libraryService, syncService: syncService)
     return service
   }
 }

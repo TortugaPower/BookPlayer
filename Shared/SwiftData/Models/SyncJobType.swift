@@ -21,6 +21,7 @@ public enum SyncJobType: String, CaseIterable, Codable {
   case matchUuid
   case externalResource
   case externalResourceToDownload
+  case deleteExternalResource
 }
 
 public enum ExternalSyncJobType: String, CaseIterable, Codable {
