@@ -141,6 +141,8 @@ struct QueuedSyncTasksView: View {
       return "arrow.up.forward.square"
     case .externalResourceToDownload:
       return "link.badge.plus"
+    case .deleteExternalResource:
+      return "xmark.bin"
     }
   }
 }

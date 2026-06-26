@@ -42,6 +42,11 @@ protocol HardcoverServiceProtocol {
   /// Remove a book from the user's Hardcover library
   /// - Parameter book: The Hardcover book to remove from library
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws
+
+  /// Fetch a single book's info from Hardcover by its id
+  /// - Parameter id: The Hardcover book id (the external resource's providerId)
+  /// - Returns: The book info, or nil if not found
+  func getBook(id: Int) async throws -> SimpleHardcoverBook?
 }
 
 @Observable
@@ -133,6 +138,38 @@ extension HardcoverService {
     )
 
     return result
+  }
+
+  func getBook(id: Int) async throws -> SimpleHardcoverBook? {
+    Self.logger.info("Fetching Hardcover book info for id \(id)")
+
+    let queryString = """
+        query GetBook($id: Int!) {
+          books(where: {id: {_eq: $id}}, limit: 1) {
+            id
+            title
+            image { url }
+            contributions { author { name } }
+          }
+        }
+        """
+
+    let result = try await graphQL.execute(
+      query: queryString,
+      variables: ["id": id],
+      authorization: authorization,
+      responseType: BookByIdData.self
+    )
+
+    guard let book = result.books.first else { return nil }
+
+    return SimpleHardcoverBook(
+      id: book.id,
+      artworkURL: book.image?.url.flatMap(URL.init(string:)),
+      title: book.title,
+      author: book.contributions?.first?.author?.name ?? "",
+      status: .local
+    )
   }
 
   private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> InsertUserBookData {
@@ -234,47 +271,67 @@ extension HardcoverService {
   }
 
   private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
-    guard
-      percentCompleted > readingThreshold,
-      var item = await libraryService.getHardcoverBook(for: relativePath),
-      item.status < .reading
-    else { return }
+    guard percentCompleted > readingThreshold else { return }
 
-    do {
-      Self.logger.info("Updating Hardcover API: book \(item.id) to 'reading' status")
-      _ = try await insertUserBook(
-        bookID: item.id,
-        status: .reading
-      )
-      Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
-
-      item.status = .reading
-      await libraryService.setHardcoverBook(item, for: relativePath)
-      Self.logger.info("Updated local status to 'reading' for \(relativePath)")
-    } catch {
-      Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
-    }
+    await updateExternalResources(for: relativePath, to: .reading)
   }
 
   private func handleBookFinished(relativePath: String) async {
-    guard
-      var item = await libraryService.getHardcoverBook(for: relativePath),
-      item.status != .read
-    else { return }
+    await updateExternalResources(for: relativePath, to: .read)
+  }
+
+  /// Iterate the item's external resources and run the matching provider action for the new status.
+  private func updateExternalResources(
+    for relativePath: String,
+    to status: HardcoverBook.Status
+  ) async {
+    let resources = await libraryService.getExternalResources(for: relativePath)
+
+    for resource in resources {
+      guard let provider = ExternalResource.ProviderName(rawValue: resource.providerName) else { continue }
+
+      switch provider {
+      case .hardcover:
+        await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
+      case .jellyfin, .audiobookshelf:
+        break
+      }
+    }
+  }
+
+  /// Push the given status to Hardcover for the book identified by `providerId`,
+  /// keeping the local reference in sync. No-op if it already reached `status`.
+  private func updateHardcoverStatus(
+    _ status: HardcoverBook.Status,
+    providerId: String,
+    for relativePath: String
+  ) async {
+    guard let bookID = Int(providerId) else { return }
+
+    let existing = await libraryService.getHardcoverBook(for: relativePath)
+    if let existing, existing.status >= status {
+      return
+    }
 
     do {
-      Self.logger.info("Updating Hardcover API: book \(item.id) to 'read' status")
-      _ = try await insertUserBook(
-        bookID: item.id,
-        status: .read
-      )
-      Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
+      Self.logger.info("Updating Hardcover API: book \(bookID) to '\(String(describing: status))' status")
+      let response = try await insertUserBook(bookID: bookID, status: status)
 
-      item.status = .read
-      await libraryService.setHardcoverBook(item, for: relativePath)
-      Self.logger.info("Updated local status to 'read' for \(relativePath)")
+      var updated = existing ?? SimpleHardcoverBook(
+        id: bookID,
+        artworkURL: nil,
+        title: "",
+        author: "",
+        status: status
+      )
+      updated.status = status
+      if updated.userBookID == nil {
+        updated.userBookID = response.insertUserBook.id
+      }
+      await libraryService.setHardcoverBook(updated, for: relativePath)
+      Self.logger.info("Updated local Hardcover status to '\(String(describing: status))' for \(relativePath)")
     } catch {
-      Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
+      Self.logger.error("Failed to update Hardcover status for book \(bookID): \(error)")
     }
   }
 
@@ -500,5 +557,29 @@ extension SimpleHardcoverBook {
       author: book.authorNames.first ?? "",
       status: status
     )
+  }
+}
+
+/// Response model for fetching a single book by its Hardcover id.
+private struct BookByIdData: Codable {
+  let books: [Book]
+
+  struct Book: Codable {
+    let id: Int
+    let title: String
+    let image: Artwork?
+    let contributions: [Contribution]?
+
+    struct Artwork: Codable {
+      let url: String?
+    }
+
+    struct Contribution: Codable {
+      let author: Author?
+
+      struct Author: Codable {
+        let name: String?
+      }
+    }
   }
 }

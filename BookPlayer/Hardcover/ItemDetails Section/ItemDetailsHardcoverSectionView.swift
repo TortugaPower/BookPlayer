@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct ItemDetailsHardcoverSectionView: View {
   @Environment(\.dismiss) var dismiss
@@ -16,8 +17,14 @@ struct ItemDetailsHardcoverSectionView: View {
 
   var body: some View {
     Section(
-      header: Text("section_item_hardcover".localized)
-        .foregroundStyle(theme.secondaryColor)
+      header: HStack(spacing: Spacing.S) {
+        Text("section_item_hardcover".localized)
+          .foregroundStyle(theme.secondaryColor)
+        if viewModel.isFetchingBook {
+          ProgressView()
+            .controlSize(.small)
+        }
+      }
     ) {
       NavigationLink(
         destination: {
@@ -40,6 +47,8 @@ struct ItemDetailsHardcoverSectionView: View {
 extension ItemDetailsHardcoverSectionView {
   class Model: ObservableObject {
     @Published var pickerViewModel: HardcoverBookPickerView.Model
+    /// True while fetching the linked book's info from Hardcover via its external resource
+    @Published var isFetchingBook: Bool = false
 
     init(pickerViewModel: HardcoverBookPickerView.Model = .init()) {
       self.pickerViewModel = pickerViewModel

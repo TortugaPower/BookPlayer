@@ -334,17 +334,7 @@ public final class TasksDataManager {
       )
       context.insert(task)
     case .externalResource:
-      let task = UploadExternalResourceTaskModel(
-        id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
-        providerId: parameters["providerId"] as! String,
-        providerName: parameters["providerName"] as! String,
-        lastSyncedAt: parameters["lastSyncedAt"] as? Date,
-        syncStatus: parameters["syncStatus"] as! String,
-        processedFile: parameters["processedFile"] as! Bool,
-        hostId: parameters["hostId"] as? String
-      )
-      context.insert(task)
+      context.insert(buildUploadExternalResourceTask(parameters))
     case .externalResourceToDownload:
       let task = ExternalResourceToDownloadTaskModel(
         id: parameters["id"] as! String,
@@ -353,17 +343,33 @@ public final class TasksDataManager {
       )
       context.insert(task)
     case .deleteExternalResource:
-      let task = DeleteExternalResourceTaskModel(
-        id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
-        relativePath: parameters["relativePath"] as! String,
-        providerName: parameters["providerName"] as! String,
-        providerId: parameters["providerId"] as! String
-      )
-      context.insert(task)
+      context.insert(buildDeleteExternalResourceTask(parameters))
     }
   }
-  
+
+  private func buildUploadExternalResourceTask(_ parameters: [String: Any]) -> UploadExternalResourceTaskModel {
+    return UploadExternalResourceTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      providerId: parameters["providerId"] as! String,
+      providerName: parameters["providerName"] as! String,
+      lastSyncedAt: parameters["lastSyncedAt"] as? Date,
+      syncStatus: parameters["syncStatus"] as! String,
+      processedFile: parameters["processedFile"] as! Bool,
+      hostId: parameters["hostId"] as? String
+    )
+  }
+
+  private func buildDeleteExternalResourceTask(_ parameters: [String: Any]) -> DeleteExternalResourceTaskModel {
+    return DeleteExternalResourceTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      relativePath: parameters["relativePath"] as! String,
+      providerName: parameters["providerName"] as! String,
+      providerId: parameters["providerId"] as! String
+    )
+  }
+
   private func buildUploadTask(_ parameters: [String: Any]) -> UploadTaskModel {
     return UploadTaskModel(
       id: parameters["id"] as! String,

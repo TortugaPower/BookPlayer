@@ -1,5 +1,5 @@
 {
-  "originHash" : "805dd10f49bb52f869285787fba58f83273717c272d6c319c6faa7d81b013cfc",
+  "originHash" : "9c5d58c8ff1625733b7fd0debf30678243a28a7be28b37aa35e39a311a3c8910",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -22,7 +22,7 @@
     {
       "identity" : "get",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kean/Get.git",
+      "location" : "https://github.com/kean/Get",
       "state" : {
         "revision" : "31249885da1052872e0ac91a2943f62567c0d96d",
         "version" : "2.2.1"
@@ -47,15 +47,6 @@
       }
     },
     {
-      "identity" : "kingfisher",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Kingfisher.git",
-      "state" : {
-        "revision" : "ac632bd26a1c00f139ff62fd01806f21cf67325e",
-        "version" : "8.10.0"
-      }
-    },
-    {
       "identity" : "marqueelabel",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cbpowell/MarqueeLabel.git",
@@ -69,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/RevenueCat/purchases-ios.git",
       "state" : {
-        "revision" : "bd63241b2258ea519020eb32a349db44fb44b119",
-        "version" : "5.68.0"
+        "revision" : "e89cb027a472e5cf1c15435c4e690b9a3c170cdc",
+        "version" : "5.80.0"
       }
     },
     {

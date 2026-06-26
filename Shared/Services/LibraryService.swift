@@ -179,6 +179,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Remove the external resource of the given provider from the item (by uuid).
   /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
   func removeExternalResource(providerName: String, for uuid: String) async -> String?
+  /// Returns the item's external resources as lightweight values.
+  func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
 
   func getExternalResource(for providerId: String) async -> ExternalResource?
   
@@ -3075,6 +3077,24 @@ extension LibraryService {
 
         dataManager.saveSyncContext(context)
         continuation.resume(returning: providerId)
+      }
+    }
+  }
+
+  public func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        guard let item = getItemReference(with: relativePath, context: context) else {
+          continuation.resume(returning: [])
+          return
+        }
+
+        let resources = item.resourcesArray.map {
+          SimpleExternalResource(from: $0, ignoreLibraryItem: true)
+        }
+        continuation.resume(returning: resources)
       }
     }
   }

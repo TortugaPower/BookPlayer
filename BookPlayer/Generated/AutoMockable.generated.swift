@@ -1071,6 +1071,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return removeExternalResourceProviderNameForReturnValue
         }
     }
+    //MARK: - getExternalResources
+
+    var getExternalResourcesForCallsCount = 0
+    var getExternalResourcesForCalled: Bool {
+        return getExternalResourcesForCallsCount > 0
+    }
+    var getExternalResourcesForReceivedRelativePath: String?
+    var getExternalResourcesForReceivedInvocations: [String] = []
+    var getExternalResourcesForReturnValue: [SimpleExternalResource]! = []
+    var getExternalResourcesForClosure: ((String) async -> [SimpleExternalResource])?
+    func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+        getExternalResourcesForCallsCount += 1
+        getExternalResourcesForReceivedRelativePath = relativePath
+        getExternalResourcesForReceivedInvocations.append(relativePath)
+        if let getExternalResourcesForClosure = getExternalResourcesForClosure {
+            return await getExternalResourcesForClosure(relativePath)
+        } else {
+            return getExternalResourcesForReturnValue
+        }
+    }
     //MARK: - getHardcoverBook
 
     var getHardcoverBookForCallsCount = 0

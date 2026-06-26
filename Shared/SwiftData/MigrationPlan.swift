@@ -107,8 +107,104 @@ public enum MigrationPlan: SchemaMigrationPlan {
     }
   )
   
-  static var v2ToV3: MigrationStage = MigrationStage.lightweight(
+  // Stage 3: Backfill external resources for items that were linked to a Hardcover
+  // book before hardcover links were modeled as external resources, and enqueue an
+  // upload task for each so the link reaches the server.
+  static var v2ToV3: MigrationStage = MigrationStage.custom(
     fromVersion: SchemaV2.self,
-    toVersion: SchemaV3.self
+    toVersion: SchemaV3.self,
+    willMigrate: nil,
+    didMigrate: { context in
+      guard let coreDataContext = injectedCoreDataContext else {
+        return
+      }
+
+      let providerName = ExternalResource.ProviderName.hardcover.rawValue
+      let syncStatus = ExternalResource.SyncStatus.notSynced.rawValue
+
+      var resourcesToUpload: [(uuid: String, relativePath: String, providerId: String)] = []
+
+      // Create the missing hardcover external resources in Core Data.
+      coreDataContext.performAndWait {
+        let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
+        fetchRequest.predicate = NSPredicate(format: "hardcoverBook != nil")
+
+        guard let items = try? coreDataContext.fetch(fetchRequest) else { return }
+
+        for item in items {
+          guard let hardcoverBook = item.hardcoverBook else { continue }
+          let providerId = String(hardcoverBook.id)
+
+          // Skip if the resource already exists
+          if item.resourcesArray.contains(where: {
+            $0.providerName == providerName && $0.providerId == providerId
+          }) {
+            continue
+          }
+
+          let syncable = SyncableExternalResource(
+            providerName: providerName,
+            providerId: providerId,
+            syncStatus: syncStatus,
+            lastSyncedAt: nil,
+            processedFile: true,
+            hostId: nil
+          )
+          _ = ExternalResource.create(syncable, libraryItem: item, in: coreDataContext)
+
+          resourcesToUpload.append(
+            (uuid: item.uuid, relativePath: item.relativePath, providerId: providerId)
+          )
+        }
+
+        try? coreDataContext.save()
+      }
+
+      // Only enqueue upload tasks for users who already have a server-side library;
+      // resources for never-synced users are uploaded on their first sync.
+      guard
+        UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents),
+        !resourcesToUpload.isEmpty
+      else {
+        return
+      }
+
+      let descriptor = FetchDescriptor<SchemaV3.SyncTasksContainer>()
+      let containers = try context.fetch(descriptor)
+      let tasksContainer = containers.first ?? SchemaV3.SyncTasksContainer()
+      if containers.isEmpty {
+        context.insert(tasksContainer)
+      }
+
+      var nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
+
+      for resource in resourcesToUpload {
+        let taskId = UUID().uuidString
+        let task = SchemaV3.UploadExternalResourceTaskModel(
+          id: taskId,
+          uuid: resource.uuid,
+          providerId: resource.providerId,
+          providerName: providerName,
+          lastSyncedAt: nil,
+          syncStatus: syncStatus,
+          processedFile: true,
+          hostId: nil
+        )
+        context.insert(task)
+
+        let reference = SchemaV3.SyncTaskReferenceModel(
+          uuid: resource.uuid,
+          relativePath: resource.relativePath,
+          taskID: taskId,
+          jobType: .externalResource,
+          position: nextPosition
+        )
+        tasksContainer.tasks.append(reference)
+        reference.container = tasksContainer
+        nextPosition += 1
+      }
+
+      try context.save()
+    }
   )
 }
