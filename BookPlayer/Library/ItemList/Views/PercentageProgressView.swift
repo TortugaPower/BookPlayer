@@ -20,7 +20,11 @@ struct PercentageProgressView: View {
   }
 
   var body: some View {
-    Group {
+    // `progress` can arrive non-finite (e.g. an item whose duration is still
+    // 0 makes `percentCompleted` 0/0 = NaN). `Int(NaN)` traps at runtime, so
+    // collapse any non-finite value to 0 and clamp into the expected 0...1.
+    let progress = self.progress.isFinite ? min(max(self.progress, 0), 1) : 0
+    return Group {
       if progress == 0 {
         EmptyView()
       } else if progress == 1 {
