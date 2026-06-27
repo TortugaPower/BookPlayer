@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ jäljellä";
 "chapters_title" = "Kappaleet";
 "chapters_item_description" = "Aloitus: %@ - Kesto: %@";
+"reload_button" = "Lataa uudelleen";
+"reload_chapters_title" = "Lataa kappaleet uudelleen";
+"reparse_chapters_found_title" = "Kappaleet ladattu uudelleen";
+"reparse_chapters_found_description" = "Löytyi %d kappaletta.";
+"reparse_chapters_none_description" = "Tästä tiedostosta ei löytynyt lisää kappaleita.";
+"reparse_chapters_download_description" = "Lataa tämä kirja ennen kuin lataat sen kappaleet uudelleen.";
 "restore_title" = "Palauta";
 "themes_caps_title" = "TEEMAT";
 "plus_app_icons_title" = "Appikuvakkeet";

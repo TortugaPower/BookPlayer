@@ -166,7 +166,10 @@ struct PlayerView: View {
         .environmentObject(theme)
       case .chapters:
         ChaptersView{
-          ChaptersViewModel(playerManager: viewModel.playerManager)
+          ChaptersViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService
+          )
         }
         .environmentObject(theme)
       case .bookmark:

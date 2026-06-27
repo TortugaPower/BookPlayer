@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ kvar";
 "chapters_title" = "Kapitel";
 "chapters_item_description" = "Start: %@ - Längd: %@";
+"reload_button" = "Uppdatera";
+"reload_chapters_title" = "Uppdatera kapitel";
+"reparse_chapters_found_title" = "Kapitel uppdaterade";
+"reparse_chapters_found_description" = "Hittade %d kapitel.";
+"reparse_chapters_none_description" = "Inga ytterligare kapitel hittades i den här filen.";
+"reparse_chapters_download_description" = "Ladda ner den här boken innan du uppdaterar dess kapitel.";
 "restore_title" = "Återställ";
 "themes_caps_title" = "TEMAN";
 "plus_app_icons_title" = "App-ikoner";

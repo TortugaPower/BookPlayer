@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "剩余 %@";
 "chapters_title" = "章节";
 "chapters_item_description" = "开始： %@  - 时长： %@";
+"reload_button" = "刷新";
+"reload_chapters_title" = "刷新章节";
+"reparse_chapters_found_title" = "章节已刷新";
+"reparse_chapters_found_description" = "找到 %d 个章节。";
+"reparse_chapters_none_description" = "此文件中未找到其他章节。";
+"reparse_chapters_download_description" = "刷新章节前请先下载本书。";
 "restore_title" = "恢复";
 "themes_caps_title" = "主题";
 "plus_app_icons_title" = "应用图标";

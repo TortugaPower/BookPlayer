@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ rămase";
 "chapters_title" = "Capitole";
 "chapters_item_description" = "Start: %@ - Durata: %@";
+"reload_button" = "Reîncarcă";
+"reload_chapters_title" = "Reîncarcă capitolele";
+"reparse_chapters_found_title" = "Capitole reîncărcate";
+"reparse_chapters_found_description" = "S-au găsit %d capitole.";
+"reparse_chapters_none_description" = "Nu au fost găsite capitole suplimentare în acest fișier.";
+"reparse_chapters_download_description" = "Descarcă această carte înainte de a-i reîncărca capitolele.";
 "restore_title" = "Restabilire";
 "themes_caps_title" = "Teme";
 "plus_app_icons_title" = "Pictogramele aplicației";

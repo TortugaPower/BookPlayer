@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ restant";
 "chapters_title" = "Capítols";
 "chapters_item_description" = "Inici: %@ - Durada: %@";
+"reload_button" = "Torna a carregar";
+"reload_chapters_title" = "Torna a carregar els capítols";
+"reparse_chapters_found_title" = "Capítols tornats a carregar";
+"reparse_chapters_found_description" = "S'han trobat %d capítols.";
+"reparse_chapters_none_description" = "No s'ha trobat cap capítol addicional en aquest fitxer.";
+"reparse_chapters_download_description" = "Descarrega aquest llibre abans de tornar a carregar-ne els capítols.";
 "restore_title" = "Restaura";
 "themes_caps_title" = "TEMES";
 "plus_app_icons_title" = "Icones de l'aplicació";

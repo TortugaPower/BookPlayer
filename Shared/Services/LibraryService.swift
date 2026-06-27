@@ -90,6 +90,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   func createBook(from url: URL) async -> Book
   /// Load metadata chapters if needed
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
+  /// Re-parse chapters from the file with our manual parsers, replacing the stored list only
+  /// when more chapters are found. Returns the new chapter count, or nil if nothing changed.
+  func reloadChapters(relativePath: String) async -> Int?
   /// Create folder
   func createFolder(with title: String, inside relativePath: String?) throws -> SimpleLibraryItem
   /// Update folder type
@@ -1775,6 +1778,35 @@ extension LibraryService {
       }
       self.storeChapters(chapters, for: book, context: context)
       self.dataManager.saveSyncContext(context)
+    }
+  }
+
+  public func reloadChapters(relativePath: String) async -> Int? {
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
+
+    // Parse outside of context.perform (it does file I/O).
+    guard let newChapters = await audioMetadataService.extractManualChapters(from: fileURL),
+          !newChapters.isEmpty else {
+      return nil
+    }
+
+    let context = dataManager.getBackgroundContext()
+    return await context.perform { [unowned self] in
+      guard let book = self.getItem(with: relativePath, context: context) as? Book else {
+        return nil
+      }
+      // Only replace when the manual parser found more than what's stored, so the action can
+      // only improve a list — never degrade one AVFoundation already read correctly.
+      let existingCount = book.chapters?.count ?? 0
+      guard newChapters.count > existingCount else { return nil }
+
+      if let existing = book.chapters?.array as? [Chapter] {
+        existing.forEach { context.delete($0) }
+      }
+      self.storeChapters(newChapters, for: book, context: context)
+      self.dataManager.saveSyncContext(context)
+      return newChapters.count
     }
   }
 

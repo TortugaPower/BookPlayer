@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ tilbage";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighed: %@";
+"reload_button" = "Genindlæs";
+"reload_chapters_title" = "Genindlæs kapitler";
+"reparse_chapters_found_title" = "Kapitler genindlæst";
+"reparse_chapters_found_description" = "Fandt %d kapitler.";
+"reparse_chapters_none_description" = "Der blev ikke fundet yderligere kapitler i denne fil.";
+"reparse_chapters_download_description" = "Hent denne bog, før du genindlæser dens kapitler.";
 "restore_title" = "Gendan";
 "themes_caps_title" = "TEMAER";
 "plus_app_icons_title" = "App-ikoner";

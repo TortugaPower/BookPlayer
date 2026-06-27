@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "Pozostało %@";
 "chapters_title" = "Rozdziały";
 "chapters_item_description" = "Start: %@ - Czas trwania: %@";
+"reload_button" = "Odśwież";
+"reload_chapters_title" = "Odśwież rozdziały";
+"reparse_chapters_found_title" = "Rozdziały odświeżone";
+"reparse_chapters_found_description" = "Znaleziono %d rozdziałów.";
+"reparse_chapters_none_description" = "Nie znaleziono dodatkowych rozdziałów w tym pliku.";
+"reparse_chapters_download_description" = "Pobierz tę książkę przed odświeżeniem jej rozdziałów.";
 "restore_title" = "Przywróć";
 "themes_caps_title" = "MOTYWY";
 "plus_app_icons_title" = "Ikony Aplikacji";

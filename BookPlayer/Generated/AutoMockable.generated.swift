@@ -513,6 +513,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
         await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
+    //MARK: - reloadChapters
+
+    var reloadChaptersRelativePathCallsCount = 0
+    var reloadChaptersRelativePathCalled: Bool {
+        return reloadChaptersRelativePathCallsCount > 0
+    }
+    var reloadChaptersRelativePathReceivedRelativePath: String?
+    var reloadChaptersRelativePathReceivedInvocations: [String] = []
+    var reloadChaptersRelativePathReturnValue: Int?
+    var reloadChaptersRelativePathClosure: ((String) async -> Int?)?
+    func reloadChapters(relativePath: String) async -> Int? {
+        reloadChaptersRelativePathCallsCount += 1
+        reloadChaptersRelativePathReceivedRelativePath = relativePath
+        reloadChaptersRelativePathReceivedInvocations.append(relativePath)
+        if let reloadChaptersRelativePathClosure = reloadChaptersRelativePathClosure {
+            return await reloadChaptersRelativePathClosure(relativePath)
+        } else {
+            return reloadChaptersRelativePathReturnValue
+        }
+    }
     //MARK: - createFolder
 
     var createFolderWithInsideThrowableError: Error?
@@ -1397,6 +1417,18 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         jumpToChapterReceivedChapter = chapter
         jumpToChapterReceivedInvocations.append(chapter)
         jumpToChapterClosure?(chapter)
+    }
+    //MARK: - reloadCurrentItem
+
+    var reloadCurrentItemCallsCount = 0
+    var reloadCurrentItemCalled: Bool {
+        return reloadCurrentItemCallsCount > 0
+    }
+    var reloadCurrentItemClosure: (() -> Void)?
+    @MainActor
+    func reloadCurrentItem() {
+        reloadCurrentItemCallsCount += 1
+        reloadCurrentItemClosure?()
     }
     //MARK: - markAsCompleted
 

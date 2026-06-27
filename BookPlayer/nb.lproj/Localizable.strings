@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ igjen";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighet: %@";
+"reload_button" = "Last inn på nytt";
+"reload_chapters_title" = "Last inn kapitler på nytt";
+"reparse_chapters_found_title" = "Kapitler lastet inn på nytt";
+"reparse_chapters_found_description" = "Fant %d kapitler.";
+"reparse_chapters_none_description" = "Ingen flere kapitler ble funnet i denne filen.";
+"reparse_chapters_download_description" = "Last ned denne boken før du laster inn kapitlene på nytt.";
 "restore_title" = "Gjenopprett";
 "themes_caps_title" = "Temaer";
 "plus_app_icons_title" = "App ikoner";

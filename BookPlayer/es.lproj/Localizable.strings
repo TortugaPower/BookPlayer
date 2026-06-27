@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ restante";
 "chapters_title" = "Capítulos";
 "chapters_item_description" = "Inicio: %@ - Duración: %@";
+"reload_button" = "Recargar";
+"reload_chapters_title" = "Recargar capítulos";
+"reparse_chapters_found_title" = "Capítulos recargados";
+"reparse_chapters_found_description" = "Se encontraron %d capítulos.";
+"reparse_chapters_none_description" = "No se encontraron capítulos adicionales en este archivo.";
+"reparse_chapters_download_description" = "Descarga este libro antes de recargar sus capítulos.";
 "restore_title" = "Restaurar";
 "themes_caps_title" = "TEMAS";
 "plus_app_icons_title" = "Iconos de la Aplicación";

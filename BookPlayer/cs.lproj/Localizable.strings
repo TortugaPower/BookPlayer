@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "Zbývá %@";
 "chapters_title" = "Kapitoly";
 "chapters_item_description" = "Začátek: %@ - Doba trvání: %@";
+"reload_button" = "Načíst znovu";
+"reload_chapters_title" = "Znovu načíst kapitoly";
+"reparse_chapters_found_title" = "Kapitoly znovu načteny";
+"reparse_chapters_found_description" = "Nalezeno %d kapitol.";
+"reparse_chapters_none_description" = "V tomto souboru nebyly nalezeny žádné další kapitoly.";
+"reparse_chapters_download_description" = "Před opětovným načtením kapitol nejprve stáhněte tuto knihu.";
 "restore_title" = "Obnovit";
 "themes_caps_title" = "TÉMATA";
 "plus_app_icons_title" = "Ikony aplikací";
