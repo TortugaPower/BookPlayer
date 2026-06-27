@@ -42,7 +42,7 @@ public protocol PlayerManagerProtocol: AnyObject {
   func jumpToChapter(_ chapter: PlayableChapter)
   /// Rebuild `currentItem` from storage (and re-bind the chapter subscription) so externally
   /// changed data — e.g. re-parsed chapters — takes effect. Preserves playback position.
-  func reloadCurrentItem()
+  @MainActor func reloadCurrentItem()
   func markAsCompleted(_ flag: Bool)
   func setSpeed(_ newValue: Float)
   func setBoostVolume(_ newValue: Bool)

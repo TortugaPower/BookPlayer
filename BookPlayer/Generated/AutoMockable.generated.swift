@@ -1425,6 +1425,7 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         return reloadCurrentItemCallsCount > 0
     }
     var reloadCurrentItemClosure: (() -> Void)?
+    @MainActor
     func reloadCurrentItem() {
         reloadCurrentItemCallsCount += 1
         reloadCurrentItemClosure?()

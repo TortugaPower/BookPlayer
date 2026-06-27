@@ -60,12 +60,16 @@ struct ChaptersView: View {
     Button {
       Task { await model.reloadChapters() }
     } label: {
-      if model.isReloadingChapters {
-        ProgressView()
-      } else {
-        Text("reload_button")
-          .foregroundStyle(theme.linkColor)
-      }
+      // Keep the title laid out (just hidden) while loading so the spinner overlay doesn't
+      // change the toolbar item's width.
+      Text("reload_button")
+        .foregroundStyle(theme.linkColor)
+        .opacity(model.isReloadingChapters ? 0 : 1)
+        .overlay {
+          if model.isReloadingChapters {
+            ProgressView()
+          }
+        }
     }
     .disabled(model.isReloadingChapters)
     .accessibilityLabel("reload_chapters_title")

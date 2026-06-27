@@ -667,6 +667,7 @@ extension PlayerManager {
     jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
+  @MainActor
   func reloadCurrentItem() {
     // Rebuild `currentItem` from storage and re-bind the chapter subscription so externally
     // changed data takes effect while keeping the end-of-chapter handling working.
@@ -678,7 +679,10 @@ extension PlayerManager {
     currentItem = updatedItem
 
     playableChapterSubscription?.cancel()
-    playableChapterSubscription = updatedItem.$currentChapter.sink { [weak self] chapter in
+    // `dropFirst()` skips the immediate replay of the current value on rebind — otherwise it
+    // would spuriously re-fire `.chapterChange` / now-playing / widget reload for the chapter
+    // we're already on.
+    playableChapterSubscription = updatedItem.$currentChapter.dropFirst().sink { [weak self] chapter in
       guard let chapter = chapter else { return }
 
       self?.setNowPlayingBookTitle(chapter: chapter)

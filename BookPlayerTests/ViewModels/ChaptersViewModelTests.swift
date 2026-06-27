@@ -21,21 +21,22 @@ final class ChaptersViewModelTests: XCTestCase {
     libraryServiceMock = LibraryServiceProtocolMock()
   }
 
-  private func makeItem(relativePath: String, isBoundBook: Bool) -> PlayableItem {
-    PlayableItem(
+  private func makeItem(relativePath: String, isBoundBook: Bool, chapterCount: Int = 1) -> PlayableItem {
+    let chapters = (0..<chapterCount).map { index in
+      PlayableChapter(
+        title: "chapter \(index + 1)",
+        author: "author",
+        start: Double(index) * 10,
+        duration: 10,
+        relativePath: relativePath,
+        remoteURL: nil,
+        index: Int16(index)
+      )
+    }
+    return PlayableItem(
       title: "title",
       author: "author",
-      chapters: [
-        PlayableChapter(
-          title: "chapter",
-          author: "author",
-          start: 0,
-          duration: 100,
-          relativePath: relativePath,
-          remoteURL: nil,
-          index: 0
-        )
-      ],
+      chapters: chapters,
       currentTime: 0,
       duration: 100,
       relativePath: relativePath,
@@ -70,16 +71,22 @@ final class ChaptersViewModelTests: XCTestCase {
     XCTAssertFalse(makeSUT().canReloadChapters)
   }
 
-  func testReloadChapters_whenMoreFound_reloadsItemAndAlerts() async {
+  func testReloadChapters_whenMoreFound_reloadsItemAndRefreshesList() async {
     createLocalFile(named: "reparse.m4b")
-    playerManagerMock.currentItem = makeItem(relativePath: "reparse.m4b", isBoundBook: false)
+    playerManagerMock.currentItem = makeItem(relativePath: "reparse.m4b", isBoundBook: false, chapterCount: 1)
     libraryServiceMock.reloadChaptersRelativePathReturnValue = 5
+    // Simulate PlayerManager rebuilding currentItem from storage with the new chapter count.
+    let reloadedItem = makeItem(relativePath: "reparse.m4b", isBoundBook: false, chapterCount: 5)
+    playerManagerMock.reloadCurrentItemClosure = { [weak self] in
+      self?.playerManagerMock.currentItem = reloadedItem
+    }
     let sut = makeSUT()
 
     await sut.reloadChapters()
 
     XCTAssertTrue(libraryServiceMock.reloadChaptersRelativePathCalled)
     XCTAssertTrue(playerManagerMock.reloadCurrentItemCalled)
+    XCTAssertEqual(sut.chapters.count, 5)
     XCTAssertNotNil(sut.currentAlert)
     XCTAssertFalse(sut.isReloadingChapters)
   }
@@ -94,6 +101,7 @@ final class ChaptersViewModelTests: XCTestCase {
     XCTAssertFalse(libraryServiceMock.reloadChaptersRelativePathCalled)
     XCTAssertFalse(playerManagerMock.reloadCurrentItemCalled)
     XCTAssertNotNil(sut.currentAlert)
+    XCTAssertFalse(sut.isReloadingChapters)
   }
 
   func testReloadChapters_whenNoAdditionalFound_alertsAndDoesNotReloadItem() async {
@@ -107,6 +115,7 @@ final class ChaptersViewModelTests: XCTestCase {
     XCTAssertTrue(libraryServiceMock.reloadChaptersRelativePathCalled)
     XCTAssertFalse(playerManagerMock.reloadCurrentItemCalled)
     XCTAssertNotNil(sut.currentAlert)
+    XCTAssertFalse(sut.isReloadingChapters)
   }
 
   func testReloadChapters_boundBook_isNoOp() async {

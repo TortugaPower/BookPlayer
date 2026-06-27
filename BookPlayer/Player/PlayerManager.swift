@@ -714,6 +714,7 @@ extension PlayerManager {
     jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
+  @MainActor
   func reloadCurrentItem() {
     // Rebuild the in-memory item from storage so externally-changed data (e.g. re-parsed
     // chapters) takes effect. Playback position is preserved — it's persisted in Core Data and
