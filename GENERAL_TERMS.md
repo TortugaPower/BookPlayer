@@ -32,7 +32,7 @@ These Terms of Use – General (**“General Terms”**) supplement BookPlayer�
 
 **4. Termination**
 
-4.1 These Terms terminate automatically if, for any reason, we cease to operate the Application. Sections 2-7 of these General Terms will survive termination.
+4.1 These Terms terminate automatically if, for any reason, we cease to operate the Application. Sections 2-6 of these General Terms will survive termination.
 
 4.2 BookPlayer retains the right to terminate these Terms immediately if you have breached these Terms in any way.
 
@@ -49,8 +49,8 @@ We respect the intellectual property rights of others and will respond to clear 
 
 **6. Miscellaneous**
 
-7.1 Severability. In the event that one or more terms of these Terms becomes or is declared to be illegal or otherwise unenforceable by any court of competent jurisdiction, each such term shall be deemed deleted from these Terms in such jurisdiction. All remaining terms of these Terms shall remain in full force and effect and such deletion shall not apply to the Terms in other jurisdictions.
+6.1 Severability. In the event that one or more terms of these Terms becomes or is declared to be illegal or otherwise unenforceable by any court of competent jurisdiction, each such term shall be deemed deleted from these Terms in such jurisdiction. All remaining terms of these Terms shall remain in full force and effect and such deletion shall not apply to the Terms in other jurisdictions.
 
-7.2 The failure of us to exercise or enforce any right or provision of these Terms shall not constitute a waiver of such right or provision. Our notice to you via email, regular mail, or notices or links on the Application shall constitute acceptable notice to you under these Terms.
+6.2 The failure of us to exercise or enforce any right or provision of these Terms shall not constitute a waiver of such right or provision. Our notice to you via email, regular mail, or notices or links on the Application shall constitute acceptable notice to you under these Terms.
 
-7.3 These Terms constitutes the entire agreement between us and unless specifically stated in these Terms, no other representation, document or statement shall be considered part of these Terms.
+6.3 These Terms constitutes the entire agreement between us and unless specifically stated in these Terms, no other representation, document or statement shall be considered part of these Terms.
