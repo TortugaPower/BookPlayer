@@ -57,6 +57,13 @@ public protocol AudioMetadataServiceProtocol {
   /// - Parameter asset: The AVAsset to extract metadata from
   /// - Returns: AudioMetadata if extraction succeeds, nil otherwise
   func extractMetadata(from asset: AVAsset) async -> AudioMetadata?
+
+  /// Extract chapters from a file using only our manual parsers, bypassing AVFoundation's
+  /// native chapter API. Use this to recover chapters when the native reader returns an
+  /// incomplete list (e.g. an interleaved text chapter track it collapses into a few entries).
+  /// - Parameter fileURL: URL to a local audio file
+  /// - Returns: The parsed chapters, or nil if none could be parsed
+  func extractManualChapters(from fileURL: URL) async -> [ChapterMetadata]?
 }
 
 public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
@@ -157,16 +164,21 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   // MARK: - Chapter Extraction
   
   private func extractChapters(from asset: AVAsset, metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
+    // First try: Native chapter support (works for M4B, some M4A, properly tagged files).
+    // If locales exist but yield no usable chapters, fall through to the manual fallbacks.
+    if let availableChapterLocales = try? await asset.load(.availableChapterLocales),
+       !availableChapterLocales.isEmpty,
+       let standardChapters = await extractStandardChapters(from: asset, locales: availableChapterLocales) {
+      return standardChapters
+    }
+
+    return await extractFallbackChapters(from: asset, metadata: metadata, duration: duration)
+  }
+
+  /// Chapter parsers that don't rely on AVFoundation's native chapter API. Also used directly
+  /// (via `extractManualChapters`) to recover chapters when the native reader under-reports.
+  private func extractFallbackChapters(from asset: AVAsset, metadata: [AVMetadataItem], duration: TimeInterval) async -> [ChapterMetadata]? {
     do {
-      let availableChapterLocales = try await asset.load(.availableChapterLocales)
-
-      // First try: Native chapter support (works for M4B, some M4A, properly tagged files).
-      // If locales exist but yield no usable chapters, fall through to the manual fallbacks.
-      if !availableChapterLocales.isEmpty,
-         let standardChapters = await extractStandardChapters(from: asset, locales: availableChapterLocales) {
-        return standardChapters
-      }
-
       // Second try: Malformed QuickTime/MP4 chapter tracks that AVFoundation refuses
       // to expose. Older tools (e.g. "MarkAble") create a valid `chap`-referenced text
       // chapter track but tag it with an external `alis` data reference and/or an invalid
@@ -218,7 +230,19 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
       return nil
     }
   }
-  
+
+  public func extractManualChapters(from fileURL: URL) async -> [ChapterMetadata]? {
+    let asset = AVURLAsset(url: fileURL)
+    do {
+      let metadata = try await asset.load(.metadata)
+      let duration = CMTimeGetSeconds(try await asset.load(.duration))
+      return await extractFallbackChapters(from: asset, metadata: metadata, duration: duration)
+    } catch {
+      Self.logger.error("Failed to manually extract chapters: \(error)")
+      return nil
+    }
+  }
+
   private func extractStandardChapters(from asset: AVAsset, locales: [Locale]) async -> [ChapterMetadata]? {
     var allChapters: [ChapterMetadata] = []
 

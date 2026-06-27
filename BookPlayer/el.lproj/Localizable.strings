@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "Απομένουν %@";
 "chapters_title" = "Κεφάλαια";
 "chapters_item_description" = "Έναρξη: %@ - Διάρκεια: %@";
+"reload_button" = "Επαναφόρτωση";
+"reload_chapters_title" = "Επαναφόρτωση κεφαλαίων";
+"reparse_chapters_found_title" = "Τα κεφάλαια επαναφορτώθηκαν";
+"reparse_chapters_found_description" = "Βρέθηκαν %d κεφάλαια.";
+"reparse_chapters_none_description" = "Δεν βρέθηκαν επιπλέον κεφάλαια σε αυτό το αρχείο.";
+"reparse_chapters_download_description" = "Κατεβάστε αυτό το βιβλίο πριν επαναφορτώσετε τα κεφάλαιά του.";
 "restore_title" = "Επαναφέρω";
 "themes_caps_title" = "ΘΕΜΑΤΑ";
 "plus_app_icons_title" = "Εικονίδια εφαρμογών";

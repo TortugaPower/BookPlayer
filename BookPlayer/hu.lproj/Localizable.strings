@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ van hátra";
 "chapters_title" = "Fejezetek";
 "chapters_item_description" = "Kezdés: %@ - Hossz: %@";
+"reload_button" = "Újratöltés";
+"reload_chapters_title" = "Fejezetek újratöltése";
+"reparse_chapters_found_title" = "Fejezetek újratöltve";
+"reparse_chapters_found_description" = "%d fejezet található.";
+"reparse_chapters_none_description" = "Nem található további fejezet ebben a fájlban.";
+"reparse_chapters_download_description" = "Töltsd le ezt a könyvet, mielőtt újratöltöd a fejezeteit.";
 "restore_title" = "Visszaállítás";
 "themes_caps_title" = "TÉMÁK";
 "plus_app_icons_title" = "App ikonok";

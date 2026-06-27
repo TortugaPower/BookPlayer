@@ -714,6 +714,20 @@ extension PlayerManager {
     jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
+  func reloadCurrentItem() {
+    // Rebuild the in-memory item from storage so externally-changed data (e.g. re-parsed
+    // chapters) takes effect. Playback position is preserved — it's persisted in Core Data and
+    // re-seeded by time in `PlayableItem.init` — and the chapter-change subscription must be
+    // re-bound to the new instance, otherwise the end-of-chapter sleep timer silently breaks.
+    guard let relativePath = currentItem?.relativePath,
+          let libraryItem = libraryService.getSimpleItem(with: relativePath),
+          let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) else {
+      return
+    }
+    currentItem = updatedItem
+    bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
+  }
+
   func initializeChapterTime(_ time: Double) {
     guard let currentItem = self.currentItem else { return }
 

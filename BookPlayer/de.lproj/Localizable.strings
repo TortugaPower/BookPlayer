@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ übrig";
 "chapters_title" = "Kapitel";
 "chapters_item_description" = "Beginn: %@ – Dauer: %@";
+"reload_button" = "Neu laden";
+"reload_chapters_title" = "Kapitel neu laden";
+"reparse_chapters_found_title" = "Kapitel neu geladen";
+"reparse_chapters_found_description" = "%d Kapitel gefunden.";
+"reparse_chapters_none_description" = "In dieser Datei wurden keine weiteren Kapitel gefunden.";
+"reparse_chapters_download_description" = "Lade dieses Buch herunter, bevor du seine Kapitel neu lädst.";
 "restore_title" = "Wiederherstellen";
 "themes_caps_title" = "DESIGNS";
 "plus_app_icons_title" = "App Icons";

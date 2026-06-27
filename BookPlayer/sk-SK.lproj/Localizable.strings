@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "Zostáva %@";
 "chapters_title" = "Kapitoly";
 "chapters_item_description" = "Začiatok: %@ - Trvanie: %@";
+"reload_button" = "Obnoviť";
+"reload_chapters_title" = "Obnoviť kapitoly";
+"reparse_chapters_found_title" = "Kapitoly obnovené";
+"reparse_chapters_found_description" = "Nájdených kapitol: %d.";
+"reparse_chapters_none_description" = "V tomto súbore sa nenašli žiadne ďalšie kapitoly.";
+"reparse_chapters_download_description" = "Pred obnovením kapitol si túto knihu stiahnite.";
 "restore_title" = "Obnoviť";
 "themes_caps_title" = "TÉMY";
 "plus_app_icons_title" = "Ikony aplikácie";

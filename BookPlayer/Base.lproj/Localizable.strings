@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ left";
 "chapters_title" = "Chapters";
 "chapters_item_description" = "Start: %@ - Duration: %@";
+"reload_button" = "Reload";
+"reload_chapters_title" = "Reload Chapters";
+"reparse_chapters_found_title" = "Chapters Reloaded";
+"reparse_chapters_found_description" = "Found %d chapters.";
+"reparse_chapters_none_description" = "No additional chapters were found in this file.";
+"reparse_chapters_download_description" = "Download this book before reloading its chapters.";
 "restore_title" = "Restore";
 "themes_caps_title" = "THEMES";
 "plus_app_icons_title" = "App Icons";

@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "متبقّي %@";
 "chapters_title" = "الفصول";
 "chapters_item_description" = "البداية: %@ - المدة: %@";
+"reload_button" = "إعادة التحميل";
+"reload_chapters_title" = "إعادة تحميل الفصول";
+"reparse_chapters_found_title" = "تمت إعادة تحميل الفصول";
+"reparse_chapters_found_description" = "تم العثور على %d فصلًا.";
+"reparse_chapters_none_description" = "لم يتم العثور على فصول إضافية في هذا الملف.";
+"reparse_chapters_download_description" = "قم بتحميل هذا الكتاب قبل إعادة تحميل فصوله.";
 "restore_title" = "استعادة";
 "themes_caps_title" = "التنسيقات";
 "plus_app_icons_title" = "أيقونات التطبيق";

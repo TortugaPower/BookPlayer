@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "残り%@";
 "chapters_title" = "チャプタ";
 "chapters_item_description" = "開始: %@ - 長さ: %@";
+"reload_button" = "再読み込み";
+"reload_chapters_title" = "チャプタを再読み込み";
+"reparse_chapters_found_title" = "チャプタを再読み込みしました";
+"reparse_chapters_found_description" = "%d 件のチャプタが見つかりました。";
+"reparse_chapters_none_description" = "このファイルから追加のチャプタは見つかりませんでした。";
+"reparse_chapters_download_description" = "チャプタを再読み込みする前に、この本をダウンロードしてください。";
 "restore_title" = "復元";
 "themes_caps_title" = "テーマ";
 "plus_app_icons_title" = "アプリアイコン";

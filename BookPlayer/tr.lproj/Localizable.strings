@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "%@ kaldı";
 "chapters_title" = "Bölümler";
 "chapters_item_description" = "Başlangıç: %@ - Süre: %@";
+"reload_button" = "Yenile";
+"reload_chapters_title" = "Bölümleri yenile";
+"reparse_chapters_found_title" = "Bölümler Yenilendi";
+"reparse_chapters_found_description" = "%d bölüm bulundu.";
+"reparse_chapters_none_description" = "Bu dosyada ek bölüm bulunamadı.";
+"reparse_chapters_download_description" = "Bölümleri yenilemeden önce bu kitabı indirin.";
 "restore_title" = "Geri Yükle";
 "themes_caps_title" = "TEMALAR";
 "plus_app_icons_title" = "Uygulama Simgeleri";

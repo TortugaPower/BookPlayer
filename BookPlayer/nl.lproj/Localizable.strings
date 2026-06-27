@@ -102,6 +102,12 @@
 "player_book_remaining_title" = "Nog %@";
 "chapters_title" = "Hoofdstukken";
 "chapters_item_description" = "Start: %@ - Duur: %@";
+"reload_button" = "Herladen";
+"reload_chapters_title" = "Hoofdstukken herladen";
+"reparse_chapters_found_title" = "Hoofdstukken herladen";
+"reparse_chapters_found_description" = "%d hoofdstukken gevonden.";
+"reparse_chapters_none_description" = "Er zijn geen extra hoofdstukken gevonden in dit bestand.";
+"reparse_chapters_download_description" = "Download dit boek voordat je de hoofdstukken herlaadt.";
 "restore_title" = "Herstellen";
 "themes_caps_title" = "THEMA'S";
 "plus_app_icons_title" = "App-pictogrammen";
