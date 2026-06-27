@@ -67,6 +67,8 @@ public final class TasksDataManager {
   }
   
   public func deleteAllTasks(with context: ModelContext) throws {
+    // Task payload models are standalone (no relationships), so a store-level
+    // batch delete is safe and fast.
     try context.delete(model: UploadTaskModel.self)
     try context.delete(model: UpdateTaskModel.self)
     try context.delete(model: MoveTaskModel.self)
@@ -76,9 +78,21 @@ public final class TasksDataManager {
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
-    try context.delete(model: SyncTaskReferenceModel.self)
-    try context.delete(model: SyncTasksContainer.self)
-    
+
+    // SyncTaskReferenceModel has a mandatory inverse to SyncTasksContainer, which a
+    // store-level batch delete can't nullify — it trips a constraint-trigger /
+    // optimistic-lock error. Delete through the object graph instead: removing each
+    // container cascades to its task references and maintains the inverse in memory.
+    let containers = try context.fetch(FetchDescriptor<SyncTasksContainer>())
+    for container in containers {
+      context.delete(container)
+    }
+    // Defensively clear any references that aren't attached to a container.
+    let orphanedReferences = try context.fetch(FetchDescriptor<SyncTaskReferenceModel>())
+    for reference in orphanedReferences {
+      context.delete(reference)
+    }
+
     try context.save()
   }
 
