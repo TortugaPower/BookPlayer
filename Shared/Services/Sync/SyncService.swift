@@ -265,6 +265,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     Self.logger.trace("Fetching list of contents")
 
+    /// Same gate as `syncLibraryContents()`: don't reconcile while a logout teardown
+    /// is still clearing the queue, in case a fast re-login routed here before the
+    /// `hasScheduledLibraryContents` flag was reset.
+    await teardownTask?.value
+
     let response = try await fetchContents(at: relativePath)
 
     try await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
