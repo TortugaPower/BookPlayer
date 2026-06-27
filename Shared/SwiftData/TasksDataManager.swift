@@ -79,10 +79,11 @@ public final class TasksDataManager {
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
 
-    // SyncTaskReferenceModel has a mandatory inverse to SyncTasksContainer, which a
-    // store-level batch delete can't nullify — it trips a constraint-trigger /
-    // optimistic-lock error. Delete through the object graph instead: removing each
-    // container cascades to its task references and maintains the inverse in memory.
+    // SyncTaskReferenceModel.container participates in a cascade relationship with
+    // SyncTasksContainer. A store-level batch delete runs below the object graph and
+    // skips relationship-maintenance (cascade/nullify) entirely, which trips a
+    // constraint-trigger / optimistic-lock error on that inverse. Delete through the
+    // object graph instead: removing each container cascades to its task references.
     let containers = try context.fetch(FetchDescriptor<SyncTasksContainer>())
     for container in containers {
       context.delete(container)

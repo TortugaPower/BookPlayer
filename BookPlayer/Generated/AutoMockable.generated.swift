@@ -1687,6 +1687,32 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadErrorPublisher = value }
     }
     var underlyingDownloadErrorPublisher: PassthroughSubject<(String, Error), Never>!
+    //MARK: - updateSyncEnabled
+
+    var updateSyncEnabledCallsCount = 0
+    var updateSyncEnabledCalled: Bool {
+        return updateSyncEnabledCallsCount > 0
+    }
+    var updateSyncEnabledReceivedEnabled: Bool?
+    var updateSyncEnabledReceivedInvocations: [Bool] = []
+    var updateSyncEnabledClosure: ((Bool) -> Void)?
+    func updateSyncEnabled(_ enabled: Bool) {
+        updateSyncEnabledCallsCount += 1
+        updateSyncEnabledReceivedEnabled = enabled
+        updateSyncEnabledReceivedInvocations.append(enabled)
+        updateSyncEnabledClosure?(enabled)
+    }
+    //MARK: - logout
+
+    var logoutCallsCount = 0
+    var logoutCalled: Bool {
+        return logoutCallsCount > 0
+    }
+    var logoutClosure: (() async -> Void)?
+    func logout() async {
+        logoutCallsCount += 1
+        await logoutClosure?()
+    }
     //MARK: - queuedJobsCount
 
     var queuedJobsCountCallsCount = 0

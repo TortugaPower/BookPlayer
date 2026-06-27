@@ -48,6 +48,6 @@ class CoreServices: ObservableObject {
 
   func updateSyncEnabled(_ enabled: Bool) {
     hasSyncEnabled = enabled
-    syncService.isActive = enabled
+    syncService.updateSyncEnabled(enabled)
   }
 }

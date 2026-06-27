@@ -21,8 +21,15 @@ public enum BPSyncError: Error {
 
 /// sourcery: AutoMockable
 public protocol SyncServiceProtocol {
-  /// Flag to check if it can sync or not
-  var isActive: Bool { get set }
+  /// Flag to check if it can sync or not. Owned by `SyncService`; mutate it through
+  /// `updateSyncEnabled(_:)` / `logout()` rather than assigning directly.
+  var isActive: Bool { get }
+  /// Enable or disable syncing in response to account/subscription state. Disabling
+  /// also cancels any queued jobs.
+  func updateSyncEnabled(_ enabled: Bool)
+  /// Tear down sync state on logout/account deletion (stop syncing, clear the queue
+  /// and the scheduled-contents flag).
+  func logout() async
   /// Completion publisher for ongoing-download tasks
   var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> { get }
   /// Progress publisher for ongoing-download tasks
@@ -101,10 +108,16 @@ public protocol SyncServiceProtocol {
 @Observable
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
+  private var accountService: AccountServiceProtocol!
   private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
-  public var isActive: Bool = false
+  /// Owned here: writes go through `updateSyncEnabled(_:)` / `logout()`, mutated on the
+  /// main actor. External callers read only.
+  public private(set) var isActive: Bool = false
+  /// In-flight logout teardown, awaited before an initial library sync re-schedules,
+  /// so a re-login can't begin scheduling until the queue reset has finished.
+  private var teardownTask: Task<Void, Never>?
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
   private var downloadTasksDictionary = [String: [URLSessionTask]]()
@@ -132,11 +145,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
+    accountService: AccountServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
     dataManager: DataManager
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
+    self.accountService = accountService
     let tasksDataManager = TasksDataManager()
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
     self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
@@ -186,7 +201,18 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .sink(receiveValue: { [weak self] _ in
         /// Covers every logout path (iOS sign-out, account deletion, Watch), since
         /// they all post `.logout`. Tears down the queue, the flag, and `isActive`.
-        Task { await self?.logout() }
+        /// Held in `teardownTask` so a re-login's initial sync awaits it first.
+        self?.teardownTask = Task { await self?.logout() }
+      })
+      .store(in: &disposeBag)
+
+    /// Sync ownership lives here, not in the views: any account/subscription change
+    /// re-derives whether syncing should be active. All logout paths post `.logout`
+    /// (handled above), so account-present-but-sync-disabled is the case we map here.
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        guard let self, self.accountService.hasAccount() else { return }
+        self.updateSyncEnabled(self.accountService.hasSyncEnabled())
       })
       .store(in: &disposeBag)
 
@@ -253,6 +279,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
+
+    /// Wait for any in-flight logout teardown to finish before scheduling, so a fast
+    /// logout→login can't have a late `resetAllJobs()` wipe freshly-scheduled jobs.
+    await teardownTask?.value
 
     if await queuedJobsCount() > 0 {
       Self.logger.trace("Clearing orphaned tasks before initial library sync")
@@ -484,6 +514,20 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func resetAllJobs() async {
     await jobManager.resetAllJobs()
+  }
+
+  /// Enables or disables syncing in response to account/subscription state. Disabling
+  /// also cancels any queued jobs. Idempotent — a no-op when the state is unchanged.
+  /// `isActive` is mutated on the main actor since it's an `@Observable` value read by
+  /// SwiftUI; the actual sync-content refresh is triggered by observers of `isActive`.
+  public func updateSyncEnabled(_ enabled: Bool) {
+    Task { @MainActor in
+      guard self.isActive != enabled else { return }
+      self.isActive = enabled
+      if !enabled {
+        self.cancelAllJobs()
+      }
+    }
   }
 
   /// Tears down sync state when the account logs out (or is deleted): stops syncing,
