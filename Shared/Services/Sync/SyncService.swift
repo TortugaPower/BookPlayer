@@ -183,11 +183,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { _ in
-        UserDefaults.standard.set(
-          false,
-          forKey: Constants.UserDefaults.hasScheduledLibraryContents
-        )
+      .sink(receiveValue: { [weak self] _ in
+        /// Covers every logout path (iOS sign-out, account deletion, Watch), since
+        /// they all post `.logout`. Tears down the queue, the flag, and `isActive`.
+        Task { await self?.logout() }
       })
       .store(in: &disposeBag)
 
@@ -485,6 +484,18 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func resetAllJobs() async {
     await jobManager.resetAllJobs()
+  }
+
+  /// Tears down sync state when the account logs out (or is deleted): stops syncing,
+  /// clears the persisted task queue, and resets the "scheduled library contents" flag
+  /// so the next login runs a fresh initial sync from an empty queue. Idempotent.
+  public func logout() async {
+    await MainActor.run { self.isActive = false }
+    UserDefaults.standard.set(
+      false,
+      forKey: Constants.UserDefaults.hasScheduledLibraryContents
+    )
+    await resetAllJobs()
   }
 }
 
