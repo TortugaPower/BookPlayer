@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
 "settings_globalspeed_title" = "Controlul global al vitezei";
 "settings_globalspeed_description" = "Setați viteza în toate cărțile.";
+"settings_openplayer_launch_title" = "Deschide playerul la pornire";
+"settings_carplay_showplayer_title" = "Afișează playerul la conectarea CarPlay";
+"settings_startupplayer_description" = "Deschide ecranul playerului cu ultima carte redată la pornirea aplicației sau la conectarea la CarPlay.";
 "settings_autolock_title" = "Dezactivează Autolock";
 "settings_autolock_description" = "Împiedicați blocarea dispozitivului pe ecranul Playerului.";
 "settings_siri_lastplayed_title" = "Ultima carte redată";

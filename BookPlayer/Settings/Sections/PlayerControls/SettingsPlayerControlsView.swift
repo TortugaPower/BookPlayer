@@ -21,6 +21,7 @@ struct SettingsPlayerControlsView: View {
       ProgressSeekingSectionView()
       ListOptionsSectionView()
       ProgressLabelsSectionView()
+      StartupPlayerSectionView()
     }
     .environmentObject(theme)
     .scrollContentBackground(.hidden)

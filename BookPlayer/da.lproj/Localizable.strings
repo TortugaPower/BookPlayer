@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
 "settings_globalspeed_title" = "Global hastighedskontrol";
 "settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
+"settings_openplayer_launch_title" = "Åbn afspilleren ved start";
+"settings_carplay_showplayer_title" = "Vis afspilleren ved CarPlay-forbindelse";
+"settings_startupplayer_description" = "Åbn afspillerskærmen med den senest afspillede bog, når appen startes, eller der oprettes forbindelse til CarPlay.";
 "settings_autolock_title" = "Deaktiver autolås";
 "settings_autolock_description" = "Undgå at enheden låser når afspilleren er i brug.";
 "settings_siri_lastplayed_title" = "Senest afspillede bog";

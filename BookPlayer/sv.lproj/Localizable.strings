@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Dubblar volymen. \nAnvänd med försiktighet och omsorg för din hörsel.";
 "settings_globalspeed_title" = "Global Uppspelningshastighet";
 "settings_globalspeed_description" = "Ange uppspelningshastighet för alla böcker.";
+"settings_openplayer_launch_title" = "Öppna spelaren vid start";
+"settings_carplay_showplayer_title" = "Visa spelaren vid CarPlay-anslutning";
+"settings_startupplayer_description" = "Öppna spelarskärmen med den senast spelade boken när appen startas eller ansluts till CarPlay.";
 "settings_autolock_title" = "Avaktivera Automatisk Låsning";
 "settings_autolock_description" = "Förhindra att enheten låses när du är på spelarens skärmsida.";
 "settings_siri_lastplayed_title" = "Senast spelad bok";

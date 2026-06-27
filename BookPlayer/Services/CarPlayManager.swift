@@ -23,6 +23,10 @@ class CarPlayManager: NSObject {
   private var disposeBag = Set<AnyCancellable>()
   /// Reference for updating boost volume title
   let boostVolumeItem = CPListItem(text: "", detailText: nil)
+  /// One-shot flag: when CarPlay connects with no loaded book yet, surface the
+  /// player on the next `.bookReady` (e.g. a resume-on-connect shortcut). Honors
+  /// the `carPlayShowPlayerOnConnect` setting without auto-loading a book ourselves.
+  private var shouldShowPlayerOnConnect = false
 
   override init() {
     super.init()
@@ -39,12 +43,29 @@ class CarPlayManager: NSObject {
     self.setupNowPlayingTemplate()
     self.setRootTemplate()
     self.initializeDataIfNeeded()
+
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.carPlayShowPlayerOnConnect) {
+      if AppServices.shared.coreServices?.playerManager.currentItem != nil {
+        self.pushNowPlayingTemplate()
+      } else {
+        /// Nothing loaded yet; let an imminent `.bookReady` (e.g. resume-on-connect shortcut) surface the player
+        self.shouldShowPlayerOnConnect = true
+      }
+    }
   }
 
   func disconnect() {
     self.interfaceController = nil
     self.recentTemplate = nil
     self.libraryTemplate = nil
+    self.shouldShowPlayerOnConnect = false
+  }
+
+  /// Push the shared Now Playing template, avoiding a duplicate push if it's already on top
+  @MainActor
+  private func pushNowPlayingTemplate() {
+    guard interfaceController?.topTemplate != CPNowPlayingTemplate.shared else { return }
+    interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
   }
 
   @MainActor
@@ -125,6 +146,11 @@ class CarPlayManager: NSObject {
         self.reloadRecentItems()
 
         self.setupNowPlayingTemplate()
+
+        if self.shouldShowPlayerOnConnect {
+          self.shouldShowPlayerOnConnect = false
+          self.pushNowPlayingTemplate()
+        }
       })
       .store(in: &disposeBag)
 

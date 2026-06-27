@@ -165,6 +165,10 @@ struct LibraryRootView: View {
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
         playerState.showPlayer = true
       }
+
+      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.openPlayerOnAppLaunch) {
+        playerState.showPlayer = true
+      }
     } catch BPPlayerError.fileMissing {
       // Silent preload: if the last-played file is missing on disk,
       // swallow the error. The user will see the proper alert if/when
