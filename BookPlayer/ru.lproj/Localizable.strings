@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Удваивает громкость. \nИспользуйте с осторожностью и заботой о вашем слухе.";
 "settings_globalspeed_title" = "Глобальное управление скоростью";
 "settings_globalspeed_description" = "Установите скорость для всех книг.";
+"settings_openplayer_launch_title" = "Открывать плеер при запуске";
+"settings_carplay_showplayer_title" = "Показывать плеер при подключении CarPlay";
+"settings_startupplayer_description" = "Открывать плеер с последней прослушанной книгой при запуске приложения или подключении к CarPlay. В CarPlay это прерывает звук, воспроизводимый в других приложениях.";
 "settings_autolock_title" = "Отключить автоблокировку";
 "settings_autolock_description" = "Запретить блокировку устройства на экране плеера.";
 "settings_siri_lastplayed_title" = "Последняя воспроизведенная книга";

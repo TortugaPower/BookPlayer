@@ -32,6 +32,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var timeControlSubscription: AnyCancellable?
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
+  /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
+  private var nowPlayingClaimSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
@@ -883,6 +885,64 @@ extension PlayerManager {
 
   func play() {
     play(autoPlayed: false)
+  }
+
+  /// Take over the system Now Playing slot for CarPlay. iOS only designates the Now Playing app from
+  /// one that *actually plays* (a third-party app can't fake `playbackState` — that's an Apple-private
+  /// entitlement), so we briefly play **muted**, then pause the instant playback starts — landing on
+  /// our book paused, now owning Now Playing, with no audible blip. Skips if nothing is loaded or we're
+  /// already playing (we'd own it). A timeout fallback guarantees we unmute even if playback never starts.
+  ///
+  /// Note: this *will* interrupt audio another app is actively playing. There's no reliable way to detect
+  /// that beforehand here — `isOtherAudioPlaying` / `secondaryAudioShouldBeSilencedHint` only update once
+  /// our own session is active (the very act we're trying to avoid), and read stale (false) on a CarPlay
+  /// background launch. So we accept the takeover as a known side effect.
+  ///
+  /// Accepted edge: if the user taps play during the brief muted window, our `.first()` captures that
+  /// `.playing` and pauses it — they'd tap again. Distinguishing their play from ours on the shared
+  /// player isn't reliable, and the window is short, so we accept it. Returns whether attempted.
+  @MainActor
+  @discardableResult
+  func claimNowPlayingThenPause() -> Bool {
+    /// `nowPlayingClaimSubscription == nil` gates re-entrancy: a claim stays "in flight" (subscription
+    /// non-nil) until its unmute completes below, so a second blip can't start mid-claim and get unmuted
+    /// by this one's timer.
+    guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
+
+    audioPlayer.isMuted = true
+    nowPlayingClaimSubscription = timeControlPassthroughPublisher
+      .filter { $0 == .playing }
+      .first()
+      // DispatchQueue (not RunLoop) so the timeout still fires while the run loop is in tracking mode
+      // (e.g. CarPlay scrolling).
+      .timeout(.seconds(3), scheduler: DispatchQueue.main)
+      .sink(
+        receiveCompletion: { [weak self] _ in
+          guard let self else { return }
+          /// Pause regardless of how we completed: on success this is the intended pause; on **timeout**
+          /// it cancels the still-pending `play()` (which re-checks `Task.isCancelled` after the async
+          /// `prepareForPlayback`), so a slow/streaming load can't end up playing aloud and un-paused.
+          self.pause()
+          /// Unmute only after the pause settles — `timeControlStatus` reaches `.paused` asynchronously,
+          /// so unmuting on the same tick can leak a few ms of audio (same reason `bindPauseObserver`
+          /// delays). Clear the subscription here (not earlier), so the re-entrancy guard keeps blocking
+          /// a new claim until we're fully done and this timer can't unmute someone else's blip.
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            guard let self else { return }
+            self.audioPlayer.isMuted = false
+            self.nowPlayingClaimSubscription = nil
+          }
+        },
+        receiveValue: { [weak self] _ in
+          /// We actually became the Now Playing app — re-publish the cover, whose async load can finish
+          /// before we own the slot (so its push is ignored) and is never re-pushed otherwise.
+          guard let self, let chapter = self.currentItem?.currentChapter else { return }
+          self.setNowPlayingArtwork(chapter: chapter)
+        }
+      )
+
+    play()
+    return true
   }
 
   /// Persist a marker so the next successful activation can report whether — and how —

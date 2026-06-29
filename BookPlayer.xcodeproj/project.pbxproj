@@ -353,6 +353,7 @@
 		631908AA2E369BDB009249C1 /* ProgressSeekingSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908A92E369BDA009249C1 /* ProgressSeekingSectionView.swift */; };
 		631908AC2E369E31009249C1 /* GlobalSpeedSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908AB2E369E31009249C1 /* GlobalSpeedSectionView.swift */; };
 		631908AE2E369EDC009249C1 /* BoostVolumeSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908AD2E369EDC009249C1 /* BoostVolumeSectionView.swift */; };
+		631908F02E369EDC009249C1 /* StartupPlayerSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908F12E369EDC009249C1 /* StartupPlayerSectionView.swift */; };
 		631908B02E369FFA009249C1 /* AutoSleepTimerSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */; };
 		631908B22E36A1AB009249C1 /* SmartRewindSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */; };
 		631908B42E36A26C009249C1 /* SkipIntervalsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631908B32E36A26C009249C1 /* SkipIntervalsSectionView.swift */; };
@@ -1329,6 +1330,7 @@
 		631908A92E369BDA009249C1 /* ProgressSeekingSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressSeekingSectionView.swift; sourceTree = "<group>"; };
 		631908AB2E369E31009249C1 /* GlobalSpeedSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSpeedSectionView.swift; sourceTree = "<group>"; };
 		631908AD2E369EDC009249C1 /* BoostVolumeSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoostVolumeSectionView.swift; sourceTree = "<group>"; };
+		631908F12E369EDC009249C1 /* StartupPlayerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupPlayerSectionView.swift; sourceTree = "<group>"; };
 		631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoSleepTimerSectionView.swift; sourceTree = "<group>"; };
 		631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartRewindSectionView.swift; sourceTree = "<group>"; };
 		631908B32E36A26C009249C1 /* SkipIntervalsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipIntervalsSectionView.swift; sourceTree = "<group>"; };
@@ -2683,6 +2685,7 @@
 				631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */,
 				631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */,
 				631908AD2E369EDC009249C1 /* BoostVolumeSectionView.swift */,
+				631908F12E369EDC009249C1 /* StartupPlayerSectionView.swift */,
 				631908AB2E369E31009249C1 /* GlobalSpeedSectionView.swift */,
 				631908A92E369BDA009249C1 /* ProgressSeekingSectionView.swift */,
 				631908A72E3697DC009249C1 /* ListOptionsSectionView.swift */,
@@ -4599,6 +4602,7 @@
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,
 				631908AE2E369EDC009249C1 /* BoostVolumeSectionView.swift in Sources */,
+				631908F02E369EDC009249C1 /* StartupPlayerSectionView.swift in Sources */,
 				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
 				4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */,
 				4158387926EB8D8800F4A12B /* LoadingViewController.swift in Sources */,

@@ -23,6 +23,10 @@ class CarPlayManager: NSObject {
   private var disposeBag = Set<AnyCancellable>()
   /// Reference for updating boost volume title
   let boostVolumeItem = CPListItem(text: "", detailText: nil)
+  /// One-shot flag: when CarPlay connects with no loaded book yet, surface the
+  /// player on the next `.bookReady` (e.g. a resume-on-connect shortcut). Honors
+  /// the `carPlayShowPlayerOnConnect` setting without auto-loading a book ourselves.
+  private var shouldShowPlayerOnConnect = false
 
   override init() {
     super.init()
@@ -36,15 +40,83 @@ class CarPlayManager: NSObject {
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
+    /// Reset connect-scoped state so a re-connect without a paired disconnect doesn't act on a stale flag
+    self.shouldShowPlayerOnConnect = false
     self.setupNowPlayingTemplate()
-    self.setRootTemplate()
+    /// On a cold launch, `initializeDataIfNeeded()` runs and rebuilds the root template in its
+    /// completion — which tears down anything we push now. So when init is pending, defer presenting
+    /// the player to that rebuild (see `initializeDataIfNeeded`); otherwise present once the root here
+    /// is committed (pushing synchronously, before CarPlay sets the root, races and gets dropped).
+    let willInitializeData = WindowHelper.activeWindow == nil
+    self.setRootTemplate { [weak self] _, _ in
+      if !willInitializeData {
+        self?.showPlayerOnConnectIfNeeded()
+      }
+    }
     self.initializeDataIfNeeded()
+  }
+
+  /// On connect, jump to Now Playing if a book is already loaded; otherwise arm a one-shot
+  /// so the next `.bookReady` (e.g. a resume-on-connect shortcut) surfaces it.
+  @MainActor
+  private func showPlayerOnConnectIfNeeded() {
+    guard UserDefaults.standard.bool(forKey: Constants.UserDefaults.carPlayShowPlayerOnConnect) else {
+      return
+    }
+
+    if let playerManager = AppServices.shared.coreServices?.playerManager,
+       playerManager.currentItem != nil {
+      /// Take over the system Now Playing slot (brief muted play) so the pushed screen shows our book
+      /// instead of a blank placeholder.
+      playerManager.claimNowPlayingThenPause()
+      pushNowPlayingTemplate()
+    } else {
+      /// Nothing loaded yet; arm so the next `.bookReady` presents the player, and on a cold (killed)
+      /// launch — where no main-app window restored the last book — load it so that `.bookReady` fires.
+      shouldShowPlayerOnConnect = true
+      loadLastPlayedBookIfAvailable()
+    }
+  }
+
+  /// On a cold (killed) CarPlay launch there's no main-app window to run the last-book restore, so
+  /// `currentItem` is nil. Load the last played book (paused) so `.bookReady` fires and the armed
+  /// `shouldShowPlayerOnConnect` flag presents the player. Stays on the tabs if there's no last book.
+  @MainActor
+  private func loadLastPlayedBookIfAvailable() {
+    Task { @MainActor in
+      guard
+        let coreServices = AppServices.shared.coreServices,
+        coreServices.playerManager.currentItem == nil,
+        let lastItem = coreServices.libraryService.getLibraryLastItem()
+      else { return }
+
+      do {
+        try await coreServices.playerLoaderService.loadPlayer(
+          lastItem.relativePath,
+          autoplay: false,
+          recordAsLastBook: false
+        )
+      } catch {
+        /// The preload failed, so `.bookReady` won't fire — disarm so we don't stay armed waiting to
+        /// present. Stay silent (no alert): this is an automatic preload, and the user gets the proper
+        /// error if/when they tap the book themselves (same as the main app's cold-launch restore).
+        shouldShowPlayerOnConnect = false
+      }
+    }
   }
 
   func disconnect() {
     self.interfaceController = nil
     self.recentTemplate = nil
     self.libraryTemplate = nil
+    self.shouldShowPlayerOnConnect = false
+  }
+
+  /// Push the shared Now Playing template, avoiding a duplicate push if it's already on top
+  @MainActor
+  private func pushNowPlayingTemplate() {
+    guard interfaceController?.topTemplate != CPNowPlayingTemplate.shared else { return }
+    interfaceController?.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: nil)
   }
 
   @MainActor
@@ -56,7 +128,10 @@ class CarPlayManager: NSObject {
     let dataInitializerCoordinator = DataInitializerCoordinator(alertPresenter: self)
 
     dataInitializerCoordinator.onFinish = { [weak self] in
-      self?.setRootTemplate()
+      self?.setRootTemplate { [weak self] _, _ in
+        /// Present the player now that the post-init root template is in place (deferred from connect)
+        self?.showPlayerOnConnectIfNeeded()
+      }
       if let coreServices = AppServices.shared.coreServices {
         coreServices.watchService.startSession()
         let listRefreshService = ListSyncRefreshService(
@@ -125,6 +200,12 @@ class CarPlayManager: NSObject {
         self.reloadRecentItems()
 
         self.setupNowPlayingTemplate()
+
+        if self.shouldShowPlayerOnConnect {
+          self.shouldShowPlayerOnConnect = false
+          AppServices.shared.coreServices?.playerManager.claimNowPlayingThenPause()
+          self.pushNowPlayingTemplate()
+        }
       })
       .store(in: &disposeBag)
 
@@ -237,7 +318,7 @@ class CarPlayManager: NSObject {
   }
 
   /// Setup root Tab bar template with the Recent and Library tabs
-  func setRootTemplate() {
+  func setRootTemplate(completion: ((Bool, Error?) -> Void)? = nil) {
     let recentTemplate = CPListTemplate(title: "recent_title".localized, sections: [])
     self.recentTemplate = recentTemplate
     recentTemplate.tabTitle = "recent_title".localized
@@ -248,7 +329,7 @@ class CarPlayManager: NSObject {
     libraryTemplate.tabImage = UIImage(systemName: "books.vertical")
     let tabTemplate = CPTabBarTemplate(templates: [recentTemplate, libraryTemplate])
     tabTemplate.delegate = self
-    self.interfaceController?.setRootTemplate(tabTemplate, animated: false, completion: nil)
+    self.interfaceController?.setRootTemplate(tabTemplate, animated: false, completion: completion)
   }
 
   /// Reload content for the root library template

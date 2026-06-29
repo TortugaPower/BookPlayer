@@ -39,6 +39,8 @@ public enum Constants {
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"
     public static let playerListPrefersBookmarks = "userSettingsPlayerListPrefersBookmarks"
+    public static let carPlayShowPlayerOnConnect = "userSettingsCarPlayShowPlayerOnConnect"
+    public static let openPlayerOnAppLaunch = "userSettingsOpenPlayerOnAppLaunch"
     public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"

@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Dobla el volumen.\nUsar con precaución y cuida de tu oído.";
 "settings_globalspeed_title" = "Velocidad Global";
 "settings_globalspeed_description" = "Establece la velocidad para todos los libros.";
+"settings_openplayer_launch_title" = "Abrir el reproductor al iniciar";
+"settings_carplay_showplayer_title" = "Mostrar el reproductor al conectar CarPlay";
+"settings_startupplayer_description" = "Abre el reproductor con el último libro reproducido al iniciar la aplicación o conectarte a CarPlay. En CarPlay, esto interrumpe el audio que se esté reproduciendo en otras aplicaciones.";
 "settings_autolock_title" = "Desactivar el bloqueo automático";
 "settings_autolock_description" = "Evita que el dispositivo se bloquee cuando está en la pantalla del Reproductor.";
 "settings_siri_lastplayed_title" = "Último libro escuchado";

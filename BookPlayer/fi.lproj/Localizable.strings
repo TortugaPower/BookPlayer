@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
 "settings_globalspeed_title" = "Yleinen nopeudenhallinta";
 "settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
+"settings_openplayer_launch_title" = "Avaa soitin käynnistettäessä";
+"settings_carplay_showplayer_title" = "Näytä soitin CarPlay-yhteyden yhteydessä";
+"settings_startupplayer_description" = "Avaa soittimen viimeksi kuunnellulla kirjalla, kun sovellus käynnistetään tai yhdistetään CarPlayhin. CarPlayssa tämä keskeyttää muissa sovelluksissa toistettavan äänen.";
 "settings_autolock_title" = "Poista automaattinen lukitus käytöstä";
 "settings_autolock_description" = "Estä laitteen lukittuminen Soitin-näyssä";
 "settings_siri_lastplayed_title" = "Viimeksi kuunneltu kirja";
