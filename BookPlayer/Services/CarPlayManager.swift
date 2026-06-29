@@ -90,11 +90,18 @@ class CarPlayManager: NSObject {
         let lastItem = coreServices.libraryService.getLibraryLastItem()
       else { return }
 
-      try? await coreServices.playerLoaderService.loadPlayer(
-        lastItem.relativePath,
-        autoplay: false,
-        recordAsLastBook: false
-      )
+      do {
+        try await coreServices.playerLoaderService.loadPlayer(
+          lastItem.relativePath,
+          autoplay: false,
+          recordAsLastBook: false
+        )
+      } catch {
+        /// The preload failed, so `.bookReady` won't fire — disarm so we don't stay armed waiting to
+        /// present. Stay silent (no alert): this is an automatic preload, and the user gets the proper
+        /// error if/when they tap the book themselves (same as the main app's cold-launch restore).
+        shouldShowPlayerOnConnect = false
+      }
     }
   }
 

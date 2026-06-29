@@ -896,31 +896,45 @@ extension PlayerManager {
   /// Note: this *will* interrupt audio another app is actively playing. There's no reliable way to detect
   /// that beforehand here — `isOtherAudioPlaying` / `secondaryAudioShouldBeSilencedHint` only update once
   /// our own session is active (the very act we're trying to avoid), and read stale (false) on a CarPlay
-  /// background launch. So we accept the takeover as a known side effect. Returns whether attempted.
+  /// background launch. So we accept the takeover as a known side effect.
+  ///
+  /// Accepted edge: if the user taps play during the brief muted window, our `.first()` captures that
+  /// `.playing` and pauses it — they'd tap again. Distinguishing their play from ours on the shared
+  /// player isn't reliable, and the window is short, so we accept it. Returns whether attempted.
   @MainActor
   @discardableResult
   func claimNowPlayingThenPause() -> Bool {
-    guard currentItem != nil, !isPlaying else { return false }
+    /// `nowPlayingClaimSubscription == nil` prevents re-entrancy: a second call would otherwise cancel
+    /// the in-flight subscription before it restores `isMuted`.
+    guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
 
     audioPlayer.isMuted = true
     nowPlayingClaimSubscription = timeControlPassthroughPublisher
       .filter { $0 == .playing }
       .first()
-      .timeout(.seconds(3), scheduler: RunLoop.main)
+      // DispatchQueue (not RunLoop) so the timeout still fires while the run loop is in tracking mode
+      // (e.g. CarPlay scrolling).
+      .timeout(.seconds(3), scheduler: DispatchQueue.main)
       .sink(
         receiveCompletion: { [weak self] _ in
-          /// Fires on success (after pause) or on timeout — always restore audio so we can't get stuck muted
-          self?.audioPlayer.isMuted = false
-          self?.nowPlayingClaimSubscription = nil
+          guard let self else { return }
+          self.nowPlayingClaimSubscription = nil
+          /// Pause regardless of how we completed: on success this is the intended pause; on **timeout**
+          /// it cancels the still-pending `play()` (which re-checks `Task.isCancelled` after the async
+          /// `prepareForPlayback`), so a slow/streaming load can't end up playing aloud and un-paused.
+          self.pause()
+          /// Unmute only after the pause settles — `timeControlStatus` reaches `.paused` asynchronously,
+          /// so unmuting on the same tick can leak a few ms of audio (same reason `bindPauseObserver`
+          /// delays). A timeout fallback still guarantees we never stay muted.
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            self?.audioPlayer.isMuted = false
+          }
         },
         receiveValue: { [weak self] _ in
-          self?.pause()
-          /// Re-publish the cover: its async load can complete *before* we become the Now Playing app
-          /// (so that push is ignored), and nothing re-pushes it afterward — refresh it now that we own
-          /// the slot, otherwise CarPlay shows the blank artwork placeholder.
-          if let chapter = self?.currentItem?.currentChapter {
-            self?.setNowPlayingArtwork(chapter: chapter)
-          }
+          /// We actually became the Now Playing app — re-publish the cover, whose async load can finish
+          /// before we own the slot (so its push is ignored) and is never re-pushed otherwise.
+          guard let self, let chapter = self.currentItem?.currentChapter else { return }
+          self.setNowPlayingArtwork(chapter: chapter)
         }
       )
 
