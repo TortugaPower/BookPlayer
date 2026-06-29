@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
 "settings_openplayer_launch_title" = "启动时打开播放器";
 "settings_carplay_showplayer_title" = "连接 CarPlay 时显示播放器";
-"settings_startupplayer_description" = "在启动应用或连接 CarPlay 时，打开上次播放有声书的播放器界面。";
+"settings_startupplayer_description" = "在启动应用或连接 CarPlay 时，打开上次播放有声书的播放器。在 CarPlay 上，这会中断其他应用正在播放的音频。";
 "settings_autolock_title" = "禁用自动锁定";
 "settings_autolock_description" = "播放时防止锁定。";
 "settings_siri_lastplayed_title" = "最后播放的书";

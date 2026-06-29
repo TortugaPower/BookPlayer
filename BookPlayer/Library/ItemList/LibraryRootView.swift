@@ -134,6 +134,13 @@ struct LibraryRootView: View {
 
   func handleLibraryLoaded() async {
     await loadLastBookIfNeeded()
+    /// Open the player on launch if enabled and a book is loaded — checked here (not only inside
+    /// `loadLastBookIfNeeded`) so it still fires when the book was already loaded by another scene
+    /// (e.g. CarPlay) and the `currentItem == nil` guard there returns early.
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.openPlayerOnAppLaunch),
+       playerManager.currentItem != nil {
+      playerState.showPlayer = true
+    }
     importManager.notifyPendingFiles()
     showSecondOnboarding()
 
@@ -163,10 +170,6 @@ struct LibraryRootView: View {
 
       if UserDefaults.standard.bool(forKey: Constants.UserDefaults.showPlayer) {
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaults.showPlayer)
-        playerState.showPlayer = true
-      }
-
-      if UserDefaults.standard.bool(forKey: Constants.UserDefaults.openPlayerOnAppLaunch) {
         playerState.showPlayer = true
       }
     } catch BPPlayerError.fileMissing {

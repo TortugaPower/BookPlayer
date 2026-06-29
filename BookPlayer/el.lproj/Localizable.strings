@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Ρυθμίστε την ταχύτητα σε όλα τα βιβλία.";
 "settings_openplayer_launch_title" = "Άνοιγμα αναπαραγωγής κατά την εκκίνηση";
 "settings_carplay_showplayer_title" = "Εμφάνιση αναπαραγωγής κατά τη σύνδεση με CarPlay";
-"settings_startupplayer_description" = "Ανοίξτε την οθόνη αναπαραγωγής με το τελευταίο βιβλίο που ακούσατε κατά την εκκίνηση της εφαρμογής ή τη σύνδεση με το CarPlay.";
+"settings_startupplayer_description" = "Ανοίξτε την αναπαραγωγή με το τελευταίο βιβλίο που ακούσατε κατά την εκκίνηση της εφαρμογής ή τη σύνδεση με το CarPlay. Στο CarPlay, αυτό διακόπτει τον ήχο που αναπαράγεται σε άλλες εφαρμογές.";
 "settings_autolock_title" = "Απενεργοποιήστε το αυτόματο κλείδωμα";
 "settings_autolock_description" = "Αποτρέψτε το κλείδωμα της συσκευής όταν βρίσκεται στην οθόνη του προγράμματος αναπαραγωγής.";
 "settings_siri_lastplayed_title" = "Το βιβλίο που παίχτηκε τελευταία";

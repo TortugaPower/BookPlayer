@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
 "settings_openplayer_launch_title" = "Otevřít přehrávač při spuštění";
 "settings_carplay_showplayer_title" = "Zobrazit přehrávač při připojení CarPlay";
-"settings_startupplayer_description" = "Otevřít obrazovku přehrávače s naposledy přehrávanou knihou při spuštění aplikace nebo připojení k CarPlay.";
+"settings_startupplayer_description" = "Otevřít přehrávač s naposledy přehrávanou knihou při spuštění aplikace nebo připojení k CarPlay. V CarPlay to přeruší zvuk přehrávaný v jiných aplikacích.";
 "settings_autolock_title" = "Zakázat automatické uzamčení";
 "settings_autolock_description" = "Zabránit uzamčení zařízení při zobrazení Přehrávače.";
 "settings_siri_lastplayed_title" = "Naposledy přehrávaná audiokniha";

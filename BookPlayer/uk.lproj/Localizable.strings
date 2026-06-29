@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Встановити швидкість для всіх книг.";
 "settings_openplayer_launch_title" = "Відкривати програвач під час запуску";
 "settings_carplay_showplayer_title" = "Показувати програвач під час підключення CarPlay";
-"settings_startupplayer_description" = "Відкривати екран програвача з останньою прослуханою книгою під час запуску застосунку або підключення до CarPlay.";
+"settings_startupplayer_description" = "Відкривати програвач з останньою прослуханою книгою під час запуску застосунку або підключення до CarPlay. У CarPlay це перериває звук, що відтворюється в інших застосунках.";
 "settings_autolock_title" = "Вимкнути автоблокування";
 "settings_autolock_description" = "Запобігати блокуванню пристрою при відкритому програвачі.";
 "settings_siri_lastplayed_title" = "Остання відтворена книга";

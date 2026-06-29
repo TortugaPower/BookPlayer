@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Angi hastighet for alle bøker.";
 "settings_openplayer_launch_title" = "Åpne spilleren ved oppstart";
 "settings_carplay_showplayer_title" = "Vis spilleren ved CarPlay-tilkobling";
-"settings_startupplayer_description" = "Åpne spillerskjermen med den sist spilte boken når appen startes eller kobles til CarPlay.";
+"settings_startupplayer_description" = "Åpne spilleren med den sist spilte boken når appen startes eller kobles til CarPlay. På CarPlay avbryter dette lyd som spilles av i andre apper.";
 "settings_autolock_title" = "Deaktiver autolås";
 "settings_autolock_description" = "Hindre at enheten låses når den viser spillerskjermen.";
 "settings_siri_lastplayed_title" = "Sist spilte bok";

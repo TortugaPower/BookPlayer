@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Applique la vitesse sur tous les livres.";
 "settings_openplayer_launch_title" = "Ouvrir le lecteur au démarrage";
 "settings_carplay_showplayer_title" = "Afficher le lecteur lors de la connexion à CarPlay";
-"settings_startupplayer_description" = "Ouvre l'écran du lecteur avec le dernier livre écouté au lancement de l'application ou lors de la connexion à CarPlay.";
+"settings_startupplayer_description" = "Ouvre le lecteur avec le dernier livre écouté au lancement de l'application ou lors de la connexion à CarPlay. Sur CarPlay, cela interrompt l'audio en cours de lecture dans d'autres applications.";
 "settings_autolock_title" = "Désactiver le verrouillage auto.";
 "settings_autolock_description" = "Empêche l'appareil de se verrouiller en étant sur l'écran du Lecteur.";
 "settings_siri_lastplayed_title" = "Dernier livre lu";

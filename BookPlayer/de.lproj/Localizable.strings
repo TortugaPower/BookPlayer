@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Jedes Buch wird mit der gleichen Geschwindigkeit abgespielt.";
 "settings_openplayer_launch_title" = "Player beim Start öffnen";
 "settings_carplay_showplayer_title" = "Player bei CarPlay-Verbindung anzeigen";
-"settings_startupplayer_description" = "Öffnet den Player mit dem zuletzt gehörten Buch, wenn die App gestartet oder eine Verbindung zu CarPlay hergestellt wird.";
+"settings_startupplayer_description" = "Öffnet den Player mit dem zuletzt gehörten Buch, wenn die App gestartet oder eine Verbindung zu CarPlay hergestellt wird. Bei CarPlay unterbricht dies die Audiowiedergabe anderer Apps.";
 "settings_autolock_title" = "Bildschirmsperre verhindern";
 "settings_autolock_description" = "Verhindern, dass das Gerät gesperrt wird, wenn der Wiedergabebildschirm aktiv ist.";
 "settings_siri_lastplayed_title" = "Zuletzt gespieltes Buch fortsetzen";

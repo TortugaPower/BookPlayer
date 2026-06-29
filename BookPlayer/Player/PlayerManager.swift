@@ -32,6 +32,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var timeControlSubscription: AnyCancellable?
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
+  /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
+  private var nowPlayingClaimSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
@@ -883,6 +885,47 @@ extension PlayerManager {
 
   func play() {
     play(autoPlayed: false)
+  }
+
+  /// Take over the system Now Playing slot for CarPlay. iOS only designates the Now Playing app from
+  /// one that *actually plays* (a third-party app can't fake `playbackState` — that's an Apple-private
+  /// entitlement), so we briefly play **muted**, then pause the instant playback starts — landing on
+  /// our book paused, now owning Now Playing, with no audible blip. Skips if nothing is loaded or we're
+  /// already playing (we'd own it). A timeout fallback guarantees we unmute even if playback never starts.
+  ///
+  /// Note: this *will* interrupt audio another app is actively playing. There's no reliable way to detect
+  /// that beforehand here — `isOtherAudioPlaying` / `secondaryAudioShouldBeSilencedHint` only update once
+  /// our own session is active (the very act we're trying to avoid), and read stale (false) on a CarPlay
+  /// background launch. So we accept the takeover as a known side effect. Returns whether attempted.
+  @MainActor
+  @discardableResult
+  func claimNowPlayingThenPause() -> Bool {
+    guard currentItem != nil, !isPlaying else { return false }
+
+    audioPlayer.isMuted = true
+    nowPlayingClaimSubscription = timeControlPassthroughPublisher
+      .filter { $0 == .playing }
+      .first()
+      .timeout(.seconds(3), scheduler: RunLoop.main)
+      .sink(
+        receiveCompletion: { [weak self] _ in
+          /// Fires on success (after pause) or on timeout — always restore audio so we can't get stuck muted
+          self?.audioPlayer.isMuted = false
+          self?.nowPlayingClaimSubscription = nil
+        },
+        receiveValue: { [weak self] _ in
+          self?.pause()
+          /// Re-publish the cover: its async load can complete *before* we become the Now Playing app
+          /// (so that push is ignored), and nothing re-pushes it afterward — refresh it now that we own
+          /// the slot, otherwise CarPlay shows the blank artwork placeholder.
+          if let chapter = self?.currentItem?.currentChapter {
+            self?.setNowPlayingArtwork(chapter: chapter)
+          }
+        }
+      )
+
+    play()
+    return true
   }
 
   /// Persist a marker so the next successful activation can report whether — and how —

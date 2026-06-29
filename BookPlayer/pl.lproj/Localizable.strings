@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Ustaw prędkość dla wszystkich książek.";
 "settings_openplayer_launch_title" = "Otwórz odtwarzacz przy uruchomieniu";
 "settings_carplay_showplayer_title" = "Pokaż odtwarzacz po połączeniu z CarPlay";
-"settings_startupplayer_description" = "Otwórz ekran odtwarzacza z ostatnio odtwarzaną książką po uruchomieniu aplikacji lub połączeniu z CarPlay.";
+"settings_startupplayer_description" = "Otwórz odtwarzacz z ostatnio odtwarzaną książką po uruchomieniu aplikacji lub połączeniu z CarPlay. W CarPlay przerywa to dźwięk odtwarzany w innych aplikacjach.";
 "settings_autolock_title" = "Wyłącz Autolock";
 "settings_autolock_description" = "Zapobiegaj blokowaniu urządzenia na ekranie odtwarzacza.";
 "settings_siri_lastplayed_title" = "Ostatnio odtwarzana książka";

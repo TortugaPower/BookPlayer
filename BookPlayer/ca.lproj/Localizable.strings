@@ -11,7 +11,7 @@
 "settings_globalspeed_description" = "Estableix velocitat en tots els llibres.";
 "settings_openplayer_launch_title" = "Obre el reproductor en iniciar";
 "settings_carplay_showplayer_title" = "Mostra el reproductor en connectar CarPlay";
-"settings_startupplayer_description" = "Obre la pantalla del reproductor amb l'últim llibre escoltat en iniciar l'aplicació o connectar-te a CarPlay.";
+"settings_startupplayer_description" = "Obre el reproductor amb l'últim llibre escoltat en iniciar l'aplicació o connectar-te a CarPlay. A CarPlay, això interromp l'àudio que s'estigui reproduint en altres aplicacions.";
 "settings_autolock_title" = "Desactiva el bloqueig automàtic";
 "settings_autolock_description" = "Eviteu que el dispositiu es bloquegi quan estigui a la pantalla del reproductor.";
 "settings_siri_lastplayed_title" = "Últim llibre reproduït";
