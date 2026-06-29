@@ -904,8 +904,9 @@ extension PlayerManager {
   @MainActor
   @discardableResult
   func claimNowPlayingThenPause() -> Bool {
-    /// `nowPlayingClaimSubscription == nil` prevents re-entrancy: a second call would otherwise cancel
-    /// the in-flight subscription before it restores `isMuted`.
+    /// `nowPlayingClaimSubscription == nil` gates re-entrancy: a claim stays "in flight" (subscription
+    /// non-nil) until its unmute completes below, so a second blip can't start mid-claim and get unmuted
+    /// by this one's timer.
     guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
 
     audioPlayer.isMuted = true
@@ -918,16 +919,18 @@ extension PlayerManager {
       .sink(
         receiveCompletion: { [weak self] _ in
           guard let self else { return }
-          self.nowPlayingClaimSubscription = nil
           /// Pause regardless of how we completed: on success this is the intended pause; on **timeout**
           /// it cancels the still-pending `play()` (which re-checks `Task.isCancelled` after the async
           /// `prepareForPlayback`), so a slow/streaming load can't end up playing aloud and un-paused.
           self.pause()
           /// Unmute only after the pause settles — `timeControlStatus` reaches `.paused` asynchronously,
           /// so unmuting on the same tick can leak a few ms of audio (same reason `bindPauseObserver`
-          /// delays). A timeout fallback still guarantees we never stay muted.
+          /// delays). Clear the subscription here (not earlier), so the re-entrancy guard keeps blocking
+          /// a new claim until we're fully done and this timer can't unmute someone else's blip.
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-            self?.audioPlayer.isMuted = false
+            guard let self else { return }
+            self.audioPlayer.isMuted = false
+            self.nowPlayingClaimSubscription = nil
           }
         },
         receiveValue: { [weak self] _ in
