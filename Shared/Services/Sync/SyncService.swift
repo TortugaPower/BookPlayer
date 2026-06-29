@@ -6,6 +6,7 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+import AVFoundation
 import Combine
 import Foundation
 
@@ -716,8 +717,18 @@ extension SyncService {
         try DataManager.createContainingFolderIfNeeded(for: fileURL)
         try FileManager.default.moveItem(at: location, to: fileURL)
 
+        /// Capture the expected duration from the synced metadata *before* loading
+        /// chapters, so the truncation check below compares against the value the
+        /// server reported rather than anything derived from the downloaded file.
+        let expectedDuration = libraryService.getSimpleItem(with: relativePath)?.duration
+
         Task {
           await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+          await self.verifyDownloadedFileDuration(
+            relativePath: relativePath,
+            fileURL: fileURL,
+            expectedDuration: expectedDuration
+          )
         }
       }
     } catch {
@@ -749,6 +760,48 @@ extension SyncService {
 
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
+    }
+  }
+
+  /// Backstop against truncated/botched downloads that finish without surfacing a
+  /// network error (e.g. the connection closed early, or watchOS suspended the
+  /// background transfer). `URLSession` won't flag these, so a short file would be
+  /// promoted as a fully-downloaded book and silently cut playback off partway
+  /// through. We compare the file's real audio duration against the duration stored
+  /// from the sync metadata, and discard the file if it falls meaningfully short.
+  private func verifyDownloadedFileDuration(
+    relativePath: String,
+    fileURL: URL,
+    expectedDuration: Double?
+  ) async {
+    /// No trustworthy reference duration (item not yet stored, or a duration of 0)
+    /// means we can't validate — leave the download in place.
+    guard let expectedDuration, expectedDuration > 0 else { return }
+
+    do {
+      let asset = AVURLAsset(url: fileURL)
+      let actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
+
+      guard actualDuration.isFinite else { return }
+
+      /// Allow a small tolerance for container/encoder rounding differences.
+      let tolerance = max(2, expectedDuration * 0.02)
+      guard expectedDuration - actualDuration > tolerance else { return }
+
+      try? FileManager.default.removeItem(at: fileURL)
+      Self.logger.trace(
+        "Discarding truncated download for \(relativePath): expected \(expectedDuration)s, got \(actualDuration)s"
+      )
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((
+          relativePath,
+          DownloadError.durationMismatch(expected: expectedDuration, actual: actualDuration)
+        ))
+      }
+    } catch {
+      /// If the duration can't be read we don't have enough signal to reject the
+      /// file; leave it in place rather than deleting a possibly-valid download.
+      Self.logger.trace("Could not verify duration for \(relativePath): \(error.localizedDescription)")
     }
   }
 

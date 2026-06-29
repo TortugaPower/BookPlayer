@@ -8,6 +8,25 @@
 
 import Foundation
 
+/// Errors raised when a download finishes but the resulting file can't be trusted.
+public enum DownloadError: LocalizedError {
+  /// The transfer finished without a network error, but fewer bytes were written
+  /// than the server's `Content-Length`, i.e. a truncated/botched file.
+  case incompleteDownload(received: Int64, expected: Int64)
+  /// The downloaded file's real audio duration is meaningfully shorter than the
+  /// duration we expected from the sync metadata.
+  case durationMismatch(expected: Double, actual: Double)
+
+  public var errorDescription: String? {
+    switch self {
+    case let .incompleteDownload(received, expected):
+      return "The download was incomplete (\(received)/\(expected) bytes). Please try again."
+    case let .durationMismatch(expected, actual):
+      return "The downloaded file was incomplete (\(Int(actual))s of \(Int(expected))s). Please try again."
+    }
+  }
+}
+
 public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
   /// Callback triggered when the download task is finished
   public var didFinishDownloadingTask: ((URLSessionTask, URL?, Error?) -> Void)?
@@ -25,7 +44,7 @@ public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
     didFinishDownloadingTask?(
       downloadTask,
       location,
-      parseErrorFromTask(downloadTask)
+      parseErrorFromTask(downloadTask) ?? verifyDownloadIsComplete(downloadTask)
     )
   }
 
@@ -54,6 +73,24 @@ public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
     } else {
       downloadProgressUpdated?(downloadTask, Double(calculatedProgress))
     }
+  }
+
+  /// Verifies the bytes written to disk match the `Content-Length` the server
+  /// reported. Background downloads can finish "successfully" with a truncated
+  /// body (interrupted transfer, early connection close) and `URLSession` won't
+  /// flag it, so we treat a short file as an error instead of accepting it.
+  private func verifyDownloadIsComplete(_ task: URLSessionTask) -> Error? {
+    let expectedBytes = task.countOfBytesExpectedToReceive
+    /// `NSURLSessionTransferSizeUnknown` (-1) means the server didn't send a
+    /// Content-Length; we can't validate the size, so don't block the download.
+    guard expectedBytes != NSURLSessionTransferSizeUnknown else { return nil }
+
+    let receivedBytes = task.countOfBytesReceived
+    guard receivedBytes >= expectedBytes else {
+      return DownloadError.incompleteDownload(received: receivedBytes, expected: expectedBytes)
+    }
+
+    return nil
   }
 
   private func parseErrorFromTask(_ task: URLSessionTask) -> Error? {

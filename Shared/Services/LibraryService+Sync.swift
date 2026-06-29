@@ -39,6 +39,8 @@ public protocol LibrarySyncProtocol {
   func updateLibraryLastBook(with relativePath: String?) async
   /// Returns boolean determining if the item exists for the relativePath
   func itemExists(for relativePath: String) async -> Bool
+  /// Fetch a single stored item (with its expected `duration`) for the relativePath
+  func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
   /// Load encoded chapters from file into DB
   func loadChaptersIfNeeded(relativePath: String) async
   
