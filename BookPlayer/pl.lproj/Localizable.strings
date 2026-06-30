@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Przeciągnij w pionie, aby utworzyć zakładkę";
 "details_title" = "Szczegóły";
 "download_title" = "Pobierz";
+"download_incomplete_error" = "Pobieranie nie zostało ukończone. Spróbuj ponownie.";
 "cancel_download_title" = "Anuluj pobieranie";
 "remove_downloaded_file_title" = "Usuń z urządzenia";
 "download_from_url_title" = "Pobierz z adresu URL";

@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Streiche vertikal, um ein Lesezeichen zu erstellen";
 "details_title" = "Einzelheiten";
 "download_title" = "Herunterladen";
+"download_incomplete_error" = "Der Download wurde nicht vollständig abgeschlossen. Bitte versuche es erneut.";
 "cancel_download_title" = "Download abbrechen";
 "remove_downloaded_file_title" = "Vom Gerät entfernen";
 "download_from_url_title" = "Von URL herunterladen";

@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Llisca verticalment per crear un marcador";
 "details_title" = "Detalls";
 "download_title" = "Descarrega";
+"download_incomplete_error" = "La baixada no s'ha completat. Torneu-ho a provar.";
 "cancel_download_title" = "Cancel·la la descàrrega";
 "remove_downloaded_file_title" = "Suprimeix del dispositiu";
 "download_from_url_title" = "Descarrega des de l'URL";

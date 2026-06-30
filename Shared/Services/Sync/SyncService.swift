@@ -6,6 +6,7 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+import AVFoundation
 import Combine
 import Foundation
 
@@ -703,53 +704,144 @@ extension SyncService {
   ) {
     guard let relativePath = task.taskDescription else { return }
 
-    do {
-      if error == nil,
-        let location
-      {
-        let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    var finalError = error
+    var movedFileURL: URL?
 
+    if error == nil,
+      let location
+    {
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+      do {
         /// If there's already something there, replace with new finished download
         if FileManager.default.fileExists(atPath: fileURL.path) {
           try FileManager.default.removeItem(at: fileURL)
         }
         try DataManager.createContainingFolderIfNeeded(for: fileURL)
         try FileManager.default.moveItem(at: location, to: fileURL)
-
-        Task {
-          await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
-        }
-      }
-    } catch {
-      Self.logger.trace("Error moving downloaded file to the destination: \(error.localizedDescription)")
-    }
-
-    if let error {
-      DispatchQueue.main.async {
-        self.downloadErrorPublisher.send((relativePath, error))
+        movedFileURL = fileURL
+      } catch {
+        finalError = error
+        Self.logger.warning("Error moving downloaded file to the destination: \(error.localizedDescription)")
       }
     }
 
-    guard let startingItemPath = ongoingTasksParentReference[relativePath] else {
-      initiatingFolderReference[relativePath] = nil
-      return
-    }
-
+    /// Capture and clear the per-task bookkeeping synchronously (we're on the
+    /// delegate queue). The completion event is emitted later, only after the
+    /// file is verified — see `finalizeDownloadedFile`.
+    let startingItemPath = ongoingTasksParentReference[relativePath]
     let parentFolderPath = initiatingFolderReference[relativePath]
-
-    /// cleanup individual reference
-    if downloadTasksDictionary[startingItemPath]?
-      .filter({ $0 != task })
-      .allSatisfy({ $0.state == .completed }) == true
+    if let startingItemPath,
+      downloadTasksDictionary[startingItemPath]?
+        .filter({ $0 != task })
+        .allSatisfy({ $0.state == .completed }) == true
     {
       downloadTasksDictionary[startingItemPath] = nil
     }
     ongoingTasksParentReference[relativePath] = nil
     initiatingFolderReference[relativePath] = nil
 
+    /// The download itself failed (network/move error): surface it and stop. We
+    /// never emit a completion event for a failed download.
+    if let finalError {
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((relativePath, finalError))
+      }
+      return
+    }
+
+    /// Second delegate callback (`didCompleteWithError` with no location) for a
+    /// download that already finished: nothing to move, nothing to announce.
+    guard let movedFileURL else { return }
+
+    Task {
+      await self.finalizeDownloadedFile(
+        relativePath: relativePath,
+        fileURL: movedFileURL,
+        startingItemPath: startingItemPath,
+        parentFolderPath: parentFolderPath
+      )
+    }
+  }
+
+  /// Loads chapters, validates the downloaded file, and only then announces
+  /// completion. Splitting this out (and gating the completion event on the
+  /// validation result) ensures a truncated file is never broadcast as
+  /// `.downloaded` before being discarded.
+  private func finalizeDownloadedFile(
+    relativePath: String,
+    fileURL: URL,
+    startingItemPath: String?,
+    parentFolderPath: String?
+  ) async {
+    await libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+
+    /// Read on a background context (off the main/view context) — this runs on
+    /// the download delegate's queue / a detached task.
+    let expectedDuration = await libraryService.getItemDuration(at: relativePath)
+
+    if let verificationError = await verifyDownloadedFile(
+      relativePath: relativePath,
+      fileURL: fileURL,
+      expectedDuration: expectedDuration
+    ) {
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((relativePath, verificationError))
+      }
+      return
+    }
+
+    /// Only announce completion once the file is verified, and only for a tracked
+    /// (user-initiated) download — restored/untracked tasks just get validated.
+    guard let startingItemPath else { return }
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
+  }
+
+  /// Backstop against truncated/botched downloads that finish without surfacing a
+  /// network error (e.g. the connection closed early, or watchOS suspended the
+  /// background transfer). `URLSession` won't flag these, so a short file would be
+  /// promoted as a fully-downloaded book and silently cut playback off partway
+  /// through. Returns a non-nil error (and deletes the file) when the download is
+  /// rejected; `nil` when the file is acceptable or can't be validated.
+  private func verifyDownloadedFile(
+    relativePath: String,
+    fileURL: URL,
+    expectedDuration: Double?
+  ) async -> Error? {
+    /// No trustworthy reference duration (item not yet stored, or a duration of 0)
+    /// means we can't validate — leave the download in place.
+    guard let expectedDuration, expectedDuration > 0 else { return nil }
+
+    let actualDuration: Double
+    do {
+      let asset = AVURLAsset(url: fileURL)
+      actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
+    } catch {
+      /// We have a trustworthy synced duration, so this is a format we can play —
+      /// a complete file would be readable. A load failure on a fresh download is
+      /// a strong truncation/corruption signal (e.g. a cut-off AAC/m4b missing its
+      /// `moov` atom), which is exactly the case a byte/duration check would
+      /// otherwise miss. Reject it.
+      try? FileManager.default.removeItem(at: fileURL)
+      Self.logger.warning(
+        "Discarding download for \(relativePath); duration unreadable (likely truncated): \(error.localizedDescription)"
+      )
+      return DownloadError.durationUnreadable
+    }
+
+    guard actualDuration.isFinite else { return nil }
+
+    /// Allow a small tolerance for container/encoder rounding differences.
+    let tolerance = max(2, expectedDuration * 0.02)
+    guard expectedDuration - actualDuration > tolerance else { return nil }
+
+    try? FileManager.default.removeItem(at: fileURL)
+    Self.logger.warning(
+      "Discarding truncated download for \(relativePath): expected \(expectedDuration)s, got \(actualDuration)s"
+    )
+    return DownloadError.durationMismatch(expected: expectedDuration, actual: actualDuration)
   }
 
   public func cancelDownload(of item: SimpleLibraryItem) throws {

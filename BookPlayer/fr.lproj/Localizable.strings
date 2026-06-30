@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Faites glisser verticalement pour créer un signet";
 "details_title" = "Détails";
 "download_title" = "Télécharger";
+"download_incomplete_error" = "Le téléchargement n'a pas abouti. Veuillez réessayer.";
 "cancel_download_title" = "Annuler le téléchargement";
 "remove_downloaded_file_title" = "Supprimer de l’appareil";
 "download_from_url_title" = "Télécharger à partir de l'URL";

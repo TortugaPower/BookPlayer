@@ -105,6 +105,18 @@ struct ItemArtworkView: View {
     ) { _ in
       downloadState = .notDownloaded
     }
+    /// A download/verification failure (e.g. a discarded truncated file) must reset
+    /// the cell — otherwise, now that completion is gated on verification, it would
+    /// stay stuck on the progress spinner until the view recomputes from disk. The
+    /// error payload only carries `relativePath`, so this matches the item directly
+    /// (a bound-book child error doesn't reset the parent cell — same limitation as
+    /// the Watch).
+    .onReceive(
+      syncService.downloadErrorPublisher
+        .filter { $0.0 == item.relativePath }
+    ) { _ in
+      downloadState = .notDownloaded
+    }
   }
 
   @ViewBuilder

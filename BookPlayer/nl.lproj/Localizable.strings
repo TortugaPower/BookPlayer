@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Veeg verticaal om een bladwijzer te maken";
 "details_title" = "Details";
 "download_title" = "Downloaden";
+"download_incomplete_error" = "De download is niet voltooid. Probeer het opnieuw.";
 "cancel_download_title" = "Download annuleren";
 "remove_downloaded_file_title" = "Verwijderen van apparaat";
 "download_from_url_title" = "Downloaden van URL";

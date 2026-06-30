@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Проведите по вертикали, чтобы создать закладку";
 "details_title" = "Подробности";
 "download_title" = "Скачать";
+"download_incomplete_error" = "Загрузка не завершена. Повторите попытку.";
 "cancel_download_title" = "Отменить загрузку";
 "remove_downloaded_file_title" = "Удалить с устройства";
 "download_from_url_title" = "Скачать с URL-адреса";

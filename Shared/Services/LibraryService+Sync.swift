@@ -39,6 +39,9 @@ public protocol LibrarySyncProtocol {
   func updateLibraryLastBook(with relativePath: String?) async
   /// Returns boolean determining if the item exists for the relativePath
   func itemExists(for relativePath: String) async -> Bool
+  /// Fetch the stored (synced) duration for the item, read on a background context
+  /// so it's safe to call off the main thread (e.g. from a download delegate queue).
+  func getItemDuration(at relativePath: String) async -> Double?
   /// Load encoded chapters from file into DB
   func loadChaptersIfNeeded(relativePath: String) async
   
@@ -81,6 +84,21 @@ extension LibraryService: LibrarySyncProtocol {
         let storedItem = getItemReference(with: relativePath, context: context)
 
         continuation.resume(returning: storedItem != nil)
+      }
+    }
+  }
+
+  public func getItemDuration(at relativePath: String) async -> Double? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let duration = self.getItemProperty(
+          #keyPath(LibraryItem.duration),
+          relativePath: relativePath,
+          context: context
+        ) as? Double
+
+        continuation.resume(returning: duration)
       }
     }
   }

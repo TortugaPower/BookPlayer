@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Scorri verticalmente per creare un segnalibro";
 "details_title" = "Dettagli";
 "download_title" = "Scaricamento";
+"download_incomplete_error" = "Il download non è stato completato. Riprova.";
 "cancel_download_title" = "Annulla il download";
 "remove_downloaded_file_title" = "Rimuovi dal dispositivo";
 "download_from_url_title" = "Scarica dall'URL";

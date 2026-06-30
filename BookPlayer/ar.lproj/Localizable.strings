@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "اسحب عموديًا لإنشاء إشارة مرجعية";
 "details_title" = "تفاصيل";
 "download_title" = "تحميل";
+"download_incomplete_error" = "لم يكتمل التنزيل. يُرجى المحاولة مرة أخرى.";
 "cancel_download_title" = "إلغاء التنزيل";
 "remove_downloaded_file_title" = "إزالة من الجهاز";
 "download_from_url_title" = "تنزيل من URL";

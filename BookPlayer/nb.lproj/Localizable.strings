@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Sveip vertikalt for å opprette bokmerke";
 "details_title" = "Detaljer";
 "download_title" = "Last ned";
+"download_incomplete_error" = "Nedlastingen ble ikke fullført. Prøv igjen.";
 "cancel_download_title" = "Avbryt nedlasting";
 "remove_downloaded_file_title" = "Fjern fra enhet";
 "download_from_url_title" = "Last ned fra URL";

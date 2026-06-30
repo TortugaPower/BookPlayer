@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "垂直滑动以创建书签";
 "details_title" = "细节";
 "download_title" = "下载";
+"download_incomplete_error" = "下载未完成，请重试。";
 "cancel_download_title" = "取消下载";
 "remove_downloaded_file_title" = "从设备中删除";
 "download_from_url_title" = "从网址下载";

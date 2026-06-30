@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Svep vertikalt för att skapa ett bokmärke";
 "details_title" = "Detaljer";
 "download_title" = "Ladda ner";
+"download_incomplete_error" = "Nedladdningen slutfördes inte. Försök igen.";
 "cancel_download_title" = "Avbryt nedladdning";
 "remove_downloaded_file_title" = "Ta bort från enheten";
 "download_from_url_title" = "Ladda ner från URL";

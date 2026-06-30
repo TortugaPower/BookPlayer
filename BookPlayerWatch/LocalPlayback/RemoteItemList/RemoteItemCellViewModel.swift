@@ -50,6 +50,20 @@ class RemoteItemCellViewModel: ObservableObject {
 
         self?.downloadState = .downloading(progress: progress)
       }.store(in: &disposeBag)
+
+    /// A download/verification failure (e.g. a truncated file that was discarded)
+    /// must reset the cell — otherwise it would stay stuck showing the in-progress
+    /// or downloaded state for a file that no longer exists on disk. The error
+    /// publisher only carries the failing `relativePath`, so this matches single
+    /// items directly (bound-book chapter errors are surfaced but don't reset the
+    /// parent cell — handled when the error payload carries the initiating path).
+    coreServices.syncService.downloadErrorPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] (relativePath, _) in
+        guard relativePath == self?.item.relativePath else { return }
+
+        self?.downloadState = .notDownloaded
+      }.store(in: &disposeBag)
   }
 
   func startDownload() async throws {

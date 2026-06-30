@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
 "details_title" = "Yksityiskohdat";
 "download_title" = "ladata";
+"download_incomplete_error" = "Lataus jäi kesken. Yritä uudelleen.";
 "cancel_download_title" = "Peruuta lataus";
 "remove_downloaded_file_title" = "Poista laitteesta";
 "download_from_url_title" = "Lataa osoitteesta URL";
