@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
 "details_title" = "Detaylar";
 "download_title" = "İndirmek";
+"download_incomplete_error" = "İndirme tamamlanmadı. Lütfen tekrar deneyin.";
 "cancel_download_title" = "İndirmeyi iptal et";
 "remove_downloaded_file_title" = "Cihazdan kaldır";
 "download_from_url_title" = "URL'den indir";

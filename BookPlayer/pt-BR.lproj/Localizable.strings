@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Deslize verticalmente para criar um marcador";
 "details_title" = "Detalhes";
 "download_title" = "Download";
+"download_incomplete_error" = "O download não foi concluído. Tente novamente.";
 "cancel_download_title" = "Cancelar download";
 "remove_downloaded_file_title" = "Remover do dispositivo";
 "download_from_url_title" = "Baixar do URL";

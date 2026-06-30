@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Záložku vytvoříte přejetím prstem svisle";
 "details_title" = "Podrobnosti";
 "download_title" = "Stažení";
+"download_incomplete_error" = "Stahování nebylo dokončeno. Zkuste to prosím znovu.";
 "cancel_download_title" = "Zrušit stahování";
 "remove_downloaded_file_title" = "Odebrat ze zařízení";
 "download_from_url_title" = "Stáhnout z URL";

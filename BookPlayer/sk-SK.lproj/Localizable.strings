@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Potiahnutím zvisle vytvoríte záložku";
 "details_title" = "Podrobnosti";
 "download_title" = "Stiahnuť";
+"download_incomplete_error" = "Sťahovanie sa nedokončilo. Skúste to znova.";
 "cancel_download_title" = "Zrušiť sťahovanie";
 "remove_downloaded_file_title" = "Odstrániť zo zariadenia";
 "download_from_url_title" = "Sťahovanie z adresy URL";

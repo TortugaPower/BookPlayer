@@ -9,6 +9,8 @@
 import Foundation
 
 /// Errors raised when a download finishes but the resulting file can't be trusted.
+/// The associated values carry diagnostic detail (logged at `.warning`); the
+/// user-facing `errorDescription` is a single localized, non-technical message.
 public enum DownloadError: LocalizedError {
   /// The transfer finished without a network error, but fewer bytes were written
   /// than the server's `Content-Length`, i.e. a truncated/botched file.
@@ -16,14 +18,12 @@ public enum DownloadError: LocalizedError {
   /// The downloaded file's real audio duration is meaningfully shorter than the
   /// duration we expected from the sync metadata.
   case durationMismatch(expected: Double, actual: Double)
+  /// The duration couldn't be read from the downloaded file at all, despite a
+  /// known-good synced duration — a strong truncation/corruption signal.
+  case durationUnreadable
 
   public var errorDescription: String? {
-    switch self {
-    case let .incompleteDownload(received, expected):
-      return "The download was incomplete (\(received)/\(expected) bytes). Please try again."
-    case let .durationMismatch(expected, actual):
-      return "The downloaded file was incomplete (\(Int(actual))s of \(Int(expected))s). Please try again."
-    }
+    return "download_incomplete_error".localized
   }
 }
 

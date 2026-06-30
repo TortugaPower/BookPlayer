@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "縦にスワイプしてブックマークを作成";
 "details_title" = "詳細";
 "download_title" = "ダウンロード";
+"download_incomplete_error" = "ダウンロードが完了しませんでした。もう一度お試しください。";
 "cancel_download_title" = "ダウンロードをキャンセル";
 "remove_downloaded_file_title" = "デバイスから削除";
 "download_from_url_title" = "URLを指定してダウンロード";

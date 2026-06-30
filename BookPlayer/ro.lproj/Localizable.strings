@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Glisați vertical pentru a crea un marcaj";
 "details_title" = "Detalii";
 "download_title" = "Descarca";
+"download_incomplete_error" = "Descărcarea nu s-a finalizat. Încercați din nou.";
 "cancel_download_title" = "Anulați descărcarea";
 "remove_downloaded_file_title" = "Scoateți de pe dispozitiv";
 "download_from_url_title" = "Descărcați de la URL";

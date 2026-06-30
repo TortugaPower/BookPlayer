@@ -245,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
 "details_title" = "detaljer";
 "download_title" = "Hent";
+"download_incomplete_error" = "Overførslen blev ikke fuldført. Prøv igen.";
 "cancel_download_title" = "Annuller download";
 "remove_downloaded_file_title" = "Fjern fra enheden";
 "download_from_url_title" = "Download fra URL";
