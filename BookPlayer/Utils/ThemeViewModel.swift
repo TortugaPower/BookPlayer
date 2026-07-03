@@ -83,4 +83,12 @@ class ThemeViewModel: ObservableObject, Themeable {
   var quaternarySystemFillColor: Color {
     return Color(theme.quaternarySystemFillColor)
   }
+
+  /// Semantic color for error glyphs (e.g. the warning triangle in the Quick Connect failure
+  /// state). Wired through the theme so future high-contrast themes can override it without
+  /// hunting down hardcoded `.red` literals. `systemRed` adapts to dark mode and satisfies
+  /// WCAG AA contrast against both system backgrounds.
+  var errorColor: Color {
+    return Color(uiColor: .systemRed)
+  }
 }

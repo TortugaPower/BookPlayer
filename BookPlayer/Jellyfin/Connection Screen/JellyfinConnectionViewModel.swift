@@ -7,7 +7,9 @@
 //
 
 import BookPlayerKit
+import Combine
 import Get
+import JellyfinAPI
 import SwiftUI
 
 @MainActor
@@ -19,6 +21,22 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   @Published var signInFlow: SignInStep?
   @Published private(set) var signInCompletedAt: Date?
   @Published var isAddingServer: Bool = false
+
+  /// Current state of an in-flight Quick Connect flow, or `nil` if none is running. Mirrored
+  /// to the shared `IntegrationConnectionView` via the protocol so it can render the
+  /// awaiting-code overlay and react to failure/success.
+  @Published var quickConnectStatus: QuickConnectStatus?
+
+  /// Jellyfin exposes Quick Connect on every server build that implements `/QuickConnect/*`.
+  /// The shared connection UI uses this to decide whether to surface the affordance.
+  let quickConnectSupported: Bool = true
+
+  /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
+  /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
+  private var activeQuickConnect: JellyfinAPI.QuickConnect?
+
+  /// Subscription to the Quick Connect helper's `state` publisher, dropped when the flow ends.
+  private var quickConnectStateSubscription: AnyCancellable?
 
   /// Transient handle returned by `findServer`. Held across the connect → sign-in
   /// transition so the service can commit it without touching `self.client` mid-flight.
@@ -232,5 +250,134 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     // The transient client from any previous attempt is stale; Connect rebuilds it.
     pendingServer = nil
     signInFlow = .enteringServerURL
+  }
+
+  // MARK: - Quick Connect
+
+  /// Starts the Jellyfin Quick Connect flow against the validated `pendingServer` client.
+  ///
+  /// Builds a controller, subscribes to its state publisher, then kicks the flow off. State
+  /// transitions are handled in ``handleQuickConnectStateChange(_:)``. Throws synchronously
+  /// only for setup failure (no validated server yet); mid-flight failures arrive async via
+  /// the published state and surface as `quickConnectStatus = .failed(...)`.
+  @MainActor
+  func handleStartQuickConnect() async throws {
+    // Idempotent: ignore if a flow is already in progress.
+    guard activeQuickConnect == nil else { return }
+    guard let pending = pendingServer else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    let manager = connectionService.makeQuickConnectController(using: pending.client)
+    activeQuickConnect = manager
+    quickConnectStatus = .retrievingCode
+
+    quickConnectStateSubscription = manager.$state
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] state in
+        guard let self else { return }
+        Task { @MainActor in
+          self.handleQuickConnectStateChange(state)
+        }
+      }
+
+    manager.start()
+  }
+
+  /// Cancels an in-flight Quick Connect flow and clears any pending status. Safe to call when
+  /// no flow is running.
+  @MainActor
+  func handleCancelQuickConnect() {
+    activeQuickConnect?.stop()
+    teardownQuickConnect()
+    quickConnectStatus = nil
+  }
+
+  /// Maps JellyfinAPI's Quick Connect helper states to the protocol-level `QuickConnectStatus`
+  /// and drives the final sign-in step on `.authenticated`.
+  @MainActor
+  private func handleQuickConnectStateChange(_ state: JellyfinAPI.QuickConnect.State) {
+    switch state {
+    case .idle:
+      quickConnectStatus = nil
+    case .retrievingCode:
+      quickConnectStatus = .retrievingCode
+    case .polling(let code):
+      quickConnectStatus = .awaitingCode(code)
+    case .authenticated(let secret):
+      quickConnectStatus = .authenticating
+      Task { @MainActor in
+        await self.completeQuickConnectSignIn(secret: secret)
+      }
+    case .error(let qcError):
+      Self.logger.error("Quick Connect failed: \(qcError.localizedDescription)")
+      quickConnectStatus = .failed(Self.message(for: qcError))
+      teardownQuickConnect()
+    }
+  }
+
+  /// Exchanges the authorized Quick Connect secret for an access token via the connection
+  /// service, then transitions form/state to look the same as a successful password sign-in.
+  @MainActor
+  private func completeQuickConnectSignIn(secret: String) async {
+    guard let pending = pendingServer else {
+      quickConnectStatus = .failed(IntegrationError.noClient("Jellyfin").localizedDescription)
+      teardownQuickConnect()
+      return
+    }
+    do {
+      let userName = try await connectionService.signInWithQuickConnect(
+        pending: pending,
+        secret: secret,
+        serverName: form.serverName,
+        customHeaders: form.customHeadersDictionary()
+      )
+      // Only drop the transient pending handle once the service has committed it.
+      pendingServer = nil
+      isAddingServer = false
+      if let data = connectionService.connection {
+        form.setValues(
+          url: data.url.absoluteString,
+          serverName: data.serverName,
+          userName: data.userName,
+          // Must be passed: `IntegrationCustomHeadersSectionView` commits on `onDisappear`, so a form
+          // left with an empty header list writes that emptiness over the saved connection when the
+          // sheet closes. `setValues` has no default for this argument precisely to catch the omission.
+          customHeaders: data.customHeaders
+        )
+      } else {
+        form.username = userName
+      }
+      signInFlow = nil
+      signInCompletedAt = Date()
+      quickConnectStatus = nil
+      teardownQuickConnect()
+    } catch {
+      Self.logger.error("Quick Connect sign-in failed: \(error.localizedDescription)")
+      // Keep `pendingServer` so the user can retry or fall back to password without re-pinging.
+      quickConnectStatus = .failed(error.localizedDescription)
+      teardownQuickConnect()
+    }
+  }
+
+  /// Drops the active controller + state subscription. Leaves `quickConnectStatus` untouched so
+  /// callers decide whether the sheet dismisses (status = nil) or shows a terminal error.
+  @MainActor
+  private func teardownQuickConnect() {
+    activeQuickConnect = nil
+    quickConnectStateSubscription?.cancel()
+    quickConnectStateSubscription = nil
+  }
+
+  /// Translates the JellyfinAPI helper's error cases into a user-presentable, localizable message.
+  private static func message(for error: JellyfinAPI.QuickConnect.QuickConnectError) -> String {
+    switch error {
+    case .maxPollingHit:
+      return "jellyfin_quick_connect_error_timeout".localized
+    case .retrievingCodeFailed:
+      return "jellyfin_quick_connect_error_no_code".localized
+    case .other(let message):
+      return message
+    }
   }
 }

@@ -35,6 +35,29 @@ struct IntegrationServerInfo: Identifiable {
   let userName: String
 }
 
+/// Status of an out-of-band code-based authentication flow (Jellyfin Quick Connect).
+///
+/// The device asks the server for a short user-facing code, then polls until the user enters
+/// that code in an already-authenticated session of the server's web UI. While the device is
+/// waiting it sits in `.awaitingCode`; once the server marks the request authorized, the device
+/// enters `.authenticating` while it exchanges the secret for an access token. Failures are
+/// surfaced as `.failed`, with a localized message ready for display.
+enum QuickConnectStatus: Equatable {
+  /// The client has called the server's `/QuickConnect/Initiate` endpoint and is waiting for
+  /// the user-facing code to come back. Briefly visible while the network round-trip completes.
+  case retrievingCode
+
+  /// The server returned a short code and the client is polling. The user must enter this code
+  /// on the server's web UI (User menu → Quick Connect) to authorize the device.
+  case awaitingCode(String)
+
+  /// The user authorized the request. The client is exchanging the secret for an access token.
+  case authenticating
+
+  /// The flow ended in a failure. The associated value is a user-presentable message.
+  case failed(String)
+}
+
 @MainActor
 protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   associatedtype FormVM: IntegrationConnectionFormViewModelProtocol
@@ -87,6 +110,12 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// needs `/status`). Without that, an SSO-only user with no password has no way back in.
   func prepareReauth()
 
+  // MARK: - Alternative sign-in methods
+  //
+  // Two independent, mutually exclusive in practice: AudiobookShelf opts into OIDC, Jellyfin into
+  // Quick Connect, and each leaves the other at its default. The shared view renders whichever the
+  // concrete view model advertises.
+
   /// Whether SSO can actually be used with the server the user just validated — not merely whether
   /// the integration speaks it. Default: `false`; concrete VMs opt in (AudiobookShelf).
   var oidcSupported: Bool { get }
@@ -101,13 +130,32 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// Begin the native SSO flow. Throws on setup failure; user cancellation surfaces as
   /// `CancellationError` so the host view can stay quiet.
   func handleStartOIDC() async throws
+
+  /// Whether this integration supports an out-of-band code-based sign-in flow
+  /// (Jellyfin's Quick Connect). Default: `false` — concrete VMs opt in.
+  var quickConnectSupported: Bool { get }
+
+  /// Current state of an in-flight Quick Connect flow, or `nil` if none is running.
+  var quickConnectStatus: QuickConnectStatus? { get }
+
+  /// Begin the Quick Connect flow. Throws if the underlying api-client cannot be reached.
+  func handleStartQuickConnect() async throws
+
+  /// Cancel an in-flight Quick Connect flow, dismiss any failure status, and free the
+  /// underlying poller. Safe to call when no flow is running.
+  func handleCancelQuickConnect()
 }
 
-/// Default no-op SSO implementations so integrations that don't speak it
-/// can conform without boilerplate.
+/// No-op defaults for both alternative sign-in methods, so an integration only has to implement the
+/// one it actually speaks.
 extension IntegrationConnectionViewModelProtocol {
   var oidcSupported: Bool { false }
   var oidcButtonText: String? { nil }
   var oidcBlockedByInsecureTransport: Bool { false }
   func handleStartOIDC() async throws {}
+
+  var quickConnectSupported: Bool { false }
+  var quickConnectStatus: QuickConnectStatus? { nil }
+  func handleStartQuickConnect() async throws {}
+  func handleCancelQuickConnect() {}
 }

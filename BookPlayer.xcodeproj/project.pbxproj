@@ -871,6 +871,7 @@
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */; };
+		C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */; };
 		C53864BEFAE4D1CEC668A6B3 /* IntegrationLibraryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F0D505E060FDAEB6DB68E3 /* IntegrationLibraryListView.swift */; };
 		C63BB893BC572482723FF7CE /* m4b_MALFORMED.m4b in Resources */ = {isa = PBXBuildFile; fileRef = A566F222C6660938B3A71638 /* m4b_MALFORMED.m4b */; };
 		C744B2254A1146AC9F78A68F /* PlayBookIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F847DAE94054533AACF8D85 /* PlayBookIntent.swift */; };
@@ -1301,6 +1302,7 @@
 		41FCA32625E87EC600BFB9E6 /* Audiobook Player 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 4.xcdatamodel"; sourceTree = "<group>"; };
 		424AE6DFF6B641DB69DF3D78 /* IntegrationAudiobookDetailsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationAudiobookDetailsView.swift; sourceTree = "<group>"; };
 		43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionView.swift; sourceTree = "<group>"; };
+		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
 		4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeInlineTip.swift; sourceTree = "<group>"; };
 		465D87512D3195D600A4AA47 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
 		465D87532D31965100A4AA47 /* BookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewModel.swift; sourceTree = "<group>"; };
@@ -1946,6 +1948,7 @@
 			isa = PBXGroup;
 			children = (
 				43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */,
+				056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */,
 				4D9D68F735D2519CDBC18495 /* IntegrationSettingsView.swift */,
 				E1FDA0B60D7BE4CFE100A612 /* IntegrationDisconnectedView.swift */,
 				A3511F737DCDEE7A12B713AE /* IntegrationServerFoundView.swift */,
@@ -4571,6 +4574,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */,
+				C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */,
 				B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */,
 				98BA9BA4D6A94BC8BCCE5F8B /* IntegrationSettingsView.swift in Sources */,
 				66DF1F3E6AFECB623A558F04 /* IntegrationDisconnectedView.swift in Sources */,
