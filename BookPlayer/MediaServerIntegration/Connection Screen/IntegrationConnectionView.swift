@@ -51,6 +51,9 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           password: $viewModel.form.password,
           onCommit: onSignIn
         )
+        if viewModel.oidcSupported {
+          IntegrationOIDCSectionView(onStart: onStartOIDC)
+        }
         IntegrationCustomHeadersSectionView(
           customHeaders: $viewModel.form.customHeaders
         )
@@ -164,6 +167,24 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     }
   }
 
+  /// Starts the native SSO flow. The system web-auth sheet drives the IdP handshake; the
+  /// loading overlay covers the subsequent token exchange. User cancellation is swallowed.
+  func onStartOIDC() {
+    actionTask?.cancel()
+    isLoading = true
+    actionTask = Task { @MainActor in
+      defer { isLoading = false }
+      do {
+        try await viewModel.handleStartOIDC()
+        try Task.checkCancellation()
+      } catch is CancellationError {
+        return
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
   // MARK: - Navigation Title
 
   private var localizedNavigationTitle: String {
@@ -194,5 +215,35 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     .disabledWithOpacity(
       viewModel.form.serverUrl.isEmpty || viewModel.form.username.isEmpty
     )
+  }
+}
+
+/// In-form section offering native SSO sign-in as an alternative to username/password. Shown
+/// in the `.enteringCredentials` state for integrations whose view model sets `oidcSupported`
+/// (AudiobookShelf).
+private struct IntegrationOIDCSectionView: View {
+  /// Tapped to begin the flow. The caller drives `viewModel.handleStartOIDC()` so loading-state
+  /// plumbing stays in the host view.
+  var onStart: () -> Void
+
+  @EnvironmentObject var theme: ThemeViewModel
+
+  var body: some View {
+    ThemedSection {
+      Button(action: onStart) {
+        Label(
+          "integration_sso_button".localized,
+          systemImage: "lock.shield"
+        )
+        .foregroundStyle(theme.linkColor)
+      }
+      .accessibilityHint(Text("integration_sso_button_hint".localized))
+    } header: {
+      Text("integration_sso_section_header".localized)
+        .foregroundStyle(theme.secondaryColor)
+    } footer: {
+      Text("integration_sso_section_footer".localized)
+        .foregroundStyle(theme.secondaryColor)
+    }
   }
 }

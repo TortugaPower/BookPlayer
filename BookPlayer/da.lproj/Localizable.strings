@@ -472,3 +472,8 @@
 "Series" = "Serier";
 "Collections" = "Samlinger";
 "Narrators" = "Fortællere";
+
+"integration_sso_section_header" = "Single sign-on";
+"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
+"integration_sso_button" = "Sign in with SSO";
+"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";

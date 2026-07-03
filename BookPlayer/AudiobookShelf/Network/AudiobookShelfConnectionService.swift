@@ -6,8 +6,11 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import AuthenticationServices
 import BookPlayerKit
+import CryptoKit
 import Foundation
+import UIKit
 
 @MainActor
 @Observable
@@ -25,6 +28,18 @@ class AudiobookShelfConnectionService: BPLogger {
     return connections.first
   }
   private let urlSession: URLSession
+
+  /// ABS OIDC ("SSO") constants. `oidcClientID` is the app name ABS records for the session;
+  /// the redirect URI uses the app's already-registered `bookplayer` URL scheme, which ABS
+  /// whitelists and routes back through `/auth/openid/mobile-redirect`.
+  private static let oidcClientID = "BookPlayer"
+  private static let oidcRedirectURI = "bookplayer://oauth"
+  private static let oidcCallbackScheme = "bookplayer"
+
+  /// Retained for the lifetime of an in-flight web-auth flow so the system sheet isn't torn
+  /// down when `signInWithOIDC` suspends on its continuation.
+  private var activeWebAuthSession: ASWebAuthenticationSession?
+  private let webAuthContextProvider = WebAuthPresentationProvider()
 
   private(set) var activeConnectionID: String? {
     get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
@@ -162,6 +177,190 @@ class AudiobookShelfConnectionService: BPLogger {
     if let stale = existing, stale.apiToken != apiToken {
       revokeTokenInBackground(connection: stale)
     }
+  }
+
+  /// Sign in via AudiobookShelf's native OpenID Connect ("SSO") flow and store the connection.
+  ///
+  /// ABS brokers the IdP handshake itself: we hand it a PKCE `code_challenge` and our custom-
+  /// scheme `redirect_uri`, it bounces the user through the provider, then redirects back to
+  /// `bookplayer://oauth?code=…&state=…`. We exchange that code at `/auth/openid/callback`,
+  /// which returns the same `user.token` shape the password path produces — so persistence,
+  /// dedup, and re-auth all reuse the existing logic.
+  ///
+  /// Requires the server's OIDC config to whitelist `bookplayer://oauth` as a mobile redirect.
+  public func signInWithOIDC(
+    serverUrl: String,
+    serverName: String,
+    customHeaders: [String: String] = [:]
+  ) async throws {
+    guard let baseURL = URL(string: serverUrl) else {
+      throw IntegrationError.urlMalformed(nil)
+    }
+    // Release the retained web-auth session on every exit path (success, error, cancellation).
+    defer { activeWebAuthSession = nil }
+
+    let codeVerifier = Self.makeRandomURLSafeString(byteCount: 32)
+    let codeChallenge = Self.codeChallenge(for: codeVerifier)
+    let state = Self.makeRandomURLSafeString(byteCount: 16)
+
+    guard
+      var authComponents = URLComponents(
+        url: baseURL.appendingPathComponent("auth").appendingPathComponent("openid"),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw IntegrationError.urlMalformed(baseURL)
+    }
+    authComponents.queryItems = [
+      URLQueryItem(name: "response_type", value: "code"),
+      URLQueryItem(name: "client_id", value: Self.oidcClientID),
+      URLQueryItem(name: "redirect_uri", value: Self.oidcRedirectURI),
+      URLQueryItem(name: "code_challenge", value: codeChallenge),
+      URLQueryItem(name: "code_challenge_method", value: "S256"),
+      URLQueryItem(name: "state", value: state),
+    ]
+    guard let authURL = authComponents.url else {
+      throw IntegrationError.urlFromComponents(authComponents)
+    }
+
+    let callbackURL = try await presentWebAuthSession(
+      url: authURL,
+      callbackScheme: Self.oidcCallbackScheme
+    )
+    try Task.checkCancellation()
+
+    guard
+      let callbackComponents = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+      let returnedState = callbackComponents.queryItems?.first(where: { $0.name == "state" })?.value,
+      let code = callbackComponents.queryItems?.first(where: { $0.name == "code" })?.value
+    else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    // Reject a mismatched state — guards against a replayed or forged redirect.
+    guard returnedState == state else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    guard
+      var exchangeComponents = URLComponents(
+        url: baseURL
+          .appendingPathComponent("auth")
+          .appendingPathComponent("openid")
+          .appendingPathComponent("callback"),
+        resolvingAgainstBaseURL: false
+      )
+    else {
+      throw IntegrationError.urlMalformed(baseURL)
+    }
+    exchangeComponents.queryItems = [
+      URLQueryItem(name: "state", value: state),
+      URLQueryItem(name: "code", value: code),
+      URLQueryItem(name: "code_verifier", value: codeVerifier),
+    ]
+    guard let exchangeURL = exchangeComponents.url else {
+      throw IntegrationError.urlFromComponents(exchangeComponents)
+    }
+
+    var request = URLRequest(url: exchangeURL)
+    request.httpMethod = "GET"
+    applyCustomHeaders(to: &request, headers: customHeaders)
+
+    let (data, response) = try await urlSession.data(for: request)
+    try Task.checkCancellation()
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    guard (200...299).contains(httpResponse.statusCode) else {
+      if httpResponse.statusCode == 401 {
+        throw URLError(.userAuthenticationRequired)
+      }
+      throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
+    }
+
+    guard
+      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      let user = json["user"] as? [String: Any],
+      let apiToken = user["token"] as? String,
+      let userID = user["id"] as? String
+    else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+    // ABS returns `username`; fall back to `name` / the server name so the row always has a label.
+    let userName = (user["username"] as? String) ?? (user["name"] as? String) ?? serverName
+
+    // Persist using the same dedup + re-auth-preserving logic as the password path.
+    let existing = connections.first {
+      $0.url.canonicalDedupKey == baseURL.canonicalDedupKey && $0.userID == userID
+    }
+    let connectionData = AudiobookShelfConnectionData(
+      id: existing?.id ?? UUID().uuidString,
+      url: baseURL,
+      serverName: serverName,
+      userID: userID,
+      userName: userName,
+      apiToken: apiToken,
+      selectedLibraryId: existing?.selectedLibraryId,
+      customHeaders: customHeaders
+    )
+    connections.removeAll {
+      $0.url.canonicalDedupKey == baseURL.canonicalDedupKey && $0.userID == userID
+    }
+    connections.append(connectionData)
+    activeConnectionID = connectionData.id
+    saveConnections()
+
+    if let stale = existing, stale.apiToken != apiToken {
+      revokeTokenInBackground(connection: stale)
+    }
+  }
+
+  /// Presents the system web-authentication sheet for `url` and resolves with the redirect URL
+  /// once the provider bounces back to our custom scheme. User cancellation maps to
+  /// `CancellationError` so the connection UI stays quiet (mirrors the in-flight-dismiss path).
+  @MainActor
+  private func presentWebAuthSession(url: URL, callbackScheme: String) async throws -> URL {
+    try await withCheckedThrowingContinuation { continuation in
+      let session = ASWebAuthenticationSession(
+        url: url,
+        callbackURLScheme: callbackScheme
+      ) { callbackURL, error in
+        // Cleanup of `activeWebAuthSession` happens in the caller's `defer`, so this
+        // escaping completion doesn't touch MainActor-isolated state.
+        if let error {
+          if (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin {
+            continuation.resume(throwing: CancellationError())
+          } else {
+            continuation.resume(throwing: error)
+          }
+          return
+        }
+        guard let callbackURL else {
+          continuation.resume(throwing: IntegrationError.unexpectedResponse(code: nil))
+          return
+        }
+        continuation.resume(returning: callbackURL)
+      }
+      session.presentationContextProvider = webAuthContextProvider
+      activeWebAuthSession = session
+      if !session.start() {
+        activeWebAuthSession = nil
+        continuation.resume(throwing: IntegrationError.unexpectedResponse(code: nil))
+      }
+    }
+  }
+
+  /// RFC 7636 PKCE verifier: `byteCount` random bytes, base64url-encoded (no padding).
+  private static func makeRandomURLSafeString(byteCount: Int) -> String {
+    var generator = SystemRandomNumberGenerator()
+    let bytes = (0..<byteCount).map { _ in UInt8.random(in: UInt8.min...UInt8.max, using: &generator) }
+    return Data(bytes).base64URLEncodedString()
+  }
+
+  /// RFC 7636 S256 challenge: base64url(SHA256(verifier)).
+  private static func codeChallenge(for verifier: String) -> String {
+    let digest = SHA256.hash(data: Data(verifier.utf8))
+    return Data(digest).base64URLEncodedString()
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {
@@ -663,5 +862,25 @@ class AudiobookShelfConnectionService: BPLogger {
     urlString += "?width=\(width)&height=\(height)&format=webp"
 
     return URL(string: urlString)
+  }
+}
+
+/// Supplies the anchor window `ASWebAuthenticationSession` presents its sheet from. Resolves
+/// the foreground-active window scene's key window, falling back to any available window.
+private final class WebAuthPresentationProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+  func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+    return scene?.keyWindow ?? scene?.windows.first ?? ASPresentationAnchor()
+  }
+}
+
+private extension Data {
+  /// RFC 7636 base64url, no padding — used for PKCE verifier/challenge encoding.
+  func base64URLEncodedString() -> String {
+    base64EncodedString()
+      .replacingOccurrences(of: "+", with: "-")
+      .replacingOccurrences(of: "/", with: "_")
+      .replacingOccurrences(of: "=", with: "")
   }
 }

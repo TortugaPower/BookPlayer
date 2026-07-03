@@ -20,6 +20,10 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   @Published private(set) var signInCompletedAt: Date?
   @Published var isAddingServer: Bool = false
 
+  /// AudiobookShelf supports a native OpenID Connect flow, so the shared connection UI surfaces
+  /// a "Sign in with SSO" button alongside username/password.
+  let oidcSupported: Bool = true
+
   private var disposeBag = Set<AnyCancellable>()
 
   /// When non-nil, the VM operates on this specific connection (read its data on init,
@@ -211,5 +215,31 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     } else {
       connectionService.updateCustomHeaders(headers)
     }
+  }
+
+  // MARK: - SSO (OpenID Connect)
+
+  /// Starts the native ABS OpenID Connect flow against the validated `pingedURL`, then
+  /// transitions form/state to match a successful password sign-in. The system web-auth sheet
+  /// drives the IdP handshake; on user cancellation the service throws `CancellationError`,
+  /// which the shared view swallows.
+  @MainActor
+  func handleStartOIDC() async throws {
+    guard let serverUrl = pingedURL else {
+      throw IntegrationError.urlMalformed(nil)
+    }
+    try await connectionService.signInWithOIDC(
+      serverUrl: serverUrl,
+      serverName: form.serverName,
+      customHeaders: form.customHeadersDictionary()
+    )
+    // Only drop the validated URL once sign-in succeeded.
+    pingedURL = nil
+    isAddingServer = false
+    if let data = connectionService.connection {
+      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+    }
+    signInFlow = nil
+    signInCompletedAt = Date()
   }
 }
