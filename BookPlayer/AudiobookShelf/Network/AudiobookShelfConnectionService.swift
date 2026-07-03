@@ -521,22 +521,28 @@ class AudiobookShelfConnectionService: BPLogger {
       throw URLError(.userAuthenticationRequired)
     }
 
+    // The token is deliberately not appended as a query parameter. ABS accepts
+    // the bearer via `Authorization: Bearer` on this endpoint, and a token-bearing
+    // URL leaks: background URLSession serializes task URLs to disk, and query
+    // strings land in proxy/CDN access logs (Authorization headers don't).
     return connection.url
       .appendingPathComponent("api")
       .appendingPathComponent("items")
       .appendingPathComponent(item.id)
       .appendingPathComponent("download")
-      .appending(queryItems: [URLQueryItem(name: "token", value: connection.apiToken)])
   }
 
-  /// Returns a URLRequest for downloading a library item, carrying the user-defined
+  /// Returns a URLRequest for downloading a library item, carrying the bearer
+  /// token via the standard `Authorization: Bearer` header plus the user-defined
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
   public func createItemDownloadRequest(_ item: AudiobookShelfLibraryItem) throws -> URLRequest {
-    guard connection != nil else {
+    guard let connection else {
       throw URLError(.userAuthenticationRequired)
     }
     let url = try createItemDownloadUrl(item)
-    return wrapWithCustomHeaders(url)
+    var request = wrapWithCustomHeaders(url)
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    return request
   }
 
   /// Wraps an arbitrary URL (e.g. a cover image or stream URL) in a URLRequest that carries
