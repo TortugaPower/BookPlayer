@@ -650,6 +650,11 @@
 		990442102F889201007E2A44 /* ExternalSyncInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9904420F2F8891F9007E2A44 /* ExternalSyncInfoView.swift */; };
 		990442122F88B101007E2A44 /* SyncInvitationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */; };
 		990442142F894DDB007E2A44 /* SubscriptionPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990442132F894DD5007E2A44 /* SubscriptionPillView.swift */; };
+		990775772FF33BD700E35FAE /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 990775762FF33BD700E35FAE /* Get */; };
+		990775792FF33BE100E35FAE /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 990775782FF33BE100E35FAE /* Get */; };
+		9907757C2FF33C0C00E35FAE /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757B2FF33C0C00E35FAE /* Kingfisher */; };
+		9907757E2FF33C1500E35FAE /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757D2FF33C1500E35FAE /* Kingfisher */; };
+		990775802FF33D5300E35FAE /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757F2FF33D5300E35FAE /* Get */; };
 		990BF7102FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990BF70F2FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		990BF7112FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990BF70F2FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel */; };
 		990BF7122FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 990BF70F2FF3006D007DDE38 /* MappingModel_v11_to_v12.xcmappingmodel */; };
@@ -1918,6 +1923,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9907757E2FF33C1500E35FAE /* Kingfisher in Frameworks */,
+				990775792FF33BE100E35FAE /* Get in Frameworks */,
 				9F00F6EA2807B5D300996BBB /* RevenueCat in Frameworks */,
 				99D9959A2F71B05700BAF216 /* JellyfinAPI in Frameworks */,
 			);
@@ -1946,6 +1953,7 @@
 				41F1A1D7254B07E80043FCF3 /* MarqueeLabel in Frameworks */,
 				8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */,
 				41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */,
+				990775802FF33D5300E35FAE /* Get in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1960,6 +1968,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9907757C2FF33C0C00E35FAE /* Kingfisher in Frameworks */,
+				990775772FF33BD700E35FAE /* Get in Frameworks */,
 				9F00F6E82807B5CB00996BBB /* RevenueCat in Frameworks */,
 				99D995982F71B02D00BAF216 /* JellyfinAPI in Frameworks */,
 			);
@@ -3952,6 +3962,8 @@
 			packageProductDependencies = (
 				9F00F6E92807B5D300996BBB /* RevenueCat */,
 				99D995992F71B05700BAF216 /* JellyfinAPI */,
+				990775782FF33BE100E35FAE /* Get */,
+				9907757D2FF33C1500E35FAE /* Kingfisher */,
 			);
 			productName = BookPlayerWatchKit;
 			productReference = 4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */;
@@ -4006,6 +4018,7 @@
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
 				8A495CC52CC85D27001B4244 /* JellyfinAPI */,
 				63AE44722E6161B60088668F /* DirectoryWatcher */,
+				9907757F2FF33D5300E35FAE /* Get */,
 			);
 			productName = "Audiobook Player";
 			productReference = 418B6CF81D2707F800F974FB /* BookPlayer.app */;
@@ -4046,6 +4059,8 @@
 			packageProductDependencies = (
 				9F00F6E72807B5CB00996BBB /* RevenueCat */,
 				99D995972F71B02D00BAF216 /* JellyfinAPI */,
+				990775762FF33BD700E35FAE /* Get */,
+				9907757B2FF33C0C00E35FAE /* Kingfisher */,
 			);
 			productName = BookPlayerKit;
 			productReference = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */;
@@ -4195,6 +4210,8 @@
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */,
 				63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
+				990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */,
+				9907757A2FF33C0C00E35FAE /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 418B6CF91D2707F800F974FB /* Products */;
 			projectDirPath = "";
@@ -6814,6 +6831,22 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Get.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.1;
+			};
+		};
+		9907757A2FF33C0C00E35FAE /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.10.0;
+			};
+		};
 		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -6864,6 +6897,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */;
 			productName = JellyfinAPI;
+		};
+		990775762FF33BD700E35FAE /* Get */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */;
+			productName = Get;
+		};
+		990775782FF33BE100E35FAE /* Get */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */;
+			productName = Get;
+		};
+		9907757B2FF33C0C00E35FAE /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9907757A2FF33C0C00E35FAE /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		9907757D2FF33C1500E35FAE /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9907757A2FF33C0C00E35FAE /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		9907757F2FF33D5300E35FAE /* Get */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */;
+			productName = Get;
 		};
 		99D995972F71B02D00BAF216 /* JellyfinAPI */ = {
 			isa = XCSwiftPackageProductDependency;

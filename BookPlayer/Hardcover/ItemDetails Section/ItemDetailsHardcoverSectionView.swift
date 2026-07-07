@@ -31,16 +31,26 @@ struct ItemDetailsHardcoverSectionView: View {
           HardcoverBookPickerView(viewModel: viewModel.pickerViewModel)
         },
         label: {
-          if let row = viewModel.pickerViewModel.selected {
-            HardcoverBookRow(viewModel: row)
-          } else {
-            Text("select_title".localized)
-          }
+          HardcoverSelectionLabel(pickerViewModel: viewModel.pickerViewModel)
         }
       )
       .accessibilityHint("voiceover_hardcover_navigation_hint".localized)
     }
     .listRowBackground(theme.secondarySystemBackgroundColor)
+  }
+}
+
+/// Observes the picker view model directly so the row reflects `selected` as soon as it's
+/// set — the section's own `@ObservedObject` won't fire for changes on the nested model.
+private struct HardcoverSelectionLabel: View {
+  @ObservedObject var pickerViewModel: HardcoverBookPickerView.Model
+
+  var body: some View {
+    if let row = pickerViewModel.selected {
+      HardcoverBookRow(viewModel: row)
+    } else {
+      Text("select_title".localized)
+    }
   }
 }
 

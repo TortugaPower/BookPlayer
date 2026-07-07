@@ -386,6 +386,7 @@ extension HardcoverService {
 
         await libraryService.setHardcoverBook(book, for: match.item.relativePath)
         await uploadExternalResource(for: book, to: match.item)
+        await downloadArtworkIfNeeded(for: book, to: match.item)
         Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
         processedCount += 1
       } catch {
@@ -436,6 +437,7 @@ extension HardcoverService {
     }
 
     await uploadExternalResource(for: book, to: item)
+    await downloadArtworkIfNeeded(for: book, to: item)
   }
 
   /// Create the hardcover external resource for the item and sync-upload it if a sync service is available.
@@ -475,6 +477,29 @@ extension HardcoverService {
       relativePath: item.relativePath,
       uuid: item.uuid
     )
+  }
+
+  /// If the Hardcover book has artwork and the item has none, download it, set it as the
+  /// item's artwork, and run the artwork-upload process (which itself no-ops unless cloud
+  /// sync is active, i.e. the user is Pro/Lite).
+  private func downloadArtworkIfNeeded(
+    for book: SimpleHardcoverBook,
+    to item: SimpleLibraryItem
+  ) async {
+    guard
+      let artworkURL = book.artworkURL,
+      item.artworkURL == nil,
+      !ArtworkService.isCached(relativePath: item.relativePath)
+    else { return }
+
+    do {
+      let (data, _) = try await URLSession.shared.data(from: artworkURL)
+      await ArtworkService.storeInCache(data, for: item.relativePath)
+      syncService?.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
+      Self.logger.info("Set Hardcover artwork for '\(item.title)'")
+    } catch {
+      Self.logger.error("Failed to download Hardcover artwork for '\(item.title)': \(error)")
+    }
   }
 
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {
