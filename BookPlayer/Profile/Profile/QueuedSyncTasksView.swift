@@ -143,6 +143,10 @@ struct QueuedSyncTasksView: View {
       return "link.badge.plus"
     case .deleteExternalResource:
       return "xmark.bin"
+    case .externalUpdate:
+      return "arrow.2.circlepath"
+    case .uploadFile:
+      return "square.and.arrow.up.badge.clock"
     }
   }
 }

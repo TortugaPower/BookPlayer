@@ -76,8 +76,19 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService, dataManager: dataManager)
-      let concurrenceSerivce = makeConcurrenceService(libraryService: libraryService, accessLevel: accountService.accessLevel)
+      let tasksDataManager = TasksDataManager()
+      let concurrenceService = makeConcurrenceService(
+        libraryService: libraryService,
+        accessLevel: accountService.accessLevel,
+        tasksDataManager: tasksDataManager,
+        dataManager: dataManager
+      )
+      let syncService = makeSyncService(
+        accountService: accountService,
+        libraryService: libraryService,
+        concurrenceService: concurrenceService,
+        tasksDataManager: tasksDataManager
+      )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
@@ -118,7 +129,7 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
-        concurrenceService: concurrenceSerivce,
+        concurrenceService: concurrenceService,
         watchService: watchService
       )
 
@@ -228,21 +239,34 @@ final class AppServices: BPLogger {
   private func makeSyncService(
     accountService: AccountService,
     libraryService: LibraryService,
-    dataManager: DataManager
+    concurrenceService: ConcurrenceService,
+    tasksDataManager: TasksDataManager
   ) -> SyncService {
     let service = SyncService()
     service.setup(
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
-      dataManager: dataManager
+      concurrenceService: concurrenceService,
+      tasksDataManager: tasksDataManager
     )
     return service
   }
 
-  private func makeConcurrenceService(libraryService: LibraryService, accessLevel: AccessLevel) -> ConcurrenceService {
+  private func makeConcurrenceService(
+    libraryService: LibraryService,
+    accessLevel: AccessLevel,
+    tasksDataManager: TasksDataManager,
+    dataManager: DataManager
+  ) -> ConcurrenceService {
     let service = ConcurrenceService()
-    service.setup(libraryService: libraryService, accessLevel: accessLevel)
+    service.setup(
+      libraryService: libraryService,
+      accessLevel: accessLevel,
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
     return service
   }
 

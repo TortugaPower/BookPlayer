@@ -10,7 +10,10 @@ import BookPlayerKit
 import SwiftData
 import SwiftUI
 
+/// Task list for a single provider/upload queue
 struct ConcurrentSyncTasksView: View {
+  let queueKey: String
+
   @AppStorage(Constants.UserDefaults.allowCellularData)
   private var allowsCellularData: Bool = false
   var monitor = ConcurrentTaskProgressMonitor.shared
@@ -76,7 +79,7 @@ struct ConcurrentSyncTasksView: View {
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
-    .navigationTitle("Concurrent Tasks")
+    .navigationTitle(QueueDisplay.name(for: queueKey))
     .navigationBarTitleDisplayMode(.inline)
     .alert("", isPresented: $showInfoAlert) {
       Button("ok_button", role: .cancel) {}
@@ -110,26 +113,27 @@ struct ConcurrentSyncTasksView: View {
   func reloadQueuedJobs() {
     Task { @MainActor in
       let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTasks: monitor.activeTasks)
+        .filter { $0.queueKey == queueKey }
       jobsCount = allJobs.count
       queuedJobs = allJobs
     }
   }
 
-  func parseImageName(_ jobType: ExternalSyncJobType) -> String {
+  func parseImageName(_ jobType: SyncJobType) -> String {
     switch jobType {
-    case .update:
-      return "arrow.2.circlepath"
     case .uploadFile:
       return "square.and.arrow.up.badge.clock"
+    default:
+      return "arrow.2.circlepath"
     }
   }
-  
-  func parseLabel(_ jobType: ExternalSyncJobType, _ queueKey: String) -> String {
+
+  func parseLabel(_ jobType: SyncJobType, _ queueKey: String) -> String {
     switch jobType {
-    case .update:
-      return "Updating progress for \(queueKey)"
     case .uploadFile:
       return "Uploading file"
+    default:
+      return "Updating progress for \(queueKey)"
     }
   }
 }

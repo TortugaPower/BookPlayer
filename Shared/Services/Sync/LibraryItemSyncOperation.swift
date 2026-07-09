@@ -9,46 +9,7 @@
 import Foundation
 import Combine
 
-/// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
-class LibraryItemSyncOperation: Operation, BPLogger {
-  // MARK: - Async operation properties
-
-  private var cellularDataObserver: NSKeyValueObservation?
-  private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.synctask", attributes: .concurrent)
-  override var isAsynchronous: Bool { true }
-
-  private var _isExecuting: Bool = false
-  override private(set) var isExecuting: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isExecuting
-      }
-    }
-    set {
-      willChangeValue(forKey: "isExecuting")
-      lockQueue.sync(flags: [.barrier]) {
-        _isExecuting = newValue
-      }
-      didChangeValue(forKey: "isExecuting")
-    }
-  }
-
-  private var _isFinished: Bool = false
-  override private(set) var isFinished: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isFinished
-      }
-    }
-    set {
-      willChangeValue(forKey: "isFinished")
-      lockQueue.sync(flags: [.barrier]) {
-        _isFinished = newValue
-      }
-      didChangeValue(forKey: "isFinished")
-    }
-  }
-
+class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // MARK: - Library sync properties
 
   let client: NetworkClientProtocol
@@ -77,17 +38,6 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
-  }
-
-  override func start() {
-    guard !isCancelled else {
-      finish()
-      return
-    }
-
-    isFinished = false
-    isExecuting = true
-    main()
   }
 
   // TODO: split into separate Operations
@@ -158,6 +108,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
             .deleteExternalResource(uuid: uuid, providerName: providerName, providerId: providerId)
           )
           finish()
+        case .externalUpdate, .uploadFile:
+          /// Handled by their dedicated operations, never routed here
+          throw BookPlayerError.runtimeError("Unsupported job type for sync operation: \(jobType.rawValue)")
         }
       } catch {
         self.error = error
@@ -166,9 +119,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     }
   }
 
-  func finish() {
-    isExecuting = false
-    isFinished = true
+  override func finish() {
+    didSucceed = error == nil
+    super.finish()
   }
 }
 

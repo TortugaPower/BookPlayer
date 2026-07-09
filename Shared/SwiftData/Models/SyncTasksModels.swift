@@ -9,8 +9,6 @@
 import Foundation
 import SwiftData
 
-public typealias SyncTasksContainer = SchemaV3.SyncTasksContainer
-public typealias SyncTaskReferenceModel = SchemaV3.SyncTaskReferenceModel
 public typealias UploadTaskModel = SchemaV3.UploadTaskModel
 public typealias UpdateTaskModel = SchemaV3.UpdateTaskModel
 public typealias MoveTaskModel = SchemaV3.MoveTaskModel

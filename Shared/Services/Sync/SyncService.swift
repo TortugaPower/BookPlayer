@@ -116,6 +116,7 @@ public protocol SyncServiceProtocol {
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
+  private var concurrenceService: ConcurrenceServiceProtocol!
   private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
@@ -153,15 +154,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
-    client: NetworkClientProtocol = NetworkClient(),
-    dataManager: DataManager
+    concurrenceService: ConcurrenceServiceProtocol,
+    tasksDataManager: TasksDataManager,
+    client: NetworkClientProtocol = NetworkClient()
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
     self.accountService = accountService
-    let tasksDataManager = TasksDataManager()
+    self.concurrenceService = concurrenceService
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
-    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
+    self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -623,7 +625,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func getLastSyncError() -> SyncErrorInfo? {
-    return jobManager.lastSyncError
+    return concurrenceService.lastSyncError
   }
 
   public func cancelAllJobs() {

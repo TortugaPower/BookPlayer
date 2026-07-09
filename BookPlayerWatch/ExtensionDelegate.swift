@@ -71,15 +71,23 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let audioMetadataService = AudioMetadataService()
       let libraryService = LibraryService()
       libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+      let tasksDataManager = TasksDataManager()
+      let concurrenceService = ConcurrenceService()
+      concurrenceService.setup(
+        libraryService: libraryService,
+        accessLevel: accountService.accessLevel,
+        tasksDataManager: tasksDataManager,
+        networkClient: NetworkClient(),
+        dataManager: dataManager
+      )
       let syncService = SyncService()
       syncService.setup(
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService,
         accountService: accountService,
-        dataManager: dataManager
+        concurrenceService: concurrenceService,
+        tasksDataManager: tasksDataManager
       )
-      let concurrenceService = ConcurrenceService()
-      concurrenceService.setup(libraryService: libraryService, accessLevel: accountService.accessLevel)
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
       let playerManager = PlayerManager(

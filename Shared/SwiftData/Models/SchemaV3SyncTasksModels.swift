@@ -9,15 +9,13 @@
 import SwiftData
 import Foundation
 
-// MARK: - Schema V1 (The Container)
+// MARK: - Schema V3 (The Container)
 public enum SchemaV3: VersionedSchema {
-  public static var versionIdentifier = Schema.Version(2, 0, 0)
+  public static var versionIdentifier = Schema.Version(3, 0, 0)
   
   // List EVERY model in your app here
   public static var models: [any PersistentModel.Type] {
     [
-      SyncTasksContainer.self,
-      SyncTaskReferenceModel.self,
       UploadTaskModel.self,
       UpdateTaskModel.self,
       MoveTaskModel.self,
@@ -35,46 +33,6 @@ public enum SchemaV3: VersionedSchema {
       ExternalResourceToDownloadTaskModel.self,
       DeleteExternalResourceTaskModel.self
     ]
-  }
-  
-  // Paste your exact models inside the enum
-  @Model
-  public class SyncTasksContainer {
-    @Relationship(deleteRule: .cascade, inverse: \SyncTaskReferenceModel.container)
-    public var tasks: [SyncTaskReferenceModel] = []
-    
-    public var orderedTasks: [SyncTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
-    
-    public init() {}
-  }
-  
-  /// SwiftData model with type and task id reference to the real task
-  @Model
-  public class SyncTaskReferenceModel {
-    @Attribute(.unique) public var id: String
-    public var relativePath: String
-    public var taskID: String
-    public var jobType: SyncJobType
-    public var position: Int
-    public var uuid: String = UUID().uuidString
-    
-    public var container: SyncTasksContainer?
-    
-    public init(
-      id: String = UUID().uuidString,
-      uuid: String,
-      relativePath: String,
-      taskID: String,
-      jobType: SyncJobType,
-      position: Int
-    ) {
-      self.id = id
-      self.uuid = uuid
-      self.relativePath = relativePath
-      self.taskID = taskID
-      self.jobType = jobType
-      self.position = position
-    }
   }
   
   @Model
@@ -321,42 +279,56 @@ public enum SchemaV3: VersionedSchema {
     }
   }
   
-  // Paste your exact models inside the enum
+  /// Single container for every queued task, sharded by `queueKey`.
+  /// The `"sync"` key holds the serial BookPlayer-server queue; every other key
+  /// is a provider/upload queue that runs concurrently with the rest.
   @Model
   public class ConcurrentTasksContainer {
     @Relationship(deleteRule: .cascade, inverse: \ConcurrentTaskReferenceModel.container)
     public var tasks: [ConcurrentTaskReferenceModel] = []
-    
+
     public var orderedTasks: [ConcurrentTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
-    
+
     public var allQueueKeys: [String] {
       Array(Set(tasks.map { $0.queueKey }))
     }
-    
+
+    public func orderedTasks(for queueKey: String) -> [ConcurrentTaskReferenceModel] {
+      tasks
+        .filter { $0.queueKey == queueKey }
+        .sorted { $0.position < $1.position }
+    }
+
     public init() {}
   }
-  
+
   @Model
   public class ConcurrentTaskReferenceModel {
     @Attribute(.unique) public var id: String
     public var taskID: String
-    public var jobType: ExternalSyncJobType
+    public var jobType: SyncJobType
     public var position: Int
     public var queueKey: String
+    public var uuid: String = ""
+    public var relativePath: String = ""
     public var container: ConcurrentTasksContainer?
 
     public init(
       id: String = UUID().uuidString,
       queueKey: String,
       taskID: String,
-      jobType: ExternalSyncJobType,
-      position: Int
+      jobType: SyncJobType,
+      position: Int,
+      uuid: String = "",
+      relativePath: String = ""
     ) {
       self.id = id
       self.taskID = taskID
       self.jobType = jobType
       self.queueKey = queueKey
       self.position = position
+      self.uuid = uuid
+      self.relativePath = relativePath
     }
   }
   

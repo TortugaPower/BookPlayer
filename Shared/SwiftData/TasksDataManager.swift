@@ -17,8 +17,6 @@ public final class TasksDataManager {
 
   public init() {
     let schema = Schema([
-      SyncTasksContainer.self,
-      SyncTaskReferenceModel.self,
       UploadTaskModel.self,
       UpdateTaskModel.self,
       MoveTaskModel.self,
@@ -68,28 +66,25 @@ public final class TasksDataManager {
       .eraseToAnyPublisher()
   }
   
+  /// Publish updated counts for both queue groups from the unified container:
+  /// `tasksCountSubject` tracks the serial sync queue, `concurrentTasksCountSubject`
+  /// tracks everything else (provider updates, file uploads).
   public func notifyTasksChanged(context: ModelContext) {
-    let descriptor = FetchDescriptor<SyncTasksContainer>()
-
-    do {
-      let containers = try context.fetch(descriptor)
-      let count = containers.first?.tasks.count ?? 0
-      tasksCountSubject.send(count)
-    } catch {
-      tasksCountSubject.send(0)
-    }
-  }
-  
-  public func notifyConcurrentTasksChanged(context: ModelContext) {
     let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
 
     do {
-      let containers = try context.fetch(descriptor)
-      let count = containers.first?.tasks.count ?? 0
-      concurrentTasksCountSubject.send(count)
+      let tasks = try context.fetch(descriptor).first?.tasks ?? []
+      let syncCount = tasks.filter { $0.queueKey == TaskQueueKey.sync }.count
+      tasksCountSubject.send(syncCount)
+      concurrentTasksCountSubject.send(tasks.count - syncCount)
     } catch {
+      tasksCountSubject.send(0)
       concurrentTasksCountSubject.send(0)
     }
+  }
+
+  public func notifyConcurrentTasksChanged(context: ModelContext) {
+    notifyTasksChanged(context: context)
   }
   
   public func deleteAllTasks(with context: ModelContext) throws {
@@ -107,30 +102,28 @@ public final class TasksDataManager {
     try context.delete(model: UploadExternalResourceTaskModel.self)
     try context.delete(model: ExternalResourceToDownloadTaskModel.self)
     try context.delete(model: DeleteExternalResourceTaskModel.self)
-    try context.delete(model: SyncTaskReferenceModel.self)
-    try context.delete(model: SyncTasksContainer.self)
-    
+
     try context.delete(model: ConcurrentUploadTaskModel.self)
     try context.delete(model: ExternalUpdateTaskModel.self)
-    try context.delete(model: ConcurrentTaskReferenceModel.self)
-    try context.delete(model: ConcurrentTasksContainer.self)
 
-    // SyncTaskReferenceModel.container participates in a cascade relationship with
-    // SyncTasksContainer. A store-level batch delete runs below the object graph and
-    // skips relationship-maintenance (cascade/nullify) entirely, which trips a
-    // constraint-trigger / optimistic-lock error on that inverse. Delete through the
+    // ConcurrentTaskReferenceModel.container participates in a cascade relationship
+    // with ConcurrentTasksContainer. A store-level batch delete runs below the object
+    // graph and skips relationship-maintenance (cascade/nullify) entirely, which trips
+    // a constraint-trigger / optimistic-lock error on that inverse. Delete through the
     // object graph instead: removing each container cascades to its task references.
-    let containers = try context.fetch(FetchDescriptor<SyncTasksContainer>())
+    let containers = try context.fetch(FetchDescriptor<ConcurrentTasksContainer>())
     for container in containers {
       context.delete(container)
     }
     // Defensively clear any references that aren't attached to a container.
-    let orphanedReferences = try context.fetch(FetchDescriptor<SyncTaskReferenceModel>())
+    let orphanedReferences = try context.fetch(FetchDescriptor<ConcurrentTaskReferenceModel>())
     for reference in orphanedReferences {
       context.delete(reference)
     }
 
     try context.save()
+
+    notifyTasksChanged(context: context)
   }
 
   public func deleteTaskModel(
@@ -230,16 +223,29 @@ public final class TasksDataManager {
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
       }
+    case .externalUpdate:
+      let descriptor = FetchDescriptor<ExternalUpdateTaskModel>(
+        predicate: #Predicate<ExternalUpdateTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .uploadFile:
+      let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
+        predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
     }
   }
 
   public func deleteReferenceModel(
     with id: String,
-    jobType: SyncJobType,
     context: ModelContext
   ) throws {
-    let descriptor = FetchDescriptor<SyncTaskReferenceModel>(
-      predicate: #Predicate<SyncTaskReferenceModel> { task in task.taskID == id }
+    let descriptor = FetchDescriptor<ConcurrentTaskReferenceModel>(
+      predicate: #Predicate<ConcurrentTaskReferenceModel> { task in task.taskID == id }
     )
     if let task = try context.fetch(descriptor).first {
       context.delete(task)
@@ -344,7 +350,31 @@ public final class TasksDataManager {
       context.insert(task)
     case .deleteExternalResource:
       context.insert(buildDeleteExternalResourceTask(parameters))
+    case .externalUpdate:
+      context.insert(buildExternalUpdateTask(parameters))
+    case .uploadFile:
+      let task = ConcurrentUploadTaskModel(
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        filePath: parameters["filePath"] as! String,
+        remotePath: parameters["remotePath"] as! String
+      )
+      context.insert(task)
     }
+  }
+
+  private func buildExternalUpdateTask(_ parameters: [String: Any]) -> ExternalUpdateTaskModel {
+    return ExternalUpdateTaskModel(
+      id: parameters["id"] as! String,
+      providerName: parameters["providerName"] as! String,
+      providerId: parameters["providerId"] as! String,
+      title: parameters["title"] as? String,
+      details: parameters["details"] as? String,
+      currentTime: parameters["currentTime"] as? Double,
+      percentCompleted: parameters["percentCompleted"] as? Double,
+      isFinished: parameters["isFinished"] as? Bool,
+      lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+    )
   }
 
   private func buildUploadExternalResourceTask(_ parameters: [String: Any]) -> UploadExternalResourceTaskModel {
@@ -466,6 +496,16 @@ public final class TasksDataManager {
           predicate: #Predicate<DeleteExternalResourceTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
+      case .externalUpdate:
+        let descriptor = FetchDescriptor<ExternalUpdateTaskModel>(
+          predicate: #Predicate<ExternalUpdateTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .uploadFile:
+        let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
+          predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
       }
     } catch {
       return nil
@@ -487,52 +527,10 @@ public final class TasksDataManager {
     if let type = parameters["type"] as? Int16 { task.type = type }
   }
   
-  /// Initialize the tasks count from the database on startup
+  /// Initialize both task counts from the database on startup
   private func initializeTasksCount() {
     let context = ModelContext(container)
-    
-    do {
-      let descriptor = FetchDescriptor<SyncTasksContainer>()
-      let containers = try context.fetch(descriptor)
-      let count = containers.first?.tasks.count ?? 0
-      tasksCountSubject.send(count)
-    } catch {
-      // If there's an error reading from the database, keep the default value of 0
-      tasksCountSubject.send(0)
-    }
-  }
-  
-  public func createConcurrentTaskModel(
-    for jobType: ExternalSyncJobType,
-    with parameters: [String: Any],
-    in context: ModelContext
-  ) {
-    switch jobType {
-    case .update:
-      if let id = parameters["id"] as? String, let providerName = parameters["providerName"] as? String, let providerId = parameters["providerId"] as? String {
-        let task = ExternalUpdateTaskModel(
-          id: id,
-          providerName: providerName,
-          providerId: providerId,
-          title: parameters["title"] as? String,
-          details: parameters["details"] as? String,
-          currentTime: parameters["currentTime"] as? Double,
-          percentCompleted: parameters["percentCompleted"] as? Double,
-          isFinished: parameters["isFinished"] as? Bool,
-          lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        )
-        context.insert(task)
-      }
-    case .uploadFile:
-      if let id = parameters["id"] as? String,
-         let filePath = parameters["filePath"] as? String,
-         let remotePath = parameters["remotePath"] as? String,
-         let uuid = parameters["uuid"] as? String {
-        let task = ConcurrentUploadTaskModel(id: id, uuid: uuid, filePath: filePath, remotePath: remotePath)
-        
-        context.insert(task)
-      }
-    }
+    notifyTasksChanged(context: context)
   }
   
   public func updateExternalUpdateTaskModel(
