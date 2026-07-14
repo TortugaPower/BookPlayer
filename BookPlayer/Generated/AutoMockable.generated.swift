@@ -1112,27 +1112,6 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         }
     }
   
-    //MARK: - getExternalResource
-
-    var getExternalResourceForCallsCount = 0
-    var getExternalResourceForCalled: Bool {
-        return getExternalResourceForCallsCount > 0
-    }
-    var getExternalResourceForReceivedProviderId: String?
-    var getExternalResourceForReceivedInvocations: [String] = []
-    var getExternalResourceForReturnValue: BookPlayerKit.ExternalResource?
-    var getExternalResourceForClosure: ((String) async -> BookPlayerKit.ExternalResource?)?
-    func getExternalResource(for providerId: String) async -> BookPlayerKit.ExternalResource? {
-        getExternalResourceForCallsCount += 1
-        getExternalResourceForReceivedProviderId = providerId
-        getExternalResourceForReceivedInvocations.append(providerId)
-        if let getExternalResourceForClosure = getExternalResourceForClosure {
-            return await getExternalResourceForClosure(providerId)
-        } else {
-            return getExternalResourceForReturnValue
-        }
-    }
-
     //MARK: - findResource
 
     var findResourceForCallsCount = 0

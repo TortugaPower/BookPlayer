@@ -182,8 +182,6 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Returns the item's external resources as lightweight values.
   func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
 
-  func getExternalResource(for providerId: String) async -> ExternalResource?
-  
   func findResource(for providerId: String, context: NSManagedObjectContext?) -> ExternalResource?
   
   func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
@@ -403,8 +401,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
       } else if type == .folder && (percentCompleted.isNaN || percentCompleted.isInfinite) {
         self?.rebuildFolderDetails(relativePath, context: context)
       }
-      
-      let externalResources = self?.findResources(for: uuid)
+
+      let externalResources = self?.findResources(for: uuid, context: context)
 
       return SimpleLibraryItem(
         title: title,
@@ -2898,28 +2896,7 @@ extension LibraryService {
   }
 }
 
-extension LibraryService {  
-  public func getExternalResource(for providerId: String) async -> ExternalResource? {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [context] in
-        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "ExternalResource")
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.providerId), providerId)
-        fetchRequest.fetchLimit = 1
-
-        guard
-          let results = try? context.fetch(fetchRequest) as? [ExternalResource],
-          let result = results.first
-        else {
-          continuation.resume(returning: nil)
-          return
-        }
-
-        continuation.resume(returning: result)
-      }
-    }
-  }
-  
+extension LibraryService {
   public func findResource(for providerId: String, context: NSManagedObjectContext? = nil) -> ExternalResource? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "providerId == %@", providerId)

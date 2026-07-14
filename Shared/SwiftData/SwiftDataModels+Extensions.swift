@@ -46,6 +46,12 @@ extension UploadTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
 
+    /// Provider-backed items skip the device file upload (the server pulls the file
+    /// from the provider instead) — see `ConcurrenceService.handleFinishedOperation`
+    if let provider {
+      dict["provider"] = provider
+    }
+
     return dict
   }
 }

@@ -55,8 +55,9 @@ public protocol LibrarySyncProtocol {
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
     
-  func getItemWithResources(with relativePath: String) -> LibraryItem?
-  
+  /// Item uuid + external resources as lightweight values, fetched on the context's queue
+  func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])?
+
   func updateExternalResource(for item: SyncableExternalResource) async
 }
 
@@ -252,6 +253,7 @@ extension LibraryService: LibrarySyncProtocol {
         if let externalResource {
           externalResource.syncStatus = item.syncStatus
           externalResource.processedFile = item.processedFile
+          dataManager.saveSyncContext(context)
         }
         continuation.resume()
       }
@@ -394,7 +396,7 @@ extension LibraryService: LibrarySyncProtocol {
 
         let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
-        continuation.resume(returning: parseSyncableItems(from: results))
+        continuation.resume(returning: parseSyncableItems(from: results, context: context))
       }
     }
   }
@@ -409,12 +411,17 @@ extension LibraryService: LibrarySyncProtocol {
       relativePath
     )
 
-    let results = try? self.dataManager.getBackgroundContext().fetch(fetchRequest) as? [[String: Any]]
+    let context = self.dataManager.getBackgroundContext()
+    var items: [SyncableItem]?
+    context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      items = parseSyncableItems(from: results, context: context)
+    }
 
-    return parseSyncableItems(from: results)
+    return items
   }
 
-  func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
+  func parseSyncableItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SyncableItem]? {
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -438,7 +445,7 @@ extension LibraryService: LibrarySyncProtocol {
         lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
       }
       
-      let externalResources = self.findResources(for: uuid)
+      let externalResources = self.findResources(for: uuid, context: context)
 
       return SyncableItem(
         relativePath: relativePath,
@@ -500,18 +507,32 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
   
-  public func getItemWithResources(with relativePath: String) -> LibraryItem? {
+  public func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])? {
     let context = self.dataManager.getBackgroundContext()
-    
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-    fetchRequest.fetchLimit = 1
-    fetchRequest.propertiesToFetch = [
-      #keyPath(LibraryItem.relativePath),
-      #keyPath(LibraryItem.originalFileName)
-    ]
 
-    return try? context.fetch(fetchRequest).first
+    var snapshot: (uuid: String, resources: [SyncableExternalResource])?
+    context.performAndWait {
+      let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+      fetchRequest.fetchLimit = 1
+
+      guard let item = try? context.fetch(fetchRequest).first else { return }
+
+      let resources = item.resourcesArray.map {
+        SyncableExternalResource(
+          providerName: $0.providerName,
+          providerId: $0.providerId,
+          syncStatus: $0.syncStatus,
+          lastSyncedAt: $0.lastSyncedAt,
+          processedFile: $0.processedFile,
+          hostId: $0.hostId
+        )
+      }
+
+      snapshot = (uuid: item.uuid, resources: resources)
+    }
+
+    return snapshot
   }
   
   public func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {

@@ -129,7 +129,9 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
 
 extension LibraryItemSyncOperation {
   func handleUploadJob(type: SimpleItemType) async throws {
-    let response: UploadItemResponse = try await provider.request(.upload(params: parameters))
+    /// `provider` is client-side metadata (gates the follow-up file upload); keep it out of the request
+    let uploadParams = parameters.filter { $0.key != "provider" }
+    let response: UploadItemResponse = try await provider.request(.upload(params: uploadParams))
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
       try await markUploadAsSynced(uuid: self.uuid)
