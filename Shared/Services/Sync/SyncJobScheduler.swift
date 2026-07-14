@@ -67,6 +67,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   private var tasksProgress: [String: Double] = [:]
   /// Last sync error information for debugging
   public private(set) var lastSyncError: SyncErrorInfo?
+  /// Consecutive failures per task; accessed only on `lockQueue`. The retry
+  /// loop re-runs the queue head every 5 seconds, so a persistently-failing
+  /// task is reported once (at the threshold), not on every retry
+  private var taskFailureCounts: [String: Int] = [:]
+  private static let taskFailureReportThreshold = 3
   
   public init(
     tasksDataManager: TasksDataManager,
@@ -373,6 +378,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
                 error: error.localizedDescription
               )
             }
+            self.reportTaskFailureIfNeeded(task, error: error)
             self.retryQueuedTask()
           } else {
             Task { [weak self] in
@@ -409,8 +415,28 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     }
   }
   
+  private func reportTaskFailureIfNeeded(_ task: SyncTask, error: Error) {
+    lockQueue.async {
+      let failureCount = (self.taskFailureCounts[task.id] ?? 0) + 1
+      self.taskFailureCounts[task.id] = failureCount
+
+      /// Exactly-once: only report when crossing the threshold
+      guard failureCount == Self.taskFailureReportThreshold else { return }
+
+      ErrorReporter.report(
+        title: "Sync task stuck: \(task.jobType.rawValue)",
+        error: error,
+        tags: [
+          "job_type": task.jobType.rawValue,
+          "retry_count": "\(failureCount)"
+        ]
+      )
+    }
+  }
+
   private func handleFinishedTask(_ task: SyncTask) {
     lockQueue.asyncAfter(deadline: .now() + .seconds(1)) {
+      self.taskFailureCounts.removeValue(forKey: task.id)
       Task { @MainActor in
         _ = await self.initializeStoreTask?.result
         try! await self.taskStore.finishedTask(id: task.id, jobType: task.jobType)

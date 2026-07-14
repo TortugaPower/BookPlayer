@@ -301,6 +301,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
 
   /// Setup observer for user preference, and setup Sentry based on initial value
   func setupSentry() {
+    /// Bridge non-fatal reports from BookPlayerKit, which doesn't link Sentry.
+    /// Captures are no-ops while crash reports are disabled (SentrySDK is closed)
+    ErrorReporter.handler = { title, error, tags in
+      SentrySDK.capture(message: title) { scope in
+        for (key, value) in tags {
+          scope.setTag(value: value, key: key)
+        }
+        scope.setExtra(value: "\(error)", key: "error_description")
+      }
+    }
+
     let userDefaults = UserDefaults.standard
     crashReportsAccessObserver = userDefaults.observe(
       \.userSettingsCrashReportsDisabled

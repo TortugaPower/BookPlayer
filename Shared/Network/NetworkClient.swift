@@ -215,8 +215,40 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
         return emptyValue
       }
 
-      return try self.decoder.decode(T.self, from: data)
+      do {
+        return try self.decoder.decode(T.self, from: data)
+      } catch let error as DecodingError {
+        /// Contract drift between the API response and our models is invisible
+        /// server-side (the request already returned 2xx), so report it here
+        let endpoint = request.url?.path ?? "unknown"
+        ErrorReporter.report(
+          title: "Response decoding failed: \(endpoint) (\(T.self).\(Self.codingPathDescription(of: error)))",
+          error: error,
+          tags: [
+            "endpoint": endpoint,
+            "response_type": "\(T.self)"
+          ]
+        )
+        throw error
+      }
     }
+  }
+
+  private static func codingPathDescription(of error: DecodingError) -> String {
+    let context: DecodingError.Context?
+    switch error {
+    case .typeMismatch(_, let errorContext),
+        .valueNotFound(_, let errorContext),
+        .keyNotFound(_, let errorContext),
+        .dataCorrupted(let errorContext):
+      context = errorContext
+    @unknown default:
+      context = nil
+    }
+
+    guard let context, !context.codingPath.isEmpty else { return "?" }
+
+    return context.codingPath.map(\.stringValue).joined(separator: ".")
   }
 
   func buildURLRequest(
