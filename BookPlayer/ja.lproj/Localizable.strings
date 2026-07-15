@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "音量を2倍にします。 \n聴覚に配慮し、注意して使用してください。";
 "settings_globalspeed_title" = "再生速度の共通設定";
 "settings_globalspeed_description" = "すべてのブックに速度を設定します。";
+"settings_openplayer_launch_title" = "起動時にプレーヤーを開く";
+"settings_carplay_showplayer_title" = "CarPlay接続時にプレーヤーを表示";
+"settings_startupplayer_description" = "アプリの起動時やCarPlayへの接続時に、最後に再生したブックのプレーヤーを開きます。CarPlayでは、他のアプリで再生中のオーディオを中断します。";
 "settings_autolock_title" = "自動ロックを無効にする";
 "settings_autolock_description" = "プレーヤー画面上でデバイスがロックされないようにします。";
 "settings_siri_lastplayed_title" = "前回再生していたブック";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "残り%@";
 "chapters_title" = "チャプタ";
 "chapters_item_description" = "開始: %@ - 長さ: %@";
+"reload_button" = "再読み込み";
+"reload_chapters_title" = "チャプタを再読み込み";
+"reparse_chapters_found_title" = "チャプタを再読み込みしました";
+"reparse_chapters_found_description" = "%d 件のチャプタが見つかりました。";
+"reparse_chapters_none_description" = "このファイルから追加のチャプタは見つかりませんでした。";
+"reparse_chapters_download_description" = "チャプタを再読み込みする前に、この本をダウンロードしてください。";
 "restore_title" = "復元";
 "themes_caps_title" = "テーマ";
 "plus_app_icons_title" = "アプリアイコン";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "縦にスワイプしてブックマークを作成";
 "details_title" = "詳細";
 "download_title" = "ダウンロード";
+"download_incomplete_error" = "ダウンロードが完了しませんでした。もう一度お試しください。";
 "cancel_download_title" = "ダウンロードをキャンセル";
 "remove_downloaded_file_title" = "デバイスから削除";
 "download_from_url_title" = "URLを指定してダウンロード";

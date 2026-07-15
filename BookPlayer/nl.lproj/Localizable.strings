@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Verdubbelt het volume. \n Wees voorzichtig en zorg voor uw gehoor.";
 "settings_globalspeed_title" = "Globale snelheidsregeling";
 "settings_globalspeed_description" = "Stel snelheid in voor alle boeken.";
+"settings_openplayer_launch_title" = "Speler openen bij opstarten";
+"settings_carplay_showplayer_title" = "Speler tonen bij CarPlay-verbinding";
+"settings_startupplayer_description" = "Open de speler met het laatst afgespeelde boek bij het starten van de app of het verbinden met CarPlay. Op CarPlay onderbreekt dit audio die in andere apps wordt afgespeeld.";
 "settings_autolock_title" = "Autolock uitschakelen";
 "settings_autolock_description" = "Voorkom dat het apparaat vergrendelt wanneer het zich op het spelerscherm bevindt.";
 "settings_siri_lastplayed_title" = "Laatst afgespeelde boek";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "Nog %@";
 "chapters_title" = "Hoofdstukken";
 "chapters_item_description" = "Start: %@ - Duur: %@";
+"reload_button" = "Herladen";
+"reload_chapters_title" = "Hoofdstukken herladen";
+"reparse_chapters_found_title" = "Hoofdstukken herladen";
+"reparse_chapters_found_description" = "%d hoofdstukken gevonden.";
+"reparse_chapters_none_description" = "Er zijn geen extra hoofdstukken gevonden in dit bestand.";
+"reparse_chapters_download_description" = "Download dit boek voordat je de hoofdstukken herlaadt.";
 "restore_title" = "Herstellen";
 "themes_caps_title" = "THEMA'S";
 "plus_app_icons_title" = "App-pictogrammen";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Veeg verticaal om een bladwijzer te maken";
 "details_title" = "Details";
 "download_title" = "Downloaden";
+"download_incomplete_error" = "De download is niet voltooid. Probeer het opnieuw.";
 "cancel_download_title" = "Download annuleren";
 "remove_downloaded_file_title" = "Verwijderen van apparaat";
 "download_from_url_title" = "Downloaden van URL";

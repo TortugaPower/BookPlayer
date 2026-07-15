@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
 "settings_globalspeed_title" = "Controlul global al vitezei";
 "settings_globalspeed_description" = "Setați viteza în toate cărțile.";
+"settings_openplayer_launch_title" = "Deschide playerul la pornire";
+"settings_carplay_showplayer_title" = "Afișează playerul la conectarea CarPlay";
+"settings_startupplayer_description" = "Deschide playerul cu ultima carte redată la pornirea aplicației sau la conectarea la CarPlay. Pe CarPlay, acest lucru întrerupe sunetul redat în alte aplicații.";
 "settings_autolock_title" = "Dezactivează Autolock";
 "settings_autolock_description" = "Împiedicați blocarea dispozitivului pe ecranul Playerului.";
 "settings_siri_lastplayed_title" = "Ultima carte redată";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ rămase";
 "chapters_title" = "Capitole";
 "chapters_item_description" = "Start: %@ - Durata: %@";
+"reload_button" = "Reîncarcă";
+"reload_chapters_title" = "Reîncarcă capitolele";
+"reparse_chapters_found_title" = "Capitole reîncărcate";
+"reparse_chapters_found_description" = "S-au găsit %d capitole.";
+"reparse_chapters_none_description" = "Nu au fost găsite capitole suplimentare în acest fișier.";
+"reparse_chapters_download_description" = "Descarcă această carte înainte de a-i reîncărca capitolele.";
 "restore_title" = "Restabilire";
 "themes_caps_title" = "Teme";
 "plus_app_icons_title" = "Pictogramele aplicației";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Glisați vertical pentru a crea un marcaj";
 "details_title" = "Detalii";
 "download_title" = "Descarca";
+"download_incomplete_error" = "Descărcarea nu s-a finalizat. Încercați din nou.";
 "cancel_download_title" = "Anulați descărcarea";
 "remove_downloaded_file_title" = "Scoateți de pe dispozitiv";
 "download_from_url_title" = "Descărcați de la URL";

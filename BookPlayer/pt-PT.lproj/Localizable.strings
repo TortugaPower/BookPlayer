@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Duplicar o volume.\nUse com precaução e tenha cuidado com sua audição.";
 "settings_globalspeed_title" = "Controlo da Velocidade Global";
 "settings_globalspeed_description" = "Definição da velocidade para todos os livros.";
+"settings_openplayer_launch_title" = "Abrir o leitor ao iniciar";
+"settings_carplay_showplayer_title" = "Mostrar o leitor ao ligar ao CarPlay";
+"settings_startupplayer_description" = "Abre o leitor com o último livro reproduzido ao iniciar a aplicação ou ao ligar ao CarPlay. No CarPlay, isto interrompe o áudio que esteja a ser reproduzido noutras aplicações.";
 "settings_autolock_title" = "Desativar Bloqueio Automático";
 "settings_autolock_description" = "Prevenir o bloqueio do dispositivo quando estiver no ecrã de reprodução.";
 "settings_siri_lastplayed_title" = "Último livro reproduzido";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ restante";
 "chapters_title" = "Capítulos";
 "chapters_item_description" = "Início: %@ - Duração: %@";
+"reload_button" = "Recarregar";
+"reload_chapters_title" = "Recarregar capítulos";
+"reparse_chapters_found_title" = "Capítulos recarregados";
+"reparse_chapters_found_description" = "%d capítulos encontrados.";
+"reparse_chapters_none_description" = "Não foram encontrados capítulos adicionais neste ficheiro.";
+"reparse_chapters_download_description" = "Transfira este livro antes de recarregar os seus capítulos.";
 "restore_title" = "Restaurar";
 "themes_caps_title" = "TEMAS";
 "plus_app_icons_title" = "Ícones da aplicação";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Deslize na vertical para criar um marcador";
 "details_title" = "Detalhes";
 "download_title" = "Download";
+"download_incomplete_error" = "O download não foi concluído. Tente novamente.";
 "cancel_download_title" = "Cancelar o download";
 "remove_downloaded_file_title" = "Apagar do dispositivo";
 "download_from_url_title" = "Descarregar do URL";

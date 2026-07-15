@@ -96,8 +96,10 @@ struct ProfileSyncTasksSectionView: View {
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+    let accountService = AccountService()
+    accountService.setup(dataManager: dataManager)
     let syncService = SyncService()
-    syncService.setup(isActive: true, libraryService: libraryService, dataManager: dataManager)
+    syncService.setup(isActive: true, libraryService: libraryService, accountService: accountService, dataManager: dataManager)
 
     return syncService
   }()

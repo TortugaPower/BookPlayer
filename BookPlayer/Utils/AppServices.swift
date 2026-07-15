@@ -76,7 +76,11 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
-      let syncService = makeSyncService(accountService: accountService, libraryService: libraryService, dataManager: dataManager)
+      let syncService = makeSyncService(
+        accountService: accountService,
+        libraryService: libraryService,
+        dataManager: dataManager
+      )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
         libraryService: libraryService,
@@ -214,15 +218,27 @@ final class AppServices: BPLogger {
     return AudioMetadataService()
   }
 
-  private func makeLibraryService(dataManager: DataManager, audioMetadataService: AudioMetadataServiceProtocol) -> LibraryService {
+  private func makeLibraryService(
+    dataManager: DataManager,
+    audioMetadataService: AudioMetadataServiceProtocol
+  ) -> LibraryService {
     let service = LibraryService()
     service.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     return service
   }
 
-  private func makeSyncService(accountService: AccountService, libraryService: LibraryService, dataManager: DataManager) -> SyncService {
+  private func makeSyncService(
+    accountService: AccountService,
+    libraryService: LibraryService,
+    dataManager: DataManager
+  ) -> SyncService {
     let service = SyncService()
-    service.setup(isActive: accountService.hasSyncEnabled(), libraryService: libraryService, dataManager: dataManager)
+    service.setup(
+      isActive: accountService.hasSyncEnabled(),
+      libraryService: libraryService,
+      accountService: accountService,
+      dataManager: dataManager
+    )
     return service
   }
 

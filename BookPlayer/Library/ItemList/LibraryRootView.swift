@@ -134,6 +134,14 @@ struct LibraryRootView: View {
 
   func handleLibraryLoaded() async {
     await loadLastBookIfNeeded()
+    /// Open the player on launch when enabled and a book is loaded. Checked here, after the load above,
+    /// so it covers both a plain cold launch (where `loadLastBookIfNeeded` just loaded the last book)
+    /// and the case where the book was already loaded by another scene (e.g. CarPlay) — which makes the
+    /// `currentItem == nil` guard inside `loadLastBookIfNeeded` return early.
+    if UserDefaults.standard.bool(forKey: Constants.UserDefaults.openPlayerOnAppLaunch),
+       playerManager.currentItem != nil {
+      playerState.showPlayer = true
+    }
     importManager.notifyPendingFiles()
     showSecondOnboarding()
 

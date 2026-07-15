@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Doubles the volume.\nUse with caution and care for your hearing.";
 "settings_globalspeed_title" = "Global Speed Control";
 "settings_globalspeed_description" = "Set speed across all books.";
+"settings_openplayer_launch_title" = "Open Player on Launch";
+"settings_carplay_showplayer_title" = "Show Player on CarPlay Connect";
+"settings_startupplayer_description" = "Open the player for the last played book when launching the app or connecting to CarPlay. On CarPlay, this interrupts audio playing in other apps.";
 "settings_autolock_title" = "Disable Autolock";
 "settings_autolock_description" = "Prevent the device from locking when on the Player screen.";
 "settings_siri_lastplayed_title" = "Last played book";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ left";
 "chapters_title" = "Chapters";
 "chapters_item_description" = "Start: %@ - Duration: %@";
+"reload_button" = "Reload";
+"reload_chapters_title" = "Reload Chapters";
+"reparse_chapters_found_title" = "Chapters Reloaded";
+"reparse_chapters_found_description" = "Found %d chapters.";
+"reparse_chapters_none_description" = "No additional chapters were found in this file.";
+"reparse_chapters_download_description" = "Download this book before reloading its chapters.";
 "restore_title" = "Restore";
 "themes_caps_title" = "THEMES";
 "plus_app_icons_title" = "App Icons";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Swipe vertically to create bookmark";
 "details_title" = "Details";
 "download_title" = "Download";
+"download_incomplete_error" = "The download was incomplete. Please try again.";
 "cancel_download_title" = "Cancel download";
 "remove_downloaded_file_title" = "Remove from device";
 "download_from_url_title" = "Download from URL";

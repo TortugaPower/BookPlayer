@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Διπλασιάζει την ένταση.\nΧρησιμοποιήστε με προσοχή και φροντίστε την ακοή σας.";
 "settings_globalspeed_title" = "Παγκόσμιος έλεγχος ταχύτητας";
 "settings_globalspeed_description" = "Ρυθμίστε την ταχύτητα σε όλα τα βιβλία.";
+"settings_openplayer_launch_title" = "Άνοιγμα αναπαραγωγής κατά την εκκίνηση";
+"settings_carplay_showplayer_title" = "Εμφάνιση αναπαραγωγής κατά τη σύνδεση με CarPlay";
+"settings_startupplayer_description" = "Ανοίξτε την αναπαραγωγή με το τελευταίο βιβλίο που ακούσατε κατά την εκκίνηση της εφαρμογής ή τη σύνδεση με το CarPlay. Στο CarPlay, αυτό διακόπτει τον ήχο που αναπαράγεται σε άλλες εφαρμογές.";
 "settings_autolock_title" = "Απενεργοποιήστε το αυτόματο κλείδωμα";
 "settings_autolock_description" = "Αποτρέψτε το κλείδωμα της συσκευής όταν βρίσκεται στην οθόνη του προγράμματος αναπαραγωγής.";
 "settings_siri_lastplayed_title" = "Το βιβλίο που παίχτηκε τελευταία";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "Απομένουν %@";
 "chapters_title" = "Κεφάλαια";
 "chapters_item_description" = "Έναρξη: %@ - Διάρκεια: %@";
+"reload_button" = "Επαναφόρτωση";
+"reload_chapters_title" = "Επαναφόρτωση κεφαλαίων";
+"reparse_chapters_found_title" = "Τα κεφάλαια επαναφορτώθηκαν";
+"reparse_chapters_found_description" = "Βρέθηκαν %d κεφάλαια.";
+"reparse_chapters_none_description" = "Δεν βρέθηκαν επιπλέον κεφάλαια σε αυτό το αρχείο.";
+"reparse_chapters_download_description" = "Κατεβάστε αυτό το βιβλίο πριν επαναφορτώσετε τα κεφάλαιά του.";
 "restore_title" = "Επαναφέρω";
 "themes_caps_title" = "ΘΕΜΑΤΑ";
 "plus_app_icons_title" = "Εικονίδια εφαρμογών";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Σύρετε κάθετα για να δημιουργήσετε σελιδοδείκτη";
 "details_title" = "Λεπτομέριες";
 "download_title" = "Κατεβάστε";
+"download_incomplete_error" = "Η λήψη δεν ολοκληρώθηκε. Δοκιμάστε ξανά.";
 "cancel_download_title" = "Ακύρωση λήψης";
 "remove_downloaded_file_title" = "Αφαιρέστε από τη συσκευή";
 "download_from_url_title" = "Λήψη από τη διεύθυνση URL";

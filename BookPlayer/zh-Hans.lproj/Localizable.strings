@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
 "settings_globalspeed_title" = "全局播放速度";
 "settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
+"settings_openplayer_launch_title" = "启动时打开播放器";
+"settings_carplay_showplayer_title" = "连接 CarPlay 时显示播放器";
+"settings_startupplayer_description" = "在启动应用或连接 CarPlay 时，打开上次播放有声书的播放器。在 CarPlay 上，这会中断其他应用正在播放的音频。";
 "settings_autolock_title" = "禁用自动锁定";
 "settings_autolock_description" = "播放时防止锁定。";
 "settings_siri_lastplayed_title" = "最后播放的书";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "剩余 %@";
 "chapters_title" = "章节";
 "chapters_item_description" = "开始： %@  - 时长： %@";
+"reload_button" = "刷新";
+"reload_chapters_title" = "刷新章节";
+"reparse_chapters_found_title" = "章节已刷新";
+"reparse_chapters_found_description" = "找到 %d 个章节。";
+"reparse_chapters_none_description" = "此文件中未找到其他章节。";
+"reparse_chapters_download_description" = "刷新章节前请先下载本书。";
 "restore_title" = "恢复";
 "themes_caps_title" = "主题";
 "plus_app_icons_title" = "应用图标";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "垂直滑动以创建书签";
 "details_title" = "细节";
 "download_title" = "下载";
+"download_incomplete_error" = "下载未完成，请重试。";
 "cancel_download_title" = "取消下载";
 "remove_downloaded_file_title" = "从设备中删除";
 "download_from_url_title" = "从网址下载";

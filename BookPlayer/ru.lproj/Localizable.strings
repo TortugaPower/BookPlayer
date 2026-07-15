@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Удваивает громкость. \nИспользуйте с осторожностью и заботой о вашем слухе.";
 "settings_globalspeed_title" = "Глобальное управление скоростью";
 "settings_globalspeed_description" = "Установите скорость для всех книг.";
+"settings_openplayer_launch_title" = "Открывать плеер при запуске";
+"settings_carplay_showplayer_title" = "Показывать плеер при подключении CarPlay";
+"settings_startupplayer_description" = "Открывать плеер с последней прослушанной книгой при запуске приложения или подключении к CarPlay. В CarPlay это прерывает звук, воспроизводимый в других приложениях.";
 "settings_autolock_title" = "Отключить автоблокировку";
 "settings_autolock_description" = "Запретить блокировку устройства на экране плеера.";
 "settings_siri_lastplayed_title" = "Последняя воспроизведенная книга";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "Осталось %@";
 "chapters_title" = "Главы";
 "chapters_item_description" = "Начало: %@ - Длительность: %@";
+"reload_button" = "Обновить";
+"reload_chapters_title" = "Обновить главы";
+"reparse_chapters_found_title" = "Главы обновлены";
+"reparse_chapters_found_description" = "Найдено глав: %d.";
+"reparse_chapters_none_description" = "В этом файле не найдено дополнительных глав.";
+"reparse_chapters_download_description" = "Скачайте эту книгу перед обновлением её глав.";
 "restore_title" = "Восстановить покупки";
 "themes_caps_title" = "ТЕМЫ";
 "plus_app_icons_title" = "Иконки приложения";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Проведите по вертикали, чтобы создать закладку";
 "details_title" = "Подробности";
 "download_title" = "Скачать";
+"download_incomplete_error" = "Загрузка не завершена. Повторите попытку.";
 "cancel_download_title" = "Отменить загрузку";
 "remove_downloaded_file_title" = "Удалить с устройства";
 "download_from_url_title" = "Скачать с URL-адреса";

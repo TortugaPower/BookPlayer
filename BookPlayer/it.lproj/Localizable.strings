@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Raddoppia il volume. \nUsa con cautela e fai attenzione al tuo udito.";
 "settings_globalspeed_title" = "Controllo globale della velocità ";
 "settings_globalspeed_description" = "Imposta velocità per tutti i libri.";
+"settings_openplayer_launch_title" = "Apri il player all'avvio";
+"settings_carplay_showplayer_title" = "Mostra il player alla connessione CarPlay";
+"settings_startupplayer_description" = "Apre il player con l'ultimo libro ascoltato all'avvio dell'app o alla connessione a CarPlay. Su CarPlay, questo interrompe l'audio in riproduzione in altre app.";
 "settings_autolock_title" = "Disattiva il blocco automatico";
 "settings_autolock_description" = "Impedisci il blocco del dispositivo quando ci si trova sulla schermata del lettore.";
 "settings_siri_lastplayed_title" = "Ultimo libro riprodotto";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ rimanenti";
 "chapters_title" = "Capitoli";
 "chapters_item_description" = "Inizio: %@ - Durata: %@";
+"reload_button" = "Ricarica";
+"reload_chapters_title" = "Ricarica capitoli";
+"reparse_chapters_found_title" = "Capitoli ricaricati";
+"reparse_chapters_found_description" = "Trovati %d capitoli.";
+"reparse_chapters_none_description" = "Nessun capitolo aggiuntivo trovato in questo file.";
+"reparse_chapters_download_description" = "Scarica questo libro prima di ricaricarne i capitoli.";
 "restore_title" = "Ripristina";
 "themes_caps_title" = "TEMI";
 "plus_app_icons_title" = "Icone dell'App";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Scorri verticalmente per creare un segnalibro";
 "details_title" = "Dettagli";
 "download_title" = "Scaricamento";
+"download_incomplete_error" = "Il download non è stato completato. Riprova.";
 "cancel_download_title" = "Annulla il download";
 "remove_downloaded_file_title" = "Rimuovi dal dispositivo";
 "download_from_url_title" = "Scarica dall'URL";

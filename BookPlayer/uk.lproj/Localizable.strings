@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Подвоює гучність. \n Використовуйте обережно та дбайте про свій слух.";
 "settings_globalspeed_title" = "Глобальний контроль швидкості";
 "settings_globalspeed_description" = "Встановити швидкість для всіх книг.";
+"settings_openplayer_launch_title" = "Відкривати програвач під час запуску";
+"settings_carplay_showplayer_title" = "Показувати програвач під час підключення CarPlay";
+"settings_startupplayer_description" = "Відкривати програвач з останньою прослуханою книгою під час запуску застосунку або підключення до CarPlay. У CarPlay це перериває звук, що відтворюється в інших застосунках.";
 "settings_autolock_title" = "Вимкнути автоблокування";
 "settings_autolock_description" = "Запобігати блокуванню пристрою при відкритому програвачі.";
 "settings_siri_lastplayed_title" = "Остання відтворена книга";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "Залишилось %@";
 "chapters_title" = "Розділи";
 "chapters_item_description" = "Початок: %@ - Тривалість: %@";
+"reload_button" = "Оновити";
+"reload_chapters_title" = "Оновити розділи";
+"reparse_chapters_found_title" = "Розділи оновлено";
+"reparse_chapters_found_description" = "Знайдено розділів: %d.";
+"reparse_chapters_none_description" = "У цьому файлі не знайдено додаткових розділів.";
+"reparse_chapters_download_description" = "Завантажте цю книгу, перш ніж оновлювати її розділи.";
 "restore_title" = "Відновити";
 "themes_caps_title" = "Теми";
 "plus_app_icons_title" = "Піктограми";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Проведіть вертикально, щоб створити закладку";
 "details_title" = "Подробиці";
 "download_title" = "Завантажити";
+"download_incomplete_error" = "Завантаження не завершено. Спробуйте ще раз.";
 "cancel_download_title" = "Скасувати завантаження";
 "remove_downloaded_file_title" = "Видалити з пристрою";
 "download_from_url_title" = "Завантажити з URL";

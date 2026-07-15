@@ -19,7 +19,6 @@ struct MainView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
-  @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.audiobookshelfService) private var audiobookshelfService
   @Environment(\.playbackService) private var playbackService
@@ -124,22 +123,14 @@ struct MainView: View {
         playerState.showPlayer = false
       }
     }
-    .onReceive(
-      NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
-    ) { _ in
-      guard accountService.hasAccount() else { return }
-
-      if accountService.hasSyncEnabled() {
-        if !syncService.isActive {
-          syncService.isActive = true
-          Task {
-            try? await listSyncRefreshService.syncList(at: nil)
-            listState.reloadAll()
-          }
-        }
-      } else if syncService.isActive {
-        syncService.isActive = false
-        syncService.cancelAllJobs()
+    // SyncService owns the active/inactive decision (it observes account/subscription
+    // changes itself). The view only reacts to sync becoming active to refresh the
+    // library list — it no longer writes `isActive`.
+    .onChange(of: syncService.isActive) { _, isActive in
+      guard isActive else { return }
+      Task {
+        try? await listSyncRefreshService.syncList(at: nil)
+        listState.reloadAll()
       }
     }
   }

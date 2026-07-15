@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
 "settings_globalspeed_title" = "Yleinen nopeudenhallinta";
 "settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
+"settings_openplayer_launch_title" = "Avaa soitin käynnistettäessä";
+"settings_carplay_showplayer_title" = "Näytä soitin CarPlay-yhteyden yhteydessä";
+"settings_startupplayer_description" = "Avaa soittimen viimeksi kuunnellulla kirjalla, kun sovellus käynnistetään tai yhdistetään CarPlayhin. CarPlayssa tämä keskeyttää muissa sovelluksissa toistettavan äänen.";
 "settings_autolock_title" = "Poista automaattinen lukitus käytöstä";
 "settings_autolock_description" = "Estä laitteen lukittuminen Soitin-näyssä";
 "settings_siri_lastplayed_title" = "Viimeksi kuunneltu kirja";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ jäljellä";
 "chapters_title" = "Kappaleet";
 "chapters_item_description" = "Aloitus: %@ - Kesto: %@";
+"reload_button" = "Lataa uudelleen";
+"reload_chapters_title" = "Lataa kappaleet uudelleen";
+"reparse_chapters_found_title" = "Kappaleet ladattu uudelleen";
+"reparse_chapters_found_description" = "Löytyi %d kappaletta.";
+"reparse_chapters_none_description" = "Tästä tiedostosta ei löytynyt lisää kappaleita.";
+"reparse_chapters_download_description" = "Lataa tämä kirja ennen kuin lataat sen kappaleet uudelleen.";
 "restore_title" = "Palauta";
 "themes_caps_title" = "TEEMAT";
 "plus_app_icons_title" = "Appikuvakkeet";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Luo kirjanmerkki pyyhkäisemällä pystysuunnassa";
 "details_title" = "Yksityiskohdat";
 "download_title" = "ladata";
+"download_incomplete_error" = "Lataus jäi kesken. Yritä uudelleen.";
 "cancel_download_title" = "Peruuta lataus";
 "remove_downloaded_file_title" = "Poista laitteesta";
 "download_from_url_title" = "Lataa osoitteesta URL";

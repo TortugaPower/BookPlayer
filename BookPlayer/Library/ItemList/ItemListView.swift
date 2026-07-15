@@ -83,7 +83,7 @@ struct ItemListView: View {
           preferencesService.register(folderUuid: uuid)
         }
       }
-      .onReceive(preferencesService.preferencesChanged) { key in
+      .onReceive(preferencesService.preferencesChanged.receive(on: DispatchQueue.main)) { key in
         // Server-driven sort change for the location currently on screen:
         // PreferencesSyncService has already rewritten orderRank in CoreData
         // via dispatchResort → sortContents. The cached `[SimpleLibraryItem]`

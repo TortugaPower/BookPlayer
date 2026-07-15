@@ -36,15 +36,43 @@ struct ChaptersView: View {
         .navigationTitle("chapters_title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-          ToolbarItem(placement: .confirmationAction) {
-            Button("done_title") {
+          ToolbarItem(placement: .cancellationAction) {
+            Button {
               dismiss()
+            } label: {
+              Label("voiceover_close_button", systemImage: "xmark")
             }
             .foregroundStyle(theme.linkColor)
           }
+          if model.canReloadChapters {
+            ToolbarItem(placement: .confirmationAction) {
+              reloadButton
+            }
+          }
         }
+        .bpAlert($model.currentAlert)
       }
     }
+  }
+
+  @ViewBuilder
+  private var reloadButton: some View {
+    Button {
+      Task { await model.reloadChapters() }
+    } label: {
+      // Keep the title laid out (just hidden) while loading so the spinner overlay doesn't
+      // change the toolbar item's width.
+      Text("reload_button")
+        .foregroundStyle(theme.linkColor)
+        .opacity(model.isReloadingChapters ? 0 : 1)
+        .overlay {
+          if model.isReloadingChapters {
+            ProgressView()
+          }
+        }
+    }
+    .disabled(model.isReloadingChapters)
+    .accessibilityLabel("reload_chapters_title")
   }
 
   @ViewBuilder
@@ -83,9 +111,12 @@ struct ChaptersView: View {
 }
 
 extension ChaptersView {
+  @MainActor
   class Model: ObservableObject {
     @Published var chapters: [PlayableChapter]
     @Published var currentChapter: PlayableChapter?
+    @Published var isReloadingChapters = false
+    @Published var currentAlert: BPAlertContent?
 
     init(chapters: [PlayableChapter], currentChapter: PlayableChapter?) {
       self.chapters = chapters
@@ -93,6 +124,13 @@ extension ChaptersView {
     }
 
     func handleChapterSelected(_ chapter: PlayableChapter) {}
+
+    /// Whether the "re-parse chapters" action applies to the current item.
+    var canReloadChapters: Bool { false }
+
+    /// Re-parse chapters from the file, replacing the list when more are found, and surface
+    /// the outcome via `currentAlert`.
+    func reloadChapters() async {}
   }
 }
 

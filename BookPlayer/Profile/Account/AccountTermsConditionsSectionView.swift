@@ -16,7 +16,7 @@ struct AccountTermsConditionsSectionView: View {
   var body: some View {
     ThemedSection {
       Button {
-        let url = URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md")!
+        let url = URL(string: "https://bookplayer.app/terms")!
         openURL(url)
       } label: {
         Label {
@@ -30,7 +30,7 @@ struct AccountTermsConditionsSectionView: View {
       }
 
       Button {
-        let url = URL(string: "https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md")!
+        let url = URL(string: "https://bookplayer.app/privacy")!
         openURL(url)
       } label: {
         Label {

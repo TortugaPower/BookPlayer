@@ -6,6 +6,7 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
+import AVFoundation
 import Combine
 import Foundation
 
@@ -21,8 +22,15 @@ public enum BPSyncError: Error {
 
 /// sourcery: AutoMockable
 public protocol SyncServiceProtocol {
-  /// Flag to check if it can sync or not
-  var isActive: Bool { get set }
+  /// Flag to check if it can sync or not. Owned by `SyncService`; mutate it through
+  /// `updateSyncEnabled(_:)` / `logout()` rather than assigning directly.
+  var isActive: Bool { get }
+  /// Enable or disable syncing in response to account/subscription state. Disabling
+  /// also cancels any queued jobs.
+  func updateSyncEnabled(_ enabled: Bool)
+  /// Tear down sync state on logout/account deletion (stop syncing, clear the queue
+  /// and the scheduled-contents flag).
+  func logout() async
   /// Completion publisher for ongoing-download tasks
   var downloadCompletedPublisher: PassthroughSubject<(String, String, String?), Never> { get }
   /// Progress publisher for ongoing-download tasks
@@ -101,10 +109,16 @@ public protocol SyncServiceProtocol {
 @Observable
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
+  private var accountService: AccountServiceProtocol!
   private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
-  public var isActive: Bool = false
+  /// Owned here: writes go through `updateSyncEnabled(_:)` / `logout()`, mutated on the
+  /// main actor. External callers read only.
+  public private(set) var isActive: Bool = false
+  /// In-flight logout teardown, awaited before an initial library sync re-schedules,
+  /// so a re-login can't begin scheduling until the queue reset has finished.
+  private var teardownTask: Task<Void, Never>?
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
   private var downloadTasksDictionary = [String: [URLSessionTask]]()
@@ -132,11 +146,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
+    accountService: AccountServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
     dataManager: DataManager
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
+    self.accountService = accountService
     let tasksDataManager = TasksDataManager()
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
     self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
@@ -183,11 +199,21 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { _ in
-        UserDefaults.standard.set(
-          false,
-          forKey: Constants.UserDefaults.hasScheduledLibraryContents
-        )
+      .sink(receiveValue: { [weak self] _ in
+        /// Covers every logout path (iOS sign-out, account deletion, Watch), since
+        /// they all post `.logout`. Tears down the queue, the flag, and `isActive`.
+        /// Held in `teardownTask` so a re-login's initial sync awaits it first.
+        self?.teardownTask = Task { await self?.logout() }
+      })
+      .store(in: &disposeBag)
+
+    /// Sync ownership lives here, not in the views: any account/subscription change
+    /// re-derives whether syncing should be active. All logout paths post `.logout`
+    /// (handled above), so account-present-but-sync-disabled is the case we map here.
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .sink(receiveValue: { [weak self] _ in
+        guard let self, self.accountService.hasAccount() else { return }
+        self.updateSyncEnabled(self.accountService.hasSyncEnabled())
       })
       .store(in: &disposeBag)
 
@@ -240,6 +266,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   ) async throws {
     Self.logger.trace("Fetching list of contents")
 
+    /// Same gate as `syncLibraryContents()`: don't reconcile while a logout teardown
+    /// is still clearing the queue, in case a fast re-login routed here before the
+    /// `hasScheduledLibraryContents` flag was reset.
+    await teardownTask?.value
+
     let response = try await fetchContents(at: relativePath)
 
     try await processContentsResponse(response, parentFolder: relativePath, canDelete: true)
@@ -254,6 +285,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
+
+    /// Wait for any in-flight logout teardown to finish before scheduling, so a fast
+    /// logout→login can't have a late `resetAllJobs()` wipe freshly-scheduled jobs.
+    await teardownTask?.value
 
     if await queuedJobsCount() > 0 {
       Self.logger.trace("Clearing orphaned tasks before initial library sync")
@@ -486,6 +521,32 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func resetAllJobs() async {
     await jobManager.resetAllJobs()
   }
+
+  /// Enables or disables syncing in response to account/subscription state. Disabling
+  /// also cancels any queued jobs. Idempotent — a no-op when the state is unchanged.
+  /// `isActive` is mutated on the main actor since it's an `@Observable` value read by
+  /// SwiftUI; the actual sync-content refresh is triggered by observers of `isActive`.
+  public func updateSyncEnabled(_ enabled: Bool) {
+    Task { @MainActor in
+      guard self.isActive != enabled else { return }
+      self.isActive = enabled
+      if !enabled {
+        self.cancelAllJobs()
+      }
+    }
+  }
+
+  /// Tears down sync state when the account logs out (or is deleted): stops syncing,
+  /// clears the persisted task queue, and resets the "scheduled library contents" flag
+  /// so the next login runs a fresh initial sync from an empty queue. Idempotent.
+  public func logout() async {
+    await MainActor.run { self.isActive = false }
+    UserDefaults.standard.set(
+      false,
+      forKey: Constants.UserDefaults.hasScheduledLibraryContents
+    )
+    await resetAllJobs()
+  }
 }
 
 extension SyncService {
@@ -643,53 +704,144 @@ extension SyncService {
   ) {
     guard let relativePath = task.taskDescription else { return }
 
-    do {
-      if error == nil,
-        let location
-      {
-        let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    var finalError = error
+    var movedFileURL: URL?
 
+    if error == nil,
+      let location
+    {
+      let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+
+      do {
         /// If there's already something there, replace with new finished download
         if FileManager.default.fileExists(atPath: fileURL.path) {
           try FileManager.default.removeItem(at: fileURL)
         }
         try DataManager.createContainingFolderIfNeeded(for: fileURL)
         try FileManager.default.moveItem(at: location, to: fileURL)
-
-        Task {
-          await self.libraryService.loadChaptersIfNeeded(relativePath: relativePath)
-        }
-      }
-    } catch {
-      Self.logger.trace("Error moving downloaded file to the destination: \(error.localizedDescription)")
-    }
-
-    if let error {
-      DispatchQueue.main.async {
-        self.downloadErrorPublisher.send((relativePath, error))
+        movedFileURL = fileURL
+      } catch {
+        finalError = error
+        Self.logger.warning("Error moving downloaded file to the destination: \(error.localizedDescription)")
       }
     }
 
-    guard let startingItemPath = ongoingTasksParentReference[relativePath] else {
-      initiatingFolderReference[relativePath] = nil
-      return
-    }
-
+    /// Capture and clear the per-task bookkeeping synchronously (we're on the
+    /// delegate queue). The completion event is emitted later, only after the
+    /// file is verified — see `finalizeDownloadedFile`.
+    let startingItemPath = ongoingTasksParentReference[relativePath]
     let parentFolderPath = initiatingFolderReference[relativePath]
-
-    /// cleanup individual reference
-    if downloadTasksDictionary[startingItemPath]?
-      .filter({ $0 != task })
-      .allSatisfy({ $0.state == .completed }) == true
+    if let startingItemPath,
+      downloadTasksDictionary[startingItemPath]?
+        .filter({ $0 != task })
+        .allSatisfy({ $0.state == .completed }) == true
     {
       downloadTasksDictionary[startingItemPath] = nil
     }
     ongoingTasksParentReference[relativePath] = nil
     initiatingFolderReference[relativePath] = nil
 
+    /// The download itself failed (network/move error): surface it and stop. We
+    /// never emit a completion event for a failed download.
+    if let finalError {
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((relativePath, finalError))
+      }
+      return
+    }
+
+    /// Second delegate callback (`didCompleteWithError` with no location) for a
+    /// download that already finished: nothing to move, nothing to announce.
+    guard let movedFileURL else { return }
+
+    Task {
+      await self.finalizeDownloadedFile(
+        relativePath: relativePath,
+        fileURL: movedFileURL,
+        startingItemPath: startingItemPath,
+        parentFolderPath: parentFolderPath
+      )
+    }
+  }
+
+  /// Loads chapters, validates the downloaded file, and only then announces
+  /// completion. Splitting this out (and gating the completion event on the
+  /// validation result) ensures a truncated file is never broadcast as
+  /// `.downloaded` before being discarded.
+  private func finalizeDownloadedFile(
+    relativePath: String,
+    fileURL: URL,
+    startingItemPath: String?,
+    parentFolderPath: String?
+  ) async {
+    await libraryService.loadChaptersIfNeeded(relativePath: relativePath)
+
+    /// Read on a background context (off the main/view context) — this runs on
+    /// the download delegate's queue / a detached task.
+    let expectedDuration = await libraryService.getItemDuration(at: relativePath)
+
+    if let verificationError = await verifyDownloadedFile(
+      relativePath: relativePath,
+      fileURL: fileURL,
+      expectedDuration: expectedDuration
+    ) {
+      DispatchQueue.main.async {
+        self.downloadErrorPublisher.send((relativePath, verificationError))
+      }
+      return
+    }
+
+    /// Only announce completion once the file is verified, and only for a tracked
+    /// (user-initiated) download — restored/untracked tasks just get validated.
+    guard let startingItemPath else { return }
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
+  }
+
+  /// Backstop against truncated/botched downloads that finish without surfacing a
+  /// network error (e.g. the connection closed early, or watchOS suspended the
+  /// background transfer). `URLSession` won't flag these, so a short file would be
+  /// promoted as a fully-downloaded book and silently cut playback off partway
+  /// through. Returns a non-nil error (and deletes the file) when the download is
+  /// rejected; `nil` when the file is acceptable or can't be validated.
+  private func verifyDownloadedFile(
+    relativePath: String,
+    fileURL: URL,
+    expectedDuration: Double?
+  ) async -> Error? {
+    /// No trustworthy reference duration (item not yet stored, or a duration of 0)
+    /// means we can't validate — leave the download in place.
+    guard let expectedDuration, expectedDuration > 0 else { return nil }
+
+    let actualDuration: Double
+    do {
+      let asset = AVURLAsset(url: fileURL)
+      actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
+    } catch {
+      /// We have a trustworthy synced duration, so this is a format we can play —
+      /// a complete file would be readable. A load failure on a fresh download is
+      /// a strong truncation/corruption signal (e.g. a cut-off AAC/m4b missing its
+      /// `moov` atom), which is exactly the case a byte/duration check would
+      /// otherwise miss. Reject it.
+      try? FileManager.default.removeItem(at: fileURL)
+      Self.logger.warning(
+        "Discarding download for \(relativePath); duration unreadable (likely truncated): \(error.localizedDescription)"
+      )
+      return DownloadError.durationUnreadable
+    }
+
+    guard actualDuration.isFinite else { return nil }
+
+    /// Allow a small tolerance for container/encoder rounding differences.
+    let tolerance = max(2, expectedDuration * 0.02)
+    guard expectedDuration - actualDuration > tolerance else { return nil }
+
+    try? FileManager.default.removeItem(at: fileURL)
+    Self.logger.warning(
+      "Discarding truncated download for \(relativePath): expected \(expectedDuration)s, got \(actualDuration)s"
+    )
+    return DownloadError.durationMismatch(expected: expectedDuration, actual: actualDuration)
   }
 
   public func cancelDownload(of item: SimpleLibraryItem) throws {

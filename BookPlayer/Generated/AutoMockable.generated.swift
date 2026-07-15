@@ -513,6 +513,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
         await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
+    //MARK: - reloadChapters
+
+    var reloadChaptersRelativePathCallsCount = 0
+    var reloadChaptersRelativePathCalled: Bool {
+        return reloadChaptersRelativePathCallsCount > 0
+    }
+    var reloadChaptersRelativePathReceivedRelativePath: String?
+    var reloadChaptersRelativePathReceivedInvocations: [String] = []
+    var reloadChaptersRelativePathReturnValue: Int?
+    var reloadChaptersRelativePathClosure: ((String) async -> Int?)?
+    func reloadChapters(relativePath: String) async -> Int? {
+        reloadChaptersRelativePathCallsCount += 1
+        reloadChaptersRelativePathReceivedRelativePath = relativePath
+        reloadChaptersRelativePathReceivedInvocations.append(relativePath)
+        if let reloadChaptersRelativePathClosure = reloadChaptersRelativePathClosure {
+            return await reloadChaptersRelativePathClosure(relativePath)
+        } else {
+            return reloadChaptersRelativePathReturnValue
+        }
+    }
     //MARK: - createFolder
 
     var createFolderWithInsideThrowableError: Error?
@@ -1398,6 +1418,18 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         jumpToChapterReceivedInvocations.append(chapter)
         jumpToChapterClosure?(chapter)
     }
+    //MARK: - reloadCurrentItem
+
+    var reloadCurrentItemCallsCount = 0
+    var reloadCurrentItemCalled: Bool {
+        return reloadCurrentItemCallsCount > 0
+    }
+    var reloadCurrentItemClosure: (() -> Void)?
+    @MainActor
+    func reloadCurrentItem() {
+        reloadCurrentItemCallsCount += 1
+        reloadCurrentItemClosure?()
+    }
     //MARK: - markAsCompleted
 
     var markAsCompletedCallsCount = 0
@@ -1687,6 +1719,32 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadErrorPublisher = value }
     }
     var underlyingDownloadErrorPublisher: PassthroughSubject<(String, Error), Never>!
+    //MARK: - updateSyncEnabled
+
+    var updateSyncEnabledCallsCount = 0
+    var updateSyncEnabledCalled: Bool {
+        return updateSyncEnabledCallsCount > 0
+    }
+    var updateSyncEnabledReceivedEnabled: Bool?
+    var updateSyncEnabledReceivedInvocations: [Bool] = []
+    var updateSyncEnabledClosure: ((Bool) -> Void)?
+    func updateSyncEnabled(_ enabled: Bool) {
+        updateSyncEnabledCallsCount += 1
+        updateSyncEnabledReceivedEnabled = enabled
+        updateSyncEnabledReceivedInvocations.append(enabled)
+        updateSyncEnabledClosure?(enabled)
+    }
+    //MARK: - logout
+
+    var logoutCallsCount = 0
+    var logoutCalled: Bool {
+        return logoutCallsCount > 0
+    }
+    var logoutClosure: (() async -> Void)?
+    func logout() async {
+        logoutCallsCount += 1
+        await logoutClosure?()
+    }
     //MARK: - queuedJobsCount
 
     var queuedJobsCountCallsCount = 0

@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
 "settings_globalspeed_title" = "Global hastighedskontrol";
 "settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
+"settings_openplayer_launch_title" = "Åbn afspilleren ved start";
+"settings_carplay_showplayer_title" = "Vis afspilleren ved CarPlay-forbindelse";
+"settings_startupplayer_description" = "Åbn afspilleren med den senest afspillede bog, når appen startes, eller der oprettes forbindelse til CarPlay. I CarPlay afbryder dette lyd, der afspilles i andre apps.";
 "settings_autolock_title" = "Deaktiver autolås";
 "settings_autolock_description" = "Undgå at enheden låser når afspilleren er i brug.";
 "settings_siri_lastplayed_title" = "Senest afspillede bog";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ tilbage";
 "chapters_title" = "Kapitler";
 "chapters_item_description" = "Start: %@ - Varighed: %@";
+"reload_button" = "Genindlæs";
+"reload_chapters_title" = "Genindlæs kapitler";
+"reparse_chapters_found_title" = "Kapitler genindlæst";
+"reparse_chapters_found_description" = "Fandt %d kapitler.";
+"reparse_chapters_none_description" = "Der blev ikke fundet yderligere kapitler i denne fil.";
+"reparse_chapters_download_description" = "Hent denne bog, før du genindlæser dens kapitler.";
 "restore_title" = "Gendan";
 "themes_caps_title" = "TEMAER";
 "plus_app_icons_title" = "App-ikoner";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Stryg lodret for at oprette et bogmærke";
 "details_title" = "detaljer";
 "download_title" = "Hent";
+"download_incomplete_error" = "Overførslen blev ikke fuldført. Prøv igen.";
 "cancel_download_title" = "Annuller download";
 "remove_downloaded_file_title" = "Fjern fra enheden";
 "download_from_url_title" = "Download fra URL";

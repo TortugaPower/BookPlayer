@@ -40,6 +40,9 @@ public protocol PlayerManagerProtocol: AnyObject {
   func directSkip(_ interval: TimeInterval)
   func jumpTo(_ time: Double, recordBookmark: Bool)
   func jumpToChapter(_ chapter: PlayableChapter)
+  /// Rebuild `currentItem` from storage (and re-bind the chapter subscription) so externally
+  /// changed data — e.g. re-parsed chapters — takes effect. Preserves playback position.
+  @MainActor func reloadCurrentItem()
   func markAsCompleted(_ flag: Bool)
   func setSpeed(_ newValue: Float)
   func setBoostVolume(_ newValue: Bool)

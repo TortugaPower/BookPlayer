@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Sesi iki katına çıkarır.\nİşitme duyunuz için dikkat edin ve dikkatli kullanın.";
 "settings_globalspeed_title" = "Evrensel Hız Kontrolü";
 "settings_globalspeed_description" = "Tüm kitaplarda hızı ayarlayın.";
+"settings_openplayer_launch_title" = "Başlangıçta oynatıcıyı aç";
+"settings_carplay_showplayer_title" = "CarPlay bağlantısında oynatıcıyı göster";
+"settings_startupplayer_description" = "Uygulamayı başlatırken veya CarPlay'e bağlanırken son çalınan kitabın oynatıcısını açar. CarPlay'de bu, diğer uygulamalarda çalan sesi kesintiye uğratır.";
 "settings_autolock_title" = "Otomatik Kilidi Devre Dışı Bırak";
 "settings_autolock_description" = "Oynatıcı ekranındayken cihazın kilitlenmesini önleyin.";
 "settings_siri_lastplayed_title" = "En son oynatılan kitap";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ kaldı";
 "chapters_title" = "Bölümler";
 "chapters_item_description" = "Başlangıç: %@ - Süre: %@";
+"reload_button" = "Yenile";
+"reload_chapters_title" = "Bölümleri yenile";
+"reparse_chapters_found_title" = "Bölümler Yenilendi";
+"reparse_chapters_found_description" = "%d bölüm bulundu.";
+"reparse_chapters_none_description" = "Bu dosyada ek bölüm bulunamadı.";
+"reparse_chapters_download_description" = "Bölümleri yenilemeden önce bu kitabı indirin.";
 "restore_title" = "Geri Yükle";
 "themes_caps_title" = "TEMALAR";
 "plus_app_icons_title" = "Uygulama Simgeleri";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Yer imi oluşturmak için dikey olarak kaydırın";
 "details_title" = "Detaylar";
 "download_title" = "İndirmek";
+"download_incomplete_error" = "İndirme tamamlanmadı. Lütfen tekrar deneyin.";
 "cancel_download_title" = "İndirmeyi iptal et";
 "remove_downloaded_file_title" = "Cihazdan kaldır";
 "download_from_url_title" = "URL'den indir";

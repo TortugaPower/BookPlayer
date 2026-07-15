@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Dobla el volum.\nFeu servir amb precaució i cura de la vostra audició.";
 "settings_globalspeed_title" = "Control global de velocitat";
 "settings_globalspeed_description" = "Estableix velocitat en tots els llibres.";
+"settings_openplayer_launch_title" = "Obre el reproductor en iniciar";
+"settings_carplay_showplayer_title" = "Mostra el reproductor en connectar CarPlay";
+"settings_startupplayer_description" = "Obre el reproductor amb l'últim llibre escoltat en iniciar l'aplicació o connectar-te a CarPlay. A CarPlay, això interromp l'àudio que s'estigui reproduint en altres aplicacions.";
 "settings_autolock_title" = "Desactiva el bloqueig automàtic";
 "settings_autolock_description" = "Eviteu que el dispositiu es bloquegi quan estigui a la pantalla del reproductor.";
 "settings_siri_lastplayed_title" = "Últim llibre reproduït";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ restant";
 "chapters_title" = "Capítols";
 "chapters_item_description" = "Inici: %@ - Durada: %@";
+"reload_button" = "Torna a carregar";
+"reload_chapters_title" = "Torna a carregar els capítols";
+"reparse_chapters_found_title" = "Capítols tornats a carregar";
+"reparse_chapters_found_description" = "S'han trobat %d capítols.";
+"reparse_chapters_none_description" = "No s'ha trobat cap capítol addicional en aquest fitxer.";
+"reparse_chapters_download_description" = "Descarrega aquest llibre abans de tornar a carregar-ne els capítols.";
 "restore_title" = "Restaura";
 "themes_caps_title" = "TEMES";
 "plus_app_icons_title" = "Icones de l'aplicació";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Llisca verticalment per crear un marcador";
 "details_title" = "Detalls";
 "download_title" = "Descarrega";
+"download_incomplete_error" = "La baixada no s'ha completat. Torneu-ho a provar.";
 "cancel_download_title" = "Cancel·la la descàrrega";
 "remove_downloaded_file_title" = "Suprimeix del dispositiu";
 "download_from_url_title" = "Descarrega des de l'URL";

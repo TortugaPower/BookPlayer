@@ -125,7 +125,7 @@ struct CompleteAccountView: View {
 
   var disclaimerView: some View {
     return Text(
-      "\("agreement_prefix_title".localized) [\("privacy_policy_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/PRIVACY_POLICY.md) \("and_title".localized) [\("terms_conditions_title".localized)](https://github.com/TortugaPower/BookPlayer/blob/main/TERMS_CONDITIONS.md)"
+      "\("agreement_prefix_title".localized) [\("privacy_policy_title".localized)](https://bookplayer.app/privacy) \("and_title".localized) [\("terms_conditions_title".localized)](https://bookplayer.app/terms)"
     )
     .fixedSize(horizontal: false, vertical: true)
     .multilineTextAlignment(.center)

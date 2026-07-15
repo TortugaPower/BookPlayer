@@ -9,6 +9,9 @@
 "settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében";
 "settings_globalspeed_title" = "Globális sebességszabályozás";
 "settings_globalspeed_description" = "Sebesség beállítása az összes könyvben";
+"settings_openplayer_launch_title" = "Lejátszó megnyitása indításkor";
+"settings_carplay_showplayer_title" = "Lejátszó megjelenítése CarPlay csatlakozáskor";
+"settings_startupplayer_description" = "Megnyitja a lejátszót az utoljára hallgatott könyvvel az alkalmazás indításakor vagy a CarPlay csatlakoztatásakor. CarPlay esetén ez megszakítja a más alkalmazásokban lejátszott hangot.";
 "settings_autolock_title" = "Automatikus zárolás tiltása";
 "settings_autolock_description" = "A készülék a lejátszó képernyőn nem záródik le";
 "settings_siri_lastplayed_title" = "A legutóbb lejátszott könyv";
@@ -102,6 +105,12 @@
 "player_book_remaining_title" = "%@ van hátra";
 "chapters_title" = "Fejezetek";
 "chapters_item_description" = "Kezdés: %@ - Hossz: %@";
+"reload_button" = "Újratöltés";
+"reload_chapters_title" = "Fejezetek újratöltése";
+"reparse_chapters_found_title" = "Fejezetek újratöltve";
+"reparse_chapters_found_description" = "%d fejezet található.";
+"reparse_chapters_none_description" = "Nem található további fejezet ebben a fájlban.";
+"reparse_chapters_download_description" = "Töltsd le ezt a könyvet, mielőtt újratöltöd a fejezeteit.";
 "restore_title" = "Visszaállítás";
 "themes_caps_title" = "TÉMÁK";
 "plus_app_icons_title" = "App ikonok";
@@ -236,6 +245,7 @@
 "gesture_swipe_vertically_title" = "Függőleges csúsztatással hozzon létre könyvjelzőt";
 "details_title" = "Részletek";
 "download_title" = "Letöltés";
+"download_incomplete_error" = "A letöltés nem fejeződött be. Próbáld újra.";
 "cancel_download_title" = "Letöltés megszakítása";
 "remove_downloaded_file_title" = "Távolítsa el az eszközről";
 "download_from_url_title" = "Letöltés URL-ről";
