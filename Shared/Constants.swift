@@ -44,6 +44,8 @@ public enum Constants {
     public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
+    /// Keep playing a video's audio when the app moves to the background
+    public static let videoBackgroundPlaybackEnabled = "userSettingsVideoBackgroundPlayback"
     public static let lastEnabledTimer = "userSettingsLastEnabledTimer"
     public static let repeatEnabledSuffix = "_repeatEnabled"
     public static let isAutomaticBookmarksSectionCollapsed = "userSettingsIsAutomaticBookmarksSectionCollapsed"

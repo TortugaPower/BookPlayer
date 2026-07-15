@@ -1233,6 +1233,13 @@ extension PlayerManager {
     }
   }
 
+  /// Access to the underlying player for rendering video tracks.
+  /// Note: the instance can be recreated after a media-services reset, so
+  /// consumers should re-attach on view updates rather than caching it.
+  func getAVPlayer() -> AVPlayer {
+    return audioPlayer
+  }
+
   func stop() {
     stopPlayback()
 

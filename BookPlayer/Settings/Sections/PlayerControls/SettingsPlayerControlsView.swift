@@ -18,6 +18,7 @@ struct SettingsPlayerControlsView: View {
       AutoSleepTimerSectionView()
       BoostVolumeSectionView()
       GlobalSpeedSectionView()
+      VideoPlaybackSectionView()
       ProgressSeekingSectionView()
       ListOptionsSectionView()
       ProgressLabelsSectionView()

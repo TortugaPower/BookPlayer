@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 public struct PlayableChapter: Codable, Identifiable {
   public var id: String {
@@ -27,6 +28,12 @@ public struct PlayableChapter: Codable, Identifiable {
 
   public var fileURL: URL {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
+
+  /// Whether the chapter's file is a video, based on its file extension
+  public var isVideo: Bool {
+    guard let type = UTType(filenameExtension: fileURL.pathExtension) else { return false }
+    return type.conforms(to: .movie)
   }
 
   public init(

@@ -6,6 +6,7 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import AVFoundation
 import BookPlayerKit
 import Combine
 import SwiftUI
@@ -38,11 +39,19 @@ final class PlayerViewModel: ObservableObject {
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
   @Published var showButtonFreeScreen = false
-  
+  /// Whether the current chapter's file is a video (drives the video surface + fullscreen button)
+  @Published var isVideoItem = false
+
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
+  /// Concrete manager reference, only for accessing the player to render video tracks
+  private let videoPlayerManager: PlayerManager
+
+  var videoPlayer: AVPlayer {
+    videoPlayerManager.getAVPlayer()
+  }
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private var isSliderDragging = false
@@ -109,6 +118,7 @@ final class PlayerViewModel: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
+    self.videoPlayerManager = playerManager
     self.syncService = syncService
     let sharedDefaults = UserDefaults.sharedDefaults
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
@@ -208,8 +218,11 @@ final class PlayerViewModel: ObservableObject {
         self?.currentChapterSubscriber?.cancel()
         guard let self = self,
               let item = item
-        else { return }
-        
+        else {
+          self?.isVideoItem = false
+          return
+        }
+
         bindCurrentChapter(for: item)
       }.store(in: &disposeBag)
     
@@ -265,11 +278,18 @@ final class PlayerViewModel: ObservableObject {
         } else {
           relativePath = item.relativePath
         }
-        
+
         self?.relativePath = relativePath
+        self?.isVideoItem = chapter?.isVideo ?? false
       }
   }
   
+  func presentVideoFullscreen(from sourceFrame: CGRect) {
+    VideoFullscreenPresenter.present(player: videoPlayer, from: sourceFrame) { [weak self] in
+      self?.playerManager.playPause()
+    }
+  }
+
   func displaySheet(style: PlayerSheetStyle) {
     self.sheetStyle = style
     self.displaySheet = true

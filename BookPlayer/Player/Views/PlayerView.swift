@@ -39,11 +39,19 @@ struct PlayerView: View {
         )
       
       VStack {
-        ArtworkView(
-          title: viewModel.title,
-          author: viewModel.author,
-          imagePath: viewModel.relativePath
-        )
+        Group {
+          if viewModel.isVideoItem {
+            VideoArtworkView(player: viewModel.videoPlayer) { sourceFrame in
+              viewModel.presentVideoFullscreen(from: sourceFrame)
+            }
+          } else {
+            ArtworkView(
+              title: viewModel.title,
+              author: viewModel.author,
+              imagePath: viewModel.relativePath
+            )
+          }
+        }
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
             .onChanged { gesture in
@@ -53,7 +61,7 @@ struct PlayerView: View {
               handleDragEnded(gesture)
             }
         )
-        
+
         Spacer()
       }
       .frame(maxWidth: .infinity)

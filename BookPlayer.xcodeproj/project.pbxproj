@@ -669,6 +669,8 @@
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
 		99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */; };
+		99329DD12F87AA10003F8E73 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */; };
+		99329DD32F87AA24003F8E73 /* VideoPlaybackSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD22F87AA24003F8E73 /* VideoPlaybackSectionView.swift */; };
 		99329DC12F3AAB57003F8E73 /* DismissableRegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */; };
 		99329DC32F3AABC7003F8E73 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC22F3AABC7003F8E73 /* PlayerView.swift */; };
 		99329DC52F3AE9C4003F8E73 /* PlayerJumpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */; };
@@ -1629,6 +1631,8 @@
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
 		99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkView.swift; sourceTree = "<group>"; };
+		99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
+		99329DD22F87AA24003F8E73 /* VideoPlaybackSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlaybackSectionView.swift; sourceTree = "<group>"; };
 		99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableRegionView.swift; sourceTree = "<group>"; };
 		99329DC22F3AABC7003F8E73 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerJumpView.swift; sourceTree = "<group>"; };
@@ -2683,6 +2687,7 @@
 				631908B12E36A1AB009249C1 /* SmartRewindSectionView.swift */,
 				631908AF2E369FFA009249C1 /* AutoSleepTimerSectionView.swift */,
 				631908AD2E369EDC009249C1 /* BoostVolumeSectionView.swift */,
+				99329DD22F87AA24003F8E73 /* VideoPlaybackSectionView.swift */,
 				631908F12E369EDC009249C1 /* StartupPlayerSectionView.swift */,
 				631908AB2E369E31009249C1 /* GlobalSpeedSectionView.swift */,
 				631908A92E369BDA009249C1 /* ProgressSeekingSectionView.swift */,
@@ -3190,6 +3195,7 @@
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
 				99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */,
 				99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */,
+				99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */,
 				99329DC22F3AABC7003F8E73 /* PlayerView.swift */,
 				99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */,
 				99329DC62F3AF3B6003F8E73 /* BubbleButton.swift */,
@@ -4697,6 +4703,8 @@
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */,
 				99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */,
+				99329DD12F87AA10003F8E73 /* VideoPlayerView.swift in Sources */,
+				99329DD32F87AA24003F8E73 /* VideoPlaybackSectionView.swift in Sources */,
 				63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,
 				63D561352E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift in Sources */,
