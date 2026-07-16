@@ -132,6 +132,11 @@ final class PlayerViewModel: ObservableObject {
     bindBookPlayingProgressEvents()
     bindNotificationSubscribers()
     bindBookSharedObservers()
+
+    /// Closing the PiP window manually mid-playback hands off to audio-only playback
+    VideoPiPCoordinator.shared.onClosedInBackground = { [weak self] in
+      self?.playerManager.play()
+    }
   }
   
   func bindBookSharedObservers() {
@@ -281,6 +286,11 @@ final class PlayerViewModel: ObservableObject {
 
         self?.relativePath = relativePath
         self?.isVideoItem = chapter?.isVideo ?? false
+
+        /// Switching to a non-video item dismisses the Picture in Picture window
+        if chapter?.isVideo != true {
+          VideoPiPCoordinator.shared.stop()
+        }
       }
   }
   

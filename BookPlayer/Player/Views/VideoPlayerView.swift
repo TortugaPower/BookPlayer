@@ -7,9 +7,133 @@
 //
 
 import AVFoundation
+import AVKit
 import BookPlayerKit
 import SwiftUI
 import UIKit
+
+// MARK: - Picture in Picture
+
+/// Coordinates system Picture in Picture for the player screen's video surface.
+///
+/// PiP auto-starts only when the hosting layer is visible and playing at the moment
+/// the app is backgrounded (`canStartPictureInPictureAutomaticallyFromInline`), which
+/// gives the intended behavior for free: leaving the app from the player screen with
+/// a playing video starts PiP; anywhere else in the app (or with the player dismissed,
+/// which detaches the surface) it doesn't.
+@MainActor
+final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate, BPLogger {
+  static let shared = VideoPiPCoordinator()
+
+  /// Resume audio-only playback after the PiP window is closed manually in the background
+  var onClosedInBackground: (() -> Void)?
+
+  private var pipController: AVPictureInPictureController?
+  private weak var hostSurface: VideoSurfaceUIView?
+  private var isRestoringUserInterface = false
+  private var bookEndObserver: NSObjectProtocol?
+
+  var isActive: Bool {
+    pipController?.isPictureInPictureActive ?? false
+  }
+
+  /// Both toggles gate the feature: turning background playback off disables PiP too
+  var isEnabled: Bool {
+    AVPictureInPictureController.isPictureInPictureSupported()
+      && UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
+      && UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoPictureInPictureEnabled)
+  }
+
+  override private init() {
+    super.init()
+
+    /// The end of the book/video dismisses the PiP window
+    bookEndObserver = NotificationCenter.default.addObserver(
+      forName: .bookEnd,
+      object: nil,
+      queue: .main
+    ) { _ in
+      Task { @MainActor in
+        Self.shared.stop()
+      }
+    }
+  }
+
+  func host(_ surface: VideoSurfaceUIView, playerLayer: AVPlayerLayer) {
+    guard isEnabled else {
+      release(playerLayer: playerLayer)
+      return
+    }
+
+    guard pipController?.playerLayer !== playerLayer else { return }
+
+    guard let controller = AVPictureInPictureController(playerLayer: playerLayer) else {
+      Self.logger.error("PiP: failed to create controller (unsupported device?)")
+      return
+    }
+
+    controller.canStartPictureInPictureAutomaticallyFromInline = true
+    controller.delegate = self
+    pipController = controller
+    hostSurface = surface
+  }
+
+  func release(playerLayer: AVPlayerLayer) {
+    guard pipController?.playerLayer === playerLayer else { return }
+
+    pipController?.delegate = nil
+    pipController = nil
+    hostSurface = nil
+  }
+
+  func stop() {
+    guard isActive else { return }
+
+    pipController?.stopPictureInPicture()
+  }
+
+  // MARK: AVPictureInPictureControllerDelegate
+
+  nonisolated func pictureInPictureController(
+    _ pictureInPictureController: AVPictureInPictureController,
+    failedToStartPictureInPictureWithError error: Error
+  ) {
+    Self.logger.error("PiP: failed to start: \(error.localizedDescription)")
+  }
+
+  /// The user tapped the PiP window: the system brings the app back up, with the
+  /// player screen still presented (PiP can only have started from it)
+  nonisolated func pictureInPictureController(
+    _ pictureInPictureController: AVPictureInPictureController,
+    restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
+  ) {
+    Task { @MainActor in
+      Self.shared.isRestoringUserInterface = true
+      completionHandler(true)
+    }
+  }
+
+  nonisolated func pictureInPictureControllerDidStopPictureInPicture(
+    _ pictureInPictureController: AVPictureInPictureController
+  ) {
+    Task { @MainActor in
+      let coordinator = Self.shared
+      defer { coordinator.isRestoringUserInterface = false }
+
+      /// Manual close (no UI restore) while backgrounded: hand off to audio-only playback.
+      /// The layers must disconnect first, otherwise the system pauses again as soon
+      /// as the video returns to the (backgrounded) inline surface.
+      guard
+        !coordinator.isRestoringUserInterface,
+        UIApplication.shared.applicationState != .active,
+        UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
+      else { return }
+
+      coordinator.hostSurface?.detachForBackgroundAudio()
+      coordinator.onClosedInBackground?()
+    }
+  }
+}
 
 // MARK: - Video surface
 
@@ -27,6 +151,9 @@ private final class PlayerLayerView: UIView {
 /// aspect-fill layer blurred to cover the container's empty space.
 final class VideoSurfaceUIView: UIView {
   private let showsBlurredBackground: Bool
+  /// Whether this surface's layer backs the system Picture in Picture window
+  /// (only the player screen's inline surface should)
+  private let hostsPictureInPicture: Bool
   private let backgroundVideoView = PlayerLayerView()
   private let foregroundVideoView = PlayerLayerView()
   private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
@@ -34,8 +161,9 @@ final class VideoSurfaceUIView: UIView {
   private var lifecycleObservers = [NSObjectProtocol]()
   private weak var attachedPlayer: AVPlayer?
 
-  init(showsBlurredBackground: Bool) {
+  init(showsBlurredBackground: Bool, hostsPictureInPicture: Bool = false) {
     self.showsBlurredBackground = showsBlurredBackground
+    self.hostsPictureInPicture = hostsPictureInPicture
     super.init(frame: .zero)
 
     backgroundColor = .black
@@ -69,6 +197,20 @@ final class VideoSurfaceUIView: UIView {
   func attach(_ player: AVPlayer?) {
     attachedPlayer = player
     connectLayers(to: player)
+
+    if hostsPictureInPicture {
+      if player != nil {
+        VideoPiPCoordinator.shared.host(self, playerLayer: foregroundVideoView.playerLayer)
+      } else {
+        VideoPiPCoordinator.shared.release(playerLayer: foregroundVideoView.playerLayer)
+      }
+    }
+  }
+
+  /// Disconnect the layers while keeping the attached player reference, so audio
+  /// keeps playing in the background and the foreground observer reconnects later
+  func detachForBackgroundAudio() {
+    connectLayers(to: nil)
   }
 
   private func connectLayers(to player: AVPlayer?) {
@@ -93,10 +235,19 @@ final class VideoSurfaceUIView: UIView {
         queue: .main
       ) { [weak self] _ in
         guard
+          let self,
           UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
         else { return }
 
-        self?.connectLayers(to: nil)
+        /// Leave the layers connected when PiP is taking over this surface —
+        /// detaching here would cancel the automatic PiP start
+        if self.hostsPictureInPicture,
+           VideoPiPCoordinator.shared.isEnabled,
+           self.attachedPlayer?.timeControlStatus != .paused {
+          return
+        }
+
+        self.connectLayers(to: nil)
       }
     )
 
@@ -117,9 +268,13 @@ final class VideoSurfaceUIView: UIView {
 struct VideoPlayerSurface: UIViewRepresentable {
   let player: AVPlayer
   var showsBlurredBackground = true
+  var hostsPictureInPicture = false
 
   func makeUIView(context: Context) -> VideoSurfaceUIView {
-    let view = VideoSurfaceUIView(showsBlurredBackground: showsBlurredBackground)
+    let view = VideoSurfaceUIView(
+      showsBlurredBackground: showsBlurredBackground,
+      hostsPictureInPicture: hostsPictureInPicture
+    )
     view.attach(player)
     return view
   }
@@ -152,7 +307,7 @@ struct VideoArtworkView: View {
       Color.clear
         .aspectRatio(1, contentMode: .fit)
 
-      VideoPlayerSurface(player: player)
+      VideoPlayerSurface(player: player, hostsPictureInPicture: true)
         .contentShape(Rectangle())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.2)) {
@@ -213,11 +368,11 @@ struct VideoArtworkView: View {
 
 // MARK: - Fullscreen
 
-/// YouTube-style fullscreen: the surface animates from its inline frame into a
-/// 90°-rotated fullscreen layout via a transform. The interface orientation never
-/// changes, so the transition is one continuous turn and works regardless of the
-/// device's rotation lock. When the interface is already landscape, the surface
-/// just expands without rotating.
+/// YouTube-style fullscreen: the system rotation to landscape IS the entry animation —
+/// the container expands from the video's inline frame alongside the interface
+/// rotation, so the turn, the home indicator relocation, and the safe-area change all
+/// happen as one continuous motion. Closing rides the rotation back to portrait the
+/// same way. When the interface is already landscape, the surface just expands in place.
 final class VideoFullscreenViewController: UIViewController {
   private let player: AVPlayer
   private let sourceFrame: CGRect
@@ -233,8 +388,20 @@ final class VideoFullscreenViewController: UIViewController {
   private var timeControlObservation: NSKeyValueObservation?
   private var controlsVisible = true
   private var hasAnimatedIn = false
-  /// Freeze the interface orientation while the transform-based layout is up
-  private let lockedOrientations: UIInterfaceOrientationMask
+
+  /// Directs what `viewWillTransition` animates alongside the system rotation
+  private enum TransitionPhase {
+    /// Rotating to landscape: expand the container from the inline frame
+    case entering
+    /// Rotating back to portrait: shrink the container into the inline frame, then dismiss
+    case closing
+    case none
+  }
+
+  private var phase = TransitionPhase.none
+  /// Interface orientations the controller allows at the moment; driven by the
+  /// enter/close flow via `setNeedsUpdateOfSupportedInterfaceOrientations`
+  private var lockedOrientations: UIInterfaceOrientationMask
 
   init(player: AVPlayer, sourceFrame: CGRect, onPlayPause: @escaping () -> Void) {
     self.player = player
@@ -371,49 +538,118 @@ final class VideoFullscreenViewController: UIViewController {
     animateIn()
   }
 
+  /// The entry animation rides the system rotation: request landscape and expand the
+  /// container from the inline frame alongside the rotation, so the turn and the
+  /// home-indicator/safe-area relocation happen as one continuous motion
   private func animateIn() {
     guard !hasAnimatedIn else { return }
     hasAnimatedIn = true
 
-    let bounds = view.bounds
-    let rotates = bounds.height > bounds.width
+    let entersFromPortrait = view.bounds.height > view.bounds.width
 
+    if entersFromPortrait, let windowScene = view.window?.windowScene {
+      phase = .entering
+      lockedOrientations = .landscapeRight
+      setNeedsUpdateOfSupportedInterfaceOrientations()
+      windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight)) { _ in
+        /// Rotation refused: fall back to expanding in place
+        Task { @MainActor in
+          self.phase = .none
+          self.expandInPlace()
+        }
+      }
+    } else {
+      expandInPlace()
+    }
+  }
+
+  /// No-rotation entry (interface already landscape, or the rotation was refused)
+  private func expandInPlace() {
     UIView.animate(
       withDuration: 0.5,
       delay: 0,
       usingSpringWithDamping: 0.85,
       initialSpringVelocity: 0
     ) {
-      self.dimView.alpha = 1
-      self.closeButton.alpha = 1
-      self.playPauseButton.alpha = 1
-      self.contentContainer.layer.cornerRadius = 0
-
-      if rotates {
-        self.contentContainer.transform = CGAffineTransform(rotationAngle: .pi / 2)
-        self.contentContainer.bounds = CGRect(x: 0, y: 0, width: bounds.height, height: bounds.width)
-      } else {
-        self.contentContainer.bounds = CGRect(origin: .zero, size: bounds.size)
-      }
-      self.contentContainer.center = CGPoint(x: bounds.midX, y: bounds.midY)
+      self.applyFullscreenLayout(for: self.view.bounds.size)
       self.contentContainer.layoutIfNeeded()
     }
   }
 
+  private func applyFullscreenLayout(for size: CGSize) {
+    dimView.alpha = 1
+    closeButton.alpha = 1
+    playPauseButton.alpha = 1
+    contentContainer.layer.cornerRadius = 0
+    contentContainer.bounds = CGRect(origin: .zero, size: size)
+    contentContainer.center = CGPoint(x: size.width / 2, y: size.height / 2)
+  }
+
+  private func applyInlineLayout() {
+    dimView.alpha = 0
+    closeButton.alpha = 0
+    playPauseButton.alpha = 0
+    contentContainer.layer.cornerRadius = 12
+    contentContainer.bounds = CGRect(origin: .zero, size: sourceFrame.size)
+    contentContainer.center = CGPoint(x: sourceFrame.midX, y: sourceFrame.midY)
+  }
+
+  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransition(to: size, with: coordinator)
+
+    switch phase {
+    case .none:
+      return
+    case .entering:
+      coordinator.animate(alongsideTransition: { _ in
+        self.applyFullscreenLayout(for: size)
+        self.contentContainer.layoutIfNeeded()
+      }, completion: { _ in
+        self.phase = .none
+      })
+    case .closing:
+      coordinator.animate(alongsideTransition: { _ in
+        self.applyInlineLayout()
+        self.contentContainer.layoutIfNeeded()
+      }, completion: { _ in
+        self.phase = .none
+        /// Detach only after the view is off screen — detaching first leaves the
+        /// still-visible surface rendering an empty (black) frame for a beat
+        self.dismiss(animated: false) {
+          self.surface.attach(nil)
+        }
+      })
+    }
+  }
+
   @objc private func close() {
+    /// If the entry rotated the interface, the exit rotation carries the shrink
+    /// animation back to the inline frame (valid in portrait coordinates)
+    if lockedOrientations == .landscapeRight,
+       view.bounds.width > view.bounds.height,
+       let windowScene = view.window?.windowScene {
+      phase = .closing
+      lockedOrientations = .portrait
+      setNeedsUpdateOfSupportedInterfaceOrientations()
+      windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { _ in
+        Task { @MainActor in
+          self.phase = .none
+          self.animateOut()
+        }
+      }
+    } else {
+      animateOut()
+    }
+  }
+
+  private func animateOut() {
     UIView.animate(
       withDuration: 0.4,
       delay: 0,
       usingSpringWithDamping: 0.9,
       initialSpringVelocity: 0
     ) {
-      self.dimView.alpha = 0
-      self.closeButton.alpha = 0
-      self.playPauseButton.alpha = 0
-      self.contentContainer.transform = .identity
-      self.contentContainer.bounds = CGRect(origin: .zero, size: self.sourceFrame.size)
-      self.contentContainer.center = CGPoint(x: self.sourceFrame.midX, y: self.sourceFrame.midY)
-      self.contentContainer.layer.cornerRadius = 12
+      self.applyInlineLayout()
       self.contentContainer.layoutIfNeeded()
     } completion: { _ in
       /// Detach only after the view is off screen — detaching first leaves the

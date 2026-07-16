@@ -11,6 +11,7 @@
 "settings_globalspeed_description" = "Set speed across all books.";
 "settings_video_background_playback_title" = "Continue Video Audio in Background";
 "settings_video_background_playback_description" = "Keep listening to a video's audio when you leave the app or lock the screen.";
+"settings_video_pip_title" = "Picture in Picture";
 "video_fullscreen_title" = "Fullscreen";
 "settings_openplayer_launch_title" = "Open Player on Launch";
 "settings_carplay_showplayer_title" = "Show Player on CarPlay Connect";

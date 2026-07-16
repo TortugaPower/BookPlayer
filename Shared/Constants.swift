@@ -46,6 +46,8 @@ public enum Constants {
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
     /// Keep playing a video's audio when the app moves to the background
     public static let videoBackgroundPlaybackEnabled = "userSettingsVideoBackgroundPlayback"
+    /// Continue video in Picture in Picture when leaving the app from the player screen
+    public static let videoPictureInPictureEnabled = "userSettingsVideoPictureInPicture"
     public static let lastEnabledTimer = "userSettingsLastEnabledTimer"
     public static let repeatEnabledSuffix = "_repeatEnabled"
     public static let isAutomaticBookmarksSectionCollapsed = "userSettingsIsAutomaticBookmarksSectionCollapsed"

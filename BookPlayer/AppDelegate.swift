@@ -60,6 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     UserDefaults.standard.register(defaults: [
       Constants.UserDefaults.systemThemeVariantEnabled: true,
       Constants.UserDefaults.videoBackgroundPlaybackEnabled: true,
+      Constants.UserDefaults.videoPictureInPictureEnabled: false,
     ])
 
     NotificationCenter.default.addObserver(
