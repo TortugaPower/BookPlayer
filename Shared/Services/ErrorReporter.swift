@@ -13,8 +13,16 @@ import Foundation
 /// target links. The app installs a handler at launch; targets that never
 /// install one (e.g. the watch app) make reporting a no-op.
 public enum ErrorReporter {
-  /// Installed once at app launch; must be safe to call from any thread.
-  public static var handler: ((_ title: String, _ error: Error, _ tags: [String: String]) -> Void)?
+  private static let lock = NSLock()
+  private static var handler: (@Sendable (String, Error, [String: String]) -> Void)?
+
+  /// Install the reporting handler; called once at app launch. The handler
+  /// may be invoked from any thread.
+  public static func install(_ newHandler: @escaping @Sendable (String, Error, [String: String]) -> Void) {
+    lock.lock()
+    defer { lock.unlock() }
+    handler = newHandler
+  }
 
   /// Report a non-fatal error.
   /// - Parameters:
@@ -24,6 +32,10 @@ public enum ErrorReporter {
   ///   - error: The underlying error, sent as event detail.
   ///   - tags: Extra searchable metadata.
   public static func report(title: String, error: Error, tags: [String: String] = [:]) {
-    handler?(title, error, tags)
+    lock.lock()
+    let currentHandler = handler
+    lock.unlock()
+
+    currentHandler?(title, error, tags)
   }
 }

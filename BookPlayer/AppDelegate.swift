@@ -303,7 +303,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   func setupSentry() {
     /// Bridge non-fatal reports from BookPlayerKit, which doesn't link Sentry.
     /// Captures are no-ops while crash reports are disabled (SentrySDK is closed)
-    ErrorReporter.handler = { title, error, tags in
+    ErrorReporter.install { title, error, tags in
       SentrySDK.capture(error: error) { scope in
         scope.setLevel(.warning)
         /// Group by report title, not by capture call site

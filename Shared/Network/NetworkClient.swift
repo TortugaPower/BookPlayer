@@ -266,7 +266,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     guard let context, !context.codingPath.isEmpty else { return "?" }
 
-    return context.codingPath.map(\.stringValue).joined(separator: ".")
+    /// Collapse array indices ("Index 3") so the same failure at different
+    /// positions groups as one issue
+    return context.codingPath
+      .map { $0.intValue != nil ? "[]" : $0.stringValue }
+      .joined(separator: ".")
   }
 
   func buildURLRequest(

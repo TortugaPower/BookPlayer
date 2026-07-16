@@ -442,11 +442,14 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       /// Exactly-once: only report when crossing the threshold
       guard failureCount == Self.taskFailureReportThreshold else { return }
 
-      ErrorReporter.report(
-        title: "Sync task stuck: \(task.jobType.rawValue)",
-        error: error,
-        tags: ["job_type": task.jobType.rawValue]
-      )
+      /// Report off `lockQueue` so the SDK call can't delay task scheduling
+      DispatchQueue.global(qos: .utility).async {
+        ErrorReporter.report(
+          title: "Sync task stuck: \(task.jobType.rawValue)",
+          error: error,
+          tags: ["job_type": task.jobType.rawValue]
+        )
+      }
     }
   }
 
