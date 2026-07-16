@@ -310,16 +310,22 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       _ = await initializeStoreTask?.result
       try await taskStore.clearAll()
       operationQueue.cancelAllOperations()
+      lockQueue.async {
+        self.taskFailureCounts.removeAll()
+      }
       await MainActor.run {
         tasksProgress.removeAll()
       }
     }
   }
-  
+
   public func resetAllJobs() async {
     _ = await initializeStoreTask?.result
     try? await taskStore.clearAll()
     operationQueue.cancelAllOperations()
+    lockQueue.async {
+      self.taskFailureCounts.removeAll()
+    }
     await MainActor.run {
       tasksProgress.removeAll()
     }
@@ -416,6 +422,19 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
   
   private func reportTaskFailureIfNeeded(_ task: SyncTask, error: Error) {
+    /// Connectivity failures are expected (the retry loop runs while offline)
+    /// and would drown out real signal
+    if let urlError = error as? URLError {
+      switch urlError.code {
+      case .notConnectedToInternet, .networkConnectionLost, .timedOut,
+          .cannotConnectToHost, .cannotFindHost, .dnsLookupFailed,
+          .internationalRoamingOff, .dataNotAllowed:
+        return
+      default:
+        break
+      }
+    }
+
     lockQueue.async {
       let failureCount = (self.taskFailureCounts[task.id] ?? 0) + 1
       self.taskFailureCounts[task.id] = failureCount
@@ -426,10 +445,7 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       ErrorReporter.report(
         title: "Sync task stuck: \(task.jobType.rawValue)",
         error: error,
-        tags: [
-          "job_type": task.jobType.rawValue,
-          "retry_count": "\(failureCount)"
-        ]
+        tags: ["job_type": task.jobType.rawValue]
       )
     }
   }

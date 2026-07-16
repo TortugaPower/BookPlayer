@@ -304,11 +304,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     /// Bridge non-fatal reports from BookPlayerKit, which doesn't link Sentry.
     /// Captures are no-ops while crash reports are disabled (SentrySDK is closed)
     ErrorReporter.handler = { title, error, tags in
-      SentrySDK.capture(message: title) { scope in
+      SentrySDK.capture(error: error) { scope in
+        scope.setLevel(.warning)
+        /// Group by report title, not by capture call site
+        scope.setFingerprint([title])
         for (key, value) in tags {
           scope.setTag(value: value, key: key)
         }
-        scope.setExtra(value: "\(error)", key: "error_description")
+        scope.setContext(value: [
+          "title": title,
+          "description": "\(error)"
+        ], key: "report")
       }
     }
 

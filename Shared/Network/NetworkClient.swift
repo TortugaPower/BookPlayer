@@ -220,7 +220,7 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
       } catch let error as DecodingError {
         /// Contract drift between the API response and our models is invisible
         /// server-side (the request already returned 2xx), so report it here
-        let endpoint = request.url?.path ?? "unknown"
+        let endpoint = reportableEndpoint(for: request.url)
         ErrorReporter.report(
           title: "Response decoding failed: \(endpoint) (\(T.self).\(Self.codingPathDescription(of: error)))",
           error: error,
@@ -232,6 +232,24 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
         throw error
       }
     }
+  }
+
+  /// Normalized endpoint for reporting: our API routes are static, but
+  /// `request(url:)` can carry presigned storage URLs whose paths embed
+  /// user-specific prefixes — redact those, and collapse any dynamic path
+  /// component so events stay low-cardinality and free of identifiers
+  private func reportableEndpoint(for url: URL?) -> String {
+    guard let url else { return "unknown" }
+    guard url.host == host else { return "external" }
+
+    let components = url.path.split(separator: "/").map { component -> String in
+      let value = String(component)
+      if UUID(uuidString: value) != nil || Int(value) != nil {
+        return ":id"
+      }
+      return value
+    }
+    return "/" + components.joined(separator: "/")
   }
 
   private static func codingPathDescription(of error: DecodingError) -> String {
