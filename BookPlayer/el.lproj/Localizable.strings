@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Διπλασιάζει την ένταση.\nΧρησιμοποιήστε με προσοχή και φροντίστε την ακοή σας.";
 "settings_globalspeed_title" = "Παγκόσμιος έλεγχος ταχύτητας";
 "settings_globalspeed_description" = "Ρυθμίστε την ταχύτητα σε όλα τα βιβλία.";
+"settings_video_background_playback_title" = "Συνέχιση ήχου βίντεο στο παρασκήνιο";
+"settings_video_background_playback_description" = "Συνεχίστε να ακούτε τον ήχο ενός βίντεο όταν αφήνετε την εφαρμογή ή κλειδώνετε την οθόνη.";
+"settings_video_pip_title" = "Εικόνα εντός εικόνας";
+"video_fullscreen_title" = "Πλήρης οθόνη";
 "settings_openplayer_launch_title" = "Άνοιγμα αναπαραγωγής κατά την εκκίνηση";
 "settings_carplay_showplayer_title" = "Εμφάνιση αναπαραγωγής κατά τη σύνδεση με CarPlay";
 "settings_startupplayer_description" = "Ανοίξτε την αναπαραγωγή με το τελευταίο βιβλίο που ακούσατε κατά την εκκίνηση της εφαρμογής ή τη σύνδεση με το CarPlay. Στο CarPlay, αυτό διακόπτει τον ήχο που αναπαράγεται σε άλλες εφαρμογές.";

@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Podwaja głośność. Używaj z rozwagą i troską o swój słuch.";
 "settings_globalspeed_title" = "Globalna Kontrola Prędkości";
 "settings_globalspeed_description" = "Ustaw prędkość dla wszystkich książek.";
+"settings_video_background_playback_title" = "Kontynuuj dźwięk wideo w tle";
+"settings_video_background_playback_description" = "Słuchaj dalej dźwięku wideo po opuszczeniu aplikacji lub zablokowaniu ekranu.";
+"settings_video_pip_title" = "Obraz w obrazie";
+"video_fullscreen_title" = "Pełny ekran";
 "settings_openplayer_launch_title" = "Otwórz odtwarzacz przy uruchomieniu";
 "settings_carplay_showplayer_title" = "Pokaż odtwarzacz po połączeniu z CarPlay";
 "settings_startupplayer_description" = "Otwórz odtwarzacz z ostatnio odtwarzaną książką po uruchomieniu aplikacji lub połączeniu z CarPlay. W CarPlay przerywa to dźwięk odtwarzany w innych aplikacjach.";

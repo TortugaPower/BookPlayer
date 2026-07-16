@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Raddoppia il volume. \nUsa con cautela e fai attenzione al tuo udito.";
 "settings_globalspeed_title" = "Controllo globale della velocità ";
 "settings_globalspeed_description" = "Imposta velocità per tutti i libri.";
+"settings_video_background_playback_title" = "Continua l'audio del video in background";
+"settings_video_background_playback_description" = "Continua ad ascoltare l'audio di un video quando esci dall'app o blocchi lo schermo.";
+"settings_video_pip_title" = "Picture in Picture";
+"video_fullscreen_title" = "Schermo intero";
 "settings_openplayer_launch_title" = "Apri il player all'avvio";
 "settings_carplay_showplayer_title" = "Mostra il player alla connessione CarPlay";
 "settings_startupplayer_description" = "Apre il player con l'ultimo libro ascoltato all'avvio dell'app o alla connessione a CarPlay. Su CarPlay, questo interrompe l'audio in riproduzione in altre app.";

@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Удваивает громкость. \nИспользуйте с осторожностью и заботой о вашем слухе.";
 "settings_globalspeed_title" = "Глобальное управление скоростью";
 "settings_globalspeed_description" = "Установите скорость для всех книг.";
+"settings_video_background_playback_title" = "Продолжать звук видео в фоновом режиме";
+"settings_video_background_playback_description" = "Продолжайте слушать звук видео, когда выходите из приложения или блокируете экран.";
+"settings_video_pip_title" = "Картинка в картинке";
+"video_fullscreen_title" = "Во весь экран";
 "settings_openplayer_launch_title" = "Открывать плеер при запуске";
 "settings_carplay_showplayer_title" = "Показывать плеер при подключении CarPlay";
 "settings_startupplayer_description" = "Открывать плеер с последней прослушанной книгой при запуске приложения или подключении к CarPlay. В CarPlay это прерывает звук, воспроизводимый в других приложениях.";

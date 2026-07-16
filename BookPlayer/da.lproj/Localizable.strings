@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Fordobler lydstyrken. \nAnvend med forsigtighed og omtanke for din hørelse.";
 "settings_globalspeed_title" = "Global hastighedskontrol";
 "settings_globalspeed_description" = "Indstil hastighed på tværs af alle bøger.";
+"settings_video_background_playback_title" = "Fortsæt videoens lyd i baggrunden";
+"settings_video_background_playback_description" = "Bliv ved med at lytte til videoens lyd, når du forlader appen eller låser skærmen.";
+"settings_video_pip_title" = "Billede i billede";
+"video_fullscreen_title" = "Fuld skærm";
 "settings_openplayer_launch_title" = "Åbn afspilleren ved start";
 "settings_carplay_showplayer_title" = "Vis afspilleren ved CarPlay-forbindelse";
 "settings_startupplayer_description" = "Åbn afspilleren med den senest afspillede bog, når appen startes, eller der oprettes forbindelse til CarPlay. I CarPlay afbryder dette lyd, der afspilles i andre apps.";
