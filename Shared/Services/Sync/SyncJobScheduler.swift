@@ -308,11 +308,13 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   public func cancelAllJobs() {
     Task {
       _ = await initializeStoreTask?.result
-      try await taskStore.clearAll()
-      operationQueue.cancelAllOperations()
-      lockQueue.async {
+      /// Synchronously and before `clearAll()`: guaranteed to run even if
+      /// clearing the store throws
+      lockQueue.sync {
         self.taskFailureCounts.removeAll()
       }
+      try await taskStore.clearAll()
+      operationQueue.cancelAllOperations()
       await MainActor.run {
         tasksProgress.removeAll()
       }
@@ -321,11 +323,13 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   public func resetAllJobs() async {
     _ = await initializeStoreTask?.result
-    try? await taskStore.clearAll()
-    operationQueue.cancelAllOperations()
-    lockQueue.async {
+    /// Synchronously: teardown/login flows await this method and must not
+    /// observe stale counters after it returns
+    lockQueue.sync {
       self.taskFailureCounts.removeAll()
     }
+    try? await taskStore.clearAll()
+    operationQueue.cancelAllOperations()
     await MainActor.run {
       tasksProgress.removeAll()
     }
