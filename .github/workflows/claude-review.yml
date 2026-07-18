@@ -1,0 +1,59 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [develop]
+
+# Cancel an in-flight review when the PR is updated again (saves API cost on rapid pushes).
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Skip draft PRs; they review on "ready_for_review".
+    if: github.event.pull_request.draft == false
+    # Ubuntu on purpose: the reviewer only reads the diff/source, it does NOT build the app,
+    # so there's no need for an (expensive, slow) macOS runner.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write   # post inline + summary comments and resolve review threads
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v5
+        with:
+          # Check out the PR head commit (not the merge ref) so file line numbers
+          # match the commit_id we anchor inline comments to.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install reviewer deps
+        working-directory: .github/claude/reviewer
+        run: npm install --no-audit --no-fund --silent
+
+      - name: Run Claude review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          # PAT/App token used ONLY to resolve review threads (GITHUB_TOKEN can't — "Resource not
+          # accessible by integration"). Optional: if unset, stale comments only show as "Outdated".
+          REVIEW_RESOLVE_TOKEN: ${{ secrets.REVIEW_RESOLVE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}              # for `gh pr diff` inside the agent
+          GH_REPO: ${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REVIEW_MODEL: claude-opus-4-8
+          REVIEW_MAX_TURNS: '50'   # agent only reads/reports (posting is done by the script), so turns go far
+          IS_SANDBOX: '1'
+        run: node .github/claude/reviewer/review.mjs

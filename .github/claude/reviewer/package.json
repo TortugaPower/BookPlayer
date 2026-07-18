@@ -1,0 +1,10 @@
+{
+  "name": "bookplayer-ios-pr-reviewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agentic AI reviewer for the BookPlayer iOS pull requests (dedup + auto-resolve)",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "latest"
+  }
+}
