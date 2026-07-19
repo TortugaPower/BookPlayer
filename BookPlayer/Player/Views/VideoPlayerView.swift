@@ -12,6 +12,13 @@ import BookPlayerKit
 import SwiftUI
 import UIKit
 
+private extension Notification.Name {
+  /// Posted when the fullscreen video controller finishes tearing down. The inline
+  /// surface shares the same `AVPlayer`; the fullscreen surface takes over its video
+  /// output, so the inline surface must reclaim rendering once fullscreen is gone.
+  static let videoFullscreenDidDismiss = Notification.Name("com.bookplayer.videoFullscreenDidDismiss")
+}
+
 // MARK: - Picture in Picture
 
 /// Coordinates system Picture in Picture for the player screen's video surface.
@@ -213,6 +220,22 @@ final class VideoSurfaceUIView: UIView {
     connectLayers(to: nil)
   }
 
+  /// Force the layers to re-associate with the attached player. Setting the same
+  /// `AVPlayer` on another `AVPlayerLayer` (the fullscreen surface) stops this layer
+  /// from rendering even though its `player` reference is left untouched — so a plain
+  /// `connectLayers` is a no-op here (identity guard). Detaching and reattaching is
+  /// what reclaims the video output.
+  private func reclaimVideoRendering() {
+    guard let player = attachedPlayer else { return }
+
+    foregroundVideoView.playerLayer.player = nil
+    foregroundVideoView.playerLayer.player = player
+    if showsBlurredBackground {
+      backgroundVideoView.playerLayer.player = nil
+      backgroundVideoView.playerLayer.player = player
+    }
+  }
+
   private func connectLayers(to player: AVPlayer?) {
     if foregroundVideoView.playerLayer.player !== player {
       foregroundVideoView.playerLayer.player = player
@@ -260,6 +283,19 @@ final class VideoSurfaceUIView: UIView {
         guard let self else { return }
 
         self.connectLayers(to: self.attachedPlayer)
+      }
+    )
+
+    /// Returning from fullscreen: the fullscreen surface had taken over this player's
+    /// video output, so reclaim it (a no-op for the torn-down fullscreen surface,
+    /// whose player was already detached).
+    lifecycleObservers.append(
+      center.addObserver(
+        forName: .videoFullscreenDidDismiss,
+        object: nil,
+        queue: .main
+      ) { [weak self] _ in
+        self?.reclaimVideoRendering()
       }
     )
   }
@@ -347,6 +383,9 @@ struct VideoArtworkView: View {
       }
       .opacity(controlsVisible ? 1 : 0)
       .allowsHitTesting(controlsVisible)
+      /// Keep VoiceOver from focusing the fullscreen/AirPlay buttons while they're
+      /// hidden — `opacity(0)` alone leaves them in the accessibility tree
+      .accessibilityHidden(!controlsVisible)
     }
     .aspectRatio(1, contentMode: .fit)
     .cornerRadius(12)
@@ -617,6 +656,7 @@ final class VideoFullscreenViewController: UIViewController {
         /// still-visible surface rendering an empty (black) frame for a beat
         self.dismiss(animated: false) {
           self.surface.attach(nil)
+          NotificationCenter.default.post(name: .videoFullscreenDidDismiss, object: nil)
         }
       })
     }
@@ -656,6 +696,7 @@ final class VideoFullscreenViewController: UIViewController {
       /// still-visible surface rendering an empty (black) frame for a beat
       self.dismiss(animated: false) {
         self.surface.attach(nil)
+        NotificationCenter.default.post(name: .videoFullscreenDidDismiss, object: nil)
       }
     }
   }
