@@ -326,6 +326,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
 
     let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
+    let apiDomain: String = Bundle.main.configurationValue(for: .apiDomain)
     // Create a Sentry client
     SentrySDK.start { options in
       options.dsn = "https://\(sentryDSN)"
@@ -334,6 +335,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.enableFileIOTracing = false
       options.enableAppHangTracking = false
       options.tracesSampleRate = 0.5
+      // Only turn OUR backend's 5xx into Sentry error events. The default
+      // failedRequestTargets ([".*"]) captures every failed request — users'
+      // self-hosted Jellyfin/AudiobookShelf servers, Hardcover, RevenueCat,
+      // archive.org, S3 downloads — flooding one issue with noise we can't
+      // act on. Scope it to the configured backend host so this stays a real
+      // "our API is failing" signal (root-cause still comes from server logs).
+      options.failedRequestTargets = [apiDomain]
     }
   }
 }
