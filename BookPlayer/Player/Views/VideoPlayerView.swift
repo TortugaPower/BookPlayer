@@ -38,6 +38,9 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
   private var pipController: AVPictureInPictureController?
   private weak var hostSurface: VideoSurfaceUIView?
   private var isRestoringUserInterface = false
+  /// A stop we triggered ourselves (book end, switching to a non-video item) — as
+  /// opposed to the user closing the PiP window — must NOT hand off to audio-only playback
+  private var isStoppingProgrammatically = false
   private var bookEndObserver: NSObjectProtocol?
 
   var isActive: Bool {
@@ -96,6 +99,9 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
   func stop() {
     guard isActive else { return }
 
+    /// Flag the programmatic stop so `didStop` skips the audio-only handoff below —
+    /// only a user-initiated close should resume playback
+    isStoppingProgrammatically = true
     pipController?.stopPictureInPicture()
   }
 
@@ -125,13 +131,19 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
   ) {
     Task { @MainActor in
       let coordinator = Self.shared
-      defer { coordinator.isRestoringUserInterface = false }
+      defer {
+        coordinator.isRestoringUserInterface = false
+        coordinator.isStoppingProgrammatically = false
+      }
 
       /// Manual close (no UI restore) while backgrounded: hand off to audio-only playback.
       /// The layers must disconnect first, otherwise the system pauses again as soon
       /// as the video returns to the (backgrounded) inline surface.
+      /// A programmatic stop (book end, non-video switch) must not trigger this — it
+      /// would resume playback in the background right after the book/video ended.
       guard
         !coordinator.isRestoringUserInterface,
+        !coordinator.isStoppingProgrammatically,
         UIApplication.shared.applicationState != .active,
         UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
       else { return }
