@@ -86,6 +86,8 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     controller.delegate = self
     pipController = controller
     hostSurface = surface
+    /// Fresh session — no stop is in flight, so start from a clean flag
+    isStoppingProgrammatically = false
   }
 
   func release(playerLayer: AVPlayerLayer) {
@@ -94,6 +96,10 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     pipController?.delegate = nil
     pipController = nil
     hostSurface = nil
+    /// Once the controller is gone, `didStop` can no longer reset this flag. Clear it
+    /// here so a programmatic stop that tore the controller down before its callback
+    /// arrived can't leak into the next session and misclassify a real user close.
+    isStoppingProgrammatically = false
   }
 
   func stop() {
