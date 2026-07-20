@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Dubblar volymen. \nAnvänd med försiktighet och omsorg för din hörsel.";
 "settings_globalspeed_title" = "Global Uppspelningshastighet";
 "settings_globalspeed_description" = "Ange uppspelningshastighet för alla böcker.";
-"settings_video_background_playback_title" = "Fortsätt videons ljud i bakgrunden";
-"settings_video_background_playback_description" = "Fortsätt lyssna på ljudet från en video när du lämnar appen eller låser skärmen.";
 "settings_video_pip_title" = "Bild-i-bild";
 "video_fullscreen_title" = "Helskärm";
 "settings_openplayer_launch_title" = "Öppna spelaren vid start";

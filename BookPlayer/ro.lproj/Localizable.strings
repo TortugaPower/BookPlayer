@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
 "settings_globalspeed_title" = "Controlul global al vitezei";
 "settings_globalspeed_description" = "Setați viteza în toate cărțile.";
-"settings_video_background_playback_title" = "Continuă audio-ul videoclipului în fundal";
-"settings_video_background_playback_description" = "Continuați să ascultați audio-ul unui videoclip când părăsiți aplicația sau blocați ecranul.";
 "settings_video_pip_title" = "Imagine în imagine";
 "video_fullscreen_title" = "Ecran complet";
 "settings_openplayer_launch_title" = "Deschide playerul la pornire";

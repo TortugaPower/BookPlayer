@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Kaksinkertaistaa äänenvoimakkuuden.\nKäytä varoen ja huolehdi kuulostasi.";
 "settings_globalspeed_title" = "Yleinen nopeudenhallinta";
 "settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
-"settings_video_background_playback_title" = "Jatka videon ääntä taustalla";
-"settings_video_background_playback_description" = "Jatka videon äänen kuuntelua, kun poistut sovelluksesta tai lukitset näytön.";
 "settings_video_pip_title" = "Kuva kuvassa";
 "video_fullscreen_title" = "Koko näyttö";
 "settings_openplayer_launch_title" = "Avaa soitin käynnistettäessä";

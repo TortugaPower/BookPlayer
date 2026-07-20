@@ -133,22 +133,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath)
         }
       }.store(in: &disposeBag)
-
-    /// With video background playback disabled, a playing video pauses when the app
-    /// backgrounds. Enforced here because the system's own layer-based pause only
-    /// applies while the player screen (and its video layer) is on screen.
-    NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard
-          let self,
-          self.isPlaying,
-          self.currentItem?.currentChapter?.isVideo == true,
-          !UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
-        else { return }
-
-        self.pause()
-      }.store(in: &disposeBag)
   }
 
   func bindInterruptObserver() {

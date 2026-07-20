@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
 "settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
 "settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
-"settings_video_background_playback_title" = "Přehrávat zvuk videa na pozadí";
-"settings_video_background_playback_description" = "Poslouchejte zvuk videa i po opuštění aplikace nebo uzamčení obrazovky.";
 "settings_video_pip_title" = "Obraz v obraze";
 "video_fullscreen_title" = "Celá obrazovka";
 "settings_openplayer_launch_title" = "Otevřít přehrávač při spuštění";

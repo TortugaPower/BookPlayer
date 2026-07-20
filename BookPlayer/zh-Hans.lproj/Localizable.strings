@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
 "settings_globalspeed_title" = "全局播放速度";
 "settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
-"settings_video_background_playback_title" = "在后台继续播放视频音频";
-"settings_video_background_playback_description" = "离开应用或锁定屏幕后继续收听视频的音频。";
 "settings_video_pip_title" = "画中画";
 "video_fullscreen_title" = "全屏";
 "settings_openplayer_launch_title" = "启动时打开播放器";

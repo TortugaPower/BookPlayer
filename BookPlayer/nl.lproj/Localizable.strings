@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Verdubbelt het volume. \n Wees voorzichtig en zorg voor uw gehoor.";
 "settings_globalspeed_title" = "Globale snelheidsregeling";
 "settings_globalspeed_description" = "Stel snelheid in voor alle boeken.";
-"settings_video_background_playback_title" = "Videogeluid op de achtergrond afspelen";
-"settings_video_background_playback_description" = "Blijf naar het geluid van een video luisteren wanneer je de app verlaat of het scherm vergrendelt.";
 "settings_video_pip_title" = "Beeld in beeld";
 "video_fullscreen_title" = "Volledig scherm";
 "settings_openplayer_launch_title" = "Speler openen bij opstarten";

@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Dobler volumet.\nBruk med forsiktighet og ta vare på hørselen din.";
 "settings_globalspeed_title" = "Global hastighetskontroll";
 "settings_globalspeed_description" = "Angi hastighet for alle bøker.";
-"settings_video_background_playback_title" = "Fortsett videolyd i bakgrunnen";
-"settings_video_background_playback_description" = "Fortsett å lytte til lyden fra en video når du forlater appen eller låser skjermen.";
 "settings_video_pip_title" = "Bilde i bilde";
 "video_fullscreen_title" = "Fullskjerm";
 "settings_openplayer_launch_title" = "Åpne spilleren ved oppstart";

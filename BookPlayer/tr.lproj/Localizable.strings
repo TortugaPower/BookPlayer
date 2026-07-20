@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Sesi iki katına çıkarır.\nİşitme duyunuz için dikkat edin ve dikkatli kullanın.";
 "settings_globalspeed_title" = "Evrensel Hız Kontrolü";
 "settings_globalspeed_description" = "Tüm kitaplarda hızı ayarlayın.";
-"settings_video_background_playback_title" = "Videonun sesini arka planda sürdür";
-"settings_video_background_playback_description" = "Uygulamadan çıktığınızda veya ekranı kilitlediğinizde videonun sesini dinlemeye devam edin.";
 "settings_video_pip_title" = "Resim İçinde Resim";
 "video_fullscreen_title" = "Tam Ekran";
 "settings_openplayer_launch_title" = "Başlangıçta oynatıcıyı aç";

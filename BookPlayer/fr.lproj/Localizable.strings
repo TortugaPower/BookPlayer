@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Double le volume.\nUtilisez avec prudence et faites attention à votre audition.";
 "settings_globalspeed_title" = "Contrôle de la vitesse globale";
 "settings_globalspeed_description" = "Applique la vitesse sur tous les livres.";
-"settings_video_background_playback_title" = "Continuer l'audio de la vidéo en arrière-plan";
-"settings_video_background_playback_description" = "Continuez d'écouter l'audio d'une vidéo lorsque vous quittez l'app ou verrouillez l'écran.";
 "settings_video_pip_title" = "Image dans l'image";
 "video_fullscreen_title" = "Plein écran";
 "settings_openplayer_launch_title" = "Ouvrir le lecteur au démarrage";

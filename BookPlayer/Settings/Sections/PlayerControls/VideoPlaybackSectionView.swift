@@ -10,8 +10,6 @@ import BookPlayerKit
 import SwiftUI
 
 struct VideoPlaybackSectionView: View {
-  @AppStorage(Constants.UserDefaults.videoBackgroundPlaybackEnabled)
-  var videoBackgroundPlaybackEnabled: Bool = true
   @AppStorage(Constants.UserDefaults.videoPictureInPictureEnabled)
   var videoPictureInPictureEnabled: Bool = false
 
@@ -19,17 +17,12 @@ struct VideoPlaybackSectionView: View {
 
   var body: some View {
     ThemedSection {
-      Toggle(isOn: $videoBackgroundPlaybackEnabled) {
-        Text("settings_video_background_playback_title".localized)
-          .bpFont(.body)
-      }
       Toggle(isOn: $videoPictureInPictureEnabled) {
         Text("settings_video_pip_title".localized)
           .bpFont(.body)
       }
-      .disabled(!videoBackgroundPlaybackEnabled)
     } footer: {
-      Text("settings_video_background_playback_description".localized)
+      Text("settings_video_pip_description".localized)
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }

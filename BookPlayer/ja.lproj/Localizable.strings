@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "音量を2倍にします。 \n聴覚に配慮し、注意して使用してください。";
 "settings_globalspeed_title" = "再生速度の共通設定";
 "settings_globalspeed_description" = "すべてのブックに速度を設定します。";
-"settings_video_background_playback_title" = "バックグラウンドでビデオの音声を再生";
-"settings_video_background_playback_description" = "アプリを離れたり画面をロックしたりしても、ビデオの音声を聴き続けられます。";
 "settings_video_pip_title" = "ピクチャインピクチャ";
 "video_fullscreen_title" = "フルスクリーン";
 "settings_openplayer_launch_title" = "起動時にプレーヤーを開く";

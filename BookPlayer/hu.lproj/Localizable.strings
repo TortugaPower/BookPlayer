@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében";
 "settings_globalspeed_title" = "Globális sebességszabályozás";
 "settings_globalspeed_description" = "Sebesség beállítása az összes könyvben";
-"settings_video_background_playback_title" = "Videó hangjának folytatása a háttérben";
-"settings_video_background_playback_description" = "Hallgasd tovább a videó hangját, amikor elhagyod az alkalmazást vagy zárolod a képernyőt.";
 "settings_video_pip_title" = "Kép a képben";
 "video_fullscreen_title" = "Teljes képernyő";
 "settings_openplayer_launch_title" = "Lejátszó megnyitása indításkor";

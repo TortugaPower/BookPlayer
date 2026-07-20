@@ -47,10 +47,9 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     pipController?.isPictureInPictureActive ?? false
   }
 
-  /// Both toggles gate the feature: turning background playback off disables PiP too
+  /// Gated on device support and the Picture in Picture setting
   var isEnabled: Bool {
     AVPictureInPictureController.isPictureInPictureSupported()
-      && UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
       && UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoPictureInPictureEnabled)
   }
 
@@ -150,8 +149,7 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
       guard
         !coordinator.isRestoringUserInterface,
         !coordinator.isStoppingProgrammatically,
-        UIApplication.shared.applicationState != .active,
-        UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
+        UIApplication.shared.applicationState != .active
       else { return }
 
       coordinator.hostSurface?.detachForBackgroundAudio()
@@ -264,8 +262,8 @@ final class VideoSurfaceUIView: UIView {
   }
 
   /// A player rendering video through a layer is paused by the system when the app
-  /// moves to the background. Detaching the layers while backgrounded keeps the
-  /// audio playing (opt-out via the settings toggle).
+  /// moves to the background. Detaching the layers while backgrounded keeps the audio
+  /// playing — a video always continues as audio in the background, like any other item.
   private func registerLifecycleObservers() {
     let center = NotificationCenter.default
 
@@ -275,10 +273,7 @@ final class VideoSurfaceUIView: UIView {
         object: nil,
         queue: .main
       ) { [weak self] _ in
-        guard
-          let self,
-          UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoBackgroundPlaybackEnabled)
-        else { return }
+        guard let self else { return }
 
         /// Leave the layers connected when PiP is taking over this surface —
         /// detaching here would cancel the automatic PiP start

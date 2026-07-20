@@ -59,7 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // install follows the system appearance instead of defaulting to light mode.
     UserDefaults.standard.register(defaults: [
       Constants.UserDefaults.systemThemeVariantEnabled: true,
-      Constants.UserDefaults.videoBackgroundPlaybackEnabled: true,
       Constants.UserDefaults.videoPictureInPictureEnabled: false,
     ])
 

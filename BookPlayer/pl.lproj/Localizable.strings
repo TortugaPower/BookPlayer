@@ -9,8 +9,6 @@
 "settings_boostvolume_description" = "Podwaja głośność. Używaj z rozwagą i troską o swój słuch.";
 "settings_globalspeed_title" = "Globalna Kontrola Prędkości";
 "settings_globalspeed_description" = "Ustaw prędkość dla wszystkich książek.";
-"settings_video_background_playback_title" = "Kontynuuj dźwięk wideo w tle";
-"settings_video_background_playback_description" = "Słuchaj dalej dźwięku wideo po opuszczeniu aplikacji lub zablokowaniu ekranu.";
 "settings_video_pip_title" = "Obraz w obrazie";
 "video_fullscreen_title" = "Pełny ekran";
 "settings_openplayer_launch_title" = "Otwórz odtwarzacz przy uruchomieniu";
