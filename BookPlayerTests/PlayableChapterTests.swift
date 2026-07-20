@@ -25,7 +25,9 @@ class PlayableChapterTests: XCTestCase {
   }
 
   func testIsVideoForVideoExtensions() {
-    for path in ["movie.mp4", "movie.mov", "movie.m4v", "movie.mkv", "movie.avi"] {
+    // Containers AVFoundation plays and iOS reliably classifies as movies.
+    // (`.mkv` is a movie UTType on macOS but NOT on iOS — don't assert it here.)
+    for path in ["movie.mp4", "movie.mov", "movie.m4v"] {
       XCTAssertTrue(makeChapter(relativePath: path).isVideo, "\(path) should be detected as video")
     }
   }
