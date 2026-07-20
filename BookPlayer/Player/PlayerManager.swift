@@ -1364,11 +1364,9 @@ extension PlayerManager {
       )
     else { return nil }
 
-    let fileExtension = nextBook.fileURL.pathExtension
-
-    /// Only check for audiovisual content if a file extension is present
-    if !fileExtension.isEmpty,
-      let fileType = UTType(filenameExtension: fileExtension),
+    /// Skip items whose type doesn't conform to audiovisual content. A file whose
+    /// extension maps to no `UTType` (or has none) is left as-is and played.
+    if let fileType = nextBook.fileURL.fileType,
       !fileType.isSubtype(of: .audiovisualContent)
     {
       return getNextPlayableBook(
@@ -1394,11 +1392,9 @@ extension PlayerManager {
       )
     else { return nil }
 
-    let fileExtension = nextChapter.fileURL.pathExtension
-
-    /// Only check for audiovisual content if a file extension is present
-    if !fileExtension.isEmpty,
-      let fileType = UTType(filenameExtension: fileExtension),
+    /// Skip chapters whose type doesn't conform to audiovisual content. A file whose
+    /// extension maps to no `UTType` (or has none) is left as-is and played.
+    if let fileType = nextChapter.fileURL.fileType,
       !fileType.isSubtype(of: .audiovisualContent)
     {
       return getNextPlayableChapter(

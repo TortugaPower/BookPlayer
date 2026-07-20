@@ -773,6 +773,7 @@
 		9F82DF9C27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */; };
 		9F89D89C27EDFCA400F73947 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */; };
 		9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */; };
+		232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */; };
 		9F9C7B5029F9670100E257B0 /* BookmarksResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */; };
 		9F9C7B5129F9670100E257B0 /* BookmarksResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */; };
 		9F9C7B5329F9672700E257B0 /* SyncableBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */; };
@@ -1723,6 +1724,7 @@
 		9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityService.swift; sourceTree = "<group>"; };
 		9F89D89B27EDFCA400F73947 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableItemTests.swift; sourceTree = "<group>"; };
+		689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayableChapterTests.swift; sourceTree = "<group>"; };
 		9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksResponse.swift; sourceTree = "<group>"; };
 		9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableBookmark.swift; sourceTree = "<group>"; };
 		9F9F3B6F280E4E4B004359DA /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
@@ -2274,6 +2276,7 @@
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
+				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
@@ -4865,6 +4868,7 @@
 				63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */,
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
+				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
