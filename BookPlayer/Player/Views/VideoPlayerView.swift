@@ -32,9 +32,6 @@ private extension Notification.Name {
 final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate, BPLogger {
   static let shared = VideoPiPCoordinator()
 
-  /// Resume audio-only playback after the PiP window is closed manually in the background
-  var onClosedInBackground: (() -> Void)?
-
   private var pipController: AVPictureInPictureController?
   private weak var hostSurface: VideoSurfaceUIView?
   private var isRestoringUserInterface = false
@@ -153,7 +150,10 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
       else { return }
 
       coordinator.hostSurface?.detachForBackgroundAudio()
-      coordinator.onClosedInBackground?()
+      /// Resume audio-only playback. Routed through a notification (PlayerManager
+      /// observes it) rather than a view-model-set closure, so the resume can't be
+      /// lost if the player screen's view model was torn down.
+      NotificationCenter.default.post(name: .videoPiPClosedInBackground, object: nil)
     }
   }
 }

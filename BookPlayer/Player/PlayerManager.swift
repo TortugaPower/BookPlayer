@@ -133,6 +133,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath)
         }
       }.store(in: &disposeBag)
+
+    /// The video's PiP window was closed manually while backgrounded — hand back to
+    /// audio-only playback. Observed here (a lifetime object) so the resume survives
+    /// even if the player screen's view model was torn down.
+    NotificationCenter.default.publisher(for: .videoPiPClosedInBackground)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.play()
+      }.store(in: &disposeBag)
   }
 
   func bindInterruptObserver() {

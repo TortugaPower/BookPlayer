@@ -44,13 +44,11 @@ final class PlayerViewModel: ObservableObject {
 
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
+  let playerManager: PlayerManager
   let syncService: SyncServiceProtocol
-  /// Concrete manager reference, only for accessing the player to render video tracks
-  private let videoPlayerManager: PlayerManager
 
   var videoPlayer: AVPlayer {
-    videoPlayerManager.getAVPlayer()
+    playerManager.getAVPlayer()
   }
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
@@ -118,7 +116,6 @@ final class PlayerViewModel: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
-    self.videoPlayerManager = playerManager
     self.syncService = syncService
     let sharedDefaults = UserDefaults.sharedDefaults
     self.prefersChapterContext = sharedDefaults.bool(forKey: Constants.UserDefaults.chapterContextEnabled)
@@ -132,11 +129,6 @@ final class PlayerViewModel: ObservableObject {
     bindBookPlayingProgressEvents()
     bindNotificationSubscribers()
     bindBookSharedObservers()
-
-    /// Closing the PiP window manually mid-playback hands off to audio-only playback
-    VideoPiPCoordinator.shared.onClosedInBackground = { [weak self] in
-      self?.playerManager.play()
-    }
   }
   
   func bindBookSharedObservers() {
