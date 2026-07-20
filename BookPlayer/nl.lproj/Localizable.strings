@@ -9,8 +9,9 @@
 "settings_boostvolume_description" = "Verdubbelt het volume. \n Wees voorzichtig en zorg voor uw gehoor.";
 "settings_globalspeed_title" = "Globale snelheidsregeling";
 "settings_globalspeed_description" = "Stel snelheid in voor alle boeken.";
+"settings_video_enabled_title" = "Video tonen";
+"settings_video_enabled_description" = "Toont het beeld terwijl een video wordt afgespeeld. Schakel dit uit om alleen de audio af te spelen en in plaats daarvan het omslag te tonen.";
 "settings_video_pip_title" = "Beeld in beeld";
-"settings_video_pip_description" = "Blijf een video in een zwevend venster bekijken wanneer je de app verlaat.";
 "video_fullscreen_title" = "Volledig scherm";
 "settings_openplayer_launch_title" = "Speler openen bij opstarten";
 "settings_carplay_showplayer_title" = "Speler tonen bij CarPlay-verbinding";

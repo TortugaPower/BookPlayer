@@ -9,8 +9,9 @@
 "settings_boostvolume_description" = "将音量加倍。 \n请谨慎使用并避免影响听力。";
 "settings_globalspeed_title" = "全局播放速度";
 "settings_globalspeed_description" = "在所有有声书中使用同一播放速度。";
+"settings_video_enabled_title" = "显示视频";
+"settings_video_enabled_description" = "播放视频时显示画面。关闭后将仅播放音频，并改为显示封面。";
 "settings_video_pip_title" = "画中画";
-"settings_video_pip_description" = "离开应用时，在悬浮窗中继续观看视频。";
 "video_fullscreen_title" = "全屏";
 "settings_openplayer_launch_title" = "启动时打开播放器";
 "settings_carplay_showplayer_title" = "连接 CarPlay 时显示播放器";

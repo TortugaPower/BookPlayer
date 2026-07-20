@@ -18,11 +18,11 @@ struct SettingsPlayerControlsView: View {
       AutoSleepTimerSectionView()
       BoostVolumeSectionView()
       GlobalSpeedSectionView()
-      VideoPlaybackSectionView()
       ProgressSeekingSectionView()
       ListOptionsSectionView()
       ProgressLabelsSectionView()
       StartupPlayerSectionView()
+      VideoPlaybackSectionView()
     }
     .environmentObject(theme)
     .scrollContentBackground(.hidden)

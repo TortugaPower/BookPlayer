@@ -285,18 +285,34 @@ final class PlayerViewModel: ObservableObject {
         }
 
         self?.relativePath = relativePath
-        self?.isVideoItem = chapter?.isVideo ?? false
+        let renderVideo = (self?.isVideoEnabled ?? false) && (chapter?.isVideo ?? false)
+        self?.isVideoItem = renderVideo
 
-        /// Switching to a non-video item dismisses the Picture in Picture window
-        if chapter?.isVideo != true {
+        /// A non-video item — or video rendering turned off — dismisses the PiP window
+        if !renderVideo {
           VideoPiPCoordinator.shared.stop()
         }
       }
   }
   
-  func presentVideoFullscreen(from sourceFrame: CGRect) {
-    VideoFullscreenPresenter.present(player: videoPlayer, from: sourceFrame) { [weak self] in
-      self?.playerManager.playPause()
+  /// Whether video rendering is enabled in Settings (off by default — audiobook-first,
+  /// and keeping it off preserves the artwork + VoiceOver title/author label for video items)
+  private var isVideoEnabled: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoEnabled)
+  }
+
+  func playPause() {
+    playerManager.playPause()
+  }
+
+  /// Re-evaluate whether to render video for the current chapter — e.g. after the
+  /// "Show Video" setting was toggled while away from the player screen.
+  func refreshVideoState() {
+    let chapter = playerManager.currentItem?.currentChapter
+    let renderVideo = isVideoEnabled && (chapter?.isVideo ?? false)
+    isVideoItem = renderVideo
+    if !renderVideo {
+      VideoPiPCoordinator.shared.stop()
     }
   }
 

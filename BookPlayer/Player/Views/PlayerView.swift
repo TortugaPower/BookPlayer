@@ -42,7 +42,9 @@ struct PlayerView: View {
         Group {
           if viewModel.isVideoItem {
             VideoArtworkView(player: viewModel.videoPlayer) { sourceFrame in
-              viewModel.presentVideoFullscreen(from: sourceFrame)
+              VideoFullscreenPresenter.present(player: viewModel.videoPlayer, from: sourceFrame) {
+                viewModel.playPause()
+              }
             }
           } else {
             ArtworkView(
@@ -137,6 +139,7 @@ struct PlayerView: View {
       viewModel.bindBookObservers()
       viewModel.handleAutolockStatus(forceDisable: false)
       viewModel.recalculateProgress()
+      viewModel.refreshVideoState()
     }
     .onDisappear {
       viewModel.handleAutolockStatus(forceDisable: true)

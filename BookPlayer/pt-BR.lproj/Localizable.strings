@@ -9,8 +9,9 @@
 "settings_boostvolume_description" = "Dobra o volume.\nUse com cautela e cuidado com sua audição.";
 "settings_globalspeed_title" = "Controle de Velocidade Global";
 "settings_globalspeed_description" = "Defina a velocidade em todos os livros.";
+"settings_video_enabled_title" = "Mostrar vídeo";
+"settings_video_enabled_description" = "Mostra a imagem enquanto um vídeo é reproduzido. Desative para reproduzir apenas o áudio, exibindo a capa no lugar.";
 "settings_video_pip_title" = "Picture in Picture";
-"settings_video_pip_description" = "Continue assistindo a um vídeo em uma janela flutuante ao sair do aplicativo.";
 "video_fullscreen_title" = "Tela cheia";
 "settings_openplayer_launch_title" = "Abrir o player ao iniciar";
 "settings_carplay_showplayer_title" = "Mostrar o player ao conectar ao CarPlay";

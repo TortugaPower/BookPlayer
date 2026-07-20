@@ -9,8 +9,9 @@
 "settings_boostvolume_description" = "Zdvojnásobí hlasitosť prehrávania.\nPoužívajte opatrne a chráňte si svoj sluch.";
 "settings_globalspeed_title" = "Globálne ovládanie rýchlosti";
 "settings_globalspeed_description" = "Nastaví rýchlosť prehrávania pre všetky knihy.";
+"settings_video_enabled_title" = "Zobraziť video";
+"settings_video_enabled_description" = "Zobrazí obraz počas prehrávania videa. Vypnutím prehráte iba zvuk a namiesto videa sa zobrazí obal.";
 "settings_video_pip_title" = "Obraz v obraze";
-"settings_video_pip_description" = "Pokračujte v sledovaní videa v plávajúcom okne, keď opustíte aplikáciu.";
 "video_fullscreen_title" = "Celá obrazovka";
 "settings_openplayer_launch_title" = "Otvoriť prehrávač pri spustení";
 "settings_carplay_showplayer_title" = "Zobraziť prehrávač pri pripojení CarPlay";
