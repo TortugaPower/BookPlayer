@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Παγκόσμιος έλεγχος ταχύτητας";
 "settings_globalspeed_description" = "Ρυθμίστε την ταχύτητα σε όλα τα βιβλία.";
 "settings_video_pip_title" = "Εικόνα εντός εικόνας";
+"settings_video_pip_description" = "Συνεχίστε να παρακολουθείτε ένα βίντεο σε ένα αιωρούμενο παράθυρο όταν φεύγετε από την εφαρμογή.";
 "video_fullscreen_title" = "Πλήρης οθόνη";
 "settings_openplayer_launch_title" = "Άνοιγμα αναπαραγωγής κατά την εκκίνηση";
 "settings_carplay_showplayer_title" = "Εμφάνιση αναπαραγωγής κατά τη σύνδεση με CarPlay";

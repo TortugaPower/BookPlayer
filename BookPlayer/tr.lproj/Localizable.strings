@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Evrensel Hız Kontrolü";
 "settings_globalspeed_description" = "Tüm kitaplarda hızı ayarlayın.";
 "settings_video_pip_title" = "Resim İçinde Resim";
+"settings_video_pip_description" = "Uygulamadan çıktığınızda videoyu kayan bir pencerede izlemeye devam edin.";
 "video_fullscreen_title" = "Tam Ekran";
 "settings_openplayer_launch_title" = "Başlangıçta oynatıcıyı aç";
 "settings_carplay_showplayer_title" = "CarPlay bağlantısında oynatıcıyı göster";

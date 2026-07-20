@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Global hastighetskontroll";
 "settings_globalspeed_description" = "Angi hastighet for alle bøker.";
 "settings_video_pip_title" = "Bilde i bilde";
+"settings_video_pip_description" = "Fortsett å se en video i et flytende vindu når du forlater appen.";
 "video_fullscreen_title" = "Fullskjerm";
 "settings_openplayer_launch_title" = "Åpne spilleren ved oppstart";
 "settings_carplay_showplayer_title" = "Vis spilleren ved CarPlay-tilkobling";

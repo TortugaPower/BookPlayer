@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Yleinen nopeudenhallinta";
 "settings_globalspeed_description" = "Aseta nopeus kaikille kirjoille.";
 "settings_video_pip_title" = "Kuva kuvassa";
+"settings_video_pip_description" = "Jatka videon katselua kelluvassa ikkunassa, kun poistut sovelluksesta.";
 "video_fullscreen_title" = "Koko näyttö";
 "settings_openplayer_launch_title" = "Avaa soitin käynnistettäessä";
 "settings_carplay_showplayer_title" = "Näytä soitin CarPlay-yhteyden yhteydessä";

@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
 "settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
 "settings_video_pip_title" = "Obraz v obraze";
+"settings_video_pip_description" = "Pokračovat ve sledování videa v plovoucím okně, když opustíte aplikaci.";
 "video_fullscreen_title" = "Celá obrazovka";
 "settings_openplayer_launch_title" = "Otevřít přehrávač při spuštění";
 "settings_carplay_showplayer_title" = "Zobrazit přehrávač při připojení CarPlay";

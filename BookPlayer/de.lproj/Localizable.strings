@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Abspielgeschwindigkeit übergreifend festlegen";
 "settings_globalspeed_description" = "Jedes Buch wird mit der gleichen Geschwindigkeit abgespielt.";
 "settings_video_pip_title" = "Bild in Bild";
+"settings_video_pip_description" = "Ein Video in einem schwebenden Fenster weiterschauen, wenn du die App verlässt.";
 "video_fullscreen_title" = "Vollbild";
 "settings_openplayer_launch_title" = "Player beim Start öffnen";
 "settings_carplay_showplayer_title" = "Player bei CarPlay-Verbindung anzeigen";

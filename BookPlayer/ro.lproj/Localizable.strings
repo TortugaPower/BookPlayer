@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Controlul global al vitezei";
 "settings_globalspeed_description" = "Setați viteza în toate cărțile.";
 "settings_video_pip_title" = "Imagine în imagine";
+"settings_video_pip_description" = "Continuați să vizionați un videoclip într-o fereastră flotantă când părăsiți aplicația.";
 "video_fullscreen_title" = "Ecran complet";
 "settings_openplayer_launch_title" = "Deschide playerul la pornire";
 "settings_carplay_showplayer_title" = "Afișează playerul la conectarea CarPlay";

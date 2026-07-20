@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Global Uppspelningshastighet";
 "settings_globalspeed_description" = "Ange uppspelningshastighet för alla böcker.";
 "settings_video_pip_title" = "Bild-i-bild";
+"settings_video_pip_description" = "Fortsätt titta på en video i ett flytande fönster när du lämnar appen.";
 "video_fullscreen_title" = "Helskärm";
 "settings_openplayer_launch_title" = "Öppna spelaren vid start";
 "settings_carplay_showplayer_title" = "Visa spelaren vid CarPlay-anslutning";

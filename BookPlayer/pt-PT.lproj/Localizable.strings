@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "Controlo da Velocidade Global";
 "settings_globalspeed_description" = "Definição da velocidade para todos os livros.";
 "settings_video_pip_title" = "Imagem na imagem";
+"settings_video_pip_description" = "Continue a ver um vídeo numa janela flutuante ao sair da aplicação.";
 "video_fullscreen_title" = "Ecrã completo";
 "settings_openplayer_launch_title" = "Abrir o leitor ao iniciar";
 "settings_carplay_showplayer_title" = "Mostrar o leitor ao ligar ao CarPlay";

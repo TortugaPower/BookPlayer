@@ -10,6 +10,7 @@
 "settings_globalspeed_title" = "再生速度の共通設定";
 "settings_globalspeed_description" = "すべてのブックに速度を設定します。";
 "settings_video_pip_title" = "ピクチャインピクチャ";
+"settings_video_pip_description" = "アプリを離れても、フローティングウィンドウで動画の再生を続けます。";
 "video_fullscreen_title" = "フルスクリーン";
 "settings_openplayer_launch_title" = "起動時にプレーヤーを開く";
 "settings_carplay_showplayer_title" = "CarPlay接続時にプレーヤーを表示";
