@@ -33,11 +33,6 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
   static let shared = VideoPiPCoordinator()
 
   private var pipController: AVPictureInPictureController?
-  private weak var hostSurface: VideoSurfaceUIView?
-  private var isRestoringUserInterface = false
-  /// A stop we triggered ourselves (book end, switching to a non-video item) — as
-  /// opposed to the user closing the PiP window — must NOT hand off to audio-only playback
-  private var isStoppingProgrammatically = false
   private var bookEndObserver: NSObjectProtocol?
 
   var isActive: Bool {
@@ -65,7 +60,7 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     }
   }
 
-  func host(_ surface: VideoSurfaceUIView, playerLayer: AVPlayerLayer) {
+  func host(playerLayer: AVPlayerLayer) {
     guard isEnabled else {
       release(playerLayer: playerLayer)
       return
@@ -81,9 +76,6 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     controller.canStartPictureInPictureAutomaticallyFromInline = true
     controller.delegate = self
     pipController = controller
-    hostSurface = surface
-    /// Fresh session — no stop is in flight, so start from a clean flag
-    isStoppingProgrammatically = false
   }
 
   func release(playerLayer: AVPlayerLayer) {
@@ -91,19 +83,11 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
 
     pipController?.delegate = nil
     pipController = nil
-    hostSurface = nil
-    /// Once the controller is gone, `didStop` can no longer reset this flag. Clear it
-    /// here so a programmatic stop that tore the controller down before its callback
-    /// arrived can't leak into the next session and misclassify a real user close.
-    isStoppingProgrammatically = false
   }
 
   func stop() {
     guard isActive else { return }
 
-    /// Flag the programmatic stop so `didStop` skips the audio-only handoff below —
-    /// only a user-initiated close should resume playback
-    isStoppingProgrammatically = true
     pipController?.stopPictureInPicture()
   }
 
@@ -116,45 +100,16 @@ final class VideoPiPCoordinator: NSObject, AVPictureInPictureControllerDelegate,
     Self.logger.error("PiP: failed to start: \(error.localizedDescription)")
   }
 
-  /// The user tapped the PiP window: the system brings the app back up, with the
-  /// player screen still presented (PiP can only have started from it)
+  /// The user tapped "return to app" on the PiP window. The player screen is still
+  /// presented (PiP can only have started from it), so there's nothing to restore —
+  /// just report completion so the system finishes stopping PiP. Playback continues.
+  /// Closing the window instead (✕) stops PiP with no restore, and the system pauses
+  /// playback — the intended behavior: closing the video means "stop", not "keep listening".
   nonisolated func pictureInPictureController(
     _ pictureInPictureController: AVPictureInPictureController,
     restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
   ) {
-    Task { @MainActor in
-      Self.shared.isRestoringUserInterface = true
-      completionHandler(true)
-    }
-  }
-
-  nonisolated func pictureInPictureControllerDidStopPictureInPicture(
-    _ pictureInPictureController: AVPictureInPictureController
-  ) {
-    Task { @MainActor in
-      let coordinator = Self.shared
-      defer {
-        coordinator.isRestoringUserInterface = false
-        coordinator.isStoppingProgrammatically = false
-      }
-
-      /// Manual close (no UI restore) while backgrounded: hand off to audio-only playback.
-      /// The layers must disconnect first, otherwise the system pauses again as soon
-      /// as the video returns to the (backgrounded) inline surface.
-      /// A programmatic stop (book end, non-video switch) must not trigger this — it
-      /// would resume playback in the background right after the book/video ended.
-      guard
-        !coordinator.isRestoringUserInterface,
-        !coordinator.isStoppingProgrammatically,
-        UIApplication.shared.applicationState != .active
-      else { return }
-
-      coordinator.hostSurface?.detachForBackgroundAudio()
-      /// Resume audio-only playback. Routed through a notification (PlayerManager
-      /// observes it) rather than a view-model-set closure, so the resume can't be
-      /// lost if the player screen's view model was torn down.
-      NotificationCenter.default.post(name: .videoPiPClosedInBackground, object: nil)
-    }
+    completionHandler(true)
   }
 }
 
@@ -223,17 +178,11 @@ final class VideoSurfaceUIView: UIView {
 
     if hostsPictureInPicture {
       if player != nil {
-        VideoPiPCoordinator.shared.host(self, playerLayer: foregroundVideoView.playerLayer)
+        VideoPiPCoordinator.shared.host(playerLayer: foregroundVideoView.playerLayer)
       } else {
         VideoPiPCoordinator.shared.release(playerLayer: foregroundVideoView.playerLayer)
       }
     }
-  }
-
-  /// Disconnect the layers while keeping the attached player reference, so audio
-  /// keeps playing in the background and the foreground observer reconnects later
-  func detachForBackgroundAudio() {
-    connectLayers(to: nil)
   }
 
   /// Force the layers to re-associate with the attached player. Setting the same

@@ -14,7 +14,4 @@ extension Notification.Name {
   static let downloadEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.end")
   static let requestReview = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).requestreview")
   static let donationMade = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).donation.made")
-  /// Posted when the video's Picture in Picture window is closed manually while backgrounded,
-  /// so PlayerManager can resume audio-only playback.
-  static let videoPiPClosedInBackground = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).video.pip.closed")
 }
