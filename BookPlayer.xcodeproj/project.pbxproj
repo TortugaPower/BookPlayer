@@ -669,7 +669,10 @@
 		99329DBB2F3AAA61003F8E73 /* ListeningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */; };
 		99329DBD2F3AAAB4003F8E73 /* NavigationRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */; };
 		99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */; };
-		99329DD12F87AA10003F8E73 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */; };
+		F2535BF980A548BFB9D3E8C1 /* VideoPiPCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2EA56C448451F969BC0E2AB /* VideoPiPCoordinator.swift */; };
+		A7A0756EBA206652A801B9D3 /* VideoPlayerSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2107EC31217A7421B2BA6A /* VideoPlayerSurface.swift */; };
+		9305492473601C69B999F588 /* VideoArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD948B0DFDC349DADE2A3D8 /* VideoArtworkView.swift */; };
+		D8886C9E9E2A183454C625CC /* VideoFullscreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */; };
 		99329DD32F87AA24003F8E73 /* VideoPlaybackSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DD22F87AA24003F8E73 /* VideoPlaybackSectionView.swift */; };
 		99329DC12F3AAB57003F8E73 /* DismissableRegionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */; };
 		99329DC32F3AABC7003F8E73 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99329DC22F3AABC7003F8E73 /* PlayerView.swift */; };
@@ -1632,7 +1635,10 @@
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
 		99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRowView.swift; sourceTree = "<group>"; };
 		99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkView.swift; sourceTree = "<group>"; };
-		99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
+		D2EA56C448451F969BC0E2AB /* VideoPiPCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPiPCoordinator.swift; sourceTree = "<group>"; };
+		CD2107EC31217A7421B2BA6A /* VideoPlayerSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerSurface.swift; sourceTree = "<group>"; };
+		BCD948B0DFDC349DADE2A3D8 /* VideoArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoArtworkView.swift; sourceTree = "<group>"; };
+		F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoFullscreenViewController.swift; sourceTree = "<group>"; };
 		99329DD22F87AA24003F8E73 /* VideoPlaybackSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlaybackSectionView.swift; sourceTree = "<group>"; };
 		99329DC02F3AAB57003F8E73 /* DismissableRegionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissableRegionView.swift; sourceTree = "<group>"; };
 		99329DC22F3AABC7003F8E73 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
@@ -2035,6 +2041,17 @@
 				63652C722E6E8A9700231202 /* ChaptersView.swift */,
 			);
 			path = Chapters;
+			sourceTree = "<group>";
+		};
+		37E1FE16AFC39AC084B9D36A /* Video */ = {
+			isa = PBXGroup;
+			children = (
+				BCD948B0DFDC349DADE2A3D8 /* VideoArtworkView.swift */,
+				CD2107EC31217A7421B2BA6A /* VideoPlayerSurface.swift */,
+				D2EA56C448451F969BC0E2AB /* VideoPiPCoordinator.swift */,
+				F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */,
+			);
+			path = Video;
 			sourceTree = "<group>";
 		};
 		41188D2626ED4D470017124E /* ItemList */ = {
@@ -3198,7 +3215,7 @@
 				99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */,
 				99329DBC2F3AAAB4003F8E73 /* NavigationRowView.swift */,
 				99329DBE2F3AAB24003F8E73 /* ArtworkView.swift */,
-				99329DD02F87AA10003F8E73 /* VideoPlayerView.swift */,
+				37E1FE16AFC39AC084B9D36A /* Video */,
 				99329DC22F3AABC7003F8E73 /* PlayerView.swift */,
 				99329DC42F3AE9C4003F8E73 /* PlayerJumpView.swift */,
 				99329DC62F3AF3B6003F8E73 /* BubbleButton.swift */,
@@ -4706,7 +4723,10 @@
 				9F00A5FA294F8BFE005EA316 /* ClearableTextField.swift in Sources */,
 				635771D62F378EE800BB5F59 /* ThemedSection.swift in Sources */,
 				99329DBF2F3AAB24003F8E73 /* ArtworkView.swift in Sources */,
-				99329DD12F87AA10003F8E73 /* VideoPlayerView.swift in Sources */,
+				F2535BF980A548BFB9D3E8C1 /* VideoPiPCoordinator.swift in Sources */,
+				A7A0756EBA206652A801B9D3 /* VideoPlayerSurface.swift in Sources */,
+				9305492473601C69B999F588 /* VideoArtworkView.swift in Sources */,
+				D8886C9E9E2A183454C625CC /* VideoFullscreenViewController.swift in Sources */,
 				99329DD32F87AA24003F8E73 /* VideoPlaybackSectionView.swift in Sources */,
 				63652C732E6E8A9700231202 /* ChaptersView.swift in Sources */,
 				634BA5AD2C180F5E0015314D /* StoryViewModel.swift in Sources */,

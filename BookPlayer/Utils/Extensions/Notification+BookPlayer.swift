@@ -14,4 +14,8 @@ extension Notification.Name {
   static let downloadEnd = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).download.end")
   static let requestReview = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).requestreview")
   static let donationMade = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).donation.made")
+  /// Posted when the fullscreen video controller finishes tearing down. The inline
+  /// surface shares the same `AVPlayer`; the fullscreen surface takes over its video
+  /// output, so the inline surface must reclaim rendering once fullscreen is gone.
+  static let videoFullscreenDidDismiss = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).video.fullscreen.dismissed")
 }
