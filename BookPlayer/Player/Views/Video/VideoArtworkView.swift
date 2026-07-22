@@ -6,16 +6,12 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import AVFoundation
 import BookPlayerKit
 import SwiftUI
 
 /// Takes the artwork's place in the player screen when the current chapter is a video
 struct VideoArtworkView: View {
-  let player: AVPlayer
-  /// Receives the container's frame in global coordinates, so the fullscreen
-  /// transition can animate from the video's exact on-screen position
-  let onFullscreenTap: (CGRect) -> Void
+  @EnvironmentObject private var playerManager: PlayerManager
 
   @State private var containerFrame: CGRect = .zero
   @State private var controlsVisible = true
@@ -26,7 +22,7 @@ struct VideoArtworkView: View {
       Color.clear
         .aspectRatio(1, contentMode: .fit)
 
-      VideoPlayerSurface(player: player, hostsPictureInPicture: true)
+      VideoPlayerSurface(player: playerManager.getAVPlayer(), hostsPictureInPicture: true)
         .contentShape(Rectangle())
         .onTapGesture {
           withAnimation(.easeInOut(duration: 0.2)) {
@@ -39,7 +35,7 @@ struct VideoArtworkView: View {
           Spacer()
 
           Button {
-            onFullscreenTap(containerFrame)
+            VideoFullscreenPresenter.present(playerManager: playerManager, from: containerFrame)
           } label: {
             Image(systemName: "arrow.up.left.and.arrow.down.right")
               .resizable()

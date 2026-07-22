@@ -41,12 +41,7 @@ struct PlayerView: View {
       VStack {
         Group {
           if viewModel.isVideoItem {
-            VideoArtworkView(player: viewModel.videoPlayer) { sourceFrame in
-              VideoFullscreenPresenter.present(
-                playerManager: viewModel.playerManager,
-                from: sourceFrame
-              )
-            }
+            VideoArtworkView()
           } else {
             ArtworkView(
               title: viewModel.title,

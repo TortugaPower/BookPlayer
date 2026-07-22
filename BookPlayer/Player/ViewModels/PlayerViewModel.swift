@@ -6,7 +6,6 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import AVFoundation
 import BookPlayerKit
 import Combine
 import SwiftUI
@@ -46,10 +45,6 @@ final class PlayerViewModel: ObservableObject {
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManager
   let syncService: SyncServiceProtocol
-
-  var videoPlayer: AVPlayer {
-    playerManager.getAVPlayer()
-  }
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
   private var isSliderDragging = false
