@@ -8,6 +8,7 @@
 
 import AVFoundation
 import BookPlayerKit
+import Combine
 import UIKit
 
 /// YouTube-style fullscreen: the system rotation to landscape IS the entry animation —
@@ -18,6 +19,9 @@ import UIKit
 final class VideoFullscreenViewController: UIViewController {
   private let player: AVPlayer
   private let sourceFrame: CGRect
+  /// The player's canonical "is playing" stream — covers the buffering / queued-to-play
+  /// window and survives player recreation, unlike KVO on a single AVPlayer instance
+  private let isPlayingPublisher: AnyPublisher<Bool, Never>
   private let onPlayPause: () -> Void
   /// Rotating container: holds the surface AND the controls, so buttons live in
   /// the video's coordinate space and land in the right corners when the phone
@@ -27,7 +31,7 @@ final class VideoFullscreenViewController: UIViewController {
   private let dimView = UIView()
   private let closeButton = UIButton(type: .system)
   private let playPauseButton = UIButton(type: .system)
-  private var timeControlObservation: NSKeyValueObservation?
+  private var playbackStateCancellable: AnyCancellable?
   private var controlsVisible = true
   private var hasAnimatedIn = false
 
@@ -45,9 +49,15 @@ final class VideoFullscreenViewController: UIViewController {
   /// enter/close flow via `setNeedsUpdateOfSupportedInterfaceOrientations`
   private var lockedOrientations: UIInterfaceOrientationMask
 
-  init(player: AVPlayer, sourceFrame: CGRect, onPlayPause: @escaping () -> Void) {
+  init(
+    player: AVPlayer,
+    sourceFrame: CGRect,
+    isPlaying: AnyPublisher<Bool, Never>,
+    onPlayPause: @escaping () -> Void
+  ) {
     self.player = player
     self.sourceFrame = sourceFrame
+    self.isPlayingPublisher = isPlaying
     self.onPlayPause = onPlayPause
 
     switch WindowHelper.activeWindow?.windowScene?.interfaceOrientation {
@@ -137,12 +147,12 @@ final class VideoFullscreenViewController: UIViewController {
       playPauseButton.heightAnchor.constraint(equalToConstant: 72),
     ])
 
-    /// Keep the play/pause icon in sync with the actual playback state
-    timeControlObservation = player.observe(\.timeControlStatus, options: [.initial]) { [weak self] _, _ in
-      DispatchQueue.main.async {
-        self?.updatePlayPauseIcon()
+    /// Keep the play/pause icon in sync with the player's canonical playing state
+    playbackStateCancellable = isPlayingPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] isPlaying in
+        self?.updatePlayPauseIcon(isPlaying: isPlaying)
       }
-    }
 
     let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
     tapRecognizer.cancelsTouchesInView = false
@@ -150,8 +160,7 @@ final class VideoFullscreenViewController: UIViewController {
     view.addGestureRecognizer(tapRecognizer)
   }
 
-  private func updatePlayPauseIcon() {
-    let isPlaying = player.timeControlStatus != .paused
+  private func updatePlayPauseIcon(isPlaying: Bool) {
     playPauseButton.configuration?.image = UIImage(
       systemName: isPlaying ? "pause.fill" : "play.fill",
       withConfiguration: UIImage.SymbolConfiguration(pointSize: 28, weight: .semibold)
@@ -317,7 +326,12 @@ extension VideoFullscreenViewController: UIGestureRecognizerDelegate {
 
 @MainActor
 enum VideoFullscreenPresenter {
-  static func present(player: AVPlayer, from sourceFrame: CGRect, onPlayPause: @escaping () -> Void) {
+  static func present(
+    player: AVPlayer,
+    from sourceFrame: CGRect,
+    isPlaying: AnyPublisher<Bool, Never>,
+    onPlayPause: @escaping () -> Void
+  ) {
     let fallbackWindow = UIApplication.shared.connectedScenes
       .compactMap { ($0 as? UIWindowScene)?.windows.first }
       .first
@@ -334,6 +348,7 @@ enum VideoFullscreenPresenter {
     let controller = VideoFullscreenViewController(
       player: player,
       sourceFrame: sourceFrame,
+      isPlaying: isPlaying,
       onPlayPause: onPlayPause
     )
     topController.present(controller, animated: false)

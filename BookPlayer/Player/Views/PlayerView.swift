@@ -42,7 +42,11 @@ struct PlayerView: View {
         Group {
           if viewModel.isVideoItem {
             VideoArtworkView(player: viewModel.videoPlayer) { sourceFrame in
-              VideoFullscreenPresenter.present(player: viewModel.videoPlayer, from: sourceFrame) {
+              VideoFullscreenPresenter.present(
+                player: viewModel.videoPlayer,
+                from: sourceFrame,
+                isPlaying: viewModel.playerManager.isPlayingPublisher()
+              ) {
                 viewModel.playPause()
               }
             }
