@@ -293,10 +293,6 @@ final class PlayerViewModel: ObservableObject {
     UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoEnabled)
   }
 
-  func playPause() {
-    playerManager.playPause()
-  }
-
   /// Re-evaluate whether to render video for the current chapter — e.g. after the
   /// "Show Video" setting was toggled while away from the player screen.
   func refreshVideoState() {

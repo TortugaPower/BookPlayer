@@ -6,7 +6,6 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-import AVFoundation
 import BookPlayerKit
 import Combine
 import UIKit
@@ -17,12 +16,10 @@ import UIKit
 /// happen as one continuous motion. Closing rides the rotation back to portrait the
 /// same way. When the interface is already landscape, the surface just expands in place.
 final class VideoFullscreenViewController: UIViewController {
-  private let player: AVPlayer
+  /// The shared player manager — source of the video track, the canonical isPlaying
+  /// stream, and play/pause control (never drive the raw AVPlayer directly)
+  private let playerManager: PlayerManager
   private let sourceFrame: CGRect
-  /// The player's canonical "is playing" stream — covers the buffering / queued-to-play
-  /// window and survives player recreation, unlike KVO on a single AVPlayer instance
-  private let isPlayingPublisher: AnyPublisher<Bool, Never>
-  private let onPlayPause: () -> Void
   /// Rotating container: holds the surface AND the controls, so buttons live in
   /// the video's coordinate space and land in the right corners when the phone
   /// is held horizontally
@@ -49,16 +46,9 @@ final class VideoFullscreenViewController: UIViewController {
   /// enter/close flow via `setNeedsUpdateOfSupportedInterfaceOrientations`
   private var lockedOrientations: UIInterfaceOrientationMask
 
-  init(
-    player: AVPlayer,
-    sourceFrame: CGRect,
-    isPlaying: AnyPublisher<Bool, Never>,
-    onPlayPause: @escaping () -> Void
-  ) {
-    self.player = player
+  init(playerManager: PlayerManager, sourceFrame: CGRect) {
+    self.playerManager = playerManager
     self.sourceFrame = sourceFrame
-    self.isPlayingPublisher = isPlaying
-    self.onPlayPause = onPlayPause
 
     switch WindowHelper.activeWindow?.windowScene?.interfaceOrientation {
     case .landscapeLeft:
@@ -102,7 +92,7 @@ final class VideoFullscreenViewController: UIViewController {
     contentContainer.layer.masksToBounds = true
     view.addSubview(contentContainer)
 
-    surface.attach(player)
+    surface.attach(playerManager.getAVPlayer())
     surface.frame = contentContainer.bounds
     surface.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     contentContainer.addSubview(surface)
@@ -148,7 +138,7 @@ final class VideoFullscreenViewController: UIViewController {
     ])
 
     /// Keep the play/pause icon in sync with the player's canonical playing state
-    playbackStateCancellable = isPlayingPublisher
+    playbackStateCancellable = playerManager.isPlayingPublisher()
       .receive(on: DispatchQueue.main)
       .sink { [weak self] isPlaying in
         self?.updatePlayPauseIcon(isPlaying: isPlaying)
@@ -171,7 +161,7 @@ final class VideoFullscreenViewController: UIViewController {
   }
 
   @objc private func togglePlayPause() {
-    onPlayPause()
+    playerManager.playPause()
   }
 
   @objc private func toggleControls() {
@@ -326,12 +316,7 @@ extension VideoFullscreenViewController: UIGestureRecognizerDelegate {
 
 @MainActor
 enum VideoFullscreenPresenter {
-  static func present(
-    player: AVPlayer,
-    from sourceFrame: CGRect,
-    isPlaying: AnyPublisher<Bool, Never>,
-    onPlayPause: @escaping () -> Void
-  ) {
+  static func present(playerManager: PlayerManager, from sourceFrame: CGRect) {
     let fallbackWindow = UIApplication.shared.connectedScenes
       .compactMap { ($0 as? UIWindowScene)?.windows.first }
       .first
@@ -346,10 +331,8 @@ enum VideoFullscreenPresenter {
     }
 
     let controller = VideoFullscreenViewController(
-      player: player,
-      sourceFrame: sourceFrame,
-      isPlaying: isPlaying,
-      onPlayPause: onPlayPause
+      playerManager: playerManager,
+      sourceFrame: sourceFrame
     )
     topController.present(controller, animated: false)
   }

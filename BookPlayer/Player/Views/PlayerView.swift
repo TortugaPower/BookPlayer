@@ -43,12 +43,9 @@ struct PlayerView: View {
           if viewModel.isVideoItem {
             VideoArtworkView(player: viewModel.videoPlayer) { sourceFrame in
               VideoFullscreenPresenter.present(
-                player: viewModel.videoPlayer,
-                from: sourceFrame,
-                isPlaying: viewModel.playerManager.isPlayingPublisher()
-              ) {
-                viewModel.playPause()
-              }
+                playerManager: viewModel.playerManager,
+                from: sourceFrame
+              )
             }
           } else {
             ArtworkView(
