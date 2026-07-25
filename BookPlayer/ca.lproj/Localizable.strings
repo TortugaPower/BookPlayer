@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Dobla el volum.\nFeu servir amb precaució i cura de la vostra audició.";
 "settings_globalspeed_title" = "Control global de velocitat";
 "settings_globalspeed_description" = "Estableix velocitat en tots els llibres.";
+"settings_video_enabled_title" = "Mostra el vídeo";
+"settings_video_enabled_description" = "Mostra la imatge mentre es reprodueix un vídeo. Desactiva-ho per reproduir només l'àudio i mostrar la caràtula en el seu lloc.";
+"settings_video_pip_title" = "Imatge dins la imatge";
+"video_fullscreen_title" = "Pantalla completa";
 "settings_openplayer_launch_title" = "Obre el reproductor en iniciar";
 "settings_carplay_showplayer_title" = "Mostra el reproductor en connectar CarPlay";
 "settings_startupplayer_description" = "Obre el reproductor amb l'últim llibre escoltat en iniciar l'aplicació o connectar-te a CarPlay. A CarPlay, això interromp l'àudio que s'estigui reproduint en altres aplicacions.";

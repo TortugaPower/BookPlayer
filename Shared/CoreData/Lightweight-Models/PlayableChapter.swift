@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 public struct PlayableChapter: Codable, Identifiable {
   public var id: String {
@@ -27,6 +28,13 @@ public struct PlayableChapter: Codable, Identifiable {
 
   public var fileURL: URL {
     return DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+  }
+
+  /// Whether the chapter's file is a video, based on its file extension.
+  /// Derives the type from `relativePath` directly rather than `fileURL`, which
+  /// would resolve (and create) the processed folder just to read a path extension.
+  public var isVideo: Bool {
+    URL(fileURLWithPath: relativePath).fileType?.conforms(to: .movie) ?? false
   }
 
   public init(

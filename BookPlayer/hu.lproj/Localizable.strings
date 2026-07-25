@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Megduplázza a hangerőt.\nÓvatosan és körültekintően használja hallásának védelme érdekében";
 "settings_globalspeed_title" = "Globális sebességszabályozás";
 "settings_globalspeed_description" = "Sebesség beállítása az összes könyvben";
+"settings_video_enabled_title" = "Videó megjelenítése";
+"settings_video_enabled_description" = "Megjeleníti a képet videó lejátszása közben. Kapcsolja ki, ha csak a hangot szeretné lejátszani, ekkor helyette a borító jelenik meg.";
+"settings_video_pip_title" = "Kép a képben";
+"video_fullscreen_title" = "Teljes képernyő";
 "settings_openplayer_launch_title" = "Lejátszó megnyitása indításkor";
 "settings_carplay_showplayer_title" = "Lejátszó megjelenítése CarPlay csatlakozáskor";
 "settings_startupplayer_description" = "Megnyitja a lejátszót az utoljára hallgatott könyvvel az alkalmazás indításakor vagy a CarPlay csatlakoztatásakor. CarPlay esetén ez megszakítja a más alkalmazásokban lejátszott hangot.";

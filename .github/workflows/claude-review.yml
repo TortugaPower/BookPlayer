@@ -13,7 +13,12 @@ concurrency:
 jobs:
   review:
     # Skip draft PRs; they review on "ready_for_review".
-    if: github.event.pull_request.draft == false
+    # Skip fork PRs: pull_request runs from a fork don't receive repo secrets
+    # (ANTHROPIC_API_KEY), so the reviewer can't run — skip to keep the check
+    # neutral instead of a hard failure.
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
     # Ubuntu on purpose: the reviewer only reads the diff/source, it does NOT build the app,
     # so there's no need for an (expensive, slow) macOS runner.
     runs-on: ubuntu-latest

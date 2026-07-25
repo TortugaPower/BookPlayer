@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Doubles the volume.\nUse with caution and care for your hearing.";
 "settings_globalspeed_title" = "Global Speed Control";
 "settings_globalspeed_description" = "Set speed across all books.";
+"settings_video_enabled_title" = "Show Video";
+"settings_video_enabled_description" = "Show the picture while a video plays. Turn this off to play only the audio, with the artwork shown instead.";
+"settings_video_pip_title" = "Picture in Picture";
+"video_fullscreen_title" = "Fullscreen";
 "settings_openplayer_launch_title" = "Open Player on Launch";
 "settings_carplay_showplayer_title" = "Show Player on CarPlay Connect";
 "settings_startupplayer_description" = "Open the player for the last played book when launching the app or connecting to CarPlay. On CarPlay, this interrupts audio playing in other apps.";

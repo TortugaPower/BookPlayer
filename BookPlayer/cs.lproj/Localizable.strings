@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Zdvojnásobí hlasitost přehrávání.\nPoužívejte opatrně a chraňete svůj sluch.";
 "settings_globalspeed_title" = "Nastavení rychlosti přehrávání";
 "settings_globalspeed_description" = "Nastavit rychlost přehrávání pro všechny audioknihy.";
+"settings_video_enabled_title" = "Zobrazit video";
+"settings_video_enabled_description" = "Zobrazí obraz při přehrávání videa. Vypnutím přehrajete pouze zvuk a místo videa se zobrazí obálka.";
+"settings_video_pip_title" = "Obraz v obraze";
+"video_fullscreen_title" = "Celá obrazovka";
 "settings_openplayer_launch_title" = "Otevřít přehrávač při spuštění";
 "settings_carplay_showplayer_title" = "Zobrazit přehrávač při připojení CarPlay";
 "settings_startupplayer_description" = "Otevřít přehrávač s naposledy přehrávanou knihou při spuštění aplikace nebo připojení k CarPlay. V CarPlay to přeruší zvuk přehrávaný v jiných aplikacích.";

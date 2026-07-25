@@ -9,6 +9,10 @@
 "settings_boostvolume_description" = "Dublează volumul.\nUtilizați cu prudență și grijă pentru auzul dvs.";
 "settings_globalspeed_title" = "Controlul global al vitezei";
 "settings_globalspeed_description" = "Setați viteza în toate cărțile.";
+"settings_video_enabled_title" = "Afișează videoclipul";
+"settings_video_enabled_description" = "Afișează imaginea în timpul redării unui videoclip. Dezactivați pentru a reda doar sunetul, afișând în schimb coperta.";
+"settings_video_pip_title" = "Imagine în imagine";
+"video_fullscreen_title" = "Ecran complet";
 "settings_openplayer_launch_title" = "Deschide playerul la pornire";
 "settings_carplay_showplayer_title" = "Afișează playerul la conectarea CarPlay";
 "settings_startupplayer_description" = "Deschide playerul cu ultima carte redată la pornirea aplicației sau la conectarea la CarPlay. Pe CarPlay, acest lucru întrerupe sunetul redat în alte aplicații.";

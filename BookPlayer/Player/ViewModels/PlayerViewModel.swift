@@ -38,10 +38,12 @@ final class PlayerViewModel: ObservableObject {
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
   @Published var showButtonFreeScreen = false
-  
+  /// Whether the current chapter's file is a video (drives the video surface + fullscreen button)
+  @Published var isVideoItem = false
+
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
+  let playerManager: PlayerManager
   let syncService: SyncServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
@@ -208,8 +210,11 @@ final class PlayerViewModel: ObservableObject {
         self?.currentChapterSubscriber?.cancel()
         guard let self = self,
               let item = item
-        else { return }
-        
+        else {
+          self?.isVideoItem = false
+          return
+        }
+
         bindCurrentChapter(for: item)
       }.store(in: &disposeBag)
     
@@ -265,11 +270,35 @@ final class PlayerViewModel: ObservableObject {
         } else {
           relativePath = item.relativePath
         }
-        
+
         self?.relativePath = relativePath
+        let renderVideo = (self?.isVideoEnabled ?? false) && (chapter?.isVideo ?? false)
+        self?.isVideoItem = renderVideo
+
+        /// A non-video item — or video rendering turned off — dismisses the PiP window
+        if !renderVideo {
+          VideoPiPCoordinator.shared.stop()
+        }
       }
   }
   
+  /// Whether video rendering is enabled in Settings (off by default — audiobook-first,
+  /// and keeping it off preserves the artwork + VoiceOver title/author label for video items)
+  private var isVideoEnabled: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoEnabled)
+  }
+
+  /// Re-evaluate whether to render video for the current chapter — e.g. after the
+  /// "Show Video" setting was toggled while away from the player screen.
+  func refreshVideoState() {
+    let chapter = playerManager.currentItem?.currentChapter
+    let renderVideo = isVideoEnabled && (chapter?.isVideo ?? false)
+    isVideoItem = renderVideo
+    if !renderVideo {
+      VideoPiPCoordinator.shared.stop()
+    }
+  }
+
   func displaySheet(style: PlayerSheetStyle) {
     self.sheetStyle = style
     self.displaySheet = true
