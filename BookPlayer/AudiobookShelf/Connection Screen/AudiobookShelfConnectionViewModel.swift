@@ -104,9 +104,6 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     guard let serverUrl = pingedURL else {
       throw IntegrationError.urlMalformed(nil)
     }
-    // Drop the captured URL after this method runs — on success the connection is
-    // persisted, on failure the user must re-validate via Connect anyway.
-    defer { pingedURL = nil }
     do {
       // ABS auth doesn't trim whitespace server-side, so iOS autocorrect inserting a trailing
       // space on the username is enough to silently reject otherwise-correct credentials.
@@ -120,6 +117,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         customHeaders: form.customHeadersDictionary()
       )
 
+      // Drop the captured URL only once the connection is persisted. Clearing it on every
+      // exit (an unconditional `defer`) stranded the user after a wrong password: the sheet
+      // stays on the credentials step, so the retry hit the `guard` above and threw
+      // `urlMalformed(nil)` instead of re-attempting sign-in. Keeping it across a failure
+      // preserves the safety property — credentials still only go to the pinged URL, and a
+      // form edit in between still can't redirect them.
+      pingedURL = nil
       isAddingServer = false
 
       if let data = connectionService.connection {

@@ -516,34 +516,35 @@ class AudiobookShelfConnectionService: BPLogger {
     return AudiobookShelfAudiobookDetailsData(apiResponse: detailsResponse)
   }
 
-  public func createItemDownloadUrl(_ item: AudiobookShelfLibraryItem) throws -> URL {
-    guard let connection else {
-      throw URLError(.userAuthenticationRequired)
-    }
-
+  /// Builds the download URL. The token is deliberately **not** appended as a query
+  /// parameter: ABS documents `Authorization: Bearer` as the primary scheme (`?token=`
+  /// is only an optional convenience for GETs), and a token-bearing URL leaks into
+  /// proxy/CDN access logs and into the download task's persisted `taskDescription`.
+  ///
+  /// Kept private because the returned URL is *not* self-authenticating — handing it
+  /// straight to `URLSession`/`AVURLAsset` would 401. Go through
+  /// `createItemDownloadRequest(_:)`, which attaches the bearer.
+  private func createItemDownloadUrl(
+    _ item: AudiobookShelfLibraryItem,
+    connection: AudiobookShelfConnectionData
+  ) -> URL {
     return connection.url
       .appendingPathComponent("api")
       .appendingPathComponent("items")
       .appendingPathComponent(item.id)
       .appendingPathComponent("download")
-      .appending(queryItems: [URLQueryItem(name: "token", value: connection.apiToken)])
   }
 
-  /// Returns a URLRequest for downloading a library item, carrying the user-defined
+  /// Returns a URLRequest for downloading a library item, carrying the bearer
+  /// token via the standard `Authorization: Bearer` header plus the user-defined
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
   public func createItemDownloadRequest(_ item: AudiobookShelfLibraryItem) throws -> URLRequest {
-    guard connection != nil else {
+    guard let connection else {
       throw URLError(.userAuthenticationRequired)
     }
-    let url = try createItemDownloadUrl(item)
-    return wrapWithCustomHeaders(url)
-  }
-
-  /// Wraps an arbitrary URL (e.g. a cover image or stream URL) in a URLRequest that carries
-  /// the current connection's custom HTTP headers.
-  public func wrapWithCustomHeaders(_ url: URL) -> URLRequest {
+    let url = createItemDownloadUrl(item, connection: connection)
     var request = URLRequest(url: url)
-    applyCustomHeaders(to: &request, headers: connection?.customHeaders ?? [:])
+    applyAuthenticatedHeaders(to: &request, connection: connection)
     return request
   }
 

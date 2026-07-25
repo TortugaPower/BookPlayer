@@ -88,6 +88,17 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       }
     }
     .toolbar {
+      // Shown in every state, including Add Server. Without it that flow renders a
+      // bare Cancel/Connect bar, and since both integrations share this screen there
+      // is nothing on it telling you whether you're adding a Jellyfin or an
+      // AudiobookShelf server — entering one server's URL into the other's flow just
+      // fails with an opaque 404 from the wrong probe endpoint.
+      ToolbarItem(placement: .principal) {
+        Text(localizedNavigationTitle)
+          .bpFont(.headline)
+          .foregroundStyle(theme.primaryColor)
+          .accessibilityAddTraits(.isHeader)
+      }
       if viewModel.isAddingServer {
         ToolbarItem(placement: .cancellationAction) {
           Button("cancel_button".localized) {
@@ -103,11 +114,6 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           }
         }
       } else {
-        ToolbarItem(placement: .principal) {
-          Text(localizedNavigationTitle)
-            .bpFont(.headline)
-            .foregroundStyle(theme.primaryColor)
-        }
         ToolbarItemGroup(placement: .confirmationAction) {
           switch viewModel.signInFlow {
           case .enteringServerURL: connectToolbarButton

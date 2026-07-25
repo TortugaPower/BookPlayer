@@ -95,10 +95,6 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     guard let pending = pendingServer else {
       throw IntegrationError.noClient("Jellyfin")
     }
-    // Always drop the transient `pending` after this method runs — on success the
-    // service commits it as `self.client`, on failure it's no longer reusable
-    // (credentials may be wrong, URL may be stale relative to what the user typed next).
-    defer { pendingServer = nil }
     do {
       try await connectionService.signIn(
         pending: pending,
@@ -108,6 +104,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         customHeaders: form.customHeadersDictionary()
       )
 
+      // Drop the transient `pending` only once the service has committed it as
+      // `self.client`. Clearing it on every exit (an unconditional `defer`) stranded the
+      // user after a wrong password: the sheet stays on the credentials step, so the retry
+      // hit the `guard` above and threw `noClient` instead of re-attempting sign-in.
+      // `signIn(pending:)` only reads `pending.client` and commits nothing on failure, so
+      // the validated client is still good for another attempt.
+      pendingServer = nil
       isAddingServer = false
 
       if let data = connectionService.connection {
