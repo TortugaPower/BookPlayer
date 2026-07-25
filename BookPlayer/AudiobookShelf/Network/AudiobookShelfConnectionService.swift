@@ -516,15 +516,18 @@ class AudiobookShelfConnectionService: BPLogger {
     return AudiobookShelfAudiobookDetailsData(apiResponse: detailsResponse)
   }
 
-  public func createItemDownloadUrl(_ item: AudiobookShelfLibraryItem) throws -> URL {
-    guard let connection else {
-      throw URLError(.userAuthenticationRequired)
-    }
-
-    // The token is deliberately not appended as a query parameter. ABS accepts
-    // the bearer via `Authorization: Bearer` on this endpoint, and a token-bearing
-    // URL leaks: background URLSession serializes task URLs to disk, and query
-    // strings land in proxy/CDN access logs (Authorization headers don't).
+  /// Builds the download URL. The token is deliberately **not** appended as a query
+  /// parameter: ABS documents `Authorization: Bearer` as the primary scheme (`?token=`
+  /// is only an optional convenience for GETs), and a token-bearing URL leaks into
+  /// proxy/CDN access logs and into the download task's persisted `taskDescription`.
+  ///
+  /// Kept private because the returned URL is *not* self-authenticating — handing it
+  /// straight to `URLSession`/`AVURLAsset` would 401. Go through
+  /// `createItemDownloadRequest(_:)`, which attaches the bearer.
+  private func createItemDownloadUrl(
+    _ item: AudiobookShelfLibraryItem,
+    connection: AudiobookShelfConnectionData
+  ) -> URL {
     return connection.url
       .appendingPathComponent("api")
       .appendingPathComponent("items")
@@ -539,17 +542,9 @@ class AudiobookShelfConnectionService: BPLogger {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
     }
-    let url = try createItemDownloadUrl(item)
-    var request = wrapWithCustomHeaders(url)
-    applyAuthenticatedHeaders(to: &request, connection: connection)
-    return request
-  }
-
-  /// Wraps an arbitrary URL (e.g. a cover image or stream URL) in a URLRequest that carries
-  /// the current connection's custom HTTP headers.
-  public func wrapWithCustomHeaders(_ url: URL) -> URLRequest {
+    let url = createItemDownloadUrl(item, connection: connection)
     var request = URLRequest(url: url)
-    applyCustomHeaders(to: &request, headers: connection?.customHeaders ?? [:])
+    applyAuthenticatedHeaders(to: &request, connection: connection)
     return request
   }
 
