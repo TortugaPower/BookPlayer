@@ -77,9 +77,16 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// Persist any changes made to the custom-headers list while the connection is already live.
   func handleCustomHeadersUpdate()
 
-  /// Whether this integration supports a native SSO (OpenID Connect) sign-in flow.
-  /// Default: `false` — concrete VMs opt in (AudiobookShelf).
+  /// Whether SSO can actually be used with the server the user just validated — not merely whether
+  /// the integration speaks it. Default: `false`; concrete VMs opt in (AudiobookShelf).
   var oidcSupported: Bool { get }
+
+  /// The provider's own button label, when the server supplied one. Falls back to a generic string.
+  var oidcButtonText: String? { get }
+
+  /// Set when the server advertises SSO but we refuse it because the connection is plaintext, so the
+  /// UI can explain the absence rather than silently hiding an option the user may be expecting.
+  var oidcBlockedByInsecureTransport: Bool { get }
 
   /// Begin the native SSO flow. Throws on setup failure; user cancellation surfaces as
   /// `CancellationError` so the host view can stay quiet.
@@ -90,5 +97,7 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
 /// can conform without boilerplate.
 extension IntegrationConnectionViewModelProtocol {
   var oidcSupported: Bool { false }
+  var oidcButtonText: String? { nil }
+  var oidcBlockedByInsecureTransport: Bool { false }
   func handleStartOIDC() async throws {}
 }

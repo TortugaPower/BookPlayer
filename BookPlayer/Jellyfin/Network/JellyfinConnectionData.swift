@@ -55,6 +55,12 @@ struct JellyfinConnectionData: Codable, Identifiable {
   }
 }
 
+extension JellyfinConnectionData: IntegrationConnectionPayload {
+  /// Computed on purpose — see `IntegrationConnectionPayload`. Renaming or adding a stored property
+  /// here would change the `Codable` shape and stop existing Keychain records from decoding.
+  var token: String { accessToken }
+}
+
 extension JellyfinConnectionData: CustomDebugStringConvertible {
   var debugDescription: String {
     let accessTokenDebugDesc = accessToken.isEmpty ? "<empty>" : "<redacted>"

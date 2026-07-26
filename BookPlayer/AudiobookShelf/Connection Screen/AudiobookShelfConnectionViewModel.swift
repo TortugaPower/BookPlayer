@@ -20,9 +20,27 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   @Published private(set) var signInCompletedAt: Date?
   @Published var isAddingServer: Bool = false
 
-  /// AudiobookShelf supports a native OpenID Connect flow, so the shared connection UI surfaces
-  /// a "Sign in with SSO" button alongside username/password.
-  let oidcSupported: Bool = true
+  /// What the validated server reported it supports. Probed in `handleConnectAction` rather than
+  /// assumed: AudiobookShelf-the-product speaks OIDC, but an individual server only offers it once an
+  /// admin has configured a provider, so a hardcoded `true` would show most users a button that
+  /// cannot possibly work.
+  @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
+
+  var oidcSupported: Bool { capabilities.supportsOIDC && isPingedURLSecure }
+
+  var oidcButtonText: String? { capabilities.oidcButtonText }
+
+  var oidcBlockedByInsecureTransport: Bool {
+    capabilities.supportsOIDC && !isPingedURLSecure
+  }
+
+  /// SSO is refused over plaintext: the authorization code, the PKCE verifier and the returned token
+  /// all traverse the redirect chain (RFC 6749 §10.9). Password sign-in over http stays the user's
+  /// own call.
+  private var isPingedURLSecure: Bool {
+    guard let pingedURL, let scheme = URL(string: pingedURL)?.scheme else { return false }
+    return scheme.lowercased() == "https"
+  }
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -99,6 +117,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       customHeaders: form.customHeadersDictionary()
     )
     pingedURL = normalizedURL
+    // Ask the server which sign-in methods it actually offers before showing the credentials step.
+    // Non-throwing by design — an unavailable probe just means no SSO button.
+    capabilities = await connectionService.fetchCapabilities(
+      at: normalizedURL,
+      customHeaders: form.customHeadersDictionary()
+    )
     signInFlow = .enteringCredentials
     form.serverName = serverName
   }
@@ -128,6 +152,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       // preserves the safety property — credentials still only go to the pinged URL, and a
       // form edit in between still can't redirect them.
       pingedURL = nil
+      capabilities = .init()
       isAddingServer = false
 
       if let data = connectionService.connection {
@@ -202,6 +227,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     // Drop any URL captured from a half-finished Connect → Sign In flow so a stale
     // value can't get reused by a later sign-in attempt.
     pingedURL = nil
+    capabilities = .init()
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
     }
@@ -235,6 +261,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     )
     // Only drop the validated URL once sign-in succeeded.
     pingedURL = nil
+    capabilities = .init()
     isAddingServer = false
     if let data = connectionService.connection {
       form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)

@@ -42,30 +42,29 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
 class JellyfinConnectionService: BPLogger {
   private static let activeConnectionIDKey = "jellyfin_active_connection_id"
 
-  private nonisolated let keychainService: KeychainServiceProtocol
+  /// Keychain persistence, de-duplication and active-selection bookkeeping, shared with
+  /// AudiobookShelf. Reads below forward into it so views keep observing through this service.
+  private let store: IntegrationConnectionStore<JellyfinConnectionData>
 
-  var connections: [JellyfinConnectionData] = []
-  var connection: JellyfinConnectionData? {
-    if let activeConnectionID,
-       let active = connections.first(where: { $0.id == activeConnectionID }) {
-      return active
-    }
-    return connections.first
-  }
+  var connections: [JellyfinConnectionData] { store.connections }
+  var connection: JellyfinConnectionData? { store.active }
   var client: JellyfinClient?
   private var headerInjector: JellyfinHeaderInjector?
 
-  private(set) var activeConnectionID: String? {
-    get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
-    set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
-  }
+  var activeConnectionID: String? { store.activeConnectionID }
 
   nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
-    self.keychainService = keychainService
+    self.store = IntegrationConnectionStore(
+      keychainKey: .jellyfinConnection,
+      activeIDDefaultsKey: Self.activeConnectionIDKey,
+      keychain: keychainService
+    )
   }
 
   func setup() {
-    reloadConnections()
+    store.reload()
+    // Bring the live client up for whichever connection ended up active.
+    rebuildClient(for: connection)
   }
 
   /// Transient result of validating a server's reachability. Carries the client +
@@ -124,32 +123,23 @@ class JellyfinConnectionService: BPLogger {
       throw IntegrationError.unexpectedResponse(code: nil)
     }
 
-    // If this is a re-auth on an existing (canonical-url, userID) pair, preserve the
-    // existing connection's id and selectedLibraryId so the user picks up exactly where
-    // they left off — same library context, same outbound references — and not a fresh
-    // connection record they have to re-configure.
-    let existing = connections.first {
-      $0.url.canonicalDedupKey == pending.client.configuration.url.canonicalDedupKey
-        && $0.userID == userID
+    // The store de-duplicates on canonical-url + userID and, on a re-auth, carries the existing
+    // connection's id and selectedLibraryId forward — so the user picks up exactly where they left
+    // off (same library context, same outbound references) rather than on a fresh record they have
+    // to re-configure.
+    let serverURL = pending.client.configuration.url
+    store.upsert(url: serverURL, userID: userID) { existing in
+      JellyfinConnectionData(
+        id: existing?.id ?? UUID().uuidString,
+        url: serverURL,
+        serverName: serverName,
+        userID: userID,
+        userName: username,
+        accessToken: accessToken,
+        selectedLibraryId: existing?.selectedLibraryId,
+        customHeaders: customHeaders
+      )
     }
-    let data = JellyfinConnectionData(
-      id: existing?.id ?? UUID().uuidString,
-      url: pending.client.configuration.url,
-      serverName: serverName,
-      userID: userID,
-      userName: username,
-      accessToken: accessToken,
-      selectedLibraryId: existing?.selectedLibraryId,
-      customHeaders: customHeaders
-    )
-
-    // Deduplicate on canonical-url + userID — at most one of these can match `existing` above.
-    connections.removeAll {
-      $0.url.canonicalDedupKey == data.url.canonicalDedupKey && $0.userID == data.userID
-    }
-    connections.append(data)
-    activeConnectionID = data.id
-    saveConnections()
 
     // Commit the transient client + injector now that the connection is persisted.
     self.client = pending.client
@@ -165,24 +155,19 @@ class JellyfinConnectionService: BPLogger {
   /// Persist `headers` to the connection with the given id, regardless of which is active.
   /// If `id` happens to be the active connection, the live header injector is also updated.
   func updateCustomHeaders(id: String, _ headers: [String: String]) {
-    guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
-    connections[index].customHeaders = headers
-    saveConnections()
+    guard store.updateCustomHeaders(id: id, headers) else { return }
     if id == connection?.id {
       headerInjector?.setCustomHeaders(headers)
     }
   }
 
   func saveSelectedLibrary(id: String?) {
-    guard let activeID = connection?.id,
-          let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
-    connections[index].selectedLibraryId = id
-    saveConnections()
+    guard let activeID = connection?.id else { return }
+    store.setSelectedLibrary(id: activeID, libraryId: id)
   }
 
   func activateConnection(id: String) {
-    guard connections.contains(where: { $0.id == id }) else { return }
-    activeConnectionID = id
+    guard store.setActive(id: id) else { return }
     rebuildClient(for: connection)
   }
 
@@ -196,23 +181,12 @@ class JellyfinConnectionService: BPLogger {
       return client
     }()
 
-    connections.removeAll { $0.id == id }
+    guard store.remove(id: id) != nil else { return }
 
-    if activeConnectionID == id {
-      activeConnectionID = connections.first?.id
-    }
-
-    if connections.isEmpty {
-      rebuildClient(for: nil)
-      do {
-        try keychainService.remove(.jellyfinConnection)
-      } catch {
-        Self.logger.warning("failed to remove connection data from keychain: \(error)")
-      }
-    } else {
-      saveConnections()
-      rebuildClient(for: connection)
-    }
+    // The store has already persisted the remainder (or cleared the Keychain entry entirely once
+    // the last connection went), so all that's left is pointing the live client at whatever is
+    // active now — `connection` is nil when none remain, which clears it.
+    rebuildClient(for: connection)
 
     if let oldClientToSignOut {
       Task {
@@ -587,50 +561,6 @@ class JellyfinConnectionService: BPLogger {
         serverName: connection?.serverName ?? "Jellyfin"
       )
     }
-  }
-
-  private func reloadConnections() {
-    // Try array format first
-    if let storedConnections: [JellyfinConnectionData] = try? keychainService.get(.jellyfinConnection) {
-      connections = storedConnections.filter { isConnectionValid($0) }
-      if connections.count != storedConnections.count {
-        saveConnections()
-      }
-    } else if let single: JellyfinConnectionData = try? keychainService.get(.jellyfinConnection),
-              isConnectionValid(single) {
-      // Migrate from single-connection format
-      connections = [single]
-      saveConnections()
-    } else {
-      Self.logger.warning("failed to load connection data from keychain")
-      return
-    }
-
-    // Normalize activeConnectionID
-    if connections.isEmpty {
-      activeConnectionID = nil
-    } else if let activeID = activeConnectionID,
-              !connections.contains(where: { $0.id == activeID }) {
-      activeConnectionID = connections.first?.id
-    } else if activeConnectionID == nil {
-      activeConnectionID = connections.first?.id
-    }
-
-    if let data = connection {
-      client = createClient(
-        serverUrlString: data.url.absoluteString,
-        accessToken: data.accessToken,
-        customHeaders: data.customHeaders
-      )
-    }
-  }
-
-  private func saveConnections() {
-    try? keychainService.set(connections, key: .jellyfinConnection)
-  }
-
-  private func isConnectionValid(_ data: JellyfinConnectionData) -> Bool {
-    return !data.userID.isEmpty && !data.accessToken.isEmpty
   }
 
   /// Pure factory: builds a client + injector pair without touching `self`. Used by

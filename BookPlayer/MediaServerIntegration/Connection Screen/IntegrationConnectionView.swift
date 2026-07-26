@@ -46,14 +46,28 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
+        // SSO goes above the username/password section: `IntegrationServerFoundView` auto-focuses the
+        // username field, so this step always arrives with the keyboard up. Below Login, the SSO row
+        // starts out hidden behind the keyboard on smaller devices — poor discoverability for what is
+        // meant to be a peer path to password sign-in.
+        if viewModel.oidcSupported {
+          IntegrationOIDCSectionView(
+            buttonText: viewModel.oidcButtonText,
+            isBusy: isLoading,
+            onStart: onStartOIDC
+          )
+        } else if viewModel.oidcBlockedByInsecureTransport {
+          // The server does offer SSO — say why we won't, rather than silently omitting it.
+          IntegrationOIDCUnavailableSectionView()
+        }
         IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
+          // Don't raise the keyboard when SSO is on offer — it would cover the option above and
+          // presume the user came here to type a password.
+          autoFocusesUsername: !viewModel.oidcSupported,
           onCommit: onSignIn
         )
-        if viewModel.oidcSupported {
-          IntegrationOIDCSectionView(onStart: onStartOIDC)
-        }
         IntegrationCustomHeadersSectionView(
           customHeaders: $viewModel.form.customHeaders
         )
@@ -218,10 +232,16 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   }
 }
 
-/// In-form section offering native SSO sign-in as an alternative to username/password. Shown
-/// in the `.enteringCredentials` state for integrations whose view model sets `oidcSupported`
-/// (AudiobookShelf).
+/// In-form section offering native SSO sign-in as an alternative to username/password. Shown in the
+/// `.enteringCredentials` state when the validated server reported it supports OIDC.
 private struct IntegrationOIDCSectionView: View {
+  /// The provider label the server supplied, when there is one — the same wording the user sees in
+  /// the server's own web login.
+  var buttonText: String?
+  /// Disables the row while a handshake is in flight. Without this the row stays live during the
+  /// multi-second token exchange, and a second tap cancels the first attempt's task — surfacing an
+  /// error alert on top of the flow the user just started.
+  var isBusy: Bool
   /// Tapped to begin the flow. The caller drives `viewModel.handleStartOIDC()` so loading-state
   /// plumbing stays in the host view.
   var onStart: () -> Void
@@ -232,17 +252,38 @@ private struct IntegrationOIDCSectionView: View {
     ThemedSection {
       Button(action: onStart) {
         Label(
-          "integration_sso_button".localized,
+          buttonText ?? "integration_sso_button".localized,
           systemImage: "lock.shield"
         )
         .foregroundStyle(theme.linkColor)
       }
       .accessibilityHint(Text("integration_sso_button_hint".localized))
+      .disabledWithOpacity(isBusy)
     } header: {
+      // No explicit font: every sibling section header on this screen inherits the Form's default,
+      // and setting one here made this header visibly smaller than "Server" / "Login".
       Text("integration_sso_section_header".localized)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("integration_sso_section_footer".localized)
+        .foregroundStyle(theme.secondaryColor)
+    }
+  }
+}
+
+/// Shown when the server advertises SSO but the connection is plaintext. Explaining the absence beats
+/// silently hiding an option the user may have come here expecting.
+private struct IntegrationOIDCUnavailableSectionView: View {
+  @EnvironmentObject var theme: ThemeViewModel
+
+  var body: some View {
+    ThemedSection {
+      EmptyView()
+    } header: {
+      Text("integration_sso_section_header".localized)
+        .foregroundStyle(theme.secondaryColor)
+    } footer: {
+      Text("integration_sso_requires_https".localized)
         .foregroundStyle(theme.secondaryColor)
     }
   }
