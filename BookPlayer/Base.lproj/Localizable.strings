@@ -497,4 +497,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_quick_connect_section_header" = "Or sign in with Quick Connect";
 "integration_quick_connect_sheet_title" = "Quick Connect";
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
+"jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";

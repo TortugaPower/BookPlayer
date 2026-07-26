@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import SwiftUI
+import UIKit
 
 // MARK: - Section button
 
@@ -27,7 +28,7 @@ struct IntegrationQuickConnectSectionView: View {
       Button(action: onStart) {
         Label(
           "integration_quick_connect_button".localized,
-          systemImage: "qrcode"
+          systemImage: "key.horizontal"
         )
         .foregroundStyle(theme.linkColor)
       }
@@ -86,7 +87,30 @@ struct IntegrationQuickConnectSheetView: View {
             .foregroundStyle(theme.linkColor)
         }
       }
+      // This sheet swaps its whole content as the flow advances, and without an announcement a
+      // VoiceOver user hears "Requesting a code…" and then silence — the code appears with no cue that
+      // there is now something to read, and a terminal failure is equally silent.
+      .onChange(of: status) { _, newStatus in
+        announce(newStatus)
+      }
     }
+  }
+
+  /// Speaks the state transition. The code is spelled out character by character: a short
+  /// alphanumeric string read as a word is easily misheard, and the user has to retype it exactly.
+  private func announce(_ status: QuickConnectStatus) {
+    let message: String
+    switch status {
+    case .retrievingCode:
+      message = "integration_quick_connect_retrieving_message".localized
+    case .awaitingCode(let code):
+      message = "\(("integration_quick_connect_awaiting_message").localized) \(code.map(String.init).joined(separator: " "))"
+    case .authenticating:
+      message = "integration_quick_connect_authenticating_message".localized
+    case .failed(let reason):
+      message = reason
+    }
+    UIAccessibility.post(notification: .announcement, argument: message)
   }
 
   // MARK: - Sub-views
@@ -120,7 +144,7 @@ struct IntegrationQuickConnectSheetView: View {
     case .failed(let message):
       VStack(spacing: Self.headerSpacing) {
         Image(systemName: "exclamationmark.triangle")
-          .font(.system(size: Self.errorIconSize, weight: .semibold))
+          .font(.largeTitle.weight(.semibold))
           .foregroundStyle(theme.errorColor)
           .accessibilityHidden(true)
         Text(message)
@@ -137,7 +161,11 @@ struct IntegrationQuickConnectSheetView: View {
   private var codeView: some View {
     if case .awaitingCode(let code) = status {
       Text(code)
-        .font(.system(size: Self.codeFontSize, weight: .semibold, design: .monospaced))
+        // Text-style-relative, not an absolute point size: this is the one element the sheet exists to
+        // communicate, so it has to grow at accessibility text sizes. `minimumScaleFactor` keeps a
+        // scaled-up code with `tracking` from clipping on a narrow screen.
+        .font(.system(.largeTitle, design: .monospaced).weight(.semibold))
+        .minimumScaleFactor(0.5)
         .tracking(Self.codeLetterSpacing)
         .foregroundStyle(theme.primaryColor)
         .padding(.vertical, Self.codePaddingVertical)
@@ -157,6 +185,7 @@ struct IntegrationQuickConnectSheetView: View {
       VStack(alignment: .leading, spacing: Self.instructionSpacing) {
         Text("integration_quick_connect_instructions_title".localized)
           .bpFont(.headline)
+          .accessibilityAddTraits(.isHeader)
           .foregroundStyle(theme.primaryColor)
 
         instructionRow(
@@ -219,9 +248,6 @@ struct IntegrationQuickConnectSheetView: View {
   /// Horizontal gap between the step number and the step text in an instruction row.
   private static let instructionRowSpacing: CGFloat = 8
 
-  /// Font size for the code so it's readable from arm's length while glancing.
-  private static let codeFontSize: CGFloat = 48
-
   /// Inter-character tracking on the code; separates digits enough to scan but not so much
   /// that the block becomes wider than the sheet.
   private static let codeLetterSpacing: CGFloat = 4
@@ -231,7 +257,4 @@ struct IntegrationQuickConnectSheetView: View {
 
   /// Corner radius of the code "tile". Matches the rest of the app's tile chrome.
   private static let codeCornerRadius: CGFloat = 12
-
-  /// Size of the warning glyph shown above the failure message.
-  private static let errorIconSize: CGFloat = 36
 }

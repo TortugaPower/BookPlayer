@@ -272,13 +272,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     activeQuickConnect = manager
     quickConnectStatus = .retrievingCode
 
+    // `.receive(on:)` already delivers on the main queue, and this type is `@MainActor`, so no extra
+    // `Task { @MainActor in }` hop is needed — one used to sit here and only widened the window in
+    // which the replayed initial value could be observed.
     quickConnectStateSubscription = manager.$state
       .receive(on: DispatchQueue.main)
       .sink { [weak self] state in
-        guard let self else { return }
-        Task { @MainActor in
-          self.handleQuickConnectStateChange(state)
-        }
+        self?.handleQuickConnectStateChange(state)
       }
 
     manager.start()
@@ -295,11 +295,23 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
 
   /// Maps JellyfinAPI's Quick Connect helper states to the protocol-level `QuickConnectStatus`
   /// and drives the final sign-in step on `.authenticated`.
+  /// `internal` rather than `private` so `JellyfinQuickConnectTests` can drive the state table
+  /// directly — `@testable` doesn't reach `private`, and the `.idle` case below is a regression worth
+  /// pinning.
   @MainActor
-  private func handleQuickConnectStateChange(_ state: JellyfinAPI.QuickConnect.State) {
+  func handleQuickConnectStateChange(_ state: JellyfinAPI.QuickConnect.State) {
     switch state {
     case .idle:
-      quickConnectStatus = nil
+      // Deliberately ignored. `QuickConnect.state` starts at `.idle` and `@Published` replays its
+      // current value to every new subscriber, so this arrives once right after we subscribe — which,
+      // if it were mapped to `quickConnectStatus = nil`, would tear down the sheet a hop after
+      // presenting it AND leave `activeQuickConnect` set, so re-tapping the row became a silent no-op
+      // with an invisible poller still running for its full ~16-minute budget.
+      //
+      // Nothing is lost by ignoring it: the only other source of `.idle` is `stop()`, and
+      // `handleCancelQuickConnect` cancels this subscription on the very next line, so that emission
+      // is never delivered either.
+      break
     case .retrievingCode:
       quickConnectStatus = .retrievingCode
     case .polling(let code):
@@ -310,7 +322,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         await self.completeQuickConnectSignIn(secret: secret)
       }
     case .error(let qcError):
-      Self.logger.error("Quick Connect failed: \(qcError.localizedDescription)")
+      Self.logger.error("Quick Connect failed: \(String(describing: qcError))")
       quickConnectStatus = .failed(Self.message(for: qcError))
       teardownQuickConnect()
     }
@@ -353,11 +365,27 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       quickConnectStatus = nil
       teardownQuickConnect()
     } catch {
-      Self.logger.error("Quick Connect sign-in failed: \(error.localizedDescription)")
+      Self.logger.error("Quick Connect sign-in failed: \(String(describing: error))")
       // Keep `pendingServer` so the user can retry or fall back to password without re-pinging.
-      quickConnectStatus = .failed(error.localizedDescription)
+      quickConnectStatus = .failed(Self.presentableMessage(for: error))
       teardownQuickConnect()
     }
+  }
+
+  /// Turns a sign-in failure into something worth showing a user.
+  ///
+  /// `Get.APIError.unacceptableStatusCode` documents its own description as a *debug* string — it reads
+  /// "Response status code was unacceptable: 401." — so surfacing `localizedDescription` directly puts
+  /// developer text in the UI. `handleSignInAction` already maps this onto `IntegrationError`, and Quick
+  /// Connect should read identically for the same server response.
+  private static func presentableMessage(for error: Error) -> String {
+    if case APIError.unacceptableStatusCode(let statusCode) = error {
+      let mapped: IntegrationError = (400...499).contains(statusCode)
+        ? .clientError(code: statusCode)
+        : .unexpectedResponse(code: statusCode)
+      return mapped.localizedDescription
+    }
+    return error.localizedDescription
   }
 
   /// Drops the active controller + state subscription. Leaves `quickConnectStatus` untouched so
@@ -370,14 +398,21 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   }
 
   /// Translates the JellyfinAPI helper's error cases into a user-presentable, localizable message.
-  private static func message(for error: JellyfinAPI.QuickConnect.QuickConnectError) -> String {
+  ///
+  /// `internal` rather than `private` so `JellyfinQuickConnectTests` can pin the whole table —
+  /// `@testable` doesn't reach `private`.
+  static func message(for error: JellyfinAPI.QuickConnect.QuickConnectError) -> String {
     switch error {
     case .maxPollingHit:
       return "jellyfin_quick_connect_error_timeout".localized
     case .retrievingCodeFailed:
       return "jellyfin_quick_connect_error_no_code".localized
-    case .other(let message):
-      return message
+    case .other:
+      // Deliberately NOT returning the associated value. The SDK builds `.other` as
+      // `.other(error.localizedDescription)` from whatever `client.send` threw, which for a non-2xx is
+      // `Get.APIError`'s debug text ("Response status code was unacceptable: 401.") — not something to
+      // show a user. The raw payload is logged by the caller instead.
+      return "jellyfin_quick_connect_error_generic".localized
     }
   }
 }

@@ -59,10 +59,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        // SSO goes above the username/password section: `IntegrationServerFoundView` auto-focuses the
-        // username field, so this step always arrives with the keyboard up. Below Login, the SSO row
-        // starts out hidden behind the keyboard on smaller devices — poor discoverability for what is
-        // meant to be a peer path to password sign-in.
+        // Alternative sign-in methods go ABOVE the username/password section.
+        // `IntegrationServerFoundView` auto-focuses the username field, so this step always arrives
+        // with the keyboard up; below Login these rows start out hidden behind it on smaller devices —
+        // poor discoverability for what are meant to be peer paths to password sign-in, not footnotes.
+        // At most one of these renders: AudiobookShelf opts into OIDC, Jellyfin into Quick Connect,
+        // and each leaves the other at its protocol default of `false`.
         if viewModel.oidcSupported {
           IntegrationOIDCSectionView(
             buttonText: viewModel.oidcButtonText,
@@ -73,17 +75,17 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           // The server does offer SSO — say why we won't, rather than silently omitting it.
           IntegrationOIDCUnavailableSectionView()
         }
-        IntegrationServerFoundView(
-          username: $viewModel.form.username,
-          password: $viewModel.form.password,
-          // Don't raise the keyboard when SSO is on offer — it would cover the option above and
-          // presume the user came here to type a password.
-          autoFocusesUsername: !viewModel.oidcSupported,
-          onCommit: onSignIn
-        )
         if viewModel.quickConnectSupported {
           IntegrationQuickConnectSectionView(onStart: onStartQuickConnect)
         }
+        IntegrationServerFoundView(
+          username: $viewModel.form.username,
+          password: $viewModel.form.password,
+          // Don't raise the keyboard when an alternative sign-in is on offer — it would cover the
+          // option above and presume the user came here to type a password.
+          autoFocusesUsername: !viewModel.oidcSupported && !viewModel.quickConnectSupported,
+          onCommit: onSignIn
+        )
         IntegrationCustomHeadersSectionView(
           customHeaders: $viewModel.form.customHeaders
         )
@@ -145,6 +147,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       if viewModel.isAddingServer {
         ToolbarItem(placement: .cancellationAction) {
           Button("cancel_button".localized) {
+            // Tear down any in-flight Quick Connect before leaving: its poller lives on the view model,
+            // not in `actionTask`, so it would otherwise keep running — and could persist a connection
+            // after the user explicitly backed out. No-op when no flow is running.
+            viewModel.handleCancelQuickConnect()
             viewModel.handleCancelAddServerAction()
             dismiss()
           }
@@ -170,6 +176,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     .onDisappear {
       actionTask?.cancel()
       actionTask = nil
+      // Deliberately NOT calling `handleCancelQuickConnect()` here. The Quick Connect sheet is
+      // presented over this view, and if SwiftUI delivers `onDisappear` on that presentation it would
+      // cancel the flow the instant it starts. The gesture-dismiss path already tears down via
+      // `isQuickConnectSheetPresented`'s setter, and the explicit Cancel path does it below.
     }
   }
 
@@ -229,7 +239,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   /// view model's `quickConnectStatus`; this handler only catches the synchronous setup error.
   /// No loading overlay — the sheet provides its own progress UI.
   func onStartQuickConnect() {
-    Task { @MainActor in
+    // Routed through `actionTask` like every sibling handler — the property's own doc comment already
+    // names Quick-Connect-start as one of the flows it tracks.
+    actionTask?.cancel()
+    actionTask = Task { @MainActor in
       do {
         try await viewModel.handleStartQuickConnect()
       } catch {
