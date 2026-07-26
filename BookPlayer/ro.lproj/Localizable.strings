@@ -478,6 +478,5 @@
 "integration_sso_button" = "Conectare cu SSO";
 "integration_sso_button_hint" = "Deschide o fereastră securizată de browser pentru a vă conecta prin furnizorul dvs. de identitate.";
 "integration_sso_requires_https" = "Autentificarea unică necesită o conexiune securizată (https) la serverul dvs.";
-"integration_error_insecure_transport" = "Autentificarea unică necesită o conexiune securizată (https) la serverul dvs.";
 "integration_error_server_message" = "Serverul a răspuns cu %1$d: %2$@";
 "integration_error_sso_no_code" = "Furnizorul dvs. de identitate v-a autentificat, dar nu a returnat un cod de autorizare, ceea ce înseamnă de obicei că a respins solicitarea. Verificați eventualele restricții de grup sau de acces ale clientului și dacă adresele URL de retur permise includ:\n\n%@";

@@ -478,6 +478,5 @@
 "integration_sso_button" = "Bejelentkezés SSO-val";
 "integration_sso_button_hint" = "Biztonságos böngészőablakot nyit meg, hogy bejelentkezhessen az identitásszolgáltatóján keresztül.";
 "integration_sso_requires_https" = "Az egyszeri bejelentkezéshez biztonságos (https) kapcsolat szükséges a kiszolgálóhoz.";
-"integration_error_insecure_transport" = "Az egyszeri bejelentkezéshez biztonságos (https) kapcsolat szükséges a kiszolgálóhoz.";
 "integration_error_server_message" = "A szerver %1$d állapotkóddal válaszolt: %2$@";
 "integration_error_sso_no_code" = "Az identitásszolgáltató bejelentkeztette Önt, de nem adott vissza engedélyezési kódot, ami általában azt jelenti, hogy elutasította a kérést. Ellenőrizze a kliensre vonatkozó csoport- vagy hozzáférési korlátozásokat, és hogy az engedélyezett visszahívási URL-ek között szerepel-e:\n\n%@";

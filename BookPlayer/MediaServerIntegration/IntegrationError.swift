@@ -109,7 +109,9 @@ enum IntegrationError: Error, LocalizedError, Equatable {
     case .serverMessage(let code, let message):
       String(format: "integration_error_server_message".localized, code, message)
     case .insecureTransport:
-      "integration_error_insecure_transport".localized
+      // Shares the footer's string: the same sentence serves both, and duplicating it only
+      // gave Lokalise the same text twice across 26 locales with room to drift apart.
+      "integration_sso_requires_https".localized
     case .ssoNoAuthorizationCode(let providerCallbackURL):
       String(format: "integration_error_sso_no_code".localized, providerCallbackURL)
     }

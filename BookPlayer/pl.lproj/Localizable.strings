@@ -478,6 +478,5 @@
 "integration_sso_button" = "Zaloguj się przez SSO";
 "integration_sso_button_hint" = "Otwiera bezpieczne okno przeglądarki, aby zalogować się przez dostawcę tożsamości.";
 "integration_sso_requires_https" = "Logowanie jednokrotne wymaga bezpiecznego połączenia (https) z serwerem.";
-"integration_error_insecure_transport" = "Logowanie jednokrotne wymaga bezpiecznego połączenia (https) z serwerem.";
 "integration_error_server_message" = "Serwer odpowiedział kodem %1$d: %2$@";
 "integration_error_sso_no_code" = "Dostawca tożsamości zalogował Cię, ale nie zwrócił kodu autoryzacji, co zwykle oznacza, że odrzucił żądanie. Sprawdź ograniczenia grup lub dostępu po stronie klienta oraz to, czy jego dozwolone adresy zwrotne URL zawierają:\n\n%@";

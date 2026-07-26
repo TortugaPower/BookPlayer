@@ -478,6 +478,5 @@
 "integration_sso_button" = "Entrar com SSO";
 "integration_sso_button_hint" = "Abre uma janela segura do navegador para entrar pelo seu provedor de identidade.";
 "integration_sso_requires_https" = "O login único precisa de uma conexão segura (https) com o seu servidor.";
-"integration_error_insecure_transport" = "O login único precisa de uma conexão segura (https) com o seu servidor.";
 "integration_error_server_message" = "O servidor respondeu com %1$d: %2$@";
 "integration_error_sso_no_code" = "Seu provedor de identidade fez o seu login, mas não retornou um código de autorização, o que geralmente significa que a solicitação foi negada. Verifique as restrições de grupo ou de acesso no cliente e se as URLs de retorno permitidas incluem:\n\n%@";

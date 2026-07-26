@@ -478,6 +478,5 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_sso_button" = "Logg på med SSO";
 "integration_sso_button_hint" = "Åpner et sikkert nettleservindu slik at du kan logge på via identitetsleverandøren din.";
 "integration_sso_requires_https" = "Enkel pålogging krever en sikker (https) tilkobling til serveren din.";
-"integration_error_insecure_transport" = "Enkel pålogging krever en sikker (https) tilkobling til serveren din.";
 "integration_error_server_message" = "Serveren svarte med %1$d: %2$@";
 "integration_error_sso_no_code" = "Identitetsleverandøren din logget deg på, men returnerte ingen autorisasjonskode, noe som vanligvis betyr at den avviste forespørselen. Sjekk eventuelle gruppe- eller tilgangsbegrensninger på klienten, og at de tillatte callback-URL-ene inkluderer:\n\n%@";

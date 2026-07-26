@@ -478,6 +478,5 @@
 "integration_sso_button" = "Aanmelden met SSO";
 "integration_sso_button_hint" = "Opent een beveiligd browservenster om u aan te melden via uw identiteitsprovider.";
 "integration_sso_requires_https" = "Eenmalige aanmelding vereist een beveiligde (https) verbinding met uw server.";
-"integration_error_insecure_transport" = "Eenmalige aanmelding vereist een beveiligde (https) verbinding met uw server.";
 "integration_error_server_message" = "De server antwoordde met %1$d: %2$@";
 "integration_error_sso_no_code" = "Uw identiteitsprovider heeft u aangemeld, maar gaf geen autorisatiecode terug. Dat betekent meestal dat het verzoek is geweigerd. Controleer eventuele groeps- of toegangsbeperkingen op de client en of de toegestane callback-URL's het volgende bevatten:\n\n%@";

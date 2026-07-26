@@ -478,6 +478,5 @@
 "integration_sso_button" = "Kirjaudu sisään SSO:lla";
 "integration_sso_button_hint" = "Avaa suojatun selainikkunan, jossa voit kirjautua sisään identiteetintarjoajasi kautta.";
 "integration_sso_requires_https" = "Kertakirjautuminen vaatii suojatun (https) yhteyden palvelimeesi.";
-"integration_error_insecure_transport" = "Kertakirjautuminen vaatii suojatun (https) yhteyden palvelimeesi.";
 "integration_error_server_message" = "Palvelin vastasi koodilla %1$d: %2$@";
 "integration_error_sso_no_code" = "Identiteetintarjoajasi kirjasi sinut sisään, mutta ei palauttanut valtuutuskoodia, mikä yleensä tarkoittaa, että se hylkäsi pyynnön. Tarkista asiakkaan ryhmä- ja käyttörajoitukset sekä se, että sen sallitut paluu-URL-osoitteet sisältävät:\n\n%@";

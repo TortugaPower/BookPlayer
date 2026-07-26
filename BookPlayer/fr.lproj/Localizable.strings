@@ -478,6 +478,5 @@
 "integration_sso_button" = "Se connecter avec le SSO";
 "integration_sso_button_hint" = "Ouvre une fenêtre de navigateur sécurisée pour vous connecter via votre fournisseur d'identité.";
 "integration_sso_requires_https" = "L'authentification unique nécessite une connexion sécurisée (https) à votre serveur.";
-"integration_error_insecure_transport" = "L'authentification unique nécessite une connexion sécurisée (https) à votre serveur.";
 "integration_error_server_message" = "Le serveur a répondu avec %1$d : %2$@";
 "integration_error_sso_no_code" = "Votre fournisseur d'identité vous a connecté mais n'a pas renvoyé de code d'autorisation, ce qui signifie généralement qu'il a refusé la demande. Vérifiez les restrictions de groupe ou d'accès du client, ainsi que le fait que ses URL de rappel autorisées incluent :\n\n%@";

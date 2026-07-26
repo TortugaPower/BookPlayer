@@ -478,6 +478,5 @@
 "integration_sso_button" = "SSOでサインイン";
 "integration_sso_button_hint" = "安全なブラウザウインドウを開き、IDプロバイダを使用してサインインします。";
 "integration_sso_requires_https" = "シングルサインオンには、サーバへの安全な（https）接続が必要です。";
-"integration_error_insecure_transport" = "シングルサインオンには、サーバへの安全な（https）接続が必要です。";
 "integration_error_server_message" = "サーバが %1$d を返しました: %2$@";
 "integration_error_sso_no_code" = "IDプロバイダでのサインインは完了しましたが、認証コードが返されませんでした。通常、これはリクエストが拒否されたことを意味します。クライアントのグループ制限やアクセス制限を確認し、許可されているコールバックURLに次が含まれていることを確認してください:\n\n%@";

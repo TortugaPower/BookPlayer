@@ -478,6 +478,5 @@
 "integration_sso_button" = "Accedi con SSO";
 "integration_sso_button_hint" = "Apre una finestra sicura del browser per accedere tramite il tuo provider di identità.";
 "integration_sso_requires_https" = "L'accesso singolo richiede una connessione sicura (https) al tuo server.";
-"integration_error_insecure_transport" = "L'accesso singolo richiede una connessione sicura (https) al tuo server.";
 "integration_error_server_message" = "Il server ha risposto con %1$d: %2$@";
 "integration_error_sso_no_code" = "Il tuo provider di identità ti ha autenticato ma non ha restituito un codice di autorizzazione, il che di solito significa che ha rifiutato la richiesta. Controlla eventuali restrizioni di gruppo o di accesso sul client e che i suoi URL di callback consentiti includano:\n\n%@";
