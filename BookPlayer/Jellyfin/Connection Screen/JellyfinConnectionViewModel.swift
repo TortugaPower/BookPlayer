@@ -390,8 +390,18 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
 
   /// Drops the active controller + state subscription. Leaves `quickConnectStatus` untouched so
   /// callers decide whether the sheet dismisses (status = nil) or shows a terminal error.
+  ///
+  /// `stop()` is called unconditionally rather than only from `handleCancelQuickConnect`. Releasing our
+  /// reference is NOT enough to end a poll: `QuickConnect` holds itself alive through
+  /// `mainTask = Task { await run() }` and has no `deinit`, so an unstopped controller keeps polling for
+  /// its full `maxPolls` budget (~16 minutes) with nobody listening. It happens to be harmless on the
+  /// paths that reach here today — `run()` returns after `.authenticated` or `.error`, so the task is
+  /// already finished — but making teardown unconditionally safe means no future caller has to re-derive
+  /// that. `stop()` is idempotent, and the `.idle` it publishes is both ignored and undeliverable once
+  /// the subscription below is cancelled.
   @MainActor
   private func teardownQuickConnect() {
+    activeQuickConnect?.stop()
     activeQuickConnect = nil
     quickConnectStateSubscription?.cancel()
     quickConnectStateSubscription = nil
