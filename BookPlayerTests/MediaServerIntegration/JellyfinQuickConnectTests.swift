@@ -96,4 +96,34 @@ final class JellyfinQuickConnectTests: XCTestCase {
     XCTAssertFalse(message.isEmpty)
     XCTAssertNotEqual(message, "jellyfin_quick_connect_error_generic", "key missing from Base.lproj")
   }
+
+  // MARK: - Cancellation during the token exchange
+
+  /// `.authenticated` kicks off a network round-trip while the sheet still shows a live Cancel button.
+  /// Cancelling has to reach that task: otherwise it completes anyway and persists a connection the user
+  /// explicitly backed out of, or re-presents the dismissed sheet with an error for a finished flow.
+  func testCancellingClearsTheStatusEvenMidAuthentication() {
+    viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
+    XCTAssertEqual(viewModel.quickConnectStatus, .authenticating)
+
+    viewModel.handleCancelQuickConnect()
+
+    XCTAssertNil(
+      viewModel.quickConnectStatus,
+      "cancelling during the exchange must leave no status behind to re-present the sheet"
+    )
+  }
+
+  /// Cancelling is not a failure. Before the `CancellationError` arm existed, the cancel path set
+  /// `.failed("The operation couldn't be completed. (Swift.CancellationError error 1.)")` — debug text
+  /// in the UI, and a sheet popping back up after the user dismissed it.
+  func testCancellingDoesNotLeaveAFailureStatus() {
+    viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
+
+    viewModel.handleCancelQuickConnect()
+
+    if case .failed = viewModel.quickConnectStatus {
+      XCTFail("cancellation must not surface as a failure")
+    }
+  }
 }

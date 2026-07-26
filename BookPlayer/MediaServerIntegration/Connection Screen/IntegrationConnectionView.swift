@@ -176,10 +176,14 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     .onDisappear {
       actionTask?.cancel()
       actionTask = nil
-      // Deliberately NOT calling `handleCancelQuickConnect()` here. The Quick Connect sheet is
-      // presented over this view, and if SwiftUI delivers `onDisappear` on that presentation it would
-      // cancel the flow the instant it starts. The gesture-dismiss path already tears down via
-      // `isQuickConnectSheetPresented`'s setter, and the explicit Cancel path does it below.
+      // Safe to tear the Quick Connect flow down here: presenting a `.sheet` does NOT deliver
+      // `onDisappear` to the presenter — it stays in the hierarchy — so this cannot fire when the Quick
+      // Connect sheet opens. (`.fullScreenCover` and a navigation push do remove the presenter; this is
+      // a `.sheet`.) Insurance for the case where the whole modal stack is torn down from elsewhere:
+      // this view model is a `@StateObject` on the presenting sheet, so it would deallocate, dropping
+      // the state subscription while the SDK controller — which self-retains via `mainTask` and has no
+      // `deinit` — kept polling for its full ~16-minute budget. No-op when no flow is running.
+      viewModel.handleCancelQuickConnect()
     }
   }
 

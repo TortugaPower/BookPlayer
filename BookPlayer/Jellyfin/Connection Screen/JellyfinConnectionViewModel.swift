@@ -42,6 +42,15 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// Subscription to the Quick Connect helper's `state` publisher, dropped when the flow ends.
   private var quickConnectStateSubscription: AnyCancellable?
 
+  /// The final token-exchange task, retained so cancelling actually reaches it.
+  ///
+  /// Without a handle there is a full network round-trip — the `.authenticating` phase, during which
+  /// the sheet still shows a live Cancel button — that nothing can stop. Cancelling there used to tear
+  /// down the poller while this kept running, and then either persisted a connection the user had
+  /// explicitly backed out of (dismissing the parent sheet with it) or re-presented the dismissed sheet
+  /// with an error for a flow that was already over.
+  private var quickConnectSignInTask: Task<Void, Never>?
+
   /// Transient handle returned by `findServer`. Held across the connect → sign-in
   /// transition so the service can commit it without touching `self.client` mid-flight.
   private var pendingServer: JellyfinConnectionService.PendingServer?
@@ -296,6 +305,10 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// no flow is running.
   @MainActor
   func handleCancelQuickConnect() {
+    // Cancelled here rather than in `teardownQuickConnect()`, which also runs *from inside* this task
+    // on the success path — cancelling there would have the task cancel itself mid-persist.
+    quickConnectSignInTask?.cancel()
+    quickConnectSignInTask = nil
     activeQuickConnect?.stop()
     teardownQuickConnect()
     quickConnectStatus = nil
@@ -326,8 +339,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       quickConnectStatus = .awaitingCode(code)
     case .authenticated(let secret):
       quickConnectStatus = .authenticating
-      Task { @MainActor in
-        await self.completeQuickConnectSignIn(secret: secret)
+      quickConnectSignInTask = Task { @MainActor [weak self] in
+        await self?.completeQuickConnectSignIn(secret: secret)
       }
     case .error(let qcError):
       Self.logger.error("Quick Connect failed: \(String(describing: qcError))")
@@ -372,6 +385,12 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       signInCompletedAt = Date()
       quickConnectStatus = nil
       teardownQuickConnect()
+    } catch is CancellationError {
+      // The user cancelled during the exchange. `handleCancelQuickConnect` has already cleared the
+      // status and torn the flow down, so there is nothing to report — and surfacing this would pop the
+      // dismissed sheet back up reading "The operation couldn't be completed. (Swift.CancellationError
+      // error 1.)", the same debug-text-as-UI problem the `.other` mapping fixed.
+      return
     } catch {
       Self.logger.error("Quick Connect sign-in failed: \(String(describing: error))")
       // Keep `pendingServer` so the user can retry or fall back to password without re-pinging.
