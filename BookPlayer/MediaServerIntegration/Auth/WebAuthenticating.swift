@@ -165,10 +165,17 @@ private final class Handshake: @unchecked Sendable {
 
   /// Resumes the continuation if it hasn't been resumed yet. Safe to call from any thread, and safe
   /// to call more than once.
+  ///
+  /// Also drops the session, which breaks a reference cycle: the session's completion handler
+  /// captures this `Handshake`, and the handshake holds the session. `ASWebAuthenticationSession`
+  /// isn't documented to release its handler once it fires, so without this both objects outlive
+  /// the flow — guaranteed when `start()` returns `false` and the handler never runs at all.
+  /// `cancel()` reads the session before calling this, so dismissal is unaffected.
   func finish(_ result: Result<URL, Error>) {
     lock.lock()
     let continuation = self.continuation
     self.continuation = nil
+    self.session = nil
     lock.unlock()
     continuation?.resume(with: result)
   }
