@@ -12,7 +12,8 @@ import Foundation
 @MainActor
 @Observable
 class AudiobookShelfConnectionService: BPLogger {
-  private static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
+  /// `nonisolated` so the `nonisolated init` below can read it without crossing isolation.
+  private nonisolated static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
 
   /// Keychain persistence, de-duplication and active-selection bookkeeping, shared with Jellyfin.
   /// Reads below forward into it so views keep observing through this service.
@@ -25,8 +26,11 @@ class AudiobookShelfConnectionService: BPLogger {
   /// Redirect-aware HTTP client for the OIDC handshake. Separate from `urlSession` because the
   /// handshake needs a client that can decline redirects *and* share one cookie jar across its two
   /// server calls — see ``AudiobookShelfOIDCFlow``.
-  private let httpClient: IntegrationHTTPClient
-  private let webAuthenticator: WebAuthenticating
+  private nonisolated let httpClient: IntegrationHTTPClient
+  /// `nonisolated(unsafe)` because `WebAuthenticating` is a `@MainActor` protocol but this init is
+  /// `nonisolated` (the services are built as `@Entry` environment placeholders outside any actor).
+  /// Safe by construction: written exactly once during init, and only ever *called* from MainActor code.
+  private nonisolated(unsafe) let webAuthenticator: WebAuthenticating
 
   var activeConnectionID: String? { store.activeConnectionID }
 

@@ -34,7 +34,7 @@ protocol WebAuthenticating {
 final class WebAuthenticationSession: NSObject, WebAuthenticating, BPLogger {
   /// Holds the in-flight handshake. Doubles as the strong reference the system session needs (it
   /// tears its sheet down if released while suspended) and as the single-flight guard.
-  private var pending: Handshake?
+  private var pending: WebAuthHandshake?
 
   /// The window validated before starting. Resolved up front so the delegate never has to invent an
   /// anchor — handing `ASWebAuthenticationSession` a detached `UIWindow` is what produces
@@ -74,7 +74,7 @@ final class WebAuthenticationSession: NSObject, WebAuthenticating, BPLogger {
       self.anchor = nil
     }
 
-    let handshake = Handshake()
+    let handshake = WebAuthHandshake()
     pending = handshake
 
     return try await withTaskCancellationHandler {
@@ -103,13 +103,16 @@ final class WebAuthenticationSession: NSObject, WebAuthenticating, BPLogger {
 
         session.presentationContextProvider = self
         session.prefersEphemeralWebBrowserSession = prefersEphemeralSession
-        handshake.adopt(session)
+
+        // Bail before presenting anything if cancellation beat us here — `adopt` has already resumed
+        // the continuation, and starting now would show a sheet for an abandoned task.
+        guard handshake.adopt(session) else { return }
 
         if !session.start() {
           // `start()` returning false and the completion handler firing are *not* documented as
           // mutually exclusive — `presentationContextNotProvided` and `presentationContextInvalid`
           // are both start-time conditions whose only reporting channel is that handler. Resuming a
-          // checked continuation twice traps, so `Handshake` makes the first resume win.
+          // checked continuation twice traps, so `WebAuthHandshake` makes the first resume win.
           handshake.finish(.failure(IntegrationError.unexpectedResponse(code: nil)))
         }
       }
@@ -146,33 +149,66 @@ extension WebAuthenticationSession: ASWebAuthenticationPresentationContextProvid
 /// Locked rather than actor-isolated because the completion handler and the task-cancellation
 /// callback can each arrive on an arbitrary thread. Resuming twice traps and never resuming hangs the
 /// caller, so both outcomes funnel through `finish`.
-private final class Handshake: @unchecked Sendable {
+/// Internal rather than private purely so `WebAuthenticatingTests` can pin the cancellation orderings
+/// below — they are timing-dependent in production and would otherwise be untestable.
+final class WebAuthHandshake: @unchecked Sendable {
   private let lock = NSLock()
   private var continuation: CheckedContinuation<URL, Error>?
   private var session: ASWebAuthenticationSession?
 
+  /// Set once the handshake reaches a terminal state — by `cancel()`, or by any `finish()`.
+  ///
+  /// `withTaskCancellationHandler` invokes `onCancel` *immediately* when the surrounding Task is
+  /// already cancelled — which can happen before the operation closure has handed us either the
+  /// continuation or the session. Without this flag that ordering silently loses the cancellation:
+  /// `cancel()` finds both `nil` and does nothing, then the closure starts the session anyway and the
+  /// user gets a browser sheet for work nobody is waiting on — and because `authenticate` never
+  /// returns, its `defer` never clears `pending`, so every later attempt trips the single-flight guard.
+  ///
+  /// Set in `finish` as well as `cancel` so the rule is "terminal is terminal" rather than something
+  /// that depends on which call sites happen to run in which order.
+  private var isTerminal = false
+
+  /// Stores the continuation, or resumes it straight away if cancellation already arrived.
   func adopt(_ continuation: CheckedContinuation<URL, Error>) {
     lock.lock()
+    if isTerminal {
+      lock.unlock()
+      continuation.resume(throwing: CancellationError())
+      return
+    }
     self.continuation = continuation
     lock.unlock()
   }
 
-  func adopt(_ session: ASWebAuthenticationSession) {
+  /// - Returns: `false` when cancellation already arrived, in which case the caller must **not** start
+  ///   the session — the continuation has already been resumed.
+  ///
+  /// Deliberately **not** `@discardableResult`: obeying this value is the entire fix. Marking it
+  /// discardable would let a future edit drop the `guard` at the call site, silently reintroduce the
+  /// abandoned-sheet bug, and still compile with every test green.
+  func adopt(_ session: ASWebAuthenticationSession) -> Bool {
     lock.lock()
+    if isTerminal {
+      lock.unlock()
+      return false
+    }
     self.session = session
     lock.unlock()
+    return true
   }
 
   /// Resumes the continuation if it hasn't been resumed yet. Safe to call from any thread, and safe
   /// to call more than once.
   ///
   /// Also drops the session, which breaks a reference cycle: the session's completion handler
-  /// captures this `Handshake`, and the handshake holds the session. `ASWebAuthenticationSession`
+  /// captures this `WebAuthHandshake`, and the handshake holds the session. `ASWebAuthenticationSession`
   /// isn't documented to release its handler once it fires, so without this both objects outlive
   /// the flow — guaranteed when `start()` returns `false` and the handler never runs at all.
   /// `cancel()` reads the session before calling this, so dismissal is unaffected.
   func finish(_ result: Result<URL, Error>) {
     lock.lock()
+    isTerminal = true
     let continuation = self.continuation
     self.continuation = nil
     self.session = nil
@@ -184,6 +220,7 @@ private final class Handshake: @unchecked Sendable {
   /// handler, but resuming here as well costs nothing and removes any chance of a hang if it doesn't.
   func cancel() {
     lock.lock()
+    isTerminal = true
     let session = self.session
     lock.unlock()
     finish(.failure(CancellationError()))

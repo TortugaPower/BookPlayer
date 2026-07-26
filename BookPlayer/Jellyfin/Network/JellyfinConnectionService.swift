@@ -40,7 +40,8 @@ final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
 @MainActor
 @Observable
 class JellyfinConnectionService: BPLogger {
-  private static let activeConnectionIDKey = "jellyfin_active_connection_id"
+  /// `nonisolated` so the `nonisolated init` below can read it without crossing isolation.
+  private nonisolated static let activeConnectionIDKey = "jellyfin_active_connection_id"
 
   /// Keychain persistence, de-duplication and active-selection bookkeeping, shared with
   /// AudiobookShelf. Reads below forward into it so views keep observing through this service.

@@ -176,6 +176,41 @@ final class AudiobookShelfOIDCFlowTests: XCTestCase {
     XCTAssertEqual(exchangeQuery.first { $0.name == "code" }?.value, "abc")
   }
 
+  /// AudiobookShelf runs on Express, whose query parser decodes `+` as a space. `URLQueryItem` leaves
+  /// `+` and `/` literal, so an opaque authorization code containing either would arrive corrupted and
+  /// the exchange would fail with an unhelpful error. RFC 6749 §A.11 permits any VSCHAR in a code, so
+  /// this is a real shape, not a hypothetical — and it's the same footgun the library `filter` param
+  /// already works around.
+  func testRunPercentEncodesAnAuthorizationCodeContainingPlusAndSlash() async throws {
+    webAuth.outcome = .code("aa+bb/cc=dd")
+    http.dataResult = .success(
+      (Self.userPayload(token: "t", id: "u", username: "gianni"), 200)
+    )
+
+    _ = try await sut.run(
+      baseURL: secureURL, serverName: "Test", customHeaders: [:], prefersEphemeralSession: false
+    )
+
+    let query = try XCTUnwrap(http.dataRequests.first?.url?.query)
+    XCTAssertTrue(query.contains("code=aa%2Bbb%2Fcc%3Ddd"), "code was not fully encoded: \(query)")
+    XCTAssertFalse(query.contains("aa+bb"), "a literal + would be decoded as a space by Express")
+
+    // And the server must still receive the original value once decoded.
+    let decoded = try XCTUnwrap(
+      URLComponents(url: try XCTUnwrap(http.dataRequests.first?.url), resolvingAgainstBaseURL: false)?
+        .queryItems?.first { $0.name == "code" }?.value
+    )
+    XCTAssertEqual(decoded, "aa+bb/cc=dd")
+  }
+
+  func testQueryEncodingLeavesUnreservedCharactersAlone() {
+    // Over-encoding would be just as broken as under-encoding.
+    XCTAssertEqual(AudiobookShelfOIDCFlow.queryEncoded("abcXYZ019-._~"), "abcXYZ019-._~")
+    XCTAssertEqual(AudiobookShelfOIDCFlow.queryEncoded("a+b"), "a%2Bb")
+    XCTAssertEqual(AudiobookShelfOIDCFlow.queryEncoded("a/b"), "a%2Fb")
+    XCTAssertEqual(AudiobookShelfOIDCFlow.queryEncoded("a=b&c"), "a%3Db%26c")
+  }
+
   func testRunFallsBackToNameThenServerNameForTheLabel() async throws {
     webAuth.outcome = .code("abc")
     let json = #"{"user":{"token":"t","id":"u","name":"Display Name"}}"#
@@ -298,7 +333,9 @@ final class AudiobookShelfOIDCFlowTests: XCTestCase {
 
 /// Propagates `state` the way AudiobookShelf does — its 302 `Location` carries the state we sent — so
 /// the tests exercise the real round-trip instead of a hardcoded value the flow would rightly reject.
-private final class IntegrationHTTPClientStub: IntegrationHTTPClient {
+/// `@unchecked Sendable`: a single-threaded test double whose knobs are set before use, matching
+/// `KeychainServiceMock`. `IntegrationHTTPClient` is `Sendable`, so the conformance is required.
+private final class IntegrationHTTPClientStub: IntegrationHTTPClient, @unchecked Sendable {
   /// When set, the authorize request fails with this instead of answering.
   var redirectFailure: Error?
   var identityProviderURL = "https://idp.example.com/authorize"

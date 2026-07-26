@@ -203,7 +203,9 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
 /// Answers the plain-HTTP calls the view model makes (`/ping`, `/status`) plus the OIDC exchange.
 /// `AudiobookShelfConnectionService` still owns a private `URLSession` for `/ping` and `/status`, so
 /// those are routed through here only where the service uses the injected client.
-private final class OIDCHTTPStub: IntegrationHTTPClient {
+/// `@unchecked Sendable`: a single-threaded test double whose knobs are set before use, matching
+/// `KeychainServiceMock`. `IntegrationHTTPClient` is `Sendable`, so the conformance is required.
+private final class OIDCHTTPStub: IntegrationHTTPClient, @unchecked Sendable {
   var pingPayload = Data(#"{"success":true}"#.utf8)
   var statusPayload = Data("{}".utf8)
   var exchangePayload = Data(#"{"user":{"token":"t","id":"u1","username":"gianni"}}"#.utf8)

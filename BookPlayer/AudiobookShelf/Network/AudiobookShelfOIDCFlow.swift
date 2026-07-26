@@ -259,13 +259,21 @@ struct AudiobookShelfOIDCFlow: BPLogger {
     }
 
     // ABS registers this endpoint as GET only and reads `code_verifier` off the query string, so
-    // these can't be moved into a request body. Both values are single-use and PKCE-bound, and
+    // these can't be moved into a request body. All three are single-use and PKCE-bound, and
     // `AppDelegate` scrubs `http.query` out of Sentry so they don't reach telemetry.
-    components.queryItems = [
-      URLQueryItem(name: "state", value: state),
-      URLQueryItem(name: "code", value: code),
-      URLQueryItem(name: "code_verifier", value: verifier),
-    ]
+    //
+    // Built via `percentEncodedQuery` rather than `URLQueryItem` on purpose. `URLQueryItem` leaves
+    // `+` and `/` literal, and ABS runs on Express, whose query parser decodes `+` as a space — the
+    // same footgun the library `filter` param already works around. `state` and `code_verifier` are
+    // base64url by construction and so unaffected, but the authorization code is opaque and may
+    // legitimately contain `+` (RFC 6749 §A.11 allows any VSCHAR), which would arrive corrupted and
+    // fail the exchange with an opaque error. Encoding everything down to the unreserved set is
+    // immune to that and to any other sub-delimiter Express might reinterpret.
+    components.percentEncodedQuery = [
+      "state=\(Self.queryEncoded(state))",
+      "code=\(Self.queryEncoded(code))",
+      "code_verifier=\(Self.queryEncoded(verifier))",
+    ].joined(separator: "&")
     guard let url = components.url else {
       throw IntegrationError.urlFromComponents(components)
     }
@@ -320,6 +328,17 @@ struct AudiobookShelfOIDCFlow: BPLogger {
 
     Self.logger.info("OIDC exchange succeeded, connection credentials obtained")
     return Credentials(userID: userID, userName: userName, apiToken: apiToken)
+  }
+
+  /// RFC 3986 unreserved set. Everything outside it is percent-encoded, so no sub-delimiter survives
+  /// into the query for a server-side parser to reinterpret.
+  private static let unreservedQueryCharacters = CharacterSet(
+    charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+  )
+
+  /// `internal` so `AudiobookShelfOIDCFlowTests` can assert the encoding directly.
+  static func queryEncoded(_ value: String) -> String {
+    value.addingPercentEncoding(withAllowedCharacters: unreservedQueryCharacters) ?? value
   }
 
   private static func apply(_ headers: [String: String], to request: inout URLRequest) {

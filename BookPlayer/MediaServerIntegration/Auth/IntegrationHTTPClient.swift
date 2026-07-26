@@ -10,7 +10,7 @@ import Foundation
 
 /// The HTTP surface the integration auth flows need, behind a protocol so those flows can be driven
 /// in tests without a network or a server.
-protocol IntegrationHTTPClient {
+protocol IntegrationHTTPClient: Sendable {
   func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse)
 
   /// Issues `request` **without following redirects** and returns the URL it was redirected to.
