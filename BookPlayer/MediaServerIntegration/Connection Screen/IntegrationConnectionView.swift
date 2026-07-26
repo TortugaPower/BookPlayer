@@ -197,6 +197,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleConnectAction()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         // Sheet dismissed mid-flight; nothing to surface.
       } catch {
@@ -213,6 +219,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleSignInAction()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         return
       } catch {
@@ -231,6 +243,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleStartOIDC()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         return
       } catch {

@@ -106,6 +106,11 @@ final class JellyfinQuickConnectTests: XCTestCase {
   /// The `await` on the task handle is load-bearing. `handleQuickConnectStateChange` schedules the
   /// exchange on the MainActor, and this test body is already MainActor-isolated, so without awaiting it
   /// the task body cannot run before the assertions and the test passes no matter what the code does.
+  ///
+  /// What this actually pins: the **pre-flight** `guard !Task.isCancelled` at the top of
+  /// `completeQuickConnectSignIn`. The fixture has no `pendingServer`, so the `do`/`catch` is never
+  /// entered and the in-`catch` cancellation check is NOT covered by these tests. Covering it needs a
+  /// seam to inject a throwing sign-in; until then that arm rests on inspection.
   func testCancellingClearsTheStatusEvenMidAuthentication() async {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
     XCTAssertEqual(viewModel.quickConnectStatus, .authenticating)
@@ -122,9 +127,11 @@ final class JellyfinQuickConnectTests: XCTestCase {
     )
   }
 
-  /// Cancelling is not a failure. The exchange bails on `Task.isCancelled` rather than on a specific
-  /// error type — cancelling it surfaces as `URLError.cancelled` from Get's data loader, not
-  /// `CancellationError`, so matching on the error type missed the common window entirely.
+  /// Cancelling is not a failure — no error status is left behind for the sheet to re-present.
+  ///
+  /// Scope, same as above: this pins the pre-flight guard. The `Task.isCancelled` re-check inside the
+  /// `catch` — the one that matters when cancellation lands *during* the round-trip, where it arrives as
+  /// `URLError.cancelled` from Get's data loader rather than `CancellationError` — is not exercised here.
   func testCancellingDoesNotLeaveAFailureStatus() async {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
 
@@ -137,9 +144,9 @@ final class JellyfinQuickConnectTests: XCTestCase {
     }
   }
 
-  /// The un-cancelled path must still report: with no validated server the exchange can't proceed, and
-  /// the user needs to see that rather than a sheet that silently does nothing. This is the control for
-  /// the two tests above — it proves they're observing cancellation, not just an early return.
+  /// The control for the two tests above. Same fixture, same entry point, only the cancellation removed —
+  /// and it lands on `.failed` instead. That difference is what proves those two are observing the
+  /// cancellation guard rather than any early return that would fire either way.
   func testUncancelledExchangeWithoutAPendingServerReportsFailure() async {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
 
