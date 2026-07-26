@@ -125,11 +125,13 @@ struct IntegrationQuickConnectSheetView: View {
         ProgressView()
           .controlSize(.large)
         Text("integration_quick_connect_retrieving_message".localized)
+          .bpFont(.body)
           .foregroundStyle(theme.secondaryColor)
       }
 
     case .awaitingCode:
       Text("integration_quick_connect_awaiting_message".localized)
+        .bpFont(.body)
         .multilineTextAlignment(.center)
         .foregroundStyle(theme.primaryColor)
 
@@ -138,6 +140,7 @@ struct IntegrationQuickConnectSheetView: View {
         ProgressView()
           .controlSize(.large)
         Text("integration_quick_connect_authenticating_message".localized)
+          .bpFont(.body)
           .foregroundStyle(theme.secondaryColor)
       }
 
@@ -148,6 +151,7 @@ struct IntegrationQuickConnectSheetView: View {
           .foregroundStyle(theme.errorColor)
           .accessibilityHidden(true)
         Text(message)
+          .bpFont(.body)
           .multilineTextAlignment(.center)
           .foregroundStyle(theme.primaryColor)
       }
@@ -164,6 +168,8 @@ struct IntegrationQuickConnectSheetView: View {
         // Text-style-relative, not an absolute point size: this is the one element the sheet exists to
         // communicate, so it has to grow at accessibility text sizes. `minimumScaleFactor` keeps a
         // scaled-up code with `tracking` from clipping on a narrow screen.
+        // Deliberately not `bpFont`: `BPFont` has no monospaced case, and a monospaced digit is what
+        // makes a transcribed code unambiguous (0/O, 1/l). Don't "fix" this to match the text around it.
         .font(.system(.largeTitle, design: .monospaced).weight(.semibold))
         .minimumScaleFactor(0.5)
         .tracking(Self.codeLetterSpacing)
