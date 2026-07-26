@@ -99,7 +99,10 @@ struct JellyfinRootView: View {
           // Session expired: Retry would just hit the same 401, so omit it.
           Button("integration_connection_details_title".localized) {
             loadError = nil
-            connectionViewModel.signInFlow = nil
+            // `prepareReauth()` rather than `signInFlow = nil`: the details screen is read-only and
+            // its only button is Log out, so landing there left no way to sign back in. Connect also
+            // has to run again here to rebuild the transient Jellyfin client.
+            connectionViewModel.prepareReauth()
             showConnectionForm = true
           }
           Button("cancel_button".localized, role: .cancel) {

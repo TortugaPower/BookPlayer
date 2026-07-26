@@ -887,6 +887,7 @@
 		F6348C04290CD2CE7BE3F015 /* IntegrationConnectionDataDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */; };
 		F7CB281CF765C468BFA9B0D8 /* IntegrationDetailsViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E351A8B30ABCBA9EC00EF /* IntegrationDetailsViewModelProtocol.swift */; };
 		F906EF4FC85B1CCE138B230D /* PasskeyEmailInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */; };
+		F97E68221AB7CDFB93CC0AF7 /* AudiobookShelfConnectionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */; };
 		F9FA95F9A4AE359006A85B88 /* PreferencesAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */; };
 		FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */; };
 		FEEDBABE0000000000000002 /* SharedWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEDBABE0000000000000001 /* SharedWidgetStore.swift */; };
@@ -1508,6 +1509,7 @@
 		638487CA2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookShelfAudiobookDetailsView.swift; sourceTree = "<group>"; };
 		638487CB2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudiobookShelfAudiobookDetailsViewModel.swift; sourceTree = "<group>"; };
 		638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListSelectionView.swift; sourceTree = "<group>"; };
+		638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AudiobookShelfConnectionViewModelTests.swift; sourceTree = "<group>"; };
 		638D91A72E60AAA600B62BDD /* ImportOperationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationState.swift; sourceTree = "<group>"; };
 		638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCountService.swift; sourceTree = "<group>"; };
 		6397206E2CA71D600045A4DB /* .swift-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-format"; sourceTree = "<group>"; };
@@ -2553,6 +2555,7 @@
 				269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */,
 				EC10E1E47E1F6982D8F6A552 /* AudiobookShelfOIDCFlowTests.swift */,
 				2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */,
+				638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */,
 			);
 			name = MediaServerIntegration;
 			path = MediaServerIntegration;
@@ -4961,6 +4964,7 @@
 				02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */,
 				8A0883CB5B4914B2DCB70A5E /* AudiobookShelfOIDCFlowTests.swift in Sources */,
 				F6348C04290CD2CE7BE3F015 /* IntegrationConnectionDataDecodingTests.swift in Sources */,
+				F97E68221AB7CDFB93CC0AF7 /* AudiobookShelfConnectionViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

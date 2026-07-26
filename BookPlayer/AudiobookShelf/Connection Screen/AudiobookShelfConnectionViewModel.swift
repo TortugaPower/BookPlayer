@@ -156,7 +156,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       isAddingServer = false
 
       if let data = connectionService.connection {
-        form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+        form.setValues(
+          url: data.url.absoluteString,
+          serverName: data.serverName,
+          userName: data.userName,
+          customHeaders: data.customHeaders
+        )
       }
       signInFlow = nil
       signInCompletedAt = Date()
@@ -165,6 +170,26 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     } catch {
       throw error
     }
+  }
+
+  @MainActor
+  func prepareReauth() {
+    let data = targetConnectionId.flatMap { id in
+      connectionService.connections.first(where: { $0.id == id })
+    } ?? connectionService.connection
+
+    if let data {
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
+    }
+    // Anything captured for a previous attempt is stale now.
+    pingedURL = nil
+    capabilities = .init()
+    signInFlow = .enteringServerURL
   }
 
   /// Normalize the user-typed server URL before we send a request:
@@ -194,7 +219,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     form = IntegrationConnectionFormViewModel()
     signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -204,14 +234,24 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       form = IntegrationConnectionFormViewModel()
       signInFlow = .enteringServerURL
     } else if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
   func handleActivateAction(id: String) {
     connectionService.activateConnection(id: id)
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -229,7 +269,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     pingedURL = nil
     capabilities = .init()
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -264,7 +309,12 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     capabilities = .init()
     isAddingServer = false
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
     signInFlow = nil
     signInCompletedAt = Date()

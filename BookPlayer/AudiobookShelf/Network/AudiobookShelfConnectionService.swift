@@ -33,12 +33,14 @@ class AudiobookShelfConnectionService: BPLogger {
   nonisolated init(
     keychainService: KeychainServiceProtocol = KeychainService(),
     httpClient: IntegrationHTTPClient = IntegrationURLSessionClient(),
-    webAuthenticator: WebAuthenticating = WebAuthenticationSession()
+    webAuthenticator: WebAuthenticating = WebAuthenticationSession(),
+    defaults: UserDefaults = .standard
   ) {
     self.store = IntegrationConnectionStore(
       keychainKey: .audiobookshelfConnection,
       activeIDDefaultsKey: Self.activeConnectionIDKey,
-      keychain: keychainService
+      keychain: keychainService,
+      defaults: defaults
     )
     self.httpClient = httpClient
     self.webAuthenticator = webAuthenticator
@@ -67,15 +69,14 @@ class AudiobookShelfConnectionService: BPLogger {
     request.timeoutInterval = 10
     applyCustomHeaders(to: &request, headers: customHeaders)
 
-    let (data, response) = try await urlSession.data(for: request)
+    // Goes through the injected client, like the rest of the connect/auth path, so the whole
+    // Connect → capabilities → sign-in sequence can be driven in tests without a server.
+    let (data, httpResponse) = try await httpClient.data(for: request)
 
     // `pingServer` is an unauthenticated probe (typically for Add Server). Do NOT route
     // its non-2xx responses through `validateAuthenticatedResponse`, which would mis-throw
     // `.sessionExpired(serverName: <some-other-saved-server>)` and push the user toward
     // re-authenticating an unrelated connection.
-    guard let httpResponse = response as? HTTPURLResponse else {
-      throw IntegrationError.unexpectedResponse(code: nil)
-    }
     guard (200...299).contains(httpResponse.statusCode) else {
       throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
@@ -120,8 +121,7 @@ class AudiobookShelfConnectionService: BPLogger {
     applyCustomHeaders(to: &request, headers: customHeaders)
 
     guard
-      let (data, response) = try? await urlSession.data(for: request),
-      let http = response as? HTTPURLResponse,
+      let (data, http) = try? await httpClient.data(for: request),
       (200...299).contains(http.statusCode),
       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     else {

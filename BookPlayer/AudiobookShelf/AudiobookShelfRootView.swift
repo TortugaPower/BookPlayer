@@ -141,7 +141,10 @@ struct AudiobookShelfRootView: View {
           // Session expired: Retry would just hit the same 401, so omit it.
           Button("integration_connection_details_title".localized) {
             loadError = nil
-            connectionViewModel.signInFlow = nil
+            // `prepareReauth()` rather than `signInFlow = nil`: the details screen is read-only and
+            // its only button is Log out, so landing there left the user with no way to sign back in
+            // — fatal for an SSO connection, which has no password to fall back on.
+            connectionViewModel.prepareReauth()
             showConnectionForm = true
           }
           Button("cancel_button".localized, role: .cancel) {
