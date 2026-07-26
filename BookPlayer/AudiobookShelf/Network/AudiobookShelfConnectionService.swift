@@ -12,34 +12,49 @@ import Foundation
 @MainActor
 @Observable
 class AudiobookShelfConnectionService: BPLogger {
-  private static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
+  /// `nonisolated` so the `nonisolated init` below can read it without crossing isolation.
+  private nonisolated static let activeConnectionIDKey = "audiobookshelf_active_connection_id"
 
-  private nonisolated let keychainService: KeychainServiceProtocol
+  /// Keychain persistence, de-duplication and active-selection bookkeeping, shared with Jellyfin.
+  /// Reads below forward into it so views keep observing through this service.
+  private let store: IntegrationConnectionStore<AudiobookShelfConnectionData>
 
-  var connections: [AudiobookShelfConnectionData] = []
-  var connection: AudiobookShelfConnectionData? {
-    if let activeConnectionID,
-       let active = connections.first(where: { $0.id == activeConnectionID }) {
-      return active
-    }
-    return connections.first
-  }
+  var connections: [AudiobookShelfConnectionData] { store.connections }
+  var connection: AudiobookShelfConnectionData? { store.active }
   private let urlSession: URLSession
 
-  private(set) var activeConnectionID: String? {
-    get { UserDefaults.standard.string(forKey: Self.activeConnectionIDKey) }
-    set { UserDefaults.standard.set(newValue, forKey: Self.activeConnectionIDKey) }
-  }
+  /// Redirect-aware HTTP client for the OIDC handshake. Separate from `urlSession` because the
+  /// handshake needs a client that can decline redirects *and* share one cookie jar across its two
+  /// server calls — see ``AudiobookShelfOIDCFlow``.
+  private nonisolated let httpClient: IntegrationHTTPClient
+  /// `nonisolated` (not `nonisolated(unsafe)`) because `WebAuthenticating` is `Sendable`: the compiler
+  /// checks that holding one here is safe, instead of the safety resting on a comment that a future
+  /// edit could invalidate.
+  private nonisolated let webAuthenticator: WebAuthenticating
 
-  nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
-    self.keychainService = keychainService
+  var activeConnectionID: String? { store.activeConnectionID }
+
+  nonisolated init(
+    keychainService: KeychainServiceProtocol = KeychainService(),
+    httpClient: IntegrationHTTPClient = IntegrationURLSessionClient(),
+    webAuthenticator: WebAuthenticating = WebAuthenticationSession(),
+    defaults: UserDefaults = .standard
+  ) {
+    self.store = IntegrationConnectionStore(
+      keychainKey: .audiobookshelfConnection,
+      activeIDDefaultsKey: Self.activeConnectionIDKey,
+      keychain: keychainService,
+      defaults: defaults
+    )
+    self.httpClient = httpClient
+    self.webAuthenticator = webAuthenticator
     let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 15
     self.urlSession = URLSession(configuration: configuration)
   }
 
   func setup() {
-    reloadConnections()
+    store.reload()
   }
 
   /// Pings the server to verify it exists and returns the server version
@@ -58,15 +73,14 @@ class AudiobookShelfConnectionService: BPLogger {
     request.timeoutInterval = 10
     applyCustomHeaders(to: &request, headers: customHeaders)
 
-    let (data, response) = try await urlSession.data(for: request)
+    // Goes through the injected client, like the rest of the connect/auth path, so the whole
+    // Connect → capabilities → sign-in sequence can be driven in tests without a server.
+    let (data, httpResponse) = try await httpClient.data(for: request)
 
     // `pingServer` is an unauthenticated probe (typically for Add Server). Do NOT route
     // its non-2xx responses through `validateAuthenticatedResponse`, which would mis-throw
     // `.sessionExpired(serverName: <some-other-saved-server>)` and push the user toward
     // re-authenticating an unrelated connection.
-    guard let httpResponse = response as? HTTPURLResponse else {
-      throw IntegrationError.unexpectedResponse(code: nil)
-    }
     guard (200...299).contains(httpResponse.statusCode) else {
       throw IntegrationError.unexpectedResponse(code: httpResponse.statusCode)
     }
@@ -82,6 +96,49 @@ class AudiobookShelfConnectionService: BPLogger {
     }
 
     return "Unknown"
+  }
+
+  /// What a server told us it can do, so the UI only offers sign-in methods that can actually work.
+  struct ServerCapabilities: Equatable {
+    var supportsOIDC: Bool = false
+    /// The provider button label ABS's own web UI shows, e.g. "Login with OpenId". Preferring the
+    /// server's wording means a user sees the same label here as in the browser.
+    var oidcButtonText: String?
+  }
+
+  /// Best-effort capability probe against `/status`.
+  ///
+  /// Deliberately non-throwing: a server that doesn't answer `/status`, or answers something we don't
+  /// recognise, simply isn't offered SSO — the safe default. Failing the whole connect step over a
+  /// capability probe would block password sign-in for no good reason.
+  public func fetchCapabilities(
+    at absolutePath: String,
+    customHeaders: [String: String] = [:]
+  ) async -> ServerCapabilities {
+    guard let url = URL(string: absolutePath)?.appendingPathComponent("status") else {
+      return ServerCapabilities()
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.timeoutInterval = 10
+    applyCustomHeaders(to: &request, headers: customHeaders)
+
+    guard
+      let (data, http) = try? await httpClient.data(for: request),
+      (200...299).contains(http.statusCode),
+      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else {
+      return ServerCapabilities()
+    }
+
+    let methods = (json["authMethods"] as? [String]) ?? []
+    let buttonText = (json["authFormData"] as? [String: Any])?["authOpenIDButtonText"] as? String
+
+    return ServerCapabilities(
+      supportsOIDC: methods.contains("openid"),
+      oidcButtonText: buttonText?.isEmpty == false ? buttonText : nil
+    )
   }
 
   /// Sign into the server and store the connection data
@@ -131,37 +188,90 @@ class AudiobookShelfConnectionService: BPLogger {
       throw IntegrationError.unexpectedResponse(code: nil)
     }
 
-    // On re-auth, preserve the existing connection's id + selectedLibraryId so the user
-    // picks up exactly where they left off (same library context, same outbound references)
-    // instead of being reset to a fresh record.
-    let existing = connections.first {
-      $0.url.canonicalDedupKey == url.canonicalDedupKey && $0.userID == userID
-    }
-    let connectionData = AudiobookShelfConnectionData(
-      id: existing?.id ?? UUID().uuidString,
+    persist(
       url: url,
       serverName: serverName,
       userID: userID,
       userName: username,
       apiToken: apiToken,
-      selectedLibraryId: existing?.selectedLibraryId,
       customHeaders: customHeaders
     )
+  }
 
-    // Deduplicate on canonical-url + userID so that trailing-slash, port, and scheme-case
-    // variants of the same logical server don't accumulate as separate connections.
-    connections.removeAll {
-      $0.url.canonicalDedupKey == url.canonicalDedupKey && $0.userID == userID
+  /// Saves a freshly authenticated connection, whatever the sign-in method was.
+  ///
+  /// The store handles de-duplication on canonical-url + userID (so trailing-slash, port and
+  /// scheme-case variants of one logical server don't accumulate) and carries the existing `id` +
+  /// `selectedLibraryId` forward on re-auth, so the user resumes in the same library context with
+  /// the same outbound references instead of getting a fresh record. Revoking a replaced token is
+  /// the integration-specific part, so it stays here.
+  private func persist(
+    url: URL,
+    serverName: String,
+    userID: String,
+    userName: String,
+    apiToken: String,
+    customHeaders: [String: String]
+  ) {
+    let result = store.upsert(url: url, userID: userID) { existing in
+      AudiobookShelfConnectionData(
+        id: existing?.id ?? UUID().uuidString,
+        url: url,
+        serverName: serverName,
+        userID: userID,
+        userName: userName,
+        apiToken: apiToken,
+        selectedLibraryId: existing?.selectedLibraryId,
+        customHeaders: customHeaders
+      )
     }
-    connections.append(connectionData)
-    activeConnectionID = connectionData.id
-    saveConnections()
 
-    // If we just replaced a previous token for this same logical server, revoke the old
-    // one server-side so it doesn't linger in ABS's token list.
-    if let stale = existing, stale.apiToken != apiToken {
+    // If we replaced a previous token for this same logical server, revoke the old one server-side
+    // so it doesn't linger in ABS's token list.
+    if let stale = result.replaced, stale.apiToken != apiToken {
       revokeTokenInBackground(connection: stale)
     }
+  }
+
+  /// Sign in via AudiobookShelf's native OpenID Connect ("SSO") flow and store the connection.
+  ///
+  /// The handshake itself lives in ``AudiobookShelfOIDCFlow`` — the hop ordering there is subtle and
+  /// worth reading before changing anything. On success the flow hands back the same
+  /// `user.token` shape the password path produces, so persistence, de-duplication and re-auth all
+  /// reuse ``persist(url:serverName:userID:userName:apiToken:customHeaders:)``.
+  public func signInWithOIDC(
+    serverUrl: String,
+    serverName: String,
+    customHeaders: [String: String] = [:]
+  ) async throws {
+    guard let baseURL = URL(string: serverUrl) else {
+      throw IntegrationError.urlMalformed(nil)
+    }
+
+    let flow = AudiobookShelfOIDCFlow(http: httpClient, webAuth: webAuthenticator)
+    // Use a fresh browser session when this server already has a connection saved: otherwise the
+    // provider's live SSO cookie signs the *existing* user straight back in, making it impossible to
+    // add a second account.
+    let hasExistingConnection = connections.contains {
+      $0.url.canonicalDedupKey == baseURL.canonicalDedupKey
+    }
+
+    let credentials = try await flow.run(
+      baseURL: baseURL,
+      serverName: serverName,
+      customHeaders: customHeaders,
+      prefersEphemeralSession: hasExistingConnection
+    )
+    try Task.checkCancellation()
+
+    persist(
+      url: baseURL,
+      serverName: serverName,
+      userID: credentials.userID,
+      userName: credentials.userName,
+      apiToken: credentials.apiToken,
+      customHeaders: customHeaders
+    )
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {
@@ -171,44 +281,21 @@ class AudiobookShelfConnectionService: BPLogger {
 
   /// Persist `headers` to the connection with the given id, regardless of which is active.
   func updateCustomHeaders(id: String, _ headers: [String: String]) {
-    guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
-    connections[index].customHeaders = headers
-    saveConnections()
+    store.updateCustomHeaders(id: id, headers)
   }
 
   func saveSelectedLibrary(id: String?) {
-    guard let activeID = connection?.id,
-          let index = connections.firstIndex(where: { $0.id == activeID }) else { return }
-    connections[index].selectedLibraryId = id
-    saveConnections()
+    guard let activeID = connection?.id else { return }
+    store.setSelectedLibrary(id: activeID, libraryId: id)
   }
 
   func activateConnection(id: String) {
-    guard connections.contains(where: { $0.id == id }) else { return }
-    activeConnectionID = id
+    store.setActive(id: id)
   }
 
   func deleteConnection(id: String) {
-    // Capture the connection BEFORE removing so we can fire a server-side logout.
-    let removed = connections.first(where: { $0.id == id })
-
-    connections.removeAll { $0.id == id }
-
-    if activeConnectionID == id {
-      activeConnectionID = connections.first?.id
-    }
-
-    if connections.isEmpty {
-      do {
-        try keychainService.remove(.audiobookshelfConnection)
-      } catch {
-        Self.logger.warning("failed to remove connection data from keychain: \(error)")
-      }
-    } else {
-      saveConnections()
-    }
-
-    if let removed {
+    // Revoke the dropped connection's token server-side so ABS doesn't accumulate orphans.
+    if let removed = store.remove(id: id) {
       revokeTokenInBackground(connection: removed)
     }
   }
@@ -548,38 +635,6 @@ class AudiobookShelfConnectionService: BPLogger {
     return request
   }
 
-  private func reloadConnections() {
-    // Try array format first
-    if let storedConnections: [AudiobookShelfConnectionData] = try? keychainService.get(.audiobookshelfConnection) {
-      connections = storedConnections.filter { isConnectionValid($0) }
-      if connections.count != storedConnections.count {
-        saveConnections()
-      }
-    } else if let single: AudiobookShelfConnectionData = try? keychainService.get(.audiobookshelfConnection),
-              isConnectionValid(single) {
-      // Migrate from single-connection format
-      connections = [single]
-      saveConnections()
-    } else {
-      Self.logger.warning("failed to load connection data from keychain")
-      return
-    }
-
-    // Normalize activeConnectionID
-    if connections.isEmpty {
-      activeConnectionID = nil
-    } else if let activeID = activeConnectionID,
-              !connections.contains(where: { $0.id == activeID }) {
-      activeConnectionID = connections.first?.id
-    } else if activeConnectionID == nil {
-      activeConnectionID = connections.first?.id
-    }
-  }
-
-  private func saveConnections() {
-    try? keychainService.set(connections, key: .audiobookshelfConnection)
-  }
-
   /// Fire-and-forget POST to ABS's `/logout` to revoke a connection's apiToken server-side.
   /// Called after we drop a connection locally (delete, or re-auth replacing a stale token)
   /// so the server doesn't accumulate orphan tokens. Failures are intentionally swallowed —
@@ -618,10 +673,6 @@ class AudiobookShelfConnectionService: BPLogger {
       throw IntegrationError.unexpectedResponse(code: http.statusCode)
     }
     return http
-  }
-
-  private func isConnectionValid(_ data: AudiobookShelfConnectionData) -> Bool {
-    return !data.userID.isEmpty && !data.apiToken.isEmpty
   }
 
   /// Apply user-defined custom headers (e.g. Cloudflare Access Service Tokens) to an outgoing request.

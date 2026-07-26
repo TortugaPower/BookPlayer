@@ -472,3 +472,11 @@
 "Series" = "سلاسل";
 "Collections" = "مجموعات";
 "Narrators" = "الرواة";
+
+"integration_sso_section_header" = "الدخول الموحّد";
+"integration_sso_section_footer" = "سجّل الدخول عبر موفّر الهوية الخاص بخادمك في نافذة متصفح آمنة.";
+"integration_sso_button" = "تسجيل الدخول عبر SSO";
+"integration_sso_button_hint" = "يفتح نافذة متصفح آمنة لتسجيل الدخول عبر موفّر الهوية الخاص بك.";
+"integration_sso_requires_https" = "يتطلب الدخول الموحّد اتصالاً آمناً (https) بخادمك.";
+"integration_error_server_message" = "استجاب الخادم بالرمز %1$d: %2$@";
+"integration_error_sso_no_code" = "قام موفّر الهوية بتسجيل دخولك لكنه لم يُرجع رمز تفويض، وهذا يعني عادةً أنه رفض الطلب. تحقق من أي قيود على المجموعات أو الوصول في العميل، ومن أن عناوين إعادة التوجيه المسموح بها لديه تتضمن:\n\n%@";

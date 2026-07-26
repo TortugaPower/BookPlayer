@@ -114,7 +114,12 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       isAddingServer = false
 
       if let data = connectionService.connection {
-        form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+        form.setValues(
+          url: data.url.absoluteString,
+          serverName: data.serverName,
+          userName: data.userName,
+          customHeaders: data.customHeaders
+        )
       }
       signInFlow = nil
       signInCompletedAt = Date()
@@ -142,7 +147,12 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     form = IntegrationConnectionFormViewModel()
     signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -152,14 +162,24 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       form = IntegrationConnectionFormViewModel()
       signInFlow = .enteringServerURL
     } else if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
   func handleActivateAction(id: String) {
     connectionService.activateConnection(id: id)
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -176,7 +196,12 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     // so a stale `JellyfinClient` can't get reused by a later sign-in attempt.
     pendingServer = nil
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -188,5 +213,24 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     } else {
       connectionService.updateCustomHeaders(headers)
     }
+  }
+
+  @MainActor
+  func prepareReauth() {
+    let data = targetConnectionId.flatMap { id in
+      connectionService.connections.first(where: { $0.id == id })
+    } ?? connectionService.connection
+
+    if let data {
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
+    }
+    // The transient client from any previous attempt is stale; Connect rebuilds it.
+    pendingServer = nil
+    signInFlow = .enteringServerURL
   }
 }

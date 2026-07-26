@@ -472,3 +472,11 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "Series" = "Série";
 "Collections" = "Kolekcie";
 "Narrators" = "Rozprávači";
+
+"integration_sso_section_header" = "Jednotné prihlásenie";
+"integration_sso_section_footer" = "Prihláste sa cez poskytovateľa identity vášho servera v zabezpečenom okne prehliadača.";
+"integration_sso_button" = "Prihlásiť sa cez SSO";
+"integration_sso_button_hint" = "Otvorí zabezpečené okno prehliadača na prihlásenie cez vášho poskytovateľa identity.";
+"integration_sso_requires_https" = "Jednotné prihlásenie vyžaduje zabezpečené (https) pripojenie k vášmu serveru.";
+"integration_error_server_message" = "Server odpovedal s kódom %1$d: %2$@";
+"integration_error_sso_no_code" = "Váš poskytovateľ identity vás prihlásil, ale nevrátil autorizačný kód, čo zvyčajne znamená, že požiadavku zamietol. Skontrolujte prípadné skupinové alebo prístupové obmedzenia klienta a to, či jeho povolené spätné adresy URL obsahujú:\n\n%@";

@@ -474,3 +474,11 @@ We're working hard on providing a seamless experience, if possible, please conta
 "Series" = "Series";
 "Collections" = "Collections";
 "Narrators" = "Narrators";
+
+"integration_sso_section_header" = "Single sign-on";
+"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
+"integration_sso_button" = "Sign in with SSO";
+"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_requires_https" = "Single sign-on needs a secure (https) connection to your server.";
+"integration_error_server_message" = "The server responded with %1$d: %2$@";
+"integration_error_sso_no_code" = "Your identity provider signed you in but didn't return an authorization code, which usually means it denied the request. Check any group or access restrictions on the client, and that its allowed callback URLs include:\n\n%@";

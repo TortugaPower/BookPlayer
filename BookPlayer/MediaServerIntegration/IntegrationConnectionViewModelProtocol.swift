@@ -76,4 +76,38 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
 
   /// Persist any changes made to the custom-headers list while the connection is already live.
   func handleCustomHeadersUpdate()
+
+  /// Put the form into a state the user can actually re-authenticate from, seeded with the saved
+  /// connection (URL, name, custom headers).
+  ///
+  /// The session-expired alert used to drop the user on the read-only connection-details screen, which
+  /// offers no sign-in affordance at all — the only button there is Log out. Routing through the
+  /// server-URL step instead means Connect re-validates the server and re-reads its capabilities, which
+  /// is what restores both password sign-in (it needs a freshly validated URL) and the SSO button (it
+  /// needs `/status`). Without that, an SSO-only user with no password has no way back in.
+  func prepareReauth()
+
+  /// Whether SSO can actually be used with the server the user just validated — not merely whether
+  /// the integration speaks it. Default: `false`; concrete VMs opt in (AudiobookShelf).
+  var oidcSupported: Bool { get }
+
+  /// The provider's own button label, when the server supplied one. Falls back to a generic string.
+  var oidcButtonText: String? { get }
+
+  /// Set when the server advertises SSO but we refuse it because the connection is plaintext, so the
+  /// UI can explain the absence rather than silently hiding an option the user may be expecting.
+  var oidcBlockedByInsecureTransport: Bool { get }
+
+  /// Begin the native SSO flow. Throws on setup failure; user cancellation surfaces as
+  /// `CancellationError` so the host view can stay quiet.
+  func handleStartOIDC() async throws
+}
+
+/// Default no-op SSO implementations so integrations that don't speak it
+/// can conform without boilerplate.
+extension IntegrationConnectionViewModelProtocol {
+  var oidcSupported: Bool { false }
+  var oidcButtonText: String? { nil }
+  var oidcBlockedByInsecureTransport: Bool { false }
+  func handleStartOIDC() async throws {}
 }

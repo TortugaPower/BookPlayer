@@ -15,11 +15,16 @@ class IntegrationConnectionFormViewModel: ObservableObject, IntegrationConnectio
   @Published var password: String = ""
   @Published var customHeaders: [CustomHeaderEntry] = []
 
+  /// Replaces the whole form. `customHeaders` is deliberately **not** defaulted: it used to default to
+  /// `[:]`, and every call site that omitted it silently emptied the form's header list. That is not a
+  /// display-only bug — `IntegrationCustomHeadersSectionView` commits on `onDisappear`, so the next
+  /// time the sheet closed it wrote that emptiness over the saved connection and the user's headers
+  /// were gone on relaunch. Requiring the argument makes the omission a compile error.
   func setValues(
     url: String,
     serverName: String,
     userName: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String]
   ) {
     self.serverUrl = url
     self.serverName = serverName

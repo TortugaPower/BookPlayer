@@ -97,9 +97,16 @@ struct JellyfinRootView: View {
         // saved-server list with sign-out, matching prod behavior).
         if (loadError as? IntegrationError)?.isSessionExpired == true {
           // Session expired: Retry would just hit the same 401, so omit it.
-          Button("integration_connection_details_title".localized) {
+          // Titled "Sign In", not "Connection Details": this routes to `prepareReauth()`, which opens
+          // the sign-in flow at the server-URL step, not the read-only details screen. The old title
+          // described the old destination — and for VoiceOver the label *is* the whole announcement,
+          // so the mismatch would leave the user in an unexpected text field.
+          Button("integration_sign_in_button".localized) {
             loadError = nil
-            connectionViewModel.signInFlow = nil
+            // `prepareReauth()` rather than `signInFlow = nil`: the details screen is read-only and
+            // its only button is Log out, so landing there left no way to sign back in. Connect also
+            // has to run again here to rebuild the transient Jellyfin client.
+            connectionViewModel.prepareReauth()
             showConnectionForm = true
           }
           Button("cancel_button".localized, role: .cancel) {

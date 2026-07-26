@@ -472,3 +472,11 @@
 "Series" = "Séries";
 "Collections" = "Coleções";
 "Narrators" = "Narradores";
+
+"integration_sso_section_header" = "Início de sessão único";
+"integration_sso_section_footer" = "Inicie sessão através do fornecedor de identidade do seu servidor numa janela segura do navegador.";
+"integration_sso_button" = "Iniciar sessão com SSO";
+"integration_sso_button_hint" = "Abre uma janela segura do navegador para iniciar sessão através do seu fornecedor de identidade.";
+"integration_sso_requires_https" = "O início de sessão único necessita de uma ligação segura (https) ao seu servidor.";
+"integration_error_server_message" = "O servidor respondeu com %1$d: %2$@";
+"integration_error_sso_no_code" = "O seu fornecedor de identidade iniciou a sua sessão, mas não devolveu um código de autorização, o que normalmente significa que negou o pedido. Verifique as restrições de grupo ou de acesso no cliente e se os URL de retorno permitidos incluem:\n\n%@";
