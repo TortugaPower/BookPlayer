@@ -27,10 +27,10 @@ class AudiobookShelfConnectionService: BPLogger {
   /// handshake needs a client that can decline redirects *and* share one cookie jar across its two
   /// server calls — see ``AudiobookShelfOIDCFlow``.
   private nonisolated let httpClient: IntegrationHTTPClient
-  /// `nonisolated(unsafe)` because `WebAuthenticating` is a `@MainActor` protocol but this init is
-  /// `nonisolated` (the services are built as `@Entry` environment placeholders outside any actor).
-  /// Safe by construction: written exactly once during init, and only ever *called* from MainActor code.
-  private nonisolated(unsafe) let webAuthenticator: WebAuthenticating
+  /// `nonisolated` (not `nonisolated(unsafe)`) because `WebAuthenticating` is `Sendable`: the compiler
+  /// checks that holding one here is safe, instead of the safety resting on a comment that a future
+  /// edit could invalidate.
+  private nonisolated let webAuthenticator: WebAuthenticating
 
   var activeConnectionID: String? { store.activeConnectionID }
 

@@ -14,8 +14,11 @@ import UIKit
 /// Presents a browser-based authorization handshake and resolves with the redirect the provider
 /// bounces back to our callback scheme. Behind a protocol so auth flows are testable without a
 /// browser.
+/// `Sendable` so services can hold one from a `nonisolated init` without an `nonisolated(unsafe)`
+/// escape hatch. Conformers are `@MainActor` classes, which are implicitly `Sendable`, so this costs
+/// them nothing — and it makes the isolation guarantee compiler-enforced rather than a comment.
 @MainActor
-protocol WebAuthenticating {
+protocol WebAuthenticating: Sendable {
   /// - Returns: the callback URL, e.g. `audiobookshelf://oauth?code=…&state=…`.
   /// - Throws: `CancellationError` when the user dismisses the sheet, so callers can stay silent on a
   ///   deliberate cancel while still surfacing genuine failures.
