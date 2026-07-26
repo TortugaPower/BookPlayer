@@ -195,8 +195,8 @@ struct IntegrationQuickConnectSheetView: View {
             serverUrl
           )
         )
-        instructionRow(number: 2, text: "integration_quick_connect_instruction_sign_in".localized)
-        instructionRow(number: 3, text: "integration_quick_connect_instruction_open_menu".localized)
+        instructionRow(number: 2, text: "jellyfin_quick_connect_instruction_sign_in".localized)
+        instructionRow(number: 3, text: "jellyfin_quick_connect_instruction_open_menu".localized)
         instructionRow(number: 4, text: "integration_quick_connect_instruction_enter_code".localized)
       }
       .frame(maxWidth: .infinity, alignment: .leading)

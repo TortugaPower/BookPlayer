@@ -487,8 +487,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_quick_connect_code_label" = "Quick Connect code";
 "integration_quick_connect_instruction_enter_code" = "Type the code shown above and confirm.";
 "integration_quick_connect_instruction_open" = "Open %@ in your browser.";
-"integration_quick_connect_instruction_open_menu" = "Open the user menu and choose Quick Connect.";
-"integration_quick_connect_instruction_sign_in" = "Sign in to your Jellyfin account.";
+"jellyfin_quick_connect_instruction_open_menu" = "Open the user menu and choose Quick Connect.";
+"jellyfin_quick_connect_instruction_sign_in" = "Sign in to your Jellyfin account.";
 "integration_quick_connect_instructions_title" = "How to enter the code";
 "integration_quick_connect_retrieving_message" = "Requesting a code from your server…";
 "integration_quick_connect_section_footer" = "Skip the password by entering a short code on your server's web UI.";
