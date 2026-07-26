@@ -108,11 +108,20 @@ class JellyfinConnectionService: BPLogger {
 
     let publicSystemInfo = try await client.send(Paths.getPublicSystemInfo)
 
+    let quickConnectEnabled = await Self.isQuickConnectEnabled(on: client)
+    // The probe swallows its own errors — including cancellation — so check explicitly before handing
+    // back a result. Without this, a Connect the user already abandoned still returns a valid
+    // `PendingServer`, and the caller writes `pendingServer` / `signInFlow` for it. Because `onConnect`
+    // cancels the previous attempt on every tap, a slow first probe could land *after* a second attempt
+    // to a different URL and overwrite `pendingServer` with the wrong server's client — while the form
+    // shows the other one, and sign-in sends the typed credentials there.
+    try Task.checkCancellation()
+
     return PendingServer(
       serverName: publicSystemInfo.value.serverName ?? "",
       client: client,
       injector: injector,
-      quickConnectEnabled: await Self.isQuickConnectEnabled(on: client)
+      quickConnectEnabled: quickConnectEnabled
     )
   }
 

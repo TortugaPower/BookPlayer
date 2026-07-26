@@ -102,11 +102,19 @@ final class JellyfinQuickConnectTests: XCTestCase {
   /// `.authenticated` kicks off a network round-trip while the sheet still shows a live Cancel button.
   /// Cancelling has to reach that task: otherwise it completes anyway and persists a connection the user
   /// explicitly backed out of, or re-presents the dismissed sheet with an error for a finished flow.
-  func testCancellingClearsTheStatusEvenMidAuthentication() {
+  ///
+  /// The `await` on the task handle is load-bearing. `handleQuickConnectStateChange` schedules the
+  /// exchange on the MainActor, and this test body is already MainActor-isolated, so without awaiting it
+  /// the task body cannot run before the assertions and the test passes no matter what the code does.
+  func testCancellingClearsTheStatusEvenMidAuthentication() async {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
     XCTAssertEqual(viewModel.quickConnectStatus, .authenticating)
 
+    // Captured before cancelling: `handleCancelQuickConnect` nils the handle, so reading it afterwards
+    // awaits nothing and the assertions race ahead of the task body.
+    let task = viewModel.quickConnectSignInTask
     viewModel.handleCancelQuickConnect()
+    await task?.value
 
     XCTAssertNil(
       viewModel.quickConnectStatus,
@@ -114,16 +122,31 @@ final class JellyfinQuickConnectTests: XCTestCase {
     )
   }
 
-  /// Cancelling is not a failure. Before the `CancellationError` arm existed, the cancel path set
-  /// `.failed("The operation couldn't be completed. (Swift.CancellationError error 1.)")` — debug text
-  /// in the UI, and a sheet popping back up after the user dismissed it.
-  func testCancellingDoesNotLeaveAFailureStatus() {
+  /// Cancelling is not a failure. The exchange bails on `Task.isCancelled` rather than on a specific
+  /// error type — cancelling it surfaces as `URLError.cancelled` from Get's data loader, not
+  /// `CancellationError`, so matching on the error type missed the common window entirely.
+  func testCancellingDoesNotLeaveAFailureStatus() async {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
 
+    let task = viewModel.quickConnectSignInTask
     viewModel.handleCancelQuickConnect()
+    await task?.value
 
-    if case .failed = viewModel.quickConnectStatus {
-      XCTFail("cancellation must not surface as a failure")
+    if case .failed(let message) = viewModel.quickConnectStatus {
+      XCTFail("cancellation must not surface as a failure, got: \(message)")
+    }
+  }
+
+  /// The un-cancelled path must still report: with no validated server the exchange can't proceed, and
+  /// the user needs to see that rather than a sheet that silently does nothing. This is the control for
+  /// the two tests above — it proves they're observing cancellation, not just an early return.
+  func testUncancelledExchangeWithoutAPendingServerReportsFailure() async {
+    viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
+
+    await viewModel.quickConnectSignInTask?.value
+
+    guard case .failed = viewModel.quickConnectStatus else {
+      return XCTFail("expected .failed, got \(String(describing: viewModel.quickConnectStatus))")
     }
   }
 }

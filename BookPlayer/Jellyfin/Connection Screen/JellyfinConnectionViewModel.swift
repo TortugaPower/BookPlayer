@@ -49,7 +49,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// down the poller while this kept running, and then either persisted a connection the user had
   /// explicitly backed out of (dismissing the parent sheet with it) or re-presented the dismissed sheet
   /// with an error for a flow that was already over.
-  private var quickConnectSignInTask: Task<Void, Never>?
+  private(set) var quickConnectSignInTask: Task<Void, Never>?
 
   /// Transient handle returned by `findServer`. Held across the connect → sign-in
   /// transition so the service can commit it without touching `self.client` mid-flight.
@@ -144,6 +144,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       // `signIn(pending:)` only reads `pending.client` and commits nothing on failure, so
       // the validated client is still good for another attempt.
       pendingServer = nil
+      quickConnectSupported = false
       isAddingServer = false
 
       if let data = connectionService.connection {
@@ -353,6 +354,9 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// service, then transitions form/state to look the same as a successful password sign-in.
   @MainActor
   private func completeQuickConnectSignIn(secret: String) async {
+    // A task cancelled before its first suspension still runs its body, so check up front rather than
+    // starting a network round-trip whose result nobody wants.
+    guard !Task.isCancelled else { return }
     guard let pending = pendingServer else {
       quickConnectStatus = .failed(IntegrationError.noClient("Jellyfin").localizedDescription)
       teardownQuickConnect()
@@ -367,6 +371,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       )
       // Only drop the transient pending handle once the service has committed it.
       pendingServer = nil
+      quickConnectSupported = false
       isAddingServer = false
       if let data = connectionService.connection {
         form.setValues(
@@ -385,13 +390,14 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       signInCompletedAt = Date()
       quickConnectStatus = nil
       teardownQuickConnect()
-    } catch is CancellationError {
-      // The user cancelled during the exchange. `handleCancelQuickConnect` has already cleared the
-      // status and torn the flow down, so there is nothing to report — and surfacing this would pop the
-      // dismissed sheet back up reading "The operation couldn't be completed. (Swift.CancellationError
-      // error 1.)", the same debug-text-as-UI problem the `.other` mapping fixed.
-      return
     } catch {
+      // Gate on the task's own state rather than the error type. Cancelling this task does NOT surface
+      // as `CancellationError`: Get's `DataLoader` cancels through `onCancel: { task.cancel() }`, so the
+      // URLSession task fails, the continuation resumes with `URLError(.cancelled)`, and `APIClient`
+      // rethrows that raw `URLError`. Matching on `CancellationError` therefore missed the common window
+      // and set `.failed("cancelled")` *after* `handleCancelQuickConnect` had cleared the status —
+      // popping the dismissed sheet straight back up. `Task.isCancelled` covers both spellings.
+      if Task.isCancelled { return }
       Self.logger.error("Quick Connect sign-in failed: \(String(describing: error))")
       // Keep `pendingServer` so the user can retry or fall back to password without re-pinging.
       quickConnectStatus = .failed(Self.presentableMessage(for: error))
