@@ -47,10 +47,15 @@ final class IntegrationConnectionStore<Payload: IntegrationConnectionPayload>: B
     return connections.first
   }
 
-  private let keychainKey: KeychainKeys
-  private let activeIDDefaultsKey: String
-  private let keychain: KeychainServiceProtocol
-  private let defaults: UserDefaults
+  // These are written by the `nonisolated init` below, and a MainActor-isolated stored property can't
+  // be assigned from a nonisolated context — a warning today, an error under the Swift 6 language mode.
+  // `String` and `KeychainServiceProtocol` are `Sendable`, so plain `nonisolated` suffices and the
+  // compiler checks them. `KeychainKeys` and `UserDefaults` are not, so they need the explicit escape
+  // hatch: safe here because both are written exactly once during init and only ever read afterwards.
+  private nonisolated(unsafe) let keychainKey: KeychainKeys
+  private nonisolated let activeIDDefaultsKey: String
+  private nonisolated let keychain: KeychainServiceProtocol
+  private nonisolated(unsafe) let defaults: UserDefaults
 
   /// `nonisolated` because the owning services are constructed as `@Entry` environment
   /// placeholders outside any actor. Only plain stored values are set here; the persisted active id
