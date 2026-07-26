@@ -473,7 +473,11 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "Collections" = "Col·leccions";
 "Narrators" = "Narradors";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Inici de sessió únic";
+"integration_sso_section_footer" = "Inicieu la sessió a través del proveïdor d'identitat del vostre servidor en una finestra de navegador segura.";
+"integration_sso_button" = "Inicia la sessió amb SSO";
+"integration_sso_button_hint" = "Obre una finestra de navegador segura per iniciar la sessió a través del vostre proveïdor d'identitat.";
+"integration_sso_requires_https" = "L'inici de sessió únic necessita una connexió segura (https) amb el vostre servidor.";
+"integration_error_insecure_transport" = "L'inici de sessió únic necessita una connexió segura (https) amb el vostre servidor.";
+"integration_error_server_message" = "El servidor ha respost amb %1$d: %2$@";
+"integration_error_sso_no_code" = "El vostre proveïdor d'identitat us ha iniciat la sessió però no ha retornat cap codi d'autorització, cosa que normalment vol dir que ha denegat la sol·licitud. Comproveu les restriccions de grup o d'accés del client i que els seus URL de retorn permesos incloguin:\n\n%@";

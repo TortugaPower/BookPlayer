@@ -473,7 +473,11 @@
 "Collections" = "合集";
 "Narrators" = "朗读者";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "单点登录";
+"integration_sso_section_footer" = "在安全的浏览器窗口中通过您服务器的身份提供商登录。";
+"integration_sso_button" = "使用 SSO 登录";
+"integration_sso_button_hint" = "打开安全的浏览器窗口，通过您的身份提供商登录。";
+"integration_sso_requires_https" = "单点登录需要与服务器建立安全（https）连接。";
+"integration_error_insecure_transport" = "单点登录需要与服务器建立安全（https）连接。";
+"integration_error_server_message" = "服务器返回 %1$d：%2$@";
+"integration_error_sso_no_code" = "您的身份提供商已完成登录，但未返回授权代码，这通常表示请求被拒绝。请检查客户端的群组或访问限制，并确认其允许的回调 URL 包含：\n\n%@";

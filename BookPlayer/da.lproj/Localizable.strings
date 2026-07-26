@@ -473,7 +473,11 @@
 "Collections" = "Samlinger";
 "Narrators" = "Fortællere";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Enkeltlogin (SSO)";
+"integration_sso_section_footer" = "Log ind via din servers identitetsudbyder i et sikkert browservindue.";
+"integration_sso_button" = "Log ind med SSO";
+"integration_sso_button_hint" = "Åbner et sikkert browservindue, så du kan logge ind via din identitetsudbyder.";
+"integration_sso_requires_https" = "Enkeltlogin kræver en sikker (https) forbindelse til din server.";
+"integration_error_insecure_transport" = "Enkeltlogin kræver en sikker (https) forbindelse til din server.";
+"integration_error_server_message" = "Serveren svarede med %1$d: %2$@";
+"integration_error_sso_no_code" = "Din identitetsudbyder loggede dig ind, men returnerede ingen godkendelseskode, hvilket normalt betyder, at den afviste anmodningen. Tjek eventuelle gruppe- eller adgangsbegrænsninger på klienten, og at dens tilladte callback-URL'er indeholder:\n\n%@";

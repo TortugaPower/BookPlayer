@@ -473,7 +473,11 @@
 "Collections" = "Samlingar";
 "Narrators" = "Berättare";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Enkel inloggning";
+"integration_sso_section_footer" = "Logga in via serverns identitetsleverantör i ett säkert webbläsarfönster.";
+"integration_sso_button" = "Logga in med SSO";
+"integration_sso_button_hint" = "Öppnar ett säkert webbläsarfönster där du kan logga in via din identitetsleverantör.";
+"integration_sso_requires_https" = "Enkel inloggning kräver en säker (https) anslutning till din server.";
+"integration_error_insecure_transport" = "Enkel inloggning kräver en säker (https) anslutning till din server.";
+"integration_error_server_message" = "Servern svarade med %1$d: %2$@";
+"integration_error_sso_no_code" = "Din identitetsleverantör loggade in dig men returnerade ingen auktoriseringskod, vilket oftast betyder att den nekade begäran. Kontrollera eventuella grupp- eller åtkomstbegränsningar för klienten och att dess tillåtna callback-URL:er innehåller:\n\n%@";

@@ -473,7 +473,11 @@
 "Collections" = "Колекції";
 "Narrators" = "Оповідачі";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Єдиний вхід";
+"integration_sso_section_footer" = "Увійдіть через постачальника ідентифікації вашого сервера в захищеному вікні браузера.";
+"integration_sso_button" = "Увійти через SSO";
+"integration_sso_button_hint" = "Відкриває захищене вікно браузера для входу через вашого постачальника ідентифікації.";
+"integration_sso_requires_https" = "Для єдиного входу потрібне захищене (https) з’єднання з вашим сервером.";
+"integration_error_insecure_transport" = "Для єдиного входу потрібне захищене (https) з’єднання з вашим сервером.";
+"integration_error_server_message" = "Сервер відповів кодом %1$d: %2$@";
+"integration_error_sso_no_code" = "Ваш постачальник ідентифікації виконав вхід, але не повернув код авторизації — зазвичай це означає, що запит відхилено. Перевірте обмеження за групами чи доступом на боці клієнта, а також те, що серед дозволених URL-адрес зворотного виклику є:\n\n%@";

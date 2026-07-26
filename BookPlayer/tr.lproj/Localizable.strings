@@ -473,7 +473,11 @@
 "Collections" = "Koleksiyonlar";
 "Narrators" = "Anlatıcılar";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Çoklu oturum açma (SSO)";
+"integration_sso_section_footer" = "Sunucunuzun kimlik sağlayıcısı üzerinden güvenli bir tarayıcı penceresinde oturum açın.";
+"integration_sso_button" = "SSO ile oturum aç";
+"integration_sso_button_hint" = "Kimlik sağlayıcınız üzerinden oturum açmak için güvenli bir tarayıcı penceresi açar.";
+"integration_sso_requires_https" = "Çoklu oturum açma, sunucunuza güvenli (https) bir bağlantı gerektirir.";
+"integration_error_insecure_transport" = "Çoklu oturum açma, sunucunuza güvenli (https) bir bağlantı gerektirir.";
+"integration_error_server_message" = "Sunucu %1$d yanıtını verdi: %2$@";
+"integration_error_sso_no_code" = "Kimlik sağlayıcınız oturumunuzu açtı ancak bir yetkilendirme kodu döndürmedi; bu genellikle isteği reddettiği anlamına gelir. İstemcideki grup veya erişim kısıtlamalarını ve izin verilen geri çağırma URL'lerinin şunu içerdiğini kontrol edin:\n\n%@";

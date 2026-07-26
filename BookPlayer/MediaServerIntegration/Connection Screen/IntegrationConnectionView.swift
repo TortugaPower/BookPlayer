@@ -253,7 +253,7 @@ private struct IntegrationOIDCSectionView: View {
       Button(action: onStart) {
         Label(
           buttonText ?? "integration_sso_button".localized,
-          systemImage: "lock.shield"
+          systemImage: "key.icloud"
         )
         .foregroundStyle(theme.linkColor)
       }

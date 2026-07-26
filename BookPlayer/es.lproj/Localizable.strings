@@ -473,7 +473,11 @@
 "Collections" = "Colecciones";
 "Narrators" = "Narradores";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Inicio de sesión único";
+"integration_sso_section_footer" = "Inicie sesión a través del proveedor de identidad de su servidor en una ventana segura del navegador.";
+"integration_sso_button" = "Iniciar sesión con SSO";
+"integration_sso_button_hint" = "Abre una ventana segura del navegador para iniciar sesión a través de su proveedor de identidad.";
+"integration_sso_requires_https" = "El inicio de sesión único necesita una conexión segura (https) con su servidor.";
+"integration_error_insecure_transport" = "El inicio de sesión único necesita una conexión segura (https) con su servidor.";
+"integration_error_server_message" = "El servidor respondió con %1$d: %2$@";
+"integration_error_sso_no_code" = "Su proveedor de identidad inició su sesión, pero no devolvió un código de autorización, lo que suele indicar que denegó la solicitud. Verifique las restricciones de grupo o de acceso del cliente y que sus URL de retorno permitidas incluyan:\n\n%@";

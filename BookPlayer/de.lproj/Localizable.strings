@@ -473,7 +473,11 @@
 "Collections" = "Sammlungen";
 "Narrators" = "Erzähler";
 
-"integration_sso_section_header" = "Single sign-on";
-"integration_sso_section_footer" = "Sign in through your server's identity provider in a secure browser window.";
-"integration_sso_button" = "Sign in with SSO";
-"integration_sso_button_hint" = "Opens a secure browser window to sign in through your identity provider.";
+"integration_sso_section_header" = "Single Sign-on";
+"integration_sso_section_footer" = "Melde dich in einem sicheren Browserfenster über den Identitätsanbieter deines Servers an.";
+"integration_sso_button" = "Mit SSO anmelden";
+"integration_sso_button_hint" = "Öffnet ein sicheres Browserfenster, um dich über deinen Identitätsanbieter anzumelden.";
+"integration_sso_requires_https" = "Single Sign-on erfordert eine sichere (https) Verbindung zu deinem Server.";
+"integration_error_insecure_transport" = "Single Sign-on erfordert eine sichere (https) Verbindung zu deinem Server.";
+"integration_error_server_message" = "Der Server hat mit %1$d geantwortet: %2$@";
+"integration_error_sso_no_code" = "Dein Identitätsanbieter hat dich angemeldet, aber keinen Autorisierungscode zurückgegeben. Das bedeutet meist, dass er die Anfrage abgelehnt hat. Überprüfe die Gruppen- und Zugriffsbeschränkungen des Clients und ob seine erlaubten Callback-URLs Folgendes enthalten:\n\n%@";
