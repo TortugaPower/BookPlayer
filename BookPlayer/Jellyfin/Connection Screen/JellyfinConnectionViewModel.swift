@@ -27,9 +27,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// awaiting-code overlay and react to failure/success.
   @Published var quickConnectStatus: QuickConnectStatus?
 
-  /// Jellyfin exposes Quick Connect on every server build that implements `/QuickConnect/*`.
-  /// The shared connection UI uses this to decide whether to surface the affordance.
-  let quickConnectSupported: Bool = true
+  /// Whether the validated server actually has Quick Connect enabled.
+  ///
+  /// Derived from the `/QuickConnect/Enabled` probe in `handleConnectAction`, not hardcoded: the
+  /// feature ships with every modern Jellyfin build but admins can switch it off, and offering a button
+  /// that can't work walks the user into a server error with no explanation. Mirrors how
+  /// `AudiobookShelfConnectionViewModel` derives `oidcSupported` from `/status`.
+  @Published private(set) var quickConnectSupported: Bool = false
 
   /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
   /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
@@ -104,6 +108,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       customHeaders: form.customHeadersDictionary()
     )
     pendingServer = pending
+    // Set before `signInFlow` so the credentials step renders with the right affordances on first pass.
+    quickConnectSupported = pending.quickConnectEnabled
     signInFlow = .enteringCredentials
     form.serverName = pending.serverName
   }
@@ -247,8 +253,10 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         customHeaders: data.customHeaders
       )
     }
-    // The transient client from any previous attempt is stale; Connect rebuilds it.
+    // The transient client from any previous attempt is stale; Connect rebuilds it — and re-probes the
+    // capability, so don't leave a stale `true` behind that would render a button we can't back up.
     pendingServer = nil
+    quickConnectSupported = false
     signInFlow = .enteringServerURL
   }
 

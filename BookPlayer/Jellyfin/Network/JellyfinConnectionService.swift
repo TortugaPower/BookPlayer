@@ -87,6 +87,10 @@ class JellyfinConnectionService: BPLogger {
     let serverName: String
     let client: JellyfinClient
     let injector: JellyfinHeaderInjector
+    /// Whether this server reports Quick Connect as enabled. Probed during `findServer` so the UI can
+    /// offer the affordance only when it can actually work — admins can turn Quick Connect off, and a
+    /// button that always appears sends those users into a flow that fails with a server error.
+    let quickConnectEnabled: Bool
   }
 
   /// Validates server reachability without mutating service state. Returns a
@@ -107,8 +111,25 @@ class JellyfinConnectionService: BPLogger {
     return PendingServer(
       serverName: publicSystemInfo.value.serverName ?? "",
       client: client,
-      injector: injector
+      injector: injector,
+      quickConnectEnabled: await Self.isQuickConnectEnabled(on: client)
     )
+  }
+
+  /// Best-effort probe of `/QuickConnect/Enabled`.
+  ///
+  /// Deliberately non-throwing: a server too old to expose the endpoint, or one that errors, simply
+  /// isn't offered Quick Connect — the safe default. Failing `findServer` over a capability probe would
+  /// block password sign-in for no reason.
+  private static func isQuickConnectEnabled(on client: JellyfinClient) async -> Bool {
+    guard let response = try? await client.send(Paths.getQuickConnectEnabled) else { return false }
+    // The endpoint answers with a bare JSON boolean; fall back to a text compare if that ever changes.
+    if let enabled = try? JSONDecoder().decode(Bool.self, from: response.value) {
+      return enabled
+    }
+    return String(data: response.value, encoding: .utf8)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased() == "true"
   }
 
   /// Sign in using a ``PendingServer`` returned from ``findServer(at:customHeaders:)``.
