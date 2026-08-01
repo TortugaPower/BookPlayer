@@ -424,6 +424,10 @@ extension LibraryService: LibrarySyncProtocol {
   public func loadChaptersIfNeeded(relativePath: String) async {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    await loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
+    let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
+    let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
+    let asset = AVURLAsset(url: fileURL, options: options)
+
+    await loadChaptersIfNeeded(relativePath: relativePath, asset: asset)
   }
 }
