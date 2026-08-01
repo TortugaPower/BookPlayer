@@ -816,6 +816,8 @@ extension SyncService {
 
     let actualDuration: Double
     do {
+      // MP3 and Ogg lack global duration headers. We request precise timing to prevent
+      // inaccurate duration estimates for VBR files by forcing a full stream scan.
       let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
       let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
       let asset = AVURLAsset(url: fileURL, options: options)

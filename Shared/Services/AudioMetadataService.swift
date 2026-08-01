@@ -93,6 +93,8 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   public init() {}
   
   public func extractMetadata(from fileURL: URL) async -> AudioMetadata? {
+    // MP3 and Ogg lack global duration headers. We request precise timing to prevent
+    // inaccurate duration estimates for VBR files by forcing a full stream scan.
     let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
     let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
     let asset = AVURLAsset(url: fileURL, options: options)
@@ -234,6 +236,8 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   public func extractManualChapters(from fileURL: URL) async -> [ChapterMetadata]? {
+    // MP3 and Ogg lack global duration headers. We request precise timing to prevent
+    // inaccurate duration estimates for VBR files by forcing a full stream scan.
     let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
     let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
     let asset = AVURLAsset(url: fileURL, options: options)
