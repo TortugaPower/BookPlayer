@@ -247,9 +247,19 @@ struct IntegrationQuickConnectSheetView: View {
     var attributed = AttributedString(formatted)
     // A URL the user typed may not parse, and a translation could in principle drop the placeholder —
     // in either case fall back to the plain sentence rather than showing nothing.
+    //
+    // The scheme check is the load-bearing part. `serverUrl` is user-typed and nothing in the Jellyfin
+    // connection path constrains it — `createClient` does a bare `URL(string:)` — so without this a
+    // `javascript:` or `file:` address would become a tappable link that SwiftUI hands to `openURL`.
+    // Unreachable today, because a sheet only renders after `findServer` completed a real HTTP
+    // round-trip that no such scheme could satisfy. That makes this defence-in-depth: it keeps the
+    // guarantee local to the line that opens the URL rather than resting on a precondition three
+    // screens away that a later refactor could quietly remove.
     guard
       let range = attributed.range(of: serverUrl),
-      let url = URL(string: serverUrl)
+      let url = URL(string: serverUrl),
+      let scheme = url.scheme?.lowercased(),
+      scheme == "http" || scheme == "https"
     else { return attributed }
     attributed[range].link = url
     return attributed
