@@ -404,6 +404,23 @@ struct IntegrationHeadersDetailScreen: View {
 
   var body: some View {
     Form {
+      IntegrationHeadersReadOnlySection(headers: headers)
+    }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+    .navigationTitle("integration_custom_headers_title".localized)
+    .navigationBarTitleDisplayMode(.inline)
+  }
+}
+
+/// Read-only rendering of a connection's custom headers — shared by the flow's pushed detail and the
+/// connection-details screen, whose editor is gone (edits happen on the flow's address screen).
+struct IntegrationHeadersReadOnlySection: View {
+  let headers: [CustomHeaderEntry]
+
+  @EnvironmentObject var theme: ThemeViewModel
+
+  var body: some View {
+    if !headers.isEmpty {
       ThemedSection {
         ForEach(headers) { header in
           VStack(alignment: .leading, spacing: 4) {
@@ -416,14 +433,14 @@ struct IntegrationHeadersDetailScreen: View {
               .textSelection(.enabled)
           }
         }
+      } header: {
+        Text("integration_custom_headers_title".localized)
+          .foregroundStyle(theme.secondaryColor)
       } footer: {
         Text("integration_headers_detail_footer".localized)
           .foregroundStyle(theme.secondaryColor)
       }
     }
-    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-    .navigationTitle("integration_custom_headers_title".localized)
-    .navigationBarTitleDisplayMode(.inline)
   }
 }
 

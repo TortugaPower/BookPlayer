@@ -95,10 +95,11 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        IntegrationCustomHeadersSectionView(
-          customHeaders: $viewModel.form.customHeaders,
-          onCommit: { viewModel.handleCustomHeadersUpdate() }
-        )
+        // Read-only: editing lives on the flow's address screen, reached via re-auth or Add Server.
+        // The editable section committed on `onDisappear`, so a form left showing an empty list wrote
+        // that emptiness over the saved connection when the sheet closed — removing the editor deletes
+        // the hazard instead of guarding it.
+        IntegrationHeadersReadOnlySection(headers: viewModel.form.customHeaders)
         IntegrationConnectedView(viewModel: viewModel)
       }
     }
