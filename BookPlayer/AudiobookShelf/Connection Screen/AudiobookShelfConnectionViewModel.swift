@@ -28,6 +28,11 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
 
   @Published var flowPath: [ConnectionFlowStep] = []
 
+  /// The connection a re-authentication started from, so a sign-in that lands on the same account at
+  /// an edited URL updates that row instead of orphaning it. Left in place after success on purpose:
+  /// the row it named was just replaced, so a stale value matches nothing.
+  private var reauthConnectionID: String?
+
   var supportsPasswordSignIn: Bool { capabilities.supportsLocal }
 
   /// SSO over plaintext is simply not offered — no explanatory state. The refusal reason (the
@@ -148,7 +153,8 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         password: password,
         serverUrl: serverUrl,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
 
       // Drop the captured URL only once the connection is persisted. Clearing it on every
@@ -186,6 +192,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     } ?? connectionService.connection
 
     if let data {
+      reauthConnectionID = data.id
       form.setValues(
         url: data.url.absoluteString,
         serverName: data.serverName,
@@ -313,7 +320,8 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     try await connectionService.signInWithOIDC(
       serverUrl: serverUrl,
       serverName: form.serverName,
-      customHeaders: form.customHeadersDictionary()
+      customHeaders: form.customHeadersDictionary(),
+      replacingID: reauthConnectionID
     )
     // Only drop the validated URL once sign-in succeeded.
     pingedURL = nil

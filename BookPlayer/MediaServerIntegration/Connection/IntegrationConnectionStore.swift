@@ -132,16 +132,23 @@ final class IntegrationConnectionStore<Payload: IntegrationConnectionPayload>: B
   /// outbound references stay valid) and `selectedLibraryId` (kept so the user lands back in the
   /// same library). Construction stays with the caller because only the concrete type knows which
   /// stored property holds its token.
+  /// `replacingID` names the connection a re-authentication started from. When the sign-in lands on
+  /// the same account at a *different* URL — a server that moved host, which self-hosters do
+  /// constantly — the account match finds nothing, and without this the old row would survive as an
+  /// expired orphan next to the new one. The replaced row only matches when its `userID` agrees:
+  /// signing into a different account is genuinely a new connection, not a move.
   @discardableResult
   func upsert(
     url: URL,
     userID: String,
+    replacingID: String? = nil,
     build: (Payload?) -> Payload
   ) -> UpsertResult {
     let replaced = connections.first { $0.isSameAccount(as: url, userID: userID) }
+      ?? connections.first { $0.id == replacingID && $0.userID == userID }
     let saved = build(replaced)
 
-    connections.removeAll { $0.isSameAccount(as: url, userID: userID) }
+    connections.removeAll { $0.isSameAccount(as: url, userID: userID) || $0.id == replaced?.id }
     connections.append(saved)
     setActiveConnectionID(saved.id)
     save()

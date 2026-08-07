@@ -156,7 +156,8 @@ class AudiobookShelfConnectionService: BPLogger {
     password: String,
     serverUrl: String,
     serverName: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
   ) async throws {
     guard let url = URL(string: serverUrl) else {
       throw IntegrationError.urlMalformed(nil)
@@ -171,15 +172,14 @@ class AudiobookShelfConnectionService: BPLogger {
     let credentials = ["username": username, "password": password]
     request.httpBody = try JSONSerialization.data(withJSONObject: credentials)
 
-    let (data, response) = try await urlSession.data(for: request)
+    // Through the injected client, like the OIDC exchange — the one path that still used the
+    // service's private URLSession couldn't be exercised by tests at all, which is how the
+    // moved-server re-auth behavior went unpinned.
+    let (data, httpResponse) = try await httpClient.data(for: request)
     // Bail out before persisting if the caller cancelled while the auth round-trip was
     // in flight (e.g. the user swiped the sheet down). Otherwise the cancelled sign-in
     // still ends up saved.
     try Task.checkCancellation()
-
-    guard let httpResponse = response as? HTTPURLResponse else {
-      throw IntegrationError.unexpectedResponse(code: nil)
-    }
 
     guard (200...299).contains(httpResponse.statusCode) else {
       if httpResponse.statusCode == 401 {
@@ -203,7 +203,8 @@ class AudiobookShelfConnectionService: BPLogger {
       userID: userID,
       userName: username,
       apiToken: apiToken,
-      customHeaders: customHeaders
+      customHeaders: customHeaders,
+      replacingID: replacingID
     )
   }
 
@@ -220,9 +221,10 @@ class AudiobookShelfConnectionService: BPLogger {
     userID: String,
     userName: String,
     apiToken: String,
-    customHeaders: [String: String]
+    customHeaders: [String: String],
+    replacingID: String? = nil
   ) {
-    let result = store.upsert(url: url, userID: userID) { existing in
+    let result = store.upsert(url: url, userID: userID, replacingID: replacingID) { existing in
       AudiobookShelfConnectionData(
         id: existing?.id ?? UUID().uuidString,
         url: url,
@@ -251,7 +253,8 @@ class AudiobookShelfConnectionService: BPLogger {
   public func signInWithOIDC(
     serverUrl: String,
     serverName: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
   ) async throws {
     guard let baseURL = URL(string: serverUrl) else {
       throw IntegrationError.urlMalformed(nil)
@@ -279,7 +282,8 @@ class AudiobookShelfConnectionService: BPLogger {
       userID: credentials.userID,
       userName: credentials.userName,
       apiToken: credentials.apiToken,
-      customHeaders: customHeaders
+      customHeaders: customHeaders,
+      replacingID: replacingID
     )
   }
 

@@ -37,6 +37,11 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
 
   @Published var flowPath: [ConnectionFlowStep] = []
 
+  /// The connection a re-authentication started from, so a sign-in that lands on the same account at
+  /// an edited URL updates that row instead of orphaning it. Left in place after success on purpose:
+  /// the row it named was just replaced, so a stale value matches nothing.
+  private var reauthConnectionID: String?
+
   /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
   /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
   private var activeQuickConnect: JellyfinAPI.QuickConnect?
@@ -137,7 +142,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         username: form.username,
         password: form.password,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
 
       // Drop the transient `pending` only once the service has committed it as
@@ -263,6 +269,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     } ?? connectionService.connection
 
     if let data {
+      reauthConnectionID = data.id
       form.setValues(
         url: data.url.absoluteString,
         serverName: data.serverName,
@@ -375,7 +382,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         pending: pending,
         secret: secret,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
       // Only drop the transient pending handle once the service has committed it.
       pendingServer = nil

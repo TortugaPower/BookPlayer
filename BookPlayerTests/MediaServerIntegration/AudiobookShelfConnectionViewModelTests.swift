@@ -203,6 +203,45 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     )
   }
 
+  // MARK: - Re-auth against a moved server
+
+  /// The sharp edge of keying connections on url+user: re-authenticating a server that moved host
+  /// signs into an account no row matches, and without carrying the original connection's id the old
+  /// row would survive as an expired orphan next to the new one.
+  func testReauthWithAnEditedURLUpdatesTheRowInsteadOfForking() async throws {
+    try keychain.set(
+      [
+        AudiobookShelfConnectionData(
+          id: "a",
+          url: URL(string: serverURL)!,
+          serverName: "Home",
+          userID: "u1",
+          userName: "gianni",
+          apiToken: "stale",
+          customHeaders: [:]
+        )
+      ],
+      key: .audiobookshelfConnection
+    )
+    service.setup()
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service)
+
+    viewModel.prepareReauth()
+    // The server moved: the user edits the address before reconnecting.
+    viewModel.form.serverUrl = "https://moved.example.com"
+    http.statusPayload = Data(#"{"authMethods":["local"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+    try await viewModel.handleConnectAction()
+
+    viewModel.form.username = "gianni"
+    viewModel.form.password = "pw"
+    try await viewModel.handleSignInAction()
+
+    XCTAssertEqual(service.connections.count, 1, "the moved server must update its row, not fork")
+    XCTAssertEqual(service.connections.first?.url.absoluteString, "https://moved.example.com")
+    XCTAssertEqual(service.connections.first?.id, "a", "outbound references survive the move")
+  }
+
   // MARK: - The step after Connect
 
   /// The routing decision the redesigned flow hangs on: which screen Connect lands you on, per what
