@@ -46,25 +46,8 @@ enum AlternativeSignInState: Equatable {
   /// the provider's own button label when the server supplied one; nil falls back to a generic string.
   case oidc(buttonText: String?)
 
-  /// The server advertises SSO but the connection is plaintext, so we refuse to run it — the
-  /// authorization code, PKCE verifier, and returned token all traverse the redirect chain
-  /// (RFC 6749 §10.9). Rendered as an explanation, not a button, so the absence isn't silent.
-  case oidcRequiresSecureTransport
-
   /// Out-of-band code flow (Jellyfin Quick Connect).
   case quickConnect
-
-  /// Whether the state offers something the user can actually start. Drives the username-field
-  /// autofocus: an explanation-only state must not suppress the keyboard the way a real
-  /// alternative does.
-  var isActionable: Bool {
-    switch self {
-    case .oidc, .quickConnect:
-      return true
-    case .oidcRequiresSecureTransport:
-      return false
-    }
-  }
 }
 
 /// Status of an out-of-band code-based authentication flow (Jellyfin Quick Connect).
@@ -146,7 +129,7 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
 
   /// What the alternative-sign-in slot offers for the server the user just validated — not merely
   /// what the integration speaks. Nil when password is the only way in. Default: nil; concrete VMs
-  /// opt in (AudiobookShelf → `.oidc`/`.oidcRequiresSecureTransport`, Jellyfin → `.quickConnect`).
+  /// opt in (AudiobookShelf → `.oidc`, Jellyfin → `.quickConnect`).
   var alternativeSignIn: AlternativeSignInState? { get }
 
   /// Current state of an in-flight Quick Connect flow, or `nil` if none is running. Stays a separate

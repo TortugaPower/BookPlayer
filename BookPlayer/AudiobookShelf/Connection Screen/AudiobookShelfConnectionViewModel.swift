@@ -26,11 +26,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// cannot possibly work.
   @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
 
+  /// SSO over plaintext is simply not offered — no explanatory state. The refusal reason (the
+  /// authorization code, PKCE verifier, and returned token all traverse the redirect chain,
+  /// RFC 6749 §10.9) lives in `isPingedURLSecure`'s doc; the scheme control on the address screen
+  /// makes the `http` choice visible enough to act on.
   var alternativeSignIn: AlternativeSignInState? {
-    guard capabilities.supportsOIDC else { return nil }
-    return isPingedURLSecure
-      ? .oidc(buttonText: capabilities.oidcButtonText)
-      : .oidcRequiresSecureTransport
+    guard capabilities.supportsOIDC, isPingedURLSecure else { return nil }
+    return .oidc(buttonText: capabilities.oidcButtonText)
   }
 
   /// SSO is refused over plaintext: the authorization code, the PKCE verifier and the returned token

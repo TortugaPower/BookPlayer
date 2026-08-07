@@ -197,14 +197,9 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     http.pingPayload = Data(#"{"success":true}"#.utf8)
     try await viewModel.handleConnectAction()
 
-    XCTAssertEqual(
+    XCTAssertNil(
       viewModel.alternativeSignIn,
-      .oidcRequiresSecureTransport,
-      "the UI should explain the absence rather than silently hiding SSO"
-    )
-    XCTAssertFalse(
-      viewModel.alternativeSignIn?.isActionable ?? true,
-      "an explanation is not an offer — username autofocus must behave as if no alternative exists"
+      "SSO over plaintext is simply not offered — the scheme control makes http visible and actionable"
     )
   }
 

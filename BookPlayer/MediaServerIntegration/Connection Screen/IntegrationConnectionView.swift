@@ -71,9 +71,6 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
             isBusy: isLoading,
             onStart: onStartAlternativeSignIn
           )
-        case .oidcRequiresSecureTransport:
-          // The server does offer SSO — say why we won't, rather than silently omitting it.
-          IntegrationOIDCUnavailableSectionView()
         case .quickConnect:
           IntegrationQuickConnectSectionView(onStart: onStartAlternativeSignIn)
         case nil:
@@ -82,11 +79,9 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
         IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
-          // Don't raise the keyboard when an alternative sign-in is actually on offer — it would cover
-          // the option above and presume the user came here to type a password. An explanation-only
-          // state (`.oidcRequiresSecureTransport`) is not an offer: typing is still the only way in,
-          // so the keyboard should come up exactly as it does with no alternative at all.
-          autoFocusesUsername: !(viewModel.alternativeSignIn?.isActionable ?? false),
+          // Don't raise the keyboard when an alternative sign-in is on offer — it would cover the
+          // option above and presume the user came here to type a password.
+          autoFocusesUsername: viewModel.alternativeSignIn == nil,
           onCommit: onSignIn
         )
         IntegrationCustomHeadersSectionView(
@@ -244,12 +239,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   /// mid-Quick-Connect surface inside that sheet via `quickConnectStatus`; only the synchronous setup
   /// error lands in the alert.
   func onStartAlternativeSignIn() {
-    guard let method = viewModel.alternativeSignIn, method.isActionable else { return }
+    guard let method = viewModel.alternativeSignIn else { return }
     let showsOverlay: Bool
     switch method {
     case .oidc:
       showsOverlay = true
-    case .quickConnect, .oidcRequiresSecureTransport:
+    case .quickConnect:
       showsOverlay = false
     }
     // Routed through `actionTask` like every sibling handler — the property's own doc comment names
@@ -347,20 +342,3 @@ private struct IntegrationOIDCSectionView: View {
   }
 }
 
-/// Shown when the server advertises SSO but the connection is plaintext. Explaining the absence beats
-/// silently hiding an option the user may have come here expecting.
-private struct IntegrationOIDCUnavailableSectionView: View {
-  @EnvironmentObject var theme: ThemeViewModel
-
-  var body: some View {
-    ThemedSection {
-      EmptyView()
-    } header: {
-      Text("integration_sso_section_header".localized)
-        .foregroundStyle(theme.secondaryColor)
-    } footer: {
-      Text("integration_sso_requires_https".localized)
-        .foregroundStyle(theme.secondaryColor)
-    }
-  }
-}
