@@ -132,24 +132,10 @@ struct JellyfinRootView: View {
       message: { Text(loadError?.localizedDescription ?? "") }
     )
     .sheet(isPresented: $showConnectionForm) {
-      NavigationStack {
-        IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "Jellyfin")
-          .toolbar {
-            // Outer X only when we're NOT in Add Server mode — IntegrationConnectionView's
-            // own Cancel button handles that case (and just dismisses the form sheet).
-            if !connectionViewModel.isAddingServer {
-              ToolbarItemGroup(placement: .cancellationAction) {
-                Button { dismiss() } label: {
-                  Image(systemName: "xmark")
-                    .foregroundStyle(theme.linkColor)
-                }
-              }
-            }
-          }
-          .navigationBarTitleDisplayMode(.inline)
-      }
-      .tint(theme.linkColor)
-      .environmentObject(theme)
+      // The flow owns its NavigationStack and its own cancel affordances (Cancel for Add Server,
+      // an X otherwise) — no outer wrapping.
+      IntegrationConnectionFlowView(viewModel: connectionViewModel, integrationName: "Jellyfin")
+        .environmentObject(theme)
     }
     .sheet(isPresented: $showLibraryPicker) {
       libraryPickerSheet

@@ -244,13 +244,24 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
     .navigationTitle(integrationName)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      if viewModel.isAddingServer {
-        ToolbarItem(placement: .cancellationAction) {
+      ToolbarItem(placement: .cancellationAction) {
+        // Add Server gets a worded Cancel that also tears down the in-flight VM state; the
+        // initial-connect and re-auth presentations get the X the old sheet wrappers injected —
+        // the flow owns its NavigationStack now, so the affordance has to live here.
+        if viewModel.isAddingServer {
           Button("cancel_button".localized) {
             viewModel.handleCancelAddServerAction()
             dismiss()
           }
           .foregroundStyle(theme.linkColor)
+        } else {
+          Button {
+            dismiss()
+          } label: {
+            Image(systemName: "xmark")
+              .foregroundStyle(theme.linkColor)
+          }
+          .accessibilityLabel(Text("cancel_button".localized))
         }
       }
     }
