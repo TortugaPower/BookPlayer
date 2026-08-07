@@ -378,6 +378,12 @@
 "integration_custom_headers_key_placeholder" = "اسم الرأس";
 "integration_custom_headers_value_placeholder" = "قيمة الرأس";
 "integration_custom_headers_add_button" = "إضافة رأس";
+"integration_address_scheme_label" = "نوع الاتصال";
+"integration_address_host_label" = "المضيف";
+"integration_address_port_label" = "المنفذ";
+"integration_server_section_header" = "الخادم";
+"integration_password_signin_button" = "اسم المستخدم وكلمة المرور";
+"integration_headers_detail_footer" = "تُرفق هذه الرؤوس بكل طلب يُرسل إلى هذا الخادم. ويمكن تعديلها من شاشة عنوان الخادم.";
 "settings_integration_manage_connection_title" = "إدارة الاتصال";
 "integration_internal_error_invalid_url" = "خطأ داخلي: عنوان URL للطلب غير صالح: %@";
 "integration_internal_error_build_url" = "خطأ داخلي: فشل في بناء عنوان URL للطلب";

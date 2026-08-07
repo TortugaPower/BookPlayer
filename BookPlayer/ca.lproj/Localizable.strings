@@ -378,6 +378,12 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "integration_custom_headers_key_placeholder" = "Nom de la capçalera";
 "integration_custom_headers_value_placeholder" = "Valor de la capçalera";
 "integration_custom_headers_add_button" = "Afegir capçalera";
+"integration_address_scheme_label" = "Tipus de connexió";
+"integration_address_host_label" = "Amfitrió";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Servidor";
+"integration_password_signin_button" = "Nom d'usuari i contrasenya";
+"integration_headers_detail_footer" = "Aquestes capçaleres s'adjunten a cada petició enviada a aquest servidor. Es poden editar des de la pantalla d'adreça del servidor.";
 "settings_integration_manage_connection_title" = "Gestionar la connexió";
 "integration_internal_error_invalid_url" = "Error intern: l'URL de sol·licitud no és vàlid: %@";
 "integration_internal_error_build_url" = "Error intern: no s'ha pogut crear l'URL de la sol·licitud";

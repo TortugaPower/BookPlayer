@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Numele antetului";
 "integration_custom_headers_value_placeholder" = "Valoarea antetului";
 "integration_custom_headers_add_button" = "Adaugă antet";
+"integration_address_scheme_label" = "Tip de conexiune";
+"integration_address_host_label" = "Gazdă";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Nume de utilizator și parolă";
+"integration_headers_detail_footer" = "Aceste anteturi sunt atașate fiecărei solicitări trimise către acest server. Pot fi editate din ecranul cu adresa serverului.";
 "settings_integration_manage_connection_title" = "Gestionați conexiunea";
 "integration_internal_error_invalid_url" = "Eroare internă: adresa URL a solicitării este nevalidă: %@";
 "integration_internal_error_build_url" = "Eroare internă: nu s-a putut crea adresa URL a solicitării";

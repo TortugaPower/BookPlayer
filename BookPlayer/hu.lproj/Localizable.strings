@@ -378,6 +378,12 @@
 "integration_custom_headers_key_placeholder" = "Fejléc neve";
 "integration_custom_headers_value_placeholder" = "Fejléc értéke";
 "integration_custom_headers_add_button" = "Fejléc hozzáadása";
+"integration_address_scheme_label" = "Kapcsolat típusa";
+"integration_address_host_label" = "Gazdagép";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Szerver";
+"integration_password_signin_button" = "Felhasználónév és jelszó";
+"integration_headers_detail_footer" = "Ezek a fejlécek minden, erre a kiszolgálóra küldött kéréshez csatolódnak. A kiszolgáló címét tartalmazó képernyőn szerkeszthetők.";
 "settings_integration_manage_connection_title" = "Kapcsolat kezelése";
 "integration_internal_error_invalid_url" = "Belső hiba: A kérés URL-je érvénytelen: %@";
 "integration_internal_error_build_url" = "Belső hiba: Nem sikerült létrehozni a kérés URL-jét";

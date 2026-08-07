@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Nome intestazione";
 "integration_custom_headers_value_placeholder" = "Valore intestazione";
 "integration_custom_headers_add_button" = "Aggiungi intestazione";
+"integration_address_scheme_label" = "Tipo di connessione";
+"integration_address_host_label" = "Host";
+"integration_address_port_label" = "Porta";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Nome utente e password";
+"integration_headers_detail_footer" = "Queste intestazioni vengono allegate a ogni richiesta inviata a questo server. Possono essere modificate dalla schermata dell'indirizzo del server.";
 "settings_integration_manage_connection_title" = "Gestisci connessione";
 "integration_internal_error_invalid_url" = "Errore interno: l'URL della richiesta non è valido: %@";
 "integration_internal_error_build_url" = "Errore interno: Impossibile creare l'URL della richiesta";

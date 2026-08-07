@@ -378,6 +378,12 @@
 "integration_custom_headers_key_placeholder" = "ヘッダー名";
 "integration_custom_headers_value_placeholder" = "ヘッダーの値";
 "integration_custom_headers_add_button" = "ヘッダーを追加";
+"integration_address_scheme_label" = "接続タイプ";
+"integration_address_host_label" = "ホスト";
+"integration_address_port_label" = "ポート";
+"integration_server_section_header" = "サーバ";
+"integration_password_signin_button" = "ユーザ名とパスワード";
+"integration_headers_detail_footer" = "これらのヘッダーは、このサーバーへのすべてのリクエストに付加されます。サーバーアドレス画面で編集できます。";
 "settings_integration_manage_connection_title" = "接続を管理";
 "integration_internal_error_invalid_url" = "内部エラー: リクエストURLが無効です: %@";
 "integration_internal_error_build_url" = "内部エラー: リクエストURLの構築に失敗しました";

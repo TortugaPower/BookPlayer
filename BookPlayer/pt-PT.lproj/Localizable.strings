@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Nome do cabeçalho";
 "integration_custom_headers_value_placeholder" = "Valor do cabeçalho";
 "integration_custom_headers_add_button" = "Adicionar cabeçalho";
+"integration_address_scheme_label" = "Tipo de ligação";
+"integration_address_host_label" = "Host";
+"integration_address_port_label" = "Porta";
+"integration_server_section_header" = "Servidor";
+"integration_password_signin_button" = "Nome de usuário e senha";
+"integration_headers_detail_footer" = "Estes cabeçalhos são anexados a cada pedido enviado para este servidor. Podem ser editados no ecrã de endereço do servidor.";
 "settings_integration_manage_connection_title" = "Gerenciar conexão";
 "integration_internal_error_invalid_url" = "Erro interno: URL da solicitação é inválida: %@";
 "integration_internal_error_build_url" = "Erro interno: Falha ao criar URL de solicitação";

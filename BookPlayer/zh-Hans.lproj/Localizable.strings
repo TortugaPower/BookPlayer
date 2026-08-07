@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "请求头名称";
 "integration_custom_headers_value_placeholder" = "请求头值";
 "integration_custom_headers_add_button" = "添加请求头";
+"integration_address_scheme_label" = "连接类型";
+"integration_address_host_label" = "主机";
+"integration_address_port_label" = "端口";
+"integration_server_section_header" = "服务器";
+"integration_password_signin_button" = "用户名和密码";
+"integration_headers_detail_footer" = "这些请求头将附加到发送至此服务器的每个请求中。可在服务器地址界面中编辑。";
 "settings_integration_manage_connection_title" = "管理连接";
 "integration_internal_error_invalid_url" = "内部错误：请求 URL 无效： %@";
 "integration_internal_error_build_url" = "内部错误：无法构建请求 URL";

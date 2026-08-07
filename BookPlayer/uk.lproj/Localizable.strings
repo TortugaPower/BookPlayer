@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Назва заголовка";
 "integration_custom_headers_value_placeholder" = "Значення заголовка";
 "integration_custom_headers_add_button" = "Додати заголовок";
+"integration_address_scheme_label" = "Тип підключення";
+"integration_address_host_label" = "Хост";
+"integration_address_port_label" = "Порт";
+"integration_server_section_header" = "Сервер";
+"integration_password_signin_button" = "Ім'я користувача і пароль";
+"integration_headers_detail_footer" = "Ці заголовки додаються до кожного запиту, який надсилається на цей сервер. Їх можна змінити на екрані адреси сервера.";
 "settings_integration_manage_connection_title" = "Керувати підключенням";
 "integration_internal_error_invalid_url" = "Внутрішня помилка: URL-адреса запиту недійсна: %@";
 "integration_internal_error_build_url" = "Внутрішня помилка: не вдалося створити URL-адресу запиту";

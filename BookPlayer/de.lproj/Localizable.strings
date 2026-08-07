@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Header-Name";
 "integration_custom_headers_value_placeholder" = "Header-Wert";
 "integration_custom_headers_add_button" = "Header hinzufügen";
+"integration_address_scheme_label" = "Verbindungstyp";
+"integration_address_host_label" = "Host";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Benutzername und Passwort";
+"integration_headers_detail_footer" = "Diese Header werden an jede Anfrage an diesen Server angehängt. Sie können im Bildschirm für die Serveradresse bearbeitet werden.";
 "settings_integration_manage_connection_title" = "Verbindung verwalten";
 "integration_internal_error_invalid_url" = "Interner Fehler: Anforderungs-URL ist ungültig: %@";
 "integration_internal_error_build_url" = "Interner Fehler: Anforderungs-URL konnte nicht erstellt werden";

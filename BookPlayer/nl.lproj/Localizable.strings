@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Headernaam";
 "integration_custom_headers_value_placeholder" = "Headerwaarde";
 "integration_custom_headers_add_button" = "Header toevoegen";
+"integration_address_scheme_label" = "Verbindingstype";
+"integration_address_host_label" = "Host";
+"integration_address_port_label" = "Poort";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Gebruikersnaam en wachtwoord";
+"integration_headers_detail_footer" = "Deze headers worden bij elk verzoek naar deze server meegestuurd. Ze kunnen worden bewerkt via het scherm met het serveradres.";
 "settings_integration_manage_connection_title" = "Verbinding beheren";
 "integration_internal_error_invalid_url" = "Interne fout: Verzoek-URL is ongeldig: %@";
 "integration_internal_error_build_url" = "Interne fout: het is niet gelukt om de URL van het verzoek te bouwen";

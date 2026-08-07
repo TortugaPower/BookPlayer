@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Başlık adı";
 "integration_custom_headers_value_placeholder" = "Başlık değeri";
 "integration_custom_headers_add_button" = "Başlık ekle";
+"integration_address_scheme_label" = "Bağlantı türü";
+"integration_address_host_label" = "Ana makine";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Sunucu";
+"integration_password_signin_button" = "Kullanıcı adı ve şifre";
+"integration_headers_detail_footer" = "Bu başlıklar bu sunucuya gönderilen her isteğe eklenir. Sunucu adresi ekranından düzenlenebilirler.";
 "settings_integration_manage_connection_title" = "Bağlantıyı Yönet";
 "integration_internal_error_invalid_url" = "Dahili hata: İstek URL'si geçersiz: %@";
 "integration_internal_error_build_url" = "Dahili hata: İstek URL'si oluşturulamadı";

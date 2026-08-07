@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Otsakkeen nimi";
 "integration_custom_headers_value_placeholder" = "Otsakkeen arvo";
 "integration_custom_headers_add_button" = "Lisää otsake";
+"integration_address_scheme_label" = "Yhteystyyppi";
+"integration_address_host_label" = "Isäntä";
+"integration_address_port_label" = "Portti";
+"integration_server_section_header" = "Palvelin";
+"integration_password_signin_button" = "Käyttäjätunnus ja salasana";
+"integration_headers_detail_footer" = "Nämä otsakkeet liitetään jokaiseen tälle palvelimelle lähetettävään pyyntöön. Niitä voi muokata palvelimen osoitenäytöllä.";
 "settings_integration_manage_connection_title" = "Hallitse yhteyttä";
 "integration_internal_error_invalid_url" = "Sisäinen virhe: Pyynnön URL-osoite on virheellinen: %@";
 "integration_internal_error_build_url" = "Sisäinen virhe: Pyynnön URL-osoitteen luominen epäonnistui";
