@@ -61,6 +61,7 @@
 "sort_filename_button" = "Orijinal Dosya Adı";
 "sort_title" = "Öğeleri Sıralama Ölçütü";
 "cancel_button" = "İptal";
+"copy_button" = "Kopyala";
 "seconds_title" = "sn";
 "ok_button" = "Tamam";
 "siri_alert_description" = "Siri Kısayolları iOS 12 ve sonraki İOS sürümlerinde kullanılabilir";

@@ -61,6 +61,7 @@
 "sort_filename_button" = "Alkuperäinen tiedostonimi";
 "sort_title" = "Lajittele kohteet seuraavan mukaan";
 "cancel_button" = "Peruuta";
+"copy_button" = "Kopioi";
 "seconds_title" = "sekunteja";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-pikakuvakkeet ovat saatavilla iOS 12:ssa ja uudemmissa";

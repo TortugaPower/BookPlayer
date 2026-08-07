@@ -61,6 +61,7 @@
 "sort_filename_button" = "Nombre de Archivo Original";
 "sort_title" = "Ordenar Elementos por";
 "cancel_button" = "Cancelar";
+"copy_button" = "Copiar";
 "seconds_title" = "seg";
 "ok_button" = "OK";
 "siri_alert_description" = "Los atajos de Siri están disponibles desde iOS 12 en adelante";

@@ -61,6 +61,7 @@
 "sort_filename_button" = "pôvodného názvu súboru";
 "sort_title" = "Zoradiť položky podľa";
 "cancel_button" = "Zrušiť";
+"copy_button" = "Kopírovať";
 "seconds_title" = "sek.";
 "ok_button" = "OK";
 "siri_alert_description" = "Skratky pre Siri sú k dispozícii v iOS 12 a vyššom";

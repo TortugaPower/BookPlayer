@@ -61,6 +61,7 @@
 "sort_filename_button" = "Nome Original do Arquivo";
 "sort_title" = "Classificar itens por";
 "cancel_button" = "Cancelar";
+"copy_button" = "Copiar";
 "seconds_title" = "seg";
 "ok_button" = "OK";
 "siri_alert_description" = "Os atalhos da Siri estão disponíveis no iOS 12 e superior";

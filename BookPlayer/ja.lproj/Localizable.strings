@@ -61,6 +61,7 @@
 "sort_filename_button" = "元のファイル名";
 "sort_title" = "項目の並び替え";
 "cancel_button" = "キャンセル";
+"copy_button" = "コピー";
 "seconds_title" = "秒";
 "ok_button" = "OK";
 "siri_alert_description" = "SiriショートカットはiOS 12以降でご利用いただけます。";

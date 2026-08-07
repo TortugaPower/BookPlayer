@@ -61,6 +61,7 @@
 "sort_filename_button" = "Оригінальне ім'я файлу";
 "sort_title" = "Відсортувати за";
 "cancel_button" = "Скасувати";
+"copy_button" = "Копіювати";
 "seconds_title" = "сек";
 "ok_button" = "Гаразд";
 "siri_alert_description" = "Команди Siri доступні для iOS 12 і вище";

@@ -61,6 +61,7 @@
 "sort_filename_button" = "Original File Name";
 "sort_title" = "Sort Items by";
 "cancel_button" = "Cancel";
+"copy_button" = "Copy";
 "seconds_title" = "sec";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Shortcuts are available on iOS 12 and above";

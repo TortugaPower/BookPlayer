@@ -75,10 +75,16 @@ struct IntegrationQuickConnectSheetView: View {
           codeView
           instructionsView
         }
+        // Without this the stack hugs its widest child, so a short state like `.retrievingCode`
+        // lays out a narrow column instead of a centred full-width one.
+        .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .padding(.top, Self.topPadding)
       }
-      .background(theme.systemBackgroundColor.ignoresSafeArea())
+      // House list styling, same as every other themed scroll surface in the app. Beyond the background
+      // it carries `toolbarColorScheme`, without which the navigation bar keeps the system colour scheme
+      // instead of the theme's — a mismatched band above content that reads as a second background.
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .navigationTitle("integration_quick_connect_sheet_title".localized)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -178,9 +184,30 @@ struct IntegrationQuickConnectSheetView: View {
         .frame(maxWidth: .infinity)
         .background(theme.tertiarySystemBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: Self.codeCornerRadius))
+        // Long-press to copy. Quick Connect's own convention is to offer nothing here — the reference
+        // clients render a bare, inert code — on the reasoning that the code is typed on a *different*
+        // device, so the clipboard can't reach it. That holds for a TV, but not for the common
+        // self-hosted case where the authorizing session is a browser tab on this same phone.
+        //
+        // A context menu rather than `.textSelection(.enabled)`: text selection installs an edit-menu
+        // interaction, which is enough for VoiceOver to announce "Actions available" while the edit
+        // commands never appear in the Actions rotor — an announcement with nothing behind it. An
+        // explicit action is both honest and actually reachable without a drag gesture.
+        .contextMenu {
+          Button {
+            UIPasteboard.general.string = code
+          } label: {
+            Label("copy_button".localized, systemImage: "doc.on.doc")
+          }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("integration_quick_connect_code_label".localized))
         .accessibilityValue(Text(code.map { String($0) }.joined(separator: " ")))
+        // Restated explicitly: `.accessibilityElement(children: .ignore)` above drops the context
+        // menu's own action along with the rest of the children.
+        .accessibilityAction(named: Text("copy_button".localized)) {
+          UIPasteboard.general.string = code
+        }
     }
   }
 
@@ -194,13 +221,7 @@ struct IntegrationQuickConnectSheetView: View {
           .accessibilityAddTraits(.isHeader)
           .foregroundStyle(theme.primaryColor)
 
-        instructionRow(
-          number: 1,
-          text: String(
-            format: "integration_quick_connect_instruction_open".localized,
-            serverUrl
-          )
-        )
+        instructionRow(number: 1, attributed: openInstruction)
         instructionRow(number: 2, text: "jellyfin_quick_connect_instruction_sign_in".localized)
         instructionRow(number: 3, text: "jellyfin_quick_connect_instruction_open_menu".localized)
         instructionRow(number: 4, text: "integration_quick_connect_instruction_enter_code".localized)
@@ -209,20 +230,74 @@ struct IntegrationQuickConnectSheetView: View {
     }
   }
 
-  /// One numbered step in the instructions list. Pulled out so VoiceOver reads each row as
-  /// a single accessibility element ("step 1, ...") rather than splitting the number from
-  /// the body text.
+  /// Step 1's sentence with the server URL turned into a tappable link.
+  ///
+  /// Deliberately built by attributing the *formatted* result rather than by splitting the string into
+  /// "Open" + a separate link view: every locale keeps its own word order around `%@`, so this needs no
+  /// translation work and can't strand a catalog holding a `%@` we no longer substitute. Languages that
+  /// put the URL first, or wrap it in punctuation, keep working.
+  ///
+  /// A real link also beats text selection for this: tap opens the browser, long-press gives the
+  /// system's Copy Link — scoped to the URL alone instead of the whole sentence.
+  private var openInstruction: AttributedString {
+    let formatted = String(
+      format: "integration_quick_connect_instruction_open".localized,
+      serverUrl
+    )
+    var attributed = AttributedString(formatted)
+    // A URL the user typed may not parse, and a translation could in principle drop the placeholder —
+    // in either case fall back to the plain sentence rather than showing nothing.
+    guard
+      let range = attributed.range(of: serverUrl),
+      let url = URL(string: serverUrl)
+    else { return attributed }
+    attributed[range].link = url
+    return attributed
+  }
+
+  /// One numbered step with no interactive content — steps 2 onward.
+  ///
+  /// Note what is *absent*: no `.accessibilityElement(children:)`. Both `.combine` and `.ignore` make
+  /// SwiftUI synthesise a container element, and every row that announced a hollow "Actions available"
+  /// had one. Hiding the number and folding it into the text's own label reaches the same single
+  /// spoken result — "2. Sign in there" — without a synthesised container to hang an empty action
+  /// list off.
   private func instructionRow(number: Int, text: String) -> some View {
+    instructionRowLayout(number: number) {
+      Text(text)
+        .accessibilityLabel(Text("\(number). \(text)"))
+    }
+  }
+
+  /// Step 1, whose sentence carries the server URL as a link.
+  ///
+  /// Deliberately unlabelled: overriding the label on a `Text` that carries an inline `.link` risks
+  /// replacing the very content the link is attached to. The cost is that VoiceOver does not speak the
+  /// step number on this row alone; the link staying reachable matters more.
+  private func instructionRow(number: Int, attributed: AttributedString) -> some View {
+    instructionRowLayout(number: number) {
+      Text(attributed)
+        .tint(theme.linkColor)
+    }
+  }
+
+  /// Shared visual layout for a numbered step, so the two accessibility treatments above can't drift
+  /// apart visually.
+  private func instructionRowLayout<Content: View>(
+    number: Int,
+    @ViewBuilder content: () -> Content
+  ) -> some View {
     HStack(alignment: .top, spacing: Self.instructionRowSpacing) {
       Text("\(number).")
         .bpFont(.body)
         .foregroundStyle(theme.secondaryColor)
-      Text(text)
+        // Folded into the text's label instead, so the row needs no accessibility container.
+        .accessibilityHidden(true)
+      content()
         .bpFont(.body)
         .foregroundStyle(theme.primaryColor)
         .fixedSize(horizontal: false, vertical: true)
     }
-    .accessibilityElement(children: .combine)
   }
 
   /// "Cancel" while a flow is in progress; "OK" once it has terminally failed and the

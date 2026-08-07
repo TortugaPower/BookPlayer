@@ -61,6 +61,7 @@
 "sort_filename_button" = "Nom del fitxer original";
 "sort_title" = "Ordena els elements per";
 "cancel_button" = "Cancel·la";
+"copy_button" = "Copia";
 "seconds_title" = "seg";
 "ok_button" = "D'acord";
 "siri_alert_description" = "Les dreceres de Siri estan disponibles a iOS 12 i posteriors";

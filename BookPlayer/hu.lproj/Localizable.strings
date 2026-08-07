@@ -61,6 +61,7 @@
 "sort_filename_button" = "Eredeti fájlnév";
 "sort_title" = "Elemek rendezése";
 "cancel_button" = "Mégsem";
+"copy_button" = "Másolás";
 "seconds_title" = "mp";
 "ok_button" = "OK";
 "siri_alert_description" = "A Siri-parancsok iOS 12-es vagy újabb verziókon érhetőek el";

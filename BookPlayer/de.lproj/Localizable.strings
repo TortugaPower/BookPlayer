@@ -61,6 +61,7 @@
 "sort_filename_button" = "Ursprüngliche Dateinamen";
 "sort_title" = "Liste sortieren";
 "cancel_button" = "Abbrechen";
+"copy_button" = "Kopieren";
 "seconds_title" = "s";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Kurzbefehle sind erst ab iOS 12 verfügbar.";
