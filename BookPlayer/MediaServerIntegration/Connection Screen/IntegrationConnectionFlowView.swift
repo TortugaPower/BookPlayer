@@ -198,6 +198,9 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             .keyboardType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+            // The row's Text label isn't associated with the field — without this VoiceOver reads
+            // the placeholder hostname as if it were the field's name.
+            .accessibilityLabel(Text("integration_address_host_label".localized))
           }
 
           HStack {
@@ -206,6 +209,9 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             TextField(usualPort, text: $portText)
               .multilineTextAlignment(.trailing)
               .keyboardType(.numberPad)
+              // Same association gap — and here the placeholder is a bare number, so an unlabelled
+              // field announces as "8096", which is meaningless.
+              .accessibilityLabel(Text("integration_address_port_label".localized))
               .onChange(of: portText) { _, newValue in
                 address.port = Int(newValue).flatMap { (1...65535).contains($0) ? $0 : nil }
               }
