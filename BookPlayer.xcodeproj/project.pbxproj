@@ -874,6 +874,7 @@
 		C53864BEFAE4D1CEC668A6B3 /* IntegrationLibraryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F0D505E060FDAEB6DB68E3 /* IntegrationLibraryListView.swift */; };
 		C63BB893BC572482723FF7CE /* m4b_MALFORMED.m4b in Resources */ = {isa = PBXBuildFile; fileRef = A566F222C6660938B3A71638 /* m4b_MALFORMED.m4b */; };
 		C744B2254A1146AC9F78A68F /* PlayBookIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F847DAE94054533AACF8D85 /* PlayBookIntent.swift */; };
+		C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
 		CCC7E1CC127610C3687B8A50 /* SortPreferencesResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */; };
 		D080B0A77D9844C3A0737170 /* IntegrationConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB91B577BC77F45EDB2AAAA /* IntegrationConnectionFormViewModel.swift */; };
@@ -883,6 +884,7 @@
 		D6BA8F182A4D66CD00C2BD9A /* StorageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8F172A4D66CD00C2BD9A /* StorageView.swift */; };
 		D8886C9E9E2A183454C625CC /* VideoFullscreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */; };
 		DCFC79BEBAEA628FB13F33A1 /* BPFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFA02FA31A0CB0438C5228 /* BPFont.swift */; };
+		E101E3603ACF4DB50AA0037B /* JellyfinQuickConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8DAE18EF12485AD3509B2D /* JellyfinQuickConnectTests.swift */; };
 		F2535BF980A548BFB9D3E8C1 /* VideoPiPCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2EA56C448451F969BC0E2AB /* VideoPiPCoordinator.swift */; };
 		F50163BEFB92FB6B1B778C5E /* WindowHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB8BFBB9A63469069F0D44A /* WindowHelper.swift */; };
 		F6348C04290CD2CE7BE3F015 /* IntegrationConnectionDataDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */; };
@@ -1045,6 +1047,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
 		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		0FC8B923A5506F865253B97C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		12EDB8401F38342155CBBC91 /* mp3_NO_chapters.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mp3_NO_chapters.mp3; sourceTree = "<group>"; };
@@ -1651,6 +1654,7 @@
 		8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionViewModel.swift; sourceTree = "<group>"; };
 		8AF18A322CF0A26200238F8D /* JellyfinLibraryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItem.swift; sourceTree = "<group>"; };
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
+		8B8DAE18EF12485AD3509B2D /* JellyfinQuickConnectTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JellyfinQuickConnectTests.swift; sourceTree = "<group>"; };
 		8D3EFD93E6D1E0366A3FD1E9 /* mp3_WITH_toc.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mp3_WITH_toc.mp3; sourceTree = "<group>"; };
 		8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryOptionsView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
@@ -1946,6 +1950,7 @@
 			isa = PBXGroup;
 			children = (
 				43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */,
+				056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */,
 				4D9D68F735D2519CDBC18495 /* IntegrationSettingsView.swift */,
 				E1FDA0B60D7BE4CFE100A612 /* IntegrationDisconnectedView.swift */,
 				A3511F737DCDEE7A12B713AE /* IntegrationServerFoundView.swift */,
@@ -2559,6 +2564,7 @@
 				2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */,
 				638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */,
 				F4388D9707FA7C85F9D07E75 /* WebAuthenticatingTests.swift */,
+				8B8DAE18EF12485AD3509B2D /* JellyfinQuickConnectTests.swift */,
 			);
 			name = MediaServerIntegration;
 			path = MediaServerIntegration;
@@ -4571,6 +4577,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */,
+				C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */,
 				B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */,
 				98BA9BA4D6A94BC8BCCE5F8B /* IntegrationSettingsView.swift in Sources */,
 				66DF1F3E6AFECB623A558F04 /* IntegrationDisconnectedView.swift in Sources */,
@@ -4969,6 +4976,7 @@
 				F6348C04290CD2CE7BE3F015 /* IntegrationConnectionDataDecodingTests.swift in Sources */,
 				F97E68221AB7CDFB93CC0AF7 /* AudiobookShelfConnectionViewModelTests.swift in Sources */,
 				ADBA6DD206F76CF92C0765A3 /* WebAuthenticatingTests.swift in Sources */,
+				E101E3603ACF4DB50AA0037B /* JellyfinQuickConnectTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

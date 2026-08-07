@@ -47,6 +47,16 @@ class JellyfinConnectionService: BPLogger {
   /// AudiobookShelf. Reads below forward into it so views keep observing through this service.
   private let store: IntegrationConnectionStore<JellyfinConnectionData>
 
+  /// Polling cadence for Quick Connect, in seconds. Matches the JellyfinAPI helper's own
+  /// default and is comfortable for the server, which expects the client to poll
+  /// `/QuickConnect/Connect` periodically until the user enters the code.
+  private static let quickConnectPollIntervalSeconds = 5
+
+  /// Maximum number of Quick Connect polls before the helper aborts with `.maxPollingHit`.
+  /// At a 5-second cadence this gives the user roughly a 16-minute window to enter the code
+  /// on another device before this one gives up.
+  private static let quickConnectMaxPolls = 200
+
   var connections: [JellyfinConnectionData] { store.connections }
   var connection: JellyfinConnectionData? { store.active }
   var client: JellyfinClient?
@@ -77,6 +87,10 @@ class JellyfinConnectionService: BPLogger {
     let serverName: String
     let client: JellyfinClient
     let injector: JellyfinHeaderInjector
+    /// Whether this server reports Quick Connect as enabled. Probed during `findServer` so the UI can
+    /// offer the affordance only when it can actually work — admins can turn Quick Connect off, and a
+    /// button that always appears sends those users into a flow that fails with a server error.
+    let quickConnectEnabled: Bool
   }
 
   /// Validates server reachability without mutating service state. Returns a
@@ -94,11 +108,37 @@ class JellyfinConnectionService: BPLogger {
 
     let publicSystemInfo = try await client.send(Paths.getPublicSystemInfo)
 
+    let quickConnectEnabled = await Self.isQuickConnectEnabled(on: client)
+    // The probe swallows its own errors — including cancellation — so check explicitly before handing
+    // back a result. Without this, a Connect the user already abandoned still returns a valid
+    // `PendingServer`, and the caller writes `pendingServer` / `signInFlow` for it. Because `onConnect`
+    // cancels the previous attempt on every tap, a slow first probe could land *after* a second attempt
+    // to a different URL and overwrite `pendingServer` with the wrong server's client — while the form
+    // shows the other one, and sign-in sends the typed credentials there.
+    try Task.checkCancellation()
+
     return PendingServer(
       serverName: publicSystemInfo.value.serverName ?? "",
       client: client,
-      injector: injector
+      injector: injector,
+      quickConnectEnabled: quickConnectEnabled
     )
+  }
+
+  /// Best-effort probe of `/QuickConnect/Enabled`.
+  ///
+  /// Deliberately non-throwing: a server too old to expose the endpoint, or one that errors, simply
+  /// isn't offered Quick Connect — the safe default. Failing `findServer` over a capability probe would
+  /// block password sign-in for no reason.
+  private static func isQuickConnectEnabled(on client: JellyfinClient) async -> Bool {
+    guard let response = try? await client.send(Paths.getQuickConnectEnabled) else { return false }
+    // The endpoint answers with a bare JSON boolean; fall back to a text compare if that ever changes.
+    if let enabled = try? JSONDecoder().decode(Bool.self, from: response.value) {
+      return enabled
+    }
+    return String(data: response.value, encoding: .utf8)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased() == "true"
   }
 
   /// Sign in using a ``PendingServer`` returned from ``findServer(at:customHeaders:)``.
@@ -146,6 +186,71 @@ class JellyfinConnectionService: BPLogger {
     self.client = pending.client
     self.headerInjector = pending.injector
     pending.injector.setCustomHeaders(customHeaders)
+  }
+
+  /// Builds a Quick Connect controller bound to a validated server's client.
+  ///
+  /// The reworked add-server flow keeps the `JellyfinClient` transient inside ``PendingServer``
+  /// and only commits it on a successful sign-in. Quick Connect needs a working client *before*
+  /// any credentials exist, so it runs against the pending client rather than `self.client`.
+  func makeQuickConnectController(
+    using client: JellyfinClient
+  ) -> JellyfinAPI.QuickConnect {
+    JellyfinAPI.QuickConnect(
+      client: client,
+      pollInterval: Self.quickConnectPollIntervalSeconds,
+      maxPolls: Self.quickConnectMaxPolls
+    )
+  }
+
+  /// Completes a Quick Connect sign-in against a validated ``PendingServer``: exchanges the
+  /// authorized `secret` for an access token and persists the connection in the same shape as
+  /// ``signIn(pending:username:password:serverName:customHeaders:)``.
+  ///
+  /// Returns the username taken from the auth response — Quick Connect doesn't expose it
+  /// client-side before authentication, so the Connected screen relies on this for its
+  /// "signed in as X" line.
+  public func signInWithQuickConnect(
+    pending: PendingServer,
+    secret: String,
+    serverName: String,
+    customHeaders: [String: String] = [:]
+  ) async throws -> String {
+    let result = try await pending.client.signIn(quickConnectSecret: secret)
+    // Bail out before persisting if the caller cancelled while the exchange was in flight.
+    try Task.checkCancellation()
+
+    guard
+      let accessToken = result.accessToken,
+      let userID = result.user?.id,
+      let userName = result.user?.name
+    else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    // Identical persistence to the password path: the store de-duplicates on canonical-url + userID
+    // and carries the existing connection's id and selectedLibraryId forward on a re-auth, so the
+    // user lands back in the same library context with the same outbound references.
+    let serverURL = pending.client.configuration.url
+    store.upsert(url: serverURL, userID: userID) { existing in
+      JellyfinConnectionData(
+        id: existing?.id ?? UUID().uuidString,
+        url: serverURL,
+        serverName: serverName,
+        userID: userID,
+        userName: userName,
+        accessToken: accessToken,
+        selectedLibraryId: existing?.selectedLibraryId,
+        customHeaders: customHeaders
+      )
+    }
+
+    // Commit the transient client + injector now that the connection is persisted.
+    self.client = pending.client
+    self.headerInjector = pending.injector
+    pending.injector.setCustomHeaders(customHeaders)
+
+    return userName
   }
 
   func updateCustomHeaders(_ headers: [String: String]) {

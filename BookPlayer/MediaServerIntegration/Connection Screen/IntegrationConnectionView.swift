@@ -26,6 +26,19 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
+  /// Whether the Quick Connect sheet is presented. Derived from the view model's
+  /// `quickConnectStatus`: non-nil means there is something to render (poll progress, code,
+  /// success transition, or terminal failure).
+  private var isQuickConnectSheetPresented: Binding<Bool> {
+    Binding(
+      get: { viewModel.quickConnectStatus != nil },
+      set: { newValue in
+        // The user dismissed the sheet by gesture — clean up the in-flight flow.
+        if !newValue { viewModel.handleCancelQuickConnect() }
+      }
+    )
+  }
+
   var body: some View {
     Form {
       switch viewModel.signInFlow {
@@ -46,10 +59,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        // SSO goes above the username/password section: `IntegrationServerFoundView` auto-focuses the
-        // username field, so this step always arrives with the keyboard up. Below Login, the SSO row
-        // starts out hidden behind the keyboard on smaller devices — poor discoverability for what is
-        // meant to be a peer path to password sign-in.
+        // Alternative sign-in methods go ABOVE the username/password section.
+        // `IntegrationServerFoundView` auto-focuses the username field, so this step always arrives
+        // with the keyboard up; below Login these rows start out hidden behind it on smaller devices —
+        // poor discoverability for what are meant to be peer paths to password sign-in, not footnotes.
+        // At most one of these renders: AudiobookShelf opts into OIDC, Jellyfin into Quick Connect,
+        // and each leaves the other at its protocol default of `false`.
         if viewModel.oidcSupported {
           IntegrationOIDCSectionView(
             buttonText: viewModel.oidcButtonText,
@@ -60,12 +75,15 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           // The server does offer SSO — say why we won't, rather than silently omitting it.
           IntegrationOIDCUnavailableSectionView()
         }
+        if viewModel.quickConnectSupported {
+          IntegrationQuickConnectSectionView(onStart: onStartQuickConnect)
+        }
         IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
-          // Don't raise the keyboard when SSO is on offer — it would cover the option above and
-          // presume the user came here to type a password.
-          autoFocusesUsername: !viewModel.oidcSupported,
+          // Don't raise the keyboard when an alternative sign-in is on offer — it would cover the
+          // option above and presume the user came here to type a password.
+          autoFocusesUsername: !viewModel.oidcSupported && !viewModel.quickConnectSupported,
           onCommit: onSignIn
         )
         IntegrationCustomHeadersSectionView(
@@ -89,6 +107,16 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .errorAlert(error: $error)
+    .sheet(isPresented: isQuickConnectSheetPresented) {
+      // Bound to the view model's status: a successful flow nils the status and the sheet
+      // auto-dismisses; a failure keeps it up showing the error until the user taps OK.
+      IntegrationQuickConnectSheetView(
+        status: viewModel.quickConnectStatus ?? .retrievingCode,
+        serverUrl: viewModel.form.serverUrl,
+        onCancel: { viewModel.handleCancelQuickConnect() }
+      )
+      .environmentObject(theme)
+    }
     .overlay {
       Group {
         if isLoading {
@@ -119,6 +147,10 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       if viewModel.isAddingServer {
         ToolbarItem(placement: .cancellationAction) {
           Button("cancel_button".localized) {
+            // Tear down any in-flight Quick Connect before leaving: its poller lives on the view model,
+            // not in `actionTask`, so it would otherwise keep running — and could persist a connection
+            // after the user explicitly backed out. No-op when no flow is running.
+            viewModel.handleCancelQuickConnect()
             viewModel.handleCancelAddServerAction()
             dismiss()
           }
@@ -144,6 +176,14 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     .onDisappear {
       actionTask?.cancel()
       actionTask = nil
+      // Safe to tear the Quick Connect flow down here: presenting a `.sheet` does NOT deliver
+      // `onDisappear` to the presenter — it stays in the hierarchy — so this cannot fire when the Quick
+      // Connect sheet opens. (`.fullScreenCover` and a navigation push do remove the presenter; this is
+      // a `.sheet`.) Insurance for the case where the whole modal stack is torn down from elsewhere:
+      // this view model is a `@StateObject` on the presenting sheet, so it would deallocate, dropping
+      // the state subscription while the SDK controller — which self-retains via `mainTask` and has no
+      // `deinit` — kept polling for its full ~16-minute budget. No-op when no flow is running.
+      viewModel.handleCancelQuickConnect()
     }
   }
 
@@ -157,6 +197,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleConnectAction()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         // Sheet dismissed mid-flight; nothing to surface.
       } catch {
@@ -173,6 +219,12 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleSignInAction()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         return
       } catch {
@@ -191,8 +243,30 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       do {
         try await viewModel.handleStartOIDC()
         try Task.checkCancellation()
+      } catch let error as URLError where error.code == .cancelled {
+        // Same abort, different spelling. A cancelled `URLSession` task surfaces as
+        // `URLError(.cancelled)`, not `CancellationError` — Get's data loader cancels the underlying
+        // task rather than throwing — so without this arm cancelling one attempt pops an alert reading
+        // "cancelled" over the attempt that replaced it.
+        return
       } catch is CancellationError {
         return
+      } catch {
+        self.error = error
+      }
+    }
+  }
+
+  /// Starts the Quick Connect flow. Failures during the flow surface inside the sheet via the
+  /// view model's `quickConnectStatus`; this handler only catches the synchronous setup error.
+  /// No loading overlay — the sheet provides its own progress UI.
+  func onStartQuickConnect() {
+    // Routed through `actionTask` like every sibling handler — the property's own doc comment already
+    // names Quick-Connect-start as one of the flows it tracks.
+    actionTask?.cancel()
+    actionTask = Task { @MainActor in
+      do {
+        try await viewModel.handleStartQuickConnect()
       } catch {
         self.error = error
       }

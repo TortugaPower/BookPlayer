@@ -227,6 +227,11 @@ final class WebAuthHandshake: @unchecked Sendable {
     let session = self.session
     lock.unlock()
     finish(.failure(CancellationError()))
-    Task { @MainActor in session?.cancel() }
+    // Only hop to the main actor when there is actually a sheet to dismiss. Spawning a detached task
+    // unconditionally meant a `cancel()` on a handshake that never started one still scheduled work that
+    // outlived its caller — pointless, and in tests it left `ASWebAuthenticationSession.cancel()` landing
+    // on an unstarted session at an arbitrary later moment.
+    guard let session else { return }
+    Task { @MainActor in session.cancel() }
   }
 }
