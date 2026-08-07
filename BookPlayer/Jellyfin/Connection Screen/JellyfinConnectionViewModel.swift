@@ -35,6 +35,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// `AudiobookShelfConnectionViewModel` derives its `alternativeSignIn` from `/status`.
   @Published private(set) var alternativeSignIn: AlternativeSignInState?
 
+  @Published var flowPath: [ConnectionFlowStep] = []
+
   /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
   /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
   private var activeQuickConnect: JellyfinAPI.QuickConnect?
@@ -120,6 +122,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     // Set before `signInFlow` so the credentials step renders with the right affordances on first pass.
     alternativeSignIn = pending.quickConnectEnabled ? .quickConnect : nil
     signInFlow = .enteringCredentials
+    flowPath = [stepAfterConnect]
     form.serverName = pending.serverName
   }
 
@@ -156,6 +159,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         )
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
@@ -195,6 +199,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
       signInFlow = .enteringServerURL
+      flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -220,12 +225,14 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   func handleAddServerAction() {
     isAddingServer = true
     signInFlow = .enteringServerURL
+    flowPath = []
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    flowPath = []
     // Drop any transient `pending` from a half-finished Connect → Sign In flow,
     // so a stale `JellyfinClient` can't get reused by a later sign-in attempt.
     pendingServer = nil
@@ -268,6 +275,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     pendingServer = nil
     alternativeSignIn = nil
     signInFlow = .enteringServerURL
+    flowPath = []
   }
 
   // MARK: - Quick Connect
@@ -387,6 +395,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         form.username = userName
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
       quickConnectStatus = nil
       teardownQuickConnect()

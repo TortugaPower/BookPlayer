@@ -26,6 +26,10 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// cannot possibly work.
   @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
 
+  @Published var flowPath: [ConnectionFlowStep] = []
+
+  var supportsPasswordSignIn: Bool { capabilities.supportsLocal }
+
   /// SSO over plaintext is simply not offered — no explanatory state. The refusal reason (the
   /// authorization code, PKCE verifier, and returned token all traverse the redirect chain,
   /// RFC 6749 §10.9) lives in `isPingedURLSecure`'s doc; the scheme control on the address screen
@@ -125,6 +129,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       customHeaders: form.customHeadersDictionary()
     )
     signInFlow = .enteringCredentials
+    flowPath = [stepAfterConnect]
     form.serverName = serverName
   }
 
@@ -165,6 +170,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         )
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
     } catch let error as IntegrationError {
       throw error
@@ -191,6 +197,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     pingedURL = nil
     capabilities = .init()
     signInFlow = .enteringServerURL
+    flowPath = []
   }
 
   /// Normalize the user-typed server URL before we send a request:
@@ -234,6 +241,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
       signInFlow = .enteringServerURL
+      flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -259,12 +267,14 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   func handleAddServerAction() {
     isAddingServer = true
     signInFlow = .enteringServerURL
+    flowPath = []
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    flowPath = []
     // Drop any URL captured from a half-finished Connect → Sign In flow so a stale
     // value can't get reused by a later sign-in attempt.
     pingedURL = nil
@@ -318,6 +328,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       )
     }
     signInFlow = nil
+    flowPath = []
     signInCompletedAt = Date()
   }
 }

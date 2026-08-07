@@ -203,6 +203,62 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     )
   }
 
+  // MARK: - The step after Connect
+
+  /// The routing decision the redesigned flow hangs on: which screen Connect lands you on, per what
+  /// the server offers. Wrong routing is invisible in review — a server config you don't have renders
+  /// a screen you never see — so the whole matrix is pinned.
+  func testConnectRoutesToTheRightStep() async throws {
+    struct Row {
+      let authMethods: String
+      let scheme: String
+      let expected: [ConnectionFlowStep]
+      let passwordOffered: Bool
+    }
+    let matrix: [Row] = [
+      // Both methods → the chooser, password still offered there.
+      Row(authMethods: #"["local","openid"]"#, scheme: "https", expected: [.method], passwordOffered: true),
+      // SSO-only → still the chooser (one primary button beats auto-launching a browser),
+      // and the password button must NOT exist — the form cannot work.
+      Row(authMethods: #"["openid"]"#, scheme: "https", expected: [.method], passwordOffered: false),
+      // Password-only → skip the chooser entirely.
+      Row(authMethods: #"["local"]"#, scheme: "https", expected: [.password], passwordOffered: true),
+      // SSO advertised but refused over plaintext → not offered, so password is the only path.
+      Row(authMethods: #"["local","openid"]"#, scheme: "http", expected: [.password], passwordOffered: true),
+      // Probe answered nothing usable → fail safe toward the password form.
+      Row(authMethods: "[]", scheme: "https", expected: [.password], passwordOffered: true),
+    ]
+
+    for row in matrix {
+      let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+      viewModel.form.serverUrl = "\(row.scheme)://abs.example.com"
+      http.statusPayload = Data(#"{"authMethods":"#.appending(row.authMethods).appending("}").utf8)
+      http.pingPayload = Data(#"{"success":true}"#.utf8)
+
+      try await viewModel.handleConnectAction()
+
+      XCTAssertEqual(viewModel.flowPath, row.expected, "authMethods \(row.authMethods) over \(row.scheme)")
+      XCTAssertEqual(
+        viewModel.supportsPasswordSignIn,
+        row.passwordOffered,
+        "authMethods \(row.authMethods) over \(row.scheme)"
+      )
+    }
+  }
+
+  func testReauthAndCancelClearTheFlowPath() async throws {
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+    viewModel.form.serverUrl = serverURL
+    http.statusPayload = Data(#"{"authMethods":["local"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+    try await viewModel.handleConnectAction()
+    XCTAssertEqual(viewModel.flowPath, [.password])
+
+    viewModel.handleCancelAddServerAction()
+
+    XCTAssertTrue(viewModel.flowPath.isEmpty, "an abandoned flow must not leave pushed screens behind")
+  }
+
   // MARK: - Capability probe
 
   /// The case the probe used to miss entirely: an admin who disabled local auth. `authMethods` then

@@ -19,6 +19,17 @@ enum SignInStep {
   case enteringCredentials
 }
 
+/// One pushed screen of the redesigned add-server flow. The address screen is the stack's root, so it
+/// has no case; everything after it is pushed by appending here.
+enum ConnectionFlowStep: Hashable {
+  /// "How do you want to sign in?" — rendered only when an alternative to the password exists.
+  case method
+  /// Username + password form.
+  case password
+  /// Read-only list of the custom headers carried by the pending connection.
+  case headersDetail
+}
+
 enum IntegrationViewMode {
   /// Bound to a live library session; pre-populates form from the active connection.
   case regular
@@ -125,6 +136,18 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// needs `/status`). Without that, an SSO-only user with no password has no way back in.
   func prepareReauth()
 
+  // MARK: - Redesigned flow
+
+  /// Navigation path of the pushed add-server flow; the address screen is the root. Owned by the view
+  /// model so the *decision* of what follows Connect — method chooser, or straight to the password
+  /// form when nothing else exists — is plain testable logic, not view code.
+  var flowPath: [ConnectionFlowStep] { get set }
+
+  /// Whether the validated server accepts username/password sign-in at all. AudiobookShelf admins can
+  /// disable local auth (SSO-only servers); the method screen uses this to decide whether the password
+  /// button exists. Default: true — Jellyfin's core API always accepts it.
+  var supportsPasswordSignIn: Bool { get }
+
   // MARK: - Alternative sign-in
 
   /// What the alternative-sign-in slot offers for the server the user just validated — not merely
@@ -149,6 +172,15 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
 
 /// No-op defaults, so an integration without an alternative sign-in implements none of it.
 extension IntegrationConnectionViewModelProtocol {
+  var supportsPasswordSignIn: Bool { true }
+
+  /// The step Connect lands on: the method chooser when there is a choice to make, otherwise straight
+  /// to the password form. A server offering only an alternative still gets the method screen — a
+  /// single primary button beats auto-launching a browser the user didn't ask for.
+  var stepAfterConnect: ConnectionFlowStep {
+    alternativeSignIn != nil ? .method : .password
+  }
+
   var alternativeSignIn: AlternativeSignInState? { nil }
   var quickConnectStatus: QuickConnectStatus? { nil }
   func handleStartAlternativeSignIn() async throws {}
