@@ -34,7 +34,7 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       get: { viewModel.quickConnectStatus != nil },
       set: { newValue in
         // The user dismissed the sheet by gesture — clean up the in-flight flow.
-        if !newValue { viewModel.handleCancelQuickConnect() }
+        if !newValue { viewModel.handleCancelAlternativeSignIn() }
       }
     )
   }
@@ -59,31 +59,34 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
           serverName: viewModel.form.serverName,
           serverUrl: viewModel.form.serverUrl
         )
-        // Alternative sign-in methods go ABOVE the username/password section.
+        // The alternative sign-in goes ABOVE the username/password section.
         // `IntegrationServerFoundView` auto-focuses the username field, so this step always arrives
         // with the keyboard up; below Login these rows start out hidden behind it on smaller devices —
-        // poor discoverability for what are meant to be peer paths to password sign-in, not footnotes.
-        // At most one of these renders: AudiobookShelf opts into OIDC, Jellyfin into Quick Connect,
-        // and each leaves the other at its protocol default of `false`.
-        if viewModel.oidcSupported {
+        // poor discoverability for what is meant to be a peer path to password sign-in, not a footnote.
+        // At most one renders — the slot is a single optional, so "both at once" cannot be expressed.
+        switch viewModel.alternativeSignIn {
+        case .oidc(let buttonText):
           IntegrationOIDCSectionView(
-            buttonText: viewModel.oidcButtonText,
+            buttonText: buttonText,
             isBusy: isLoading,
-            onStart: onStartOIDC
+            onStart: onStartAlternativeSignIn
           )
-        } else if viewModel.oidcBlockedByInsecureTransport {
+        case .oidcRequiresSecureTransport:
           // The server does offer SSO — say why we won't, rather than silently omitting it.
           IntegrationOIDCUnavailableSectionView()
-        }
-        if viewModel.quickConnectSupported {
-          IntegrationQuickConnectSectionView(onStart: onStartQuickConnect)
+        case .quickConnect:
+          IntegrationQuickConnectSectionView(onStart: onStartAlternativeSignIn)
+        case nil:
+          EmptyView()
         }
         IntegrationServerFoundView(
           username: $viewModel.form.username,
           password: $viewModel.form.password,
-          // Don't raise the keyboard when an alternative sign-in is on offer — it would cover the
-          // option above and presume the user came here to type a password.
-          autoFocusesUsername: !viewModel.oidcSupported && !viewModel.quickConnectSupported,
+          // Don't raise the keyboard when an alternative sign-in is actually on offer — it would cover
+          // the option above and presume the user came here to type a password. An explanation-only
+          // state (`.oidcRequiresSecureTransport`) is not an offer: typing is still the only way in,
+          // so the keyboard should come up exactly as it does with no alternative at all.
+          autoFocusesUsername: !(viewModel.alternativeSignIn?.isActionable ?? false),
           onCommit: onSignIn
         )
         IntegrationCustomHeadersSectionView(
@@ -113,7 +116,7 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       IntegrationQuickConnectSheetView(
         status: viewModel.quickConnectStatus ?? .retrievingCode,
         serverUrl: viewModel.form.serverUrl,
-        onCancel: { viewModel.handleCancelQuickConnect() }
+        onCancel: { viewModel.handleCancelAlternativeSignIn() }
       )
       .environmentObject(theme)
     }
@@ -150,7 +153,7 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
             // Tear down any in-flight Quick Connect before leaving: its poller lives on the view model,
             // not in `actionTask`, so it would otherwise keep running — and could persist a connection
             // after the user explicitly backed out. No-op when no flow is running.
-            viewModel.handleCancelQuickConnect()
+            viewModel.handleCancelAlternativeSignIn()
             viewModel.handleCancelAddServerAction()
             dismiss()
           }
@@ -183,7 +186,7 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
       // this view model is a `@StateObject` on the presenting sheet, so it would deallocate, dropping
       // the state subscription while the SDK controller — which self-retains via `mainTask` and has no
       // `deinit` — kept polling for its full ~16-minute budget. No-op when no flow is running.
-      viewModel.handleCancelQuickConnect()
+      viewModel.handleCancelAlternativeSignIn()
     }
   }
 
@@ -233,15 +236,30 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
     }
   }
 
-  /// Starts the native SSO flow. The system web-auth sheet drives the IdP handshake; the
-  /// loading overlay covers the subsequent token exchange. User cancellation is swallowed.
-  func onStartOIDC() {
+  /// Starts whichever alternative flow the view model advertises.
+  ///
+  /// The loading overlay is OIDC-only: the system web-auth sheet drives the IdP handshake and the
+  /// overlay covers the subsequent token exchange, whereas Quick Connect presents a sheet with its own
+  /// progress UI the moment the flow starts — an overlay there would just stack spinners. Failures
+  /// mid-Quick-Connect surface inside that sheet via `quickConnectStatus`; only the synchronous setup
+  /// error lands in the alert.
+  func onStartAlternativeSignIn() {
+    guard let method = viewModel.alternativeSignIn, method.isActionable else { return }
+    let showsOverlay: Bool
+    switch method {
+    case .oidc:
+      showsOverlay = true
+    case .quickConnect, .oidcRequiresSecureTransport:
+      showsOverlay = false
+    }
+    // Routed through `actionTask` like every sibling handler — the property's own doc comment names
+    // alternative-sign-in start as one of the flows it tracks.
     actionTask?.cancel()
-    isLoading = true
+    if showsOverlay { isLoading = true }
     actionTask = Task { @MainActor in
-      defer { isLoading = false }
+      defer { if showsOverlay { isLoading = false } }
       do {
-        try await viewModel.handleStartOIDC()
+        try await viewModel.handleStartAlternativeSignIn()
         try Task.checkCancellation()
       } catch let error as URLError where error.code == .cancelled {
         // Same abort, different spelling. A cancelled `URLSession` task surfaces as
@@ -251,22 +269,6 @@ struct IntegrationConnectionView<VM: IntegrationConnectionViewModelProtocol>: Vi
         return
       } catch is CancellationError {
         return
-      } catch {
-        self.error = error
-      }
-    }
-  }
-
-  /// Starts the Quick Connect flow. Failures during the flow surface inside the sheet via the
-  /// view model's `quickConnectStatus`; this handler only catches the synchronous setup error.
-  /// No loading overlay — the sheet provides its own progress UI.
-  func onStartQuickConnect() {
-    // Routed through `actionTask` like every sibling handler — the property's own doc comment already
-    // names Quick-Connect-start as one of the flows it tracks.
-    actionTask?.cancel()
-    actionTask = Task { @MainActor in
-      do {
-        try await viewModel.handleStartQuickConnect()
       } catch {
         self.error = error
       }
@@ -316,7 +318,7 @@ private struct IntegrationOIDCSectionView: View {
   /// multi-second token exchange, and a second tap cancels the first attempt's task — surfacing an
   /// error alert on top of the flow the user just started.
   var isBusy: Bool
-  /// Tapped to begin the flow. The caller drives `viewModel.handleStartOIDC()` so loading-state
+  /// Tapped to begin the flow. The caller drives `handleStartAlternativeSignIn()` so loading-state
   /// plumbing stays in the host view.
   var onStart: () -> Void
 

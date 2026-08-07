@@ -15,10 +15,10 @@ import UIKit
 /// In-form section that lets the user start a Quick Connect flow as an alternative to
 /// entering a username and password. Shown only in the `.foundServer` state of the shared
 /// `IntegrationConnectionView` for integrations whose view model opts in via
-/// `quickConnectSupported = true`.
+/// `alternativeSignIn == .quickConnect`.
 struct IntegrationQuickConnectSectionView: View {
   /// Tapped when the user wants to begin the flow. The caller drives the actual
-  /// `viewModel.handleStartQuickConnect()` call so loading-state plumbing stays in one place.
+  /// `viewModel.handleStartAlternativeSignIn()` call so loading-state plumbing stays in one place.
   var onStart: () -> Void
 
   @EnvironmentObject var theme: ThemeViewModel

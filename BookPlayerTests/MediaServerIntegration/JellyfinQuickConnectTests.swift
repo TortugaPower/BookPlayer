@@ -115,10 +115,10 @@ final class JellyfinQuickConnectTests: XCTestCase {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
     XCTAssertEqual(viewModel.quickConnectStatus, .authenticating)
 
-    // Captured before cancelling: `handleCancelQuickConnect` nils the handle, so reading it afterwards
-    // awaits nothing and the assertions race ahead of the task body.
+    // Captured before cancelling: `handleCancelAlternativeSignIn` nils the handle, so reading it
+    // afterwards awaits nothing and the assertions race ahead of the task body.
     let task = viewModel.quickConnectSignInTask
-    viewModel.handleCancelQuickConnect()
+    viewModel.handleCancelAlternativeSignIn()
     await task?.value
 
     XCTAssertNil(
@@ -136,7 +136,7 @@ final class JellyfinQuickConnectTests: XCTestCase {
     viewModel.handleQuickConnectStateChange(.authenticated(secret: "s3cr3t"))
 
     let task = viewModel.quickConnectSignInTask
-    viewModel.handleCancelQuickConnect()
+    viewModel.handleCancelAlternativeSignIn()
     await task?.value
 
     if case .failed(let message) = viewModel.quickConnectStatus {
