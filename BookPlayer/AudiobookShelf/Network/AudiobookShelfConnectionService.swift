@@ -104,6 +104,12 @@ class AudiobookShelfConnectionService: BPLogger {
     /// The provider button label ABS's own web UI shows, e.g. "Login with OpenId". Preferring the
     /// server's wording means a user sees the same label here as in the browser.
     var oidcButtonText: String?
+    /// Whether the server accepts username/password sign-in at all. ABS admins can disable local
+    /// auth outright (SSO-only servers), and `authMethods` then omits `"local"` — a case the probe
+    /// used to ignore, leaving those users a password form that cannot possibly work. Defaults to
+    /// `true` because that is the failure-safe direction: when the probe can't answer, offering a
+    /// password form that might work beats hiding the only sign-in path a server may have.
+    var supportsLocal: Bool = true
   }
 
   /// Best-effort capability probe against `/status`.
@@ -137,7 +143,10 @@ class AudiobookShelfConnectionService: BPLogger {
 
     return ServerCapabilities(
       supportsOIDC: methods.contains("openid"),
-      oidcButtonText: buttonText?.isEmpty == false ? buttonText : nil
+      oidcButtonText: buttonText?.isEmpty == false ? buttonText : nil,
+      // An absent or empty `authMethods` means the server predates the field or answered something
+      // unexpected — treat local auth as available rather than locking the user out of the form.
+      supportsLocal: methods.isEmpty || methods.contains("local")
     )
   }
 
