@@ -126,6 +126,26 @@ final class IntegrationServerAddressTests: XCTestCase {
   /// `URLComponents.host` keeps IPv6 brackets on this Foundation, and assembly *requires* them — a
   /// bare `::1` host assembles to nil. The model stores the bracketed form and normalizes a bare
   /// literal on the way in, so neither construction path can produce a silently-nil URL.
+  /// The case a decoded-path implementation gets wrong: `%2F` inside a segment is indistinguishable
+  /// from a separator once decoded, so parse → assemble would rewrite the URL. Found by probing, not
+  /// by review — keep this pinned.
+  func testEncodedSlashInAPathSegmentRoundTrips() {
+    let address = IntegrationServerAddress(parsing: "https://media.example.com/a%2Fb")
+
+    XCTAssertEqual(address?.path, "/a%2Fb")
+    XCTAssertEqual(address?.urlString, "https://media.example.com/a%2Fb")
+  }
+
+  func testEncodedSpaceRoundTripsAndRawTypedSpaceEncodesOnce() {
+    let parsed = IntegrationServerAddress(parsing: "https://x.example/audio%20books")
+    XCTAssertEqual(parsed?.urlString, "https://x.example/audio%20books")
+
+    var typed = IntegrationServerAddress(scheme: .https, host: "")
+    typed.hostField = "x.example/audio books"
+    XCTAssertEqual(typed.path, "/audio%20books", "raw typed text encodes exactly once — no double-encoding")
+    XCTAssertEqual(typed.urlString, "https://x.example/audio%20books")
+  }
+
   func testIPv6LiteralRoundTripsWithBrackets() {
     let address = IntegrationServerAddress(parsing: "http://[::1]:8096")
 

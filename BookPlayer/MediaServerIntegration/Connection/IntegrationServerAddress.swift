@@ -38,6 +38,10 @@ struct IntegrationServerAddress: Equatable, Sendable {
   /// Normalized subpath: either empty or leading-slash with no trailing slash (`"/audiobookshelf"`).
   /// AudiobookShelf behind a reverse proxy on a subpath is common enough that dropping this would
   /// strand those installs.
+  ///
+  /// Stored **percent-encoded**. Reading the decoded `URLComponents.path` and re-encoding it cannot
+  /// tell an encoded slash from a segment separator, so `/a%2Fb` would silently round-trip to
+  /// `/a/b` — a different URL. Keeping the encoded bytes end-to-end makes parse → assemble faithful.
   var path: String
 
   /// Nil means "not specified" — never a default filled in on the user's behalf.
@@ -81,7 +85,10 @@ struct IntegrationServerAddress: Equatable, Sendable {
 
     self.scheme = scheme
     self.host = host
-    self.path = Self.normalizedPath(components.path)
+    // The *encoded* path, byte-for-byte. (The host, by contrast, is whatever `URLComponents` returns:
+    // the parser normalizes Unicode hosts to punycode, which is semantically identical under IDNA and
+    // matches what any fresh sign-in stores anyway.)
+    self.path = Self.normalizedPath(components.percentEncodedPath)
   }
 
   // MARK: - Assembly
@@ -96,7 +103,8 @@ struct IntegrationServerAddress: Equatable, Sendable {
     components.scheme = scheme.rawValue
     components.host = host
     components.port = port
-    components.path = path
+    // `path` is always valid percent-encoding — `normalizedPath` guarantees it — so this cannot trap.
+    components.percentEncodedPath = path
     return components.url
   }
 
@@ -131,11 +139,18 @@ struct IntegrationServerAddress: Equatable, Sendable {
   }
 
   /// Empty stays empty; anything else gains a leading slash and loses trailing ones, so
-  /// `"abs/"`, `"/abs"`, and `"/abs///"` all normalize to `"/abs"`.
+  /// `"abs/"`, `"/abs"`, and `"/abs///"` all normalize to `"/abs"`. The result is always valid
+  /// percent-encoding: input that already is (a parsed URL, a pasted `/audio%20books`) passes through
+  /// byte-for-byte; raw typed text that isn't (`/audio books`) gets encoded once. The distinction is
+  /// checked by re-parsing, not guessed at — guessing is how double-encoding bugs happen.
   private static func normalizedPath(_ raw: String) -> String {
     var path = raw
     while path.hasSuffix("/") { path.removeLast() }
     guard !path.isEmpty else { return "" }
-    return path.hasPrefix("/") ? path : "/" + path
+    if !path.hasPrefix("/") { path = "/" + path }
+    if URLComponents(string: "https://h" + path)?.percentEncodedPath == path {
+      return path
+    }
+    return path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path
   }
 }
