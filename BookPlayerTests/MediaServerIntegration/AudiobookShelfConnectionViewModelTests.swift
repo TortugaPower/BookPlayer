@@ -69,7 +69,7 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
 
     webAuth.code = "the-code"
     http.exchangePayload = Data(#"{"user":{"token":"t","id":"u1","username":"gianni"}}"#.utf8)
-    try await viewModel.handleStartOIDC()
+    try await viewModel.handleStartAlternativeSignIn()
 
     // Sign-in itself must persist them.
     XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
@@ -174,7 +174,7 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
 
     // Straight into the credentials step, SSO is not on offer: capabilities and the validated URL are
     // only established by Connect. An SSO-only user with no password would be stranded here.
-    XCTAssertFalse(viewModel.oidcSupported)
+    XCTAssertNil(viewModel.alternativeSignIn)
 
     viewModel.prepareReauth()
     http.statusPayload = Data(#"{"authMethods":["local","openid"]}"#.utf8)
@@ -182,7 +182,11 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     try await viewModel.handleConnectAction()
 
     XCTAssertEqual(viewModel.signInFlow, .enteringCredentials)
-    XCTAssertTrue(viewModel.oidcSupported, "SSO must be offered again when re-authenticating")
+    XCTAssertEqual(
+      viewModel.alternativeSignIn,
+      .oidc(buttonText: nil),
+      "SSO must be offered again when re-authenticating"
+    )
   }
 
   func testSSOStaysHiddenOverPlaintextEvenWhenTheServerSupportsIt() async throws {
@@ -193,8 +197,53 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     http.pingPayload = Data(#"{"success":true}"#.utf8)
     try await viewModel.handleConnectAction()
 
-    XCTAssertFalse(viewModel.oidcSupported)
-    XCTAssertTrue(viewModel.oidcBlockedByInsecureTransport, "the UI should explain the absence")
+    XCTAssertEqual(
+      viewModel.alternativeSignIn,
+      .oidcRequiresSecureTransport,
+      "the UI should explain the absence rather than silently hiding SSO"
+    )
+    XCTAssertFalse(
+      viewModel.alternativeSignIn?.isActionable ?? true,
+      "an explanation is not an offer — username autofocus must behave as if no alternative exists"
+    )
+  }
+
+  // MARK: - Capability probe
+
+  /// The case the probe used to miss entirely: an admin who disabled local auth. `authMethods` then
+  /// omits "local", and offering a password form anyway strands the user on a form that cannot work.
+  func testCapabilityProbeDetectsAnSSOOnlyServer() async {
+    http.statusPayload = Data(#"{"authMethods":["openid"]}"#.utf8)
+
+    let capabilities = await service.fetchCapabilities(at: serverURL)
+
+    XCTAssertTrue(capabilities.supportsOIDC)
+    XCTAssertFalse(capabilities.supportsLocal)
+  }
+
+  /// A server that predates `authMethods` (or answers something unrecognisable) must keep its
+  /// password form — hiding the only sign-in path a server may have is the unsafe direction.
+  func testCapabilityProbeFailsSafeTowardLocalAuth() async {
+    for payload in ["{}", #"{"authMethods":[]}"#, "not json at all"] {
+      http.statusPayload = Data(payload.utf8)
+
+      let capabilities = await service.fetchCapabilities(at: serverURL)
+
+      XCTAssertFalse(capabilities.supportsOIDC, "payload: \(payload)")
+      XCTAssertTrue(capabilities.supportsLocal, "payload: \(payload)")
+    }
+  }
+
+  func testCapabilityProbeReadsBothMethodsAndTheProviderLabel() async {
+    http.statusPayload = Data(
+      #"{"authMethods":["local","openid"],"authFormData":{"authOpenIDButtonText":"Login with Pocket ID"}}"#.utf8
+    )
+
+    let capabilities = await service.fetchCapabilities(at: serverURL)
+
+    XCTAssertTrue(capabilities.supportsLocal)
+    XCTAssertTrue(capabilities.supportsOIDC)
+    XCTAssertEqual(capabilities.oidcButtonText, "Login with Pocket ID")
   }
 }
 

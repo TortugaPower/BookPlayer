@@ -35,6 +35,38 @@ struct IntegrationServerInfo: Identifiable {
   let userName: String
 }
 
+/// What the alternative-sign-in slot on the credentials step renders, when the validated server
+/// offers a way in besides typing a password.
+///
+/// One value instead of parallel `oidcSupported`/`quickConnectSupported` booleans: the slot shows at
+/// most one thing, and a single optional makes the invalid "both at once" state unrepresentable. The
+/// upcoming method-choice screen consumes exactly this value to decide which buttons exist.
+enum AlternativeSignInState: Equatable {
+  /// Native SSO through the server's identity provider (AudiobookShelf OIDC). The associated text is
+  /// the provider's own button label when the server supplied one; nil falls back to a generic string.
+  case oidc(buttonText: String?)
+
+  /// The server advertises SSO but the connection is plaintext, so we refuse to run it — the
+  /// authorization code, PKCE verifier, and returned token all traverse the redirect chain
+  /// (RFC 6749 §10.9). Rendered as an explanation, not a button, so the absence isn't silent.
+  case oidcRequiresSecureTransport
+
+  /// Out-of-band code flow (Jellyfin Quick Connect).
+  case quickConnect
+
+  /// Whether the state offers something the user can actually start. Drives the username-field
+  /// autofocus: an explanation-only state must not suppress the keyboard the way a real
+  /// alternative does.
+  var isActionable: Bool {
+    switch self {
+    case .oidc, .quickConnect:
+      return true
+    case .oidcRequiresSecureTransport:
+      return false
+    }
+  }
+}
+
 /// Status of an out-of-band code-based authentication flow (Jellyfin Quick Connect).
 ///
 /// The device asks the server for a short user-facing code, then polls until the user enters
@@ -110,52 +142,32 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// needs `/status`). Without that, an SSO-only user with no password has no way back in.
   func prepareReauth()
 
-  // MARK: - Alternative sign-in methods
-  //
-  // Two independent, mutually exclusive in practice: AudiobookShelf opts into OIDC, Jellyfin into
-  // Quick Connect, and each leaves the other at its default. The shared view renders whichever the
-  // concrete view model advertises.
+  // MARK: - Alternative sign-in
 
-  /// Whether SSO can actually be used with the server the user just validated — not merely whether
-  /// the integration speaks it. Default: `false`; concrete VMs opt in (AudiobookShelf).
-  var oidcSupported: Bool { get }
+  /// What the alternative-sign-in slot offers for the server the user just validated — not merely
+  /// what the integration speaks. Nil when password is the only way in. Default: nil; concrete VMs
+  /// opt in (AudiobookShelf → `.oidc`/`.oidcRequiresSecureTransport`, Jellyfin → `.quickConnect`).
+  var alternativeSignIn: AlternativeSignInState? { get }
 
-  /// The provider's own button label, when the server supplied one. Falls back to a generic string.
-  var oidcButtonText: String? { get }
-
-  /// Set when the server advertises SSO but we refuse it because the connection is plaintext, so the
-  /// UI can explain the absence rather than silently hiding an option the user may be expecting.
-  var oidcBlockedByInsecureTransport: Bool { get }
-
-  /// Begin the native SSO flow. Throws on setup failure; user cancellation surfaces as
-  /// `CancellationError` so the host view can stay quiet.
-  func handleStartOIDC() async throws
-
-  /// Whether this integration supports an out-of-band code-based sign-in flow
-  /// (Jellyfin's Quick Connect). Default: `false` — concrete VMs opt in.
-  var quickConnectSupported: Bool { get }
-
-  /// Current state of an in-flight Quick Connect flow, or `nil` if none is running.
+  /// Current state of an in-flight Quick Connect flow, or `nil` if none is running. Stays a separate
+  /// member rather than riding in `alternativeSignIn`: it is render state for the Quick Connect
+  /// sheet, mutating several times per flow, while `alternativeSignIn` is availability that holds
+  /// still once Connect has probed the server.
   var quickConnectStatus: QuickConnectStatus? { get }
 
-  /// Begin the Quick Connect flow. Throws if the underlying api-client cannot be reached.
-  func handleStartQuickConnect() async throws
+  /// Begin whichever flow `alternativeSignIn` advertises. Throws on setup failure; user cancellation
+  /// surfaces as `CancellationError` so the host view can stay quiet.
+  func handleStartAlternativeSignIn() async throws
 
-  /// Cancel an in-flight Quick Connect flow, dismiss any failure status, and free the
-  /// underlying poller. Safe to call when no flow is running.
-  func handleCancelQuickConnect()
+  /// Cancel an in-flight alternative sign-in, dismiss any failure status, and free any underlying
+  /// poller. Safe to call when no flow is running.
+  func handleCancelAlternativeSignIn()
 }
 
-/// No-op defaults for both alternative sign-in methods, so an integration only has to implement the
-/// one it actually speaks.
+/// No-op defaults, so an integration without an alternative sign-in implements none of it.
 extension IntegrationConnectionViewModelProtocol {
-  var oidcSupported: Bool { false }
-  var oidcButtonText: String? { nil }
-  var oidcBlockedByInsecureTransport: Bool { false }
-  func handleStartOIDC() async throws {}
-
-  var quickConnectSupported: Bool { false }
+  var alternativeSignIn: AlternativeSignInState? { nil }
   var quickConnectStatus: QuickConnectStatus? { nil }
-  func handleStartQuickConnect() async throws {}
-  func handleCancelQuickConnect() {}
+  func handleStartAlternativeSignIn() async throws {}
+  func handleCancelAlternativeSignIn() {}
 }

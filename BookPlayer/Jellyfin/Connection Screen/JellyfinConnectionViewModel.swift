@@ -27,13 +27,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// awaiting-code overlay and react to failure/success.
   @Published var quickConnectStatus: QuickConnectStatus?
 
-  /// Whether the validated server actually has Quick Connect enabled.
+  /// `.quickConnect` when the validated server actually has it enabled, nil otherwise.
   ///
   /// Derived from the `/QuickConnect/Enabled` probe in `handleConnectAction`, not hardcoded: the
   /// feature ships with every modern Jellyfin build but admins can switch it off, and offering a button
   /// that can't work walks the user into a server error with no explanation. Mirrors how
-  /// `AudiobookShelfConnectionViewModel` derives `oidcSupported` from `/status`.
-  @Published private(set) var quickConnectSupported: Bool = false
+  /// `AudiobookShelfConnectionViewModel` derives its `alternativeSignIn` from `/status`.
+  @Published private(set) var alternativeSignIn: AlternativeSignInState?
 
   /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
   /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
@@ -118,7 +118,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     )
     pendingServer = pending
     // Set before `signInFlow` so the credentials step renders with the right affordances on first pass.
-    quickConnectSupported = pending.quickConnectEnabled
+    alternativeSignIn = pending.quickConnectEnabled ? .quickConnect : nil
     signInFlow = .enteringCredentials
     form.serverName = pending.serverName
   }
@@ -144,7 +144,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       // `signIn(pending:)` only reads `pending.client` and commits nothing on failure, so
       // the validated client is still good for another attempt.
       pendingServer = nil
-      quickConnectSupported = false
+      alternativeSignIn = nil
       isAddingServer = false
 
       if let data = connectionService.connection {
@@ -266,7 +266,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     // The transient client from any previous attempt is stale; Connect rebuilds it — and re-probes the
     // capability, so don't leave a stale `true` behind that would render a button we can't back up.
     pendingServer = nil
-    quickConnectSupported = false
+    alternativeSignIn = nil
     signInFlow = .enteringServerURL
   }
 
@@ -279,7 +279,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// only for setup failure (no validated server yet); mid-flight failures arrive async via
   /// the published state and surface as `quickConnectStatus = .failed(...)`.
   @MainActor
-  func handleStartQuickConnect() async throws {
+  func handleStartAlternativeSignIn() async throws {
     // Idempotent: ignore if a flow is already in progress.
     guard activeQuickConnect == nil else { return }
     guard let pending = pendingServer else {
@@ -305,7 +305,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// Cancels an in-flight Quick Connect flow and clears any pending status. Safe to call when
   /// no flow is running.
   @MainActor
-  func handleCancelQuickConnect() {
+  func handleCancelAlternativeSignIn() {
     // Cancelled here rather than in `teardownQuickConnect()`, which also runs *from inside* this task
     // on the success path — cancelling there would have the task cancel itself mid-persist.
     quickConnectSignInTask?.cancel()
@@ -331,7 +331,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       // with an invisible poller still running for its full ~16-minute budget.
       //
       // Nothing is lost by ignoring it: the only other source of `.idle` is `stop()`, and
-      // `handleCancelQuickConnect` cancels this subscription on the very next line, so that emission
+      // `handleCancelAlternativeSignIn` cancels this subscription on the very next line, so that emission
       // is never delivered either.
       break
     case .retrievingCode:
@@ -371,7 +371,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       )
       // Only drop the transient pending handle once the service has committed it.
       pendingServer = nil
-      quickConnectSupported = false
+      alternativeSignIn = nil
       isAddingServer = false
       if let data = connectionService.connection {
         form.setValues(
@@ -395,7 +395,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       // as `CancellationError`: Get's `DataLoader` cancels through `onCancel: { task.cancel() }`, so the
       // URLSession task fails, the continuation resumes with `URLError(.cancelled)`, and `APIClient`
       // rethrows that raw `URLError`. Matching on `CancellationError` therefore missed the common window
-      // and set `.failed("cancelled")` *after* `handleCancelQuickConnect` had cleared the status —
+      // and set `.failed("cancelled")` *after* `handleCancelAlternativeSignIn` had cleared the status —
       // popping the dismissed sheet straight back up. `Task.isCancelled` covers both spellings.
       if Task.isCancelled { return }
       Self.logger.error("Quick Connect sign-in failed: \(String(describing: error))")
@@ -424,7 +424,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// Drops the active controller + state subscription. Leaves `quickConnectStatus` untouched so
   /// callers decide whether the sheet dismisses (status = nil) or shows a terminal error.
   ///
-  /// `stop()` is called unconditionally rather than only from `handleCancelQuickConnect`. Releasing our
+  /// `stop()` is called unconditionally rather than only from `handleCancelAlternativeSignIn`. Releasing our
   /// reference is NOT enough to end a poll: `QuickConnect` holds itself alive through
   /// `mainTask = Task { await run() }` and has no `deinit`, so an unstopped controller keeps polling for
   /// its full `maxPolls` budget (~16 minutes) with nobody listening. It happens to be harmless on the

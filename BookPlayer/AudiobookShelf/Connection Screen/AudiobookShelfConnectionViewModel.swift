@@ -26,12 +26,11 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// cannot possibly work.
   @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
 
-  var oidcSupported: Bool { capabilities.supportsOIDC && isPingedURLSecure }
-
-  var oidcButtonText: String? { capabilities.oidcButtonText }
-
-  var oidcBlockedByInsecureTransport: Bool {
-    capabilities.supportsOIDC && !isPingedURLSecure
+  var alternativeSignIn: AlternativeSignInState? {
+    guard capabilities.supportsOIDC else { return nil }
+    return isPingedURLSecure
+      ? .oidc(buttonText: capabilities.oidcButtonText)
+      : .oidcRequiresSecureTransport
   }
 
   /// SSO is refused over plaintext: the authorization code, the PKCE verifier and the returned token
@@ -295,7 +294,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// drives the IdP handshake; on user cancellation the service throws `CancellationError`,
   /// which the shared view swallows.
   @MainActor
-  func handleStartOIDC() async throws {
+  func handleStartAlternativeSignIn() async throws {
     guard let serverUrl = pingedURL else {
       throw IntegrationError.urlMalformed(nil)
     }
