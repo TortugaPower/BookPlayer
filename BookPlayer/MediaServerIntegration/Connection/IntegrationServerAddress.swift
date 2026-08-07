@@ -151,6 +151,10 @@ struct IntegrationServerAddress: Equatable, Sendable {
     if URLComponents(string: "https://h" + path)?.percentEncodedPath == path {
       return path
     }
-    return path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path
+    // `?? ""`, not `?? path`: everything this function returns reaches the `percentEncodedPath`
+    // setter, which preconditions on valid encoding — an unvalidated fallback is a crash surface.
+    // `addingPercentEncoding` failing is practically unreachable for a Swift string, and if it ever
+    // happens, assembling without the subpath beats trapping the app over one.
+    return path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
   }
 }
