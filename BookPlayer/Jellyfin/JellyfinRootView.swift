@@ -134,7 +134,7 @@ struct JellyfinRootView: View {
     .sheet(isPresented: $showConnectionForm) {
       // The flow owns its NavigationStack and its own cancel affordances (Cancel for Add Server,
       // an X otherwise) — no outer wrapping.
-      IntegrationConnectionFlowView(viewModel: connectionViewModel, integrationName: "Jellyfin")
+      IntegrationConnectionFlowView(viewModel: connectionViewModel, kind: .jellyfin, integrationName: "Jellyfin")
         .environmentObject(theme)
     }
     .sheet(isPresented: $showLibraryPicker) {

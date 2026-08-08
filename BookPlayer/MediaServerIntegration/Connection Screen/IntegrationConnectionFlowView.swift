@@ -21,6 +21,10 @@ import SwiftUI
 struct IntegrationConnectionFlowView<VM: IntegrationConnectionViewModelProtocol>: View {
   @ObservedObject var viewModel: VM
 
+  /// Which integration this flow signs into. Placeholders and defaults key off this, not off the
+  /// display string — a renamed `integrationName` must never silently flip them.
+  let kind: IntegrationKind
+
   let integrationName: String
 
   @State private var isLoading = false
@@ -44,6 +48,7 @@ struct IntegrationConnectionFlowView<VM: IntegrationConnectionViewModelProtocol>
     NavigationStack(path: $viewModel.flowPath) {
       IntegrationAddressScreen(
         viewModel: viewModel,
+        kind: kind,
         integrationName: integrationName,
         isLoading: isLoading,
         onConnect: onConnect
@@ -143,6 +148,7 @@ struct IntegrationConnectionFlowView<VM: IntegrationConnectionViewModelProtocol>
 struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: View {
   @ObservedObject var viewModel: VM
 
+  let kind: IntegrationKind
   let integrationName: String
   let isLoading: Bool
   var onConnect: () -> Void
@@ -157,8 +163,15 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
-  init(viewModel: VM, integrationName: String, isLoading: Bool, onConnect: @escaping () -> Void) {
+  init(
+    viewModel: VM,
+    kind: IntegrationKind,
+    integrationName: String,
+    isLoading: Bool,
+    onConnect: @escaping () -> Void
+  ) {
     self.viewModel = viewModel
+    self.kind = kind
     self.integrationName = integrationName
     self.isLoading = isLoading
     self.onConnect = onConnect
@@ -171,7 +184,17 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   /// The usual port for this integration, shown as a placeholder example — never substituted.
   /// An empty field means no port, exactly as in a browser.
   private var usualPort: String {
-    integrationName == "Jellyfin" ? "8096" : "13378"
+    switch kind {
+    case .jellyfin: return "8096"
+    case .audiobookshelf: return "13378"
+    }
+  }
+
+  private var hostPlaceholder: String {
+    switch kind {
+    case .jellyfin: return "jellyfin.example.com"
+    case .audiobookshelf: return "audiobookshelf.example.com"
+    }
   }
 
   var body: some View {
@@ -191,7 +214,7 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             Text("integration_address_host_label".localized)
               .foregroundStyle(theme.primaryColor)
             ClearableTextField(
-              integrationName == "Jellyfin" ? "jellyfin.example.com" : "audiobookshelf.example.com",
+              hostPlaceholder,
               text: $address.hostField
             )
             .multilineTextAlignment(.trailing)

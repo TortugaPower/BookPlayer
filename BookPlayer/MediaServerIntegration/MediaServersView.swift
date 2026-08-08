@@ -341,7 +341,7 @@ private struct AddServerJellyfinSheet: View {
   }
 
   var body: some View {
-    IntegrationConnectionFlowView(viewModel: viewModel, integrationName: "Jellyfin")
+    IntegrationConnectionFlowView(viewModel: viewModel, kind: .jellyfin, integrationName: "Jellyfin")
       .environmentObject(theme)
       .onChange(of: viewModel.signInCompletedAt) { _, newValue in
         guard newValue != nil else { return }
@@ -371,7 +371,7 @@ private struct AddServerAudiobookShelfSheet: View {
   }
 
   var body: some View {
-    IntegrationConnectionFlowView(viewModel: viewModel, integrationName: "AudiobookShelf")
+    IntegrationConnectionFlowView(viewModel: viewModel, kind: .audiobookshelf, integrationName: "AudiobookShelf")
       .environmentObject(theme)
       .onChange(of: viewModel.signInCompletedAt) { _, newValue in
         guard newValue != nil else { return }
