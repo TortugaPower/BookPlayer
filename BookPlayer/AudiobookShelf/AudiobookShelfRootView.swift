@@ -241,9 +241,16 @@ struct AudiobookShelfRootView: View {
             }
           }
         }
+        // The card fill every ThemedSection row gets; a bare List row renders the system fill,
+        // which is the one unthemed surface on this screen.
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
-      .scrollContentBackground(.hidden)
-      .background(theme.systemBackgroundColor)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+      // Until a library is chosen there is nothing behind this sheet to land on — swiping it away
+      // would strand the user on an empty integration library. Cancel remains the way out, and it
+      // correctly backs out of the whole server. Once a library exists (reopening the picker to
+      // switch), swipe-to-dismiss behaves normally.
+      .interactiveDismissDisabled(resolvedLibrary == nil)
       .navigationTitle("library_title".localized)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
