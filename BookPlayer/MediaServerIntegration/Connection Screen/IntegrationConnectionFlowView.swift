@@ -315,15 +315,14 @@ struct IntegrationMethodScreen<VM: IntegrationConnectionViewModelProtocol>: View
     ZStack(alignment: .bottom) {
       Form {
         ThemedSection {
-          HStack {
-            Text("integration_server_url_label".localized)
-              .foregroundStyle(theme.primaryColor)
-            Spacer()
-            Text(viewModel.form.serverUrl)
-              .foregroundStyle(theme.secondaryColor)
-              .lineLimit(1)
-              .truncationMode(.middle)
-          }
+          // Just the URL, no "URL" label: a key/value pair in a grouped list reads as a tappable
+          // row, and this one is purely informational. The bare value gets the full width — these
+          // are often long self-hosted hostnames — and wraps rather than truncating.
+          Text(viewModel.form.serverUrl)
+            .bpFont(.footnote)
+            .foregroundStyle(theme.secondaryColor)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
           if !viewModel.form.customHeaders.isEmpty {
             NavigationLink(value: ConnectionFlowStep.headersDetail) {
               HStack {
