@@ -188,6 +188,11 @@ struct AudiobookShelfRootView: View {
         showLibraryPicker = true
       }
     }
+    .onChange(of: connectionService.connection?.id) { _, newValue in
+      // Same as JellyfinRootView: the active connection was deleted out from under this library;
+      // follow the deletion out instead of stranding a dead screen.
+      if newValue == nil { dismiss() }
+    }
     .onChange(of: connectionViewModel.signInCompletedAt) { _, newValue in
       guard newValue != nil else { return }
       showConnectionForm = false

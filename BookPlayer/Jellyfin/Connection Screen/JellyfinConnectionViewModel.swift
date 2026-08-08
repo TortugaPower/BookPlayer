@@ -189,7 +189,11 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       connectionService.deleteConnection()
     }
     form = IntegrationConnectionFormViewModel()
-    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
+    // Signing out never redraws a sign-in form in place — the presenting details screen dismisses,
+    // and reconnecting happens through Add Server. Redrawing left the details sheet showing the old
+    // URL form with two competing toolbars.
+    signInFlow = nil
+    flowPath = []
     if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -204,7 +208,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      signInFlow = .enteringServerURL
+      // Same rule as above: no in-place redraw; the presenter dismisses.
+      signInFlow = nil
       flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(

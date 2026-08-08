@@ -146,6 +146,12 @@ struct JellyfinRootView: View {
         showLibraryPicker = true
       }
     }
+    .onChange(of: connectionService.connection?.id) { _, newValue in
+      // The active connection was deleted out from under this library — signing out from the
+      // details screen inside it, or from Media Servers. A library for a connection that no longer
+      // exists has nothing left to show; follow the deletion out instead of stranding a dead screen.
+      if newValue == nil { dismiss() }
+    }
     .onChange(of: connectionViewModel.signInCompletedAt) { _, newValue in
       guard newValue != nil else { return }
       showConnectionForm = false

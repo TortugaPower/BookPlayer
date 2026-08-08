@@ -232,7 +232,10 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       connectionService.deleteConnection()
     }
     form = IntegrationConnectionFormViewModel()
-    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
+    // Signing out never redraws a sign-in form in place — the presenting details screen dismisses,
+    // and reconnecting happens through Add Server.
+    signInFlow = nil
+    flowPath = []
     if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -247,7 +250,8 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      signInFlow = .enteringServerURL
+      // Same rule as above: no in-place redraw; the presenter dismisses.
+      signInFlow = nil
       flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(

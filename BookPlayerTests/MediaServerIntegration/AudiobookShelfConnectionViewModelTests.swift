@@ -242,6 +242,36 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     XCTAssertEqual(service.connections.first?.id, "a", "outbound references survive the move")
   }
 
+  // MARK: - Sign-out
+
+  /// Found on device: signing out the last server from a details sheet redrew the sheet into the old
+  /// URL form, with the presenter's Done and the form's Connect fighting in one toolbar. Sign-out is
+  /// deletion — the presenting screen dismisses, and nothing here may re-enter a sign-in flow.
+  func testSignOutNeverRedrawsASignInFormInPlace() throws {
+    try keychain.set(
+      [
+        AudiobookShelfConnectionData(
+          id: "a",
+          url: URL(string: serverURL)!,
+          serverName: "Home",
+          userID: "u1",
+          userName: "gianni",
+          apiToken: "t",
+          customHeaders: [:]
+        )
+      ],
+      key: .audiobookshelfConnection
+    )
+    service.setup()
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .viewDetails)
+
+    viewModel.handleSignOutAction()
+
+    XCTAssertTrue(service.connections.isEmpty)
+    XCTAssertNil(viewModel.signInFlow, "no in-place redraw — the presenter dismisses instead")
+    XCTAssertTrue(viewModel.flowPath.isEmpty)
+  }
+
   // MARK: - The step after Connect
 
   /// The routing decision the redesigned flow hangs on: which screen Connect lands you on, per what
