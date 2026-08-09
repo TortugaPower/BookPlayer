@@ -253,6 +253,8 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
 
         IntegrationCustomHeadersSectionView(customHeaders: $viewModel.form.customHeaders)
       }
+      .scrollDismissesKeyboard(.immediately)
+      .onTapGesture { hideKeyboard() }
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .safeAreaInset(edge: .bottom) { Color.clear.frame(height: Self.footerClearance) }
 
@@ -266,6 +268,7 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
           address = pasted
           portText = pasted.port.map(String.init) ?? ""
         }
+        hideKeyboard()
         viewModel.form.serverUrl = address.urlString ?? ""
         onConnect()
       }
@@ -403,6 +406,8 @@ struct IntegrationPasswordScreen<VM: IntegrationConnectionViewModelProtocol>: Vi
           onCommit: onSignIn
         )
       }
+      .scrollDismissesKeyboard(.immediately)
+      .onTapGesture { hideKeyboard() }
       .applyListStyle(with: theme, background: theme.systemBackgroundColor)
       .safeAreaInset(edge: .bottom) {
         Color.clear.frame(height: IntegrationAddressScreen<VM>.footerClearance)
@@ -473,6 +478,16 @@ struct IntegrationHeadersReadOnlySection: View {
 }
 
 // MARK: - Shared chrome
+
+/// Drops the keyboard by resigning whatever holds first-responder status.
+///
+/// Called before pushing off the address screen: if the keyboard rides through the push, popping back
+/// can leave the bottom button behind it — keyboard safe-area avoidance doesn't reliably re-apply
+/// after a pop. Dismissing before navigating sidesteps the glitch instead of fighting it. Also wired
+/// to background taps and scroll drags, so the keyboard never has to be typed away.
+private func hideKeyboard() {
+  UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+}
 
 /// The flow's pinned primary action — filled, full width, bottom of every screen, so the way forward
 /// never moves and never vanishes.
