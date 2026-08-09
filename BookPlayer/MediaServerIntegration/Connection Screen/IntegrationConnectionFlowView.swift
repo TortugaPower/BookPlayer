@@ -198,8 +198,7 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   }
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Form {
+    Form {
         ThemedSection {
           Picker("", selection: $address.scheme) {
             // Protocol identifiers, not words — deliberately unlocalized.
@@ -252,27 +251,27 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
         }
 
         IntegrationCustomHeadersSectionView(customHeaders: $viewModel.form.customHeaders)
-      }
-      .scrollDismissesKeyboard(.immediately)
-      .onTapGesture { hideKeyboard() }
-      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-      .safeAreaInset(edge: .bottom) { Color.clear.frame(height: Self.footerClearance) }
 
-      IntegrationFlowPrimaryButton(
-        title: "integration_connect_button".localized,
-        isDisabled: address.url == nil || isLoading
-      ) {
-        // A paste of a full URL into the host field carries the whole address; decompose it into
-        // the fields rather than sending a host that contains a scheme.
-        if let pasted = IntegrationServerAddress(parsing: address.hostField) {
-          address = pasted
-          portText = pasted.port.map(String.init) ?? ""
+        IntegrationFlowButtonsSection {
+          IntegrationFlowPrimaryButton(
+            title: "integration_connect_button".localized,
+            isDisabled: address.url == nil || isLoading
+          ) {
+            // A paste of a full URL into the host field carries the whole address; decompose it into
+            // the fields rather than sending a host that contains a scheme.
+            if let pasted = IntegrationServerAddress(parsing: address.hostField) {
+              address = pasted
+              portText = pasted.port.map(String.init) ?? ""
+            }
+            hideKeyboard()
+            viewModel.form.serverUrl = address.urlString ?? ""
+            onConnect()
+          }
         }
-        hideKeyboard()
-        viewModel.form.serverUrl = address.urlString ?? ""
-        onConnect()
-      }
     }
+    .scrollDismissesKeyboard(.immediately)
+    .onTapGesture { hideKeyboard() }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle(integrationName)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
@@ -299,7 +298,6 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
     }
   }
 
-  static var footerClearance: CGFloat { 88 }
 }
 
 // MARK: - Screen 2 · Method
@@ -315,36 +313,33 @@ struct IntegrationMethodScreen<VM: IntegrationConnectionViewModelProtocol>: View
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Form {
+    Form {
+      // The server-reported name, under its own header — the address identifies the server in the
+      // title, the name is a fact the server told us. Hidden when the admin never set one.
+      if !viewModel.form.serverName.isEmpty {
         ThemedSection {
-          // Just the URL, no "URL" label: a key/value pair in a grouped list reads as a tappable
-          // row, and this one is purely informational. The bare value gets the full width — these
-          // are often long self-hosted hostnames — and wraps rather than truncating.
-          Text(viewModel.form.serverUrl)
-            .bpFont(.footnote)
+          Text(viewModel.form.serverName)
+            .bpFont(.body)
+            .foregroundStyle(theme.primaryColor)
+        } header: {
+          Text("integration_server_name_label".localized)
             .foregroundStyle(theme.secondaryColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
-          if !viewModel.form.customHeaders.isEmpty {
-            NavigationLink(value: ConnectionFlowStep.headersDetail) {
-              HStack {
-                Text("integration_custom_headers_title".localized)
-                  .foregroundStyle(theme.primaryColor)
-                Spacer()
-                Text("\(viewModel.form.customHeaders.count)")
-                  .foregroundStyle(theme.secondaryColor)
-              }
+        }
+      }
+      if !viewModel.form.customHeaders.isEmpty {
+        ThemedSection {
+          NavigationLink(value: ConnectionFlowStep.headersDetail) {
+            HStack {
+              Text("integration_custom_headers_title".localized)
+                .foregroundStyle(theme.primaryColor)
+              Spacer()
+              Text("\(viewModel.form.customHeaders.count)")
+                .foregroundStyle(theme.secondaryColor)
             }
           }
         }
       }
-      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        Color.clear.frame(height: IntegrationAddressScreen<VM>.footerClearance)
-      }
-
-      VStack(spacing: Spacing.S) {
+      IntegrationFlowButtonsSection {
         IntegrationFlowPrimaryButton(title: primaryTitle, isDisabled: isLoading) {
           onStartAlternative()
         }
@@ -357,19 +352,22 @@ struct IntegrationMethodScreen<VM: IntegrationConnectionViewModelProtocol>: View
               .frame(maxWidth: .infinity)
               .foregroundColor(theme.linkColor)
           }
-          .padding(.bottom, Spacing.S)
         }
       }
     }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle(navigationTitle)
     .navigationBarTitleDisplayMode(.inline)
   }
 
-  /// The server's own name when the admin set one; the host otherwise — a blank title helps nobody.
+  /// The address, scheme stripped — it identifies which server this is, while the name the server
+  /// reports is data about it, shown in the body. A title has no room for "https://".
   private var navigationTitle: String {
-    if !viewModel.form.serverName.isEmpty { return viewModel.form.serverName }
-    return IntegrationServerAddress(parsing: viewModel.form.serverUrl)?.hostField
-      ?? viewModel.form.serverUrl
+    guard let address = IntegrationServerAddress(parsing: viewModel.form.serverUrl) else {
+      return viewModel.form.serverUrl
+    }
+    let port = address.port.map { ":\($0)" } ?? ""
+    return address.host + port + address.path
   }
 
   private var primaryTitle: String {
@@ -396,29 +394,25 @@ struct IntegrationPasswordScreen<VM: IntegrationConnectionViewModelProtocol>: Vi
   @EnvironmentObject var theme: ThemeViewModel
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Form {
-        // Typing is the only thing this screen does, so the username field always auto-focuses.
-        IntegrationServerFoundView(
-          username: $viewModel.form.username,
-          password: $viewModel.form.password,
-          autoFocusesUsername: true,
-          onCommit: onSignIn
+    Form {
+      // Typing is the only thing this screen does, so the username field always auto-focuses.
+      IntegrationServerFoundView(
+        username: $viewModel.form.username,
+        password: $viewModel.form.password,
+        autoFocusesUsername: true,
+        onCommit: onSignIn
+      )
+      IntegrationFlowButtonsSection {
+        IntegrationFlowPrimaryButton(
+          title: "integration_sign_in_button".localized,
+          isDisabled: viewModel.form.username.isEmpty || viewModel.form.password.isEmpty || isLoading,
+          action: onSignIn
         )
       }
-      .scrollDismissesKeyboard(.immediately)
-      .onTapGesture { hideKeyboard() }
-      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        Color.clear.frame(height: IntegrationAddressScreen<VM>.footerClearance)
-      }
-
-      IntegrationFlowPrimaryButton(
-        title: "integration_sign_in_button".localized,
-        isDisabled: viewModel.form.username.isEmpty || viewModel.form.password.isEmpty || isLoading,
-        action: onSignIn
-      )
     }
+    .scrollDismissesKeyboard(.immediately)
+    .onTapGesture { hideKeyboard() }
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle("integration_sign_in_button".localized)
     .navigationBarTitleDisplayMode(.inline)
   }
@@ -489,8 +483,24 @@ private func hideKeyboard() {
   UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
 
-/// The flow's pinned primary action — filled, full width, bottom of every screen, so the way forward
-/// never moves and never vanishes.
+/// Hosts a screen's action buttons as the form's final section, flowing after the content rather
+/// than pinned to the bottom edge — short screens (the method chooser) otherwise strand the buttons
+/// across a gulf of empty space, and in-flow buttons ride the scroll view's native keyboard avoidance.
+struct IntegrationFlowButtonsSection<Content: View>: View {
+  @ViewBuilder var content: Content
+
+  var body: some View {
+    Section {
+      VStack(spacing: Spacing.S) {
+        content
+      }
+    }
+    .listRowBackground(Color.clear)
+    .listRowInsets(EdgeInsets())
+  }
+}
+
+/// The flow's primary action — filled, full width, directly after the screen's content.
 struct IntegrationFlowPrimaryButton: View {
   let title: String
   var isDisabled: Bool = false
@@ -509,7 +519,5 @@ struct IntegrationFlowPrimaryButton: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     .disabledWithOpacity(isDisabled)
-    .padding(.horizontal, Spacing.M)
-    .padding(.bottom, Spacing.S)
   }
 }
