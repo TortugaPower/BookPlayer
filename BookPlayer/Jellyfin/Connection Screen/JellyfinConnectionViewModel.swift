@@ -257,15 +257,6 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     }
   }
 
-  @MainActor
-  func handleCustomHeadersUpdate() {
-    let headers = form.customHeadersDictionary()
-    if let targetId = targetConnectionId {
-      connectionService.updateCustomHeaders(id: targetId, headers)
-    } else {
-      connectionService.updateCustomHeaders(headers)
-    }
-  }
 
   @MainActor
   func prepareReauth() {

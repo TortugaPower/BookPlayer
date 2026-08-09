@@ -123,9 +123,6 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// Cancel adding a new server
   func handleCancelAddServerAction()
 
-  /// Persist any changes made to the custom-headers list while the connection is already live.
-  func handleCustomHeadersUpdate()
-
   /// Put the form into a state the user can actually re-authenticate from, seeded with the saved
   /// connection (URL, name, custom headers).
   ///

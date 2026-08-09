@@ -300,15 +300,6 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     }
   }
 
-  @MainActor
-  func handleCustomHeadersUpdate() {
-    let headers = form.customHeadersDictionary()
-    if let targetId = targetConnectionId {
-      connectionService.updateCustomHeaders(id: targetId, headers)
-    } else {
-      connectionService.updateCustomHeaders(headers)
-    }
-  }
 
   // MARK: - SSO (OpenID Connect)
 

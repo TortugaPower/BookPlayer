@@ -74,26 +74,20 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     // Sign-in itself must persist them.
     XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
 
-    // …and the form must still mirror them. `IntegrationCustomHeadersSectionView` commits on
-    // `onDisappear`, so a form that was silently emptied here writes that emptiness straight over the
-    // saved connection the moment the sheet closes.
+    // …and the form must still mirror them. The editable details section that once committed form
+    // state over the saved connection is gone, but the form staying truthful still matters: the
+    // re-auth flow prefills from it.
     XCTAssertEqual(
       viewModel.form.customHeadersDictionary(),
       ["CF-Access-Client-Id": "abc123"],
-      "form headers were cleared after sign-in; the next commit would wipe them from the Keychain"
-    )
-
-    // Simulate exactly that commit.
-    viewModel.handleCustomHeadersUpdate()
-
-    XCTAssertEqual(
-      try persistedHeaders(),
-      ["CF-Access-Client-Id": "abc123"],
-      "a commit after sign-in wiped the persisted custom headers"
+      "form headers were cleared after sign-in"
     )
   }
 
-  func testCustomHeadersSurviveAConnectionDetailsRoundTrip() async throws {
+  /// The commit-on-close that once made this dangerous is gone — connection details is read-only —
+  /// but the form still prefills from the saved connection, and re-auth depends on those headers
+  /// arriving intact: a Cloudflare-Access server can't even be pinged without them.
+  func testDetailsFormPrefillsTheSavedHeaders() throws {
     // Seed a saved connection that already has headers, as a relaunch would.
     try keychain.set(
       [
@@ -111,15 +105,14 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     )
     service.setup()
 
-    // Opening connection details and closing it again commits the form state.
     let viewModel = AudiobookShelfConnectionViewModel(connectionService: service)
-    viewModel.handleCustomHeadersUpdate()
 
     XCTAssertEqual(
-      try persistedHeaders(),
+      viewModel.form.customHeadersDictionary(),
       ["CF-Access-Client-Id": "abc123"],
-      "merely opening and closing connection details erased the saved headers"
+      "the details form must mirror the saved headers — re-auth prefills from it"
     )
+    XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
   }
 
   // MARK: - Re-authentication
