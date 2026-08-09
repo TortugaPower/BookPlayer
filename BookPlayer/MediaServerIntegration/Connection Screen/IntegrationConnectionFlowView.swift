@@ -143,8 +143,8 @@ struct IntegrationConnectionFlowView<VM: IntegrationConnectionViewModelProtocol>
 // MARK: - Screen 1 · Address
 
 /// Server address as explicit fields — scheme, host (carrying any reverse-proxy subpath), port — plus
-/// the custom headers, which are editable here and only here. Connect is pinned at the bottom, the
-/// `LoginView` pattern, so the primary action sits in the same place on every screen of the flow.
+/// the custom headers, which are editable here and only here. Connect flows after the content as the
+/// form's final section, like every action button in this flow.
 struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: View {
   @ObservedObject var viewModel: VM
 
@@ -270,7 +270,6 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
         }
     }
     .scrollDismissesKeyboard(.immediately)
-    .onTapGesture { hideKeyboard() }
     .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle(integrationName)
     .navigationBarTitleDisplayMode(.inline)
@@ -411,7 +410,6 @@ struct IntegrationPasswordScreen<VM: IntegrationConnectionViewModelProtocol>: Vi
       }
     }
     .scrollDismissesKeyboard(.immediately)
-    .onTapGesture { hideKeyboard() }
     .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationTitle("integration_sign_in_button".localized)
     .navigationBarTitleDisplayMode(.inline)
@@ -477,8 +475,9 @@ struct IntegrationHeadersReadOnlySection: View {
 ///
 /// Called before pushing off the address screen: if the keyboard rides through the push, popping back
 /// can leave the bottom button behind it — keyboard safe-area avoidance doesn't reliably re-apply
-/// after a pop. Dismissing before navigating sidesteps the glitch instead of fighting it. Also wired
-/// to background taps and scroll drags, so the keyboard never has to be typed away.
+/// after a pop. Dismissing before navigating sidesteps the glitch instead of fighting it. Scroll
+/// drags also dismiss (`scrollDismissesKeyboard`); a Form-wide tap gesture was tried and reverted —
+/// it stole taps from the buttons inside the list rows.
 private func hideKeyboard() {
   UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 }
@@ -486,16 +485,23 @@ private func hideKeyboard() {
 /// Hosts a screen's action buttons as the form's final section, flowing after the content rather
 /// than pinned to the bottom edge — short screens (the method chooser) otherwise strand the buttons
 /// across a gulf of empty space, and in-flow buttons ride the scroll view's native keyboard avoidance.
+///
+/// Three List behaviors this exists to defuse, all found on device:
+/// - Each button must be its OWN row. Default-styled buttons sharing one row fire *together* on a
+///   row tap — choosing "Username & Password" also launched Quick Connect.
+/// - `.borderless`, so the button itself is the hit target instead of the List's row-tap forwarding.
+/// - Clear row background with no card: the section card's rounded clipping otherwise cuts into the
+///   button's own shape.
 struct IntegrationFlowButtonsSection<Content: View>: View {
   @ViewBuilder var content: Content
 
   var body: some View {
     Section {
-      VStack(spacing: Spacing.S) {
-        content
-      }
+      content
     }
+    .buttonStyle(.borderless)
     .listRowBackground(Color.clear)
+    .listRowSeparator(.hidden)
     .listRowInsets(EdgeInsets())
   }
 }
