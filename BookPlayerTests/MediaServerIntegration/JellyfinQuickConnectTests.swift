@@ -97,6 +97,18 @@ final class JellyfinQuickConnectTests: XCTestCase {
     XCTAssertNotEqual(message, "jellyfin_quick_connect_error_generic", "key missing from Base.lproj")
   }
 
+  // MARK: - Flow path
+
+  /// The Jellyfin side of the rule pinned for AudiobookShelf: an abandoned flow leaves no pushed
+  /// screens behind. Driven directly since the Jellyfin connect path has no network seam.
+  func testCancellingAddServerClearsTheFlowPath() {
+    viewModel.flowPath = [.method, .password]
+
+    viewModel.handleCancelAddServerAction()
+
+    XCTAssertTrue(viewModel.flowPath.isEmpty)
+  }
+
   // MARK: - Cancellation during the token exchange
 
   /// `.authenticated` kicks off a network round-trip while the sheet still shows a live Cancel button.
