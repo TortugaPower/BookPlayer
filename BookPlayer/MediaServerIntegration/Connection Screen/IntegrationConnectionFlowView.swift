@@ -486,23 +486,27 @@ private func hideKeyboard() {
 /// than pinned to the bottom edge — short screens (the method chooser) otherwise strand the buttons
 /// across a gulf of empty space, and in-flow buttons ride the scroll view's native keyboard avoidance.
 ///
-/// Three List behaviors this exists to defuse, all found on device:
-/// - Each button must be its OWN row. Default-styled buttons sharing one row fire *together* on a
-///   row tap — choosing "Username & Password" also launched Quick Connect.
-/// - `.borderless`, so the button itself is the hit target instead of the List's row-tap forwarding.
-/// - Clear row background with no card: the section card's rounded clipping otherwise cuts into the
-///   button's own shape.
+/// The buttons live in a section FOOTER, not in rows — the third shape this view has taken, each
+/// retreating further from List's row machinery after a device finding:
+/// - Buttons sharing one row fire *together* on a row tap (choosing "Username & Password" also
+///   launched Quick Connect), and row-tap forwarding swallows direct hits.
+/// - Rows are clipped to the section container's shape. Clear backgrounds and zero insets don't
+///   escape it: the container's corner radius (large, on current list styling) shears the button's
+///   own corners — square-cut tops on an otherwise rounded button.
+/// Footers render outside the card container: never clipped, no row-tap semantics, plainly hit-tested.
 struct IntegrationFlowButtonsSection<Content: View>: View {
   @ViewBuilder var content: Content
 
   var body: some View {
     Section {
-      content
+      EmptyView()
+    } footer: {
+      VStack(spacing: Spacing.S) {
+        content
+      }
+      .frame(maxWidth: .infinity)
+      .listRowInsets(EdgeInsets())
     }
-    .buttonStyle(.borderless)
-    .listRowBackground(Color.clear)
-    .listRowSeparator(.hidden)
-    .listRowInsets(EdgeInsets())
   }
 }
 
