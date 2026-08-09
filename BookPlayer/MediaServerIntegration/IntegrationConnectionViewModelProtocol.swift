@@ -174,6 +174,10 @@ extension IntegrationConnectionViewModelProtocol {
   /// The step Connect lands on: the method chooser when there is a choice to make, otherwise straight
   /// to the password form. A server offering only an alternative still gets the method screen — a
   /// single primary button beats auto-launching a browser the user didn't ask for.
+  ///
+  /// Callers must not route here when NO method can work (SSO-only over plaintext): the
+  /// AudiobookShelf view model fails Connect with `insecureTransport` in that configuration instead,
+  /// so the user lands back on the scheme control rather than on a doomed password form.
   var stepAfterConnect: ConnectionFlowStep {
     alternativeSignIn != nil ? .method : .password
   }

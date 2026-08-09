@@ -308,6 +308,31 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     }
   }
 
+  /// The dead-end config: SSO-only server over plaintext. We refuse SSO on http and the password
+  /// form cannot authenticate, so Connect must fail with the reason — landing the user back on the
+  /// address screen with its scheme control — rather than route to a form that cannot work.
+  func testConnectFailsWhenNoSignInMethodCanWork() async {
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+    viewModel.form.serverUrl = "http://abs.example.com"
+    http.statusPayload = Data(#"{"authMethods":["openid"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+
+    do {
+      try await viewModel.handleConnectAction()
+      XCTFail("expected insecureTransport")
+    } catch let error as IntegrationError {
+      guard case .insecureTransport = error else {
+        return XCTFail("expected insecureTransport, got \(error)")
+      }
+    } catch {
+      XCTFail("expected IntegrationError, got \(error)")
+    }
+    XCTAssertTrue(viewModel.flowPath.isEmpty, "a failed Connect must not push any screen")
+    if case .enteringCredentials = viewModel.signInFlow {
+      XCTFail("a failed Connect must not advance the sign-in flow")
+    }
+  }
+
   func testReauthAndCancelClearTheFlowPath() async throws {
     let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
     viewModel.form.serverUrl = serverURL

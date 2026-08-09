@@ -133,6 +133,13 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       at: normalizedURL,
       customHeaders: form.customHeadersDictionary()
     )
+    // A server that only offers SSO, reached over plaintext, has no usable sign-in method at all:
+    // we refuse SSO over http, and the password form cannot authenticate. Routing anywhere would be
+    // a silent dead-end — fail Connect instead, with the reason, while the user is still on the
+    // address screen where the https toggle that fixes it lives.
+    if !capabilities.supportsLocal, alternativeSignIn == nil, capabilities.supportsOIDC {
+      throw IntegrationError.insecureTransport
+    }
     signInFlow = .enteringCredentials
     flowPath = [stepAfterConnect]
     form.serverName = serverName
