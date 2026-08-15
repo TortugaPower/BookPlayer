@@ -2,10 +2,6 @@
 #
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
-# Build configuration
-BuildConfiguration/Debug.xcconfig
-BuildConfiguration/Release.xcconfig
-
 ## Build generated
 build/
 DerivedData/
