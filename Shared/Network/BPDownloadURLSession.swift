@@ -21,7 +21,7 @@ public class BPDownloadURLSession {
     downloadProgressUpdated: @escaping ((URLSessionDownloadTask, Double) -> Void),
     didFinishDownloadingTask: @escaping ((URLSessionTask, URL?, Error?) -> Void)
   ) {
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
+    let bundleIdentifier: String = Bundle.main.bundleIdentifier!
 
     let delegate = BPTaskDownloadDelegate()
     

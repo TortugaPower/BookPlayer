@@ -14,7 +14,7 @@ public protocol BPLogger {}
 extension BPLogger {
   public static var logger: Logger {
     return Logger(
-      subsystem: Bundle.main.configurationString(for: .bundleIdentifier),
+      subsystem: Bundle.main.bundleIdentifier!,
       category: String(describing: Self.self)
     )
   }

@@ -49,7 +49,7 @@ public extension URL {
 
   func hasAppKey() -> Bool {
     do {
-      _ = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
+      _ = try self.extendedAttribute(forName: "\(Bundle.main.bundleIdentifier!).identifier")
       return true
     } catch {
       return false
@@ -58,7 +58,7 @@ public extension URL {
 
   func getAppOrderRank() -> Int? {
     do {
-      let data = try self.extendedAttribute(forName: "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier")
+      let data = try self.extendedAttribute(forName: "\(Bundle.main.bundleIdentifier!).identifier")
       return data.withUnsafeBytes { $0.load(as: Int.self) }
     } catch {
       return nil
@@ -70,7 +70,7 @@ public extension URL {
 
     try self.withUnsafeFileSystemRepresentation { fileSystemPath in
       let result = data.withUnsafeBytes {
-        setxattr(fileSystemPath, "\(Bundle.main.configurationString(for: .bundleIdentifier)).identifier", $0.baseAddress, data.count, 0, 0)
+        setxattr(fileSystemPath, "\(Bundle.main.bundleIdentifier!).identifier", $0.baseAddress, data.count, 0, 0)
       }
       guard result >= 0 else { throw URL.posixError(errno) }
     }

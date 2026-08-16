@@ -31,7 +31,7 @@ public enum KeychainKeys: String {
 }
 
 public final class KeychainService: KeychainServiceProtocol, Sendable {
-  let service = Bundle.main.configurationString(for: .bundleIdentifier)
+  let service = Bundle.main.bundleIdentifier
 
   /// JSONEncoder/Decoder aren't Sendable in Foundation, but we only use them
   /// inside synchronous methods on transient state — never share them across

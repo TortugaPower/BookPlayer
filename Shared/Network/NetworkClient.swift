@@ -52,11 +52,11 @@ public protocol NetworkClientProtocol {
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
   /// Http or Https
-  let scheme: String = Bundle.main.configurationValue(for: .apiScheme)
+  let scheme: String = "http"
   /// Domain
-  let host: String = Bundle.main.configurationValue(for: .apiDomain)
+  let host: String = "replace.me"
   /// Port
-  let port: String = Bundle.main.configurationValue(for: .apiPort)
+  let port: String = ""
   /// Keychain service for the access token
   let keychain: KeychainServiceProtocol
   /// response decoder

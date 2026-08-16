@@ -44,10 +44,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   private var crashReportsAccessObserver: NSKeyValueObservation?
   /// Background refresh task identifier
   private lazy var refreshTaskIdentifier =
-    "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.refresh"
+    "\(Bundle.main.bundleIdentifier!).background.refresh"
   /// Database backup task identifier
   private lazy var databaseBackupTaskIdentifier =
-    "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
+    "\(Bundle.main.bundleIdentifier!).background.database.backup"
 
   func application(
     _ application: UIApplication,
@@ -294,9 +294,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   // MARK: - Third-party SDKs
 
   func setupRevenueCat() {
-    let revenueCatApiKey: String = Bundle.main.configurationValue(
-      for: .revenueCat
-    )
+    let revenueCatApiKey: String = "replace.me"
     Purchases.logLevel = .error
     Purchases.configure(withAPIKey: revenueCatApiKey)
   }
@@ -327,8 +325,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       return
     }
 
-    let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
-    let apiDomain: String = Bundle.main.configurationValue(for: .apiDomain)
+    let sentryDSN: String = "replace.me"
+    let apiDomain: String = "replace.me"
     // Create a Sentry client
     SentrySDK.start { options in
       options.dsn = "https://\(sentryDSN)"

@@ -22,8 +22,8 @@ class BPURLSession {
   private init() {
     let progressPublisher = PassthroughSubject<(String, Double), Never>()
     let completionPublisher = PassthroughSubject<(URLSessionTask, Error?), Never>()
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
+    let bundleIdentifier: String = Bundle.main.bundleIdentifier!
+    
     let delegate = BPTaskUploadDelegate()
     delegate.uploadProgressUpdated = { [progressPublisher] task, uploadProgress in
       guard let relativePath = task.taskDescription else { return }

@@ -29,13 +29,3 @@ public enum Configuration {
     }
   }
 }
-
-public enum ConfigurationKeys: String, RawRepresentable {
-  case bundleIdentifier = "BP_BUNDLE_IDENTIFIER"
-  case sentryDSN = "BP_SENTRY_DSN"
-  case revenueCat = "BP_REVENUECAT_KEY"
-  case mockedBearerToken = "BP_MOCKED_BEARER_TOKEN"
-  case apiScheme = "BP_API_SCHEME"
-  case apiDomain = "BP_API_DOMAIN"
-  case apiPort = "BP_API_PORT"
-}

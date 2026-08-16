@@ -39,7 +39,7 @@ class LoginViewModel: LoginViewModelProtocol {
         self?.alertPresenter.showLoader()
       }
       do {
-        let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
+        let token: String = "simulator.only"
         try await self.accountService.loginTestAccount(token: token)
         await MainActor.run { [weak self] in
           self?.alertPresenter.stopLoader()
