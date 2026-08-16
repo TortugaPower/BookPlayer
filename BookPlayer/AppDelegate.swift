@@ -339,7 +339,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.tracesSampleRate = 0.5
       // Only turn OUR backend's 5xx into Sentry error events. The default
       // failedRequestTargets ([".*"]) captures every failed request — users'
-      // self-hosted Jellyfin/AudiobookShelf servers, Hardcover, RevenueCat,
+      // self-hosted Jellyfin/AudiobookShelf servers, RevenueCat,
       // archive.org, S3 downloads — flooding one issue with noise we can't
       // act on. Scope it to the configured backend host so this stays a real
       // "our API is failing" signal (root-cause still comes from server logs).

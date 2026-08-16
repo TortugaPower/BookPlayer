@@ -44,7 +44,6 @@ struct LibraryRootView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
-  @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
@@ -209,9 +208,7 @@ struct LibraryRootView: View {
 
       /// Reload all items
       listState.reloadAll(padding: itemIdentifiers.count)
-
-      await hardcoverService.processAutoMatch(for: processedItems)
-
+      
       let availableFolders =
         self.libraryService.getItems(
           notIn: itemIdentifiers,

@@ -12,7 +12,6 @@ import Foundation
 struct CoreServices {
   let accountService: AccountService
   let dataManager: DataManager
-  let hardcoverService: HardcoverService
   let libraryService: LibraryService
   let playbackService: PlaybackService
   let playerLoaderService: PlayerLoaderService

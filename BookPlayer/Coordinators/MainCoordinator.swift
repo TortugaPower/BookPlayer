@@ -28,7 +28,6 @@ class MainCoordinator: NSObject {
   var syncService: SyncService
   let jellyfinConnectionService: JellyfinConnectionService
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
-  let hardcoverService: HardcoverService
   let preferencesService: PreferencesSyncService
 
   var playerState: PlayerState { AppServices.shared.playerState }
@@ -66,7 +65,6 @@ class MainCoordinator: NSObject {
     audiobookshelfService.setup()
     self.audiobookshelfConnectionService = audiobookshelfService
 
-    self.hardcoverService = coreServices.hardcoverService
     self.preferencesService = coreServices.preferencesService
 
     ThemeManager.shared.libraryService = libraryService
@@ -101,7 +99,6 @@ class MainCoordinator: NSObject {
       .environment(\.syncService, syncService)
       .environment(\.jellyfinService, jellyfinConnectionService)
       .environment(\.audiobookshelfService, audiobookshelfConnectionService)
-      .environment(\.hardcoverService, hardcoverService)
       .environment(\.playerState, playerState)
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)

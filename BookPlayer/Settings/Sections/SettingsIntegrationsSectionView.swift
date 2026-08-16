@@ -18,10 +18,6 @@ struct SettingsIntegrationsSectionView: View {
         Text("media_servers_title")
           .bpFont(.body)
       }
-      NavigationLink(value: SettingsScreen.hardcover) {
-        Text("Hardcover")
-          .bpFont(.body)
-      }
     } header: {
       Text("integrations_title")
         .bpFont(.subheadline)

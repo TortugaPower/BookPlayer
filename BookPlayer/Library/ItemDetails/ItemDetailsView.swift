@@ -22,7 +22,6 @@ struct ItemDetailsView: View {
 
   @State private var loadingState = LoadingOverlayState()
 
-  @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -44,10 +43,6 @@ struct ItemDetailsView: View {
         showingArtworkOptions = true
       }
 
-      if let viewModel = viewModel.hardcoverSectionViewModel {
-        ItemDetailsHardcoverSectionView(viewModel: viewModel)
-      }
-
       ItemDetailsFooterSectionView(
         originalFileName: viewModel.originalFileName,
         progress: viewModel.progress,
@@ -59,35 +54,6 @@ struct ItemDetailsView: View {
     }
     .sheet(isPresented: $showingImagePicker) {
       ImagePicker(image: $viewModel.selectedImage)
-    }
-    .alert(
-      "hardcover_remove_confirmation_title",
-      isPresented: $viewModel.showHardcoverRemovalAlert,
-      presenting: viewModel.hardcoverAlertPayload
-    ) { payload in
-      Button("hardcover_remove_keep_it", role: .cancel) {
-        Task {
-          await viewModel.assignNewSelection(payload.newSelection)
-          viewModel.handleSaveAction(loadingState) {
-            dismiss()
-          }
-        }
-      }
-      Button("hardcover_remove_remove_it", role: .destructive) {
-        Task {
-          do {
-            try await hardcoverService.removeFromLibrary(payload.book)
-            await viewModel.assignNewSelection(payload.newSelection)
-            viewModel.handleSaveAction(loadingState) {
-              dismiss()
-            }
-          } catch {
-            loadingState.error = error
-          }
-        }
-      }
-    } message: { payload in
-      Text(String(format: "hardcover_remove_confirmation_message".localized, payload.book.title, payload.book.author))
     }
     .alert("artwork_clipboard_empty_title", isPresented: $showingEmptyPasteboardAlert) {
       Button("ok_button") {}

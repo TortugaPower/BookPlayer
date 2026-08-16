@@ -17,7 +17,6 @@ extension EnvironmentValues {
   @Entry var playbackService: PlaybackService = .init()
   @Entry var jellyfinService: JellyfinConnectionService = .init()
   @Entry var audiobookshelfService: AudiobookShelfConnectionService = .init()
-  @Entry var hardcoverService: HardcoverService = .init()
   @Entry var loadingState: LoadingOverlayState = .init()
   @Entry var playerState: PlayerState = .init()
   @Entry var passkeyService: PasskeyServiceProtocol = PasskeyService()

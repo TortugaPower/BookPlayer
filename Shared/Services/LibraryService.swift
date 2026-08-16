@@ -161,12 +161,6 @@ public protocol LibraryServiceProtocol: AnyObject {
   func addNote(_ note: String, bookmark: SimpleBookmark)
   /// Delete a bookmark
   func deleteBookmark(_ bookmark: SimpleBookmark)
-
-  /// HardcoverBook
-  /// Set hardcover book for an item (nil to remove)
-  func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
-  /// Get hardcover book for an item
-  func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
 }
 
 // swiftlint:disable force_cast
@@ -2798,80 +2792,4 @@ extension LibraryService {
   }
 }
 
-// MARK: - HardcoverBook operations
-extension LibraryService {
-  public func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-
-      context.perform { [unowned self, context] in
-        guard
-          let item = getItemReference(with: relativePath, context: context)
-        else {
-          continuation.resume()
-          return
-        }
-
-        if let hardcoverBook = hardcoverBook {
-          let entity =
-            item.hardcoverBook?.update(with: hardcoverBook) ?? HardcoverBook.create(hardcoverBook, in: context)
-          item.hardcoverBook = entity
-        } else if let hardcoverBook = item.hardcoverBook {
-          item.hardcoverBook = nil
-          dataManager.delete(hardcoverBook, context: context)
-        }
-
-        dataManager.saveSyncContext(context)
-
-        continuation.resume()
-      }
-    }
-  }
-
-  public func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook? {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [context] in
-        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-        fetchRequest.fetchLimit = 1
-        fetchRequest.propertiesToFetch = [
-          #keyPath(LibraryItem.hardcoverBook.id),
-          #keyPath(LibraryItem.hardcoverBook.artworkURL),
-          #keyPath(LibraryItem.hardcoverBook.title),
-          #keyPath(LibraryItem.hardcoverBook.author),
-          #keyPath(LibraryItem.hardcoverBook.status),
-          #keyPath(LibraryItem.hardcoverBook.userBookID),
-        ]
-        fetchRequest.resultType = .dictionaryResultType
-
-        guard
-          let results = try? context.fetch(fetchRequest) as? [[String: Any]],
-          let result = results.first,
-          let id = result[#keyPath(LibraryItem.hardcoverBook.id)] as? Int32,
-          let title = result[#keyPath(LibraryItem.hardcoverBook.title)] as? String,
-          let author = result[#keyPath(LibraryItem.hardcoverBook.author)] as? String,
-          let rawValue = result[#keyPath(LibraryItem.hardcoverBook.status)] as? Int16,
-          let status = HardcoverBook.Status(rawValue: rawValue)
-        else {
-          continuation.resume(returning: nil)
-          return
-        }
-
-        let userBookID = result[#keyPath(LibraryItem.hardcoverBook.userBookID)] as? Int32 ?? 0
-
-        let hardcoverBook = SimpleHardcoverBook(
-          id: Int(id),
-          artworkURL: result["hardcoverBook.artworkURL"] as? URL,
-          title: title,
-          author: author,
-          status: status,
-          userBookID: userBookID != 0 ? Int(userBookID) : nil
-        )
-
-        continuation.resume(returning: hardcoverBook)
-      }
-    }
-  }
-}
 // swiftlint:enable force_cast

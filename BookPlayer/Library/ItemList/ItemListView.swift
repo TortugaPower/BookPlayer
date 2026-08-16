@@ -30,7 +30,6 @@ struct ItemListView: View {
   @Environment(\.libraryService) var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) var syncService
-  @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.jellyfinService) var jellyfinService
   @Environment(\.audiobookshelfService) var audiobookshelfService

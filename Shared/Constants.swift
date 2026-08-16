@@ -83,11 +83,6 @@ public enum Constants {
     public static let audiobookshelfLibraryLayout = "audiobookshelfLibraryLayout"
     public static let audiobookshelfLibraryLayoutSortBy = "audiobookshelfLibraryLayoutSortBy"
 
-    /// Hardcover
-    public static let hardcoverAutoMatch = "hardcoverAutoMatch"
-    public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"
-    public static let hardcoverReadingThreshold = "hardcoverReadingThreshold"
-
     /// Speed controls
     public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"
     public static let quickSpeedSecondPreference = "quickSpeedSecondPreference"

@@ -59,7 +59,6 @@ extension ItemListView {
           item: item,
           libraryService: libraryService,
           syncService: syncService,
-          hardcoverService: hardcoverService,
           listState: listState
         )
       }

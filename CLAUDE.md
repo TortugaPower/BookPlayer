@@ -19,7 +19,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 - **Main app source lives under the nested `BookPlayer/BookPlayer/`** directory: `Player/`, `Settings/`,
   `Profile/`, `Library/`, `Search/`, `Import/`, `Loading/`, `SecondOnboarding/`, `Coordinators/`, `Services/`,
-  `Utils/`, `AppIntents/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`, `Hardcover/`.
+  `Utils/`, `AppIntents/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`.
 - **The `BookPlayerKit` framework compiles the top-level `Shared/` folder.** The `BookPlayerKit/` directory
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
 - **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS).** Every file in
@@ -115,7 +115,7 @@ first. Reordering boot risks a launch crash.
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **10 services**: `accountService`,
-  `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
+  `dataManager`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
   ```swift
@@ -193,12 +193,12 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   conflicts into crashes rather than reconciling them.
 - **Never pass an `NSManagedObject` across threads/contexts or out of a service.** Convert to a thread-safe value
   snapshot first (`Shared/CoreData/Lightweight-Models/`): `SimpleLibraryItem`, `SimpleChapter`, `SimpleBookmark`,
-  `SimpleTheme`, `SimpleAccount`, `SimplePlaybackRecord`, `SimpleHardcoverBook`, `SimpleItemType`, `LibraryItemRef`,
+  `SimpleTheme`, `SimpleAccount`, `SimplePlaybackRecord`, `SimpleItemType`, `LibraryItemRef`,
   `PlayableChapter`. **`PlayableItem` is the one exception — a `final class: NSObject` (mutable, `Codable`), not
   an immutable struct** — scrutinize its mutation/threading.
 - Entities (`Shared/CoreData/Backed-Models/`): abstract `LibraryItem` (its `encode`/`init(from:)` `fatalError` —
   concrete subclasses `Book`/`Folder` must be used), plus `Library`, `Bookmark`, `Chapter`, `Account`, `Theme`,
-  `PlaybackRecord`, `HardcoverBook`. `ItemType: Int16 { folder, bound, book }`.
+  `PlaybackRecord`. `ItemType: Int16 { folder, bound, book }`.
 - **Migration is manual and staged** (`Shared/CoreData/Migrations/DataMigrationManager.swift` + `DBVersion.swift`,
   currently `v1…v11`, current model `Audiobook Player 11`). It migrates **one version at a time** using explicit
   `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 hops rely on inference). A model
@@ -274,7 +274,7 @@ lines). It is the highest-risk file in the app.
   pulled from Keychain (`.token`) per request** — but only when `useKeychain == true` (the default). Errors map
   to `BookPlayerError` (`4xx` decode `ErrorResponse` → `.networkError`/`.networkErrorWithCode`, `5xx` →
   `.networkError`). Decoder is `.iso8601`.
-- **The bearer token must never be attached to S3/presigned or third-party (Jellyfin/ABS/Hardcover) URLs.**
+- **The bearer token must never be attached to S3/presigned or third-party (Jellyfin/AudiobookShelf ABS) URLs.**
   Uploads to S3 presigned PUTs use `useKeychain: false` (the URL carries its own auth); media-server calls use
   their own connection tokens. Any new `request(url:...)` must set `useKeychain` deliberately — the default
   `true` attaches the JWT to whatever host is passed.
@@ -316,13 +316,12 @@ lines). It is the highest-risk file in the app.
 
 - `kSecClassGenericPassword`, service = the bundle identifier, accessibility
   **`kSecAttrAccessibleAfterFirstUnlock`** (so background sync/downloads work while locked). Stores JWT `.token`,
-  `.jellyfinConnection`, `.audiobookshelfConnection`, `.hardcoverToken`.
+  `.jellyfinConnection`, `.audiobookshelfConnection`.
 - **Correction to older docs: the Keychain is NOT scoped via an App Group / `kSecAttrAccessGroup`** — there is no
   access group set; sharing relies on the default app access group. (The App Group
   `group.$(BP_BUNDLE_IDENTIFIER).files` is used for `UserDefaults.sharedDefaults` and file storage, **not** the
   Keychain.)
-- Every mutation emits `valueUpdatedPublisher.send((key, deleted:))`; `HardcoverService` observes it to
-  start/stop tracking on token changes.
+- Every mutation emits `valueUpdatedPublisher.send((key, deleted:))`.
 
 ### Subscriptions & entitlements — `Shared/Services/Account/AccountService.swift`
 
@@ -358,11 +357,6 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   URLs keep the token in the header (Kingfisher `requestModifier`), not the URL, so a rotated token can't poison
   the disk cache. **URL-encoding footgun:** the `filter` param is manually percent-encoded (`+`→`%2B`, `/`→`%2F`)
   because ABS/Express corrupts `+` in a query value — don't route it through `URLQueryItem`.
-- **Hardcover** (`Hardcover/`, `@Observable HardcoverService`, GraphQL): two-way **reading-progress** sync, not a
-  media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
-  POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has
-  explicit duplicate detection; API failures are log-and-swallowed so a Hardcover outage never blocks local
-  playback. Token is Keychain `.hardcoverToken`; no token → subscriptions torn down.
 
 ---
 
@@ -385,8 +379,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`.
 - **Settings** (`Settings/`): SwiftUI `Form` + `SettingsScreen` route enum; gating reads
-  `accountService.accessLevel`. Integrations entry is `SettingsIntegrationsSectionView` → `MediaServersView` /
-  Hardcover.
+  `accountService.accessLevel`. Integrations entry is `SettingsIntegrationsSectionView` → `MediaServersView`.
 
 ---
 

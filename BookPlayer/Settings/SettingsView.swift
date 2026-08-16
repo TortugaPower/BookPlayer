@@ -26,7 +26,6 @@ struct SettingsView: View {
   @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.audiobookshelfService) private var audiobookshelfService
-  @Environment(\.hardcoverService) private var hardcoverService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -119,12 +118,6 @@ struct SettingsView: View {
               jellyfinService: jellyfinService,
               audiobookshelfService: audiobookshelfService,
               style: .settings
-            )
-          )
-        case .hardcover:
-          view = AnyView(
-            HardcoverSettingsView(
-              viewModel: HardcoverSettingsViewModel(hardcoverService: hardcoverService)
             )
           )
         case .tipjar:

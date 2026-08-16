@@ -12,28 +12,16 @@ import Foundation
 import UIKit
 
 final class ItemDetailsViewModel: ObservableObject {
-  struct HardcoverAlertPayload: Identifiable {
-    var id = UUID()
-    let book: SimpleHardcoverBook
-    let newSelection: HardcoverBookRow.Model?
-  }
-
-  @Published var showHardcoverRemovalAlert = false
-  @Published var hardcoverAlertPayload: HardcoverAlertPayload?
-
+  
   /// Item being modified
   let item: SimpleLibraryItem
   /// Library service used for modifications
   let libraryService: LibraryServiceProtocol
   /// Service to sync new artwork
   let syncService: SyncServiceProtocol
-  /// Hardcover service for managing assignments
-  let hardcoverService: HardcoverServiceProtocol
-
+  
   let listState: ListStateManager
-
-  private var hardcoverBook: SimpleHardcoverBook?
-
+  
   /// File name
   @Published var originalFileName: String
   /// Title of the item
@@ -54,14 +42,11 @@ final class ItemDetailsViewModel: ObservableObject {
   var artworkIsUpdated: Bool = false
   /// Flag to show the author field
   var showAuthor: Bool { item.type != .folder }
-
-  @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
-
+  
   init(
     item: SimpleLibraryItem,
     libraryService: LibraryService,
     syncService: SyncService,
-    hardcoverService: HardcoverServiceProtocol,
     listState: ListStateManager
   ) {
     let cachedImageURL = ArtworkService.getCachedImageURL(for: item.relativePath)
@@ -86,30 +71,12 @@ final class ItemDetailsViewModel: ObservableObject {
     self.item = item
     self.libraryService = libraryService
     self.syncService = syncService
-    self.hardcoverService = hardcoverService
     self.listState = listState
     self.originalFileName = item.originalFileName
     self.title = item.title
     self.author = item.details
     self.selectedImage = UIImage(contentsOfFile: cachedImageURL.path)
     self.lastPlayedDate = playedDate
-
-    hardcoverSectionViewModel = ItemDetailsHardcoverSectionViewModel(
-      item: item,
-      hardcoverService: hardcoverService
-    )
-
-    Task {
-      if let item = await libraryService.getHardcoverBook(for: item.relativePath) {
-        hardcoverBook = item
-        hardcoverSectionViewModel?.pickerViewModel.selected = .init(
-          id: item.id,
-          artworkURL: item.artworkURL,
-          title: item.title,
-          author: item.author
-        )
-      }
-    }
   }
 
   func handleSaveAction(_ loadingState: LoadingOverlayState, success: @escaping () -> Void) {
@@ -128,23 +95,6 @@ final class ItemDetailsViewModel: ObservableObject {
 
       if showAuthor {
         updateAuthor(author, relativePath: item.relativePath)
-      }
-
-      if let pickerViewModel = hardcoverSectionViewModel?.pickerViewModel,
-        pickerViewModel.selected?.id != hardcoverBook?.id
-      {
-
-        if let currentBook = hardcoverBook, currentBook.userBookID != nil {
-          loadingState.show = false
-          hardcoverAlertPayload = .init(
-            book: currentBook,
-            newSelection: pickerViewModel.selected
-          )
-          showHardcoverRemovalAlert = true
-          return
-        }
-
-        await assignNewSelection(pickerViewModel.selected)
       }
 
       guard artworkIsUpdated else {
@@ -217,25 +167,5 @@ final class ItemDetailsViewModel: ObservableObject {
     guard storedDetails != cleanedAuthor else { return }
 
     libraryService.updateDetails(at: relativePath, details: cleanedAuthor)
-  }
-
-  func assignNewSelection(
-    _ newSelection: HardcoverBookRow.Model?
-  ) async {
-    if let selected = newSelection {
-      let book = SimpleHardcoverBook(
-        id: selected.id,
-        artworkURL: selected.artworkURL,
-        title: selected.title,
-        author: selected.author,
-        status: .local,
-        userBookID: nil
-      )
-      await hardcoverService.assignItem(book, to: item)
-      hardcoverBook = book
-    } else {
-      await hardcoverService.assignItem(nil, to: item)
-      hardcoverBook = nil
-    }
   }
 }
