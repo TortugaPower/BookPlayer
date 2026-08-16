@@ -133,7 +133,6 @@ class CarPlayManager: NSObject {
         self?.showPlayerOnConnectIfNeeded()
       }
       if let coreServices = AppServices.shared.coreServices {
-        coreServices.watchService.startSession()
         let listRefreshService = ListSyncRefreshService(
           playerManager: coreServices.playerManager,
           syncService: coreServices.syncService,

@@ -90,11 +90,6 @@ final class AppServices: BPLogger {
         shakeMotionService: ShakeMotionService(),
         widgetReloadService: WidgetReloadService()
       )
-      let watchService = PhoneWatchConnectivityService(
-        libraryService: libraryService,
-        playbackService: playbackService,
-        playerManager: playerManager
-      )
       let playerLoaderService = makePlayerLoaderService(
         syncService: syncService,
         libraryService: libraryService,
@@ -121,14 +116,10 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
-        watchService: watchService
       )
 
       self.coreServices = coreServices
-
-      // Wire up accountService for Watch auth transfer
-      watchService.setAccountService(accountService)
-
+      
       return coreServices
     }
   }

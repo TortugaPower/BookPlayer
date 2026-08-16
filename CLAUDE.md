@@ -1,6 +1,6 @@
-# BookPlayer (iOS / watchOS)
+# BookPlayer (iOS)
 
-Open-source audiobook player for iOS and watchOS. Swift, **hybrid UIKit-Coordinators + SwiftUI (MVVM)**.
+Open-source audiobook player for iOS. Swift, **hybrid UIKit-Coordinators + SwiftUI (MVVM)**.
 Companion to the Android app; both share the **BookPlayer backend** (auth, per-user cloud sync, subscriptions).
 Handles **offline audio playback, background/lock-screen playback, cloud sync, auth, and paid entitlements** —
 so the highest-severity defects are in **memory/concurrency, player & AVAudioSession lifecycle, thread-correct
@@ -22,7 +22,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
   `Utils/`, `AppIntents/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`, `Hardcover/`.
 - **The `BookPlayerKit` framework compiles the top-level `Shared/` folder.** The `BookPlayerKit/` directory
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
-- **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS) and `BookPlayerWatchKit` (watchOS).** Every file in
+- **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS).** Every file in
   `Shared/` therefore has **two** `PBXBuildFile` entries — one per framework. Adding a `Shared/` file to only
   one target breaks the watch build.
 - **The top-level `Player/`, `Services/`, `Coordinators/`, `Library/` folders are EMPTY STUBS — ignore them.
@@ -40,10 +40,7 @@ Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwo
 |---|---|---|---|
 | `BookPlayer` | "Audiobook Player" · app | iOS app | `BookPlayer/BookPlayer/…` |
 | `BookPlayerKit` | framework (iOS) | Shared framework | top-level `Shared/` |
-| `BookPlayerWatchKit` | framework (watchOS) | Shared framework | top-level `Shared/` (same files) |
-| `BookPlayerWatch` | app (watchOS) | Watch app | `BookPlayerWatch/` |
 | `BookPlayerWidgetsPhone` | app-extension | iOS widgets | `BookPlayerWidgets/` (`Phone/` + `Shared/`) |
-| `BookPlayerWidgetsWatch` | app-extension | watchOS widgets/complications | `BookPlayerWidgets/Shared/` |
 | `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` | `BookPlayerIntents/` |
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
@@ -52,11 +49,7 @@ Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwo
 types — that breaks the framework boundary and is a 🔴 finding. Watch/shared code selects the framework with:
 
 ```swift
-#if os(watchOS)
-import BookPlayerWatchKit
-#else
 import BookPlayerKit
-#endif
 ```
 
 Do **not** "fix" or collapse these conditional imports — they are the mechanism that lets one shared codebase
@@ -414,7 +407,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   build. **New service logic should come with a test** in `BookPlayerTests/` (XCTest only — no Swift Testing).
 - **App Group correctness:** data/defaults/files shared with widgets/watch/extension must use the App Group
   container / `UserDefaults.sharedDefaults`, not `.standard`. The App Group id
-  `group.$(BP_BUNDLE_IDENTIFIER).files` must stay consistent across the app, watch, widgets, and share-extension
+  `group.$(BP_BUNDLE_IDENTIFIER).files` must stay consistent across the app, widgets, and share-extension
   entitlements — it is the sole data channel for widgets and the share extension.
 - **Combine:** long-lived subscriptions → `private var disposeBag = Set<AnyCancellable>()` + `.store(in:)`;
   single-purpose → a named `AnyCancellable?` that is `.cancel()`'d before rebind. `[weak self]` in sinks/closures
@@ -449,7 +442,7 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
 9. **Secrets:** committing/overwriting real `Debug.xcconfig` / `Release.xcconfig`, or hardcoding a key instead of
    the xcconfig → `Configuration` path; `BP_MOCKED_BEARER_TOKEN` / `loginTestAccount` left live in prod.
 10. **Force-unwrap / `try!` on remote or decoded data** (network / JSON / S3) — a bad payload crashes.
-11. **App Group correctness** for anything consumed by widgets/watch/extension.
+11. **App Group correctness** for anything consumed by widgets/extension.
 12. **`BookPlayerKit` boundary:** `Shared/` importing app-layer types.
 13. **Integration session-expiry / token contracts** (see the integrations section).
 14. Hand-editing `Generated/AutoMockable.generated.swift`; adding code to a top-level **empty stub** folder.

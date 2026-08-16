@@ -26,7 +26,6 @@ class MainCoordinator: NSObject {
   let listSyncRefreshService: ListSyncRefreshService
   let accountService: AccountService
   var syncService: SyncService
-  let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
   let hardcoverService: HardcoverService
@@ -59,7 +58,6 @@ class MainCoordinator: NSObject {
       preferencesService: coreServices.preferencesService
     )
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
-    self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
     jellyfinService.setup()
     self.jellyfinConnectionService = jellyfinService
@@ -124,8 +122,6 @@ class MainCoordinator: NSObject {
     
     navigationController.present(vc, animated: false)
     mainController = vc
-
-    AppServices.shared.coreServices?.watchService.startSession()
   }
 
   func showSecondOnboarding() {

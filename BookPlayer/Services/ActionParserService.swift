@@ -39,13 +39,6 @@ class ActionParserService {
   public class func handleAction(_ action: Action) {
     let appServices = AppServices.shared
 
-    guard
-      let watchConnectivityService = appServices.coreServices?.watchService
-    else {
-      appServices.pendingURLActions.append(action)
-      return
-    }
-
     switch action.command {
     case .play:
       self.handlePlayAction(action)
@@ -58,7 +51,6 @@ class ActionParserService {
     case .sleep:
       self.handleSleepAction(action)
     case .refresh:
-      watchConnectivityService.sendApplicationContext()
       self.removeAction(action)
     case .skipRewind:
       self.handleRewindAction(action)
