@@ -75,14 +75,6 @@ public enum Constants {
     /// Key to store the current theme
     public static let sharedWidgetTheme = "sharedWidgetTheme"
 
-    /// Jellyfin
-    public static let jellyfinLibraryLayout = "jellyfinLibraryLayout"
-    public static let jellyfinLibraryLayoutSortBy = "jellyfinLibraryLayoutSortBy"
-
-    /// AudiobookShelf
-    public static let audiobookshelfLibraryLayout = "audiobookshelfLibraryLayout"
-    public static let audiobookshelfLibraryLayoutSortBy = "audiobookshelfLibraryLayoutSortBy"
-
     /// Speed controls
     public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"
     public static let quickSpeedSecondPreference = "quickSpeedSecondPreference"

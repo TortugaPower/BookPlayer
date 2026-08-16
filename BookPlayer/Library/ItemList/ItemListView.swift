@@ -31,8 +31,6 @@ struct ItemListView: View {
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) var syncService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
-  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
@@ -388,9 +386,6 @@ struct ItemListView: View {
     }
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
-    }
-    Button("media_servers_title".localized, systemImage: "server.rack") {
-      listState.activeIntegrationSheet = .mediaServers
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood

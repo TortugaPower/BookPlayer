@@ -24,8 +24,6 @@ struct SettingsView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.syncService) private var syncService
   @Environment(\.accountService) private var accountService
-  @Environment(\.jellyfinService) private var jellyfinService
-  @Environment(\.audiobookshelfService) private var audiobookshelfService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -45,7 +43,6 @@ struct SettingsView: View {
         }
         SettingsShortcutsSectionView()
         SettingsiCloudSectionView()
-        SettingsIntegrationsSectionView()
         SettingsPrivacySectionView()
         SettingsSupportSectionView(accessLevel: accountService.accessLevel) {
           if MFMailComposeViewController.canSendMail() {
@@ -110,14 +107,6 @@ struct SettingsView: View {
             StorageCloudDeletedView(
               viewModel:
                 StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
-            )
-          )
-        case .mediaServers:
-          view = AnyView(
-            MediaServersView(
-              jellyfinService: jellyfinService,
-              audiobookshelfService: audiobookshelfService,
-              style: .settings
             )
           )
         case .tipjar:

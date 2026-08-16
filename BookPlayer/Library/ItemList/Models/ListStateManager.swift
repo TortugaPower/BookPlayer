@@ -21,16 +21,7 @@ final class ListStateManager {
 
   public var isSearching = false
   public var isEditing = false
-
-  /// Integration sheet presented at MainView level for state preservation.
-  /// MediaServersView is the unified entry point — per-integration libraries are
-  /// pushed on top of it as sub-sheets when the user taps a server row.
-  enum IntegrationSheet: String, Identifiable {
-    case mediaServers
-    var id: String { rawValue }
-  }
-  var activeIntegrationSheet: IntegrationSheet?
-
+  
   func reloadAll(padding: Int = 0) {
     payloads[.all] = padding
     globalToken += 1

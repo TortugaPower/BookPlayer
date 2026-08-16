@@ -28,10 +28,6 @@ public typealias KeychainUpdateValue = (key: KeychainKeys, deleted: Bool)
 public enum KeychainKeys: String {
   /// Stores BookPlayer's API access token
   case token = "access_token"
-  /// Stores the Jellyfin connection information (JellyfinConnectionData)
-  case jellyfinConnection = "jellyfin_connection"
-  /// Stores the AudiobookShelf connection information (AudiobookShelfConnectionData)
-  case audiobookshelfConnection = "audiobookshelf_connection"
 }
 
 public final class KeychainService: KeychainServiceProtocol, Sendable {

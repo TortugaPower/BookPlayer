@@ -19,7 +19,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 - **Main app source lives under the nested `BookPlayer/BookPlayer/`** directory: `Player/`, `Settings/`,
   `Profile/`, `Library/`, `Search/`, `Import/`, `Loading/`, `SecondOnboarding/`, `Coordinators/`, `Services/`,
-  `Utils/`, `AppIntents/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`.
+  `Utils/`, `AppIntents/`.
 - **The `BookPlayerKit` framework compiles the top-level `Shared/` folder.** The `BookPlayerKit/` directory
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
 - **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS).** Every file in
@@ -59,7 +59,6 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
 RevenueCat (`purchases-ios`, ~5.33), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~7.9),
-JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
@@ -125,8 +124,7 @@ first. Reordering boot risks a launch crash.
   A new service should follow this pattern and be wired through `AppServices`/`CoreServices` — not instantiated
   ad hoc in a view. (`PlayerManager` and `PhoneWatchConnectivityService` take everything via `init`.)
 - **Services → coordinators:** `CoreServices` is passed whole into `MainCoordinator.init(...)`, which also builds
-  coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
-  `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
+  coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
   `listSyncRefreshService`) via `.environmentObject`; the rest via `.environment(\.key, …)`. The environment keys
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
@@ -274,10 +272,6 @@ lines). It is the highest-risk file in the app.
   pulled from Keychain (`.token`) per request** — but only when `useKeychain == true` (the default). Errors map
   to `BookPlayerError` (`4xx` decode `ErrorResponse` → `.networkError`/`.networkErrorWithCode`, `5xx` →
   `.networkError`). Decoder is `.iso8601`.
-- **The bearer token must never be attached to S3/presigned or third-party (Jellyfin/AudiobookShelf ABS) URLs.**
-  Uploads to S3 presigned PUTs use `useKeychain: false` (the URL carries its own auth); media-server calls use
-  their own connection tokens. Any new `request(url:...)` must set `useKeychain` deliberately — the default
-  `true` attaches the JWT to whatever host is passed.
 - **Background `URLSession`s** (`Shared/Network/BPURLSession.swift`): two sessions (`.background` and
   `.background.cellular`) chosen by the `allowCellularData` default; downloads via `BPDownloadURLSession`.
 - `SyncService.swift` is `@Observable`. **`isActive` is `public private(set)` and must be mutated only via
@@ -315,8 +309,7 @@ lines). It is the highest-risk file in the app.
 ### Keychain — `Shared/Services/KeychainService.swift`
 
 - `kSecClassGenericPassword`, service = the bundle identifier, accessibility
-  **`kSecAttrAccessibleAfterFirstUnlock`** (so background sync/downloads work while locked). Stores JWT `.token`,
-  `.jellyfinConnection`, `.audiobookshelfConnection`.
+  **`kSecAttrAccessibleAfterFirstUnlock`** (so background sync/downloads work while locked). Stores JWT `.token`.
 - **Correction to older docs: the Keychain is NOT scoped via an App Group / `kSecAttrAccessGroup`** — there is no
   access group set; sharing relies on the default app access group. (The App Group
   `group.$(BP_BUNDLE_IDENTIFIER).files` is used for `UserDefaults.sharedDefaults` and file storage, **not** the
@@ -341,22 +334,14 @@ lines). It is the highest-risk file in the app.
 
 All three store secrets in the **Keychain** (never `UserDefaults`), persist custom headers alongside connection
 data, and share the error type `MediaServerIntegration/IntegrationError.swift` (note `sessionExpired(serverName:)`
-+ `isSessionExpired`). Jellyfin & AudiobookShelf share the `MediaServerIntegration/` protocol + UI layer.
++ `isSessionExpired`).
 
 - **Session-expiry contract:** a 401/403 from an **authenticated** call maps to `sessionExpired(serverName:)` (a
   recoverable "sign in again" path that **preserves** the connection). Pre-sign-in probes (`findServer`/`ping`)
   must **bypass** this mapping — otherwise an unrelated saved server gets mis-thrown into re-auth, and users land
   in the duplicate-connection trap.
-- **Jellyfin** (`Jellyfin/`, `@MainActor @Observable JellyfinConnectionService`, backed by `jellyfin-sdk-swift`):
-  add-server validates via a transient `PendingServer` **without mutating the live `client`**; `rebuildClient` is
-  the single client-construction choke point and must forward `customHeaders`; the `JellyfinHeaderInjector` must
   **never overwrite `Authorization`** (so Cloudflare-Access headers can't clobber the token). Downloads are
   delegated to `SingleFileDownloadService`.
-- **AudiobookShelf** (`AudiobookShelf/`, `@MainActor @Observable`, hand-rolled URLSession): `Authorization: Bearer`
-  applied *after* custom headers; re-auth/delete fire a fire-and-forget `/logout` to avoid orphan tokens; image
-  URLs keep the token in the header (Kingfisher `requestModifier`), not the URL, so a rotated token can't poison
-  the disk cache. **URL-encoding footgun:** the `filter` param is manually percent-encoded (`+`→`%2B`, `/`→`%2F`)
-  because ABS/Express corrupts `+` in a query value — don't route it through `URLQueryItem`.
 
 ---
 

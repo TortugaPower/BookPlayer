@@ -19,8 +19,6 @@ struct MainView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
-  @Environment(\.jellyfinService) private var jellyfinService
-  @Environment(\.audiobookshelfService) private var audiobookshelfService
   @Environment(\.playbackService) private var playbackService
   @Environment(\.colorScheme) private var scheme
 
@@ -82,18 +80,6 @@ struct MainView: View {
         let relativePath = playerState.loadedBookRelativePath
       {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
-      }
-    }
-    .sheet(item: $listState.activeIntegrationSheet) { sheet in
-      switch sheet {
-      case .mediaServers:
-        NavigationStack {
-          MediaServersView(
-            jellyfinService: jellyfinService,
-            audiobookshelfService: audiobookshelfService,
-            style: .libraryEntry
-          )
-        }
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {

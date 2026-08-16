@@ -26,8 +26,6 @@ class MainCoordinator: NSObject {
   let listSyncRefreshService: ListSyncRefreshService
   let accountService: AccountService
   var syncService: SyncService
-  let jellyfinConnectionService: JellyfinConnectionService
-  let audiobookshelfConnectionService: AudiobookShelfConnectionService
   let preferencesService: PreferencesSyncService
 
   var playerState: PlayerState { AppServices.shared.playerState }
@@ -57,14 +55,7 @@ class MainCoordinator: NSObject {
       preferencesService: coreServices.preferencesService
     )
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
-    let jellyfinService = JellyfinConnectionService()
-    jellyfinService.setup()
-    self.jellyfinConnectionService = jellyfinService
-
-    let audiobookshelfService = AudiobookShelfConnectionService()
-    audiobookshelfService.setup()
-    self.audiobookshelfConnectionService = audiobookshelfService
-
+    
     self.preferencesService = coreServices.preferencesService
 
     ThemeManager.shared.libraryService = libraryService
@@ -97,8 +88,6 @@ class MainCoordinator: NSObject {
       .environment(\.libraryService, libraryService)
       .environment(\.accountService, accountService)
       .environment(\.syncService, syncService)
-      .environment(\.jellyfinService, jellyfinConnectionService)
-      .environment(\.audiobookshelfService, audiobookshelfConnectionService)
       .environment(\.playerState, playerState)
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)

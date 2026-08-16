@@ -13,7 +13,6 @@ enum SettingsScreen: String, Hashable {
   case controls, autoplay, autolock
   case storage, syncbackup
   case shortcuts
-  case mediaServers
   case tipjar
   case credits
 }

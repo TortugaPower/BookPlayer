@@ -19,7 +19,6 @@ Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 - Using [AirDrop](https://support.apple.com/en-us/HT204144#receive) from your Mac or iOS device
 - From [Files](https://support.apple.com/en-us/ht206481) and other apps on your device
 - Via [File Sharing](https://support.apple.com/en-us/HT201301) in iTunes on your Mac or PC
-- Download audiobooks from your own [AudiobookShelf](https://www.audiobookshelf.org) or [Jellyfin](https://jellyfin.org) server
 - Zip archives are supported and can be turned into playlists automatically
 
 ### Manage
@@ -108,7 +107,6 @@ If you enjoy BookPlayer, we would be glad if you consider writing a review on th
 - [@vab9](https://github.com/vab9) - AirDrop Support
 - [@atomicguy](https://github.com/atomicguy) - Zip Support
 - [@ryantstone](https://github.com/ryantstone) - VoiceOver Support
-- [@lysanntranvouez](https://github.com/lysanntranvouez) - Jellyfin Support
 
 A full list of all contributors can be found
 [on GitHub.](https://github.com/GianniCarlo/Audiobook-Player/graphs/contributors)
@@ -133,7 +131,6 @@ Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 
 - [DeviceKit](https://github.com/dennisweissmann/DeviceKit) for device information used in support requests
 - [DirectoryWatcher](https://github.com/GianniCarlo/DirectoryWatcher) for events on the document's folder
-- [JellyfinAPI](https://github.com/jellyfin/jellyfin-sdk-swift) for communicating with Jellyfin servers
 - [Kingfisher](https://github.com/onevcat/Kingfisher) for contributors' profile pictures
 - [MarqueeLabel](https://github.com/cbpowell/MarqueeLabel) for scrolling labels
 - [RevenueCat](https://github.com/RevenueCat/purchases-ios) for managing in-app purchases
@@ -143,8 +140,6 @@ Managed with the [Swift Package Manager](https://swift.org/package-manager/)
 - [ZipArchive](https://github.com/ZipArchive/ZipArchive) for zip files
 
 Included in this repository
-
-- [BlurHashDecode](https://github.com/woltapp/blurhash/blob/712a47f946b98c30097eb1ada086ea00b18681ec/Swift/BlurHashDecode.swift) for displaying placeholder images from Jellyfin servers
 
 Managed with [Homebrew](https://brew.sh)
 
