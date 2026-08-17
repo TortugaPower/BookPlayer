@@ -212,17 +212,17 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
           HStack {
             Text("integration_address_host_label".localized)
               .foregroundStyle(theme.primaryColor)
+            // The label rides INSIDE the component, scoped to the text field alone. Labelling the
+            // compound from out here propagated "Host" into the clear button as well.
             ClearableTextField(
               hostPlaceholder,
-              text: $address.hostField
+              text: $address.hostField,
+              accessibilityLabel: "integration_address_host_label".localized
             )
             .multilineTextAlignment(.trailing)
             .keyboardType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
-            // The row's Text label isn't associated with the field — without this VoiceOver reads
-            // the placeholder hostname as if it were the field's name.
-            .accessibilityLabel(Text("integration_address_host_label".localized))
           }
 
           HStack {
