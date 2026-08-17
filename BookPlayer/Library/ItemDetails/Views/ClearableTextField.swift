@@ -55,9 +55,14 @@ struct ClearableTextField: View {
         // `.borderless`, because these fields sit in Form rows: a default-styled button there is
         // fired by the List's row-tap forwarding, so tapping anywhere in the row would clear the
         // text. A real Button (not the old tap gesture on the Image) is what gives VoiceOver proper
-        // activation; the label is what it announces — the bare symbol read as its inferred name.
+        // activation.
+        //
+        // Deliberately NO explicit accessibility label: `clear.fill` ships with Apple's own localized
+        // description ("Clear"), which is device-verified to announce correctly — and it only worked
+        // wrong before because a label applied to the compound propagated in over it, which the
+        // scoped `accessibilityLabel` parameter now makes impossible. Don't add a custom string here;
+        // it would re-own 26 translations Apple already maintains.
         .buttonStyle(.borderless)
-        .accessibilityLabel(Text("clear_text_button".localized))
       }
     }
   }

@@ -62,7 +62,6 @@
 "sort_title" = "Liste sortieren";
 "cancel_button" = "Abbrechen";
 "copy_button" = "Kopieren";
-"clear_text_button" = "Text löschen";
 "seconds_title" = "s";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri Kurzbefehle sind erst ab iOS 12 verfügbar.";
