@@ -379,10 +379,6 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Enable microphone access so you can record audio</string>
-	<key>NSSiriUsageDescription</key>
-	<string>Siri shortcuts</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).activity.playback</string>
@@ -475,5 +471,17 @@
 			</dict>
 		</dict>
 	</array>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.$(CFBundleIdentifier)</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerSupportsFolderLevelEncryption</key>
+			<false/>
+			<key>NSUbiquitousContainerName</key>
+			<string>BookPlayer Files</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
