@@ -62,6 +62,7 @@
 "sort_title" = "Sorter elementer etter";
 "cancel_button" = "Avbryt";
 "copy_button" = "Kopier";
+"clear_text_button" = "Fjern tekst";
 "seconds_title" = "sek";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-snarveier er tilgjengelige på iOS 12 og nyere";

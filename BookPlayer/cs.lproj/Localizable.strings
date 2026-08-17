@@ -62,6 +62,7 @@
 "sort_title" = "Seřadit položky podle";
 "cancel_button" = "Zrušit";
 "copy_button" = "Kopírovat";
+"clear_text_button" = "Smazat text";
 "seconds_title" = "sekund";
 "ok_button" = "OK";
 "siri_alert_description" = "Zkratky pro Siri jsou k dispozici v iOS 12 a vyšším";

@@ -62,6 +62,7 @@
 "sort_title" = "Sortér efter";
 "cancel_button" = "Annuller";
 "copy_button" = "Kopiér";
+"clear_text_button" = "Ryd tekst";
 "seconds_title" = "sek";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-genveje er tilgængelige på iOS 12 og opefter";

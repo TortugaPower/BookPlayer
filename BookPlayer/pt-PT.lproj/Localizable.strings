@@ -62,6 +62,7 @@
 "sort_title" = "Classificar itens por";
 "cancel_button" = "Cancelar";
 "copy_button" = "Copiar";
+"clear_text_button" = "Apagar texto";
 "seconds_title" = "seg";
 "ok_button" = "OK";
 "siri_alert_description" = "Os atalhos da Siri só estão disponíveis no iOS 12 e posterior";

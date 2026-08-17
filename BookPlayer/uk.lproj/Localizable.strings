@@ -62,6 +62,7 @@
 "sort_title" = "Відсортувати за";
 "cancel_button" = "Скасувати";
 "copy_button" = "Копіювати";
+"clear_text_button" = "Очистити текст";
 "seconds_title" = "сек";
 "ok_button" = "Гаразд";
 "siri_alert_description" = "Команди Siri доступні для iOS 12 і вище";

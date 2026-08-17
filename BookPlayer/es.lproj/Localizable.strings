@@ -62,6 +62,7 @@
 "sort_title" = "Ordenar Elementos por";
 "cancel_button" = "Cancelar";
 "copy_button" = "Copiar";
+"clear_text_button" = "Borrar texto";
 "seconds_title" = "seg";
 "ok_button" = "OK";
 "siri_alert_description" = "Los atajos de Siri están disponibles desde iOS 12 en adelante";

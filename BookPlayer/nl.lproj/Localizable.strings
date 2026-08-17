@@ -62,6 +62,7 @@
 "sort_title" = "Artikelen sorteren op";
 "cancel_button" = "Annuleren";
 "copy_button" = "Kopiëren";
+"clear_text_button" = "Tekst wissen";
 "seconds_title" = "sec";
 "ok_button" = "Oké";
 "siri_alert_description" = "Siri-snelkoppelingen zijn beschikbaar op iOS 12 en hoger";

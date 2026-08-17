@@ -62,6 +62,7 @@
 "sort_title" = "Sortează articolele după";
 "cancel_button" = "Anulare";
 "copy_button" = "Copiază";
+"clear_text_button" = "Ștergeți textul";
 "seconds_title" = "sec";
 "ok_button" = "OK";
 "siri_alert_description" = "Comenzile rapide de la Siri sunt disponibile pe iOS 12 și versiuni ulterioare";

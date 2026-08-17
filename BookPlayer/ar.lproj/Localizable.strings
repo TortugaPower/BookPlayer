@@ -62,6 +62,7 @@
 "sort_title" = "ترتيب الملفات حسب";
 "cancel_button" = "إلغاء";
 "copy_button" = "نسخ";
+"clear_text_button" = "مسح النص";
 "seconds_title" = "ثانية";
 "ok_button" = "موافق";
 "siri_alert_description" = "تتوفر اختصارات Siri في نظام التشغيل iOS 12 والإصدارات الأحدث";

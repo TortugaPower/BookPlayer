@@ -62,6 +62,7 @@
 "sort_title" = "排序依据";
 "cancel_button" = "取消";
 "copy_button" = "拷贝";
+"clear_text_button" = "清除文本";
 "seconds_title" = "秒";
 "ok_button" = "确定";
 "siri_alert_description" = "Siri快捷方式在iOS 12及更高版本上可用";

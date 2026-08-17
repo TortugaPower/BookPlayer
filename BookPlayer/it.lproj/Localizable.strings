@@ -62,6 +62,7 @@
 "sort_title" = "Ordina elementi per";
 "cancel_button" = "Cancella";
 "copy_button" = "Copia";
+"clear_text_button" = "Cancella testo";
 "seconds_title" = "sec";
 "ok_button" = "OK";
 "siri_alert_description" = "Le Shortcuts di Siri sono disponibili da iOS 12 in su";

@@ -62,6 +62,7 @@
 "sort_title" = "Sortera filer efter";
 "cancel_button" = "Avbryt";
 "copy_button" = "Kopiera";
+"clear_text_button" = "Radera text";
 "seconds_title" = "s";
 "ok_button" = "OK";
 "siri_alert_description" = "Siri-genvägar är tillgängliga på iOS 12 och högre";

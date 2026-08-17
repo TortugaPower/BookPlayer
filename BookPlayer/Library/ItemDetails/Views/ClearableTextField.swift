@@ -30,13 +30,22 @@ struct ClearableTextField: View {
     HStack {
       TextField(placeholder, text: $text, onCommit: onCommit)
         .foregroundStyle(themeViewModel.primaryColor)
-      Image(systemName: "clear.fill")
-        .foregroundStyle(themeViewModel.secondaryColor)
-        .onTapGesture {
+      // Shown only when there is something to clear, like the system clear button — an X that clears
+      // an empty field is a pointless VoiceOver stop.
+      if !text.isEmpty {
+        Button {
           text = ""
+        } label: {
+          Image(systemName: "clear.fill")
+            .foregroundStyle(themeViewModel.secondaryColor)
         }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityRemoveTraits(.isImage)
+        // `.borderless`, because these fields sit in Form rows: a default-styled button there is
+        // fired by the List's row-tap forwarding, so tapping anywhere in the row would clear the
+        // text. A real Button (not the old tap gesture on the Image) is what gives VoiceOver proper
+        // activation; the label is what it announces — the bare symbol read as its inferred name.
+        .buttonStyle(.borderless)
+        .accessibilityLabel(Text("clear_text_button".localized))
+      }
     }
   }
 }
