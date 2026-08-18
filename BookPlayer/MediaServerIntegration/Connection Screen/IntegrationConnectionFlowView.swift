@@ -237,6 +237,12 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
               .onChange(of: portText) { _, newValue in
                 address.port = Int(newValue).flatMap { (1...65535).contains($0) ? $0 : nil }
               }
+              // A pasted URL decomposes inside the host binding and can carry a port; the text this
+              // field displays has to follow. Keyed on the host so ordinary port typing (including
+              // an invalid value mid-edit, which maps to nil) never rewrites the user's text.
+              .onChange(of: address.host) { _, _ in
+                portText = address.port.map(String.init) ?? ""
+              }
           }
         } header: {
           Text("integration_server_section_header".localized)
@@ -257,12 +263,6 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             title: "integration_connect_button".localized,
             isDisabled: address.url == nil || isLoading
           ) {
-            // A paste of a full URL into the host field carries the whole address; decompose it into
-            // the fields rather than sending a host that contains a scheme.
-            if let pasted = IntegrationServerAddress(parsing: address.hostField) {
-              address = pasted
-              portText = pasted.port.map(String.init) ?? ""
-            }
             hideKeyboard()
             viewModel.form.serverUrl = address.urlString ?? ""
             onConnect()

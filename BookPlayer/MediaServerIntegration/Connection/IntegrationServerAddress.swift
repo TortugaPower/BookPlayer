@@ -113,18 +113,51 @@ struct IntegrationServerAddress: Equatable, Sendable {
   // MARK: - The combined host field
 
   /// The host and subpath as one editable string — the design's screen 1 has a single Host row and the
-  /// subpath rides in it (`media.example.com/audiobookshelf`). The setter splits at the first slash;
-  /// IPv6 brackets are safe because they cannot contain one.
+  /// subpath rides in it (`media.example.com/audiobookshelf`).
+  ///
+  /// This setter is where a paste arrives, so it is where decomposition must happen. Deferring it to
+  /// Connect cannot work: splitting a pasted `http://…` at its first slash makes `http:` the host,
+  /// and once that's stored the original URL is unrecoverable — the field showed
+  /// `[http:]//100.81.227.12:13378` and assembled garbage.
   var hostField: String {
     get { host + path }
     set {
-      if let slash = newValue.firstIndex(of: "/") {
-        host = Self.normalizedHost(String(newValue[..<slash]))
-        path = Self.normalizedPath(String(newValue[slash...]))
-      } else {
-        host = Self.normalizedHost(newValue)
-        path = ""
+      // A full URL (pasted, or typed through): distribute across ALL the fields — the scheme
+      // control flips, the port moves to its row, the host keeps only the host and subpath.
+      if newValue.contains("://") {
+        if let pasted = IntegrationServerAddress(parsing: newValue) {
+          self = pasted
+        } else {
+          // Mid-typing through the scheme, or an unparseable paste: hold the raw text so nothing
+          // is mangled or lost. `url` stays nil (a colon-bearing host never assembles), which
+          // keeps Connect disabled until the text resolves into something real.
+          host = newValue
+          path = ""
+        }
+        return
       }
+      // Scheme-less: peel the subpath off first, then a trailing port off the host part —
+      // `host:port` and `host:port/path` are both the mockups' scheme-less paste.
+      var rawHost = newValue
+      var rawPath = ""
+      if let slash = newValue.firstIndex(of: "/") {
+        rawHost = String(newValue[..<slash])
+        rawPath = String(newValue[slash...])
+      }
+      // Exactly one colon with a valid port after it can't be an IPv6 literal (those carry two or
+      // more colons); a bracketed literal announces its port with `]:`.
+      let colonParts = rawHost.split(separator: ":", omittingEmptySubsequences: false)
+      if colonParts.count == 2, let pastedPort = Int(colonParts[1]),
+         (1...65535).contains(pastedPort), !colonParts[0].isEmpty, !colonParts[0].contains("[") {
+        port = pastedPort
+        rawHost = String(colonParts[0])
+      } else if rawHost.hasPrefix("["), let bracket = rawHost.range(of: "]:"),
+                let pastedPort = Int(rawHost[bracket.upperBound...]), (1...65535).contains(pastedPort) {
+        port = pastedPort
+        rawHost = String(rawHost[..<bracket.upperBound].dropLast())
+      }
+      host = Self.normalizedHost(rawHost)
+      path = Self.normalizedPath(rawPath)
     }
   }
 

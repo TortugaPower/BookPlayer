@@ -164,6 +164,56 @@ final class IntegrationServerAddressTests: XCTestCase {
     XCTAssertEqual(viaField.path, "/jellyfin")
   }
 
+  // MARK: - Paste decomposition
+
+  /// Found on device: a URL pasted into the Host field split at the first slash of "http://",
+  /// bracketed "http:" as if it were IPv6, and showed "[http:]//…" — with the original paste
+  /// unrecoverable by the time Connect ran. Decomposition happens in the setter, where the paste
+  /// actually arrives.
+  func testPastedFullURLDistributesAcrossAllFields() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    address.hostField = "http://100.81.227.12:13378"
+
+    XCTAssertEqual(address.scheme, .http, "the scheme control must flip to match the paste")
+    XCTAssertEqual(address.host, "100.81.227.12")
+    XCTAssertEqual(address.port, 13378)
+    XCTAssertEqual(address.hostField, "100.81.227.12", "the field keeps only host + subpath")
+    XCTAssertEqual(address.urlString, "http://100.81.227.12:13378")
+  }
+
+  func testPastedSchemelessHostPortAndPathDecompose() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    address.hostField = "example.com:8096/audiobookshelf"
+
+    XCTAssertEqual(address.scheme, .https, "no scheme in the paste — the control keeps its setting")
+    XCTAssertEqual(address.host, "example.com")
+    XCTAssertEqual(address.port, 8096)
+    XCTAssertEqual(address.path, "/audiobookshelf")
+  }
+
+  func testPastedBracketedIPv6WithPortDecomposes() {
+    var address = IntegrationServerAddress(scheme: .http, host: "")
+
+    address.hostField = "[::1]:8096"
+
+    XCTAssertEqual(address.host, "[::1]")
+    XCTAssertEqual(address.port, 8096)
+    XCTAssertEqual(address.urlString, "http://[::1]:8096")
+  }
+
+  /// Mid-typing through a scheme ("http://" with nothing after it yet) must neither mangle the text
+  /// nor produce a connectable URL.
+  func testIncompleteSchemeHoldsRawTextWithoutAssembling() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    address.hostField = "http://"
+
+    XCTAssertEqual(address.hostField, "http://", "raw text preserved while incomplete")
+    XCTAssertNil(address.url, "Connect must stay disabled until the text resolves")
+  }
+
   // MARK: - The combined host field
 
   func testHostFieldSetterSplitsAtTheFirstSlash() {
