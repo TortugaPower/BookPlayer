@@ -288,31 +288,13 @@ lines). It is the highest-risk file in the app.
 
 ---
 
-## Auth · secrets · Keychain · subscriptions
-
-### Secrets / config: xcconfig → Info.plist → `Configuration`
-
-- `BuildConfiguration/*.xcconfig` define `BP_*` keys; `Info.plist` substitutes them (`$(BP_…)`);
-  `Shared/Configuration.swift` (`ConfigurationKeys`) reads them. **`Bundle.configurationValue(for:)` uses `try!`
-  — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN,
-  `BP_MOCKED_BEARER_TOKEN`.
-- **`Debug.xcconfig` and `Release.xcconfig` are gitignored and hold the working-tree real values —
-  never commit or overwrite them.** Nuance a reviewer should know: `Debug.xcconfig` is untracked and holds real
-  prod secrets; `Release.xcconfig` is *also* gitignored **but is already tracked** with placeholder values
-  (`replace.me`) — CI (`ci_scripts/ci_post_clone.sh`) rewrites it from Xcode Cloud env vars at build time. A new
-  secret must be added to **the template (`Debug.template.xcconfig`) + the CI script + `Info.plist` +
-  `ConfigurationKeys`** in lockstep, never inlined — or the `try!` crashes Release builds. Hardcoded API keys /
-  tokens / Sentry DSN / RevenueCat key are a 🔴 finding.
-- **Test-account backdoor:** `AccountService.loginTestAccount(...)` hardcodes a real Apple userId/email and sets
-  `hasSubscription = true`, reached via `BP_MOCKED_BEARER_TOKEN`. It must stay inert (empty token) in production.
-
 ### Keychain — `Shared/Services/KeychainService.swift`
 
 - `kSecClassGenericPassword`, service = the bundle identifier, accessibility
   **`kSecAttrAccessibleAfterFirstUnlock`** (so background sync/downloads work while locked). Stores JWT `.token`.
 - **Correction to older docs: the Keychain is NOT scoped via an App Group / `kSecAttrAccessGroup`** — there is no
   access group set; sharing relies on the default app access group. (The App Group
-  `group.$(BP_BUNDLE_IDENTIFIER).files` is used for `UserDefaults.sharedDefaults` and file storage, **not** the
+  `group.com.ben-robinson.iCloudBooks.files` is used for `UserDefaults.sharedDefaults` and file storage, **not** the
   Keychain.)
 - Every mutation emits `valueUpdatedPublisher.send((key, deleted:))`.
 
@@ -385,7 +367,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   build. **New service logic should come with a test** in `BookPlayerTests/` (XCTest only — no Swift Testing).
 - **App Group correctness:** data/defaults/files shared with widgets/watch/extension must use the App Group
   container / `UserDefaults.sharedDefaults`, not `.standard`. The App Group id
-  `group.$(BP_BUNDLE_IDENTIFIER).files` must stay consistent across the app, widgets, and share-extension
+  `group.com.ben-robinson.iCloudBooks.files` must stay consistent across the app, widgets, and share-extension
   entitlements — it is the sole data channel for widgets and the share extension.
 - **Combine:** long-lived subscriptions → `private var disposeBag = Set<AnyCancellable>()` + `.store(in:)`;
   single-purpose → a named `AnyCancellable?` that is `.cancel()`'d before rebind. `[weak self]` in sinks/closures

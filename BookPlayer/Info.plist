@@ -4,25 +4,11 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.cellular</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.refresh</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.database.backup</string>
+		<string>com.ben-robinson.iCloudBooks.background</string>
+		<string>com.ben-robinson.iCloudBooks.background.cellular</string>
+		<string>com.ben-robinson.iCloudBooks.background.refresh</string>
+		<string>com.ben-robinson.iCloudBooks.background.database.backup</string>
 	</array>
-	<key>BP_API_DOMAIN</key>
-	<string>$(BP_API_DOMAIN)</string>
-	<key>BP_API_PORT</key>
-	<string>$(BP_API_PORT)</string>
-	<key>BP_API_SCHEME</key>
-	<string>$(BP_API_SCHEME)</string>
-	<key>BP_BUNDLE_IDENTIFIER</key>
-	<string>$(BP_BUNDLE_IDENTIFIER)</string>
-	<key>BP_MOCKED_BEARER_TOKEN</key>
-	<string>$(BP_MOCKED_BEARER_TOKEN)</string>
-	<key>BP_REVENUECAT_KEY</key>
-	<string>$(BP_REVENUECAT_KEY)</string>
-	<key>BP_SENTRY_DSN</key>
-	<string>$(BP_SENTRY_DSN)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -424,7 +410,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Continue last book</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>$(BP_BUNDLE_IDENTIFIER).playLastBook</string>
+			<string>com.ben-robinson.iCloudBooks.playLastBook</string>
 		</dict>
 	</array>
 	<key>UIBackgroundModes</key>
