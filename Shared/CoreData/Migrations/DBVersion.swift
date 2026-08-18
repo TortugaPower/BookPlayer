@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 
 enum DBVersion: CaseIterable {
-  case v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11
+  case v1
 
   func model() -> NSManagedObjectModel {
     let modelURLs = Bundle.main
@@ -20,26 +20,6 @@ enum DBVersion: CaseIterable {
     switch self {
     case .v1:
       modelName = "Audiobook Player"
-    case .v2:
-      modelName = "Audiobook Player 2"
-    case .v3:
-      modelName = "Audiobook Player 3"
-    case .v4:
-      modelName = "Audiobook Player 4"
-    case .v5:
-      modelName = "Audiobook Player 5"
-    case .v6:
-      modelName = "Audiobook Player 6"
-    case .v7:
-      modelName = "Audiobook Player 7"
-    case .v8:
-      modelName = "Audiobook Player 8"
-    case .v9:
-      modelName = "Audiobook Player 9"
-    case .v10:
-      modelName = "Audiobook Player 10"
-    case .v11:
-      modelName = "Audiobook Player 11"
     }
 
     let model = modelURLs
@@ -50,24 +30,8 @@ enum DBVersion: CaseIterable {
   }
 
   func mappingModelName() -> String? {
-    switch self {
-    case .v2:
-      return "MappingModel_v1_to_v2"
-    case .v3:
-      return "MappingModel_v2_to_v3"
-    case .v4:
-      return "MappingModel_v3_to_v4"
-    case .v8:
-      return "MappingModel_v7_to_v8"
-    case .v9:
-      return "MappingModel_v8_to_v9"
-    case .v10:
-      return "MappingModel_v9_to_v10"
-    case .v11:
-      return "MappingModel_v10_to_v11"
-    default:
-      return nil
-    }
+    // No migrations needed for v1 (fresh start)
+    return nil
   }
 }
 
