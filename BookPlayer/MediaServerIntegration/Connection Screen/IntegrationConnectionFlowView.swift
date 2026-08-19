@@ -160,6 +160,12 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   /// The port as typed. Kept as text so emptying the field is representable; parsed on change.
   @State private var portText: String
 
+  /// The host field's display text, mirrored from `address.hostField` rather than bound to it
+  /// directly. A focused `TextField` shows its live edit buffer and won't re-read a computed
+  /// binding whose setter changed the value — so a decomposed paste kept displaying the full URL
+  /// until focus left. A plain `@State` is something the field does refresh from immediately.
+  @State private var hostText: String
+
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
@@ -179,6 +185,7 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
       ?? IntegrationServerAddress(scheme: .https, host: "")
     self._address = State(initialValue: parsed)
     self._portText = State(initialValue: parsed.port.map(String.init) ?? "")
+    self._hostText = State(initialValue: parsed.hostField)
   }
 
   /// The usual port for this integration, shown as a placeholder example — never substituted.
@@ -216,13 +223,22 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             // compound from out here propagated "Host" into the clear button as well.
             ClearableTextField(
               hostPlaceholder,
-              text: $address.hostField,
+              text: $hostText,
               accessibilityLabel: "integration_address_host_label".localized
             )
             .multilineTextAlignment(.trailing)
             .keyboardType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+            .onChange(of: hostText) { _, newValue in
+              address.hostField = newValue
+              // The setter normalizes — a pasted URL decomposes, IPv6 gains brackets. Reflect that
+              // in the visible text at once instead of on focus loss. Settles in one extra pass:
+              // re-setting an already-normalized value changes nothing.
+              if address.hostField != newValue {
+                hostText = address.hostField
+              }
+            }
           }
 
           HStack {
