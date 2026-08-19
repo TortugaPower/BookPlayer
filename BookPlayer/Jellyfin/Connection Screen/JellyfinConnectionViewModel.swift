@@ -35,6 +35,13 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   /// `AudiobookShelfConnectionViewModel` derives its `alternativeSignIn` from `/status`.
   @Published private(set) var alternativeSignIn: AlternativeSignInState?
 
+  @Published var flowPath: [ConnectionFlowStep] = []
+
+  /// The connection a re-authentication started from, so a sign-in that lands on the same account at
+  /// an edited URL updates that row instead of orphaning it. Left in place after success on purpose:
+  /// the row it named was just replaced, so a stale value matches nothing.
+  private var reauthConnectionID: String?
+
   /// Active Quick Connect controller, retained so its polling task isn't deallocated and so
   /// cancel/cleanup can call `stop()`. Nil when no flow is in progress.
   private var activeQuickConnect: JellyfinAPI.QuickConnect?
@@ -120,6 +127,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     // Set before `signInFlow` so the credentials step renders with the right affordances on first pass.
     alternativeSignIn = pending.quickConnectEnabled ? .quickConnect : nil
     signInFlow = .enteringCredentials
+    flowPath = [stepAfterConnect]
     form.serverName = pending.serverName
   }
 
@@ -134,7 +142,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         username: form.username,
         password: form.password,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
 
       // Drop the transient `pending` only once the service has committed it as
@@ -156,6 +165,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         )
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
     } catch APIError.unacceptableStatusCode(let statusCode) {
       switch statusCode {
@@ -179,7 +189,11 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
       connectionService.deleteConnection()
     }
     form = IntegrationConnectionFormViewModel()
-    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
+    // Signing out never redraws a sign-in form in place — the presenting details screen dismisses,
+    // and reconnecting happens through Add Server. Redrawing left the details sheet showing the old
+    // URL form with two competing toolbars.
+    signInFlow = nil
+    flowPath = []
     if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -194,7 +208,9 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      signInFlow = .enteringServerURL
+      // Same rule as above: no in-place redraw; the presenter dismisses.
+      signInFlow = nil
+      flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -220,12 +236,14 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
   func handleAddServerAction() {
     isAddingServer = true
     signInFlow = .enteringServerURL
+    flowPath = []
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    flowPath = []
     // Drop any transient `pending` from a half-finished Connect → Sign In flow,
     // so a stale `JellyfinClient` can't get reused by a later sign-in attempt.
     pendingServer = nil
@@ -239,15 +257,6 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     }
   }
 
-  @MainActor
-  func handleCustomHeadersUpdate() {
-    let headers = form.customHeadersDictionary()
-    if let targetId = targetConnectionId {
-      connectionService.updateCustomHeaders(id: targetId, headers)
-    } else {
-      connectionService.updateCustomHeaders(headers)
-    }
-  }
 
   @MainActor
   func prepareReauth() {
@@ -256,6 +265,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     } ?? connectionService.connection
 
     if let data {
+      reauthConnectionID = data.id
       form.setValues(
         url: data.url.absoluteString,
         serverName: data.serverName,
@@ -268,6 +278,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
     pendingServer = nil
     alternativeSignIn = nil
     signInFlow = .enteringServerURL
+    flowPath = []
   }
 
   // MARK: - Quick Connect
@@ -367,7 +378,8 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         pending: pending,
         secret: secret,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
       // Only drop the transient pending handle once the service has committed it.
       pendingServer = nil
@@ -387,6 +399,7 @@ final class JellyfinConnectionViewModel: IntegrationConnectionViewModelProtocol,
         form.username = userName
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
       quickConnectStatus = nil
       teardownQuickConnect()

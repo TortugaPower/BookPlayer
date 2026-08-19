@@ -74,26 +74,20 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     // Sign-in itself must persist them.
     XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
 
-    // …and the form must still mirror them. `IntegrationCustomHeadersSectionView` commits on
-    // `onDisappear`, so a form that was silently emptied here writes that emptiness straight over the
-    // saved connection the moment the sheet closes.
+    // …and the form must still mirror them. The editable details section that once committed form
+    // state over the saved connection is gone, but the form staying truthful still matters: the
+    // re-auth flow prefills from it.
     XCTAssertEqual(
       viewModel.form.customHeadersDictionary(),
       ["CF-Access-Client-Id": "abc123"],
-      "form headers were cleared after sign-in; the next commit would wipe them from the Keychain"
-    )
-
-    // Simulate exactly that commit.
-    viewModel.handleCustomHeadersUpdate()
-
-    XCTAssertEqual(
-      try persistedHeaders(),
-      ["CF-Access-Client-Id": "abc123"],
-      "a commit after sign-in wiped the persisted custom headers"
+      "form headers were cleared after sign-in"
     )
   }
 
-  func testCustomHeadersSurviveAConnectionDetailsRoundTrip() async throws {
+  /// The commit-on-close that once made this dangerous is gone — connection details is read-only —
+  /// but the form still prefills from the saved connection, and re-auth depends on those headers
+  /// arriving intact: a Cloudflare-Access server can't even be pinged without them.
+  func testDetailsFormPrefillsTheSavedHeaders() throws {
     // Seed a saved connection that already has headers, as a relaunch would.
     try keychain.set(
       [
@@ -111,15 +105,14 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     )
     service.setup()
 
-    // Opening connection details and closing it again commits the form state.
     let viewModel = AudiobookShelfConnectionViewModel(connectionService: service)
-    viewModel.handleCustomHeadersUpdate()
 
     XCTAssertEqual(
-      try persistedHeaders(),
+      viewModel.form.customHeadersDictionary(),
       ["CF-Access-Client-Id": "abc123"],
-      "merely opening and closing connection details erased the saved headers"
+      "the details form must mirror the saved headers — re-auth prefills from it"
     )
+    XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
   }
 
   // MARK: - Re-authentication
@@ -197,15 +190,160 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     http.pingPayload = Data(#"{"success":true}"#.utf8)
     try await viewModel.handleConnectAction()
 
-    XCTAssertEqual(
+    XCTAssertNil(
       viewModel.alternativeSignIn,
-      .oidcRequiresSecureTransport,
-      "the UI should explain the absence rather than silently hiding SSO"
+      "SSO over plaintext is simply not offered — the scheme control makes http visible and actionable"
     )
-    XCTAssertFalse(
-      viewModel.alternativeSignIn?.isActionable ?? true,
-      "an explanation is not an offer — username autofocus must behave as if no alternative exists"
+  }
+
+  // MARK: - Re-auth against a moved server
+
+  /// The sharp edge of keying connections on url+user: re-authenticating a server that moved host
+  /// signs into an account no row matches, and without carrying the original connection's id the old
+  /// row would survive as an expired orphan next to the new one.
+  func testReauthWithAnEditedURLUpdatesTheRowInsteadOfForking() async throws {
+    try keychain.set(
+      [
+        AudiobookShelfConnectionData(
+          id: "a",
+          url: URL(string: serverURL)!,
+          serverName: "Home",
+          userID: "u1",
+          userName: "gianni",
+          apiToken: "stale",
+          customHeaders: [:]
+        )
+      ],
+      key: .audiobookshelfConnection
     )
+    service.setup()
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service)
+
+    viewModel.prepareReauth()
+    // The server moved: the user edits the address before reconnecting.
+    viewModel.form.serverUrl = "https://moved.example.com"
+    http.statusPayload = Data(#"{"authMethods":["local"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+    try await viewModel.handleConnectAction()
+
+    viewModel.form.username = "gianni"
+    viewModel.form.password = "pw"
+    try await viewModel.handleSignInAction()
+
+    XCTAssertEqual(service.connections.count, 1, "the moved server must update its row, not fork")
+    XCTAssertEqual(service.connections.first?.url.absoluteString, "https://moved.example.com")
+    XCTAssertEqual(service.connections.first?.id, "a", "outbound references survive the move")
+  }
+
+  // MARK: - Sign-out
+
+  /// Found on device: signing out the last server from a details sheet redrew the sheet into the old
+  /// URL form, with the presenter's Done and the form's Connect fighting in one toolbar. Sign-out is
+  /// deletion — the presenting screen dismisses, and nothing here may re-enter a sign-in flow.
+  func testSignOutNeverRedrawsASignInFormInPlace() throws {
+    try keychain.set(
+      [
+        AudiobookShelfConnectionData(
+          id: "a",
+          url: URL(string: serverURL)!,
+          serverName: "Home",
+          userID: "u1",
+          userName: "gianni",
+          apiToken: "t",
+          customHeaders: [:]
+        )
+      ],
+      key: .audiobookshelfConnection
+    )
+    service.setup()
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .viewDetails)
+
+    viewModel.handleSignOutAction()
+
+    XCTAssertTrue(service.connections.isEmpty)
+    XCTAssertNil(viewModel.signInFlow, "no in-place redraw — the presenter dismisses instead")
+    XCTAssertTrue(viewModel.flowPath.isEmpty)
+  }
+
+  // MARK: - The step after Connect
+
+  /// The routing decision the redesigned flow hangs on: which screen Connect lands you on, per what
+  /// the server offers. Wrong routing is invisible in review — a server config you don't have renders
+  /// a screen you never see — so the whole matrix is pinned.
+  func testConnectRoutesToTheRightStep() async throws {
+    struct Row {
+      let authMethods: String
+      let scheme: String
+      let expected: [ConnectionFlowStep]
+      let passwordOffered: Bool
+    }
+    let matrix: [Row] = [
+      // Both methods → the chooser, password still offered there.
+      Row(authMethods: #"["local","openid"]"#, scheme: "https", expected: [.method], passwordOffered: true),
+      // SSO-only → still the chooser (one primary button beats auto-launching a browser),
+      // and the password button must NOT exist — the form cannot work.
+      Row(authMethods: #"["openid"]"#, scheme: "https", expected: [.method], passwordOffered: false),
+      // Password-only → skip the chooser entirely.
+      Row(authMethods: #"["local"]"#, scheme: "https", expected: [.password], passwordOffered: true),
+      // SSO advertised but refused over plaintext → not offered, so password is the only path.
+      Row(authMethods: #"["local","openid"]"#, scheme: "http", expected: [.password], passwordOffered: true),
+      // Probe answered nothing usable → fail safe toward the password form.
+      Row(authMethods: "[]", scheme: "https", expected: [.password], passwordOffered: true),
+    ]
+
+    for row in matrix {
+      let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+      viewModel.form.serverUrl = "\(row.scheme)://abs.example.com"
+      http.statusPayload = Data(#"{"authMethods":"#.appending(row.authMethods).appending("}").utf8)
+      http.pingPayload = Data(#"{"success":true}"#.utf8)
+
+      try await viewModel.handleConnectAction()
+
+      XCTAssertEqual(viewModel.flowPath, row.expected, "authMethods \(row.authMethods) over \(row.scheme)")
+      XCTAssertEqual(
+        viewModel.supportsPasswordSignIn,
+        row.passwordOffered,
+        "authMethods \(row.authMethods) over \(row.scheme)"
+      )
+    }
+  }
+
+  /// The dead-end config: SSO-only server over plaintext. We refuse SSO on http and the password
+  /// form cannot authenticate, so Connect must fail with the reason — landing the user back on the
+  /// address screen with its scheme control — rather than route to a form that cannot work.
+  func testConnectFailsWhenNoSignInMethodCanWork() async {
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+    viewModel.form.serverUrl = "http://abs.example.com"
+    http.statusPayload = Data(#"{"authMethods":["openid"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+
+    do {
+      try await viewModel.handleConnectAction()
+      XCTFail("expected insecureTransport")
+    } catch let error as IntegrationError {
+      guard case .insecureTransport = error else {
+        return XCTFail("expected insecureTransport, got \(error)")
+      }
+    } catch {
+      XCTFail("expected IntegrationError, got \(error)")
+    }
+    XCTAssertTrue(viewModel.flowPath.isEmpty, "a failed Connect must not push any screen")
+    if case .enteringCredentials = viewModel.signInFlow {
+      XCTFail("a failed Connect must not advance the sign-in flow")
+    }
+  }
+
+  func testReauthAndCancelClearTheFlowPath() async throws {
+    let viewModel = AudiobookShelfConnectionViewModel(connectionService: service, mode: .addServer)
+    viewModel.form.serverUrl = serverURL
+    http.statusPayload = Data(#"{"authMethods":["local"]}"#.utf8)
+    http.pingPayload = Data(#"{"success":true}"#.utf8)
+    try await viewModel.handleConnectAction()
+    XCTAssertEqual(viewModel.flowPath, [.password])
+
+    viewModel.handleCancelAddServerAction()
+
+    XCTAssertTrue(viewModel.flowPath.isEmpty, "an abandoned flow must not leave pushed screens behind")
   }
 
   // MARK: - Capability probe

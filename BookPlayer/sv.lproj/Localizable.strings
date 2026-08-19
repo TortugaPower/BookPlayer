@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Headernamn";
 "integration_custom_headers_value_placeholder" = "Headervärde";
 "integration_custom_headers_add_button" = "Lägg till header";
+"integration_address_scheme_label" = "Anslutningstyp";
+"integration_address_host_label" = "Värd";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Användarnamn och lösenord";
+"integration_headers_detail_footer" = "Dessa headrar bifogas varje förfrågan som skickas till denna server. De kan redigeras från skärmen för serveradressen.";
 "settings_integration_manage_connection_title" = "Hantera anslutning";
 "integration_internal_error_invalid_url" = "Internt fel: URL för begäran är ogiltig: %@";
 "integration_internal_error_build_url" = "Internt fel: Det gick inte att skapa webbadress för begäran";

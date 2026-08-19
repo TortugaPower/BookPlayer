@@ -149,7 +149,8 @@ class JellyfinConnectionService: BPLogger {
     username: String,
     password: String,
     serverName: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
   ) async throws {
     let result = try await pending.client.signIn(username: username, password: password)
     // Bail out before persisting if the caller cancelled while the auth round-trip was
@@ -169,7 +170,7 @@ class JellyfinConnectionService: BPLogger {
     // off (same library context, same outbound references) rather than on a fresh record they have
     // to re-configure.
     let serverURL = pending.client.configuration.url
-    store.upsert(url: serverURL, userID: userID) { existing in
+    store.upsert(url: serverURL, userID: userID, replacingID: replacingID) { existing in
       JellyfinConnectionData(
         id: existing?.id ?? UUID().uuidString,
         url: serverURL,
@@ -214,7 +215,8 @@ class JellyfinConnectionService: BPLogger {
     pending: PendingServer,
     secret: String,
     serverName: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
   ) async throws -> String {
     let result = try await pending.client.signIn(quickConnectSecret: secret)
     // Bail out before persisting if the caller cancelled while the exchange was in flight.
@@ -232,7 +234,7 @@ class JellyfinConnectionService: BPLogger {
     // and carries the existing connection's id and selectedLibraryId forward on a re-auth, so the
     // user lands back in the same library context with the same outbound references.
     let serverURL = pending.client.configuration.url
-    store.upsert(url: serverURL, userID: userID) { existing in
+    store.upsert(url: serverURL, userID: userID, replacingID: replacingID) { existing in
       JellyfinConnectionData(
         id: existing?.id ?? UUID().uuidString,
         url: serverURL,

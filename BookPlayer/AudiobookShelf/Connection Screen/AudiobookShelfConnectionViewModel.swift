@@ -26,11 +26,22 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   /// cannot possibly work.
   @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
 
+  @Published var flowPath: [ConnectionFlowStep] = []
+
+  /// The connection a re-authentication started from, so a sign-in that lands on the same account at
+  /// an edited URL updates that row instead of orphaning it. Left in place after success on purpose:
+  /// the row it named was just replaced, so a stale value matches nothing.
+  private var reauthConnectionID: String?
+
+  var supportsPasswordSignIn: Bool { capabilities.supportsLocal }
+
+  /// SSO over plaintext is simply not offered — no explanatory state. The refusal reason (the
+  /// authorization code, PKCE verifier, and returned token all traverse the redirect chain,
+  /// RFC 6749 §10.9) lives in `isPingedURLSecure`'s doc; the scheme control on the address screen
+  /// makes the `http` choice visible enough to act on.
   var alternativeSignIn: AlternativeSignInState? {
-    guard capabilities.supportsOIDC else { return nil }
-    return isPingedURLSecure
-      ? .oidc(buttonText: capabilities.oidcButtonText)
-      : .oidcRequiresSecureTransport
+    guard capabilities.supportsOIDC, isPingedURLSecure else { return nil }
+    return .oidc(buttonText: capabilities.oidcButtonText)
   }
 
   /// SSO is refused over plaintext: the authorization code, the PKCE verifier and the returned token
@@ -122,7 +133,15 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       at: normalizedURL,
       customHeaders: form.customHeadersDictionary()
     )
+    // A server that only offers SSO, reached over plaintext, has no usable sign-in method at all:
+    // we refuse SSO over http, and the password form cannot authenticate. Routing anywhere would be
+    // a silent dead-end — fail Connect instead, with the reason, while the user is still on the
+    // address screen where the https toggle that fixes it lives.
+    if !capabilities.supportsLocal, alternativeSignIn == nil, capabilities.supportsOIDC {
+      throw IntegrationError.insecureTransport
+    }
     signInFlow = .enteringCredentials
+    flowPath = [stepAfterConnect]
     form.serverName = serverName
   }
 
@@ -141,7 +160,8 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         password: password,
         serverUrl: serverUrl,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
 
       // Drop the captured URL only once the connection is persisted. Clearing it on every
@@ -163,6 +183,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         )
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
     } catch let error as IntegrationError {
       throw error
@@ -178,6 +199,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     } ?? connectionService.connection
 
     if let data {
+      reauthConnectionID = data.id
       form.setValues(
         url: data.url.absoluteString,
         serverName: data.serverName,
@@ -189,6 +211,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     pingedURL = nil
     capabilities = .init()
     signInFlow = .enteringServerURL
+    flowPath = []
   }
 
   /// Normalize the user-typed server URL before we send a request:
@@ -216,7 +239,10 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       connectionService.deleteConnection()
     }
     form = IntegrationConnectionFormViewModel()
-    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
+    // Signing out never redraws a sign-in form in place — the presenting details screen dismisses,
+    // and reconnecting happens through Add Server.
+    signInFlow = nil
+    flowPath = []
     if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -231,7 +257,9 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      signInFlow = .enteringServerURL
+      // Same rule as above: no in-place redraw; the presenter dismisses.
+      signInFlow = nil
+      flowPath = []
     } else if let data = connectionService.connection {
       form.setValues(
         url: data.url.absoluteString,
@@ -257,12 +285,14 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   func handleAddServerAction() {
     isAddingServer = true
     signInFlow = .enteringServerURL
+    flowPath = []
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    flowPath = []
     // Drop any URL captured from a half-finished Connect → Sign In flow so a stale
     // value can't get reused by a later sign-in attempt.
     pingedURL = nil
@@ -277,15 +307,6 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     }
   }
 
-  @MainActor
-  func handleCustomHeadersUpdate() {
-    let headers = form.customHeadersDictionary()
-    if let targetId = targetConnectionId {
-      connectionService.updateCustomHeaders(id: targetId, headers)
-    } else {
-      connectionService.updateCustomHeaders(headers)
-    }
-  }
 
   // MARK: - SSO (OpenID Connect)
 
@@ -301,7 +322,8 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     try await connectionService.signInWithOIDC(
       serverUrl: serverUrl,
       serverName: form.serverName,
-      customHeaders: form.customHeadersDictionary()
+      customHeaders: form.customHeadersDictionary(),
+      replacingID: reauthConnectionID
     )
     // Only drop the validated URL once sign-in succeeded.
     pingedURL = nil
@@ -316,6 +338,7 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       )
     }
     signInFlow = nil
+    flowPath = []
     signInCompletedAt = Date()
   }
 }

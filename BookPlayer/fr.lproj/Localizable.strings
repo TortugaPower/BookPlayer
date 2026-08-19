@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Nom de l'en-tête";
 "integration_custom_headers_value_placeholder" = "Valeur de l'en-tête";
 "integration_custom_headers_add_button" = "Ajouter un en-tête";
+"integration_address_scheme_label" = "Type de connexion";
+"integration_address_host_label" = "Hôte";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Serveur";
+"integration_password_signin_button" = "Nom d'utilisateur et mot de passe";
+"integration_headers_detail_footer" = "Ces en-têtes sont joints à chaque requête envoyée à ce serveur. Ils peuvent être modifiés depuis l'écran d'adresse du serveur.";
 "settings_integration_manage_connection_title" = "Gérer la connexion";
 "integration_internal_error_invalid_url" = "Erreur interne : l'URL de la demande n'est pas valide : %@";
 "integration_internal_error_build_url" = "Erreur interne : échec de la création de l'URL de la demande";

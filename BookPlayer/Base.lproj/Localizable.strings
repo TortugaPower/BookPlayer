@@ -379,6 +379,12 @@ We're working hard on providing a seamless experience, if possible, please conta
 "integration_custom_headers_key_placeholder" = "Header name";
 "integration_custom_headers_value_placeholder" = "Header value";
 "integration_custom_headers_add_button" = "Add Header";
+"integration_address_scheme_label" = "Connection type";
+"integration_address_host_label" = "Host";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Username & Password";
+"integration_headers_detail_footer" = "These headers are attached to every request sent to this server. They can be edited from the server address screen.";
 "settings_integration_manage_connection_title" = "Manage Connection";
 "integration_internal_error_invalid_url" = "Internal error: Request URL is invalid: %@";
 "integration_internal_error_build_url" = "Internal error: Failed to build request URL";

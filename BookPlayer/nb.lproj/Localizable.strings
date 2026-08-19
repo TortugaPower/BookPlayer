@@ -377,6 +377,12 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "integration_custom_headers_key_placeholder" = "Header-navn";
 "integration_custom_headers_value_placeholder" = "Header-verdi";
 "integration_custom_headers_add_button" = "Legg til header";
+"integration_address_scheme_label" = "Tilkoblingstype";
+"integration_address_host_label" = "Vert";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Brukernavn og passord";
+"integration_headers_detail_footer" = "Disse headerne vedlegges hver forespørsel som sendes til denne serveren. De kan redigeres fra skjermen for serveradressen.";
 "settings_integration_manage_connection_title" = "Administrer tilkobling";
 "integration_internal_error_invalid_url" = "Intern feil: Forespørsels-URL er ugyldig: %@";
 "integration_internal_error_build_url" = "Intern feil: Kunne ikke lage forespørsels-URL";

@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Header-navn";
 "integration_custom_headers_value_placeholder" = "Header-værdi";
 "integration_custom_headers_add_button" = "Tilføj header";
+"integration_address_scheme_label" = "Forbindelsestype";
+"integration_address_host_label" = "Vært";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Brugernavn og adgangskode";
+"integration_headers_detail_footer" = "Disse headers vedhæftes til hver anmodning, der sendes til denne server. De kan redigeres fra skærmen med serveradressen.";
 "settings_integration_manage_connection_title" = "Administrer forbindelse";
 "integration_internal_error_invalid_url" = "Intern fejl: Anmodnings-URL er ugyldig: %@";
 "integration_internal_error_build_url" = "Intern fejl: Forespørgsels-URL kunne ikke oprettes";

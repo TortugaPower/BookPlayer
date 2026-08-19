@@ -377,6 +377,12 @@
 "integration_custom_headers_key_placeholder" = "Název hlavičky";
 "integration_custom_headers_value_placeholder" = "Hodnota hlavičky";
 "integration_custom_headers_add_button" = "Přidat hlavičku";
+"integration_address_scheme_label" = "Typ připojení";
+"integration_address_host_label" = "Hostitel";
+"integration_address_port_label" = "Port";
+"integration_server_section_header" = "Server";
+"integration_password_signin_button" = "Uživatelské jméno a heslo";
+"integration_headers_detail_footer" = "Tyto hlavičky se připojí ke každému požadavku odeslanému na tento server. Lze je upravit na obrazovce s adresou serveru.";
 "settings_integration_manage_connection_title" = "Správa připojení";
 "integration_internal_error_invalid_url" = "Interní chyba: Adresa URL požadavku je neplatná: %@";
 "integration_internal_error_build_url" = "Interní chyba: Nepodařilo se vytvořit adresu URL požadavku";

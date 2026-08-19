@@ -132,24 +132,10 @@ struct JellyfinRootView: View {
       message: { Text(loadError?.localizedDescription ?? "") }
     )
     .sheet(isPresented: $showConnectionForm) {
-      NavigationStack {
-        IntegrationConnectionView(viewModel: connectionViewModel, integrationName: "Jellyfin")
-          .toolbar {
-            // Outer X only when we're NOT in Add Server mode — IntegrationConnectionView's
-            // own Cancel button handles that case (and just dismisses the form sheet).
-            if !connectionViewModel.isAddingServer {
-              ToolbarItemGroup(placement: .cancellationAction) {
-                Button { dismiss() } label: {
-                  Image(systemName: "xmark")
-                    .foregroundStyle(theme.linkColor)
-                }
-              }
-            }
-          }
-          .navigationBarTitleDisplayMode(.inline)
-      }
-      .tint(theme.linkColor)
-      .environmentObject(theme)
+      // The flow owns its NavigationStack and its own cancel affordances (Cancel for Add Server,
+      // an X otherwise) — no outer wrapping.
+      IntegrationConnectionFlowView(viewModel: connectionViewModel, kind: .jellyfin, integrationName: "Jellyfin")
+        .environmentObject(theme)
     }
     .sheet(isPresented: $showLibraryPicker) {
       libraryPickerSheet
@@ -159,6 +145,12 @@ struct JellyfinRootView: View {
       if let libraries, libraries.count > 1, resolvedLibrary == nil {
         showLibraryPicker = true
       }
+    }
+    .onChange(of: connectionService.connection?.id) { _, newValue in
+      // The active connection was deleted out from under this library — signing out from the
+      // details screen inside it, or from Media Servers. A library for a connection that no longer
+      // exists has nothing left to show; follow the deletion out instead of stranding a dead screen.
+      if newValue == nil { dismiss() }
     }
     .onChange(of: connectionViewModel.signInCompletedAt) { _, newValue in
       guard newValue != nil else { return }
@@ -201,9 +193,16 @@ struct JellyfinRootView: View {
             }
           }
         }
+        // The card fill every ThemedSection row gets; a bare List row renders the system fill,
+        // which is the one unthemed surface on this screen.
+        .listRowBackground(theme.tertiarySystemBackgroundColor)
       }
-      .scrollContentBackground(.hidden)
-      .background(theme.systemBackgroundColor)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+      // Until a library is chosen there is nothing behind this sheet to land on — swiping it away
+      // would strand the user on an empty integration library. Cancel remains the way out, and it
+      // correctly backs out of the whole server. Once a library exists (reopening the picker to
+      // switch), swipe-to-dismiss behaves normally.
+      .interactiveDismissDisabled(resolvedLibrary == nil)
       .navigationTitle("library_title".localized)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

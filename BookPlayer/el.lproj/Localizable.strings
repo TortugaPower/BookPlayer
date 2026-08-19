@@ -378,6 +378,12 @@
 "integration_custom_headers_key_placeholder" = "Όνομα κεφαλίδας";
 "integration_custom_headers_value_placeholder" = "Τιμή κεφαλίδας";
 "integration_custom_headers_add_button" = "Προσθήκη κεφαλίδας";
+"integration_address_scheme_label" = "Τύπος σύνδεσης";
+"integration_address_host_label" = "Κεντρικός υπολογιστής";
+"integration_address_port_label" = "Θύρα";
+"integration_server_section_header" = "Υπηρέτης";
+"integration_password_signin_button" = "Όνομα χρήστη και σύνθημα";
+"integration_headers_detail_footer" = "Αυτές οι κεφαλίδες επισυνάπτονται σε κάθε αίτημα που αποστέλλεται σε αυτόν τον διακομιστή. Μπορούν να τροποποιηθούν από την οθόνη διεύθυνσης του διακομιστή.";
 "settings_integration_manage_connection_title" = "Διαχείριση σύνδεσης";
 "integration_internal_error_invalid_url" = "Εσωτερικό σφάλμα: Η διεύθυνση URL αιτήματος δεν είναι έγκυρη: %@";
 "integration_internal_error_build_url" = "Εσωτερικό σφάλμα: Απέτυχε η δημιουργία διεύθυνσης URL αιτήματος";

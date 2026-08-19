@@ -57,6 +57,51 @@ final class IntegrationConnectionStoreTests: XCTestCase {
     )
   }
 
+  // MARK: - Re-auth against a moved server
+
+  /// The store half of the moved-server contract, pinned here because the Jellyfin service has no
+  /// injectable network seam to drive it end-to-end the way the AudiobookShelf VM tests do.
+  func testUpsertReplacingIDUpdatesTheRowWhenTheURLChanged() {
+    sut.upsert(url: URL(string: "https://old.example.com")!, userID: "user-1") { _ in
+      self.makeConnection(id: "a", url: "https://old.example.com", selectedLibraryId: "lib-9")
+    }
+
+    let result = sut.upsert(
+      url: URL(string: "https://moved.example.com")!,
+      userID: "user-1",
+      replacingID: "a"
+    ) { existing in
+      self.makeConnection(
+        id: existing?.id ?? UUID().uuidString,
+        url: "https://moved.example.com",
+        selectedLibraryId: existing?.selectedLibraryId
+      )
+    }
+
+    XCTAssertEqual(result.replaced?.id, "a", "the account match finds nothing; replacingID must")
+    XCTAssertEqual(sut.connections.count, 1, "the old-URL row must not survive as an orphan")
+    XCTAssertEqual(sut.connections.first?.id, "a", "outbound references survive the move")
+    XCTAssertEqual(sut.connections.first?.selectedLibraryId, "lib-9", "library selection survives")
+  }
+
+  /// A different account is genuinely a new connection, not a moved server — the old row stays.
+  func testUpsertReplacingIDRefusesADifferentAccount() {
+    sut.upsert(url: URL(string: "https://old.example.com")!, userID: "user-1") { _ in
+      self.makeConnection(id: "a", url: "https://old.example.com")
+    }
+
+    sut.upsert(
+      url: URL(string: "https://moved.example.com")!,
+      userID: "someone-else",
+      replacingID: "a"
+    ) { existing in
+      XCTAssertNil(existing, "a different userID must not inherit the old row's identity")
+      return self.makeConnection(id: "b", url: "https://moved.example.com", userID: "someone-else")
+    }
+
+    XCTAssertEqual(sut.connections.count, 2, "signing into a different account forks, by design")
+  }
+
   // MARK: - Loading
 
   func testReloadLoadsStoredConnectionsAndActivatesTheFirst() throws {
