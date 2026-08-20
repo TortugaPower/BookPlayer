@@ -388,12 +388,21 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).
   An automatic sticky sort is applied at fetch time — `resolveSortDescriptors` in `LibraryService` maps the
   location's effective sort to `SortType.sortDescriptors` (`localizedStandardCompare:` + `orderRank` tie-break);
-  sync may overwrite ranks freely and the rendered order is unaffected unless the location is Custom. Rank
-  updates always sync (no auto-sort suppression exists anymore). **Two mutation invariants:** (1) the rank
-  mutations (`reorderItems`/`reverseContents`/`adoptCurrentOrderAsCustom`) must resolve the effective (visible)
-  descriptors **before** flipping the pref to `.custom` — flipping first would act on rank order instead of what
-  the user sees; (2) the `.custom` pref write still precedes the rank rebuild so the next fetch doesn't re-sort
-  the user's arrangement away. Playback prev/next walks `fetchContents` order (visible order), not rank cursors.
+  sync may overwrite ranks freely — the rendered order only follows ranks where the effective sort resolves to
+  rank order: Custom, `.unresolved`/bound locations, and any target with no `preferencesService` wired.
+  **watchOS is such a target** (only the iOS app assigns `preferencesService`), so the watch renders rank order
+  for a folder the phone renders rule-sorted — a known, deliberate platform fork (same as Android Wear). Rank
+  updates always sync (no auto-sort suppression exists anymore). **Both mutation invariants live in
+  `freezeVisibleOrder(at:transform:)`** — the single core of `reorderItems`/`reverseContents`/
+  `adoptCurrentOrderAsCustom`: (1) capture-before-flip — the effective (visible) descriptors are resolved
+  **before** the pref flips to `.custom`, else the mutation acts on rank order instead of what the user sees;
+  (2) the `.custom` pref write precedes the rank rebuild so the next fetch doesn't re-sort the user's
+  arrangement away. Route any new user-arrangement rank mutation through that helper (the one-shot
+  materialization for `.unresolved` locations in `sortContents` is the deliberate exception — it has no pref
+  key to flip). Playback prev/next walks
+  `getOrderedSiblings` (visible order, lightweight entries), not rank cursors. On logout,
+  `PreferencesSyncService` freezes automatically-sorted locations into ranks before wiping `library_sort:*`,
+  so sign-out doesn't visibly re-scramble the library.
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't

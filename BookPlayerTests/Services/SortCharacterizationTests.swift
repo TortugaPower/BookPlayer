@@ -68,7 +68,7 @@ final class SortCharacterizationTests: XCTestCase {
     XCTAssertEqual(preferences.effectiveSort(forLocation: .libraryRoot), .custom)
   }
 
-  // MARK: - Import (today: Hook 2 re-sorts; after: the query sorts)
+  // MARK: - Import (rendered position under an automatic sort, however derived)
 
   func testImportUnderTitleSortRendersSorted() async {
     preferences.setSort(.automatic(.metadataTitle), forLocation: .libraryRoot)
@@ -155,7 +155,7 @@ final class SortCharacterizationTests: XCTestCase {
     XCTAssertEqual(harness.renderedOrder(at: "dest"), ["dest/b.txt"])
   }
 
-  // MARK: - Sync pull (today: Hook 4 re-sorts inserts; after: the query sorts)
+  // MARK: - Sync pull (inserts land in sorted position, however derived)
 
   func testSyncInsertUnderTitleSortRendersSorted() async throws {
     harness.seedBook(relativePath: "bbb.txt", rank: 0)

@@ -418,6 +418,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return findFirstItemInIsUnfinishedReturnValue
         }
     }
+    //MARK: - getOrderedSiblings
+
+    var getOrderedSiblingsInCallsCount = 0
+    var getOrderedSiblingsInCalled: Bool {
+        return getOrderedSiblingsInCallsCount > 0
+    }
+    var getOrderedSiblingsInReceivedParentFolder: String?
+    var getOrderedSiblingsInReceivedInvocations: [String?] = []
+    var getOrderedSiblingsInReturnValue: [SimpleNavigationItem]?
+    var getOrderedSiblingsInClosure: ((String?) -> [SimpleNavigationItem]?)?
+    func getOrderedSiblings(in parentFolder: String?) -> [SimpleNavigationItem]? {
+        getOrderedSiblingsInCallsCount += 1
+        getOrderedSiblingsInReceivedParentFolder = parentFolder
+        getOrderedSiblingsInReceivedInvocations.append(parentFolder)
+        if let getOrderedSiblingsInClosure = getOrderedSiblingsInClosure {
+            return getOrderedSiblingsInClosure(parentFolder)
+        } else {
+            return getOrderedSiblingsInReturnValue
+        }
+    }
     //MARK: - getChapters
 
     var getChaptersFromCallsCount = 0

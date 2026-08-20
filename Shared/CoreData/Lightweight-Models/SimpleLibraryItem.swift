@@ -162,3 +162,19 @@ extension SimpleLibraryItem {
     return title
   }
 }
+
+/// Minimal ordered view of a library item for playback navigation walks
+/// (prev/next/first-playable). Deliberately tiny: the hot path fetches one of
+/// these per sibling instead of a full `SimpleLibraryItem` row, and skips
+/// `parseFetchedItems`' folder-details side effects entirely. The chosen
+/// neighbor is then materialized via `getSimpleItem(with:)`, which carries
+/// the type/metadata the player needs.
+public struct SimpleNavigationItem {
+  public let relativePath: String
+  public let isFinished: Bool
+
+  public init(relativePath: String, isFinished: Bool) {
+    self.relativePath = relativePath
+    self.isFinished = isFinished
+  }
+}

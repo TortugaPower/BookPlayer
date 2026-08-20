@@ -139,8 +139,13 @@ final class ItemListViewModel: ObservableObject {
         offset: offset
       ) ?? []
 
-    items += fetchedItems
-    offset = items.count
+    /// Under a live sort key ("Most recent" while playing) rows can shift
+    /// between page fetches, re-returning an item already loaded — and a
+    /// duplicate id breaks SwiftUI's ForEach. Advance the offset by what was
+    /// fetched, but only append unseen items.
+    offset += fetchedItems.count
+    let loadedIds = Set(items.map(\.id))
+    items += fetchedItems.filter { !loadedIds.contains($0.id) }
 
     canLoadMore = fetchedItems.count == pageSize
     isLoading = false

@@ -13,6 +13,7 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import Combine
 import CoreData
 import XCTest
 
@@ -201,6 +202,85 @@ final class QueryTimeSortRefactorTests: XCTestCase {
       after: "cherry.txt", parentFolder: nil, autoplayed: false, restartFinished: false
     )
     XCTAssertNil(afterLast)
+  }
+
+  /// A repeat freeze must not just leave ranks unchanged — it must emit ZERO
+  /// sync updates. This is the contract the `orderRank != index` filter in
+  /// `freezeVisibleOrder` provides; without this test that clause could be
+  /// deleted as "redundant" without anything failing.
+  func testRepeatAdoptEmitsNoSyncUpdates() {
+    harness.seedBook(relativePath: "b.txt", rank: 5)
+    harness.seedBook(relativePath: "a.txt", rank: 9)
+    harness.save()
+
+    libraryService.adoptCurrentOrderAsCustom(at: nil)
+
+    var emissions: [[String: Any]] = []
+    let subscription = libraryService.immediateProgressUpdatePublisher.sink { emissions.append($0) }
+    libraryService.adoptCurrentOrderAsCustom(at: nil)
+    subscription.cancel()
+
+    XCTAssertTrue(emissions.isEmpty, "a repeat freeze must not schedule sync work")
+  }
+
+  /// The pref flip deliberately precedes the empty-contents guard (matching
+  /// `reverseContents`' pinned behavior): an empty folder still becomes Custom.
+  func testAdoptOnEmptyFolderStillFlipsPref() {
+    let folder = harness.seedFolder(relativePath: "empty", rank: 0)
+    harness.save()
+    preferences.setSort(.automatic(.metadataTitle), forLocation: .folder(
+      LibraryItemRef(relativePath: "empty", uuid: folder.uuid)
+    ))
+
+    libraryService.adoptCurrentOrderAsCustom(at: "empty")
+
+    XCTAssertEqual(
+      preferences.effectiveSort(forLocation: .folder(LibraryItemRef(relativePath: "empty", uuid: folder.uuid))),
+      .custom
+    )
+  }
+
+  // MARK: - Sign-out must not re-scramble the library
+
+  /// Logout wipes every `library_sort:*` key; the visible order must survive
+  /// via the freeze-before-wipe in `PreferencesSyncService.handleLogout`.
+  func testLogoutPreservesVisibleOrder() {
+    harness.seedBook(relativePath: "cherry.txt", rank: 0)
+    harness.seedBook(relativePath: "apple.txt", rank: 1)
+    harness.seedBook(relativePath: "banana.txt", rank: 2)
+    harness.save()
+    libraryService.sortContents(at: nil, by: .metadataTitle)
+    XCTAssertEqual(harness.renderedOrder(), ["apple.txt", "banana.txt", "cherry.txt"])
+
+    preferences.handleLogout()
+
+    XCTAssertFalse(harness.hasAnySortPreferencePersisted, "logout still wipes the pref keys")
+    XCTAssertEqual(
+      harness.renderedOrder(),
+      ["apple.txt", "banana.txt", "cherry.txt"],
+      "the order the user saw survives sign-out, frozen into ranks"
+    )
+    XCTAssertEqual(preferences.effectiveSort(forLocation: .libraryRoot), .custom)
+  }
+
+  // MARK: - Navigation edge: current item unknown
+
+  /// If the playing item was deleted/moved mid-playback, "next" must stop —
+  /// never hop out of the stale folder (symmetric with "previous").
+  func testNextReturnsNilWhenCurrentItemMissingFromSiblings() {
+    harness.seedBook(relativePath: "a.txt", rank: 0)
+    harness.seedBook(relativePath: "b.txt", rank: 1)
+    harness.save()
+    let playbackService = PlaybackService()
+    playbackService.setup(libraryService: libraryService)
+
+    let next = playbackService.getPlayableItem(
+      after: "ghost.txt", parentFolder: nil, autoplayed: false, restartFinished: false
+    )
+    XCTAssertNil(next)
+
+    let previous = playbackService.getPlayableItem(before: "ghost.txt", parentFolder: nil)
+    XCTAssertNil(previous)
   }
 
   // MARK: - watchOS fallback (no preferences service wired)
