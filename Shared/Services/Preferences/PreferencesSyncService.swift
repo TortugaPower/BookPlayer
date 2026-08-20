@@ -78,7 +78,10 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       encode: { key, defaults in
         ["sort": defaults.string(forKey: key) ?? ""]
       },
-      sideEffect: .resort
+      // No service-side work: order is derived from the pref at query time,
+      // so applying the value is the whole job. The `preferencesChanged`
+      // publish (pull loop) triggers the visible list's re-fetch.
+      sideEffect: .none
     ),
     PreferenceSchema(
       prefix: Constants.UserDefaults.libraryDisplayPrefix,
@@ -539,41 +542,13 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   /// Runs the schema's declared side effect after a remote-pulled value
   /// changes a tracked key. `@AppStorage` subscribers re-render on their
   /// own — this is for service-internal work that needs to follow the
-  /// new value (e.g. re-ranking items when sort changes).
+  /// new value. (Sort keys need none: order is derived at query time, and
+  /// the pull loop's `preferencesChanged` publish drives the list re-fetch.)
   private func dispatchSideEffect(forKey key: String) async {
     guard let schema = schema(forKey: key) else { return }
     switch schema.sideEffect {
-    case .resort:
-      await dispatchResort(forKey: key)
     case .none:
       break
-    }
-  }
-
-  private func dispatchResort(forKey key: String) async {
-    let location: SortLocation
-    if key == Constants.UserDefaults.librarySortDefault {
-      location = .libraryRoot
-    } else if key.hasPrefix(Constants.UserDefaults.librarySortPrefix) {
-      let uuid = String(key.dropFirst(Constants.UserDefaults.librarySortPrefix.count))
-      guard Constants.isRealUuid(uuid) else { return }
-      // Look up the relativePath for this folder uuid (best-effort; if folder
-      // hasn't synced down yet, we just cache the pref and skip the re-sort).
-      guard let relativePath = libraryService.getRelativePath(forUuid: uuid) else { return }
-      // Route through `makeLocation` rather than constructing `.folder(...)`
-      // directly, so bound-folder + placeholder-UUID gates apply uniformly
-      // even on the server-driven path.
-      location = libraryService.makeLocation(forRelativePath: relativePath)
-    } else {
-      return
-    }
-
-    guard
-      case .automatic(let sort) = effectiveSort(forLocation: location)
-    else { return }
-
-    await MainActor.run {
-      libraryService.sortContents(in: location, by: sort)
     }
   }
 
@@ -686,9 +661,9 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 /// The `dispatchSideEffect` switch in `PreferencesSyncService` is the
 /// single place that maps cases to implementations.
 private enum PreferenceSideEffect {
-  /// Re-rank the affected library location's contents.
-  case resort
   /// No service-side action — `@AppStorage` subscribers handle it.
+  /// (The old `resort` case died with rank materialization: order is now
+  /// derived from the pref at query time.)
   case none
 }
 

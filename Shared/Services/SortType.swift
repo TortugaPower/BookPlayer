@@ -31,6 +31,37 @@ public enum SortType: String, Codable, CaseIterable {
     return properties
   }
 
+  /// Fetch-time sort descriptors for this rule — the query-time counterpart of
+  /// `sortItems(_:)`, pinned equivalent by `QueryTimeSortSpikeTests`.
+  /// `localizedStandardCompare:` is one of the selectors the SQLite store
+  /// evaluates natively, and SQLite sorts NULL last under DESC, matching
+  /// `sortItems`' `lastPlayDate ?? .distantPast`. The trailing `orderRank`
+  /// tie-breaker keeps equal keys in the latent custom order and makes
+  /// pagination deterministic (the in-memory sort was not stable).
+  var sortDescriptors: [NSSortDescriptor] {
+    let primary: NSSortDescriptor
+    switch self {
+    case .metadataTitle:
+      primary = NSSortDescriptor(
+        key: #keyPath(LibraryItem.title),
+        ascending: true,
+        selector: #selector(NSString.localizedStandardCompare(_:))
+      )
+    case .fileName:
+      primary = NSSortDescriptor(
+        key: #keyPath(LibraryItem.originalFileName),
+        ascending: true,
+        selector: #selector(NSString.localizedStandardCompare(_:))
+      )
+    case .mostRecent:
+      primary = NSSortDescriptor(key: #keyPath(LibraryItem.lastPlayDate), ascending: false)
+    }
+    return [
+      primary,
+      NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true),
+    ]
+  }
+
   func sortItems(_ items: [LibraryItem]) -> [LibraryItem] {
     switch self {
     case .fileName:

@@ -384,10 +384,17 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
-  and drag-drop reordering. **Reordering invariant ("Hook 5"):** write the sticky `.custom` sort to
-  `preferencesService` **before** rebuilding `orderRank`, so rank changes flow to cloud sync — reversing the order
-  silently drops them. UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots
-  cross back to UI.
+  and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
+  arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).
+  An automatic sticky sort is applied at fetch time — `resolveSortDescriptors` in `LibraryService` maps the
+  location's effective sort to `SortType.sortDescriptors` (`localizedStandardCompare:` + `orderRank` tie-break);
+  sync may overwrite ranks freely and the rendered order is unaffected unless the location is Custom. Rank
+  updates always sync (no auto-sort suppression exists anymore). **Two mutation invariants:** (1) the rank
+  mutations (`reorderItems`/`reverseContents`/`adoptCurrentOrderAsCustom`) must resolve the effective (visible)
+  descriptors **before** flipping the pref to `.custom` — flipping first would act on rank order instead of what
+  the user sees; (2) the `.custom` pref write still precedes the rank rebuild so the next fetch doesn't re-sort
+  the user's arrangement away. Playback prev/next walks `fetchContents` order (visible order), not rank cursors.
+  UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`.

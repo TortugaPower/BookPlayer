@@ -341,6 +341,12 @@ final class ItemListViewModel: ObservableObject {
     reloadItems()
   }
 
+  /// The picker's "Custom" option: freezes the currently-visible order into
+  /// `orderRank` (WYSIWYG — no visible change) and flips the sticky pref.
+  func handleSetCustomSort() {
+    libraryService.adoptCurrentOrderAsCustom(at: libraryNode.folderRelativePath)
+  }
+
   func handleReverseOrder() {
     libraryService.reverseContents(at: libraryNode.folderRelativePath)
     reloadItems()

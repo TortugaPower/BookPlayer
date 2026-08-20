@@ -1114,7 +1114,7 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(sortedFolderContents?[3].title == book4.title)
   }
 
-  func testReorderItem() throws {
+  func testReorderItems() throws {
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
@@ -1125,11 +1125,10 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(contents?[0].title == book3.title)
     XCTAssert(contents?[2].title == book1.title)
 
-    self.sut.reorderItem(
-      with: book3.relativePath,
+    self.sut.reorderItems(
       inside: nil,
-      sourceIndexPath: IndexPath(row: 0, section: 0),
-      destinationIndexPath: IndexPath(row: 2, section: 0)
+      fromOffsets: IndexSet(integer: 0),
+      toOffset: 3
     )
 
     let sortedContents = sut.fetchContents(at: nil, limit: nil, offset: nil)
@@ -1146,11 +1145,10 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(folderContents?[0].title == book1.title)
     XCTAssert(folderContents?[2].title == book3.title)
 
-    self.sut.reorderItem(
-      with: book3.relativePath,
+    self.sut.reorderItems(
       inside: folder.relativePath,
-      sourceIndexPath: IndexPath(row: 2, section: 0),
-      destinationIndexPath: IndexPath(row: 0, section: 0)
+      fromOffsets: IndexSet(integer: 2),
+      toOffset: 0
     )
 
     let sortedFolderContents = sut.fetchContents(at: folder.relativePath, limit: nil, offset: nil)
@@ -1395,7 +1393,9 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
   }
 
-  func testFindItemBeforeRank() throws {
+  /// Previous-item navigation walks the visible order, hopping up to the
+  /// parent folder at boundaries (replaces the old `beforeRank` cursor).
+  func testFindPreviousPlayableItem() throws {
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
@@ -1403,17 +1403,26 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     try self.sut.moveItems([LibraryItemRef(relativePath: book3.relativePath, uuid: book3.uuid), LibraryItemRef(relativePath: book4.relativePath, uuid: book4.uuid)], inside: folder.relativePath)
+    let playbackService = PlaybackService()
+    playbackService.setup(libraryService: self.sut)
 
-    let fetchedBook1 = self.sut.findFirstItem(in: nil, beforeRank: 1)
+    let previousOfBook2 = playbackService.getPlayableItem(before: book2.relativePath, parentFolder: nil)
+    XCTAssertEqual(previousOfBook2?.relativePath, book1.relativePath)
 
-    XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
+    let previousOfBook4 = playbackService.getPlayableItem(before: book4.relativePath, parentFolder: folder.relativePath)
+    XCTAssertEqual(previousOfBook4?.relativePath, book3.relativePath)
 
-    let fetchedBook2 = self.sut.findFirstItem(in: folder.relativePath, beforeRank: 1)
+    // First item of the folder: hops up and resolves the sibling above the folder.
+    let previousOfBook3 = playbackService.getPlayableItem(before: book3.relativePath, parentFolder: folder.relativePath)
+    XCTAssertEqual(previousOfBook3?.relativePath, book2.relativePath)
 
-    XCTAssert(fetchedBook2?.relativePath == book3.relativePath)
+    let previousOfFirst = playbackService.getPlayableItem(before: book1.relativePath, parentFolder: nil)
+    XCTAssertNil(previousOfFirst)
   }
 
-  func testFindItemAfterRank() throws {
+  /// Next-item navigation walks the visible order with the autoplay
+  /// unfinished filter (replaces the old `afterRank` cursor).
+  func testFindNextPlayableItem() throws {
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
     let book2 = StubFactory.book(dataManager: self.sut.dataManager, title: "book2", duration: 100)
     let folder = try StubFactory.folder(dataManager: self.sut.dataManager, title: "folder")
@@ -1422,21 +1431,33 @@ class ModifyLibraryTests: LibraryServiceTests {
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     try self.sut.moveItems([LibraryItemRef(relativePath: book3.relativePath, uuid: book3.uuid), LibraryItemRef(relativePath: book4.relativePath, uuid: book4.uuid)], inside: folder.relativePath)
 
-    book1.isFinished = true
     book3.isFinished = true
     self.sut.dataManager.saveContext()
+    let playbackService = PlaybackService()
+    playbackService.setup(libraryService: self.sut)
 
-    let fetchedBook1 = self.sut.findFirstItem(in: nil, afterRank: nil, isUnfinished: nil)
-    let fetchedBook2 = self.sut.findFirstItem(in: nil, afterRank: 0, isUnfinished: true)
+    let nextOfBook1 = playbackService.getPlayableItem(
+      after: book1.relativePath, parentFolder: nil, autoplayed: false, restartFinished: false
+    )
+    XCTAssertEqual(nextOfBook1?.relativePath, book2.relativePath)
 
-    XCTAssert(fetchedBook1?.relativePath == book1.relativePath)
-    XCTAssert(fetchedBook2?.relativePath == book2.relativePath)
+    // Next of book2 is the folder: descends to its first child.
+    let nextOfBook2 = playbackService.getPlayableItem(
+      after: book2.relativePath, parentFolder: nil, autoplayed: false, restartFinished: false
+    )
+    XCTAssertEqual(nextOfBook2?.relativePath, book3.relativePath)
 
-    let fetchedBook3 = self.sut.findFirstItem(in: folder.relativePath, afterRank: nil, isUnfinished: nil)
-    let fetchedBook4 = self.sut.findFirstItem(in: folder.relativePath, afterRank: 0, isUnfinished: true)
+    // Autoplay skips finished items when descending.
+    let nextOfBook2Autoplay = playbackService.getPlayableItem(
+      after: book2.relativePath, parentFolder: nil, autoplayed: true, restartFinished: false
+    )
+    XCTAssertEqual(nextOfBook2Autoplay?.relativePath, book4.relativePath)
 
-    XCTAssert(fetchedBook3?.relativePath == book3.relativePath)
-    XCTAssert(fetchedBook4?.relativePath == book4.relativePath)
+    // Last item of the last folder: hops up, nothing after the folder → nil.
+    let nextOfLast = playbackService.getPlayableItem(
+      after: book4.relativePath, parentFolder: folder.relativePath, autoplayed: false, restartFinished: false
+    )
+    XCTAssertNil(nextOfLast)
   }
 
   func testFilterBookItems() throws {

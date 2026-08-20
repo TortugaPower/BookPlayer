@@ -568,20 +568,9 @@ extension SyncService {
       let relativePath = params["relativePath"] as? String
     else { return }
 
-    // Decision 9: drop `orderRank`-only updates when the item's parent location
-    // has an automatic sticky sort. Other devices recompute ranks locally from
-    // (item set + sort rule), so syncing the rank churn would be redundant.
-    let identifierKeys: Set<String> = [
-      #keyPath(LibraryItem.relativePath),
-      #keyPath(LibraryItem.uuid),
-    ]
-    let dataKeys = Set(params.keys).subtracting(identifierKeys)
-    let isOrderRankOnly = dataKeys == [#keyPath(LibraryItem.orderRank)]
-    if isOrderRankOnly,
-       libraryService.isParentLocationAutoSorted(itemRelativePath: relativePath) {
-      return
-    }
-
+    // No orderRank suppression here: automatic sorts are applied at query time
+    // and never write ranks, so every rank update that reaches this point is a
+    // genuine custom-arrangement change and must sync.
     Task {
       var params = params
 

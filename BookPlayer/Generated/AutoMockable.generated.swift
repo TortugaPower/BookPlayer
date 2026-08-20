@@ -418,46 +418,6 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return findFirstItemInIsUnfinishedReturnValue
         }
     }
-    //MARK: - findFirstItem
-
-    var findFirstItemInBeforeRankCallsCount = 0
-    var findFirstItemInBeforeRankCalled: Bool {
-        return findFirstItemInBeforeRankCallsCount > 0
-    }
-    var findFirstItemInBeforeRankReceivedArguments: (parentFolder: String?, beforeRank: Int16?)?
-    var findFirstItemInBeforeRankReceivedInvocations: [(parentFolder: String?, beforeRank: Int16?)] = []
-    var findFirstItemInBeforeRankReturnValue: SimpleLibraryItem?
-    var findFirstItemInBeforeRankClosure: ((String?, Int16?) -> SimpleLibraryItem?)?
-    func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem? {
-        findFirstItemInBeforeRankCallsCount += 1
-        findFirstItemInBeforeRankReceivedArguments = (parentFolder: parentFolder, beforeRank: beforeRank)
-        findFirstItemInBeforeRankReceivedInvocations.append((parentFolder: parentFolder, beforeRank: beforeRank))
-        if let findFirstItemInBeforeRankClosure = findFirstItemInBeforeRankClosure {
-            return findFirstItemInBeforeRankClosure(parentFolder, beforeRank)
-        } else {
-            return findFirstItemInBeforeRankReturnValue
-        }
-    }
-    //MARK: - findFirstItem
-
-    var findFirstItemInAfterRankIsUnfinishedCallsCount = 0
-    var findFirstItemInAfterRankIsUnfinishedCalled: Bool {
-        return findFirstItemInAfterRankIsUnfinishedCallsCount > 0
-    }
-    var findFirstItemInAfterRankIsUnfinishedReceivedArguments: (parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?)?
-    var findFirstItemInAfterRankIsUnfinishedReceivedInvocations: [(parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?)] = []
-    var findFirstItemInAfterRankIsUnfinishedReturnValue: SimpleLibraryItem?
-    var findFirstItemInAfterRankIsUnfinishedClosure: ((String?, Int16?, Bool?) -> SimpleLibraryItem?)?
-    func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> SimpleLibraryItem? {
-        findFirstItemInAfterRankIsUnfinishedCallsCount += 1
-        findFirstItemInAfterRankIsUnfinishedReceivedArguments = (parentFolder: parentFolder, afterRank: afterRank, isUnfinished: isUnfinished)
-        findFirstItemInAfterRankIsUnfinishedReceivedInvocations.append((parentFolder: parentFolder, afterRank: afterRank, isUnfinished: isUnfinished))
-        if let findFirstItemInAfterRankIsUnfinishedClosure = findFirstItemInAfterRankIsUnfinishedClosure {
-            return findFirstItemInAfterRankIsUnfinishedClosure(parentFolder, afterRank, isUnfinished)
-        } else {
-            return findFirstItemInAfterRankIsUnfinishedReturnValue
-        }
-    }
     //MARK: - getChapters
 
     var getChaptersFromCallsCount = 0
@@ -660,21 +620,6 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         updateDetailsAtDetailsReceivedInvocations.append((relativePath: relativePath, details: details))
         updateDetailsAtDetailsClosure?(relativePath, details)
     }
-    //MARK: - reorderItem
-
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount = 0
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathCalled: Bool {
-        return reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount > 0
-    }
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedArguments: (relativePath: String, folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)?
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedInvocations: [(relativePath: String, folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath)] = []
-    var reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure: ((String, String?, IndexPath, IndexPath) -> Void)?
-    func reorderItem(with relativePath: String, inside folderRelativePath: String?, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-        reorderItemWithInsideSourceIndexPathDestinationIndexPathCallsCount += 1
-        reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedArguments = (relativePath: relativePath, folderRelativePath: folderRelativePath, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
-        reorderItemWithInsideSourceIndexPathDestinationIndexPathReceivedInvocations.append((relativePath: relativePath, folderRelativePath: folderRelativePath, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath))
-        reorderItemWithInsideSourceIndexPathDestinationIndexPathClosure?(relativePath, folderRelativePath, sourceIndexPath, destinationIndexPath)
-    }
     //MARK: - sortContents
 
     var sortContentsAtByCallsCount = 0
@@ -690,20 +635,20 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         sortContentsAtByReceivedInvocations.append((relativePath: relativePath, type: type))
         sortContentsAtByClosure?(relativePath, type)
     }
-    //MARK: - sortContents
+    //MARK: - adoptCurrentOrderAsCustom
 
-    var sortContentsInByCallsCount = 0
-    var sortContentsInByCalled: Bool {
-        return sortContentsInByCallsCount > 0
+    var adoptCurrentOrderAsCustomAtCallsCount = 0
+    var adoptCurrentOrderAsCustomAtCalled: Bool {
+        return adoptCurrentOrderAsCustomAtCallsCount > 0
     }
-    var sortContentsInByReceivedArguments: (location: SortLocation, type: SortType)?
-    var sortContentsInByReceivedInvocations: [(location: SortLocation, type: SortType)] = []
-    var sortContentsInByClosure: ((SortLocation, SortType) -> Void)?
-    func sortContents(in location: SortLocation, by type: SortType) {
-        sortContentsInByCallsCount += 1
-        sortContentsInByReceivedArguments = (location: location, type: type)
-        sortContentsInByReceivedInvocations.append((location: location, type: type))
-        sortContentsInByClosure?(location, type)
+    var adoptCurrentOrderAsCustomAtReceivedRelativePath: String?
+    var adoptCurrentOrderAsCustomAtReceivedInvocations: [String?] = []
+    var adoptCurrentOrderAsCustomAtClosure: ((String?) -> Void)?
+    func adoptCurrentOrderAsCustom(at relativePath: String?) {
+        adoptCurrentOrderAsCustomAtCallsCount += 1
+        adoptCurrentOrderAsCustomAtReceivedRelativePath = relativePath
+        adoptCurrentOrderAsCustomAtReceivedInvocations.append(relativePath)
+        adoptCurrentOrderAsCustomAtClosure?(relativePath)
     }
     //MARK: - reverseContents
 
