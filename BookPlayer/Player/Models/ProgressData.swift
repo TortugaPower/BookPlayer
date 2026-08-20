@@ -9,7 +9,7 @@
 import Foundation
 import BookPlayerKit
 
-struct ProgressData {
+struct ProgressData: Equatable {
   var currentTime: TimeInterval = 0.0
   var progress: String?
   var maxTime: TimeInterval?
