@@ -443,17 +443,33 @@ final class PlayerViewModel: ObservableObject {
       sliderValue = Float(currentItem?.progressPercentage ?? 0)
     }
     
-    self.hasPreviousChapter = self.hasChapter(before: currentItem?.currentChapter)
-    self.hasNextChapter = self.hasChapter(after: currentItem?.currentChapter)
+    // This runs on every playback tick; writing a @Published property fires
+    // objectWillChange even when the value is unchanged, so skip no-op writes
+    // and collapse the progressData field updates into a single assignment.
+    let hasPreviousChapter = self.hasChapter(before: currentItem?.currentChapter)
+    let hasNextChapter = self.hasChapter(after: currentItem?.currentChapter)
+
+    if self.hasPreviousChapter != hasPreviousChapter {
+      self.hasPreviousChapter = hasPreviousChapter
+    }
+    if self.hasNextChapter != hasNextChapter {
+      self.hasNextChapter = hasNextChapter
+    }
     self.chapterBeforeSliderValueChange = currentItem?.currentChapter
-    
-    progressData.chapterTitle = currentItem?.currentChapter?.title
-      ?? currentItem?.title
-      ?? ""
-    progressData.progress = progress
-    progressData.maxTime = maxTimeInContext
-    progressData.currentTime = currentTime
-    progressData.sliderValue = Double(sliderValue)
+
+    let newProgressData = ProgressData(
+      currentTime: currentTime,
+      progress: progress,
+      maxTime: maxTimeInContext,
+      sliderValue: Double(sliderValue),
+      chapterTitle: currentItem?.currentChapter?.title
+        ?? currentItem?.title
+        ?? ""
+    )
+
+    if progressData != newProgressData {
+      progressData = newProgressData
+    }
   }
   
   func handleNextTap() {
