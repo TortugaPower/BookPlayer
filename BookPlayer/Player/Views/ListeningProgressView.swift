@@ -52,7 +52,7 @@ struct ListeningProgressView: View {
           Text(progressLabel)
             .lineLimit(1)
             .bpFont(.miniPlayerTitle)
-            .transaction { $0.animation = nil }
+            .animation(nil, value: progressLabel)
         }
         .layoutPriority(1)
         
