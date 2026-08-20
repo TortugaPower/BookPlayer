@@ -19,6 +19,12 @@
 import CoreData
 import XCTest
 
+/// @MainActor because the sync-path tests write on the background context and
+/// then assert via view-context fetches; async XCTest methods otherwise run off
+/// the main thread, racing the background→view merge (CI crashed with
+/// "Collection was mutated while being enumerated" inside a view-context fetch).
+/// Production accesses the view context from the main actor — tests must too.
+@MainActor
 final class SortCharacterizationTests: XCTestCase {
   private var harness: SortIntegrationHarness!
   private var libraryService: LibraryService { harness.libraryService }
