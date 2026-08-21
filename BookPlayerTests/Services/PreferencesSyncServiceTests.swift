@@ -386,11 +386,13 @@ final class PreferencesSyncServiceTests: XCTestCase {
     // by key prefix — so a sort entry and a display entry can ride the
     // same response and both land correctly.
     //
-    // The `sortContentsInByCallsCount` assertion guards against a
-    // regression of the cross-prefix snapshot drift bug: with the
-    // single-request pull, exactly ONE side-effect dispatch should
-    // happen per applied sort key. A higher count would mean an entry
-    // is being applied (and its side effect fired) more than once.
+    // The publish-count assertion guards against a regression of the
+    // cross-prefix snapshot drift bug: with the single-request pull,
+    // exactly ONE `preferencesChanged` publish should happen per applied
+    // key. A higher count would mean an entry is being applied (and its
+    // change broadcast) more than once. The zero-rank-writes assertions
+    // pin the query-time-sort contract: a pulled sort pref is data, never
+    // a rank mutation.
     account.syncEnabled = true
 
     let libraryServiceMock = LibraryServiceProtocolMock()
@@ -416,7 +418,11 @@ final class PreferencesSyncServiceTests: XCTestCase {
       client: NetworkClientMock(mockedResponse: response)
     )
 
+    var publishedKeys: [String] = []
+    let subscription = sut.preferencesChanged.sink { publishedKeys.append($0) }
+
     await sut.pullFromServer(force: true)
+    subscription.cancel()
 
     XCTAssertEqual(
       sut.effectiveSort(forLocation: .libraryRoot),
@@ -424,9 +430,16 @@ final class PreferencesSyncServiceTests: XCTestCase {
     )
     XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
 
-    // Exactly one resort dispatch — for the sort entry. The display
-    // entry's side effect is `.none`, so it should not contribute.
-    XCTAssertEqual(libraryServiceMock.sortContentsInByCallsCount, 1)
+    // Exactly one publish per applied key — no duplicate application.
+    XCTAssertEqual(publishedKeys.sorted(), [
+      Constants.UserDefaults.libraryDisplayProgressStyle,
+      Constants.UserDefaults.librarySortDefault,
+    ].sorted())
+
+    // A pulled sort pref never mutates ranks: order is derived at query time.
+    XCTAssertEqual(libraryServiceMock.sortContentsAtByCallsCount, 0)
+    XCTAssertEqual(libraryServiceMock.adoptCurrentOrderAsCustomAtCallsCount, 0)
+    XCTAssertEqual(libraryServiceMock.reverseContentsAtCallsCount, 0)
   }
 
   func testPullRejectsIntOutsideBoolRange() async {

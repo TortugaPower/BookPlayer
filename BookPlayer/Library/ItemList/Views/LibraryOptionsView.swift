@@ -185,10 +185,11 @@ struct LibraryOptionsView: View {
     .presentationDetents([.medium])
   }
 
-  /// Single-tap action for `.unresolved` locations. The user picks a sort,
-  /// items are re-ranked locally via `onSelectionChange → handleSort →
-  /// sortContents(at:by:)`, and the resolver no-ops the pref write because
-  /// the location resolves to `.unresolved`.
+  /// Single-tap action for `.unresolved` locations. The user picks a sort and
+  /// `onSelectionChange → handleSort → sortContents(at:by:)` takes the
+  /// one-shot path: ranks are rewritten once (a bulk custom rearrangement,
+  /// synced like any manual reorder) and no sticky preference is persisted —
+  /// `.unresolved` locations have no preference key.
   @ViewBuilder
   private func oneShotSortRow(
     _ sort: SortType,

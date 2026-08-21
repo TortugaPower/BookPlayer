@@ -139,8 +139,13 @@ final class ItemListViewModel: ObservableObject {
         offset: offset
       ) ?? []
 
-    items += fetchedItems
-    offset = items.count
+    /// Under a live sort key ("Most recent" while playing) rows can shift
+    /// between page fetches, re-returning an item already loaded — and a
+    /// duplicate id breaks SwiftUI's ForEach. Advance the offset by what was
+    /// fetched, but only append unseen items.
+    offset += fetchedItems.count
+    let loadedIds = Set(items.map(\.id))
+    items += fetchedItems.filter { !loadedIds.contains($0.id) }
 
     canLoadMore = fetchedItems.count == pageSize
     isLoading = false
@@ -339,6 +344,12 @@ final class ItemListViewModel: ObservableObject {
   func handleSort(by option: SortType) {
     libraryService.sortContents(at: libraryNode.folderRelativePath, by: option)
     reloadItems()
+  }
+
+  /// The picker's "Custom" option: freezes the currently-visible order into
+  /// `orderRank` (WYSIWYG — no visible change) and flips the sticky pref.
+  func handleSetCustomSort() {
+    libraryService.adoptCurrentOrderAsCustom(at: libraryNode.folderRelativePath)
   }
 
   func handleReverseOrder() {

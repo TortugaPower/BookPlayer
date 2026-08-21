@@ -56,14 +56,12 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   // MARK: - State
 
   /// Single source of truth for every synced preference family. Each entry
-  /// owns its prefix, the static keys observed at bootstrap, the value-shape
-  /// codec used by `applyServerSnapshot` / `flush`, and the side effect to
-  /// run after a remote-pulled value lands in `UserDefaults`.
+  /// owns its prefix, the static keys observed at bootstrap, and the
+  /// value-shape codec used by `applyServerSnapshot` / `flush`.
   ///
   /// Adding a new family (e.g. `audio_eq:`) is a single entry append: declare
-  /// the prefix + keys in `Constants.UserDefaults`, plug the decode/encode
-  /// closures, and pick a `PreferenceSideEffect` (or extend the enum if a new
-  /// kind of side effect is needed).
+  /// the prefix + keys in `Constants.UserDefaults` and plug the decode/encode
+  /// closures.
   private let schemas: [PreferenceSchema] = [
     PreferenceSchema(
       prefix: Constants.UserDefaults.librarySortPrefix,
@@ -77,8 +75,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       },
       encode: { key, defaults in
         ["sort": defaults.string(forKey: key) ?? ""]
-      },
-      sideEffect: .resort
+      }
     ),
     PreferenceSchema(
       prefix: Constants.UserDefaults.libraryDisplayPrefix,
@@ -99,8 +96,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       },
       encode: { key, defaults in
         ["value": defaults.bool(forKey: key)]
-      },
-      sideEffect: .none
+      }
     ),
   ]
 
@@ -281,6 +277,8 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   }
 
   public func handleLogout() {
+    freezeAutomaticSortsBeforeWipe()
+
     lock.lock()
     defer { lock.unlock() }
 
@@ -302,6 +300,34 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
       }
     }
     defaults.removeObject(forKey: Constants.UserDefaults.userPreferencesDirty)
+  }
+
+  /// Signing out wipes every `library_sort:*` key, and under query-time
+  /// sorting that would visibly re-scramble the library back to the latent
+  /// rank order. Freeze each automatically-sorted location's visible order
+  /// into ranks first, so the list the user sees survives sign-out.
+  /// Runs BEFORE the teardown lock is taken: the freeze goes through
+  /// `setSort(.custom)`, whose KVO callback takes the same lock. Any sync
+  /// updates it emits are dropped downstream — `SyncService.isActive` is
+  /// false by the time the debounced collect delivers them.
+  private func freezeAutomaticSortsBeforeWipe() {
+    let sortKeys = defaults.dictionaryRepresentation().keys.filter {
+      $0.hasPrefix(Constants.UserDefaults.librarySortPrefix)
+    }
+    for key in sortKeys {
+      guard
+        let rawValue = defaults.string(forKey: key),
+        case .automatic = EffectiveSort(rawValue: rawValue) ?? .custom
+      else { continue }
+
+      if key == Constants.UserDefaults.librarySortDefault {
+        libraryService.adoptCurrentOrderAsCustom(at: nil)
+      } else {
+        let uuid = String(key.dropFirst(Constants.UserDefaults.librarySortPrefix.count))
+        guard let relativePath = libraryService.getRelativePath(forUuid: uuid) else { continue }
+        libraryService.adoptCurrentOrderAsCustom(at: relativePath)
+      }
+    }
   }
 
   // MARK: - SortPreferencesResolving
@@ -395,17 +421,16 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     lastSuccessfulPull = Date()
     lock.unlock()
 
-    // Walk applied keys and run the per-key side effect (resort for sort
-    // keys, no-op for display keys). For each key whose value actually
-    // changed, emit `preferencesChanged` so subscribers (e.g. `ItemListView`)
-    // can refresh. The KVO observer doesn't publish here because
-    // `applyServerSnapshot` sets `isApplyingRemoteUpdate` to suppress
-    // echo loops.
+    // For each applied key whose value actually changed, emit
+    // `preferencesChanged` so subscribers (e.g. `ItemListView`) re-fetch —
+    // that's the entire application step: sort order is derived from the
+    // stored pref at query time. The KVO observer doesn't publish here
+    // because `applyServerSnapshot` sets `isApplyingRemoteUpdate` to
+    // suppress echo loops.
     for key in appliedKeys {
       let oldValue = beforeSnapshot[key]
       let newValue = currentValue(forKey: key)
       if oldValue == newValue { continue }
-      await dispatchSideEffect(forKey: key)
       preferencesChanged.send(key)
     }
   }
@@ -536,47 +561,6 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
     schema(forKey: key)?.encode(key, defaults)
   }
 
-  /// Runs the schema's declared side effect after a remote-pulled value
-  /// changes a tracked key. `@AppStorage` subscribers re-render on their
-  /// own — this is for service-internal work that needs to follow the
-  /// new value (e.g. re-ranking items when sort changes).
-  private func dispatchSideEffect(forKey key: String) async {
-    guard let schema = schema(forKey: key) else { return }
-    switch schema.sideEffect {
-    case .resort:
-      await dispatchResort(forKey: key)
-    case .none:
-      break
-    }
-  }
-
-  private func dispatchResort(forKey key: String) async {
-    let location: SortLocation
-    if key == Constants.UserDefaults.librarySortDefault {
-      location = .libraryRoot
-    } else if key.hasPrefix(Constants.UserDefaults.librarySortPrefix) {
-      let uuid = String(key.dropFirst(Constants.UserDefaults.librarySortPrefix.count))
-      guard Constants.isRealUuid(uuid) else { return }
-      // Look up the relativePath for this folder uuid (best-effort; if folder
-      // hasn't synced down yet, we just cache the pref and skip the re-sort).
-      guard let relativePath = libraryService.getRelativePath(forUuid: uuid) else { return }
-      // Route through `makeLocation` rather than constructing `.folder(...)`
-      // directly, so bound-folder + placeholder-UUID gates apply uniformly
-      // even on the server-driven path.
-      location = libraryService.makeLocation(forRelativePath: relativePath)
-    } else {
-      return
-    }
-
-    guard
-      case .automatic(let sort) = effectiveSort(forLocation: location)
-    else { return }
-
-    await MainActor.run {
-      libraryService.sortContents(in: location, by: sort)
-    }
-  }
-
   // MARK: - Flush
 
   private func scheduleFlush() {
@@ -677,27 +661,13 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
 
 // MARK: - Preference schema
 
-/// Service-internal action to run after a remote-pulled value writes to
-/// `UserDefaults`. The view layer reacts to UserDefaults changes via
-/// `@AppStorage` automatically; this enum names the work that the
-/// **service** still has to do (e.g. re-rank items when sort changes).
-///
-/// Add a new case when a new preference family needs a new kind of work.
-/// The `dispatchSideEffect` switch in `PreferencesSyncService` is the
-/// single place that maps cases to implementations.
-private enum PreferenceSideEffect {
-  /// Re-rank the affected library location's contents.
-  case resort
-  /// No service-side action — `@AppStorage` subscribers handle it.
-  case none
-}
-
 /// Declarative description of a synced-preference family.
 ///
 /// `PreferencesSyncService` holds an array of these and uses them as the
-/// single source of truth for tracked prefixes, observed static keys, the
-/// per-prefix codec used to talk to the server, and the side effect to run
-/// after a remote update lands.
+/// single source of truth for tracked prefixes, observed static keys, and the
+/// per-prefix codec used to talk to the server. No service-side work follows
+/// a remote update: sort order is derived from the pref at query time, and
+/// the pull loop's `preferencesChanged` publish drives the visible re-fetch.
 private struct PreferenceSchema {
   /// All keys under this family share this prefix. KVO observation and
   /// the logout wipe both key off it.
@@ -717,10 +687,6 @@ private struct PreferenceSchema {
   /// Reads the current local value for `key` from `defaults` and produces
   /// the dictionary the server expects under the entry's `value` field.
   let encode: (_ key: String, _ defaults: UserDefaults) -> [String: Any]
-
-  /// Service-internal work to run after a remote update changes a key in
-  /// this family. View-layer refresh is handled by `@AppStorage`, not here.
-  let sideEffect: PreferenceSideEffect
 }
 
 // MARK: - Wire types
