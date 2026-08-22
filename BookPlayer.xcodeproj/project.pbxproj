@@ -649,6 +649,8 @@
 		6906A55021720FDF00A9E0B2 /* BookSortServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */; };
 		6906A553217211C600A9E0B2 /* StubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6906A552217211C600A9E0B2 /* StubFactory.swift */; };
 		69343D332133844D000C425E /* VoiceOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D322133844D000C425E /* VoiceOverService.swift */; };
+		FBE2B360883B414695A54628 /* ReviewPromptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C80A51B636D4C7381529505 /* ReviewPromptService.swift */; };
+		058C840BB5E944B2899BC769 /* ReviewPromptServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */; };
 		69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */; };
 		6C25A0E1ADBF2325CA78E8A4 /* mp3_NO_toc_v23.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BA32C89144C68DD64FD0B62 /* mp3_NO_toc_v23.mp3 */; };
 		6DF751D96098B1A3224FDF43 /* IntegrationServerAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF7B7B6E62B274D230C207 /* IntegrationServerAddress.swift */; };
@@ -1642,6 +1644,8 @@
 		6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSortServiceTest.swift; sourceTree = "<group>"; };
 		6906A552217211C600A9E0B2 /* StubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubFactory.swift; sourceTree = "<group>"; };
 		69343D322133844D000C425E /* VoiceOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverService.swift; sourceTree = "<group>"; };
+		3C80A51B636D4C7381529505 /* ReviewPromptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptService.swift; sourceTree = "<group>"; };
+		6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptServiceTests.swift; sourceTree = "<group>"; };
 		69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOverServiceTest.swift; sourceTree = "<group>"; };
 		6FB91B577BC77F45EDB2AAAA /* IntegrationConnectionFormViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionFormViewModel.swift; sourceTree = "<group>"; };
 		700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncTasksStorageTests.swift; sourceTree = "<group>"; };
@@ -3201,6 +3205,7 @@
 			isa = PBXGroup;
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
+				3C80A51B636D4C7381529505 /* ReviewPromptService.swift */,
 				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
@@ -3222,6 +3227,7 @@
 				53AE3D4C955A493470C8EAA9 /* QueryTimeSortSpikeTests.swift */,
 				F448E8BBF01860FC65EB697A /* SortCharacterizationTests.swift */,
 				9FC1E4662815091A00522FA8 /* AccountServiceTests.swift */,
+				6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */,
 				9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */,
 				700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */,
 				0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */,
@@ -4772,6 +4778,7 @@
 				634BA5972C161FBE0015314D /* StoryView.swift in Sources */,
 				6356F9C52AC86D9200B7A027 /* BPAppShortcuts.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
+				FBE2B360883B414695A54628 /* ReviewPromptService.swift in Sources */,
 				6304CF672B4B595400055285 /* SettingsAutoplayViewModel.swift in Sources */,
 				63B4A2FD2E91828B00784A22 /* ItemListView+Sheets.swift in Sources */,
 				63B4A2FE2E91828B00784A22 /* ItemListView+Alerts.swift in Sources */,
@@ -4988,6 +4995,7 @@
 				FED52673ACD975949EF9E219 /* PreferencesSyncServiceTests.swift in Sources */,
 				9FC1E4632814F80000522FA8 /* AccountServiceMock.swift in Sources */,
 				9FC1E4672815091A00522FA8 /* AccountServiceTests.swift in Sources */,
+				058C840BB5E944B2899BC769 /* ReviewPromptServiceTests.swift in Sources */,
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
 				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,

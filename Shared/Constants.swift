@@ -16,6 +16,13 @@ public enum Constants {
     public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"
 
+    /// Armed when a book finishes playing; consumed on the next review-prompt evaluation
+    public static let pendingReviewPrompt = "userPendingReviewPrompt"
+    /// Date of the last App Store review prompt request
+    public static let lastReviewRequestDate = "userLastReviewRequestDate"
+    /// App version of the last App Store review prompt request
+    public static let lastReviewRequestVersion = "userLastReviewRequestVersion"
+
     // User preferences
     public static let themeBrightnessEnabled = "userSettingsBrightnessEnabled"
     public static let themeBrightnessThreshold = "userSettingsBrightnessThreshold"
