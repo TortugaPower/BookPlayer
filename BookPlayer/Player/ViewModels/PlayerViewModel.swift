@@ -609,17 +609,11 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func requestReview() {
-    // don't do anything if flag isn't true
-    guard UserDefaults.standard.bool(forKey: "ask_review") else { return }
-    
-    // request for review if app is active
+    /// Evaluate only while active, so the pending flag isn't consumed
+    /// when the prompt has no chance of being shown
     guard UIApplication.shared.applicationState == .active else { return }
-    
-#if RELEASE
-    AppServices.shared.requestReview()
-#endif
-    
-    UserDefaults.standard.set(false, forKey: "ask_review")
+
+    AppServices.shared.reviewPromptService.requestReviewIfEligible()
   }
   
   func handleAutolockStatus(forceDisable: Bool = false) {
