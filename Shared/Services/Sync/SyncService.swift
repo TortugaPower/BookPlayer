@@ -474,13 +474,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
+          // Custom headers first (reverse-proxy gates), integration Authorization wins on conflict.
+          var headers = connection.customHeaders
+          headers["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
           remoteURLs = [
             RemoteFileURL(
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
               externalResources: nil,
-              headers: ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
+              headers: headers
             )
           ]
         }
@@ -493,13 +496,15 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+          var headers = connection.customHeaders
+          headers["Authorization"] = "Bearer \(connection.apiToken)"
           remoteURLs = [
             RemoteFileURL(
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
               externalResources: nil,
-              headers: ["Authorization": "Bearer \(connection.apiToken)"]
+              headers: headers
             )
           ]
         }

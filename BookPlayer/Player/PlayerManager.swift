@@ -34,6 +34,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
+  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
+  private var playerLoadingStateSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
+  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
+  private var playerItemStatusSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
@@ -190,7 +196,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     guard let player = player else { return }
     
     // 2. Observe Buffering (AVPlayer TimeControlStatus)
-    player.publisher(for: \.timeControlStatus)
+    playerLoadingStateSubscription?.cancel()
+    playerLoadingStateSubscription = player.publisher(for: \.timeControlStatus)
       .sink { [weak self, weak player] status in
         guard let self = self, let player = player else { return }
         
@@ -209,7 +216,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           break
         }
       }
-      .store(in: &disposeBag) // Keep the subscription alive
+      
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -347,7 +354,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
-    playerItem.publisher(for: \.status)
+    playerItemStatusSubscription?.cancel()
+    playerItemStatusSubscription = playerItem.publisher(for: \.status)
       .sink { [weak self] status in
         guard let self = self else { return }
 
@@ -364,7 +372,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           break
         }
       }
-      .store(in: &disposeBag)
+
   }
   func load(_ item: PlayableItem, autoplay: Bool) {
     load(item, autoplay: autoplay, forceRefreshURL: false)

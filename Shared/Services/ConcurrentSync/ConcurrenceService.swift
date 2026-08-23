@@ -121,10 +121,13 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   }
 
   private func startListeningForNewTasks() {
-    listeningTask = Task {
+    // [weak self]: the for-await loop never terminates on its own, so a strong capture makes
+    // the service retain itself through its task and deinit (which cancels it) never runs.
+    listeningTask = Task { [weak self] in
       let stream = NotificationCenter.default.notifications(named: .newTaskInQueue)
 
       for await notification in stream {
+        guard let self else { return }
         guard let userInfo = notification.userInfo,
               let queueKey = userInfo["queueKey"] as? String else {
           continue

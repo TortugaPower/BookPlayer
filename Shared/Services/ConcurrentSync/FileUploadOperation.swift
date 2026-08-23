@@ -95,8 +95,9 @@ class FileUploadOperation: AsyncOperation, @unchecked Sendable {
     progressSubscriber = BPURLSession.shared.progressPublisher
       .sink { [weak self] (path, progress) in
         guard let self = self else { return }
-        // CRITICAL: Only report progress if this event belongs to THIS operation
-        if uuid == self.uuid {
+        // CRITICAL: Only report progress if this event belongs to THIS operation — the
+        // publisher is shared by ALL concurrent uploads; `path` is the emitting task's uuid.
+        if path == self.uuid {
           self.onProgress?(progress)
         }
       }
