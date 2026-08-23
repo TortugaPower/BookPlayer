@@ -390,8 +390,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   location's effective sort to `SortType.sortDescriptors` (`localizedStandardCompare:` + `orderRank` tie-break);
   sync may overwrite ranks freely — the rendered order only follows ranks where the effective sort resolves to
   rank order: Custom, `.unresolved`/bound locations, and any target with no `preferencesService` wired.
-  **watchOS is such a target** (only the iOS app assigns `preferencesService`), so the watch renders rank order
-  for a folder the phone renders rule-sorted — a known, deliberate platform fork (same as Android Wear). Rank
+  **watchOS wires a pull-only `PreferencesSyncService`** (constructed in `ExtensionDelegate`, bootstrapped at
+  launch, refreshed before each list sync in `RemoteItemListViewModel`), so the watch renders the same sticky
+  sort as the phone; nothing on the watch writes sort prefs, and the pull is gated on the sync entitlement so
+  free accounts never make the request. Rank
   updates always sync (no auto-sort suppression exists anymore). **Both mutation invariants live in
   `freezeVisibleOrder(at:transform:)`** — the single core of `reorderItems`/`reverseContents`/
   `adoptCurrentOrderAsCustom`: (1) capture-before-flip — the effective (visible) descriptors are resolved

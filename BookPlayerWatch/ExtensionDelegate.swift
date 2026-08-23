@@ -94,6 +94,18 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         playbackService: playbackService,
         playerManager: playerManager
       )
+      let preferencesService = PreferencesSyncService()
+      preferencesService.setup(
+        accountService: accountService,
+        libraryService: libraryService
+      )
+      /// Wires the sticky-sort resolver into the fetch pipeline: with this set,
+      /// `resolveSortDescriptors` renders the same order as the phone instead
+      /// of falling back to `orderRank`.
+      libraryService.preferencesService = preferencesService
+      Task {
+        await preferencesService.bootstrap()
+      }
       let coreServices = CoreServices(
         dataManager: dataManager,
         accountService: accountService,
@@ -102,7 +114,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         playbackService: playbackService,
         playerManager: playerManager,
         playerLoaderService: playerLoaderService,
-        watchConnectivityService: ExtensionDelegate.contextManager.watchConnectivityService
+        watchConnectivityService: ExtensionDelegate.contextManager.watchConnectivityService,
+        preferencesService: preferencesService
       )
 
       self.coreServices = coreServices

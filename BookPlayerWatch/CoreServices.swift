@@ -18,6 +18,10 @@ class CoreServices: ObservableObject {
   let playerManager: PlayerManager
   let playerLoaderService: PlayerLoaderService
   let watchConnectivityService: WatchConnectivityService
+  /// Pull-only on watchOS: resolves the sticky library sort so the list and
+  /// playback navigation match the phone. Nothing on the watch writes sort
+  /// preferences, and its pull is gated on the account's sync entitlement.
+  let preferencesService: PreferencesSyncServiceProtocol
 
   @Published var hasSyncEnabled = false
 
@@ -29,7 +33,8 @@ class CoreServices: ObservableObject {
     playbackService: PlaybackServiceProtocol,
     playerManager: PlayerManager,
     playerLoaderService: PlayerLoaderService,
-    watchConnectivityService: WatchConnectivityService
+    watchConnectivityService: WatchConnectivityService,
+    preferencesService: PreferencesSyncServiceProtocol
   ) {
     self.dataManager = dataManager
     self.accountService = accountService
@@ -40,6 +45,7 @@ class CoreServices: ObservableObject {
     self.playerManager = playerManager
     self.playerLoaderService = playerLoaderService
     self.watchConnectivityService = watchConnectivityService
+    self.preferencesService = preferencesService
   }
 
   func checkAndReloadIfSyncIsEnabled() {
