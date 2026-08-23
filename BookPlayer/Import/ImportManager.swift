@@ -159,7 +159,6 @@ final class ImportManager: ObservableObject {
     guard let simpleItem = externalResource.libraryItem else { return false }
     let documentsFolder = DataManager.getDocumentsFolderURL()
     let destinationURL = documentsFolder.appendingPathComponent(simpleItem.relativePath)
-    print(destinationURL)
     if self.libraryService.findBooks(containing: destinationURL)?.first != nil {
       return true
     }

@@ -536,9 +536,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
       
-      if let bearer = remoteURL.headers?["Authorization"] {
+      if let headers = remoteURL.headers, !headers.isEmpty {
         var request = URLRequest(url: downloadUrl)
-        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        // Forward EVERY header — the dict deliberately includes the connection's custom
+        // headers (reverse-proxy gates like Cloudflare Access), not just Authorization.
+        for (field, value) in headers {
+          request.setValue(value, forHTTPHeaderField: field)
+        }
         
         let task = await provider.client.download(
           request: request,

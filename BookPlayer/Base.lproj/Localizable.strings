@@ -512,7 +512,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Save Your Storage!";
 "sync_invitation_learn_more_button" = "Learn more";
-"sync_invitation_description" = "You're about to %1 %2 items. %3";
+"sync_invitation_description" = "You're about to %1$@ %2$d items. %3$@";
 "sync_invitation_stream_description" = "Instead of taking up space, stream them directly from your server and keep your progress synced.";
 "sync_tasks_concurrent_count_title" = "Concurrent Tasks (%d)";
 "sync_tasks_running_empty_title" = "No running tasks";
@@ -529,3 +529,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "create_profile_description" = "To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab";
 "not_now_button" = "Not now";
 "quick_action_label" = "Quick Action %d";
+"apple_watch_beta_title" = "Apple Watch (Beta)";
+"import_title" = "Import";
+"files_title" = "%d Files";
+"sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";

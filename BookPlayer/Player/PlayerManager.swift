@@ -321,6 +321,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
              let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
             currentItem = updatedItem
+            // Invariant: EVERY currentItem reassignment rebinds the chapter subscription —
+            // otherwise .chapterChange keeps firing off the orphaned item and the
+            // end-of-chapter sleep timer + Now Playing chapter title silently break.
+            bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
           }
         }
       } else {

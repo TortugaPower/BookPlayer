@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class FileUploadOperation: AsyncOperation, @unchecked Sendable {
+class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   
   // MARK: - Properties
   let fileURL: URL
@@ -121,7 +121,7 @@ class FileUploadOperation: AsyncOperation, @unchecked Sendable {
           
         } else if let error = error {
           // Actual Failure
-          print("Upload failed for \(self.uuid): \(error)")
+          Self.logger.error("Upload failed for \(self.uuid): \(error)")
           self.didSucceed = false
           self.finish()
           
@@ -132,7 +132,7 @@ class FileUploadOperation: AsyncOperation, @unchecked Sendable {
             do {
               try FileManager.default.removeItem(at: self.fileURL)
             } catch {
-              print("Failed to delete hard link for \(self.uuid): \(error.localizedDescription)")
+              Self.logger.warning("Failed to delete hard link for \(self.uuid): \(error.localizedDescription)")
             }
           }
           self.didSucceed = true
@@ -149,5 +149,9 @@ class FileUploadOperation: AsyncOperation, @unchecked Sendable {
     cellularDataObserver?.invalidate()
     progressSubscriber?.cancel()
     completionSubscriber?.cancel()
+    // The completion subscriber (which would have called finish()) was just torn down —
+    // without this, an operation cancelled mid-flight stays .executing forever and its
+    // OperationQueue slot is never reclaimed.
+    if isExecuting { finish() }
   }
 }

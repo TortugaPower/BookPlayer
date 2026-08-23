@@ -295,3 +295,26 @@ struct ErrorResponse: Decodable {
   let message: String
   let error: String?
 }
+
+
+extension NetworkClientProtocol {
+  /// PUT a file streaming FROM DISK — for payloads (audiobooks) that must never be
+  /// materialized as one in-memory Data. Same error contract as `upload(_:remoteURL:)`.
+  /// A protocol extension (not a requirement) so the Sourcery mocks don't need regeneration.
+  public func upload(
+    fileURL: URL,
+    remoteURL: URL
+  ) async throws {
+    var request = URLRequest(url: remoteURL)
+    request.cachePolicy = .reloadIgnoringLocalCacheData
+    request.httpMethod = HTTPMethod.put.rawValue
+
+    let (responseData, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
+
+    if let httpResponse = response as? HTTPURLResponse,
+       !(200...299).contains(httpResponse.statusCode) {
+      let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
+      throw URLError(.badServerResponse, userInfo: ["error": errorMessage])
+    }
+  }
+}
