@@ -873,11 +873,16 @@ extension ItemListViewModel {
     }
   }
   
-  func updateFromResource(jellyfinService: JellyfinConnectionService) async {
+  func updateFromResource(jellyfinService _: JellyfinConnectionService) async {
     let jellyfinResources = self.items.compactMap { item in
       item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
     }
     guard !jellyfinResources.isEmpty else { return }
+
+    // A throwaway service instance: pinning connections on the SHARED environment service
+    // would silently repoint the UI's active connection after this refresh.
+    let jellyfinService = JellyfinConnectionService()
+    jellyfinService.setup()
 
     // Resources can belong to DIFFERENT servers — group them by their resolved connection and
     // query each server for its own items. Resources whose host doesn't match any saved

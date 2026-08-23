@@ -533,3 +533,10 @@ We're working hard on providing a seamless experience, if possible, please conta
 "import_title" = "Import";
 "files_title" = "%d Files";
 "sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";
+"file_path_title" = "File Path";
+"genres_title" = "Genres";
+"overview_title" = "Overview";
+"tags_title" = "Tags";
+"series_title" = "Series";
+"task_uploading_file_label" = "Uploading file";
+"task_updating_progress_label" = "Updating progress for %@";

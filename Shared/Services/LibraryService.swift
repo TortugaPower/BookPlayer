@@ -411,7 +411,21 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return fetchRequest
   }
 
+  /// One grouped fetch for every row's external resources — a per-row fetch here is an
+  /// N+1 on the main library list path.
+  private func findResourcesGrouped(forUuids uuids: [String], context: NSManagedObjectContext) -> [String: [ExternalResource]] {
+    guard !uuids.isEmpty else { return [:] }
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K IN %@", #keyPath(ExternalResource.libraryItem.uuid), uuids)
+    guard let resources = try? context.fetch(fetch) else { return [:] }
+    return Dictionary(grouping: resources) { $0.libraryItem?.uuid ?? "" }
+  }
+
   func parseFetchedItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SimpleLibraryItem]? {
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -434,7 +448,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         self?.rebuildFolderDetails(relativePath, context: context)
       }
 
-      let externalResources = self?.findResources(for: uuid, context: context)
+      let externalResources = resourcesByUuid[uuid]
 
       return SimpleLibraryItem(
         title: title,
@@ -1788,6 +1802,9 @@ extension LibraryService {
     return newBook
   }
   
+  /// @MainActor: creates/mutates managed objects on the main-queue viewContext — running
+  /// this off the main thread is the CoreData threading violation the repo bans.
+  @MainActor
   public func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
     let context = dataManager.getContext()
     

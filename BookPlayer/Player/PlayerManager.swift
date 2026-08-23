@@ -318,6 +318,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           _ = try? await asset.load(.duration, .isPlayable)
 
           await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
+          // The awaits above can outlive this load (user tapped another book) — applying the
+          // refreshed item afterwards would clobber the newer load's state.
+          try Task.checkCancellation()
           if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
              let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
             currentItem = updatedItem
