@@ -20,6 +20,7 @@ class PlayableChapterTests: XCTestCase {
       duration: 1,
       relativePath: relativePath,
       remoteURL: nil,
+      externalURL: nil,
       index: 0
     )
   }
