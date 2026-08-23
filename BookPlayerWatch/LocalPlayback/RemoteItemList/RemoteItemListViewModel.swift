@@ -90,12 +90,27 @@ final class RemoteItemListViewModel: ObservableObject {
   }
 
   func syncListContents(ignoreLastTimestamp: Bool) async throws {
+    /// Refresh the sticky-sort prefs first (entitlement-gated, 60s cooldown)
+    /// so the refetch below renders with the latest rules — same ordering as
+    /// the phone's `ListSyncRefreshService`.
+    await coreServices.preferencesService.pullFromServer(force: false)
+
     guard
       await coreServices.syncService.canSyncListContents(
         at: folderRelativePath,
         ignoreLastTimestamp: ignoreLastTimestamp
       )
-    else { return }
+    else {
+      /// Contents are fresh, but the pref pull may have changed the sort —
+      /// re-render from the store either way.
+      items =
+        coreServices.libraryService.fetchContents(
+          at: folderRelativePath,
+          limit: nil,
+          offset: nil
+        ) ?? []
+      return
+    }
 
     do {
       try await coreServices.syncService.syncListContents(at: folderRelativePath)
