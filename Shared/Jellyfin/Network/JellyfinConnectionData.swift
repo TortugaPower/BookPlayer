@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct JellyfinConnectionData: Codable, Identifiable {
+public struct JellyfinConnectionData: Codable, Identifiable, IntegrationHostIdentifiable {
   public let id: String
   public let serverId: String?
   public let url: URL

@@ -280,7 +280,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
         lastSyncedAt: nil,
-        hostId: connectionService.connection?.serverId ?? connectionService.connection?.url.absoluteString,
+        hostId: connectionService.connection?.stableHostId,
         libraryItem: libraryItem
       )
       

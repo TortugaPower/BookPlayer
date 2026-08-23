@@ -472,8 +472,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       } catch {
         var actions = [BPActionItem.okAction]
         
-        if chapter.externalUrl != nil,
-           !FileManager.default.fileExists(atPath: chapter.fileURL.path) {
+        // Offer the Media Servers shortcut when streaming is the missing piece: either an
+        // external URL resolved and failed (auth/network), or — the cross-device case — the
+        // item has NO local file and NO cloud copy, which for an errored load means its
+        // media-server connection isn't configured on this device (externalUrl stays nil
+        // precisely because no saved server matched the resource's host).
+        if !FileManager.default.fileExists(atPath: chapter.fileURL.path),
+           chapter.externalUrl != nil || chapter.remoteURL == nil {
           actions.append(
             BPActionItem(title: "media_servers_title".localized) {
               NotificationCenter.default.post(name: .showMediaServers, object: nil)
@@ -1271,9 +1276,10 @@ extension PlayerManager {
         if playbackQueued == true {
           var actions = [BPActionItem.okAction]
           
+          // Same missing-source rule as the chapter-load failure path (see loadChapterTask).
           if let chapter = currentItem?.currentChapter,
-             chapter.externalUrl != nil,
-             !FileManager.default.fileExists(atPath: chapter.fileURL.path) {
+             !FileManager.default.fileExists(atPath: chapter.fileURL.path),
+             chapter.externalUrl != nil || chapter.remoteURL == nil {
             actions.append(
               BPActionItem(title: "media_servers_title".localized) {
                 NotificationCenter.default.post(name: .showMediaServers, object: nil)
