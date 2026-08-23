@@ -1306,8 +1306,11 @@ extension LibraryService {
     var processedFiles = [SimpleLibraryItem]()
     var nextOrderRank = getNextOrderRank(in: nil)
     for resource in resources {
+      // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
+      // without one cannot become a book row; skip it instead of crashing.
+      guard let simpleItem = resource.libraryItem else { continue }
       let libraryItem: LibraryItem
-      let book = await createExternalBook(simpleItem: resource.libraryItem!, externalResource: resource)
+      let book = await createExternalBook(simpleItem: simpleItem, externalResource: resource)
       libraryItem = book
       libraryItem.orderRank = nextOrderRank
       nextOrderRank += 1

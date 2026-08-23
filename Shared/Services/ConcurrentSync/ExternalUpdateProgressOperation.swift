@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
+class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Sendable {
 
   let providerName: String
   let providerItemId: String
@@ -55,7 +55,7 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
 
       } catch {
         // If it throws, execution instantly jumps here.
-        print("🔴 OPERATION FAILED WITH ERROR: \(error)")
+        Self.logger.error("External progress push failed: \(error)")
         self.didSucceed = false
       }
     }
@@ -100,6 +100,6 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     }
     await audiobookshelfService.useConnection(targetConnection)
 
-    try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks / 10_000_000))
+    try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks) / 10_000_000)
   }
 }

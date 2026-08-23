@@ -51,7 +51,7 @@ struct PlayerView: View {
           }
         }
         .overlay {
-          if viewModel.playerManager.playerIsLoadingURL {
+          if viewModel.isLoadingURL {
             DynamicWaveLoadingView()
             // Ensure the wave view respects the image's rounded corners
               .aspectRatio(1, contentMode: .fit)

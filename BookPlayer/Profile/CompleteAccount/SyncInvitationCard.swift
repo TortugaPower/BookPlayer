@@ -57,8 +57,8 @@ struct SyncInvitationCard: View {
             .foregroundColor(.white)
             .cornerRadius(14)
           }
-          .accessibilityLabel("Learn more")
-          .accessibilityHint("Learn more about streaming and syncing items from your server.")
+          .accessibilityLabel("learn_more_title".localized)
+          .accessibilityHint("sync_invitation_learn_more_hint".localized)
         }
         
         Button {

@@ -25,6 +25,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
             dismiss()
           } label: {
             Image(systemName: "xmark")
+              .accessibilityLabel("cancel_button".localized)
               .font(.system(size: 16, weight: .semibold))
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
@@ -42,6 +43,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
             }
           } label: {
             Image(systemName: "checkmark")
+              .accessibilityLabel("import_button".localized)
               .font(.system(size: 16, weight: .semibold))
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
@@ -53,7 +55,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
         .safeAreaPadding(.top)
         
         // Headers
-        Text("Import")
+        Text("import_title".localized)
           .font(.system(size: 34, weight: .bold))
           .foregroundColor(theme.primaryColor)
         
@@ -62,7 +64,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           .foregroundColor(theme.primaryColor.opacity(0.6))
           .lineSpacing(4)
         
-        Text("\(viewModel.resources.count) File\(viewModel.resources.count == 1 ? "" : "s")")
+        Text(String.localizedStringWithFormat("files_title".localized, viewModel.resources.count))
           .font(.headline)
           .foregroundColor(theme.primaryColor.opacity(0.6))
           .padding(.top, 10)
@@ -86,7 +88,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                   .foregroundColor(.pink)
                 
                 // File Name
-                Text(resource.libraryItem?.originalFileName ?? "Unknown Item")
+                Text(resource.libraryItem?.originalFileName ?? "voiceover_unknown_title".localized)
                   .foregroundColor(theme.primaryColor)
                   .font(.system(size: 14))
                   .lineLimit(1)

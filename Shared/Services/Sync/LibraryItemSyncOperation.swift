@@ -266,17 +266,16 @@ extension LibraryItemSyncOperation {
       ? hardLinkURL
       : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
     
-    guard let data = FileManager.default.contents(atPath: fileURL.path),
+    guard FileManager.default.fileExists(atPath: fileURL.path),
     let remoteUrl = response.url else {
       return
     }
-    
-    do {
-      try await client.upload(data, remoteURL: remoteUrl)
-    } catch {
-      print("Failed to upload data to \(remoteUrl): \(error)")
-    }
-    
+
+    // Streamed straight from disk — audiobooks run into the GBs and must never be
+    // materialized as a single in-memory Data. A failed upload THROWS so the task is
+    // retried and the server is never told the file exists when it doesn't.
+    try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
+
     let _: Empty = try await self.provider.request(
       .externalResourceToDownload(uuid: uuid, uploaded: true)
     )
