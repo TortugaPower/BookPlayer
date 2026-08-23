@@ -179,6 +179,7 @@ struct IntegrationAudiobookDetailsView<
       HStack {
         Image(systemName: "square.and.arrow.down")
       }
+      .accessibilityLabel("download_title".localized)
       .frame(width: 36, height: 24)
       .padding()
       .foregroundStyle(theme.primaryColor)

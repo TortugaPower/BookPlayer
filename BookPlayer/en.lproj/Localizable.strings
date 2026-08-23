@@ -539,3 +539,14 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";
 "task_uploading_file_label" = "Uploading file";
 "task_updating_progress_label" = "Updating progress for %@";
+"yes_button" = "Yes";
+"ignore_button" = "Ignore";
+"resume_playback_alert_title" = "Resume Playback";
+"resume_playback_alert_message" = "There is another source with current play time %@. Play from this time?";
+"queue_library_sync_title" = "Library Sync";
+"queue_file_uploads_title" = "File Uploads";
+"sync_invitation_download_label" = "Download Locally";
+"sync_invitation_import_hint" = "Import %d items to your library.";
+"sync_invitation_download_hint" = "Download %d items to your device storage.";
+"sync_invitation_close_hint" = "Dismisses the invitation card.";
+"close_title" = "Close";

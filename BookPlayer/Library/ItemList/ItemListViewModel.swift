@@ -380,7 +380,8 @@ final class ItemListViewModel: ObservableObject, BPLogger {
       isUnfinished: true
     )
 
-    return nextPlayableItem?.uuid
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
+    return nextPlayableItem?.relativePath
   }
 }
 

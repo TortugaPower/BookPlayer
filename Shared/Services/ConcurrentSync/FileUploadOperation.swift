@@ -49,6 +49,14 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   
   // MARK: - Upload Logic
   private func startUploadTask() async {
+    // A missing local file is permanent — retrying can never succeed, and a failed task
+    // blocks the serial upload queue forever. Consume it instead.
+    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+      Self.logger.error("Upload source missing for \(self.uuid), dropping task: \(self.fileURL.path)")
+      self.didSucceed = true
+      self.finish()
+      return
+    }
     // 1. Determine Session
     let allowCellular = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
     let session = allowCellular ? BPURLSession.shared.backgroundCellularSession : BPURLSession.shared.backgroundSession
@@ -129,8 +137,13 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
                   !(200...299).contains(http.statusCode) {
           // error == nil is NOT success: the background delegate doesn't surface HTTP
           // failures as errors, so a rejected PUT (expired presigned URL, 403) lands here.
+          // A 4xx is PERMANENT for this task — its presigned URL is frozen in the persisted
+          // parameters and will never work again. The queue retries failures forever on a
+          // single serial key, so keeping it failed hot-loops every 5s and blocks every
+          // other upload behind it. Consume it; the item stays unsynced and a fresh upload
+          // task (with a fresh URL) can be scheduled later.
           Self.logger.error("Upload rejected for \(self.uuid): HTTP \(http.statusCode)")
-          self.didSucceed = false
+          self.didSucceed = (400...499).contains(http.statusCode)
           self.finish()
         } else {
           // Success! Clean up the temp hard link — and ONLY the temp hard link: when the

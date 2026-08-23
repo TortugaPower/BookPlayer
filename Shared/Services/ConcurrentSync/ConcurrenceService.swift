@@ -33,7 +33,7 @@ public protocol ConcurrenceServiceProtocol {
 
   func getAllQueuedJobs() async -> [ConcurrentSyncTask]
 
-  func getOrderedQueuedJobs(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask]
+  func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
 
   /// Pending-task count per active queue; the sync queue is always listed first,
   /// even when idle
@@ -246,8 +246,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     return await taskContainer.getAllTasks()
   }
 
-  public func getOrderedQueuedJobs(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask] {
-    return await taskContainer.getOrderedTasks(activeTasks: activeTasks)
+  public func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
+    return await taskContainer.getOrderedTasks(activeTaskIDs: activeTaskIDs)
   }
 
   public func getQueueSummaries() async -> [QueueSummary] {
