@@ -11,7 +11,7 @@ import Foundation
 
 public final class PlayableItem: NSObject, Identifiable {
   public var id: String {
-    return relativePath
+    return uuid
   }
   public let title: String
   public let author: String

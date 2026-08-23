@@ -23,7 +23,7 @@ struct SettingsIntegrationsSectionView: View {
           .bpFont(.body)
       }
     } header: {
-      Text("integrations_title")
+      Text("integrations_title".localized)
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     }

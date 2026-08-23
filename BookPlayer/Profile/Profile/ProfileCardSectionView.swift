@@ -18,7 +18,7 @@ struct ProfileCardSectionView: View {
   var body: some View {
     ThemedSection {
       Button(action: action) {
-        ProfileCardView(email: accountService.account.email)
+        ProfileCardView(email: accountService.account.email, sub: accountService.accessLevel.rawValue, subColor: theme.secondarySystemBackgroundColor)
       }
     }
   }

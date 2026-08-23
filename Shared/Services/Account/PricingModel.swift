@@ -46,6 +46,8 @@ public enum PricingOption: String, Identifiable, Codable, CaseIterable {
 
   case proMonthly = "com.tortugapower.audiobookplayer.subscription.pro"
   case proYearly = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
+  case liteMonthly = "com.tortugapower.audiobookplayer.subscription.lite"
+  case liteYearly = "com.tortugapower.audiobookplayer.subscription.lite.yearly"
   case supportTier4 = "com.tortugapower.audiobookplayer.subscription.support.4"
   case supportTier6 = "com.tortugapower.audiobookplayer.subscription.support.6"
   case supportTier7 = "com.tortugapower.audiobookplayer.subscription.support.7"
@@ -71,6 +73,10 @@ public enum PricingOption: String, Identifiable, Codable, CaseIterable {
       return "$8.99"
     case .supportTier10:
       return "$9.99"
+    case .liteMonthly:
+      return "$2.99"
+    case .liteYearly:
+      return "$29.99"
     }
   }
 
@@ -92,6 +98,10 @@ public enum PricingOption: String, Identifiable, Codable, CaseIterable {
       return 8.99
     case .supportTier10:
       return 9.99
+    case .liteMonthly:
+      return 2.99
+    case .liteYearly:
+      return 29.99
     }
   }
 }

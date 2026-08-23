@@ -13,16 +13,18 @@ import SwiftUI
 struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
   @State private var jobsCount = 0
+  @State private var concurrentJobsCount = 0
 
   private var buttonText: String {
-    String(format: "queued_sync_tasks_title".localized, jobsCount)
+    String(format: "queued_sync_tasks_title".localized, jobsCount + concurrentJobsCount)
   }
 
   @Environment(\.syncService) private var syncService
+  @Environment(\.concurrenceService) private var concurrenceService
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    NavigationLink(value: ProfileScreen.tasks) {
+    NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
         Text(buttonText)
           .bpFont(.body)
@@ -36,6 +38,11 @@ struct ProfileSyncTasksSectionView: View {
       guard jobsCount != count else { return }
 
       jobsCount = count
+    }
+    .onReceive(concurrenceService.observeConcurrentTasksCount()) { count in
+      guard concurrentJobsCount != count else { return }
+
+      concurrentJobsCount = count
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)
@@ -98,8 +105,23 @@ struct ProfileSyncTasksSectionView: View {
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
+    let tasksDataManager = TasksDataManager()
+    let concurrenceService = ConcurrenceService()
+    concurrenceService.setup(
+      libraryService: libraryService,
+      accessLevel: accountService.accessLevel,
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
     let syncService = SyncService()
-    syncService.setup(isActive: true, libraryService: libraryService, accountService: accountService, dataManager: dataManager)
+    syncService.setup(
+      isActive: true,
+      libraryService: libraryService,
+      accountService: accountService,
+      concurrenceService: concurrenceService,
+      tasksDataManager: tasksDataManager
+    )
 
     return syncService
   }()

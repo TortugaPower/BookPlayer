@@ -10,20 +10,22 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
   let playerManager: PlayerManager
+  let playerState: PlayerState
   private let syncService: SyncService
+  private let concurrenceService: ConcurrenceServiceProtocol
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  private var activeTasks: [String: Task<(), Error>] = [:]
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -104,7 +106,9 @@ final class ItemListViewModel: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
+    playerState: PlayerState,
     syncService: SyncService,
+    concurrenceService: ConcurrenceService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
     listState: ListStateManager,
@@ -114,7 +118,9 @@ final class ItemListViewModel: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
+    self.playerState = playerState
     self.syncService = syncService
+    self.concurrenceService = concurrenceService
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
     self.listState = listState
@@ -246,7 +252,7 @@ final class ItemListViewModel: ObservableObject {
     return playbackService.processFoldersStaleProgress()
   }
 
-  func syncList() async {
+  func syncList(jellyfinService: JellyfinConnectionService? = nil) async {
     if processFoldersStaleProgress() {
       listState.reloadAll()
     }
@@ -265,6 +271,9 @@ final class ItemListViewModel: ObservableObject {
       contentsFetchTask = Task {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
+          if let jellyfinService {
+            await updateFromResource(jellyfinService: jellyfinService)
+          }
           await MainActor.run {
             listState.reloadAll()
           }
@@ -371,7 +380,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
-    return nextPlayableItem?.relativePath
+    return nextPlayableItem?.uuid
   }
 }
 
@@ -750,7 +759,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {
@@ -863,10 +872,74 @@ extension ItemListViewModel {
       loadingState.error = BookPlayerError.networkError("Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))")
     }
   }
+  
+  func updateFromResource(jellyfinService: JellyfinConnectionService) async {
+    // 1. Find and extract the Jellyfin resources in a single, safe pass.
+    let jellyfinResources = self.items.compactMap { item in
+      item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
+    }
+    
+    // 2. Pass the pre-calculated, explicitly-typed array into the function.
+    guard let results = try? await jellyfinService.updateItemsFromJellyfin(jellyfinResources) else { return }
+    
+    libraryService.handleSyncFromExternalResouce(remoteItemsDictionary: results)
+  }
 }
 
 extension ItemListViewModel: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
+  }
+  
+  func fetchExternalResource(_ playableItem: PlayableItem) async {
+    activeTasks[playableItem.uuid]?.cancel()
+    
+    activeTasks[playableItem.uuid] = Task {
+      let lastPlayDate = playableItem.lastPlayDate ?? Date.distantPast
+      let jellyfinService = JellyfinConnectionService()
+      jellyfinService.setup()
+      
+      let audiobookShelfService = AudiobookShelfConnectionService()
+      audiobookShelfService.setup()
+      
+      guard let externalResources = libraryService.findResources(for: playableItem.uuid) else { return }
+            
+      for externalResource in externalResources {
+        switch ExternalResource.ProviderName(rawValue: externalResource.providerName) {
+        case .jellyfin:
+          do {
+            if let jellyfinItem = try await jellyfinService.fetchItem(for: externalResource.providerId) {
+              let threshold: TimeInterval = 15
+              let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
+              let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+              let isExternalSecondsFarther = TimeInterval(jellyfinItem.currentSeconds ?? 0) > (playableItem.currentTime + threshold)
+              if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+                playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
+                playerState.showResumePopup = true
+              }
+            }
+          } catch {
+            Self.logger.error("Failed to fetch item from Jellyfin: \(error)")
+          }
+        case .audiobookshelf:
+          do {
+            if let audiobookShelfItem = try await audiobookShelfService.fetchItem(for: externalResource.providerId) {
+              let threshold: TimeInterval = 15
+              let externalPlayDate = Date.distantPast
+              let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+              let isExternalSecondsFarther = TimeInterval(audiobookShelfItem.currentTime ?? 0) > (playableItem.currentTime + threshold)
+              if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+                playerState.remotePlayTime = Double(audiobookShelfItem.currentTime ?? 0)
+                playerState.showResumePopup = true
+              }
+            }
+          } catch {
+            Self.logger.error("Failed to fetch item from AudiobookShelf: \(error)")
+          }
+        default:
+          break
+        }
+      }
+    }
   }
 }

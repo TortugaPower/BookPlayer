@@ -13,7 +13,9 @@ class PlayerState {
   var loadedBookRelativePath: String?
   var showPlayer = false
   var isShowingPlayer = false
-
+  var showResumePopup = false
+  var remotePlayTime: Double? = nil
+  
   var showPlayerBinding: Binding<Bool> {
     .init(
       get: { self.showPlayer },
@@ -25,6 +27,13 @@ class PlayerState {
     .init(
       get: { self.isShowingPlayer },
       set: { self.isShowingPlayer = $0 }
+    )
+  }
+  
+  var showResumePopupBinding: Binding<Bool> {
+    .init(
+      get: { self.showResumePopup },
+      set: { self.showResumePopup = $0 }
     )
   }
 

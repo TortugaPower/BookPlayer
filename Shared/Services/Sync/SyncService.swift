@@ -83,7 +83,13 @@ public protocol SyncServiceProtocol {
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
   func scheduleUploadArtwork(relativePath: String, uuid: String)
-  
+
+  /// Upload a newly linked external resource
+  func scheduleExternalResourceUpload(_ resource: SyncableExternalResource, relativePath: String, uuid: String)
+
+  /// Delete an external resource on the server
+  func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String)
+
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
@@ -110,6 +116,7 @@ public protocol SyncServiceProtocol {
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
+  private var concurrenceService: ConcurrenceServiceProtocol!
   private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
@@ -147,15 +154,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
-    client: NetworkClientProtocol = NetworkClient(),
-    dataManager: DataManager
+    concurrenceService: ConcurrenceServiceProtocol,
+    tasksDataManager: TasksDataManager,
+    client: NetworkClientProtocol = NetworkClient()
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
     self.accountService = accountService
-    let tasksDataManager = TasksDataManager()
+    self.concurrenceService = concurrenceService
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
-    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
+    self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -339,8 +347,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if let lastItemPlayed = response.lastItemPlayed {
       filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
     }
-    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
+    
     await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
@@ -452,8 +461,67 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
-    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    var remoteURLs: [RemoteFileURL] = []
+    if item.type == .book,
+       let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+      switch ExternalResource.ProviderName(rawValue: external.providerName) {
+      case .jellyfin:
+        let keychainService = KeychainService()
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+        var connection: JellyfinConnectionData?
+        
+        if let hostId = external.hostId, !hostId.isEmpty {
+          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+        }
+        
+        if connection == nil {
+          connection = connections.first
+        }
 
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
+            )
+          ]
+        }
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+        var connection: AudiobookShelfConnectionData?
+        
+        if let hostId = external.hostId, !hostId.isEmpty {
+          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+        }
+        
+        if connection == nil {
+          connection = connections.first
+        }
+
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              externalResources: nil,
+              headers: ["Authorization": "Bearer \(connection.apiToken)"]
+            )
+          ]
+        }
+      default:
+        break
+      }
+    } else {
+      remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    }
+    
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
@@ -471,16 +539,30 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     for remoteURL in bookURLs {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+      let downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
+      
+      if let bearer = remoteURL.headers?["Authorization"] {
+        var request = URLRequest(url: downloadUrl)
+        request.setValue(bearer, forHTTPHeaderField: "Authorization")
+        
+        let task = await provider.client.download(
+          request: request,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      let task = await provider.client.download(
-        url: remoteURL.url,
-        taskDescription: remoteURL.relativePath,
-        session: downloadURLSession.backgroundSession
-      )
+        tasks.append(task)
+      } else {
+        let task = await provider.client.download(
+          url: downloadUrl,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      tasks.append(task)
+        tasks.append(task)
+      }
     }
 
     downloadTasksDictionary[item.relativePath] = tasks
@@ -502,6 +584,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
+  public func scheduleExternalResourceUpload(
+    _ resource: SyncableExternalResource,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleExternalResourceUpload(
+        for: resource,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
+    }
+  }
+
+  public func scheduleExternalResourceDeletion(
+    providerName: String,
+    providerId: String,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleDeleteExternalResource(
+        providerName: providerName,
+        providerId: providerId,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
+    }
+  }
+
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     return await jobManager.getAllQueuedJobs()
   }
@@ -511,7 +625,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func getLastSyncError() -> SyncErrorInfo? {
-    return jobManager.lastSyncError
+    return concurrenceService.lastSyncError
   }
 
   public func cancelAllJobs() {
@@ -588,6 +702,12 @@ extension SyncService {
   func handleItemsToUpload(_ items: [SyncableItem]) async {
     for item in items {
       await jobManager.scheduleLibraryItemUploadJob(for: item)
+      
+      if let externalResources = item.externalResources {
+        for externalResource in externalResources {
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid))
+        }
+      }
     }
 
     /// Handle bookmarks in separate loop, as the viewContext can be unreliable
@@ -786,6 +906,24 @@ extension SyncService {
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
+
+    guard
+      let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath),
+      let externalResource = snapshot.resources.first(where: {
+        $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue
+      })
+    else { return }
+
+    let externalSyncItem = SyncableExternalResource(
+      providerName: externalResource.providerName,
+      providerId: externalResource.providerId,
+      syncStatus: externalResource.syncStatus,
+      lastSyncedAt: nil,
+      processedFile: true,
+      hostId: externalResource.hostId
+    )
+    await libraryService.updateExternalResource(for: externalSyncItem)
+    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid, uploaded: false)
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a
@@ -919,9 +1057,10 @@ extension SyncService {
 
   /// Get download state of an item
   public func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
-    /// Only process if subscription is active
-    guard isActive else { return .downloaded }
-
+    let hasExternalResources = !(item.externalResources?.isEmpty ?? true)
+    /// Only process if subscription is active or it has external resources
+    guard isActive || hasExternalResources else { return .downloaded }
+    
     if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
       return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
     }

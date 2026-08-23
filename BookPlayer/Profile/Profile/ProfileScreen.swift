@@ -8,6 +8,10 @@
 
 import Foundation
 
-enum ProfileScreen: String, Hashable {
-  case account, tasks
+enum ProfileScreen: Hashable {
+  case account
+  /// Active queues overview
+  case queueTasks
+  /// Task list for one queue key
+  case queue(String)
 }

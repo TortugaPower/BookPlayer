@@ -10,6 +10,7 @@ import AppKit
 #endif
 
 import Combine
+import CoreData
 import BookPlayerKit
 @testable import BookPlayer
 class LibraryServiceProtocolMock: LibraryServiceProtocol {
@@ -316,6 +317,24 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getSimpleItemWithClosure(relativePath)
         } else {
             return getSimpleItemWithReturnValue
+        }
+    }
+    var getSimpleItemForCallsCount = 0
+    var getSimpleItemForCalled: Bool {
+        return getSimpleItemForCallsCount > 0
+    }
+    var getSimpleItemForReceivedUuid: String?
+    var getSimpleItemForReceivedInvocations: [String] = []
+    var getSimpleItemForReturnValue: SimpleLibraryItem?
+    var getSimpleItemForClosure: ((String) -> SimpleLibraryItem?)?
+    func getSimpleItem(for uuid: String) -> SimpleLibraryItem? {
+        getSimpleItemForCallsCount += 1
+        getSimpleItemForReceivedUuid = uuid
+        getSimpleItemForReceivedInvocations.append(uuid)
+        if let getSimpleItemForClosure = getSimpleItemForClosure {
+            return getSimpleItemForClosure(uuid)
+        } else {
+            return getSimpleItemForReturnValue
         }
     }
     //MARK: - getItems
@@ -977,6 +996,66 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         setHardcoverBookForReceivedInvocations.append((hardcoverBook: hardcoverBook, relativePath: relativePath))
         await setHardcoverBookForClosure?(hardcoverBook, relativePath)
     }
+    //MARK: - setExternalResource
+
+    var setExternalResourceProviderNameProviderIdForCallsCount = 0
+    var setExternalResourceProviderNameProviderIdForCalled: Bool {
+        return setExternalResourceProviderNameProviderIdForCallsCount > 0
+    }
+    var setExternalResourceProviderNameProviderIdForReceivedArguments: (providerName: String, providerId: String, uuid: String)?
+    var setExternalResourceProviderNameProviderIdForReceivedInvocations: [(providerName: String, providerId: String, uuid: String)] = []
+    var setExternalResourceProviderNameProviderIdForReturnValue: SyncableExternalResource?
+    var setExternalResourceProviderNameProviderIdForClosure: ((String, String, String) async -> SyncableExternalResource?)?
+    func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource? {
+        setExternalResourceProviderNameProviderIdForCallsCount += 1
+        setExternalResourceProviderNameProviderIdForReceivedArguments = (providerName: providerName, providerId: providerId, uuid: uuid)
+        setExternalResourceProviderNameProviderIdForReceivedInvocations.append((providerName: providerName, providerId: providerId, uuid: uuid))
+        if let setExternalResourceProviderNameProviderIdForClosure = setExternalResourceProviderNameProviderIdForClosure {
+            return await setExternalResourceProviderNameProviderIdForClosure(providerName, providerId, uuid)
+        } else {
+            return setExternalResourceProviderNameProviderIdForReturnValue
+        }
+    }
+    //MARK: - removeExternalResource
+
+    var removeExternalResourceProviderNameForCallsCount = 0
+    var removeExternalResourceProviderNameForCalled: Bool {
+        return removeExternalResourceProviderNameForCallsCount > 0
+    }
+    var removeExternalResourceProviderNameForReceivedArguments: (providerName: String, uuid: String)?
+    var removeExternalResourceProviderNameForReceivedInvocations: [(providerName: String, uuid: String)] = []
+    var removeExternalResourceProviderNameForReturnValue: String?
+    var removeExternalResourceProviderNameForClosure: ((String, String) async -> String?)?
+    func removeExternalResource(providerName: String, for uuid: String) async -> String? {
+        removeExternalResourceProviderNameForCallsCount += 1
+        removeExternalResourceProviderNameForReceivedArguments = (providerName: providerName, uuid: uuid)
+        removeExternalResourceProviderNameForReceivedInvocations.append((providerName: providerName, uuid: uuid))
+        if let removeExternalResourceProviderNameForClosure = removeExternalResourceProviderNameForClosure {
+            return await removeExternalResourceProviderNameForClosure(providerName, uuid)
+        } else {
+            return removeExternalResourceProviderNameForReturnValue
+        }
+    }
+    //MARK: - getExternalResources
+
+    var getExternalResourcesForCallsCount = 0
+    var getExternalResourcesForCalled: Bool {
+        return getExternalResourcesForCallsCount > 0
+    }
+    var getExternalResourcesForReceivedRelativePath: String?
+    var getExternalResourcesForReceivedInvocations: [String] = []
+    var getExternalResourcesForReturnValue: [SimpleExternalResource]! = []
+    var getExternalResourcesForClosure: ((String) async -> [SimpleExternalResource])?
+    func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+        getExternalResourcesForCallsCount += 1
+        getExternalResourcesForReceivedRelativePath = relativePath
+        getExternalResourcesForReceivedInvocations.append(relativePath)
+        if let getExternalResourcesForClosure = getExternalResourcesForClosure {
+            return await getExternalResourcesForClosure(relativePath)
+        } else {
+            return getExternalResourcesForReturnValue
+        }
+    }
     //MARK: - getHardcoverBook
 
     var getHardcoverBookForCallsCount = 0
@@ -996,6 +1075,85 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         } else {
             return getHardcoverBookForReturnValue
         }
+    }
+  
+    //MARK: - findResource
+
+    var findResourceForCallsCount = 0
+    var findResourceForCalled: Bool {
+        return findResourceForCallsCount > 0
+    }
+    var findResourceForReceivedArguments: (providerId: String, context: NSManagedObjectContext?)?
+    var findResourceForReceivedInvocations: [(providerId: String, context: NSManagedObjectContext?)] = []
+    var findResourceForReturnValue: BookPlayerKit.ExternalResource?
+    var findResourceForClosure: ((String, NSManagedObjectContext?) -> BookPlayerKit.ExternalResource?)?
+    func findResource(for providerId: String, context: NSManagedObjectContext?) -> BookPlayerKit.ExternalResource? {
+        findResourceForCallsCount += 1
+        findResourceForReceivedArguments = (providerId: providerId, context: context)
+        findResourceForReceivedInvocations.append((providerId: providerId, context: context))
+        if let findResourceForClosure = findResourceForClosure {
+            return findResourceForClosure(providerId, context)
+        } else {
+            return findResourceForReturnValue
+        }
+    }
+
+    //MARK: - findResources
+
+    var findResourcesForCallsCount = 0
+    var findResourcesForCalled: Bool {
+        return findResourcesForCallsCount > 0
+    }
+    var findResourcesForReceivedArguments: (uuid: String, context: NSManagedObjectContext?)?
+    var findResourcesForReceivedInvocations: [(uuid: String, context: NSManagedObjectContext?)] = []
+    var findResourcesForReturnValue: [BookPlayerKit.ExternalResource]?
+    var findResourcesForClosure: ((String, NSManagedObjectContext?) -> [BookPlayerKit.ExternalResource]?)?
+    func findResources(for uuid: String, context: NSManagedObjectContext?) -> [BookPlayerKit.ExternalResource]? {
+        findResourcesForCallsCount += 1
+        findResourcesForReceivedArguments = (uuid: uuid, context: context)
+        findResourcesForReceivedInvocations.append((uuid: uuid, context: context))
+        if let findResourcesForClosure = findResourcesForClosure {
+            return findResourcesForClosure(uuid, context)
+        } else {
+            return findResourcesForReturnValue
+        }
+    }
+
+    //MARK: - insertItems
+
+    var insertItemsFromResourcesCallsCount = 0
+    var insertItemsFromResourcesCalled: Bool {
+        return insertItemsFromResourcesCallsCount > 0
+    }
+    var insertItemsFromResourcesReceivedResources: [BookPlayerKit.SimpleExternalResource]?
+    var insertItemsFromResourcesReceivedInvocations: [[BookPlayerKit.SimpleExternalResource]] = []
+    var insertItemsFromResourcesReturnValue: [BookPlayerKit.SimpleLibraryItem]!
+    var insertItemsFromResourcesClosure: (([BookPlayerKit.SimpleExternalResource]) async -> [BookPlayerKit.SimpleLibraryItem])?
+    func insertItems(from resources: [BookPlayerKit.SimpleExternalResource]) async -> [BookPlayerKit.SimpleLibraryItem] {
+        insertItemsFromResourcesCallsCount += 1
+        insertItemsFromResourcesReceivedResources = resources
+        insertItemsFromResourcesReceivedInvocations.append(resources)
+        if let insertItemsFromResourcesClosure = insertItemsFromResourcesClosure {
+            return await insertItemsFromResourcesClosure(resources)
+        } else {
+            return insertItemsFromResourcesReturnValue
+        }
+    }
+
+    //MARK: - handleSyncFromExternalResouce
+
+    var handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount = 0
+    var handleSyncFromExternalResouceRemoteItemsDictionaryCalled: Bool {
+        return handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount > 0
+    }
+    var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary: [String : BookPlayerKit.JellyfinLibraryItem]?
+    var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedInvocations: [[String : BookPlayerKit.JellyfinLibraryItem]] = []
+    var handleSyncFromExternalResouceRemoteItemsDictionaryClosure: (([String : BookPlayerKit.JellyfinLibraryItem]) -> Void)?
+    func handleSyncFromExternalResouce(remoteItemsDictionary: [String : BookPlayerKit.JellyfinLibraryItem]) {
+        handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount += 1
+        handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary = remoteItemsDictionary
+        handleSyncFromExternalResouceRemoteItemsDictionaryReceivedInvocations.append(remoteItemsDictionary)
+        handleSyncFromExternalResouceRemoteItemsDictionaryClosure?(remoteItemsDictionary)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
@@ -1155,6 +1313,9 @@ class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
     }
 }
 class PlayerManagerProtocolMock: PlayerManagerProtocol {
+    let playerIsLoadingURL: Bool = false
+    var storedConnection: BookPlayerKit.JellyfinConnectionData? = nil
+  
     var currentItem: PlayableItem?
     var currentSpeed: Float {
         get { return underlyingCurrentSpeed }
@@ -1987,6 +2148,36 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         scheduleUploadArtworkRelativePathUuidReceivedArguments = (relativePath: relativePath, uuid: uuid)
         scheduleUploadArtworkRelativePathUuidReceivedInvocations.append((relativePath: relativePath, uuid: uuid))
         scheduleUploadArtworkRelativePathUuidClosure?(relativePath, uuid)
+    }
+    //MARK: - scheduleExternalResourceUpload
+
+    var scheduleExternalResourceUploadRelativePathUuidCallsCount = 0
+    var scheduleExternalResourceUploadRelativePathUuidCalled: Bool {
+        return scheduleExternalResourceUploadRelativePathUuidCallsCount > 0
+    }
+    var scheduleExternalResourceUploadRelativePathUuidReceivedArguments: (resource: SyncableExternalResource, relativePath: String, uuid: String)?
+    var scheduleExternalResourceUploadRelativePathUuidReceivedInvocations: [(resource: SyncableExternalResource, relativePath: String, uuid: String)] = []
+    var scheduleExternalResourceUploadRelativePathUuidClosure: ((SyncableExternalResource, String, String) -> Void)?
+    func scheduleExternalResourceUpload(_ resource: SyncableExternalResource, relativePath: String, uuid: String) {
+        scheduleExternalResourceUploadRelativePathUuidCallsCount += 1
+        scheduleExternalResourceUploadRelativePathUuidReceivedArguments = (resource: resource, relativePath: relativePath, uuid: uuid)
+        scheduleExternalResourceUploadRelativePathUuidReceivedInvocations.append((resource: resource, relativePath: relativePath, uuid: uuid))
+        scheduleExternalResourceUploadRelativePathUuidClosure?(resource, relativePath, uuid)
+    }
+    //MARK: - scheduleExternalResourceDeletion
+
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount = 0
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCalled: Bool {
+        return scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount > 0
+    }
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedArguments: (providerName: String, providerId: String, relativePath: String, uuid: String)?
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations: [(providerName: String, providerId: String, relativePath: String, uuid: String)] = []
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure: ((String, String, String, String) -> Void)?
+    func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String) {
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount += 1
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedArguments = (providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid)
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations.append((providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid))
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure?(providerName, providerId, relativePath, uuid)
     }
     //MARK: - getAllQueuedJobs
 

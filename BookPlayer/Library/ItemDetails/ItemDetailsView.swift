@@ -53,6 +53,10 @@ struct ItemDetailsView: View {
         progress: viewModel.progress,
         lastPlayedDate: viewModel.lastPlayedDate
       )
+
+      if let externalResources = viewModel.item.externalResources {
+        ItemDetailsExternalResourceSectionView(externalResources: externalResources)
+      }
     }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true
@@ -128,3 +132,73 @@ struct ItemDetailsView: View {
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
   }
 }
+
+struct ItemDetailsExternalResourceSectionView: View {
+  let externalResources: [SimpleExternalResource]
+
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  var body: some View {
+    if !externalResources.isEmpty {
+      ThemedSection {
+        ForEach(externalResources) { resource in
+          VStack(alignment: .leading, spacing: Spacing.S1) {
+            HStack {
+              Text("provider_title".localized)
+                .bold()
+              Spacer()
+              Text(resource.providerName.capitalized)
+                .lineLimit(1)
+            }
+
+            HStack {
+              Text("provider_id_title".localized)
+                .bold()
+              Spacer()
+              Text(resource.providerId)
+                .lineLimit(1)
+            }
+
+            if let hostId = resource.hostId, !hostId.isEmpty {
+              HStack {
+                Text("host_title".localized)
+                  .bold()
+                Spacer()
+                Text(resolveHost(resource))
+                  .lineLimit(1)
+                  .truncationMode(.tail)
+              }
+            }
+          }
+          .bpFont(.body)
+          .padding(.vertical, Spacing.S1)
+        }
+      } header: {
+        Text("external_resources_title".localized)
+      }
+    }
+  }
+
+  private func resolveHost(_ resource: SimpleExternalResource) -> String {
+    let keychainService = KeychainService()
+    let hostId = resource.hostId ?? ""
+
+    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+    case .jellyfin:
+      let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+      if let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
+        return connection.url.absoluteString
+      }
+    case .audiobookshelf:
+      let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+      if let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
+        return connection.url.absoluteString
+      }
+    default:
+      break
+    }
+
+    return hostId
+  }
+}
+

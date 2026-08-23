@@ -22,7 +22,8 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
-  static weak var shared: AppDelegate?
+  static weak var shared: AppDelegate?    
+  var pendingURLActions = [Action]()
 
   var window: UIWindow?
 
@@ -61,6 +62,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       Constants.UserDefaults.systemThemeVariantEnabled: true,
       Constants.UserDefaults.videoEnabled: false,
       Constants.UserDefaults.videoPictureInPictureEnabled: false,
+    ])
+
+    // Hardcover settings live in the shared (app group) suite. Register their defaults
+    // there so the service (`bool/object(forKey:)`) and the settings UI (`@AppStorage`)
+    // resolve to the same value before the user explicitly saves anything.
+    UserDefaults.sharedDefaults.register(defaults: [
+      Constants.UserDefaults.hardcoverAutoAddWantToRead: true,
+      Constants.UserDefaults.hardcoverReadingThreshold: 1.0,
     ])
 
     NotificationCenter.default.addObserver(
