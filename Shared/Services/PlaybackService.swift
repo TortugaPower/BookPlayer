@@ -237,8 +237,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
       switch provider {
       case .jellyfin:
         let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
-          ?? connections.first
+        // Resolved by stable host identity ONLY — no first-connection fallback. A resource whose
+        // host doesn't match any saved server must surface as missing (connect-your-server), not
+        // silently stream from whichever server happens to be configured (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
         
         if let connection = connection, let externalResource = externalResource {
           let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
@@ -248,8 +250,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
         
       case .audiobookshelf:
         let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
-          ?? connections.first
+        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
         
         if let connection = connection, let externalResource = externalResource {
           let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)

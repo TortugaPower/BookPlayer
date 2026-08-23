@@ -874,14 +874,30 @@ extension ItemListViewModel {
   }
   
   func updateFromResource(jellyfinService: JellyfinConnectionService) async {
-    // 1. Find and extract the Jellyfin resources in a single, safe pass.
     let jellyfinResources = self.items.compactMap { item in
       item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
     }
-    
-    // 2. Pass the pre-calculated, explicitly-typed array into the function.
-    guard let results = try? await jellyfinService.updateItemsFromJellyfin(jellyfinResources) else { return }
-    
+    guard !jellyfinResources.isEmpty else { return }
+
+    // Resources can belong to DIFFERENT servers — group them by their resolved connection and
+    // query each server for its own items. Resources whose host doesn't match any saved
+    // connection are skipped (their provider ids mean nothing to another server).
+    let connections = jellyfinService.connections
+    var resourcesByConnectionID: [String: [SimpleExternalResource]] = [:]
+    for resource in jellyfinResources {
+      guard let connection = IntegrationHostResolver.connection(for: resource.hostId, in: connections) else { continue }
+      resourcesByConnectionID[connection.id, default: []].append(resource)
+    }
+
+    var results: [String: JellyfinLibraryItem] = [:]
+    for (connectionID, resources) in resourcesByConnectionID {
+      guard let connection = connections.first(where: { $0.id == connectionID }) else { continue }
+      jellyfinService.useConnection(connection)
+      guard let batch = try? await jellyfinService.updateItemsFromJellyfin(resources) else { continue }
+      results.merge(batch) { _, new in new }
+    }
+    guard !results.isEmpty else { return }
+
     libraryService.handleSyncFromExternalResouce(remoteItemsDictionary: results)
   }
 }
@@ -908,6 +924,12 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
         switch ExternalResource.ProviderName(rawValue: externalResource.providerName) {
         case .jellyfin:
           do {
+            // Pin the resource's own server — the active connection may be a different instance
+            // where this provider id doesn't exist (or worse, names another book).
+            guard let connection = IntegrationHostResolver.connection(
+              for: externalResource.hostId, in: jellyfinService.connections
+            ) else { break }
+            jellyfinService.useConnection(connection)
             if let jellyfinItem = try await jellyfinService.fetchItem(for: externalResource.providerId) {
               let threshold: TimeInterval = 15
               let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
@@ -923,6 +945,11 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
           }
         case .audiobookshelf:
           do {
+            // Same per-resource server pinning as the Jellyfin branch above.
+            guard let connection = IntegrationHostResolver.connection(
+              for: externalResource.hostId, in: audiobookShelfService.connections
+            ) else { break }
+            audiobookShelfService.useConnection(connection)
             if let audiobookShelfItem = try await audiobookShelfService.fetchItem(for: externalResource.providerId) {
               let threshold: TimeInterval = 15
               let externalPlayDate = Date.distantPast

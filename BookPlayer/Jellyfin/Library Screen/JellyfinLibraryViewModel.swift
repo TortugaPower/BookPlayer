@@ -412,7 +412,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
         lastSyncedAt: nil,
-        hostId: connectionService.connection?.serverId ?? connectionService.connection?.url.absoluteString,
+        hostId: connectionService.connection?.stableHostId,
         libraryItem: libraryItem
       )
       
@@ -628,7 +628,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
         lastSyncedAt: nil,
-        hostId: connectionService.connection?.serverId ?? connectionService.connection?.url.absoluteString,
+        hostId: connectionService.connection?.stableHostId,
         libraryItem: libraryItem
       )
       
@@ -858,7 +858,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
         lastSyncedAt: nil,
-        hostId: connectionService.connection?.serverId ?? connectionService.connection?.url.absoluteString,
+        hostId: connectionService.connection?.stableHostId,
         libraryItem: libraryItem
       )
       

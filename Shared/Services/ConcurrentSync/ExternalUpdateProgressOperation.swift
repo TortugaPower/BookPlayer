@@ -65,11 +65,14 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     let jellyfinService = JellyfinConnectionService()
     await jellyfinService.setup()
 
-    if let hostId = self.hostId, !hostId.isEmpty {
-      if let targetConnection = await jellyfinService.connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
-        await jellyfinService.useConnection(targetConnection)
-      }
-    }
+    // Stable-host resolution only. An unresolvable host means this device doesn't have the
+    // server the resource belongs to — pushing to whichever connection is active would write
+    // progress to the WRONG server, so the update is deliberately dropped (same discard
+    // semantics as the Android app's external-update task).
+    guard let targetConnection = await IntegrationHostResolver.connection(
+      for: self.hostId, in: jellyfinService.connections
+    ) else { return }
+    await jellyfinService.useConnection(targetConnection)
 
     try await jellyfinService.updateItemProgress(
       self.providerItemId,
@@ -82,11 +85,11 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     let audiobookshelfService = AudiobookShelfConnectionService()
     await audiobookshelfService.setup()
 
-    if let hostId = self.hostId, !hostId.isEmpty {
-      if let targetConnection = await audiobookshelfService.connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
-        await audiobookshelfService.useConnection(targetConnection)
-      }
-    }
+    // Same stable-host discard semantics as the Jellyfin path above.
+    guard let targetConnection = await IntegrationHostResolver.connection(
+      for: self.hostId, in: audiobookshelfService.connections
+    ) else { return }
+    await audiobookshelfService.useConnection(targetConnection)
 
     try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks / 10_000_000))
   }

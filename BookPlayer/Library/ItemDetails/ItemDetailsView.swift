@@ -186,12 +186,12 @@ struct ItemDetailsExternalResourceSectionView: View {
     switch ExternalResource.ProviderName(rawValue: resource.providerName) {
     case .jellyfin:
       let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-      if let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
+      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
         return connection.url.absoluteString
       }
     case .audiobookshelf:
       let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-      if let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId }) {
+      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
         return connection.url.absoluteString
       }
     default:

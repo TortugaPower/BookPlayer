@@ -468,15 +468,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       case .jellyfin:
         let keychainService = KeychainService()
         let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-        var connection: JellyfinConnectionData?
-        
-        if let hostId = external.hostId, !hostId.isEmpty {
-          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
-        }
-        
-        if connection == nil {
-          connection = connections.first
-        }
+        // Stable-host resolution only — downloading from a guessed server fetches the wrong
+        // file when provider item ids collide across instances (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
 
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
@@ -493,15 +487,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       case .audiobookshelf:
         let keychainService = KeychainService()
         let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-        var connection: AudiobookShelfConnectionData?
-        
-        if let hostId = external.hostId, !hostId.isEmpty {
-          connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
-        }
-        
-        if connection == nil {
-          connection = connections.first
-        }
+        // Stable-host resolution only — downloading from a guessed server fetches the wrong
+        // file when provider item ids collide across instances (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
 
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
