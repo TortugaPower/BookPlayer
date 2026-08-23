@@ -376,8 +376,11 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
         .uploadFile: true,
       ]
     default:
+      // Progress pushes go to the USER'S OWN media server, not a BookPlayer-billed resource —
+      // they stay available on every tier (parity with the Android app, where the media-server
+      // queues are deliberately exempt from entitlement gating).
       accessPolicy = [
-        .externalUpdate: false,
+        .externalUpdate: true,
         .uploadFile: false,
       ]
     }

@@ -67,11 +67,17 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
 
     // Stable-host resolution only. An unresolvable host means this device doesn't have the
     // server the resource belongs to — pushing to whichever connection is active would write
-    // progress to the WRONG server, so the update is deliberately dropped (same discard
-    // semantics as the Android app's external-update task).
+    // progress to the WRONG server, so the update is deliberately dropped. Dropping means
+    // CONSUMING the task (didSucceed = true): the queue only pops successful tasks and retries
+    // failures forever, and an unknown host is a permanent condition on this device — leaving
+    // it failed would retry every few seconds until the end of time (same discard semantics as
+    // the Android app's external-update task).
     guard let targetConnection = await IntegrationHostResolver.connection(
       for: self.hostId, in: jellyfinService.connections
-    ) else { return }
+    ) else {
+      self.didSucceed = true
+      return
+    }
     await jellyfinService.useConnection(targetConnection)
 
     try await jellyfinService.updateItemProgress(
@@ -85,10 +91,13 @@ class ExternalUpdateProgressOperation: AsyncOperation, @unchecked Sendable {
     let audiobookshelfService = AudiobookShelfConnectionService()
     await audiobookshelfService.setup()
 
-    // Same stable-host discard semantics as the Jellyfin path above.
+    // Same stable-host discard-by-consuming semantics as the Jellyfin path above.
     guard let targetConnection = await IntegrationHostResolver.connection(
       for: self.hostId, in: audiobookshelfService.connections
-    ) else { return }
+    ) else {
+      self.didSucceed = true
+      return
+    }
     await audiobookshelfService.useConnection(targetConnection)
 
     try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks / 10_000_000))
