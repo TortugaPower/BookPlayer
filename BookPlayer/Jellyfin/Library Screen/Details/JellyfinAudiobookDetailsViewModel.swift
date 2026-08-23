@@ -101,7 +101,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       currentTime: Double(item.currentSeconds ?? 0),
       duration: Double(item.durationSeconds ?? 0),
       percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
       isFinished: item.isFinished ?? false,
       relativePath: "",
       remoteURL: nil,

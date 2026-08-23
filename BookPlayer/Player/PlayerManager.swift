@@ -504,6 +504,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
+        // The load died before the item attached — nothing will ever flip the buffering
+        // overlay off, so clear it here or it covers the player indefinitely.
+        self.updatePlayerIsLoadingURL(false)
         self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription, actions: actions)
         return
       }

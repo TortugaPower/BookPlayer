@@ -22,6 +22,7 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case subscribe
 }
 
+@MainActor
 final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
     case done
@@ -393,7 +394,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         currentTime: Double(item.currentSeconds ?? 0),
         duration: Double(item.durationSeconds ?? 0),
         percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-          ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+          ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
         isFinished: item.isFinished ?? false,
         relativePath: "",
         remoteURL: nil,
@@ -609,7 +610,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
         currentTime: Double(item.currentSeconds ?? 0),
         duration: Double(item.durationSeconds ?? 0),
         percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
         isFinished: item.isFinished ?? false,
         relativePath: "",
         remoteURL: nil,
@@ -839,7 +840,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
         currentTime: Double(item.currentSeconds ?? 0),
         duration: Double(item.durationSeconds ?? 0),
         percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) : 0,
+        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
         isFinished: item.isFinished ?? false,
         relativePath: "",
         remoteURL: nil,

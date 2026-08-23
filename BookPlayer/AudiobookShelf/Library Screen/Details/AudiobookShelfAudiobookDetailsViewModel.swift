@@ -90,11 +90,11 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
       currentTime: Double(item.currentTime ?? 0),
       duration: Double(item.duration ?? 0),
       percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
-        ? Double(item.progress!) / Double(item.duration!) : 0,
+        ? Double(item.progress!) * 100 : 0,
       isFinished: item.isFinished ?? false,
       relativePath: "",
       remoteURL: nil,
-      artworkURL: item.coverPath != nil ? URL(string: item.coverPath!) : nil,
+      artworkURL: connectionService.createItemImageURL(item, size: CGSize(width: 300, height: 300)),
       orderRank: 0,
       parentFolder: nil,
       originalFileName: "\(item.title).\(fileExt)",

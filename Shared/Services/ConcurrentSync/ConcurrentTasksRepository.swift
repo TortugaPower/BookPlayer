@@ -28,7 +28,9 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
   /// All queued tasks outside the serial sync queue
   func getAllTasks() async -> [ConcurrentSyncTask]
 
-  func getOrderedTasks(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask]
+  // Set<String> (not the @MainActor TaskProgressTracker map): only the ids cross the actor
+  // boundary — the tracker object is non-Sendable.
+  func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
 
   func getTasksCount(in queueKey: String) -> Int
 
@@ -292,16 +294,16 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
       }
   }
 
-  public func getOrderedTasks(activeTasks: [String: TaskProgressTracker]) async -> [ConcurrentSyncTask] {
+  public func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
     let concurrentTasks = await self.getAllTasks()
 
     let activeGroup = concurrentTasks.filter { task in
-      activeTasks.keys.contains(task.id)
+      activeTaskIDs.contains(task.id)
     }
 
     // 2. Sieve out ONLY the tasks that are NOT active.
     let inactiveGroup = concurrentTasks.filter { task in
-      !activeTasks.keys.contains(task.id)
+      !activeTaskIDs.contains(task.id)
     }
 
     // 3. Merge them back together, active ones first!

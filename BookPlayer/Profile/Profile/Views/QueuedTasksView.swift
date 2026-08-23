@@ -15,9 +15,9 @@ enum QueueDisplay {
   static func name(for queueKey: String) -> String {
     switch queueKey {
     case TaskQueueKey.sync:
-      return "Library Sync"
+      return "queue_library_sync_title".localized
     case TaskQueueKey.uploadFile:
-      return "File Uploads"
+      return "queue_file_uploads_title".localized
     default:
       return queueKey.capitalized
     }

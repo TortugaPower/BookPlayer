@@ -110,11 +110,11 @@ struct MainView: View {
         )
       }
       .presentationBackground(.clear)
-      .alert("Resume Playback", isPresented: playerState.showResumePopupBinding) {
-        Button("Yes") { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
-        Button("Ignore", role: .cancel) { }
+      .alert("resume_playback_alert_title".localized, isPresented: playerState.showResumePopupBinding) {
+        Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+        Button("ignore_button".localized, role: .cancel) { }
       } message: {
-        Text("There is another source with current play time \(TimeParser.formatTime(playerState.remotePlayTime ?? 0)). Play from this time?")
+        Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
       }
     }
     .sheet(isPresented: $importManager.isShowingExternalImportView) {

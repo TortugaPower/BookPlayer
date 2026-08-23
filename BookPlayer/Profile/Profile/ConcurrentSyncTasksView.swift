@@ -112,7 +112,7 @@ struct ConcurrentSyncTasksView: View {
 
   func reloadQueuedJobs() {
     Task { @MainActor in
-      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTasks: monitor.activeTasks)
+      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
         .filter { $0.queueKey == queueKey }
       jobsCount = allJobs.count
       queuedJobs = allJobs
