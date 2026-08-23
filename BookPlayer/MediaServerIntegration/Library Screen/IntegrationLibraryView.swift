@@ -34,15 +34,57 @@ struct IntegrationLibraryView<
   }
 
   var body: some View {
-    Group {
-      if viewModel.isGridEnabled, viewModel.layout == .grid {
-        ScrollView {
-          IntegrationLibraryGridView(viewModel: viewModel, cellContent: gridCell)
-            .padding()
+    ZStack {
+      Group {
+        if viewModel.isGridEnabled, viewModel.layout == .grid {
+          ScrollView {
+            IntegrationLibraryGridView(viewModel: viewModel, cellContent: gridCell)
+              .padding()
+          }
+        } else {
+          IntegrationLibraryListView(viewModel: viewModel, rowContent: listRow)
+            .scrollContentBackground(.hidden)
         }
-      } else {
-        IntegrationLibraryListView(viewModel: viewModel, rowContent: listRow)
-          .scrollContentBackground(.hidden)
+      }
+
+      if viewModel.showingDownloadConfirmation {
+        // Dimmed background
+        Color.black.opacity(0.4)
+          .ignoresSafeArea()
+          .onTapGesture {
+            // Allow tapping outside to dismiss
+            withAnimation { viewModel.showingDownloadConfirmation = false }
+          }
+        // This prevents touches from passing through to the view behind it
+          .allowsHitTesting(true)
+        
+        // The charming card aligned to the bottom
+        VStack {
+          Spacer()
+          
+          SyncInvitationCard(
+            totalItems: viewModel.useSelectedItems ? viewModel.selectedItems.count : viewModel.totalItems,
+            subscription: viewModel.accountService.accessLevel,
+            onDownload: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+              viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
+            },
+            onSync: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+              viewModel.goToSubscribe()
+            },
+            onCancel: {
+              withAnimation { viewModel.showingDownloadConfirmation = false }
+            }
+          )
+          .padding(.horizontal, 16)
+          // Push it slightly off the bottom edge for a floating look
+          .padding(.bottom, 32)
+        }
+        // Animate the card sliding in from the bottom
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        // Ensure it sits above everything else in the ZStack
+        .zIndex(1)
       }
     }
     .scrollDismissesKeyboard(.interactively)
@@ -58,17 +100,6 @@ struct IntegrationLibraryView<
     .environment(\.editMode, $viewModel.editMode)
     .onChange(of: viewModel.editMode) { _, newValue in
       tabEditing.wrappedValue = newValue.isEditing
-    }
-    .confirmationDialog(
-      "download_folder_confirmation_title".localized,
-      isPresented: $viewModel.showingDownloadConfirmation
-    ) {
-      Button("download_title".localized) {
-        viewModel.confirmDownloadFolder()
-      }
-      Button("cancel_button".localized, role: .cancel) {}
-    } message: {
-      Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -99,7 +130,15 @@ struct IntegrationLibraryView<
             Button(action: viewModel.onEditToggleSelectTapped) {
               Label("select_title".localized, systemImage: "checkmark.circle")
             }
-            Button(action: viewModel.onDownloadFolderTapped) {
+            
+            Button {
+              if viewModel.accountService.hasLiteEnabled() {
+                viewModel.handleImportItems(useSelectedItems: false)
+              } else {
+                viewModel.useSelectedItems = true
+                withAnimation { viewModel.showingDownloadConfirmation = true }
+              }
+            } label: {
               Label("download_title".localized, systemImage: "arrow.down.to.line")
             }
           }
@@ -141,7 +180,14 @@ struct IntegrationLibraryView<
 
     Spacer()
 
-    Button(action: viewModel.onDownloadTapped) {
+    Button {
+      if viewModel.accountService.hasLiteEnabled() {
+        viewModel.handleImportItems(useSelectedItems: true)
+      } else {
+        viewModel.useSelectedItems = true
+        withAnimation { viewModel.showingDownloadConfirmation = true }
+      }
+    } label: {
       Image(systemName: "arrow.down.to.line")
     }
     .disabled(viewModel.selectedItems.isEmpty)

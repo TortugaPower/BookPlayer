@@ -139,10 +139,18 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
-    Self.logger.trace("[Request] PUT \(remoteURL.path)")
-
-    _ = try await URLSession.shared.upload(for: request, from: data)
+    
+    Self.logger.trace("[Request] PUT \(remoteURL.absoluteString)")
+    
+    let (responseData, response) = try await URLSession.shared.upload(for: request, from: data)
+    
+    // Cast the response to HTTPURLResponse to check the status code
+    if let httpResponse = response as? HTTPURLResponse {
+      if !(200...299).contains(httpResponse.statusCode) {
+        let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
+        throw URLError(.badServerResponse, userInfo: ["error": errorMessage])
+      }
+    }
   }
 
   public func uploadTask(

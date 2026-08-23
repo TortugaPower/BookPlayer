@@ -11,18 +11,21 @@ import Foundation
 public enum LibraryAPI {
   case syncedIdentifiers
   case contents(path: String)
-  case upload(params: [String: Any])
-  case update(params: [String: Any])
+  case upload(params: [String: Any]) //check
+  case externalResource(params: [String: Any])
+  case update(params: [String: Any]) //check
   case move(origin: String, destination: String, uuid: String)
   case renameFolder(path: String, name: String, uuid: String)
   case remoteFileURL(path: String, uuid: String?)
   case remoteContentsURL(path: String, uuid: String?)
-  case delete(path: String, uuid: String)
+  case delete(path: String, uuid: String) //check
   case shallowDelete(path: String, uuid: String)
   case bookmarks(path: String, uuid: String?)
-  case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String)
+  case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String) //check
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
   case matchUuids(uuidsDictionary: [String: String])
+  case externalResourceToDownload(uuid: String, uploaded: Bool)
+  case deleteExternalResource(uuid: String, providerName: String, providerId: String)
 }
 
 extension LibraryAPI: Endpoint {
@@ -56,6 +59,12 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/thumbnail_set"
     case .matchUuids:
       return "/v1/library/uuids"
+    case .externalResource:
+      return "/v1/library/external"
+    case .externalResourceToDownload:
+      return "/v1/library/external_set"
+    case .deleteExternalResource:
+      return "/v1/library/external"
     }
   }
 
@@ -89,6 +98,12 @@ extension LibraryAPI: Endpoint {
       return .post
     case .matchUuids:
       return .post
+    case .externalResource:
+      return .put
+    case .externalResourceToDownload:
+      return .post
+    case .deleteExternalResource:
+      return .delete
     }
   }
 
@@ -101,7 +116,7 @@ extension LibraryAPI: Endpoint {
         "relativePath": path,
         "sign": true
       ]
-    case .upload( let params):
+    case .upload(let params):
       return params
     case .update(let params):
       return params
@@ -163,6 +178,19 @@ extension LibraryAPI: Endpoint {
     case .matchUuids(let uuidsDictionary):
       return [
         "items": uuidsDictionary
+      ]
+    case .externalResource(let params):
+      return params
+    case .externalResourceToDownload(let uuid, let uploaded):
+      return [
+        "uuid": uuid,
+        "uploaded": uploaded
+      ]
+    case .deleteExternalResource(let uuid, let providerName, let providerId):
+      return [
+        "uuid": uuid,
+        "providerName": providerName,
+        "providerId": providerId
       ]
     }
   }

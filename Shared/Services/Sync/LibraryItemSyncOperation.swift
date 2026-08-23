@@ -9,46 +9,7 @@
 import Foundation
 import Combine
 
-/// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
-class LibraryItemSyncOperation: Operation, BPLogger {
-  // MARK: - Async operation properties
-
-  private var cellularDataObserver: NSKeyValueObservation?
-  private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.synctask", attributes: .concurrent)
-  override var isAsynchronous: Bool { true }
-
-  private var _isExecuting: Bool = false
-  override private(set) var isExecuting: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isExecuting
-      }
-    }
-    set {
-      willChangeValue(forKey: "isExecuting")
-      lockQueue.sync(flags: [.barrier]) {
-        _isExecuting = newValue
-      }
-      didChangeValue(forKey: "isExecuting")
-    }
-  }
-
-  private var _isFinished: Bool = false
-  override private(set) var isFinished: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isFinished
-      }
-    }
-    set {
-      willChangeValue(forKey: "isFinished")
-      lockQueue.sync(flags: [.barrier]) {
-        _isFinished = newValue
-      }
-      didChangeValue(forKey: "isFinished")
-    }
-  }
-
+class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // MARK: - Library sync properties
 
   let client: NetworkClientProtocol
@@ -77,17 +38,6 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
-  }
-
-  override func start() {
-    guard !isCancelled else {
-      finish()
-      return
-    }
-
-    isFinished = false
-    isExecuting = true
-    main()
   }
 
   // TODO: split into separate Operations
@@ -141,6 +91,26 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .matchUuid:
           try await handleMatchUuids()
           finish()
+        case .externalResource:
+          let _: Empty = try await self.provider.request(.externalResource(params: self.parameters))
+          finish()
+        case .externalResourceToDownload:
+          try await handleExternalResourceToDownload()
+          finish()
+        case .deleteExternalResource:
+          guard
+            let providerName = parameters["providerName"] as? String,
+            let providerId = parameters["providerId"] as? String
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for deleting an external resource")
+          }
+          let _: Empty = try await self.provider.request(
+            .deleteExternalResource(uuid: uuid, providerName: providerName, providerId: providerId)
+          )
+          finish()
+        case .externalUpdate, .uploadFile:
+          /// Handled by their dedicated operations, never routed here
+          throw BookPlayerError.runtimeError("Unsupported job type for sync operation: \(jobType.rawValue)")
         }
       } catch {
         self.error = error
@@ -149,9 +119,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     }
   }
 
-  func finish() {
-    isExecuting = false
-    isFinished = true
+  override func finish() {
+    didSucceed = error == nil
+    super.finish()
   }
 }
 
@@ -159,8 +129,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
 
 extension LibraryItemSyncOperation {
   func handleUploadJob(type: SimpleItemType) async throws {
-    let response: UploadItemResponse = try await provider.request(.upload(params: parameters))
-
+    /// `provider` is client-side metadata (gates the follow-up file upload); keep it out of the request
+    let uploadParams = parameters.filter { $0.key != "provider" }
+    let response: UploadItemResponse = try await provider.request(.upload(params: uploadParams))
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
       try await markUploadAsSynced(uuid: self.uuid)
@@ -196,108 +167,15 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    await uploadFile(
-      fileURL: fileURL,
-      remoteURL: remoteURL,
-      relativePath: self.relativePath
-    )
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, remotePath: remoteURL.absoluteString))
+    self.handleUploadFinished()
   }
 
-  /// Upload file on a background thread
-  func uploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String
-  ) async {
-    let session: URLSession = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
-    ? BPURLSession.shared.backgroundCellularSession
-    : BPURLSession.shared.backgroundSession
-
-    let uploadTask = await self.client.uploadTask(
-      fileURL,
-      remoteURL: remoteURL,
-      taskDescription: relativePath,
-      session: session
-    )
-
-    bindUploadObservers()
-
-    cellularDataObserver?.invalidate()
-    cellularDataObserver = UserDefaults.standard.observe(
-      \.userSettingsAllowCellularData,
-       options: [.new]
-    ) { [weak self] _, change in
-      guard let newValue = change.newValue else { return }
-
-      let previousSession: URLSession = newValue
-      ? BPURLSession.shared.backgroundSession
-      : BPURLSession.shared.backgroundCellularSession
-
-      self?.rescheduleUploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath,
-        previousSession: previousSession
-      )
-    }
-
-    uploadTask.resume()
-  }
-
-  func bindUploadObservers() {
-    progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { [uuid, relativePath] (path, progress) in
-      guard path == relativePath else { return }
-      NotificationCenter.default.post(
-        name: .uploadProgressUpdated,
-        object: nil,
-        userInfo: [
-          "progress": progress,
-          "relativePath": path,
-          "uuid": uuid
-        ]
-      )
-    })
-
-    completionSubscriber?.cancel()
-    completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self] (task, error) in
-      self?.cellularDataObserver?.invalidate()
-      if let nserror = error as? NSError,
-         nserror.domain == NSURLErrorDomain,
-         nserror.code == NSURLErrorCancelled {
-        /// Do nothing, as the task is already being rescheduled
-      } else if let error {
-        self?.error = error
-        self?.finish()
-      } else {
-        self?.handleUploadFinished(task)
-      }
-    })
-  }
-
-  func rescheduleUploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String,
-    previousSession: URLSession
-  ) {
+  func handleUploadFinished() {
     Task {
-      let task = await previousSession.allTasks.filter({ $0.taskDescription == relativePath }).first
-      task?.cancel()
-
-      await self.uploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath
-      )
-    }
-  }
-
-  func handleUploadFinished(_ task: URLSessionTask) {
-    Task { [task] in
       do {
         try await markUploadAsSynced(uuid: uuid)
-        NotificationCenter.default.post(name: .uploadCompleted, object: task)
+        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
         finish()
       } catch {
         self.error = error
@@ -373,6 +251,34 @@ extension LibraryItemSyncOperation {
 
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
+    )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  func handleExternalResourceToDownload() async throws {
+    let response: UploadItemContent = try await self.provider.request(
+      .externalResourceToDownload(uuid: uuid, uploaded: false)
+    )
+    
+    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
+      ? hardLinkURL
+      : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+    
+    guard let data = FileManager.default.contents(atPath: fileURL.path),
+    let remoteUrl = response.url else {
+      return
+    }
+    
+    do {
+      try await client.upload(data, remoteURL: remoteUrl)
+    } catch {
+      print("Failed to upload data to \(remoteUrl): \(error)")
+    }
+    
+    let _: Empty = try await self.provider.request(
+      .externalResourceToDownload(uuid: uuid, uploaded: true)
     )
   }
 }

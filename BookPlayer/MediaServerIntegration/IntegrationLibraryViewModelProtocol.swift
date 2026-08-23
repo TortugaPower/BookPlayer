@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 enum IntegrationLayout {
   enum Options: String {
@@ -29,7 +30,12 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<Item.ID> { get set }
-
+  var showingDownloadConfirmation: Bool { get set }
+  var useSelectedItems: Bool { get set }
+  
+  var importManager: ImportManager? { get set }
+  var accountService: AccountService { get set }
+  
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
 
@@ -38,7 +44,6 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var showsLayoutPreferences: Bool { get }
   var showsSortPreferences: Bool { get }
   var allowsEditing: Bool { get }
-  var showingDownloadConfirmation: Bool { get set }
 
   func fetchInitialItems()
   func fetchMoreItemsIfNeeded(currentItem: Item)
@@ -49,9 +54,11 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onEditToggleSelectTapped()
   @MainActor func onSelectTapped(for item: Item)
   @MainActor func onSelectAllTapped()
+  @MainActor func handleImportItems(useSelectedItems: Bool)
   @MainActor func onDownloadTapped()
   @MainActor func onDownloadFolderTapped()
   @MainActor func confirmDownloadFolder()
+  @MainActor func goToSubscribe()
 }
 
 extension IntegrationLibraryViewModelProtocol {
@@ -63,6 +70,4 @@ extension IntegrationLibraryViewModelProtocol {
     get { false }
     set {}
   }
-  func onDownloadFolderTapped() {}
-  func confirmDownloadFolder() {}
 }

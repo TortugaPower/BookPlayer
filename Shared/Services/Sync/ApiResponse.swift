@@ -8,6 +8,7 @@
 
 public enum ApiResponse {
   case matchUuid(MatchUuidsResponse)
+  case uploadMetadata(UploadResponse)                                                           
 }
 
 public struct MatchUuidsResponse: Decodable {
@@ -32,4 +33,10 @@ public struct ItemConflict: Decodable {
         self.key = key
         self.uuid = uuid
     }
+}
+
+public struct UploadResponse: Decodable {
+  let uuid: String
+  let filePath: String
+  let remotePath: String?
 }

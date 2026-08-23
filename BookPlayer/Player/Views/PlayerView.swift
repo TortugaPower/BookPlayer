@@ -50,6 +50,15 @@ struct PlayerView: View {
             )
           }
         }
+        .overlay {
+          if viewModel.playerManager.playerIsLoadingURL {
+            DynamicWaveLoadingView()
+            // Ensure the wave view respects the image's rounded corners
+              .aspectRatio(1, contentMode: .fit)
+              .clipShape(RoundedRectangle(cornerRadius: 12))
+              .transition(.opacity)
+          }
+        }
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
             .onChanged { gesture in

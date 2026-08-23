@@ -46,6 +46,12 @@ extension UploadTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
 
+    /// Provider-backed items skip the device file upload (the server pulls the file
+    /// from the provider instead) — see `ConcurrenceService.handleFinishedOperation`
+    if let provider {
+      dict["provider"] = provider
+    }
+
     return dict
   }
 }
@@ -173,5 +179,94 @@ extension MatchUuidsTaskModel: DictionaryConvertible {
       "id": id,
       "uuids": uuids
     ]
+  }
+}
+
+extension UploadExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "providerId": providerId,
+      "providerName": providerName,
+      "lastSyncedAt": lastSyncedAt as Any,
+      "processedFile": processedFile,
+      "syncStatus": syncStatus,
+      "hostId": hostId as Any
+    ]
+  }
+}
+
+extension ExternalResourceToDownloadTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "uploaded": uploaded
+    ]
+  }
+}
+
+extension DeleteExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "relativePath": relativePath,
+      "providerName": providerName,
+      "providerId": providerId
+    ]
+  }
+}
+
+extension ExternalUpdateTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    var dictionary: [String: Any] = [
+      "id": id,
+      "providerId": providerId,
+      "providerName": providerName
+    ]
+    
+    if let title {
+      dictionary["title"] = title
+    }
+    
+    if let details {
+      dictionary["details"] = details
+    }
+    
+    if let currentTime {
+      dictionary["currentTime"] = currentTime
+    }
+    
+    if let percentCompleted {
+      dictionary["percentCompleted"] = percentCompleted
+    }
+    
+    if let isFinished {
+      dictionary["isFinished"] = isFinished
+    }
+    
+    if let lastPlayDateTimestamp {
+      dictionary["lastPlayDateTimestamp"] = lastPlayDateTimestamp
+    }
+    
+    return dictionary
+  }
+}
+
+extension ConcurrentUploadTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    var dictionary: [String: Any] = [
+      "id": id,
+      "uuid": uuid,
+      "filePath": filePath
+    ]
+    
+    if let remotePath {
+      dictionary["remotePath"] = remotePath
+    }
+    
+    return dictionary
   }
 }

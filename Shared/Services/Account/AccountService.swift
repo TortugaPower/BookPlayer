@@ -28,7 +28,7 @@ public enum SecondOnboardingError: Error {
 }
 
 public enum AccessLevel: String, CaseIterable, Identifiable {
-  case free, plus, pro
+  case free, plus, lite, pro
 
   public var id: String { rawValue }
 }
@@ -74,7 +74,8 @@ public protocol AccountServiceProtocol {
 
   func getHardcodedSubscriptionOptions() -> [PricingModel]
   func getSubscriptionOptions() async throws -> [PricingModel]
-
+  func getAccessLevel() -> AccessLevel
+  
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
@@ -106,6 +107,8 @@ public protocol AccountServiceProtocol {
 
 @Observable
 public final class AccountService: AccountServiceProtocol {
+  let monthlyLiteSubscriptionId = "com.tortugapower.audiobookplayer.subscription.lite"
+  let yearlyLiteSubscriptionId = "com.tortugapower.audiobookplayer.subscription.lite.yearly"
   let monthlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
   let yearlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
   var dataManager: DataManager!
@@ -175,7 +178,11 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func hasSyncEnabled() -> Bool {
-    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true || Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
+  }
+  
+  public func hasLiteEnabled() -> Bool {
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }
 
   public func hasPlusAccess() -> Bool {
@@ -184,9 +191,9 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     let entitlements = cachedInfo.entitlements.all
-
     if entitlements["plus"]?.isActive == true
       || entitlements["pro"]?.isActive == true
+        || entitlements["lite"]?.isActive == true
     {
       return true
     }
@@ -197,13 +204,22 @@ public final class AccountService: AccountServiceProtocol {
     {
       return false
     }
+    
+    if entitlements["lite"]?.isActive == false,
+      let subscriptionInfo = getSubscriptionInfo(from: cachedInfo),
+      subscriptionInfo.refundedAt != nil
+    {
+      return false
+    }
 
     return getAccount()?.donationMade == true
   }
 
-  private func getAccessLevel() -> AccessLevel {
-    if hasSyncEnabled() {
+  public func getAccessLevel() -> AccessLevel {
+    if hasSyncEnabled() && !hasLiteEnabled() {
       return .pro
+    } else if hasLiteEnabled() {
+      return .lite
     } else if hasPlusAccess() {
       return .plus
     } else {
@@ -307,6 +323,38 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     if let product = products.first(where: { $0.productIdentifier == monthlySubscriptionId }) {
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("monthly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
+    }
+
+    if options.isEmpty {
+      throw AccountError.emptyProducts
+    }
+
+    return options
+  }
+  
+  public func getLiteSubscriptionOptions() async throws -> [PricingModel] {
+    let products = await Purchases.shared.products([yearlyLiteSubscriptionId, monthlyLiteSubscriptionId])
+
+    var options = [PricingModel]()
+
+    if let product = products.first(where: { $0.productIdentifier == yearlyLiteSubscriptionId }) {
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("yearly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
+    }
+
+    if let product = products.first(where: { $0.productIdentifier == monthlyLiteSubscriptionId }) {
       options.append(
         PricingModel(
           id: product.productIdentifier,

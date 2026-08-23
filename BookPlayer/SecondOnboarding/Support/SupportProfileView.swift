@@ -43,11 +43,11 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
           .accessibilityHidden(true)
         
         Group {
-          Text("Create your profile")
+          Text("create_profile_title".localized)
             .bpFont(.titleStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .padding()
-          Text("To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab")
+          Text("create_profile_description".localized)
             .bpFont(.bodyStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .multilineTextAlignment(.center)
@@ -70,7 +70,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         Button(action: {
           viewModel.dismiss()
         }, label: {
-          Text("Not now")
+          Text("not_now_button".localized)
             .underline()
             .bpFont(.body)
             .foregroundStyle(themeViewModel.secondaryColor)

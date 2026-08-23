@@ -223,6 +223,46 @@ public final class PlaybackService: PlaybackServiceProtocol {
     /// Ignore chapters that don't have the duration set properly
     chapters = chapters.filter { $0.duration > 0 }
 
+    // Resolve connection info once for the book
+    var externalUrl: URL?
+    var externalHeaders: [String: String] = [:]
+    
+    let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+    if let providerRaw = externalResource?.providerName,
+       let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
+      
+      let keychainService = KeychainService()
+      let hostId = externalResource?.hostId ?? ""
+      
+      switch provider {
+      case .jellyfin:
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+          ?? connections.first
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          externalHeaders = ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
+        }
+        
+      case .audiobookshelf:
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+        let connection = connections.first(where: { $0.serverId == hostId || $0.url.absoluteString == hostId })
+          ?? connections.first
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          externalHeaders = ["Authorization": "Bearer \(connection.apiToken)"]
+        }
+        
+      default:
+        break
+      }
+    }
+
+    // If no chapters, create a single one using the book metadata
     guard !chapters.isEmpty else {
       return [
         PlayableChapter(
@@ -232,11 +272,14 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: 1
+          externalURL: externalUrl ?? book.remoteURL,
+          index: 1,
+          externalHeaders: externalHeaders
         )
       ]
     }
 
+    // Map existing chapters and apply resolved connection info
     return chapters.enumerated()
       .map({ (index, chapter) in
         return PlayableChapter(
@@ -246,7 +289,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: chapter.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: Int16(index + 1)
+          externalURL: externalUrl,
+          index: Int16(index + 1),
+          externalHeaders: externalHeaders
         )
       })
   }
@@ -327,6 +372,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: nestedChapter.relativePath,
           remoteURL: nestedChapter.remoteURL,
+          externalURL: nestedChapter.externalUrl,
           index: index,
           chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
         )

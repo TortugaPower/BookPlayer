@@ -309,6 +309,7 @@
 "choose_plan_title" = "Wähle deinen Plan";
 "tasks_title" = "Aufgaben";
 "queued_sync_tasks_title" = "Synchronisierungsaufgaben in der Warteschlange (%d)";
+"sync_tasks_queued_count_title" = "Warteschlangen-Aufgaben (%d)";
 "sync_tasks_alert_description" = "Wenn eine Synchronisierungsaufgabe hängen bleibt und nach einer aktiven Internetverbindung nicht gelöscht werden kann, kannst du dich abmelden und wieder anmelden, um die aktuellen Aufgaben zu löschen. Dadurch wird deine Bibliothek auf den letzten mit unseren Servern synchronisierten Status zurückgesetzt.
 
  Beachte, dass Upload-Aufgaben einige Zeit in Anspruch nehmen können und der Fortschritt regelmäßig auf dem vorherigen Bildschirm angezeigt wird.
@@ -504,3 +505,22 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_invitation_save_storage_title" = "Speicherplatz sparen!";
+"sync_invitation_learn_more_button" = "Mehr erfahren";
+"sync_invitation_description" = "Sie sind dabei"; 
+"sync_invitation_stream_description" = "Anstatt Platz zu beanspruchen, streamen Sie diese direkt von Ihrem Server und halten Sie Ihren Fortschritt synchronisiert.";
+"sync_tasks_concurrent_count_title" = "Gleichzeitige Aufgaben (%d)";
+"sync_tasks_running_empty_title" = "Keine laufenden Aufgaben";
+"sync_tasks_empty_title" = "Keine Aufgaben in der Warteschlange";
+"sync_tasks_empty_description" = "Alle Ihre Synchronisierungsaufgaben sind auf dem neuesten Stand.";
+"sync_task_update_progress_label" = "Fortschritt für %@ wird aktualisiert";
+"sync_task_upload_file_label" = "Datei wird hochgeladen";
+"audiobook_details_narrator_label" = "Gelesen von %@";
+"stream_button" = "Streamen";
+"import_verb" = "importieren";
+"download_verb" = "herunterladen";
+"passkey_title" = "Passkey";
+"create_profile_title" = "Profil erstellen";
+"create_profile_description" = "Um die Cloud-Synchronisierung zu aktivieren, melden Sie sich bei Ihrem Profil an. Sie können dies später jederzeit im Tab „Profil“ nachholen.";
+"not_now_button" = "Nicht jetzt";
+"quick_action_label" = "Schnellaktion %d";

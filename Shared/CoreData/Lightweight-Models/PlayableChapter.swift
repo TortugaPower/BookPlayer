@@ -19,9 +19,11 @@ public struct PlayableChapter: Codable, Identifiable {
   public let duration: TimeInterval
   public let relativePath: String
   public let remoteURL: URL?
+  public var externalUrl: URL?
   public let index: Int16
   public let chapterOffset: TimeInterval
-
+  public let externalHeaders: [String: String]
+  
   public var end: TimeInterval {
     return start + duration
   }
@@ -44,8 +46,10 @@ public struct PlayableChapter: Codable, Identifiable {
     duration: TimeInterval,
     relativePath: String,
     remoteURL: URL?,
+    externalURL: URL?,
     index: Int16,
-    chapterOffset: TimeInterval = 0
+    chapterOffset: TimeInterval = 0,
+    externalHeaders: [String: String] = [:]
   ) {
     self.title = title
     self.author = author
@@ -53,8 +57,10 @@ public struct PlayableChapter: Codable, Identifiable {
     self.duration = duration
     self.relativePath = relativePath
     self.remoteURL = remoteURL
+    self.externalUrl = externalURL
     self.index = index
     self.chapterOffset = chapterOffset
+    self.externalHeaders = externalHeaders
   }
 }
 

@@ -122,4 +122,8 @@ class AccountServiceMock: AccountServiceProtocol {
   func logout() throws {}
 
   func deleteAccount() async throws -> String { return "Success" }
+  
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    return .plus
+  }
 }
