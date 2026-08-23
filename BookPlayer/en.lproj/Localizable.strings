@@ -537,3 +537,5 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "import_title" = "Import";
 "files_title" = "%d Files";
 "sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";
+"task_uploading_file_label" = "Uploading file";
+"task_updating_progress_label" = "Updating progress for %@";

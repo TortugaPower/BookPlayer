@@ -125,14 +125,24 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.didSucceed = false
           self.finish()
           
+        } else if let http = self.currentUploadTask?.response as? HTTPURLResponse,
+                  !(200...299).contains(http.statusCode) {
+          // error == nil is NOT success: the background delegate doesn't surface HTTP
+          // failures as errors, so a rejected PUT (expired presigned URL, 403) lands here.
+          Self.logger.error("Upload rejected for \(self.uuid): HTTP \(http.statusCode)")
+          self.didSucceed = false
+          self.finish()
         } else {
-          // Success!
-          // (You could run your handleUploadFinished logic here if it does extra database work)
-          Task { @MainActor in
-            do {
-              try FileManager.default.removeItem(at: self.fileURL)
-            } catch {
-              Self.logger.warning("Failed to delete hard link for \(self.uuid): \(error.localizedDescription)")
+          // Success! Clean up the temp hard link — and ONLY the temp hard link: when the
+          // link was never created, fileURL falls back to the user's REAL audiobook in the
+          // Processed folder, and deleting that is data loss.
+          if self.fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path) {
+            Task { @MainActor in
+              do {
+                try FileManager.default.removeItem(at: self.fileURL)
+              } catch {
+                Self.logger.warning("Failed to delete hard link for \(self.uuid): \(error.localizedDescription)")
+              }
             }
           }
           self.didSucceed = true

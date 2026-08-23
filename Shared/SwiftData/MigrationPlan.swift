@@ -163,6 +163,9 @@ public enum MigrationPlan: SchemaMigrationPlan {
       try context.save()
 
       // 2. Hardcover external-resource backfill.
+      // Deliberately graceful (unlike v1ToV2's fatalError): a missing context here only
+      // skips the OPTIONAL backfill of hardcover resources — losing that beats crashing
+      // an upgrade, whereas v1ToV2 without the context would corrupt real queued tasks.
       guard let coreDataContext = injectedCoreDataContext else {
         return
       }

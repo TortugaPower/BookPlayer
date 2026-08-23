@@ -131,9 +131,9 @@ struct ConcurrentSyncTasksView: View {
   func parseLabel(_ jobType: SyncJobType, _ queueKey: String) -> String {
     switch jobType {
     case .uploadFile:
-      return "Uploading file"
+      return "task_uploading_file_label".localized
     default:
-      return "Updating progress for \(queueKey)"
+      return String(format: "task_updating_progress_label".localized, queueKey)
     }
   }
 }
