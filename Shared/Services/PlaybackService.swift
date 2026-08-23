@@ -245,7 +245,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
         if let connection = connection, let externalResource = externalResource {
           let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
           externalUrl = URL(string: urlString)
-          externalHeaders = ["Authorization": "MediaBrowser Token=\"\(connection.accessToken)\""]
+          // Custom headers first (reverse-proxy gates like Cloudflare Access), then the
+          // integration's own Authorization so it always wins on conflict.
+          externalHeaders = connection.customHeaders
+          externalHeaders["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
         }
         
       case .audiobookshelf:
@@ -255,7 +258,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
         if let connection = connection, let externalResource = externalResource {
           let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
           externalUrl = URL(string: urlString)
-          externalHeaders = ["Authorization": "Bearer \(connection.apiToken)"]
+          externalHeaders = connection.customHeaders
+          externalHeaders["Authorization"] = "Bearer \(connection.apiToken)"
         }
         
       default:

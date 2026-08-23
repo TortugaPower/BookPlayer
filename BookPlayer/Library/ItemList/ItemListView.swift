@@ -306,7 +306,7 @@ struct ItemListView: View {
           case .downloading:
             cancelDownload(of: item.id)
           case .downloaded, .notDownloaded:
-            loadPlayer(with: item.uuid)
+            loadPlayer(with: item.relativePath)
           }
         }
         .accessibilityAction {
@@ -323,7 +323,7 @@ struct ItemListView: View {
           case .downloading:
             cancelDownload(of: item.id)
           case .downloaded, .notDownloaded:
-            loadPlayer(with: item.uuid)
+            loadPlayer(with: item.relativePath)
           }
         }
       }
@@ -584,7 +584,7 @@ struct ItemListView: View {
           loadPlayer(with: uuid)
         }
       case .bound, .book:
-        loadPlayer(with: item.uuid)
+        loadPlayer(with: item.relativePath)
       }
     }
   }
@@ -596,10 +596,10 @@ struct ItemListView: View {
     }
   }
 
-  func loadPlayer(with uuid: String) {
+  func loadPlayer(with relativePath: String) {
     Task {
       do {
-        try await playerLoaderService.loadPlayer(uuid, autoplay: true)
+        try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
         playerState.showPlayerBinding.wrappedValue = true
       } catch {
         print(error)

@@ -173,7 +173,7 @@ struct LibraryRootView: View {
 
     do {
       try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
-        libraryItem.uuid,
+        libraryItem.relativePath,
         autoplay: false,
         recordAsLastBook: false
       )

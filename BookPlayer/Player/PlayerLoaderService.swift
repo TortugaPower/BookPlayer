@@ -36,11 +36,14 @@ final class PlayerLoaderService: @unchecked Sendable {
 
   @MainActor
   func loadPlayer(
-    _ uuid: String,
+    _ relativePath: String,
     autoplay: Bool,
     recordAsLastBook: Bool = true
   ) async throws {
-    guard let libraryItem = self.libraryService.getSimpleItem(for: uuid)
+    // The loader's contract is a RELATIVE PATH — every launch surface speaks paths (App
+    // Intents, CarPlay, search, watch, last-book restore, deep links). Resolution to the
+    // item (and its uuid) happens here, in one place.
+    guard let libraryItem = self.libraryService.getSimpleItem(with: relativePath)
     else { return }
     
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)

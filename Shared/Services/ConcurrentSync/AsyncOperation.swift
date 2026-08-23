@@ -14,14 +14,28 @@ class AsyncOperation: Operation, @unchecked Sendable {
     fileprivate var keyPath: String { return "is\(rawValue.capitalized)" }
   }
   
-  var state = State.ready {
-    willSet {
-      willChangeValue(forKey: newValue.keyPath)
-      willChangeValue(forKey: state.keyPath)
+  /// `state` is read by the OperationQueue and written from both the queue thread (`start()`)
+  /// and the subclasses' detached Tasks (`finish()`), so access is lock-guarded — the classic
+  /// async-Operation footgun. KVO notifications fire outside the lock.
+  private let stateLock = NSLock()
+  private var _state = State.ready
+  var state: State {
+    get {
+      stateLock.lock(); defer { stateLock.unlock() }
+      return _state
     }
-    didSet {
+    set {
+      let oldValue: State
+      stateLock.lock()
+      oldValue = _state
+      stateLock.unlock()
+      willChangeValue(forKey: newValue.keyPath)
+      willChangeValue(forKey: oldValue.keyPath)
+      stateLock.lock()
+      _state = newValue
+      stateLock.unlock()
       didChangeValue(forKey: oldValue.keyPath)
-      didChangeValue(forKey: state.keyPath)
+      didChangeValue(forKey: newValue.keyPath)
     }
   }
   
