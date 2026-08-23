@@ -100,16 +100,70 @@ final class ItemDetailsViewModel: ObservableObject {
     )
 
     Task {
-      if let item = await libraryService.getHardcoverBook(for: item.relativePath) {
-        hardcoverBook = item
-        hardcoverSectionViewModel?.pickerViewModel.selected = .init(
-          id: item.id,
-          artworkURL: item.artworkURL,
-          title: item.title,
-          author: item.author
-        )
-      }
+      await resolveHardcoverSelection()
     }
+  }
+
+  /// Populate the Hardcover picker selection. Prefers the full local reference; otherwise
+  /// falls back to the hardcover external resource — showing the item's title right away,
+  /// then fetching the real book info from Hardcover by its providerId.
+  @MainActor
+  private func resolveHardcoverSelection() async {
+    if let book = await libraryService.getHardcoverBook(for: item.relativePath) {
+      hardcoverBook = book
+      hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+        id: book.id,
+        artworkURL: book.artworkURL,
+        title: book.title,
+        author: book.author
+      )
+      return
+    }
+
+    /// No full local reference — fall back to the hardcover external resource, if any
+    guard hardcoverSectionViewModel != nil else { return }
+
+    let resources = await libraryService.getExternalResources(for: item.relativePath)
+    guard
+      let resource = resources.first(where: {
+        $0.providerName == ExternalResource.ProviderName.hardcover.rawValue
+      }),
+      let bookID = Int(resource.providerId)
+    else { return }
+
+    /// Show at least the item's title so the row reflects a selection
+    hardcoverBook = SimpleHardcoverBook(
+      id: bookID,
+      artworkURL: nil,
+      title: item.title,
+      author: item.details,
+      status: .local
+    )
+    hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+      id: bookID,
+      artworkURL: nil,
+      title: item.title,
+      author: item.details
+    )
+
+    /// Fetch the real book info from Hardcover and update the selection
+    hardcoverSectionViewModel?.isFetchingBook = true
+    let fetched = try? await hardcoverService.getBook(id: bookID)
+    hardcoverSectionViewModel?.isFetchingBook = false
+
+    /// Discard the result if the selection was swapped or unlinked while fetching
+    guard
+      let fetched,
+      hardcoverSectionViewModel?.pickerViewModel.selected?.id == bookID
+    else { return }
+
+    hardcoverBook = fetched
+    hardcoverSectionViewModel?.pickerViewModel.selected = .init(
+      id: fetched.id,
+      artworkURL: fetched.artworkURL,
+      title: fetched.title,
+      author: fetched.author
+    )
   }
 
   func handleSaveAction(_ loadingState: LoadingOverlayState, success: @escaping () -> Void) {

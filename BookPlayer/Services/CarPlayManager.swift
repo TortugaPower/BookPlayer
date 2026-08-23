@@ -748,4 +748,10 @@ extension CarPlayManager: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
   }
+  
+  // Deliberately empty: CarPlay playback is local/cloud-only — media-server progress
+  // refresh happens on the phone UI paths, not while driving.
+  func fetchExternalResource(_ playableItem: PlayableItem) async {
+    
+  }
 }

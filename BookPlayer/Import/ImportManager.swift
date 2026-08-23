@@ -22,12 +22,16 @@ final class ImportManager: ObservableObject {
   private var subscription: AnyCancellable?
   private var timer: Timer?
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
-
+  
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
   /// The import screen is up, from when it starts appearing until it has disappeared, however it
   /// closes (set by the screen). The library's placement prompt waits for it: a presentation
   /// started under it is dropped.
   @Published var isImportScreenShown = false
+  public var externalOperationPublisher = PassthroughSubject<[SimpleExternalResource], Never>()
+
+  @Published var externalFiles: [SimpleExternalResource] = []
+  @Published var isShowingExternalImportView: Bool = false
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -157,5 +161,30 @@ final class ImportManager: ObservableObject {
         process(url)
       }
     }
+  }
+  
+  private func hasExistingBook(_ externalResource: SimpleExternalResource) -> Bool {
+    guard let simpleItem = externalResource.libraryItem else { return false }
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+    let destinationURL = documentsFolder.appendingPathComponent(simpleItem.relativePath)
+    if self.libraryService.findBooks(containing: destinationURL)?.first != nil {
+      return true
+    }
+    
+    if self.libraryService.findResource(for: externalResource.providerId, providerName: externalResource.providerName) != nil {
+      return true
+    }
+    
+    return false
+  }
+  
+  @MainActor
+  func processExternalFiles() {
+    guard self.externalFiles.count > 0 else {
+      return
+    }
+    let myExternalFiles = self.externalFiles.filter { !hasExistingBook($0) }
+    self.externalFiles = []
+    self.externalOperationPublisher.send(myExternalFiles)
   }
 }

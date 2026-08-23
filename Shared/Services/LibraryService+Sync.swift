@@ -48,6 +48,11 @@ public protocol LibrarySyncProtocol {
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
+    
+  /// Item uuid + external resources as lightweight values, fetched on the context's queue
+  func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])?
+
+  func updateExternalResource(for item: SyncableExternalResource) async
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -169,9 +174,90 @@ extension LibraryService: LibrarySyncProtocol {
     if !item.uuid.isEmpty {
       storedItem.uuid = item.uuid
     }
+    
+    if let remoteExternalResources = item.externalResources {
+      let remoteIds = Set(remoteExternalResources.compactMap { $0.providerId })
+      let localIds = Set(storedItem.resourcesArray.compactMap { $0.providerId })
+      
+      let idsToAdd = remoteIds.subtracting(localIds)
+      let idsToRemove = localIds.subtracting(remoteIds)
+      let idsExisting = localIds.intersection(remoteIds)
+      
+      for localResource in storedItem.resourcesArray {
+        // Only reconcile-away resources the server has SEEN: a locally-created link whose
+        // upload task hasn't run yet is legitimately absent from the server payload, and
+        // deleting it here loses the link before it ever syncs.
+        if idsToRemove.contains(localResource.providerId),
+           localResource.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue {
+          storedItem.removeFromExternalResources(localResource)
+          context.delete(localResource)
+        }
+      }
+      
+      for idExisting in idsExisting {
+        guard let localItem = storedItem.resourcesArray.first(where: { $0.providerId == idExisting }),
+              let remoteData = item.externalResources?.first(where: { $0.providerId == idExisting }),
+              remoteData.syncStatus != localItem.syncStatus
+           else {
+          continue
+        }
+        localItem.syncStatus = remoteData.syncStatus
+      }
+      
+      for idToAdd in idsToAdd {
+        // Find the original struct using the ID
+        guard let remoteData = item.externalResources?.first(where: { $0.providerId == idToAdd }) else {
+          continue
+        }
+        
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = remoteData.providerId
+        external.providerName = remoteData.providerName
+        external.syncStatus = remoteData.syncStatus
+        external.lastSyncedAt = remoteData.lastSyncedAt
+        external.processedFile = remoteData.processedFile
+        // The cross-device server identity — without it IntegrationHostResolver returns nil
+        // and a synced-down resource can never resolve to a saved connection on this device.
+        external.hostId = remoteData.hostId
+        
+        external.libraryItem = storedItem
+        storedItem.addToExternalResources(external)
+      }
+    }
+    
+    if let allExternalItems = self.findResourceEntities(for: storedItem.uuid, context: context),
+       allExternalItems.count > storedItem.resourcesArray.count {
+      let allSet = Set(allExternalItems)
+      let keepSet = Set(storedItem.resourcesArray)
+      
+      // 2. Find the difference (things in 'all' but NOT in 'keep')
+      let toDelete = allSet.subtracting(keepSet)
+      
+      // 3. Delete them from the context
+      toDelete.forEach { resource in
+        context.delete(resource)
+      }
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
+    }
+  }
+  
+  public func updateExternalResource(for item: SyncableExternalResource) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let externalResource = self.findResourceEntity(for: item.providerId, providerName: item.providerName, context: context)
+        if let externalResource {
+          externalResource.syncStatus = item.syncStatus
+          externalResource.processedFile = item.processedFile
+          dataManager.saveSyncContext(context)
+        }
+        continuation.resume()
+      }
     }
   }
 
@@ -209,6 +295,23 @@ extension LibraryService: LibrarySyncProtocol {
       syncItem: item,
       context: context
     )
+    
+    if let externalResources = item.externalResources, externalResources.count > 0 {
+      for externalResource in externalResources {
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = externalResource.providerId
+        external.providerName = externalResource.providerName
+        external.syncStatus = externalResource.syncStatus
+        external.lastSyncedAt = externalResource.lastSyncedAt
+        external.processedFile = externalResource.processedFile
+        external.hostId = externalResource.hostId
+        
+        external.libraryItem = newBook
+        newBook.addToExternalResources(external)
+      }
+    }
 
     if let relativePath = parentFolder,
       let folder = getItem(with: relativePath, context: context) as? Folder
@@ -279,7 +382,7 @@ extension LibraryService: LibrarySyncProtocol {
 
         let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
-        continuation.resume(returning: parseSyncableItems(from: results))
+        continuation.resume(returning: parseSyncableItems(from: results, context: context))
       }
     }
   }
@@ -294,12 +397,22 @@ extension LibraryService: LibrarySyncProtocol {
       relativePath
     )
 
-    let results = try? self.dataManager.getBackgroundContext().fetch(fetchRequest) as? [[String: Any]]
+    let context = self.dataManager.getBackgroundContext()
+    var items: [SyncableItem]?
+    context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      items = parseSyncableItems(from: results, context: context)
+    }
 
-    return parseSyncableItems(from: results)
+    return items
   }
 
-  func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
+  func parseSyncableItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SyncableItem]? {
+    // One grouped fetch for all rows — a per-item fetch here is an N+1 on the sync path.
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -322,6 +435,8 @@ extension LibraryService: LibrarySyncProtocol {
       if let lastPlayDate = dictionary["lastPlayDate"] as? Date {
         lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
       }
+      
+      let externalResources = resourcesByUuid[uuid]
 
       return SyncableItem(
         relativePath: relativePath,
@@ -338,7 +453,17 @@ extension LibraryService: LibrarySyncProtocol {
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
         type: type,
-        uuid: uuid
+        uuid: uuid,
+        externalResources: externalResources?.map({
+          SyncableExternalResource(
+            providerName: $0.providerName,
+            providerId: $0.providerId,
+            syncStatus: $0.syncStatus,
+            lastSyncedAt: $0.lastSyncedAt,
+            processedFile: $0.processedFile,
+            hostId: $0.hostId
+          )
+        })
       )
     })
   }
@@ -371,6 +496,46 @@ extension LibraryService: LibrarySyncProtocol {
         continuation.resume()
       }
     }
+  }
+  
+  public func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])? {
+    let context = self.dataManager.getBackgroundContext()
+
+    var snapshot: (uuid: String, resources: [SyncableExternalResource])?
+    context.performAndWait {
+      let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+      fetchRequest.fetchLimit = 1
+
+      guard let item = try? context.fetch(fetchRequest).first else { return }
+
+      let resources = item.resourcesArray.map {
+        SyncableExternalResource(
+          providerName: $0.providerName,
+          providerId: $0.providerId,
+          syncStatus: $0.syncStatus,
+          lastSyncedAt: $0.lastSyncedAt,
+          processedFile: $0.processedFile,
+          hostId: $0.hostId
+        )
+      }
+
+      snapshot = (uuid: item.uuid, resources: resources)
+    }
+
+    return snapshot
+  }
+  
+  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.originalFileName),
+    ]
+
+    return try? context.fetch(fetchRequest).first
   }
 
   private func createBackup(

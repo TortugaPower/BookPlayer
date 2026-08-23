@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-
+import BookPlayerKit
 /// Thin wrapper providing Jellyfin-specific cell, row, sort picker, and environment
 /// to the shared `IntegrationLibraryView`.
 struct JellyfinLibraryView<Model: IntegrationLibraryViewModelProtocol>: View

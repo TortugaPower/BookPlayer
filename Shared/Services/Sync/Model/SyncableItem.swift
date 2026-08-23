@@ -24,6 +24,7 @@ public struct SyncableItem {
   public let lastPlayDateTimestamp: Double?
   let type: SimpleItemType
   let uuid: String
+  var externalResources: [SyncableExternalResource]?
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -61,6 +62,7 @@ extension SyncableItem: Decodable {
     case lastPlayDateTimestamp
     case type
     case uuid
+    case externalResources
   }
 
   public init(from decoder: Decoder) throws {
@@ -80,7 +82,37 @@ extension SyncableItem: Decodable {
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
+    // Lossy per-element decode: SyncableExternalResource has required fields, so one
+    // malformed element in the server payload must drop THAT element, not silently
+    // discard every external resource the item has.
+    self.externalResources = (
+      try? container.decode(LossyDecodableArray<SyncableExternalResource>.self, forKey: .externalResources)
+    )?.elements
     self.uuid = myUuid ?? ""
+  }
+}
+
+/// Decodes each array element independently, skipping the ones that fail.
+struct LossyDecodableArray<Element: Decodable>: Decodable {
+  let elements: [Element]
+
+  init(from decoder: Decoder) throws {
+    var container = try decoder.unkeyedContainer()
+    var elements: [Element] = []
+    while !container.isAtEnd {
+      if let element = try? container.decode(Element.self) {
+        elements.append(element)
+      } else {
+        // A failed decode does NOT advance the index — consume the malformed
+        // element with an always-succeeding decode or this loops forever
+        _ = try? container.decode(AnyDecodableValue.self)
+      }
+    }
+    self.elements = elements
+  }
+
+  private struct AnyDecodableValue: Decodable {
+    init(from decoder: Decoder) throws {}
   }
 }
 
@@ -101,6 +133,9 @@ extension SyncableItem {
     self.lastPlayDateTimestamp = item.lastPlayDate?.timeIntervalSince1970
     self.type = item.type
     self.uuid = item.uuid
+    self.externalResources = item.externalResources?.map({
+      SyncableExternalResource(from: $0)
+    })
   }
   
   public func copy(
@@ -121,7 +156,10 @@ extension SyncableItem {
       orderRank: self.orderRank,
       lastPlayDateTimestamp: self.lastPlayDateTimestamp,
       type: self.type,
-      uuid: uuid ?? self.uuid
+      uuid: uuid ?? self.uuid,
+      // Every field must survive a copy: the synthesized default silently dropped the
+      // external resources for items whose uuid gets minted in processContentsResponse.
+      externalResources: self.externalResources
     )
   }
 }

@@ -7,13 +7,15 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 struct SettingsCompleteAccountView: View {
   @Environment(\.dismiss) private var dismiss
-
+  var subType: AccessLevel = .pro
+  
   var body: some View {
     NavigationStack {
-      CompleteAccountView {
+      CompleteAccountView(subType: subType) {
         dismiss()
       }
     }

@@ -28,6 +28,7 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -107,11 +108,34 @@ struct MainView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
-          syncService: syncService
+          syncService: syncService,
         )
       }
       .presentationBackground(.clear)
       .onAppear { listState.coversOnScreen.insert(.player) }
+      .alert("resume_playback_alert_title".localized, isPresented: playerState.showResumePopupBinding(whenPlayerVisible: true)) {
+        Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+        Button("ignore_button".localized, role: .cancel) { }
+      } message: {
+        Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
+      }
+    }
+    // Sibling copy of the resume alert (see showResumePopupBinding): playback also starts
+    // with the player CLOSED — mini-player, CarPlay, remote commands, last-book restore —
+    // and the copy inside the cover isn't in the hierarchy then, silently dropping the prompt
+    .alert("resume_playback_alert_title".localized, isPresented: playerState.showResumePopupBinding(whenPlayerVisible: false)) {
+      Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+      Button("ignore_button".localized, role: .cancel) { }
+    } message: {
+      Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
+    }
+    .sheet(isPresented: $importManager.isShowingExternalImportView) {
+      ExternalImportView(
+        viewModel: ExternalImportViewModel(importManager: importManager)
+      )
+      .presentationBackground(.clear)
+      .environmentObject(importManager)
+      .environmentObject(theme)
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

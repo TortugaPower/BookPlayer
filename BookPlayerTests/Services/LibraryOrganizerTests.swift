@@ -48,7 +48,7 @@ final class LibraryOrganizerTests: XCTestCase {
     PlayableItem(
       title: "playing",
       author: "author",
-      chapters: [PlayableChapter(title: "c", author: "a", start: 0, duration: 10, relativePath: relativePath, remoteURL: nil, index: 1)],
+      chapters: [PlayableChapter(title: "c", author: "a", start: 0, duration: 10, relativePath: relativePath, remoteURL: nil, externalURL: nil, index: 1)],
       currentTime: 0,
       duration: 10,
       relativePath: relativePath,

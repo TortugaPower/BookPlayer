@@ -29,6 +29,7 @@ class MainCoordinator: NSObject {
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
+  let concurrenceService: ConcurrenceService
   let hardcoverService: HardcoverService
   let preferencesService: PreferencesSyncService
 
@@ -58,6 +59,7 @@ class MainCoordinator: NSObject {
       playerLoaderService: coreServices.playerLoaderService,
       preferencesService: coreServices.preferencesService
     )
+    self.concurrenceService = coreServices.concurrenceService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -108,6 +110,7 @@ class MainCoordinator: NSObject {
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
+      .environment(\.concurrenceService, concurrenceService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve
@@ -163,6 +166,18 @@ class MainCoordinator: NSObject {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         self?.playerState.loadedBookRelativePath = item?.relativePath
+      }
+      .store(in: &disposeBag)
+
+    // Keep the queue's per-job access policy current with the subscription: RevenueCat
+    // updates post .accountUpdate, and without this a mid-session upgrade leaves the
+    // launch-time policy (e.g. file uploads still gated off) until the next app start.
+    // The watch already does the equivalent in ExtensionDelegate.
+    NotificationCenter.default.publisher(for: .accountUpdate)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.concurrenceService.updateConcurrentService(self.accountService.getAccessLevel())
       }
       .store(in: &disposeBag)
   }

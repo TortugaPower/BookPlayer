@@ -14,7 +14,7 @@ struct LoginView: View {
   @State private var loadingState = LoadingOverlayState()
   @State private var showCompleteAccount = false
   @State private var showPasskeyRegistration = false
-
+  
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 

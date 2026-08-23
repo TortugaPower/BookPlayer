@@ -15,7 +15,7 @@ struct JellyfinLibraryGridItemView: View {
 
   @State var item: JellyfinLibraryItem
 
-  @ScaledMetric var accessabilityScale: CGFloat = 1
+  @ScaledMetric var accessibilityScale: CGFloat = 1
   @State private var imageSize: CGSize = CGSize.zero
 
   var isSelected: Bool
@@ -60,7 +60,7 @@ struct JellyfinLibraryGridItemView: View {
   private var folderBadge: some View {
     let imageLength = min(imageSize.width, imageSize.height)
     ZStack {
-      Circle().strokeBorder(.foreground, lineWidth: 1 * accessabilityScale)
+      Circle().strokeBorder(.foreground, lineWidth: 1 * accessibilityScale)
         .background(Circle().fill(.background))
       Image(systemName: "folder.fill")
         .resizable()

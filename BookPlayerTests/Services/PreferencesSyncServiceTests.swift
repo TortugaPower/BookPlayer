@@ -641,4 +641,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func restorePurchases() async throws -> CustomerInfo { try await Purchases.shared.customerInfo() }
   func logout() throws {}
   func deleteAccount() async throws -> String { "" }
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    return .plus
+  }
 }

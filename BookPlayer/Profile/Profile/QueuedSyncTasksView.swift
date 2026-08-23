@@ -24,14 +24,36 @@ struct QueuedSyncTasksView: View {
   var body: some View {
     List {
       ThemedSection {
-        ForEach(queuedJobs) { job in
-          QueuedSyncTaskRowView(
-            imageName: .constant(parseImageName(job.jobType)),
-            title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
-            progressKey: job.progressKey,
-            initialProgress: job.jobType == .upload ? job.progress : 0,
-            isUpload: job.jobType == .upload
-          )
+        if queuedJobs.isEmpty {
+          // MARK: - Empty State
+          VStack(spacing: 12) {
+            Image(systemName: "checkmark.icloud")
+              .font(.largeTitle)
+        .imageScale(.large)
+              .foregroundStyle(.secondary)
+            
+            Text("sync_tasks_empty_title".localized)
+              .bpFont(.headline)
+            
+            Text("sync_tasks_empty_description".localized)
+              .bpFont(.subheadline)
+              .foregroundStyle(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          .padding(.vertical, 40)
+          .frame(maxWidth: .infinity)
+          .listRowBackground(Color.clear)
+          
+        } else {
+          ForEach(queuedJobs) { job in
+            QueuedSyncTaskRowView(
+              imageName: .constant(parseImageName(job.jobType)),
+              title: job.jobType == .matchUuid ? .constant("sync_library_title".localized) : .constant(job.relativePath),
+              progressKey: job.progressKey,
+              initialProgress: job.jobType == .upload ? job.progress : 0,
+              isUpload: job.jobType == .upload
+            )
+          }
         }
       } header: {
         if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {
@@ -116,6 +138,16 @@ struct QueuedSyncTasksView: View {
       return "photo"
     case .matchUuid:
       return "app.connected.to.app.below.fill"
+    case .externalResource:
+      return "arrow.up.forward.square"
+    case .externalResourceToDownload:
+      return "link.badge.plus"
+    case .deleteExternalResource:
+      return "xmark.bin"
+    case .externalUpdate:
+      return "arrow.2.circlepath"
+    case .uploadFile:
+      return "square.and.arrow.up.badge.clock"
     }
   }
 }

@@ -11,6 +11,11 @@ import Combine
 import CoreData
 import Foundation
 
+public enum ImportSource {
+  case local(files: [URL])
+  case external(files: [SimpleExternalResource])
+}
+
 /// sourcery: AutoMockable
 public protocol LibraryServiceProtocol: AnyObject {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
@@ -58,6 +63,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
   /// Where the items with these uuids are now, in the uuids' order; uuids no item has are left out
   func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef]
+  func getSimpleItem(for uuid: String) -> SimpleLibraryItem?
   /// Get items not included in a specific set
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
   /// Fetch a property from a stored library item
@@ -164,11 +170,30 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
+  /// Create an external resource linking the item (by uuid) to a provider's resource.
+  /// Returns the syncable representation to upload, or nil if it already exists or the item is missing.
+  func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource?
+  /// Remove the external resource of the given provider from the item (by uuid).
+  /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
+  func removeExternalResource(providerName: String, for uuid: String) async -> String?
+  /// Returns the item's external resources as lightweight values.
+  func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
+
+  /// Snapshot, not a managed object: services never hand NSManagedObjects out (repo invariant).
+  func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource?
+  
+  func findResources(for uuid: String) -> [SimpleExternalResource]?
+  
+  // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
+  // Sourcery-generated mock property names.
+  @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
+  
+  @MainActor func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem])
 }
 
 // swiftlint:disable force_cast
 @Observable
-public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
+public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked Sendable {
   var dataManager: DataManager!
   var audioMetadataService: AudioMetadataServiceProtocol!
   /// Sticky-sort preference resolver. Injected after construction to break the
@@ -281,18 +306,6 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     }
   }
 
-  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-    fetchRequest.fetchLimit = 1
-    fetchRequest.propertiesToFetch = [
-      #keyPath(LibraryItem.relativePath),
-      #keyPath(LibraryItem.originalFileName),
-    ]
-
-    return try? context.fetch(fetchRequest).first
-  }
-
   public func getItemReference(with relativePath: String) -> LibraryItem? {
     return getItemReference(with: relativePath, context: dataManager.getContext())
   }
@@ -403,7 +416,21 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return fetchRequest
   }
 
+  /// One grouped fetch for every row's external resources — a per-row fetch here is an
+  /// N+1 on the main library list path.
+  func findResourcesGrouped(forUuids uuids: [String], context: NSManagedObjectContext) -> [String: [ExternalResource]] {
+    guard !uuids.isEmpty else { return [:] }
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K IN %@", #keyPath(ExternalResource.libraryItem.uuid), uuids)
+    guard let resources = try? context.fetch(fetch) else { return [:] }
+    return Dictionary(grouping: resources) { $0.libraryItem?.uuid ?? "" }
+  }
+
   func parseFetchedItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SimpleLibraryItem]? {
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -426,6 +453,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         self?.rebuildFolderDetails(relativePath, context: context)
       }
 
+      let externalResources = resourcesByUuid[uuid]
+
       return SimpleLibraryItem(
         title: title,
         details: dictionary["details"] as? String ?? "",
@@ -443,6 +472,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
         type: type,
         uuid: uuid,
+        externalResources: externalResources?.map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
       )
     })
   }
@@ -578,7 +608,9 @@ extension LibraryService {
       return nil
     }
 
-    return SimpleLibraryItem(from: item)
+    return SimpleLibraryItem(
+      from: item,
+    )
   }
 
   public func getLibraryCurrentTheme() -> SimpleTheme? {
@@ -1295,6 +1327,32 @@ extension LibraryService {
 
     try self.delete(items, mode: .deep, context: context)
   }
+  
+  @MainActor
+  @discardableResult
+  public func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
+    // Phase 2: Create CoreData entities on the main thread using pre-extracted data
+    let library = getLibraryReference()
+    var processedFiles = [SimpleLibraryItem]()
+    var nextOrderRank = getNextOrderRank(in: nil)
+    for resource in resources {
+      // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
+      // without one cannot become a book row; skip it instead of crashing.
+      guard let simpleItem = resource.libraryItem else { continue }
+      let libraryItem: LibraryItem
+      let book = await createExternalBook(simpleItem: simpleItem, externalResource: resource)
+      libraryItem = book
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
+
+      library.addToItems(libraryItem)
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
+    }
+
+    dataManager.saveContext()
+
+    return processedFiles
+  }
 }
 
 // MARK: - Fetch library items
@@ -1428,6 +1486,19 @@ extension LibraryService {
   public func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+
+    let context = dataManager.getContext()
+    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+
+    return parseFetchedItems(from: results, context: context)?.first
+  }
+  
+  public func getSimpleItem(for uuid: String) -> SimpleLibraryItem? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
     fetchRequest.fetchLimit = 1
     fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
     fetchRequest.resultType = .dictionaryResultType
@@ -1773,6 +1844,50 @@ extension LibraryService {
     
     self.dataManager.saveSyncContext(context)
     return newBook
+  }
+  
+  /// @MainActor: creates/mutates managed objects on the main-queue viewContext — running
+  /// this off the main thread is the CoreData threading violation the repo bans.
+  @MainActor
+  public func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
+    let context = dataManager.getContext()
+    
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let book = Book(entity: entity, insertInto: context)
+    // relativePath is the primary key of the library — two external books sharing a title
+    // (originalFileName is title-derived) must not collide, so scope by provider item id.
+    book.relativePath = "\(externalResource.providerId)-\(simpleItem.originalFileName)"
+    book.remoteURL = nil
+    book.artworkURL = simpleItem.artworkURL
+    let title = simpleItem.title
+    book.title = title.isEmpty ? simpleItem.title.replacingOccurrences(of: "_", with: " ") : title
+    let artist = simpleItem.details
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
+    book.duration = simpleItem.duration
+    book.currentTime = simpleItem.currentTime
+    book.percentCompleted = simpleItem.percentCompleted
+    book.originalFileName = simpleItem.originalFileName
+    book.isFinished = simpleItem.isFinished
+    book.type = .book
+    book.uuid = UUID().uuidString
+    
+    self.dataManager.saveSyncContext(context)
+    
+    let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+    let external = ExternalResource(entity: resourceEntity, insertInto: context)
+    
+    external.providerId = externalResource.providerId
+    external.providerName = externalResource.providerName
+    external.syncStatus = externalResource.syncStatus
+    external.lastSyncedAt = externalResource.lastSyncedAt
+    external.processedFile = externalResource.processedFile
+    external.hostId = externalResource.hostId
+    
+    external.libraryItem = book
+    book.addToExternalResources(external)
+    
+    self.dataManager.saveSyncContext(context)
+    return book
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
@@ -2421,14 +2536,22 @@ extension LibraryService {
     } else {
       dataManager.saveContext()
     }
-
-    progressPassthroughPublisher.send([
+    
+    var params = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.currentTime): time,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
       #keyPath(LibraryItem.uuid): item.uuid
-    ])
+    ] as [String : Any]
+    
+    if let externalResource = item.resourcesArray.first {
+      params[#keyPath(ExternalResource.providerId)] = externalResource.providerId
+      params[#keyPath(ExternalResource.providerName)] = externalResource.providerName
+      params["hostId"] = externalResource.hostId
+    }
+    
+    progressPassthroughPublisher.send(params)
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
@@ -2779,6 +2902,99 @@ extension LibraryService {
   }
 }
 
+extension LibraryService {
+  /// Managed-object variant for same-module mutation/diffing paths ONLY — never exposed
+  /// on the protocol.
+  func findResourceEntity(for providerId: String, providerName: String? = nil, context: NSManagedObjectContext? = nil) -> ExternalResource? {
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    // Scope by provider when known: provider item ids are only unique per provider, and a
+    // Jellyfin id colliding with an ABS id must not resolve/mutate the other's resource.
+    if let providerName {
+      fetch.predicate = NSPredicate(format: "providerId == %@ AND providerName == %@", providerId, providerName)
+    } else {
+      fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
+    }
+    let context = context ?? self.dataManager.getContext()
+
+    let result = try? context.fetch(fetch)
+    
+    return result?.first
+  }
+  
+  func findResourceEntities(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
+    let context = context ?? self.dataManager.getContext()
+
+    let result = try? context.fetch(fetch)
+    
+    return result
+  }
+
+  public func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
+    let context = dataManager.getContext()
+    var snapshot: SimpleExternalResource?
+    context.performAndWait {
+      if let entity = findResourceEntity(for: providerId, providerName: providerName, context: context) {
+        snapshot = SimpleExternalResource(from: entity, ignoreLibraryItem: true)
+      }
+    }
+    return snapshot
+  }
+
+  public func findResources(for uuid: String) -> [SimpleExternalResource]? {
+    let context = dataManager.getContext()
+    var snapshots: [SimpleExternalResource]?
+    context.performAndWait {
+      snapshots = findResourceEntities(for: uuid, context: context)?
+        .map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+    }
+    return snapshots
+  }
+  
+  @MainActor public func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
+    let remoteKeys = Array(remoteItemsDictionary.keys)
+    
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K == %@ AND %K IN %@",
+      #keyPath(ExternalResource.providerName), ExternalResource.ProviderName.jellyfin.rawValue,
+      #keyPath(ExternalResource.providerId), remoteKeys
+    )
+    let context = self.dataManager.getContext()
+    
+    do {
+      let localResources = try context.fetch(fetch)
+      
+      for localResource in localResources {
+        // We already know this exists because of our predicate!
+        guard let localItem = localResource.libraryItem,
+              let remoteItem = remoteItemsDictionary[localResource.providerId] else {
+          continue
+        }
+        
+        let localDate = localItem.lastPlayDate ?? .distantPast
+        let remoteDate = remoteItem.lastPlayedDate ?? .distantPast
+        
+        if remoteDate > localDate {
+          localItem.currentTime = Double(remoteItem.currentSeconds ?? 0)
+          localItem.isFinished = remoteItem.isFinished ?? localItem.isFinished
+          localItem.lastPlayDate = remoteDate
+          // The library row's progress bar renders percentCompleted, not currentTime —
+          // without this the playhead moves but the row keeps the stale percentage
+          if localItem.duration > 0 {
+            localItem.percentCompleted = min(localItem.currentTime / localItem.duration, 1.0) * 100
+          }
+        }
+      }
+      
+      dataManager.saveSyncContext(context)
+    } catch {
+      Self.logger.error("Failed to batch fetch ExternalResources: \(error)")
+    }
+  }
+}
+
 // MARK: - HardcoverBook operations
 extension LibraryService {
   public func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async {
@@ -2805,6 +3021,97 @@ extension LibraryService {
         dataManager.saveSyncContext(context)
 
         continuation.resume()
+      }
+    }
+  }
+
+  public func setExternalResource(
+    providerName: String,
+    providerId: String,
+    for uuid: String
+  ) async -> SyncableExternalResource? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard let item = try? context.fetch(fetchRequest).first else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        /// Skip if the same resource is already linked
+        if item.resourcesArray.contains(where: {
+          $0.providerName == providerName && $0.providerId == providerId
+        }) {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let syncable = SyncableExternalResource(
+          providerName: providerName,
+          providerId: providerId,
+          syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+          lastSyncedAt: nil,
+          processedFile: true,
+          hostId: nil
+        )
+
+        _ = ExternalResource.create(syncable, libraryItem: item, in: context)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: syncable)
+      }
+    }
+  }
+
+  public func removeExternalResource(
+    providerName: String,
+    for uuid: String
+  ) async -> String? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard
+          let item = try? context.fetch(fetchRequest).first,
+          let resource = item.resourcesArray.first(where: { $0.providerName == providerName })
+        else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let providerId = resource.providerId
+        item.removeFromExternalResources(resource)
+        context.delete(resource)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: providerId)
+      }
+    }
+  }
+
+  public func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        guard let item = getItemReference(with: relativePath, context: context) else {
+          continuation.resume(returning: [])
+          return
+        }
+
+        let resources = item.resourcesArray.map {
+          SimpleExternalResource(from: $0, ignoreLibraryItem: true)
+        }
+        continuation.resume(returning: resources)
       }
     }
   }
@@ -2855,6 +3162,6 @@ extension LibraryService {
     }
   }
 }
-// swiftlint:enable force_cast
 
-extension LibraryService: BPLogger {}
+
+// swiftlint:enable force_cast

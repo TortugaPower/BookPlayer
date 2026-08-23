@@ -50,6 +50,18 @@ struct PlayerView: View {
             )
           }
         }
+        .overlay {
+          if viewModel.isLoadingURL {
+            DynamicWaveLoadingView()
+            // Ensure the wave view respects the image's rounded corners
+              .aspectRatio(1, contentMode: .fit)
+              .clipShape(RoundedRectangle(cornerRadius: 12))
+              .transition(.opacity)
+          }
+        }
+        // The opacity transition only animates when the driving state change is
+        // animated; isLoadingURL is toggled outside withAnimation, so bind it here
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingURL)
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
             .onChanged { gesture in

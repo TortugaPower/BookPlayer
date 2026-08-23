@@ -13,14 +13,12 @@ import XCTest
 @testable import BookPlayer
 @testable import BookPlayerKit
 
-final class SyncTasksStorageTests: XCTestCase {
+final class SyncTasksRepositoryTests: XCTestCase {
   private var tasksDataManager: TasksDataManager!
-  private var storage: SyncTasksStorage!
+  private var repository: ConcurrentTasksRepository!
 
   override func setUpWithError() throws {
     let schema = Schema([
-      SyncTasksContainer.self,
-      SyncTaskReferenceModel.self,
       UploadTaskModel.self,
       UpdateTaskModel.self,
       MoveTaskModel.self,
@@ -29,16 +27,23 @@ final class SyncTasksStorageTests: XCTestCase {
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self
+      MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self,
+      DeleteExternalResourceTaskModel.self,
+      ConcurrentTasksContainer.self,
+      ConcurrentTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      ConcurrentUploadTaskModel.self,
     ])
     let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     let container = try ModelContainer(for: schema, configurations: config)
     tasksDataManager = TasksDataManager(container: container)
-    storage = try SyncTasksStorage(tasksDataManager: tasksDataManager)
+    repository = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
   }
 
   override func tearDown() {
-    storage = nil
+    repository = nil
     tasksDataManager = nil
     super.tearDown()
   }
@@ -50,7 +55,7 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Book.mp3"
     try await appendUploadTask(uuid: uuid, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [uuid: 0.42])
+    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [uuid: 0.42])
 
     XCTAssertEqual(references.count, 1)
     let reference = try XCTUnwrap(references.first)
@@ -64,7 +69,7 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Other.mp3"
     try await appendUploadTask(uuid: uuid, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [relativePath: 0.75])
+    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.75])
 
     XCTAssertEqual(references.count, 1)
     let reference = try XCTUnwrap(references.first)
@@ -77,7 +82,7 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Legacy.mp3"
     try await appendUploadTask(uuid: Constants.legacyUuidPlaceholder, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [relativePath: 0.6])
+    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.6])
 
     XCTAssertEqual(references.count, 1)
     let reference = try XCTUnwrap(references.first)
@@ -89,7 +94,7 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Local.mp3"
     try await appendUploadTask(uuid: Constants.uuidPlaceholder, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [relativePath: 0.33])
+    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.33])
 
     XCTAssertEqual(references.count, 1)
     let reference = try XCTUnwrap(references.first)
@@ -104,13 +109,13 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Swap.mp3"
     try await appendUploadTask(uuid: oldUuid, relativePath: relativePath)
 
-    try await storage.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
+    try await repository.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.uuid, newUuid)
 
-    let tasks = await storage.getAllTasksWithParams()
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     XCTAssertEqual(tasks.count, 1)
     XCTAssertEqual(tasks.first?.uuid, newUuid)
   }
@@ -120,9 +125,9 @@ final class SyncTasksStorageTests: XCTestCase {
     let uuid = "existing-uuid"
     try await appendUploadTask(uuid: uuid, relativePath: "Folder/Other.mp3")
 
-    try await storage.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
+    try await repository.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
     XCTAssertEqual(refs.first?.uuid, uuid)
   }
 
@@ -136,10 +141,10 @@ final class SyncTasksStorageTests: XCTestCase {
     // and introduces a new key (should be added).
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A-prime", "folder/C.mp3": "uuid-C"])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
     XCTAssertEqual(refs.filter { $0.jobType == .matchUuid }.count, 1)
 
-    let tasks = await storage.getAllTasksWithParams()
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     let matchTask = try XCTUnwrap(tasks.first(where: { $0.jobType == .matchUuid }))
     let mergedUuids = try XCTUnwrap(matchTask.parameters["uuids"] as? [String: String])
     XCTAssertEqual(mergedUuids["folder/A.mp3"], "uuid-A")           // existing preserved
@@ -152,7 +157,7 @@ final class SyncTasksStorageTests: XCTestCase {
   func testAppendMatchUuidTask_noExisting_createsNewTask() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.jobType, .matchUuid)
   }
@@ -163,15 +168,15 @@ final class SyncTasksStorageTests: XCTestCase {
   func testAppendMatchUuidTask_firstInFlight_queuesSecondAndMergesIntoIt() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
 
-    // Simulate the first task being in flight — the scheduler calls getNextTask()
+    // Simulate the first task being in flight — the worker calls getNextTask(for:)
     // to hand the snapshot to the operation queue; the task stays in the store.
-    let inFlight = try await storage.getNextTask()
+    let inFlight = await repository.getNextTask(for: TaskQueueKey.sync)
     XCTAssertEqual(inFlight?.jobType, .matchUuid)
 
     // A second schedule must bypass the in-flight task and create a fresh one.
     try await appendMatchUuidTask(uuids: ["folder/B.mp3": "uuid-B"])
 
-    let refsAfterSecond = await storage.getAllTasks(progress: [:])
+    let refsAfterSecond = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
     let matchRefsAfterSecond = refsAfterSecond.filter { $0.jobType == .matchUuid }
     XCTAssertEqual(matchRefsAfterSecond.count, 2)
 
@@ -179,7 +184,7 @@ final class SyncTasksStorageTests: XCTestCase {
     // leaving the in-flight task's dict unchanged.
     try await appendMatchUuidTask(uuids: ["folder/C.mp3": "uuid-C"])
 
-    let tasksAfterThird = await storage.getAllTasksWithParams()
+    let tasksAfterThird = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     let matchTasks = tasksAfterThird.filter { $0.jobType == .matchUuid }
     XCTAssertEqual(matchTasks.count, 2)
 
@@ -192,15 +197,102 @@ final class SyncTasksStorageTests: XCTestCase {
     XCTAssertEqual(queuedUuids, ["folder/B.mp3": "uuid-B", "folder/C.mp3": "uuid-C"])
   }
 
+  /// Sync tasks and concurrent (provider) tasks share the container but must remain
+  /// isolated per queue: counts, listings, and getNextTask never cross queue keys.
+  func testQueueIsolation_syncAndProviderQueues() async throws {
+    try await appendUploadTask(uuid: "sync-uuid", relativePath: "Folder/Book.mp3")
+    try await repository.storeTask(parameters: [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.externalUpdate.rawValue,
+      "queueKey": "jellyfin",
+      "providerName": "jellyfin",
+      "providerId": "provider-item-1",
+      "currentTime": 10.0,
+      "percentCompleted": 5.0
+    ])
+
+    let syncCount = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(syncCount, 1)
+    let providerCount = await repository.getTasksCount(in: "jellyfin")
+    XCTAssertEqual(providerCount, 1)
+
+    let syncTasks = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    XCTAssertEqual(syncTasks.map(\.jobType), [.upload])
+
+    let nonSyncTasks = await repository.getAllTasks()
+    XCTAssertEqual(nonSyncTasks.map(\.jobType), [.externalUpdate])
+
+    let nextProviderTask = await repository.getNextTask(for: "jellyfin")
+    XCTAssertEqual(nextProviderTask?.jobType, .externalUpdate)
+  }
+
+  /// Popping a task must delete both the reference and its payload model.
+  func testPop_removesReferenceAndPayload() async throws {
+    try await appendUploadTask(uuid: "pop-uuid", relativePath: "Folder/Pop.mp3")
+
+    let nextTask = await repository.getNextTask(for: TaskQueueKey.sync)
+    let task = try XCTUnwrap(nextTask)
+    await repository.pop(task)
+
+    let count = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(count, 0)
+    let hasUpload = await repository.hasUploadTask(for: "Folder/Pop.mp3")
+    XCTAssertFalse(hasUpload)
+  }
+
+  /// The sync queue is pinned in the summaries even when idle; other queues only
+  /// appear while they have pending tasks, and the sync queue always sorts first.
+  func testGetQueueSummaries_pinsSyncQueue() async throws {
+    let idleSummaries = await repository.getQueueSummaries()
+    XCTAssertEqual(idleSummaries.map(\.queueKey), [TaskQueueKey.sync])
+    XCTAssertEqual(idleSummaries.first?.count, 0)
+
+    try await repository.storeTask(parameters: [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.externalUpdate.rawValue,
+      "queueKey": "jellyfin",
+      "providerName": "jellyfin",
+      "providerId": "provider-item-1",
+      "currentTime": 10.0,
+      "percentCompleted": 5.0
+    ])
+
+    let summaries = await repository.getQueueSummaries()
+    XCTAssertEqual(summaries.map(\.queueKey), [TaskQueueKey.sync, "jellyfin"])
+    XCTAssertEqual(summaries.map(\.count), [0, 1])
+  }
+
+  /// Clearing one queue must not touch the others.
+  func testClearAll_inQueue_leavesOtherQueuesUntouched() async throws {
+    try await appendUploadTask(uuid: "sync-uuid", relativePath: "Folder/Book.mp3")
+    try await repository.storeTask(parameters: [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.externalUpdate.rawValue,
+      "queueKey": "jellyfin",
+      "providerName": "jellyfin",
+      "providerId": "provider-item-1",
+      "currentTime": 10.0,
+      "percentCompleted": 5.0
+    ])
+
+    try await repository.clearAll(in: TaskQueueKey.sync)
+
+    let syncCount = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(syncCount, 0)
+    let providerCount = await repository.getTasksCount(in: "jellyfin")
+    XCTAssertEqual(providerCount, 1)
+  }
+
   private func appendMatchUuidTask(uuids: [String: String]) async throws {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "jobType": SyncJobType.matchUuid.rawValue,
+      "queueKey": TaskQueueKey.sync,
       "relativePath": "",
       "uuid": "",
       "uuids": uuids
     ]
-    try await storage.appendTask(parameters: parameters)
+    try await repository.storeTask(parameters: parameters)
   }
 
   private func appendUploadTask(uuid: String, relativePath: String) async throws {
@@ -217,8 +309,9 @@ final class SyncTasksStorageTests: XCTestCase {
       "isFinished": false,
       "orderRank": 0,
       "type": SimpleItemType.book.rawValue,
-      "jobType": SyncJobType.upload.rawValue
+      "jobType": SyncJobType.upload.rawValue,
+      "queueKey": TaskQueueKey.sync
     ]
-    try await storage.appendTask(parameters: parameters)
+    try await repository.storeTask(parameters: parameters)
   }
 }

@@ -67,11 +67,18 @@ public class CoreDataStack {
   }
 
   public func saveContext(_ context: NSManagedObjectContext) {
-    guard context.hasChanges else { return }
-    do {
-      try context.save()
-    } catch let error as NSError {
-      fatalError("Unresolved error \(error), \(error.userInfo)")
+    // performAndWait: the unified sync queue saves from arbitrary executor threads, and a
+    // save must run on the context's own queue. It also serializes concurrent saves of the
+    // SAME context — the only serialization CoreData needs here; different contexts save
+    // independently. Save failure remains a hard fail (repo invariant): with no merge
+    // policy set, a failed save means inconsistent state that must never be silently kept.
+    context.performAndWait {
+      guard context.hasChanges else { return }
+      do {
+        try context.save()
+      } catch let error as NSError {
+        fatalError("Unresolved error \(error), \(error.userInfo)")
+      }
     }
   }
 }
