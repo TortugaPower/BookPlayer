@@ -313,7 +313,10 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   }
 
   public func resetAllJobs() async {
-    try? await tasksRepository.clearAll(in: TaskQueueKey.sync)
+    // Logout must wipe EVERY queue, not just the serial sync queue (develop parity):
+    // surviving uploadFile/externalUpdate tasks would run under the NEXT signed-in
+    // account, pushing the previous user's items with the new account's token.
+    try? await tasksRepository.clearAll()
     await MainActor.run {
       tasksProgress.removeAll()
     }

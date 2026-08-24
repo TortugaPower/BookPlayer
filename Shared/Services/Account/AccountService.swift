@@ -216,7 +216,9 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func getAccessLevel() -> AccessLevel {
-    if hasSyncEnabled() && !hasLiteEnabled() {
+    // The pro entitlement is checked explicitly first: a user holding BOTH pro and lite
+    // (e.g. mid-crossgrade) must resolve to the higher tier, not fall through to lite.
+    if Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true {
       return .pro
     } else if hasLiteEnabled() {
       return .lite

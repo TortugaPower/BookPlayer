@@ -47,7 +47,7 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
   func clearAll() throws
 }
 
-public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
+public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLogger {
   nonisolated public let modelContainer: ModelContainer
   nonisolated public let modelExecutor: any ModelExecutor
 
@@ -108,7 +108,24 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol {
       context.delete(reference)
     }
 
-    try? context.save()
+    // Removal happens ONLY here (getNextTask is a peek): a silently-failed save leaves the
+    // reference behind and the worker re-runs the same task forever. Retry once after a
+    // rollback, then surface loudly.
+    do {
+      try context.save()
+    } catch {
+      Self.logger.error("Failed to persist task removal (\(task.id)), retrying: \(error)")
+      context.rollback()
+      if let reference = tasksContainer.tasks.first(where: { $0.taskID == task.id }) {
+        tasksContainer.tasks.removeAll(where: { $0.id == reference.id })
+        context.delete(reference)
+      }
+      do {
+        try context.save()
+      } catch {
+        Self.logger.error("Task removal persistently failing (\(task.id)) — the worker will re-run it: \(error)")
+      }
+    }
 
     tasksDataManager.notifyTasksChanged(context: context)
   }
