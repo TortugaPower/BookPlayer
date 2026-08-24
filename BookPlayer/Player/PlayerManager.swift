@@ -308,10 +308,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     if !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      if syncService.isActive,
-         (forceRefreshURL || chapter.externalUrl == nil) {
-        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      } else if let externalUrl = chapter.externalUrl {
+      if let externalUrl = chapter.externalUrl {
+        // Media-server chapters ALWAYS stream from their external URL — a forced refresh
+        // must not reroute them to the cloud/S3 presign path (their fresh URL comes from
+        // the chapter rebuild during reload, resolved against the local connection).
         asset = AVURLAsset(url: externalUrl, options: [
           AVURLAssetPreferPreciseDurationAndTimingKey: false,
           "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
@@ -337,6 +337,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
             bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
           }
         }
+      } else if syncService.isActive {
+        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
       } else {
         asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
       }

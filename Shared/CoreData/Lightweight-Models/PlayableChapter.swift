@@ -19,7 +19,7 @@ public struct PlayableChapter: Codable, Identifiable {
   public let duration: TimeInterval
   public let relativePath: String
   public let remoteURL: URL?
-  public var externalUrl: URL?
+  public let externalUrl: URL?
   public let index: Int16
   public let chapterOffset: TimeInterval
   public let externalHeaders: [String: String]
