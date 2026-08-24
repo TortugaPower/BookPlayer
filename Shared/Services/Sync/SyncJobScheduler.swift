@@ -305,7 +305,13 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
 
   public func cancelAllJobs() {
     Task {
-      try? await tasksRepository.clearAll()
+      // Subscription lapse (pro/lite → free while signed in), NOT logout: the
+      // provider-keyed externalUpdate queues must survive — progress pushes to the
+      // user's OWN media server stay enabled on every tier (accessPolicy). Only the
+      // BookPlayer-server queue and the pro-gated upload queue are wiped; logout
+      // goes through resetAllJobs(), which clears everything.
+      try? await tasksRepository.clearAll(in: TaskQueueKey.sync)
+      try? await tasksRepository.clearAll(in: TaskQueueKey.uploadFile)
       await MainActor.run {
         tasksProgress.removeAll()
       }

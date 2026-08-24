@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine
 
 class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // MARK: - Library sync properties
@@ -21,9 +20,6 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   var results: ApiResponse?
   var error: Error?
   
-  private var progressSubscriber: AnyCancellable?
-  private var completionSubscriber: AnyCancellable?
-
   /// Initializer
   /// - Parameters:
   ///   - client: Network client
