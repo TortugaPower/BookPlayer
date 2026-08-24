@@ -19,11 +19,7 @@ import WidgetKit
 struct BookPlayerBundle {
   static func main() {
 #if os(iOS)
-    if #available(iOSApplicationExtension 18.0, *) {
-      IOSWidgetsBundle18.main()
-    } else {
-      IOSWidgetsBundle.main()
-    }
+    IOSWidgetsBundle.main()
 #elseif os(watchOS)
     WatchWidgetsBundle.main()
 #endif
@@ -31,14 +27,6 @@ struct BookPlayerBundle {
 
 #if os(iOS)
   struct IOSWidgetsBundle: WidgetBundle {
-    var body: some Widget {
-      LastPlayedWidget()
-      TimeListenedWidget()
-    }
-  }
-
-  @available(iOSApplicationExtension 18.0, *)
-  struct IOSWidgetsBundle18: WidgetBundle {
     var body: some Widget {
       LastPlayedWidget()
       TimeListenedWidget()

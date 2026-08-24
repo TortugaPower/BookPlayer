@@ -462,35 +462,24 @@ struct ItemListView: View {
   /// `ToolbarSpacer(.fixed, ...)` render as one shared capsule. Without the
   /// fixed spacer (or with `.flexible`), each item gets its own pill — which is
   /// what the cascading `.tint(theme.linkColor)` from `LibraryRootView` was
-  /// producing previously. On iOS 18 we fall back to the legacy
-  /// `ToolbarItemGroup` layout since `ToolbarSpacer` isn't available.
+  /// producing previously.
   @ToolbarContentBuilder
   private func regularToolbarItems() -> some ToolbarContent {
-    if #available(iOS 26.0, *) {
-      if importOperationState.isOperationActive {
-        ToolbarItem(placement: .topBarTrailing) {
-          importOperationButton
-        }
-        ToolbarSpacer(.fixed, placement: .topBarTrailing)
-      }
-
+    if importOperationState.isOperationActive {
       ToolbarItem(placement: .topBarTrailing) {
-        libraryOptionsButton
+        importOperationButton
       }
-
       ToolbarSpacer(.fixed, placement: .topBarTrailing)
+    }
 
-      ToolbarItem(placement: .topBarTrailing) {
-        ellipsisMenu
-      }
-    } else {
-      ToolbarItemGroup(placement: .confirmationAction) {
-        if importOperationState.isOperationActive {
-          importOperationButton
-        }
-        libraryOptionsButton
-        ellipsisMenu
-      }
+    ToolbarItem(placement: .topBarTrailing) {
+      libraryOptionsButton
+    }
+
+    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+    ToolbarItem(placement: .topBarTrailing) {
+      ellipsisMenu
     }
   }
 

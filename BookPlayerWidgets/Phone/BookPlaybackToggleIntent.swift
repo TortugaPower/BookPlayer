@@ -11,7 +11,7 @@ import AppIntents
 import BookPlayerKit
 import Foundation
 
-@available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
+@available(macOS 14.0, watchOS 10.0, *)
 struct BookPlaybackToggleIntent: AudioPlaybackIntent {
 
   static var title: LocalizedStringResource = .init("Toggle playback of book")

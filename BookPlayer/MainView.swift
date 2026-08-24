@@ -63,7 +63,7 @@ struct MainView: View {
       Tab("settings_title", systemImage: "gearshape") {
         SettingsView()
       }
-      if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+      if UIDevice.current.userInterfaceIdiom == .phone {
         Tab("search_title", systemImage: "magnifyingglass", role: .search) {
           SearchView {
             SearchViewModel(libraryService: libraryService)
