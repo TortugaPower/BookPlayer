@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct DynamicWaveLoadingView: View {
+  // VoiceOver: announce the buffering state instead of nothing.
   // Controls the fade in/out of the background and wave
   @State private var isPulsing = false
   
@@ -37,6 +38,8 @@ struct DynamicWaveLoadingView: View {
       }
       .opacity(isPulsing ? 1.0 : 0.0) // Fades completely out
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("loading_title".localized)
     .task {
       do {
         // This loop runs continuously as long as the view exists

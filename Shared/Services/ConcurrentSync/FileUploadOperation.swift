@@ -137,7 +137,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.didSucceed = false
           self.finish()
           
-        } else if let http = self.currentUploadTask?.response as? HTTPURLResponse,
+        } else if let http = task.response as? HTTPURLResponse,
                   !(200...299).contains(http.statusCode) {
           // error == nil is NOT success: the background delegate doesn't surface HTTP
           // failures as errors, so a rejected PUT (expired presigned URL, 403) lands here.
@@ -177,6 +177,11 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     cellularDataObserver?.invalidate()
     progressSubscriber?.cancel()
     completionSubscriber?.cancel()
+    // A cancelled mid-flight upload leaks its temp hard link (only the success branch
+    // cleans up) — same temp-dir guard so the user's real file is never touched.
+    if fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path) {
+      try? FileManager.default.removeItem(at: fileURL)
+    }
     // The completion subscriber (which would have called finish()) was just torn down —
     // without this, an operation cancelled mid-flight stays .executing forever and its
     // OperationQueue slot is never reclaimed.

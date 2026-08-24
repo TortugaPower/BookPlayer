@@ -64,7 +64,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private(set) var currentPlaybackTime: TimeInterval = 0
   @Published var error: Error?
   
-  var storedConnection: JellyfinConnectionData?
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()

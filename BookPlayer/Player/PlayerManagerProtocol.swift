@@ -20,7 +20,6 @@ public protocol PlayerManagerProtocol: AnyObject {
   var isPlaying: Bool { get }
   var playerIsLoadingURL: Bool { get }
   var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
-  var storedConnection: JellyfinConnectionData? { get set }
 
   func load(_ item: PlayableItem, autoplay: Bool)
   func awaitCurrentLoad() async

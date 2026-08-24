@@ -31,6 +31,16 @@ public enum AccessLevel: String, CaseIterable, Identifiable {
   case free, plus, lite, pro
 
   public var id: String { rawValue }
+
+  /// User-facing tier name — the raw enum value is an implementation detail and never localized.
+  public var localizedTitle: String {
+    switch self {
+    case .free: return "subscription_tier_free_title".localized
+    case .plus: return "subscription_tier_plus_title".localized
+    case .lite: return "subscription_tier_lite_title".localized
+    case .pro: return "subscription_tier_pro_title".localized
+    }
+  }
 }
 
 extension AccountError: LocalizedError {

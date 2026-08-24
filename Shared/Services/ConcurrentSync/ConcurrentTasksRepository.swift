@@ -76,6 +76,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
         tasksContainer.tasks.removeAll(where: { $0.id == reference.id })
         modelContext.delete(reference)
         try? modelContext.save()
+        tasksDataManager.notifyTasksChanged(context: modelContext)
         continue
       }
 

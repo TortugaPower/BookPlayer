@@ -131,20 +131,13 @@ public final class WebAuthenticationSession: NSObject, WebAuthenticating, BPLogg
 
   /// The only window we'll present from: one belonging to a foreground-active scene, which is what
   /// `ASWebAuthenticationSession` documents as the requirement for a valid anchor.
+  /// Injected by the APP at startup: `UIApplication.shared` is statically unavailable in
+  /// this extension-safe framework, and reaching it via KVC string lookup risks App Store
+  /// static-analysis rejections. SSO only ever runs in the app process, which owns windows.
+  public static var foregroundWindowProvider: (@MainActor () -> UIWindow?)?
+
   private static func foregroundWindow() -> UIWindow? {
-    // `UIApplication.shared` is statically unavailable here: BookPlayerKit compiles
-    // extension-safe (it links into the widgets/share/intents extensions). This flow only ever
-    // runs in the app process — SSO is user-driven UI — so reach the shared application
-    // dynamically; in an extension the lookup simply returns nil and the caller fails the
-    // handshake instead of crashing.
-    guard let app = UIApplication.value(forKeyPath: "sharedApplication") as? UIApplication else {
-      return nil
-    }
-    let scenes = app.connectedScenes.compactMap { $0 as? UIWindowScene }
-    guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) else {
-      return nil
-    }
-    return scene.keyWindow ?? scene.windows.first
+    foregroundWindowProvider?()
   }
 }
 
