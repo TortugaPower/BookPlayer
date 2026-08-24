@@ -38,7 +38,7 @@ public class ExternalResource: NSManagedObject {
     entity.providerId = item.providerId
     entity.lastSyncedAt = item.lastSyncedAt
     entity.syncStatus = item.syncStatus
-    entity.processedFile = false
+    entity.processedFile = item.processedFile
     entity.hostId = item.hostId
     
     if let item = libraryItem {
@@ -60,7 +60,7 @@ public class ExternalResource: NSManagedObject {
     entity.providerId = item.providerId
     entity.lastSyncedAt = item.lastSyncedAt
     entity.syncStatus = item.syncStatus
-    entity.processedFile = false
+    entity.processedFile = item.processedFile
     entity.hostId = item.hostId
     
     if let item = libraryItem {

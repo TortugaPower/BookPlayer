@@ -140,7 +140,8 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
     
-    Self.logger.trace("[Request] PUT \(remoteURL.absoluteString)")
+    // .path only: presigned URLs carry AWS credentials in the query string.
+    Self.logger.trace("[Request] PUT \(remoteURL.path)")
     
     let (responseData, response) = try await URLSession.shared.upload(for: request, from: data)
     

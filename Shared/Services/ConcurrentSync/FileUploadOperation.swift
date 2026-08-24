@@ -10,6 +10,10 @@ import Foundation
 import Combine
 
 class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
+  /// True ONLY when the bytes actually reached the server (2xx). `didSucceed` also goes true
+  /// for CONSUMED permanent failures (missing file, 4xx) so the queue stops retrying them —
+  /// but those must never trigger the synced:true confirmation.
+  private(set) var uploadCompleted = false
   
   // MARK: - Properties
   let fileURL: URL
@@ -158,6 +162,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
               }
             }
           }
+          self.uploadCompleted = true
           self.didSucceed = true
           self.finish()
         }

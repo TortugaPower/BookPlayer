@@ -301,7 +301,10 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     // actually on S3 — LibraryItemSyncOperation deliberately no longer confirms when it
     // schedules a file upload (confirming before the PUT lies to the server if the upload
     // later fails permanently).
-    if let uploadOperation = operation as? FileUploadOperation, uploadOperation.didSucceed {
+    // uploadCompleted (a real 2xx), NOT didSucceed: consumed permanent failures (missing
+    // file, 4xx) also report didSucceed so the queue stops retrying, but no bytes reached
+    // the server — confirming synced:true for those lies to the backend.
+    if let uploadOperation = operation as? FileUploadOperation, uploadOperation.uploadCompleted {
       let provider = NetworkProvider<LibraryAPI>(client: networkClient)
       // The task is popped unconditionally after this, so a transient confirmation failure
       // would strand the item as synced:false with its bytes already on S3 — retry a few
