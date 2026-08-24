@@ -297,6 +297,24 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
   /// Post-completion side effects for finished sync tasks
   private func handleFinishedOperation(_ operation: AsyncOperation, task: ConcurrentSyncTask) async {
+    // The synced:true confirmation for file-backed books happens HERE, after the bytes are
+    // actually on S3 — LibraryItemSyncOperation deliberately no longer confirms when it
+    // schedules a file upload (confirming before the PUT lies to the server if the upload
+    // later fails permanently).
+    if let uploadOperation = operation as? FileUploadOperation, uploadOperation.didSucceed {
+      let provider = NetworkProvider<LibraryAPI>(client: networkClient)
+      do {
+        let _: UploadItemResponse = try await provider.request(.update(params: [
+          "uuid": uploadOperation.uuid,
+          "relativePath": task.relativePath,
+          "synced": true
+        ]))
+        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
+      } catch {
+        Self.logger.error("Failed to confirm upload for \(uploadOperation.uuid): \(error.localizedDescription)")
+      }
+      return
+    }
     guard
       let syncOperation = operation as? LibraryItemSyncOperation,
       let results = syncOperation.results

@@ -50,6 +50,7 @@ extension SimpleExternalResource {
     self.providerId = item.providerId
     self.syncStatus = item.syncStatus
     self.lastSyncedAt = item.lastSyncedAt
+    self.processedFile = item.processedFile
     self.hostId = item.hostId
     self.libraryItemUuid = item.libraryItem?.uuid
     self.libraryItemName = item.libraryItem?.title
