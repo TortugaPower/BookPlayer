@@ -59,10 +59,17 @@ public final class TasksDataManager: BPLogger {
       guard incompatibleStoreCodes.contains(cocoaCode) else {
         fatalError("Sync-tasks container failed to load: \(error)")
       }
-      Self.logger.error("Sync-tasks store unloadable (\(error)); recreating: \(storeURL.path)")
+      Self.logger.error("Sync-tasks store unloadable (\(error)); setting aside: \(storeURL.path)")
+      // Move ASIDE, never delete: 134100 also fires when an OLDER build runs over a store
+      // written by a NEWER schema (TestFlight rollback) — pending deletes/bookmarks there
+      // are not re-derivable, and the set-aside copy survives for the eventual re-upgrade
+      // (or support recovery). Only one generation is kept.
       let fm = FileManager.default
       for suffix in ["", "-wal", "-shm"] {
-        try? fm.removeItem(at: URL(fileURLWithPath: storeURL.path + suffix))
+        let src = URL(fileURLWithPath: storeURL.path + suffix)
+        let dst = URL(fileURLWithPath: storeURL.path + suffix + ".incompatible")
+        try? fm.removeItem(at: dst)
+        try? fm.moveItem(at: src, to: dst)
       }
       // A second failure on a FRESH store is a programming error — crashing is correct.
       container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
