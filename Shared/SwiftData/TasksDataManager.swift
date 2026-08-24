@@ -10,7 +10,7 @@ import Foundation
 import SwiftData
 import Combine
 
-public final class TasksDataManager {
+public final class TasksDataManager: BPLogger {
   public let container: ModelContainer
   private let tasksCountSubject = CurrentValueSubject<Int, Never>(0)
   private let concurrentTasksCountSubject = CurrentValueSubject<Int, Never>(0)
@@ -38,7 +38,21 @@ public final class TasksDataManager {
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
     let modelConfiguration = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
 
-    container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    do {
+      container = try ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    } catch {
+      // An unloadable store here is a PERMANENT launch crash-loop under try! — e.g. a store
+      // written by a schema revision the migration plan no longer knows (dev builds between
+      // schema edits hit exactly this). The task queue is recoverable state: queued work is
+      // re-derivable, a crashed app is not. Destroy and recreate rather than trap forever.
+      Self.logger.error("Sync-tasks store unloadable (\(error)); recreating: \(storeURL.path)")
+      let fm = FileManager.default
+      for suffix in ["", "-wal", "-shm"] {
+        try? fm.removeItem(at: URL(fileURLWithPath: storeURL.path + suffix))
+      }
+      // A second failure on a FRESH store is a programming error — crashing is correct.
+      container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    }
 
     // Initialize task count from database
     initializeTasksCount()
