@@ -1419,6 +1419,9 @@ extension PlayerManager {
   private func stopPlayback() {
     observeStatus = false
     playbackQueued = nil
+    // Stopping mid-buffer never reaches .readyToPlay, so the status sinks won't
+    // clear the streaming buffering overlay — reset it on teardown
+    updatePlayerIsLoadingURL(false)
 
     audioPlayer.pause()
     playTask?.cancel()

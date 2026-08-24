@@ -209,6 +209,12 @@ final class IntegrationConnectionStore<Payload: IntegrationConnectionPayload>: B
   }
 
   private func save() {
-    try? keychain.set(connections, key: keychainKey)
+    do {
+      try keychain.set(connections, key: keychainKey)
+    } catch {
+      // In-memory state already moved on; without this a token that never
+      // persisted (and vanishes on next launch) would be undiagnosable
+      Self.logger.warning("failed to persist connection data to keychain: \(error)")
+    }
   }
 }
