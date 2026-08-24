@@ -11,6 +11,9 @@ import Foundation
 
 public final class PlayableItem: NSObject, Identifiable {
   public var id: String {
+    // Legacy watch payloads predating the uuid field decode to the shared placeholder —
+    // colliding Identifiable ids break SwiftUI lists, so fall back to the path.
+    if uuid == Constants.uuidPlaceholder { return relativePath }
     return uuid
   }
   public let title: String

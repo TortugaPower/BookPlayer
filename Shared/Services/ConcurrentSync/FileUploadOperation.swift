@@ -122,23 +122,25 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
         // CRITICAL: Ensure this completion event belongs to this specific task
         guard task.taskDescription == self.uuid else { return }
         
-        // We've hit a terminal state for this attempt, so clean up the KVO
-        self.cellularDataObserver?.invalidate()
-        
         if let nserror = error as? NSError,
            nserror.domain == NSURLErrorDomain,
            nserror.code == NSURLErrorCancelled {
+          // Deliberately NOT invalidating the cellular observer here: this cancelled
+          // completion belongs to the OLD task after a mid-flight cellular toggle — the
+          // replacement attempt just re-bound a fresh observer that must stay alive.
           // Do nothing! The cellular KVO observer cancelled this task
           // and is already spinning up a new one via startUploadTask().
           
         } else if let error = error {
-          // Actual Failure
+          // Actual Failure — terminal for this operation, so the KVO can go.
+          self.cellularDataObserver?.invalidate()
           Self.logger.error("Upload failed for \(self.uuid): \(error)")
           self.didSucceed = false
           self.finish()
           
         } else if let http = task.response as? HTTPURLResponse,
                   !(200...299).contains(http.statusCode) {
+          self.cellularDataObserver?.invalidate()
           // error == nil is NOT success: the background delegate doesn't surface HTTP
           // failures as errors, so a rejected PUT (expired presigned URL, 403) lands here.
           // A 4xx is PERMANENT for this task — its presigned URL is frozen in the persisted
@@ -150,6 +152,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.didSucceed = (400...499).contains(http.statusCode)
           self.finish()
         } else {
+          self.cellularDataObserver?.invalidate()
           // Success! Clean up the temp hard link — and ONLY the temp hard link: when the
           // link was never created, fileURL falls back to the user's REAL audiobook in the
           // Processed folder, and deleting that is data loss.
