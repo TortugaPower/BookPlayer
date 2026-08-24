@@ -30,9 +30,15 @@ class PlayerState {
     )
   }
   
-  var showResumePopupBinding: Binding<Bool> {
+  /// The resume alert is attached in TWO places (MainView's base and the full-screen
+  /// player's content): an alert beneath a presented fullScreenCover cannot present over
+  /// it, and one inside the cover doesn't exist while the player is closed — the popup
+  /// fires from EVERY playback start (mini-player, CarPlay, remote commands, restore),
+  /// not just from the open player. Gating each copy on the cover's visibility ensures
+  /// exactly one of them can present.
+  func showResumePopupBinding(whenPlayerVisible visible: Bool) -> Binding<Bool> {
     .init(
-      get: { self.showResumePopup },
+      get: { self.showResumePopup && self.isShowingPlayer == visible },
       set: { self.showResumePopup = $0 }
     )
   }
