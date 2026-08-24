@@ -78,8 +78,18 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   private var disposeBag = Set<AnyCancellable>()
   private var listeningTask: Task<Void, Never>?
   public var tasksCountService: ConcurrentTasksCountService!
-  /// Last sync error information for debugging; only written on the main queue
-  public private(set) var lastSyncError: SyncErrorInfo?
+  private var _lastSyncError: SyncErrorInfo?
+  /// Last sync error information for debugging. Writers hop to main, but readers
+  /// (SyncService.getLastSyncError) call from arbitrary threads — same lock
+  /// treatment as accessPolicy so the cross-thread read isn't a data race.
+  public private(set) var lastSyncError: SyncErrorInfo? {
+    get {
+      policyLock.withLock { _lastSyncError }
+    }
+    set {
+      policyLock.withLock { _lastSyncError = newValue }
+    }
+  }
   // Services
 
   required public init(maxConcurrentTasks: Int = 4) {
