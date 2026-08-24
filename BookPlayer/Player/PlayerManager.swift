@@ -305,7 +305,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
     // Reset unconditionally: the flag's setters are gated on remote loads, so a LOCAL load
     // that interrupts a buffering stream would otherwise leave the overlay stuck on.
-    await MainActor.run { updatePlayerIsLoadingURL(false) }
+    updatePlayerIsLoadingURL(false)
 
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
@@ -1430,8 +1430,10 @@ extension PlayerManager {
     observeStatus = false
     playbackQueued = nil
     // Stopping mid-buffer never reaches .readyToPlay, so the status sinks won't
-    // clear the streaming buffering overlay — reset it on teardown
+    // clear the streaming buffering overlay — reset it on teardown, and release
+    // the item-status sink promptly (it retains its AVPlayerItem until rebind)
     updatePlayerIsLoadingURL(false)
+    playerItemStatusSubscription?.cancel()
 
     audioPlayer.pause()
     playTask?.cancel()
