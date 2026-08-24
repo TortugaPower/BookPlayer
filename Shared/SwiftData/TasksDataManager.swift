@@ -118,9 +118,6 @@ public final class TasksDataManager: BPLogger {
     }
   }
 
-  public func notifyConcurrentTasksChanged(context: ModelContext) {
-    notifyTasksChanged(context: context)
-  }
   
   public func deleteAllTasks(with context: ModelContext) throws {
     // Task payload models are standalone (no relationships), so a store-level
@@ -275,17 +272,6 @@ public final class TasksDataManager: BPLogger {
     }
   }
 
-  public func deleteReferenceModel(
-    with id: String,
-    context: ModelContext
-  ) throws {
-    let descriptor = FetchDescriptor<ConcurrentTaskReferenceModel>(
-      predicate: #Predicate<ConcurrentTaskReferenceModel> { task in task.taskID == id }
-    )
-    if let task = try context.fetch(descriptor).first {
-      context.delete(task)
-    }
-  }
 
   // swiftlint:disable force_cast
   public func createTaskModel(
