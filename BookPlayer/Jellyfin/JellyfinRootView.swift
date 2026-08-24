@@ -413,7 +413,7 @@ struct JellyfinTabRoot: View {
           navigationTitle: item.name
         ),
         showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasLiteEnabled(),
+        allowStream: accountService.hasStreamingEnabled(),
       ) {
         onDismiss()
       } onStreamTap: {
@@ -640,7 +640,7 @@ extension JellyfinTabRoot {
           navigationTitle: item.name
         ),
         showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasLiteEnabled(),
+        allowStream: accountService.hasStreamingEnabled(),
       ) {
         onDismiss()
       } onStreamTap: {

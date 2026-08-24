@@ -462,8 +462,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     var remoteURLs: [RemoteFileURL] = []
+    var isExternalItem = false
     if item.type == .book,
        let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+      isExternalItem = true
       switch ExternalResource.ProviderName(rawValue: external.providerName) {
       case .jellyfin:
         let keychainService = KeychainService()
@@ -524,6 +526,13 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
         try DataManager.createBackingFolderIfNeeded(fileURL)
       }
+    }
+
+    // An external item that produced no URL means its media-server connection isn't
+    // resolvable on this device (deleted / never added) — completing silently with zero
+    // download tasks strands the user with no spinner and no explanation.
+    if isExternalItem, remoteURLs.isEmpty {
+      throw BookPlayerError.runtimeError("integration_error_missing_connection".localized)
     }
 
     let bookURLs = remoteURLs.filter({ $0.type == .book })

@@ -32,7 +32,8 @@ struct ConcurrentSyncTasksView: View {
           // MARK: - Empty State
           VStack(spacing: 12) {
             Image(systemName: "checkmark.icloud")
-              .font(.system(size: 40))
+              .font(.largeTitle)
+        .imageScale(.large)
               .foregroundStyle(.secondary)
             
             Text("sync_tasks_empty_title".localized)
