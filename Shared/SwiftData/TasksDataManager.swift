@@ -49,11 +49,12 @@ public final class TasksDataManager: BPLogger {
       // migration stage must keep crashing (the store is healthy — nuking it would silently
       // discard queued tasks a code fix could still migrate).
       let cocoaCode = ((error as NSError).underlyingErrors.first as? NSError)?.code ?? (error as NSError).code
+      // ONLY unknown/incompatible-model codes: the generic migration-failure range
+      // (134110 etc.) can surface a BUG in the custom v2ToV3 stage, and nuking the store
+      // there would silently discard queued tasks a code fix could still migrate.
       let incompatibleStoreCodes: Set<Int> = [
         134504,  // Cannot use staged migration with an unknown model version
         134100,  // The model used to open the store is incompatible
-        134110,  // migration failed (persistent store migration)
-        134130,  // persistent history token / store mismatch
       ]
       guard incompatibleStoreCodes.contains(cocoaCode) else {
         fatalError("Sync-tasks container failed to load: \(error)")

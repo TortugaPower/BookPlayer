@@ -916,7 +916,9 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
   func fetchExternalResource(_ playableItem: PlayableItem) async {
     activeTasks[playableItem.uuid]?.cancel()
     
-    activeTasks[playableItem.uuid] = Task {
+    activeTasks[playableItem.uuid] = Task { [weak self] in
+      guard let self else { return }
+      defer { self.activeTasks[playableItem.uuid] = nil }
       let lastPlayDate = playableItem.lastPlayDate ?? Date.distantPast
       let jellyfinService = JellyfinConnectionService()
       jellyfinService.setup()

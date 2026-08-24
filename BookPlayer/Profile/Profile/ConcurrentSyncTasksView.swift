@@ -105,6 +105,7 @@ struct ConcurrentSyncTasksView: View {
         } label: {
           Image(systemName: "info.circle")
         }
+        .accessibilityLabel("info_title".localized)
         .foregroundStyle(theme.linkColor)
       }
     }

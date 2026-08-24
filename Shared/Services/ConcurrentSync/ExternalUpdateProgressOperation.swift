@@ -54,9 +54,16 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
         self.didSucceed = true
 
       } catch {
-        // If it throws, execution instantly jumps here.
-        Self.logger.error("External progress push failed: \(error)")
-        self.didSucceed = false
+        if (error as? IntegrationError)?.isSessionExpired == true {
+          // Revoked/expired media-server token: retrying can never succeed until the user
+          // re-authenticates in Settings, and a failed task re-enqueues forever — consume
+          // the push instead of hot-looping the provider queue in the background.
+          Self.logger.error("External progress push dropped (session expired): \(error)")
+          self.didSucceed = true
+        } else {
+          Self.logger.error("External progress push failed: \(error)")
+          self.didSucceed = false
+        }
       }
     }
   }
