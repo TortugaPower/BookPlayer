@@ -602,7 +602,6 @@ struct ItemListView: View {
         try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
         playerState.showPlayerBinding.wrappedValue = true
       } catch {
-        print(error)
         loadingState.error = error
       }
     }

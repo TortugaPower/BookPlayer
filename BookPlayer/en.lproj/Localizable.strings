@@ -301,6 +301,7 @@
 "subscribe_title" = "Subscribe now";
 "renewal_description" = "Renews automatically monthly";
 "pro_welcome_title" = "Welcome to BookPlayer Pro!";
+"lite_welcome_title" = "Welcome to BookPlayer Lite!";
 "pro_welcome_description" = "We'll start syncing your library when WiFi is available";
 "benefits_disclaimer_watch_description" = "- Stand-alone playback on the Apple Watch is not available yet. It will be included in a future version.";
 "privacy_policy_title" = "Privacy Policy";

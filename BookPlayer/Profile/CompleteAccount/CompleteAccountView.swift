@@ -106,7 +106,12 @@ struct CompleteAccountView: View {
         .foregroundStyle(theme.linkColor)
       }
     }
-    .alert(subType == .lite ? "Welcome to BookPlayer Lite!" : "pro_welcome_title", isPresented: $showSuccessAlert) {
+    // The ternary yields String, so the alert takes the non-localizing StringProtocol
+    // overload — both branches must localize explicitly or the raw key renders verbatim
+    .alert(
+      subType == .lite ? "lite_welcome_title".localized : "pro_welcome_title".localized,
+      isPresented: $showSuccessAlert
+    ) {
       Button("ok_button") {
         onDismiss()
       }

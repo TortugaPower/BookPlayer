@@ -294,6 +294,14 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
         hostId: hostId
       )
     case .uploadFile:
+      // Re-check access at execution, not just at scheduling: a pro→lite downgrade keeps
+      // sync active (no cancelAllJobs), but persisted uploads must not keep PUTting to S3
+      // on a tier without S3 access. Returning nil pops the task — same drop treatment the
+      // lapse path gives the upload queue.
+      guard accessPolicy[.uploadFile] == true else {
+        Self.logger.info("Dropping persisted uploadFile task \(task.id): tier has no S3 upload access")
+        return nil
+      }
       guard let filePath = task.parameters["filePath"] as? String,
             let remotePath = task.parameters["remotePath"] as? String,
             let fileURL = URL(string: filePath),
