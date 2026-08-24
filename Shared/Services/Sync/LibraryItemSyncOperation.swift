@@ -259,6 +259,9 @@ extension LibraryItemSyncOperation {
     
     guard FileManager.default.fileExists(atPath: fileURL.path),
     let remoteUrl = response.url else {
+      // Consuming on nil url is the server CONTRACT, not an accident: external_set answers
+      // url == null when the account tier has no S3 (lite) or the object already exists —
+      // both permanent for this task. A missing local file likewise can't heal by retrying.
       return
     }
 

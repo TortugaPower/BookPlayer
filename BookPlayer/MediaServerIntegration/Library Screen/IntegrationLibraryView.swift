@@ -191,6 +191,7 @@ struct IntegrationLibraryView<
       }
     } label: {
       Image(systemName: "arrow.down.to.line")
+        .accessibilityLabel("download_title".localized)
     }
     .disabled(viewModel.selectedItems.isEmpty)
   }
