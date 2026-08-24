@@ -181,7 +181,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   
   func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
   
-  @MainActor func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
+  // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
+  // Sourcery-generated mock property names.
+  @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
   
   func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem])
 }
@@ -1314,7 +1316,7 @@ extension LibraryService {
   
   @MainActor
   @discardableResult
-  public func insertItems(from resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
+  public func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
     // Phase 2: Create CoreData entities on the main thread using pre-extracted data
     let library = getLibraryReference()
     var processedFiles = [SimpleLibraryItem]()

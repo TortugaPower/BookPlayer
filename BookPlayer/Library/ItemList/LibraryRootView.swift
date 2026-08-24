@@ -215,7 +215,7 @@ struct LibraryRootView: View {
       case .local(let files):
         processedItems = await libraryService.insertItems(from: files)
       case .external(let externals):
-        processedItems = await libraryService.insertItems(from: externals)
+        processedItems = await libraryService.insertItems(fromResources: externals)
       }
       
       var itemIdentifiers = processedItems.map({ $0.relativePath })
