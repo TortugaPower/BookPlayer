@@ -184,7 +184,11 @@ extension LibraryService: LibrarySyncProtocol {
       let idsExisting = localIds.intersection(remoteIds)
       
       for localResource in storedItem.resourcesArray {
-        if idsToRemove.contains(localResource.providerId) {
+        // Only reconcile-away resources the server has SEEN: a locally-created link whose
+        // upload task hasn't run yet is legitimately absent from the server payload, and
+        // deleting it here loses the link before it ever syncs.
+        if idsToRemove.contains(localResource.providerId),
+           localResource.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue {
           storedItem.removeFromExternalResources(localResource)
           context.delete(localResource)
         }
