@@ -265,6 +265,10 @@ extension LibraryItemSyncOperation {
     // Streamed straight from disk — audiobooks run into the GBs and must never be
     // materialized as a single in-memory Data. A failed upload THROWS so the task is
     // retried and the server is never told the file exists when it doesn't.
+    // Foreground session by design (for now): this pipe upload runs inside the retrying
+    // sync operation while the app is in use, matching the Android app's current behavior;
+    // surviving app termination is the planned background-transfer follow-up on both
+    // platforms, which needs the BPURLSession delegate machinery, not just a session swap.
     try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
 
     let _: Empty = try await self.provider.request(

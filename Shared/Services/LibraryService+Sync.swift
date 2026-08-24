@@ -246,7 +246,7 @@ extension LibraryService: LibrarySyncProtocol {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
-        let externalResource = self.findResource(for: item.providerId, context: context)
+        let externalResource = self.findResource(for: item.providerId, providerName: item.providerName, context: context)
         if let externalResource {
           externalResource.syncStatus = item.syncStatus
           externalResource.processedFile = item.processedFile

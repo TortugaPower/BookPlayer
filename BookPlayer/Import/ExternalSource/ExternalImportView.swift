@@ -79,6 +79,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                   }
                 } label: {
                   Image(systemName: "minus.circle.fill")
+                    .accessibilityLabel("delete_button".localized)
                     .foregroundColor(.red)
                     .font(.system(size: 20))
                 }
