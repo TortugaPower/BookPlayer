@@ -188,7 +188,7 @@ public protocol LibraryServiceProtocol: AnyObject {
 
 // swiftlint:disable force_cast
 @Observable
-public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
+public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked Sendable {
   var dataManager: DataManager!
   var audioMetadataService: AudioMetadataServiceProtocol!
   /// Sticky-sort preference resolver. Injected after construction to break the
@@ -2908,9 +2908,9 @@ extension LibraryService {
         }
       }
       
-      try context.save()
+      dataManager.saveSyncContext(context)
     } catch {
-      print("Failed to batch fetch ExternalResources: \(error)")
+      Self.logger.error("Failed to batch fetch ExternalResources: \(error)")
     }
   }
 }

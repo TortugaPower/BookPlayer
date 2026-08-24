@@ -293,7 +293,10 @@ lines). It is the highest-risk file in the app.
   notifications. A `teardownTask` is **awaited** at the top of the sync-contents entry points so a fast
   logout→login can't let a late `resetAllJobs()` wipe freshly-scheduled jobs — preserve this ordering. Every
   `schedule*` method short-circuits on `guard isActive`.
-- **Sync = the `pro` entitlement only** (see below). Job types (`SyncJobType`): `upload, update, move,
+- **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
+  S3 file uploads are gated per-job via `ConcurrenceService.accessPolicy` (`.uploadFile` is pro-only,
+  `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
+  matching the Android app). Job types (`SyncJobType`): `upload, update, move,
   renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
@@ -333,7 +336,8 @@ lines). It is the highest-risk file in the app.
 
 ### Subscriptions & entitlements — `Shared/Services/Account/AccountService.swift`
 
-- RevenueCat entitlements `AccessLevel { free, plus, pro }`. `hasSyncEnabled()` = `pro` entitlement active;
+- RevenueCat entitlements `AccessLevel { free, plus, lite, pro }`. `hasSyncEnabled()` = `pro` OR `lite` active
+  (pro wins when both are held);
   `hasPlusAccess()` = `plus` OR `pro` (with a local `donationMade` fallback when cached info is nil).
 - **These are client-side cached RevenueCat reads — UX gating only.** Never let `hasSyncEnabled()`/`isActive`
   become the sole gate for a server-billed resource; the server validates the entitlement. Purchases are guarded

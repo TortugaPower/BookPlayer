@@ -523,6 +523,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         DispatchQueue.main.async { [weak self] in
           self?.playbackQueued = nil
           self?.isFetchingRemoteURL = nil
+          // The item was never attached, so nothing else flips the buffering overlay off.
+          self?.updatePlayerIsLoadingURL(false)
           NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
         }
         return
