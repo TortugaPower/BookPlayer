@@ -59,6 +59,6 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           REVIEW_MODEL: claude-opus-4-8
-          REVIEW_MAX_TURNS: '50'   # agent only reads/reports (posting is done by the script), so turns go far
+          REVIEW_MAX_TURNS: '100'  # agent only reads/reports (posting is done by the script), so turns go far
           IS_SANDBOX: '1'
         run: node .github/claude/reviewer/review.mjs
