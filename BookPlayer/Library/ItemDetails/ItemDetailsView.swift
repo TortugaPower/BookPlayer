@@ -141,7 +141,10 @@ struct ItemDetailsExternalResourceSectionView: View {
   var body: some View {
     if !externalResources.isEmpty {
       ThemedSection {
-        ForEach(externalResources) { resource in
+        // Sync-created resources never populate the numeric id (all default to 0),
+        // so keying on Identifiable collides for multi-resource items; providerId
+        // is the stable key (same pattern as BookView).
+        ForEach(externalResources, id: \.providerId) { resource in
           VStack(alignment: .leading, spacing: Spacing.S1) {
             HStack {
               Text("provider_title".localized)

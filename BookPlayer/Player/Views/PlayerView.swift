@@ -59,6 +59,9 @@ struct PlayerView: View {
               .transition(.opacity)
           }
         }
+        // The opacity transition only animates when the driving state change is
+        // animated; isLoadingURL is toggled outside withAnimation, so bind it here
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingURL)
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
             .onChanged { gesture in
