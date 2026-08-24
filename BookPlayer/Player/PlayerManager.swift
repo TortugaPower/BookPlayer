@@ -197,6 +197,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     // 2. Observe Buffering (AVPlayer TimeControlStatus)
     playerLoadingStateSubscription?.cancel()
     playerLoadingStateSubscription = player.publisher(for: \.timeControlStatus)
+      // AVFoundation delivers this KVO off-main; the sink reads currentItem, which is
+      // mutated on main — hop before reading, like the player's other sinks
+      .receive(on: DispatchQueue.main)
       .sink { [weak self, weak player] status in
         guard let self = self, let player = player else { return }
         // Same remote-only gate as the item-status observer: a stalled/seeking LOCAL book
@@ -380,6 +383,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       || (currentItem?.currentChapter?.remoteURL != nil)
     playerItemStatusSubscription?.cancel()
     playerItemStatusSubscription = playerItem.publisher(for: \.status)
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] status in
         guard let self = self, isRemoteLoad else { return }
 

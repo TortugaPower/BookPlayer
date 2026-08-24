@@ -757,10 +757,12 @@ public class AudiobookShelfConnectionService: BPLogger {
     Task { [urlSession] in
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
-      request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+      // Custom headers first, bearer last — same precedence as applyAuthenticatedHeaders,
+      // so a user-defined header named Authorization can't clobber the token being revoked
       for (key, value) in headers {
         request.setValue(value, forHTTPHeaderField: key)
       }
+      request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
       _ = try? await urlSession.data(for: request)
     }
   }
