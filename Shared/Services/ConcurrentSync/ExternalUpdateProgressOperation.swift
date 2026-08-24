@@ -38,6 +38,9 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
         self.finish()
       }
       try await Task.sleep(for: .seconds(5))
+      // cancelAllOperations() can't reach this unstructured Task, so honor cancellation
+      // manually after the debounce window — defer still finishes the operation
+      guard !self.isCancelled else { return }
       // 2. Wrap the throwing code in a do-catch
       do {
 
