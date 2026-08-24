@@ -184,16 +184,24 @@ extension MatchUuidsTaskModel: DictionaryConvertible {
 
 extension UploadExternalResourceTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
-    return [
+    var dictionary: [String: Any] = [
       "id": id,
       "uuid": uuid,
       "providerId": providerId,
       "providerName": providerName,
-      "lastSyncedAt": lastSyncedAt as Any,
       "processedFile": processedFile,
       "syncStatus": syncStatus,
-      "hostId": hostId as Any
     ]
+    // A raw Date is NOT a valid JSONSerialization object — including it crashes the upload
+    // with an uncatchable NSInvalidArgumentException. Epoch seconds travel instead; nil is
+    // simply omitted (the server owns the authoritative lastSyncedAt anyway).
+    if let lastSyncedAt {
+      dictionary["lastSyncedAt"] = lastSyncedAt.timeIntervalSince1970
+    }
+    if let hostId {
+      dictionary["hostId"] = hostId
+    }
+    return dictionary
   }
 }
 
