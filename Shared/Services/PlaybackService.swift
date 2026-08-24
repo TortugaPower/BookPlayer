@@ -277,7 +277,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          externalURL: externalUrl ?? book.remoteURL,
+          externalURL: externalUrl,
           index: 1,
           externalHeaders: externalHeaders
         )
@@ -379,7 +379,10 @@ public final class PlaybackService: PlaybackServiceProtocol {
           remoteURL: nestedChapter.remoteURL,
           externalURL: nestedChapter.externalUrl,
           index: index,
-          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
+          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration,
+          // Without the headers a streamed chapter inside a bound book hits the media
+          // server unauthenticated and 401s.
+          externalHeaders: nestedChapter.externalHeaders
         )
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
         localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)
