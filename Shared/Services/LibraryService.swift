@@ -177,7 +177,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Returns the item's external resources as lightweight values.
   func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
 
-  func findResource(for providerId: String, context: NSManagedObjectContext?) -> ExternalResource?
+  func findResource(for providerId: String, providerName: String?, context: NSManagedObjectContext?) -> ExternalResource?
   
   func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
   
@@ -2857,9 +2857,15 @@ extension LibraryService {
 }
 
 extension LibraryService {
-  public func findResource(for providerId: String, context: NSManagedObjectContext? = nil) -> ExternalResource? {
+  public func findResource(for providerId: String, providerName: String? = nil, context: NSManagedObjectContext? = nil) -> ExternalResource? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
-    fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
+    // Scope by provider when known: provider item ids are only unique per provider, and a
+    // Jellyfin id colliding with an ABS id must not resolve/mutate the other's resource.
+    if let providerName {
+      fetch.predicate = NSPredicate(format: "providerId == %@ AND providerName == %@", providerId, providerName)
+    } else {
+      fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
+    }
     let context = context ?? self.dataManager.getContext()
 
     let result = try? context.fetch(fetch)
