@@ -580,8 +580,8 @@ struct ItemListView: View {
     case .downloaded:
       switch item.type {
       case .folder:
-        if let uuid = model.getNextPlayableBookPath(in: item) {
-          loadPlayer(with: uuid)
+        if let relativePath = model.getNextPlayableBookPath(in: item) {
+          loadPlayer(with: relativePath)
         }
       case .bound, .book:
         loadPlayer(with: item.relativePath)
