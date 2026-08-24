@@ -282,6 +282,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
             let providerId = task.parameters["providerId"] as? String,
             let currentTime = task.parameters["currentTime"] as? Double,
             let percentCompleted = task.parameters["percentCompleted"] as? Double else {
+        Self.logger.error("Discarding externalUpdate task \(task.id): missing required parameters")
         return nil
       }
       let hostId = task.parameters["hostId"] as? String
@@ -298,6 +299,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
             let fileURL = URL(string: filePath),
             let remoteURL = URL(string: remotePath),
             let uuid = task.parameters["uuid"] as? String else {
+        Self.logger.error("Discarding uploadFile task \(task.id): missing or malformed parameters")
         return nil
       }
       return FileUploadOperation(fileURL: fileURL, remoteURL: remoteURL, uuid: uuid)
