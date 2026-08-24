@@ -18,7 +18,10 @@ struct ConcurrentSyncTasksView: View {
   private var allowsCellularData: Bool = false
   var monitor = ConcurrentTaskProgressMonitor.shared
   @State private var queuedJobs = [ConcurrentSyncTask]()
-  @State private var jobsCount = 0
+  /// Dedup for the GLOBAL count emissions only — never mixed with this queue's
+  /// filtered count, or a coincidental match skips a needed reload. -1 so the
+  /// first emission always reloads.
+  @State private var globalTasksCount = -1
   @State private var showInfoAlert = false
   @State private var networkMonitor = NetworkMonitor()
 
@@ -53,9 +56,12 @@ struct ConcurrentSyncTasksView: View {
             QueuedSyncTaskRowView(
               imageName: .constant(parseImageName(job.jobType)),
               title: .constant(parseLabel(job.jobType, job.queueKey)),
-              progressKey: job.queueKey,
+              // The progress notification carries the per-item resolved key, not the
+              // queue key — and the sink is gated on isUpload, so upload rows built
+              // with the queue key froze at their onAppear snapshot
+              progressKey: SyncProgressKey.resolve(uuid: job.uuid, relativePath: job.relativePath),
               initialProgress: monitor.getTaskProgress(taskID: job.id),
-              isUpload: false
+              isUpload: job.jobType == .uploadFile
             )
           }
         }
@@ -91,9 +97,9 @@ struct ConcurrentSyncTasksView: View {
     .onReceive(
       concurrenceService.observeConcurrentTasksCount()
     ) { count in
-      guard jobsCount != count else { return }
+      guard globalTasksCount != count else { return }
 
-      jobsCount = count
+      globalTasksCount = count
       reloadQueuedJobs()
     }
     .onAppear {
@@ -116,7 +122,6 @@ struct ConcurrentSyncTasksView: View {
     Task { @MainActor in
       let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
         .filter { $0.queueKey == queueKey }
-      jobsCount = allJobs.count
       queuedJobs = allJobs
     }
   }
