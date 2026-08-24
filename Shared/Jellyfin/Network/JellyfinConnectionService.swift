@@ -413,14 +413,17 @@ public class JellyfinConnectionService: BPLogger {
         sortOrder = [.ascending]
     }
 
-    let isRecursive = recursive || searchTerm != nil || folderID == nil
-    let itemTypes: [JellyfinAPI.BaseItemKind] = (recursive || searchTerm != nil) ? [.audioBook] : [.audioBook, .folder]
+    // Use the normalized term everywhere below: a raw empty string ("") would otherwise
+    // count as "searching" — forcing a recursive audiobook-only fetch that drops the
+    // folder's subfolders and sends searchTerm="" to the server
+    let isRecursive = recursive || effectiveSearchTerm != nil || folderID == nil
+    let itemTypes: [JellyfinAPI.BaseItemKind] = (recursive || effectiveSearchTerm != nil) ? [.audioBook] : [.audioBook, .folder]
 
     let parameters = Paths.GetItemsParameters(
       startIndex: startIndex,
       limit: limit,
       isRecursive: isRecursive,
-      searchTerm: searchTerm,
+      searchTerm: effectiveSearchTerm,
       sortOrder: sortOrder,
       parentID: folderID,
       fields: [.sortName],

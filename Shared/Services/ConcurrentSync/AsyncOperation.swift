@@ -55,8 +55,19 @@ class AsyncOperation: Operation, @unchecked Sendable {
     main()
   }
   
-  // Subclasses must call this when their async work is totally done
+  // Subclasses must call this when their async work is totally done.
+  // Idempotent: cancel() and a racing terminal completion callback can BOTH reach here
+  // (Combine won't interrupt a sink already mid-execution), and the isFinished KVO pair
+  // must fire exactly once per operation or the OperationQueue misbehaves.
+  private var didFinish = false
   func finish() {
+    stateLock.lock()
+    if didFinish {
+      stateLock.unlock()
+      return
+    }
+    didFinish = true
+    stateLock.unlock()
     state = .finished
   }
 }

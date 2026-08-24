@@ -204,9 +204,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         guard let self = self, let player = player else { return }
         // Same remote-only gate as the item-status observer: a stalled/seeking LOCAL book
         // must not flash the streaming buffering overlay.
-        let isRemoteLoad = (self.currentItem?.currentChapter?.externalUrl != nil)
-          || (self.currentItem?.currentChapter?.remoteURL != nil)
-        guard isRemoteLoad else { return }
+        guard self.isStreamingChapter(self.currentItem?.currentChapter) else { return }
         
         switch status {
         case .waitingToPlayAtSpecifiedRate:
@@ -372,6 +370,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     return self.currentItem?.currentChapter ?? chapter
   }
   
+  /// True only when the chapter actually streams: it has a remote source AND no local
+  /// copy on disk — the same branch condition loadPlayerItem plays by. A downloaded
+  /// cloud book keeps its remoteURL forever, so checking URLs alone would flash the
+  /// buffering overlay over purely local playback.
+  private func isStreamingChapter(_ chapter: PlayableChapter?) -> Bool {
+    guard let chapter,
+          chapter.externalUrl != nil || chapter.remoteURL != nil else {
+      return false
+    }
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
+    return !FileManager.default.fileExists(atPath: fileURL.path)
+  }
+
   func setupPlayerItemObservers(playerItem: AVPlayerItem?) {
     guard let playerItem else {
       return
@@ -379,8 +390,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // Local files attach ready almost instantly but still emit the initial .unknown —
     // only streamed/remote loads should drive the buffering overlay.
-    let isRemoteLoad = (currentItem?.currentChapter?.externalUrl != nil)
-      || (currentItem?.currentChapter?.remoteURL != nil)
+    let isRemoteLoad = isStreamingChapter(currentItem?.currentChapter)
     playerItemStatusSubscription?.cancel()
     playerItemStatusSubscription = playerItem.publisher(for: \.status)
       .receive(on: DispatchQueue.main)
