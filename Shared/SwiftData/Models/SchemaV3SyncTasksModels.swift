@@ -343,6 +343,10 @@ public enum SchemaV3: VersionedSchema {
     public var lastPlayDateTimestamp: Double?
     public var providerName: String
     public var providerId: String
+    /// The stable host identity of the server this push belongs to. Without persisting it,
+    /// a reloaded task resolves no connection and the push is (correctly) discarded — i.e.
+    /// dropping this field silently discards EVERY persisted progress push.
+    public var hostId: String?
     
     public init(
       id: String,
@@ -354,10 +358,12 @@ public enum SchemaV3: VersionedSchema {
       percentCompleted: Double? = nil,
       isFinished: Bool? = nil,
       lastPlayDateTimestamp: Double? = nil,
+      hostId: String? = nil,
     ) {
       self.id = id
       self.providerName = providerName
       self.providerId = providerId
+      self.hostId = hostId
       self.title = title
       self.details = details
       self.currentTime = currentTime
