@@ -537,7 +537,10 @@ public final class TasksDataManager: BPLogger {
   public func updateTaskModel(_ task: UpdateTaskModel, with parameters: [String: Any]) {
     if let title = parameters["title"] as? String { task.title = title }
     if let details = parameters["details"] as? String { task.details = details }
-    if let speed = parameters["speed"] as? Double { task.speed = speed }
+    // The scheduler boxes a Swift Float here (LibraryItem.speed) and an Any-boxed Float
+    // fails `as? Double` — which silently dropped every COALESCED speed change (the
+    // create paths read `as? Float` and were fine). NSNumber bridging accepts both.
+    if let speed = parameters["speed"] as? NSNumber { task.speed = speed.doubleValue }
     if let currentTime = parameters["currentTime"] as? Double { task.currentTime = currentTime }
     if let duration = parameters["duration"] as? Double { task.duration = duration }
     if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
