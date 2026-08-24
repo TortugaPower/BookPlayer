@@ -203,6 +203,19 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     operation.onProgress = { progress in
       Task { @MainActor in
         ConcurrentTaskProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
+        // Three consumers (SyncJobScheduler, the profile task views) still listen for this
+        // notification with a {uuid, relativePath, progress} payload — the old poster was
+        // removed with LibraryItemSyncOperation's upload path, silently freezing every
+        // upload progress bar.
+        NotificationCenter.default.post(
+          name: .uploadProgressUpdated,
+          object: nil,
+          userInfo: [
+            "uuid": nextTask.uuid,
+            "relativePath": nextTask.relativePath,
+            "progress": progress,
+          ]
+        )
       }
     }
 
