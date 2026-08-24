@@ -127,7 +127,10 @@ extension SyncableItem {
       orderRank: self.orderRank,
       lastPlayDateTimestamp: self.lastPlayDateTimestamp,
       type: self.type,
-      uuid: uuid ?? self.uuid
+      uuid: uuid ?? self.uuid,
+      // Every field must survive a copy: the synthesized default silently dropped the
+      // external resources for items whose uuid gets minted in processContentsResponse.
+      externalResources: self.externalResources
     )
   }
 }
