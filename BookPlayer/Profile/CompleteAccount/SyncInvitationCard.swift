@@ -28,7 +28,7 @@ struct SyncInvitationCard: View {
       if !(subscription == .pro || subscription == .lite) {
         VStack(spacing: 8) {
           Text("sync_invitation_save_storage_title".localized)
-            .font(.title2)
+            .bpFont(.title2)
             .fontWeight(.bold)
             .multilineTextAlignment(.center)
         }
@@ -38,7 +38,7 @@ struct SyncInvitationCard: View {
                   (subscription == .lite ? "import_verb" : "download_verb").localized, 
                   totalItems, 
                   ((subscription == .pro || subscription == .lite) ? "" : "sync_invitation_stream_description".localized)))
-          .font(.subheadline)
+          .bpFont(.subheadline)
           .foregroundColor(.secondary)
           .multilineTextAlignment(.center)
       
@@ -88,7 +88,7 @@ struct SyncInvitationCard: View {
     .overlay(alignment: .topLeading) {
       Button(action: onCancel) {
         Image(systemName: "xmark.circle.fill")
-          .font(.title2)
+          .bpFont(.title2)
           .foregroundStyle(.tertiary)
           .frame(width: 44, height: 44)
       }

@@ -40,7 +40,20 @@ class AsyncOperation: Operation, @unchecked Sendable {
   }
   
   var onProgress: (@Sendable (Double) -> Void)?
-  var didSucceed: Bool = false
+  /// Written from the subclasses' async Tasks / completion sinks, read from the queue
+  /// thread in ConcurrenceService's completionBlock — lock-guarded like `state` so the
+  /// read has a happens-before edge with the write.
+  private var _didSucceed = false
+  var didSucceed: Bool {
+    get {
+      stateLock.lock(); defer { stateLock.unlock() }
+      return _didSucceed
+    }
+    set {
+      stateLock.lock(); defer { stateLock.unlock() }
+      _didSucceed = newValue
+    }
+  }
   override var isReady: Bool { super.isReady && state == .ready }
   override var isExecuting: Bool { state == .executing }
   override var isFinished: Bool { state == .finished }

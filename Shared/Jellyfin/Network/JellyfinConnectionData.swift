@@ -73,6 +73,9 @@ extension JellyfinConnectionData: CustomDebugStringConvertible {
   }
   
   public func buildDownloadUrl(providerId: String) -> String {
-    return "\(self.url.absoluteString)/items/\(providerId)/Download"
+    // appendingPathComponent normalizes the trailing slash a user may have typed in
+    // the server URL — string concatenation yields "host//items/…", which some reverse
+    // proxies (nginx/Cloudflare) 404
+    return self.url.appendingPathComponent("items/\(providerId)/Download").absoluteString
   }
 }

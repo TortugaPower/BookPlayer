@@ -13,7 +13,18 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   /// True ONLY when the bytes actually reached the server (2xx). `didSucceed` also goes true
   /// for CONSUMED permanent failures (missing file, 4xx) so the queue stops retrying them —
   /// but those must never trigger the synced:true confirmation.
-  private(set) var uploadCompleted = false
+  /// Written on the URLSession delegate thread, read on the queue thread — lock-guarded.
+  private var _uploadCompleted = false
+  private(set) var uploadCompleted: Bool {
+    get {
+      stateLock.lock(); defer { stateLock.unlock() }
+      return _uploadCompleted
+    }
+    set {
+      stateLock.lock(); defer { stateLock.unlock() }
+      _uploadCompleted = newValue
+    }
+  }
   
   // MARK: - Properties
   let fileURL: URL
@@ -93,31 +104,45 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     uploadTask.resume()
   }
   
-  private func bindCellularObserver() {
+  /// The subscriber/observer refs are bound from the operation's Task thread, torn down
+  /// by `cancel()` from whichever thread cancels (main via logout/lapse), and invalidated
+  /// by the completion sink on the URLSession delegate thread — every touch goes through
+  /// `stateLock`, same as `currentUploadTask`.
+  private func invalidateCellularObserver() {
+    stateLock.lock()
     cellularDataObserver?.invalidate()
-    
-    // Assuming \.userSettingsAllowCellularData is an extension on UserDefaults
-    cellularDataObserver = UserDefaults.standard.observe(
+    cellularDataObserver = nil
+    stateLock.unlock()
+  }
+
+  private func bindCellularObserver() {
+    // Built outside the lock (observe() can fire callbacks), published under it
+    let observer = UserDefaults.standard.observe(
       \.userSettingsAllowCellularData,
        options: [.new]
     ) { [weak self] _, change in
-      
+
       guard let self = self, change.newValue != nil else { return }
-      
+
       // If the user toggles cellular data mid-flight, we cancel the current internal task.
       // (This triggers NSURLErrorCancelled in the completion subscriber).
+      self.stateLock.lock()
       self.currentUploadTask?.cancel()
-      
+      self.stateLock.unlock()
+
       // Recursively restart the upload using the new session!
       Task {
         await self.startUploadTask()
       }
     }
+    stateLock.lock()
+    cellularDataObserver?.invalidate()
+    cellularDataObserver = observer
+    stateLock.unlock()
   }
-  
+
   private func bindUploadObservers() {
-    progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher
+    let progress = BPURLSession.shared.progressPublisher
       .sink { [weak self] (path, progress) in
         guard let self = self else { return }
         // CRITICAL: Only report progress if this event belongs to THIS operation — the
@@ -126,9 +151,12 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.onProgress?(progress)
         }
       }
-    
-    completionSubscriber?.cancel()
-    completionSubscriber = BPURLSession.shared.completionPublisher
+    stateLock.lock()
+    progressSubscriber?.cancel()
+    progressSubscriber = progress
+    stateLock.unlock()
+
+    let completion = BPURLSession.shared.completionPublisher
       .sink { [weak self] (task, error) in
         guard let self = self else { return }
         
@@ -146,14 +174,14 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           
         } else if let error = error {
           // Actual Failure — terminal for this operation, so the KVO can go.
-          self.cellularDataObserver?.invalidate()
+          self.invalidateCellularObserver()
           Self.logger.error("Upload failed for \(self.uuid): \(error)")
           self.didSucceed = false
           self.finish()
           
         } else if let http = task.response as? HTTPURLResponse,
                   !(200...299).contains(http.statusCode) {
-          self.cellularDataObserver?.invalidate()
+          self.invalidateCellularObserver()
           // error == nil is NOT success: the background delegate doesn't surface HTTP
           // failures as errors, so a rejected PUT (expired presigned URL, 403) lands here.
           // A 4xx is PERMANENT for this task — its presigned URL is frozen in the persisted
@@ -165,7 +193,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.didSucceed = (400...499).contains(http.statusCode)
           self.finish()
         } else {
-          self.cellularDataObserver?.invalidate()
+          self.invalidateCellularObserver()
           // Success! Clean up the temp hard link — and ONLY the temp hard link: when the
           // link was never created, fileURL falls back to the user's REAL audiobook in the
           // Processed folder, and deleting that is data loss.
@@ -183,6 +211,10 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.finish()
         }
       }
+    stateLock.lock()
+    completionSubscriber?.cancel()
+    completionSubscriber = completion
+    stateLock.unlock()
   }
   
   // MARK: - Cleanup
@@ -191,10 +223,11 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     super.cancel()
     stateLock.lock()
     currentUploadTask?.cancel()
-    stateLock.unlock()
     cellularDataObserver?.invalidate()
+    cellularDataObserver = nil
     progressSubscriber?.cancel()
     completionSubscriber?.cancel()
+    stateLock.unlock()
     // A cancelled mid-flight upload leaks its temp hard link (only the success branch
     // cleans up) — same temp-dir guard so the user's real file is never touched.
     if fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path) {

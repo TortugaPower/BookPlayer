@@ -40,10 +40,10 @@ struct ConcurrentSyncTasksView: View {
               .foregroundStyle(.secondary)
             
             Text("sync_tasks_empty_title".localized)
-              .font(.headline)
+              .bpFont(.headline)
             
             Text("sync_tasks_empty_description".localized)
-              .font(.subheadline)
+              .bpFont(.subheadline)
               .foregroundStyle(.secondary)
               .multilineTextAlignment(.center)
           }
