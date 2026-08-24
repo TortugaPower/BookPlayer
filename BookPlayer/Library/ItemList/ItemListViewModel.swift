@@ -17,7 +17,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
   let playerManager: PlayerManager
   let playerState: PlayerState
   private let syncService: SyncService
-  private let concurrenceService: ConcurrenceServiceProtocol
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
@@ -108,7 +107,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     playerManager: PlayerManager,
     playerState: PlayerState,
     syncService: SyncService,
-    concurrenceService: ConcurrenceService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
     listState: ListStateManager,
@@ -120,7 +118,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     self.playerManager = playerManager
     self.playerState = playerState
     self.syncService = syncService
-    self.concurrenceService = concurrenceService
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
     self.listState = listState
@@ -904,7 +901,7 @@ extension ItemListViewModel {
     }
     guard !results.isEmpty else { return }
 
-    libraryService.handleSyncFromExternalResouce(remoteItemsDictionary: results)
+    libraryService.handleSyncFromExternalResource(remoteItemsDictionary: results)
   }
 }
 

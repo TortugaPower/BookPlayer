@@ -270,9 +270,25 @@ extension LibraryItemSyncOperation {
     // platforms, which needs the BPURLSession delegate machinery, not just a session swap.
     try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
 
-    let _: Empty = try await self.provider.request(
-      .externalResourceToDownload(uuid: uuid, uploaded: true)
-    )
+    // The bytes are on S3 now — failing the operation on a flaky confirmation would
+    // retry the uploaded:false branch and re-upload the entire (potentially multi-GB)
+    // file. Retry just the confirmation instead, mirroring the synced:true handling
+    // in ConcurrenceService.handleFinishedOperation.
+    var confirmationError: Error?
+    for attempt in 1...3 {
+      do {
+        let _: Empty = try await self.provider.request(
+          .externalResourceToDownload(uuid: uuid, uploaded: true)
+        )
+        return
+      } catch {
+        confirmationError = error
+        Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
+      }
+    }
+    if let confirmationError {
+      throw confirmationError
+    }
   }
 }
 

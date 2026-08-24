@@ -658,6 +658,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       self.isActive = enabled
       if !enabled {
         self.cancelAllJobs()
+        // Clearing the persisted rows isn't enough (develop parity): an operation
+        // already executing keeps uploading after the lapse without this. Scoped so
+        // in-flight externalUpdate pushes survive — they run on every tier.
+        self.concurrenceService.cancelServerQueueOperations()
       }
     }
   }

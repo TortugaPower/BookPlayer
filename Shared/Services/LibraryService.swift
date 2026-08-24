@@ -186,7 +186,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   // Sourcery-generated mock property names.
   @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
   
-  @MainActor func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem])
+  @MainActor func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem])
 }
 
 // swiftlint:disable force_cast
@@ -2911,7 +2911,7 @@ extension LibraryService {
     return snapshots
   }
   
-  @MainActor public func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
+  @MainActor public func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
     let remoteKeys = Array(remoteItemsDictionary.keys)
     
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
@@ -2939,6 +2939,11 @@ extension LibraryService {
           localItem.currentTime = Double(remoteItem.currentSeconds ?? 0)
           localItem.isFinished = remoteItem.isFinished ?? localItem.isFinished
           localItem.lastPlayDate = remoteDate
+          // The library row's progress bar renders percentCompleted, not currentTime —
+          // without this the playhead moves but the row keeps the stale percentage
+          if localItem.duration > 0 {
+            localItem.percentCompleted = min(localItem.currentTime / localItem.duration, 1.0) * 100
+          }
         }
       }
       

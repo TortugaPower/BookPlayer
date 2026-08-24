@@ -44,6 +44,11 @@ public protocol ConcurrenceServiceProtocol {
   func scheduleFileUpload(params: [String: Any])
 
   func updateConcurrentService(_ accessLevel: AccessLevel)
+
+  /// Cancels in-flight BookPlayer-server operations (serial sync + S3 uploads) on a
+  /// subscription lapse, leaving the tier-independent externalUpdate operations running.
+  /// Logout cancels everything via the `.logout` observer instead.
+  func cancelServerQueueOperations()
 }
 
 public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
@@ -439,6 +444,13 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     scheduleFileUpload(params: params)
   }
 
+  public func cancelServerQueueOperations() {
+    for operation in operationQueue.operations
+    where operation is FileUploadOperation || operation is LibraryItemSyncOperation {
+      operation.cancel()
+    }
+  }
+
   public func updateConcurrentService(_ accessLevel: AccessLevel) {
     switch accessLevel {
     case .lite:
@@ -459,6 +471,13 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
         .externalUpdate: true,
         .uploadFile: false,
       ]
+    }
+    // A downgrade that loses S3 access (pro→lite keeps sync active, so no cancelAllJobs
+    // fires) must also stop uploads that are ALREADY running, not just future pops
+    if accessPolicy[.uploadFile] != true {
+      for operation in operationQueue.operations where operation is FileUploadOperation {
+        operation.cancel()
+      }
     }
   }
 }
