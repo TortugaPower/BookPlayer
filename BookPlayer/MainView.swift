@@ -19,8 +19,6 @@ struct MainView: View {
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
-  @Environment(\.concurrenceService) private var concurrenceService
-  @Environment(\.accountService) private var accountService
   @Environment(\.jellyfinService) private var jellyfinService
   @Environment(\.audiobookshelfService) private var audiobookshelfService
   @Environment(\.playbackService) private var playbackService

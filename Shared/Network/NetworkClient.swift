@@ -149,7 +149,8 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     if let httpResponse = response as? HTTPURLResponse {
       if !(200...299).contains(httpResponse.statusCode) {
         let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
-        throw URLError(.badServerResponse, userInfo: ["error": errorMessage])
+        // Typed like the rest of the client, so upload failures surface consistently
+        throw BookPlayerError.networkError("Upload failed (HTTP \(httpResponse.statusCode)): \(errorMessage)")
       }
     }
   }
@@ -315,7 +316,8 @@ extension NetworkClientProtocol {
     if let httpResponse = response as? HTTPURLResponse,
        !(200...299).contains(httpResponse.statusCode) {
       let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
-      throw URLError(.badServerResponse, userInfo: ["error": errorMessage])
+      // Typed like the rest of the client, so upload failures surface consistently
+      throw BookPlayerError.networkError("Upload failed (HTTP \(httpResponse.statusCode)): \(errorMessage)")
     }
   }
 }

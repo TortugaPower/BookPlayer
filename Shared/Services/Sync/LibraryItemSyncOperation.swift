@@ -284,6 +284,12 @@ extension LibraryItemSyncOperation {
       } catch {
         confirmationError = error
         Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
+        // Space out the attempts (same 2s as the ConcurrenceService sibling): a single
+        // transient blip would otherwise burn all three back-to-back in under a second
+        // and re-upload the file anyway
+        if attempt < 3 {
+          try? await Task.sleep(for: .seconds(2))
+        }
       }
     }
     if let confirmationError {
