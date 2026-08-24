@@ -550,3 +550,11 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "sync_invitation_download_hint" = "Download %d items to your device storage.";
 "sync_invitation_close_hint" = "Dismisses the invitation card.";
 "close_title" = "Close";
+"external_sync_benefit_server_title" = "Bring Your Own Server";
+"external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";
+"external_sync_benefit_stream_title" = "Stream & Save Space";
+"external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
+"external_sync_benefit_sync_title" = "Two-Way Progress Sync";
+"external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
+"external_sync_info_title" = "Stream & Sync";
+"queued_tasks_title" = "Queued Tasks";
