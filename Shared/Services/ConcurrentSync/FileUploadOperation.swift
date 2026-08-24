@@ -24,6 +24,12 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   let client: NetworkClientProtocol
   
   // State management for the background task
+  /// Guards the publish of `currentUploadTask` against a concurrent `cancel()`: without it,
+  /// a logout-driven cancel can run between task creation and assignment, see nil, and the
+  /// live upload survives logout. Either `cancel()` sees the published task and cancels it,
+  /// or `startUploadTask` sees `isCancelled` and never resumes (resume on a cancelled
+  /// URLSessionTask is a no-op, so the post-unlock resume can't revive it).
+  private let stateLock = NSLock()
   private var currentUploadTask: URLSessionTask?
   private var progressSubscriber: AnyCancellable?
   private var completionSubscriber: AnyCancellable?
@@ -71,8 +77,15 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       taskDescription: uuid,
       session: session
     )
+    stateLock.lock()
+    guard !isCancelled else {
+      // cancel() already ran (and finished the operation) — don't resume or rebind
+      stateLock.unlock()
+      return
+    }
     self.currentUploadTask = uploadTask
-    
+    stateLock.unlock()
+
     // 3. Bind everything before resuming
     bindUploadObservers()
     bindCellularObserver()
@@ -176,7 +189,9 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // If the Orchestrator cancels the operation entirely, we must sever all ties.
   override func cancel() {
     super.cancel()
+    stateLock.lock()
     currentUploadTask?.cancel()
+    stateLock.unlock()
     cellularDataObserver?.invalidate()
     progressSubscriber?.cancel()
     completionSubscriber?.cancel()

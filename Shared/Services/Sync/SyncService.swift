@@ -488,7 +488,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
-              externalResources: nil,
               headers: headers
             )
           ]
@@ -513,7 +512,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
               url: downloadUrl,
               relativePath: item.relativePath,
               type: .book,
-              externalResources: nil,
               headers: headers
             )
           ]
