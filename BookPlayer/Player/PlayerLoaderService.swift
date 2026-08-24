@@ -55,8 +55,11 @@ final class PlayerLoaderService: @unchecked Sendable {
       throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)
     }
     
-    // Only load if loaded book is a different one
+    // Only load if loaded book is a different one. Guard on a REAL uuid: two items
+    // carrying a placeholder/empty uuid would otherwise match as "already loaded" and
+    // the second tap would silently no-op (same rule as PlayableItem.id).
     if playerManager.hasLoadedBook() == true,
+       Constants.isRealUuid(libraryItem.uuid),
        libraryItem.uuid == playerManager.currentItem?.uuid
     {
       if autoplay {
