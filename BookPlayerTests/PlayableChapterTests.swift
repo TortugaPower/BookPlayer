@@ -61,4 +61,35 @@ class PlayableChapterTests: XCTestCase {
     XCTAssertFalse(makeChapter(relativePath: "folder/no_extension").isVideo)
     XCTAssertFalse(makeChapter(relativePath: "").isVideo)
   }
+
+  /// Regression guard for the CodingKeys exclusion: encoded chapters travel through the
+  /// WatchConnectivity application context, which the system persists to disk on both
+  /// devices — the media server's live Authorization token must never be in that payload.
+  func testCodableExcludesExternalUrlAndHeaders() throws {
+    let chapter = PlayableChapter(
+      title: "test",
+      author: "test",
+      start: 0,
+      duration: 1,
+      relativePath: "book.m4b",
+      remoteURL: URL(string: "https://cloud.example.com/book.m4b"),
+      externalURL: URL(string: "https://jellyfin.local/Items/abc/Download?api_key=SECRET-TOKEN"),
+      index: 0,
+      externalHeaders: ["Authorization": "Bearer SECRET-TOKEN"]
+    )
+
+    let data = try JSONEncoder().encode(chapter)
+    let json = String(decoding: data, as: UTF8.self)
+
+    XCTAssertFalse(json.contains("SECRET-TOKEN"), "the media-server token leaked into the encoded payload")
+    XCTAssertFalse(json.contains("Authorization"), "externalHeaders leaked into the encoded payload")
+    XCTAssertFalse(json.contains("externalUrl"), "externalUrl leaked into the encoded payload")
+    XCTAssertFalse(json.contains("jellyfin.local"), "the external URL leaked into the encoded payload")
+    // The cloud remoteURL is NOT sensitive and must still round-trip
+    XCTAssertTrue(json.contains("cloud.example.com"))
+
+    let decoded = try JSONDecoder().decode(PlayableChapter.self, from: data)
+    XCTAssertNil(decoded.externalUrl)
+    XCTAssertTrue(decoded.externalHeaders.isEmpty)
+  }
 }
