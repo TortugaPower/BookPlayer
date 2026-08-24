@@ -374,6 +374,7 @@ public final class TasksDataManager {
       percentCompleted: parameters["percentCompleted"] as? Double,
       isFinished: parameters["isFinished"] as? Bool,
       lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+      hostId: parameters["hostId"] as? String,
     )
   }
 
@@ -546,5 +547,6 @@ public final class TasksDataManager {
     if let lastPlayDateTimestamp = parameters["lastPlayDateTimestamp"] as? Double {
       task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
+    if let hostId = parameters["hostId"] as? String { task.hostId = hostId }
   }
 }

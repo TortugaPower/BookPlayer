@@ -226,6 +226,10 @@ extension ExternalUpdateTaskModel: DictionaryConvertible {
       "providerId": providerId,
       "providerName": providerName
     ]
+
+    if let hostId {
+      dictionary["hostId"] = hostId
+    }
     
     if let title {
       dictionary["title"] = title
