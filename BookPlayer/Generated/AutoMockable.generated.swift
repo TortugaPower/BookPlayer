@@ -1148,6 +1148,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary: [String: JellyfinLibraryItem]?
     var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedInvocations: [[String: JellyfinLibraryItem]] = []
     var handleSyncFromExternalResouceRemoteItemsDictionaryClosure: (([String: JellyfinLibraryItem]) -> Void)?
+    @MainActor
     func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
         handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount += 1
         handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary = remoteItemsDictionary
