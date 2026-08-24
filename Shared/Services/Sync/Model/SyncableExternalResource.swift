@@ -53,7 +53,9 @@ extension SyncableExternalResource {
     self.providerId = item.providerId
     self.syncStatus = item.syncStatus
     self.lastSyncedAt = item.lastSyncedAt
-    self.processedFile = true
+    // Thread the real value: hardcoding true reported not-yet-processed resources as
+    // processed to the server (and to every other device that syncs them down)
+    self.processedFile = item.processedFile
     self.hostId = item.hostId
   }
 }
