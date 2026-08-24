@@ -107,6 +107,8 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
     }
     await audiobookshelfService.useConnection(targetConnection)
 
-    try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted, currentTime: Double(self.positionTicks) / 10_000_000)
+    // percentCompleted arrives as 0-100 (LibraryService rounds (currentTime/duration)*100);
+    // ABS's progress field is a 0-1 FRACTION — pushing the raw value marks books complete.
+    try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted / 100, currentTime: Double(self.positionTicks) / 10_000_000)
   }
 }

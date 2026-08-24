@@ -219,10 +219,15 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
       }
     }
 
-    operation.completionBlock = { [weak self] in
+    operation.completionBlock = { [weak self, weak operation] in
+      // Resolve the weak refs SYNCHRONOUSLY: the queue keeps the operation alive while its
+      // completionBlock runs, but the async Task below executes later — resolving there
+      // could miss the operation and skip the pop, re-running the task forever. The weak
+      // capture itself breaks the operation→completionBlock→operation cycle the strong
+      // capture created.
+      guard let self, let operation else { return }
       // 2. Bridge back into the async world inside the synchronous completion block
       Task {
-        guard let self = self else { return }
 
         if operation.didSucceed {
           await self.handleFinishedOperation(operation, task: nextTask)
