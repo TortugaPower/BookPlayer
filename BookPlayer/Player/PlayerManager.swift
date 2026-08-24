@@ -302,6 +302,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   @MainActor
   func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
+    // Reset unconditionally: the flag's setters are gated on remote loads, so a LOCAL load
+    // that interrupts a buffering stream would otherwise leave the overlay stuck on.
+    await MainActor.run { updatePlayerIsLoadingURL(false) }
+
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
     let asset: AVURLAsset

@@ -411,11 +411,17 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   private func handleUploadResult(_ result: UploadResponse) {
     guard let remotePath = result.remotePath else { return }
 
-    scheduleFileUpload(params: [
+    var params: [String: Any] = [
       "filePath": result.filePath,
       "remotePath": remotePath,
-      "uuid": result.uuid
-    ])
+      "uuid": result.uuid,
+    ]
+    // Persisted onto the task reference — the post-PUT synced:true confirmation posts it,
+    // and an empty relativePath there mismatches the server's item key.
+    if let relativePath = result.relativePath {
+      params["relativePath"] = relativePath
+    }
+    scheduleFileUpload(params: params)
   }
 
   public func updateConcurrentService(_ accessLevel: AccessLevel) {
