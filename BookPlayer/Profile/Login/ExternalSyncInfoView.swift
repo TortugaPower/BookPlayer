@@ -26,22 +26,22 @@ struct ExternalSyncIntroView: View {
         // Feature 1: External Server Connection
         LoginBenefitSectionView(
           imageName: "server.rack",
-          title: "Bring Your Own Server",
-          subtitle: "Connect your existing Jellyfin or Audiobookshelf directly to the app."
+          title: "external_sync_benefit_server_title",
+          subtitle: "external_sync_benefit_server_subtitle"
         )
         
         // Feature 2: Streaming (No Local Storage)
         LoginBenefitSectionView(
           imageName: "waveform",
-          title: "Stream & Save Space",
-          subtitle: "Listen instantly by streaming directly from your source. No need to download files or use up local storage."
+          title: "external_sync_benefit_stream_title",
+          subtitle: "external_sync_benefit_stream_subtitle"
         )
         
         // Feature 3: Two-Way Sync
         LoginBenefitSectionView(
           imageName: "arrow.triangle.2.circlepath",
-          title: "Two-Way Progress Sync",
-          subtitle: "Your listening progress stays perfectly synced with your server and across all your devices."
+          title: "external_sync_benefit_sync_title",
+          subtitle: "external_sync_benefit_sync_subtitle"
         )
         
         LoginDisclaimerSectionView()
@@ -78,7 +78,7 @@ struct ExternalSyncIntroView: View {
       }
     }
     .listSectionSpacing(Spacing.S2)
-    .navigationTitle("Stream & Sync")
+    .navigationTitle("external_sync_info_title".localized)
     .navigationBarTitleDisplayMode(.inline)
     .sheet(isPresented: $showCompleteAccount) {
       NavigationStack {

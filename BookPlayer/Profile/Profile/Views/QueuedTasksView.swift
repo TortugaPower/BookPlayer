@@ -69,7 +69,7 @@ struct QueuedTasksView: View {
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
-    .navigationTitle("Queued Tasks")
+    .navigationTitle("queued_tasks_title".localized)
     .navigationBarTitleDisplayMode(.inline)
     .onReceive(syncService.observeTasksCount()) { _ in
       reloadQueues()

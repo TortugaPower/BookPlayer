@@ -303,15 +303,30 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     // later fails permanently).
     if let uploadOperation = operation as? FileUploadOperation, uploadOperation.didSucceed {
       let provider = NetworkProvider<LibraryAPI>(client: networkClient)
-      do {
-        let _: UploadItemResponse = try await provider.request(.update(params: [
-          "uuid": uploadOperation.uuid,
-          "relativePath": task.relativePath,
-          "synced": true
-        ]))
-        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
-      } catch {
-        Self.logger.error("Failed to confirm upload for \(uploadOperation.uuid): \(error.localizedDescription)")
+      // The task is popped unconditionally after this, so a transient confirmation failure
+      // would strand the item as synced:false with its bytes already on S3 — retry a few
+      // times before surfacing it in lastSyncError (a later re-upload of the same item heals).
+      for attempt in 1...3 {
+        do {
+          let _: UploadItemResponse = try await provider.request(.update(params: [
+            "uuid": uploadOperation.uuid,
+            "relativePath": task.relativePath,
+            "synced": true
+          ]))
+          NotificationCenter.default.post(name: .uploadCompleted, object: nil)
+          return
+        } catch {
+          Self.logger.error("Upload confirmation attempt \(attempt) failed for \(uploadOperation.uuid): \(error.localizedDescription)")
+          if attempt < 3 { try? await Task.sleep(for: .seconds(2)) }
+          else {
+            await MainActor.run {
+              self.lastSyncError = SyncErrorInfo(
+                taskId: task.id, uuid: uploadOperation.uuid,
+                jobType: .uploadFile, error: error.localizedDescription
+              )
+            }
+          }
+        }
       }
       return
     }

@@ -175,19 +175,6 @@ extension LibraryItemSyncOperation {
     finish()
   }
 
-  func handleUploadFinished() {
-    Task {
-      do {
-        try await markUploadAsSynced(uuid: uuid)
-        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
-        finish()
-      } catch {
-        self.error = error
-        finish()
-      }
-    }
-  }
-
   func markUploadAsSynced(uuid: String) async throws {
     let _: UploadItemResponse = try await self.provider.request(.update(params: [
       "uuid": uuid,
