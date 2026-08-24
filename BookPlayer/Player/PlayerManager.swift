@@ -199,6 +199,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     playerLoadingStateSubscription = player.publisher(for: \.timeControlStatus)
       .sink { [weak self, weak player] status in
         guard let self = self, let player = player else { return }
+        // Same remote-only gate as the item-status observer: a stalled/seeking LOCAL book
+        // must not flash the streaming buffering overlay.
+        let isRemoteLoad = (self.currentItem?.currentChapter?.externalUrl != nil)
+          || (self.currentItem?.currentChapter?.remoteURL != nil)
+        guard isRemoteLoad else { return }
         
         switch status {
         case .waitingToPlayAtSpecifiedRate:

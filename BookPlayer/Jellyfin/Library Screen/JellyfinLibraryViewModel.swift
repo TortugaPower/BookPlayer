@@ -408,7 +408,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
       )
       
       let externalItem = SimpleExternalResource(
-        id: Int(Date().timeIntervalSince1970),
+        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
@@ -624,7 +624,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
       )
       
       let externalItem = SimpleExternalResource(
-        id: Int(Date().timeIntervalSince1970),
+        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,
@@ -854,7 +854,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
       )
       
       let externalItem = SimpleExternalResource(
-        id: Int(Date().timeIntervalSince1970),
+        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
         providerName: ExternalResource.ProviderName.jellyfin.rawValue,
         providerId: item.id,
         syncStatus: ExternalResource.SyncStatus.stream.rawValue,

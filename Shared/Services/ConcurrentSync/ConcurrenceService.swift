@@ -106,11 +106,14 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
-      .sink(receiveValue: { _ in
+      .sink(receiveValue: { [weak self] _ in
         UserDefaults.standard.set(
           false,
           forKey: Constants.UserDefaults.hasScheduledLibraryContents
         )
+        // Persisted rows are wiped by resetAllJobs, but an IN-FLIGHT operation would keep
+        // running (and uploading) under the next signed-in account's token without this.
+        self?.operationQueue.cancelAllOperations()
       })
       .store(in: &disposeBag)
 

@@ -186,7 +186,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   // Sourcery-generated mock property names.
   @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
   
-  func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem])
+  @MainActor func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem])
 }
 
 // swiftlint:disable force_cast
@@ -1813,7 +1813,9 @@ extension LibraryService {
     
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     let book = Book(entity: entity, insertInto: context)
-    book.relativePath = simpleItem.originalFileName
+    // relativePath is the primary key of the library — two external books sharing a title
+    // (originalFileName is title-derived) must not collide, so scope by provider item id.
+    book.relativePath = "\(externalResource.providerId)-\(simpleItem.originalFileName)"
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
@@ -2909,7 +2911,7 @@ extension LibraryService {
     return snapshots
   }
   
-  public func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
+  @MainActor public func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
     let remoteKeys = Array(remoteItemsDictionary.keys)
     
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()

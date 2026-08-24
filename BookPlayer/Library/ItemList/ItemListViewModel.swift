@@ -918,7 +918,9 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
     
     activeTasks[playableItem.uuid] = Task { [weak self] in
       guard let self else { return }
-      defer { self.activeTasks[playableItem.uuid] = nil }
+      // Only the LIVE task cleans its entry: the cancelled predecessor's defer runs after
+      // the replacement was stored and would clobber it.
+      defer { if !Task.isCancelled { self.activeTasks[playableItem.uuid] = nil } }
       let lastPlayDate = playableItem.lastPlayDate ?? Date.distantPast
       let jellyfinService = JellyfinConnectionService()
       jellyfinService.setup()
