@@ -26,7 +26,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           } label: {
             Image(systemName: "xmark")
               .accessibilityLabel("cancel_button".localized)
-              .font(.system(size: 16, weight: .semibold))
+              .bpFont(.title)
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
               .background(
@@ -44,7 +44,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           } label: {
             Image(systemName: "checkmark")
               .accessibilityLabel("import_button".localized)
-              .font(.system(size: 16, weight: .semibold))
+              .bpFont(.title)
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
               .background(
@@ -56,7 +56,8 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
         
         // Headers
         Text("import_title".localized)
-          .font(.system(size: 34, weight: .bold))
+          .bpFont(.titleStory)
+          .fontWeight(.bold)
           .foregroundColor(theme.primaryColor)
         
         Text("import_warning_description".localized)
@@ -81,7 +82,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                   Image(systemName: "minus.circle.fill")
                     .accessibilityLabel("delete_button".localized)
                     .foregroundColor(.red)
-                    .font(.system(size: 20))
+                    .bpFont(.titleLarge)
                 }
                 
                 // Waveform Icon
@@ -91,7 +92,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
                 // File Name
                 Text(resource.libraryItem?.originalFileName ?? "voiceover_unknown_title".localized)
                   .foregroundColor(theme.primaryColor)
-                  .font(.system(size: 14))
+                  .bpFont(.footnote)
                   .lineLimit(1)
                 
                 Spacer()

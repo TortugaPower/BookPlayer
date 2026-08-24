@@ -319,7 +319,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
           await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
           // The awaits above can outlive this load (user tapped another book) — applying the
           // refreshed item afterwards would clobber the newer load's state.
-          try Task.checkCancellation()
+          // The repo's own cancellation error: Swift's CancellationError would fall through
+          // to the GENERIC catch in loadChapterTask and pop a spurious alert on the very
+          // normal tap-another-book-mid-load path.
+          if Task.isCancelled { throw BookPlayerError.cancelledTask }
           if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
              let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
             currentItem = updatedItem
@@ -360,10 +363,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
+    // Local files attach ready almost instantly but still emit the initial .unknown —
+    // only streamed/remote loads should drive the buffering overlay.
+    let isRemoteLoad = (currentItem?.currentChapter?.externalUrl != nil)
+      || (currentItem?.currentChapter?.remoteURL != nil)
     playerItemStatusSubscription?.cancel()
     playerItemStatusSubscription = playerItem.publisher(for: \.status)
       .sink { [weak self] status in
-        guard let self = self else { return }
+        guard let self = self, isRemoteLoad else { return }
 
         switch status {
         case .readyToPlay:

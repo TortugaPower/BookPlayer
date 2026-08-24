@@ -106,7 +106,6 @@ struct MainView: View {
           playbackService: playbackService,
           playerManager: playerManager,
           syncService: syncService,
-          concurrenceService: concurrenceService
         )
       }
       .presentationBackground(.clear)
