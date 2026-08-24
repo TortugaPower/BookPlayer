@@ -78,10 +78,12 @@ struct BookView: View {
                   .font(.caption)
               }
             }
-            Text(verbatim: item.details)
-              .foregroundStyle(theme.secondaryColor)
-              .bpFont(.caption)
           }
+          // Outside the if-let: the author must render even when the item has no
+          // external resources (nil for locally-imported books on some construction paths).
+          Text(verbatim: item.details)
+            .foregroundStyle(theme.secondaryColor)
+            .bpFont(.caption)
         }
 
         Text(verbatim: item.durationFormatted)

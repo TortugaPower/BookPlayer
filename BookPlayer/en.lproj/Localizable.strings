@@ -558,3 +558,8 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
+"subscription_tier_free_title" = "Free";
+"subscription_tier_plus_title" = "Plus";
+"subscription_tier_lite_title" = "Lite";
+"subscription_tier_pro_title" = "Pro";
+"loading_title" = "Loading";

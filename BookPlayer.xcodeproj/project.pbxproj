@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */; };
+		048E8DAA13C4530F4419A030 /* ExternalResourceProvider+Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AC45C580EED027394A645B /* ExternalResourceProvider+Icon.swift */; };
 		058C840BB5E944B2899BC769 /* ReviewPromptServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */; };
 		07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */; };
 		0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */; };
@@ -1401,6 +1402,7 @@
 		5126F120258E9F18009965DC /* URL+BookPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+BookPlayer.swift"; sourceTree = "<group>"; };
 		5265B16421BFC176BFFE4EA5 /* IntegrationHTTPClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationHTTPClient.swift; sourceTree = "<group>"; };
 		53AE3D4C955A493470C8EAA9 /* QueryTimeSortSpikeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryTimeSortSpikeTests.swift; sourceTree = "<group>"; };
+		56AC45C580EED027394A645B /* ExternalResourceProvider+Icon.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "ExternalResourceProvider+Icon.swift"; sourceTree = "<group>"; };
 		587EDC7DEA9D2985635F1161 /* IntegrationConnectionStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionStore.swift; sourceTree = "<group>"; };
 		5BE48B26D3726D5519F45ED9 /* IntegrationHostResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationHostResolverTests.swift; sourceTree = "<group>"; };
 		5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SortPreferencesResolving.swift; sourceTree = "<group>"; };
@@ -3971,6 +3973,7 @@
 				63E784382E2EAF79001B2E94 /* Environment+BookPlayer.swift */,
 				63AE5A8C2E4C59FE002531B8 /* AppHostingViewController.swift */,
 				63D561342E5A214400615522 /* SimpleLibraryItem+SwiftUI.swift */,
+				56AC45C580EED027394A645B /* ExternalResourceProvider+Icon.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5193,6 +5196,7 @@
 				39313742614BCCA918DA7C0E /* IntegrationConnectionFlowView.swift in Sources */,
 				BF96AEBA456420ADE446427F /* URL+BookPlayer.swift in Sources */,
 				ED1900FB7892C8FA42A5A665 /* UUIDMigrationPolicy.swift in Sources */,
+				048E8DAA13C4530F4419A030 /* ExternalResourceProvider+Icon.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

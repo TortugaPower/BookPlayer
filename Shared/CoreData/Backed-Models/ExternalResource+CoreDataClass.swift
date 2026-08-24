@@ -22,15 +22,5 @@ extension ExternalResource {
     case hardcover
     case audiobookshelf
     
-    public var icon: ImageResource {
-      switch self {
-      case .jellyfin:
-        return .jellyfinIcon
-      case .hardcover:
-        return .plusImageAppIcons
-      case .audiobookshelf:
-        return .audiobookshelfIcon
-      }
-    }
   }
 }

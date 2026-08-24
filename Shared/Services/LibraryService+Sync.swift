@@ -223,7 +223,7 @@ extension LibraryService: LibrarySyncProtocol {
       }
     }
     
-    if let allExternalItems = self.findResources(for: storedItem.uuid, context: context),
+    if let allExternalItems = self.findResourceEntities(for: storedItem.uuid, context: context),
        allExternalItems.count > storedItem.resourcesArray.count {
       let allSet = Set(allExternalItems)
       let keepSet = Set(storedItem.resourcesArray)
@@ -246,7 +246,7 @@ extension LibraryService: LibrarySyncProtocol {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
-        let externalResource = self.findResource(for: item.providerId, providerName: item.providerName, context: context)
+        let externalResource = self.findResourceEntity(for: item.providerId, providerName: item.providerName, context: context)
         if let externalResource {
           externalResource.syncStatus = item.syncStatus
           externalResource.processedFile = item.processedFile
@@ -404,6 +404,11 @@ extension LibraryService: LibrarySyncProtocol {
   }
 
   func parseSyncableItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SyncableItem]? {
+    // One grouped fetch for all rows — a per-item fetch here is an N+1 on the sync path.
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -427,7 +432,7 @@ extension LibraryService: LibrarySyncProtocol {
         lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
       }
       
-      let externalResources = self.findResources(for: uuid, context: context)
+      let externalResources = resourcesByUuid[uuid]
 
       return SyncableItem(
         relativePath: relativePath,

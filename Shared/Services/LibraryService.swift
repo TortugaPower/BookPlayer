@@ -177,9 +177,10 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Returns the item's external resources as lightweight values.
   func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
 
-  func findResource(for providerId: String, providerName: String?, context: NSManagedObjectContext?) -> ExternalResource?
+  /// Snapshot, not a managed object: services never hand NSManagedObjects out (repo invariant).
+  func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource?
   
-  func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]?
+  func findResources(for uuid: String) -> [SimpleExternalResource]?
   
   // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
   // Sourcery-generated mock property names.
@@ -415,7 +416,7 @@ public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked 
 
   /// One grouped fetch for every row's external resources — a per-row fetch here is an
   /// N+1 on the main library list path.
-  private func findResourcesGrouped(forUuids uuids: [String], context: NSManagedObjectContext) -> [String: [ExternalResource]] {
+  func findResourcesGrouped(forUuids uuids: [String], context: NSManagedObjectContext) -> [String: [ExternalResource]] {
     guard !uuids.isEmpty else { return [:] }
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "%K IN %@", #keyPath(ExternalResource.libraryItem.uuid), uuids)
@@ -2859,7 +2860,9 @@ extension LibraryService {
 }
 
 extension LibraryService {
-  public func findResource(for providerId: String, providerName: String? = nil, context: NSManagedObjectContext? = nil) -> ExternalResource? {
+  /// Managed-object variant for same-module mutation/diffing paths ONLY — never exposed
+  /// on the protocol.
+  func findResourceEntity(for providerId: String, providerName: String? = nil, context: NSManagedObjectContext? = nil) -> ExternalResource? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     // Scope by provider when known: provider item ids are only unique per provider, and a
     // Jellyfin id colliding with an ABS id must not resolve/mutate the other's resource.
@@ -2875,7 +2878,7 @@ extension LibraryService {
     return result?.first
   }
   
-  public func findResources(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
+  func findResourceEntities(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
     let context = context ?? self.dataManager.getContext()
@@ -2883,6 +2886,27 @@ extension LibraryService {
     let result = try? context.fetch(fetch)
     
     return result
+  }
+
+  public func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
+    let context = dataManager.getContext()
+    var snapshot: SimpleExternalResource?
+    context.performAndWait {
+      if let entity = findResourceEntity(for: providerId, providerName: providerName, context: context) {
+        snapshot = SimpleExternalResource(from: entity, ignoreLibraryItem: true)
+      }
+    }
+    return snapshot
+  }
+
+  public func findResources(for uuid: String) -> [SimpleExternalResource]? {
+    let context = dataManager.getContext()
+    var snapshots: [SimpleExternalResource]?
+    context.performAndWait {
+      snapshots = findResourceEntities(for: uuid, context: context)?
+        .map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+    }
+    return snapshots
   }
   
   public func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {

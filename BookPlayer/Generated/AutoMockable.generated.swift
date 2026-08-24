@@ -1080,42 +1080,42 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - findResource
 
-    var findResourceForProviderNameContextCallsCount = 0
-    var findResourceForProviderNameContextCalled: Bool {
-        return findResourceForProviderNameContextCallsCount > 0
+    var findResourceForProviderNameCallsCount = 0
+    var findResourceForProviderNameCalled: Bool {
+        return findResourceForProviderNameCallsCount > 0
     }
-    var findResourceForProviderNameContextReceivedArguments: (providerId: String, providerName: String?, context: NSManagedObjectContext?)?
-    var findResourceForProviderNameContextReceivedInvocations: [(providerId: String, providerName: String?, context: NSManagedObjectContext?)] = []
-    var findResourceForProviderNameContextReturnValue: ExternalResource?
-    var findResourceForProviderNameContextClosure: ((String, String?, NSManagedObjectContext?) -> ExternalResource?)?
-    func findResource(for providerId: String, providerName: String?, context: NSManagedObjectContext?) -> ExternalResource? {
-        findResourceForProviderNameContextCallsCount += 1
-        findResourceForProviderNameContextReceivedArguments = (providerId: providerId, providerName: providerName, context: context)
-        findResourceForProviderNameContextReceivedInvocations.append((providerId: providerId, providerName: providerName, context: context))
-        if let findResourceForProviderNameContextClosure = findResourceForProviderNameContextClosure {
-            return findResourceForProviderNameContextClosure(providerId, providerName, context)
+    var findResourceForProviderNameReceivedArguments: (providerId: String, providerName: String?)?
+    var findResourceForProviderNameReceivedInvocations: [(providerId: String, providerName: String?)] = []
+    var findResourceForProviderNameReturnValue: SimpleExternalResource?
+    var findResourceForProviderNameClosure: ((String, String?) -> SimpleExternalResource?)?
+    func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
+        findResourceForProviderNameCallsCount += 1
+        findResourceForProviderNameReceivedArguments = (providerId: providerId, providerName: providerName)
+        findResourceForProviderNameReceivedInvocations.append((providerId: providerId, providerName: providerName))
+        if let findResourceForProviderNameClosure = findResourceForProviderNameClosure {
+            return findResourceForProviderNameClosure(providerId, providerName)
         } else {
-            return findResourceForProviderNameContextReturnValue
+            return findResourceForProviderNameReturnValue
         }
     }
     //MARK: - findResources
 
-    var findResourcesForContextCallsCount = 0
-    var findResourcesForContextCalled: Bool {
-        return findResourcesForContextCallsCount > 0
+    var findResourcesForCallsCount = 0
+    var findResourcesForCalled: Bool {
+        return findResourcesForCallsCount > 0
     }
-    var findResourcesForContextReceivedArguments: (uuid: String, context: NSManagedObjectContext?)?
-    var findResourcesForContextReceivedInvocations: [(uuid: String, context: NSManagedObjectContext?)] = []
-    var findResourcesForContextReturnValue: [ExternalResource]?
-    var findResourcesForContextClosure: ((String, NSManagedObjectContext?) -> [ExternalResource]?)?
-    func findResources(for uuid: String, context: NSManagedObjectContext?) -> [ExternalResource]? {
-        findResourcesForContextCallsCount += 1
-        findResourcesForContextReceivedArguments = (uuid: uuid, context: context)
-        findResourcesForContextReceivedInvocations.append((uuid: uuid, context: context))
-        if let findResourcesForContextClosure = findResourcesForContextClosure {
-            return findResourcesForContextClosure(uuid, context)
+    var findResourcesForReceivedUuid: String?
+    var findResourcesForReceivedInvocations: [String] = []
+    var findResourcesForReturnValue: [SimpleExternalResource]?
+    var findResourcesForClosure: ((String) -> [SimpleExternalResource]?)?
+    func findResources(for uuid: String) -> [SimpleExternalResource]? {
+        findResourcesForCallsCount += 1
+        findResourcesForReceivedUuid = uuid
+        findResourcesForReceivedInvocations.append(uuid)
+        if let findResourcesForClosure = findResourcesForClosure {
+            return findResourcesForClosure(uuid)
         } else {
-            return findResourcesForContextReturnValue
+            return findResourcesForReturnValue
         }
     }
     //MARK: - insertItems
@@ -1329,7 +1329,6 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
     }
     var underlyingPlayerIsLoadingURL: Bool!
     var syncProgressDelegate: PlaybackSyncProgressDelegate?
-    var storedConnection: JellyfinConnectionData?
     //MARK: - load
 
     var loadAutoplayCallsCount = 0
