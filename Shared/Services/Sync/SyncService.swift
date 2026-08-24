@@ -477,7 +477,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
           // Custom headers first (reverse-proxy gates), integration Authorization wins on conflict.
-          var headers = connection.customHeaders
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          var headers = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
           headers["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
           remoteURLs = [
             RemoteFileURL(
@@ -498,7 +502,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
         if let connection = connection,
            let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
-          var headers = connection.customHeaders
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          var headers = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
           headers["Authorization"] = "Bearer \(connection.apiToken)"
           remoteURLs = [
             RemoteFileURL(
