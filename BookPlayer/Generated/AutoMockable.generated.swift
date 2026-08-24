@@ -1139,21 +1139,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return insertItemsFromResourcesReturnValue
         }
     }
-    //MARK: - handleSyncFromExternalResouce
+    //MARK: - handleSyncFromExternalResource
 
-    var handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount = 0
-    var handleSyncFromExternalResouceRemoteItemsDictionaryCalled: Bool {
-        return handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount > 0
+    var handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount = 0
+    var handleSyncFromExternalResourceRemoteItemsDictionaryCalled: Bool {
+        return handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount > 0
     }
-    var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary: [String: JellyfinLibraryItem]?
-    var handleSyncFromExternalResouceRemoteItemsDictionaryReceivedInvocations: [[String: JellyfinLibraryItem]] = []
-    var handleSyncFromExternalResouceRemoteItemsDictionaryClosure: (([String: JellyfinLibraryItem]) -> Void)?
+    var handleSyncFromExternalResourceRemoteItemsDictionaryReceivedRemoteItemsDictionary: [String: JellyfinLibraryItem]?
+    var handleSyncFromExternalResourceRemoteItemsDictionaryReceivedInvocations: [[String: JellyfinLibraryItem]] = []
+    var handleSyncFromExternalResourceRemoteItemsDictionaryClosure: (([String: JellyfinLibraryItem]) -> Void)?
     @MainActor
-    func handleSyncFromExternalResouce(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
-        handleSyncFromExternalResouceRemoteItemsDictionaryCallsCount += 1
-        handleSyncFromExternalResouceRemoteItemsDictionaryReceivedRemoteItemsDictionary = remoteItemsDictionary
-        handleSyncFromExternalResouceRemoteItemsDictionaryReceivedInvocations.append(remoteItemsDictionary)
-        handleSyncFromExternalResouceRemoteItemsDictionaryClosure?(remoteItemsDictionary)
+    func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
+        handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount += 1
+        handleSyncFromExternalResourceRemoteItemsDictionaryReceivedRemoteItemsDictionary = remoteItemsDictionary
+        handleSyncFromExternalResourceRemoteItemsDictionaryReceivedInvocations.append(remoteItemsDictionary)
+        handleSyncFromExternalResourceRemoteItemsDictionaryClosure?(remoteItemsDictionary)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
