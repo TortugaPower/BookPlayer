@@ -135,7 +135,9 @@ struct IntegrationLibraryView<
               if viewModel.accountService.hasLiteEnabled() {
                 viewModel.handleImportItems(useSelectedItems: false)
               } else {
-                viewModel.useSelectedItems = true
+                // This toolbar action fires OUTSIDE edit mode where the selection is empty —
+                // it always means "everything", same as the lite branch above.
+                viewModel.useSelectedItems = false
                 withAnimation { viewModel.showingDownloadConfirmation = true }
               }
             } label: {

@@ -563,3 +563,4 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "subscription_tier_lite_title" = "Lite";
 "subscription_tier_pro_title" = "Pro";
 "loading_title" = "Loading";
+"info_title" = "Info";
