@@ -102,6 +102,36 @@ function extractJson(text) {
   return JSON.parse(candidate.slice(start, end + 1));
 }
 
+/// One-shot, tool-less model call that fixes the reviewer's own malformed JSON (typically an
+/// unescaped quote or raw newline inside a finding's comment). Content is preserved; only
+/// syntax is repaired. Costs one cheap turn instead of discarding a completed review pass.
+async function repairJsonWithModel(brokenText) {
+  let repaired = '';
+  const iterator = query({
+    prompt:
+      'The following text should be exactly one valid JSON object but fails to parse. ' +
+      'Reply with ONLY the corrected, valid JSON object — no code fences, no commentary. ' +
+      'Preserve every property and value; fix escaping/syntax only.\n\n' + brokenText,
+    options: {
+      model: MODEL,
+      allowedTools: [],
+      permissionMode: 'bypassPermissions',
+      maxTurns: 1,
+    },
+  });
+  for await (const msg of iterator) {
+    if (msg.type === 'assistant') {
+      const content = msg.message?.content;
+      if (Array.isArray(content)) {
+        for (const block of content) {
+          if (block.type === 'text' && block.text) repaired = block.text;
+        }
+      }
+    }
+  }
+  return extractJson(repaired);
+}
+
 async function runAgent() {
   let finalText = '';
   let turns = 0;
@@ -210,7 +240,13 @@ async function main() {
   let parsed;
   try {
     if (!finalText) throw new Error('agent produced no text output');
-    parsed = extractJson(finalText);
+    try {
+      parsed = extractJson(finalText);
+    } catch (parseError) {
+      // A finished review with broken JSON is worth one repair attempt before discarding.
+      console.warn(`Agent JSON malformed (${parseError.message}); attempting model repair…`);
+      parsed = await repairJsonWithModel(finalText);
+    }
     if (!parsed.verdict || !parsed.summary || !Array.isArray(parsed.findings)) {
       throw new Error('JSON missing verdict/summary/findings');
     }
