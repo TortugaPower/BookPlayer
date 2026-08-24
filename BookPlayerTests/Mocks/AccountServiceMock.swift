@@ -124,6 +124,8 @@ class AccountServiceMock: AccountServiceProtocol {
   func deleteAccount() async throws -> String { return "Success" }
   
   func getAccessLevel() -> BookPlayerKit.AccessLevel {
-    return .plus
+    // .free keeps this consistent with the mock's hasSyncEnabled()/hasPlusAccess()
+    // both returning false — a .plus level would contradict them.
+    return .free
   }
 }
