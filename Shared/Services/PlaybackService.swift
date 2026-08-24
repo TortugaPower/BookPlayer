@@ -247,7 +247,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
           externalUrl = URL(string: urlString)
           // Custom headers first (reverse-proxy gates like Cloudflare Access), then the
           // integration's own Authorization so it always wins on conflict.
-          externalHeaders = connection.customHeaders
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          externalHeaders = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
           externalHeaders["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
         }
         
@@ -258,7 +262,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
         if let connection = connection, let externalResource = externalResource {
           let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
           externalUrl = URL(string: urlString)
-          externalHeaders = connection.customHeaders
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          externalHeaders = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
           externalHeaders["Authorization"] = "Bearer \(connection.apiToken)"
         }
         
