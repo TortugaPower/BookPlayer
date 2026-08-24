@@ -564,3 +564,4 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "subscription_tier_pro_title" = "Pro";
 "loading_title" = "Loading";
 "info_title" = "Info";
+"integration_error_missing_connection" = "This book streams from your media server. Connect it in Settings to download or play it.";

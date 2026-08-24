@@ -73,7 +73,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   
   @MainActor
   func handleImportAudiobook(_ item: AudiobookShelfLibraryItem) throws {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)

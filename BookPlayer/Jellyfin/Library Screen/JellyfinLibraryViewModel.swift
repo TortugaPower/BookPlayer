@@ -312,7 +312,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   
   @MainActor
   func handleImportItems(useSelectedItems: Bool) {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
@@ -582,7 +582,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
   
   @MainActor
   func handleImportItems(useSelectedItems: Bool) {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
@@ -812,7 +812,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   
   @MainActor
   func handleImportItems(useSelectedItems: Bool) {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {

@@ -78,7 +78,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)

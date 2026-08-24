@@ -578,3 +578,13 @@ public final class AccountService: AccountServiceProtocol {
     )
   }
 }
+
+
+extension AccountServiceProtocol {
+  /// Whether media-server STREAMING (virtual imports) is available: the lite tier's headline
+  /// feature, and pro is a superset of lite — a pro-only subscriber must never lose it.
+  /// Protocol extension (not a requirement) so the Sourcery mocks need no regeneration.
+  public func hasStreamingEnabled() -> Bool {
+    return hasSyncEnabled()
+  }
+}

@@ -233,7 +233,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   }
   
   func handleImportItems(useSelectedItems: Bool) {
-    if accountService.hasLiteEnabled() {
+    if accountService.hasStreamingEnabled() {
       virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {

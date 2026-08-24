@@ -385,7 +385,7 @@ public final class TasksDataManager: BPLogger {
         id: parameters["id"] as! String,
         uuid: parameters["uuid"] as! String,
         filePath: parameters["filePath"] as! String,
-        remotePath: parameters["remotePath"] as! String
+        remotePath: parameters["remotePath"] as? String
       )
       context.insert(task)
     }

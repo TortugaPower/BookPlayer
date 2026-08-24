@@ -522,7 +522,7 @@ extension LibraryService: LibrarySyncProtocol {
     return snapshot
   }
   
-  public func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
+  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
     fetchRequest.fetchLimit = 1

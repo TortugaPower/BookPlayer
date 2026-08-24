@@ -339,7 +339,7 @@ lines). It is the highest-risk file in the app.
 
 - RevenueCat entitlements `AccessLevel { free, plus, lite, pro }`. `hasSyncEnabled()` = `pro` OR `lite` active
   (pro wins when both are held);
-  `hasPlusAccess()` = `plus` OR `pro` (with a local `donationMade` fallback when cached info is nil).
+  `hasPlusAccess()` = `plus` OR `pro` OR `lite` (all paid tiers unlock plus perks; local `donationMade` fallback when cached info is nil).
 - **These are client-side cached RevenueCat reads — UX gating only.** Never let `hasSyncEnabled()`/`isActive`
   become the sole gate for a server-billed resource; the server validates the entitlement. Purchases are guarded
   by `AppEnvironment.isPurchaseEnabled` (disabled on TestFlight).
