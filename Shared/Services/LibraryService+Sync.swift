@@ -214,6 +214,9 @@ extension LibraryService: LibrarySyncProtocol {
         external.syncStatus = remoteData.syncStatus
         external.lastSyncedAt = remoteData.lastSyncedAt
         external.processedFile = remoteData.processedFile
+        // The cross-device server identity — without it IntegrationHostResolver returns nil
+        // and a synced-down resource can never resolve to a saved connection on this device.
+        external.hostId = remoteData.hostId
         
         external.libraryItem = storedItem
         storedItem.addToExternalResources(external)
@@ -299,6 +302,7 @@ extension LibraryService: LibrarySyncProtocol {
         external.syncStatus = externalResource.syncStatus
         external.lastSyncedAt = externalResource.lastSyncedAt
         external.processedFile = externalResource.processedFile
+        external.hostId = externalResource.hostId
         
         external.libraryItem = newBook
         newBook.addToExternalResources(external)
