@@ -277,12 +277,23 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
       return true
 
     case .externalUpdate:
+      guard let providerId = parameters["providerId"] as? String else {
+        return false
+      }
+      // The reference doesn't carry providerId, so match through the fetched tasks:
+      // taking just the LAST externalUpdate reference misses whenever the queue holds
+      // pushes for more than one book, creating a duplicate task instead of coalescing
+      let externalTasks = (try? modelContext.fetch(FetchDescriptor<ExternalUpdateTaskModel>())) ?? []
+      let tasksByID = Dictionary(
+        uniqueKeysWithValues: externalTasks
+          .filter { $0.providerId == providerId }
+          .map { ($0.id, $0) }
+      )
       guard
-        let providerId = parameters["providerId"] as? String,
-        let candidateReference = mergeableReferences.last(where: { $0.jobType == .externalUpdate }),
-        let candidateTask = try? modelContext
-          .fetch(FetchDescriptor<ExternalUpdateTaskModel>())
-          .first(where: { $0.id == candidateReference.taskID && $0.providerId == providerId })
+        let candidateReference = mergeableReferences.last(where: {
+          $0.jobType == .externalUpdate && tasksByID[$0.taskID] != nil
+        }),
+        let candidateTask = tasksByID[candidateReference.taskID]
       else {
         return false
       }

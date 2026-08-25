@@ -61,12 +61,12 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           .foregroundColor(theme.primaryColor)
         
         Text("import_warning_description".localized)
-          .font(.subheadline)
+          .bpFont(.subheadline)
           .foregroundColor(theme.primaryColor.opacity(0.6))
           .lineSpacing(4)
         
         Text(String.localizedStringWithFormat("files_title".localized, viewModel.resources.count))
-          .font(.headline)
+          .bpFont(.headline)
           .foregroundColor(theme.primaryColor.opacity(0.6))
           .padding(.top, 10)
         

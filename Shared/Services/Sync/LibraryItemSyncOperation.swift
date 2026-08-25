@@ -292,8 +292,17 @@ extension LibraryItemSyncOperation {
         }
       }
     }
+    // Exhausted: CONSUME rather than throw. A failed operation is retried from the
+    // top, which re-runs the uploaded:false branch and re-PUTs the whole file — the
+    // exact waste this loop exists to avoid. The bytes are safely on S3; the server
+    // still thinks the object isn't uploaded, so the next external_set round-trip
+    // heals cheaply (it answers url == null for an already-existing object, which the
+    // nil-url branch above consumes). Same bytes-are-on-S3 semantics as the
+    // FileUploadOperation confirmation in ConcurrenceService.handleFinishedOperation.
     if let confirmationError {
-      throw confirmationError
+      Self.logger.error(
+        "uploaded:true confirmation exhausted for \(self.uuid), consuming (bytes on S3): \(confirmationError.localizedDescription)"
+      )
     }
   }
 }
