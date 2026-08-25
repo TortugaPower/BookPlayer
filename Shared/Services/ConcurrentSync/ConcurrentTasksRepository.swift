@@ -117,6 +117,13 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     } catch {
       Self.logger.error("Failed to persist task removal (\(task.id)), retrying: \(error)")
       context.rollback()
+      // rollback() undid the payload delete above too — re-issue it or the payload
+      // row stays orphaned until the next clearAll()
+      try? tasksDataManager.deleteTaskModel(
+        with: task.id,
+        jobType: task.jobType,
+        context: context
+      )
       if let reference = tasksContainer.tasks.first(where: { $0.taskID == task.id }) {
         tasksContainer.tasks.removeAll(where: { $0.id == reference.id })
         context.delete(reference)
