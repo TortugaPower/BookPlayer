@@ -805,7 +805,11 @@ extension SyncService {
 
     let actualDuration: Double
     do {
-      let asset = AVURLAsset(url: fileURL)
+      // MP3 and Ogg lack global duration headers. We request precise timing to prevent
+      // inaccurate duration estimates for VBR files by forcing a full stream scan.
+      let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
+      let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
+      let asset = AVURLAsset(url: fileURL, options: options)
       actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
     } catch {
       /// We have a trustworthy synced duration, so this is a format we can play —
