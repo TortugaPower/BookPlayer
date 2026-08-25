@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Get
 
 class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Sendable {
 
@@ -63,11 +64,31 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
           // the push instead of hot-looping the provider queue in the background.
           Self.logger.error("External progress push dropped (session expired): \(error)")
           self.didSucceed = true
+        } else if Self.isPermanentRejection(error) {
+          // HTTP 4xx from the provider (item deleted server-side, malformed id) is just as
+          // permanent as an unknown host or an expired session — the queue retries failures
+          // forever, so consume instead of spinning a network+battery cycle every 5s.
+          Self.logger.error("External progress push dropped (permanent rejection): \(error)")
+          self.didSucceed = true
         } else {
           Self.logger.error("External progress push failed: \(error)")
           self.didSucceed = false
         }
       }
+    }
+  }
+
+  /// ABS surfaces non-2xx as `IntegrationError.unexpectedResponse`; Jellyfin's SDK
+  /// surfaces them as `Get.APIError.unacceptableStatusCode` (401/403 are already mapped
+  /// to `sessionExpired` upstream when a connection exists).
+  private static func isPermanentRejection(_ error: Error) -> Bool {
+    switch error {
+    case IntegrationError.unexpectedResponse(let code?) where (400...499).contains(code):
+      return true
+    case APIError.unacceptableStatusCode(let status) where (400...499).contains(status):
+      return true
+    default:
+      return false
     }
   }
 
