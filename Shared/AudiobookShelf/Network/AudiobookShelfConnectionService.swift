@@ -818,14 +818,17 @@ public class AudiobookShelfConnectionService: BPLogger {
     }
 
     // AudiobookShelf image endpoint: /api/items/:id/cover
-    // Optional query params: width, height, format
-    var urlString = "\(baseURL.absoluteString)/api/items/\(itemID)/cover"
+    // appendingPathComponent normalizes a trailing slash in the stored server URL —
+    // string concatenation yields "host//api/…", which some reverse proxies 404
+    // (same fix as the download-URL builders)
+    let coverURL = baseURL.appendingPathComponent("api/items/\(itemID)/cover")
+    var components = URLComponents(url: coverURL, resolvingAgainstBaseURL: false)
+    components?.queryItems = [
+      URLQueryItem(name: "width", value: String(Int(size.width))),
+      URLQueryItem(name: "height", value: String(Int(size.height))),
+      URLQueryItem(name: "format", value: "webp"),
+    ]
 
-    // Add size parameters if needed
-    let width = Int(size.width)
-    let height = Int(size.height)
-    urlString += "?width=\(width)&height=\(height)&format=webp"
-
-    return URL(string: urlString)
+    return components?.url
   }
 }

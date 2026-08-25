@@ -56,7 +56,9 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
   public init(tasksDataManager: TasksDataManager) {
     self.modelContainer = tasksDataManager.container
     let modelContext = ModelContext(tasksDataManager.container)
-    modelContext.autosaveEnabled = true
+    // Every mutating method saves explicitly (pop even has a save→rollback→re-save
+    // retry) — autosave would make persistence timing nondeterministic
+    modelContext.autosaveEnabled = false
     self.modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
     self.tasksDataManager = tasksDataManager
   }
