@@ -103,7 +103,9 @@ final class IntegrationConnectionStore<Payload: IntegrationConnectionPayload>: B
       connections = [single]
       save()
     } else {
-      Self.logger.warning("failed to load connection data from keychain")
+      // Nil is also the completely normal never-added-a-server first launch —
+      // not warning-worthy on every boot
+      Self.logger.debug("no readable connection data in keychain (first launch, or decode failure)")
       return
     }
 
