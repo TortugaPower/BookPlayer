@@ -89,10 +89,9 @@ struct ConcurrentSyncTasksView: View {
     .navigationTitle(QueueDisplay.name(for: queueKey))
     .navigationBarTitleDisplayMode(.inline)
     .alert("", isPresented: $showInfoAlert) {
-      Button("ok_button", role: .cancel) {}
-        .foregroundStyle(theme.linkColor)
+      Button("ok_button".localized, role: .cancel) {}
     } message: {
-      Text("sync_tasks_alert_description")
+      Text("sync_tasks_alert_description".localized)
     }
     .onReceive(
       concurrenceService.observeConcurrentTasksCount()

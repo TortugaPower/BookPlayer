@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import CoreData
 
-public enum MigrationPlan: SchemaMigrationPlan {
+public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
   public static var schemas: [any VersionedSchema.Type] {
     [SchemaV1.self, SchemaV2.self, SchemaV3.self]
   }
@@ -208,7 +208,13 @@ public enum MigrationPlan: SchemaMigrationPlan {
           )
         }
 
-        try? coreDataContext.save()
+        do {
+          try coreDataContext.save()
+        } catch {
+          // Self-healing (the resource returns on the next sync), but a silent failure
+          // here leaves upload tasks pointing at resources that never persisted locally
+          Self.logger.error("v2ToV3 external-resource backfill save failed: \(error)")
+        }
       }
 
       // Only enqueue upload tasks for users who already have a server-side library;

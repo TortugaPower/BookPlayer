@@ -115,8 +115,11 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
     startListeningForNewTasks()
     bindObservers()
-    wakeUpWorkers()
+    // Policy BEFORE workers: createOperation consults accessPolicy to decide whether a
+    // persisted upload may run — waking workers first only worked because wakeUpWorkers
+    // happens to suspend on the repository actor before any pop
     updateConcurrentService(accessLevel)
+    wakeUpWorkers()
   }
 
   func bindObservers() {
