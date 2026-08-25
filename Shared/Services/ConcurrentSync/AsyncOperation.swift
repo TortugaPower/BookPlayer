@@ -61,7 +61,9 @@ class AsyncOperation: Operation, @unchecked Sendable {
   
   override func start() {
     guard !isCancelled else {
-      state = .finished
+      // Route through finish() so didFinish is set — writing state directly would
+      // let a later stray finish() fire the isFinished KVO pair a second time
+      finish()
       return
     }
     state = .executing

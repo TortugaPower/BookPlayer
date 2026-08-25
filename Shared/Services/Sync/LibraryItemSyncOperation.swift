@@ -36,10 +36,18 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     self.uuid = task.uuid
   }
 
+  private var executionTask: Task<Void, Never>?
+
   // TODO: split into separate Operations
   override func main() {
-    Task {
+    executionTask = Task {
       do {
+        // Cooperative cancellation: cancel() cancels this Task, and the async
+        // URLSession calls below throw CancellationError at their next suspension
+        // point — an in-flight op must not finish a PUT or post confirmations under
+        // the NEXT signed-in account's token (NetworkClient reads the keychain token
+        // per request).
+        try Task.checkCancellation()
         switch jobType {
         case .upload:
           guard
@@ -118,6 +126,18 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   override func finish() {
     didSucceed = error == nil
     super.finish()
+  }
+
+  override func cancel() {
+    super.cancel()
+    // Mark failed BEFORE finishing so a logout-cancelled op can never be treated
+    // as succeeded, then release the queue slot; finish() is idempotent, so the
+    // cancelled Task's own finish() later is a no-op.
+    if error == nil {
+      error = BookPlayerError.cancelledTask
+    }
+    executionTask?.cancel()
+    if isExecuting { finish() }
   }
 }
 
