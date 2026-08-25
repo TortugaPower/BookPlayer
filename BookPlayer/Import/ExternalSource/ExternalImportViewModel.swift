@@ -9,12 +9,14 @@ import Foundation
 import SwiftUI
 import BookPlayerKit
 
+@MainActor
 protocol ExternalViewModelProtocol: ObservableObject {
   var resources: [SimpleExternalResource] { get set }
   func removeResource(withId id: String)
   func handleImportResources() async
 }
 
+@MainActor
 class ExternalImportViewModel: ExternalViewModelProtocol {
   let importManager: ImportManager
   
