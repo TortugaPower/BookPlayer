@@ -208,8 +208,9 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   concrete subclasses `Book`/`Folder` must be used), plus `Library`, `Bookmark`, `Chapter`, `Account`, `Theme`,
   `PlaybackRecord`, `HardcoverBook`. `ItemType: Int16 { folder, bound, book }`.
 - **Migration is manual and staged** (`Shared/CoreData/Migrations/DataMigrationManager.swift` + `DBVersion.swift`,
-  currently `v1…v11`, current model `Audiobook Player 11`). It migrates **one version at a time** using explicit
-  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 hops rely on inference). A model
+  currently `v1…v12`, current model `Audiobook Player 12` — v12 adds the `ExternalResource` entity + the
+  `LibraryItem.externalResources` relationship for media-server items). It migrates **one version at a time** using explicit
+  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v11→v12`; the v4–v7 hops rely on inference). A model
   change requires: **(1)** new `.xcdatamodel` version + bump `.xccurrentversion`; **(2)** new `DBVersion` case +
   `model()`; **(3)** a mapping model registered in `mappingModelName()` (inference is OFF, so anything
   non-trivial fails without one); **(4)** any custom data population added to the post-migration step; **(5)**
@@ -220,16 +221,21 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - `TasksDataManager.swift` owns the `ModelContainer`. **Store is `applicationSupportDirectory/bp-synctasks.sqlite`
   — the app-support dir, NOT the App Group**, separate from the CoreData store. CloudKit disabled.
-  `container = try! ModelContainer(...)` — **`try!` crashes on any container/migration failure.**
-- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field).
-  App code always uses the V2 typealiases. `@Model` types: `SyncTasksContainer`, `SyncTaskReferenceModel`
-  (`@Attribute(.unique) id`), and per-job payload models.
+  Container-build failure with an incompatible-store code (cocoa 134504/134100) MOVES the store aside
+  (`.incompatible` suffix, never deleted) and retries fresh; any other failure — including a fresh-store
+  failure — still crashes (`fatalError`).
+- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field)
+  → `SchemaV3` (unified concurrent-task container: `ConcurrentTaskReferenceModel` with per-queue keys, plus
+  `ExternalUpdateTaskModel`/`ConcurrentUploadTaskModel` payloads). App code always uses the V3 typealiases.
 - `MigrationPlan.swift` (`SchemaMigrationPlan`) has a **custom `v1ToV2` stage that reads UUIDs out of the CoreData
   `LibraryItem` table** — it requires `MigrationPlan.injectedCoreDataContext` to be set first, else
-  **`fatalError`**. This is the one coupling between the two stores; set it before the `ModelContainer` is built.
+  **`fatalError`** (the `v2ToV3` stage also uses the injected context, but degrades gracefully when absent).
+  This is the coupling between the two stores; set it before the `ModelContainer` is built.
 - **`ModelContext` is per-actor and not `Sendable`.** All task-queue reads/writes go through
-  `public actor SyncTasksStorage: ModelActor` (`Shared/Services/Sync/SyncTasksStorage.swift`) with a single
-  confined `ModelContext`. Do not share/pass a `ModelContext` across actors or threads.
+  `public actor ConcurrentTasksRepository: ModelActor` (`Shared/Services/ConcurrentSync/`) with a single
+  confined `ModelContext` (it replaced the old `SyncTasksStorage` actor). Do not share/pass a `ModelContext`
+  across actors or threads. Execution lives in `ConcurrenceService` (OperationQueue): the `sync` queue key runs
+  BookPlayer-server jobs serially; provider-named keys (externalUpdate pushes) and `uploadFile` run concurrently.
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 
@@ -457,8 +463,9 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
    so conflicts crash.
 2. **CoreData model change without the full 5-step manual-migration ritual** (auto-inference is OFF) → crashes
    existing installs.
-3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the `SyncTasksStorage`
-   actor; `MigrationPlan.injectedCoreDataContext` must be set before the container is built.
+3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the
+   `ConcurrentTasksRepository` actor; `MigrationPlan.injectedCoreDataContext` must be set before the container
+   is built.
 4. **Retain cycles / Combine leaks:** missing `[weak self]` in a sink; an `AnyCancellable` not stored; a named
    subscription not `.cancel()`'d before rebind (`PlayerManager` depends on this).
 5. **UI/state mutated off the main actor** without a `@MainActor` hop / `.receive(on: .main)`.
