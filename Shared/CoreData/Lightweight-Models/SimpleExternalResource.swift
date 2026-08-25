@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SimpleExternalResource: Identifiable {
+public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
   public let id: Int
   public let providerName: String
   public let providerId: String

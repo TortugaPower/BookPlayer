@@ -53,6 +53,10 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     && lhs.type.rawValue == rhs.type.rawValue
     && lhs.orderRank == rhs.orderRank
     && lhs.uuid == rhs.uuid
+    // Rows render provider icons from this — snapshots differing only in their
+    // external resources must not compare equal, or removeDuplicates/onChange
+    // paths skip refreshing a row that just gained or lost a media-server link
+    && lhs.externalResources == rhs.externalResources
   }
 
   static var fetchRequestProperties = [

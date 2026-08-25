@@ -61,7 +61,20 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     self.uuid = task.uuid
   }
 
-  private var executionTask: Task<Void, Never>?
+  /// Written in main() on the queue thread, read/cancelled by cancel() from any thread
+  /// (logout/lapse) — same lock discipline as error/results, or cancel() can read a
+  /// stale nil and skip cancelling the in-flight Task.
+  private var _executionTask: Task<Void, Never>?
+  private var executionTask: Task<Void, Never>? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _executionTask
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _executionTask = newValue
+    }
+  }
 
   // TODO: split into separate Operations
   override func main() {
