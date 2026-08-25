@@ -40,6 +40,7 @@ class ExternalImportViewModel: ExternalViewModelProtocol {
   }
   
   func handleImportResources() async {
-    await importManager.processExternalFiles()
+    // Synchronous @MainActor call from a @MainActor context — no await needed
+    importManager.processExternalFiles()
   }
 }
