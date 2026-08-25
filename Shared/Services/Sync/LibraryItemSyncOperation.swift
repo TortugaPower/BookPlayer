@@ -17,8 +17,33 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
-  var results: ApiResponse?
-  var error: Error?
+
+  /// Written from the operation's detached Task (and `cancel()`), read from the
+  /// queue-thread completionBlock — lock-guarded like the base class's `didSucceed`
+  /// so the reads have a happens-before edge with the writes.
+  private let propertyLock = NSLock()
+  private var _results: ApiResponse?
+  var results: ApiResponse? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _results
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _results = newValue
+    }
+  }
+  private var _error: Error?
+  var error: Error? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _error
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _error = newValue
+    }
+  }
   
   /// Initializer
   /// - Parameters:
