@@ -136,6 +136,10 @@ struct ItemDetailsView: View {
 struct ItemDetailsExternalResourceSectionView: View {
   let externalResources: [SimpleExternalResource]
 
+  /// Resolved once on appear, keyed by providerId: resolving inside the body did a
+  /// synchronous keychain read + JSON decode on every render.
+  @State private var resolvedHosts: [String: String] = [:]
+
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
@@ -167,7 +171,7 @@ struct ItemDetailsExternalResourceSectionView: View {
                 Text("host_title".localized)
                   .bold()
                 Spacer()
-                Text(resolveHost(resource))
+                Text(resolvedHosts[resource.providerId] ?? "")
                   .lineLimit(1)
                   .truncationMode(.tail)
               }
@@ -178,6 +182,12 @@ struct ItemDetailsExternalResourceSectionView: View {
         }
       } header: {
         Text("external_resources_title".localized)
+      }
+      .onAppear {
+        guard resolvedHosts.isEmpty else { return }
+        resolvedHosts = externalResources.reduce(into: [:]) { hosts, resource in
+          hosts[resource.providerId] = resolveHost(resource)
+        }
       }
     }
   }
