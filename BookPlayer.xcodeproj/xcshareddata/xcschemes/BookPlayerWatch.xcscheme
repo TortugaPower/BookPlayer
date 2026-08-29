@@ -69,6 +69,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4140EA2E227288ED0009F794"
             BuildableName = "BookPlayerWatch.app"
+            BlueprintName = "BookPlayerWatch"
             ReferencedContainer = "container:BookPlayer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,6 +86,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4140EA2E227288ED0009F794"
             BuildableName = "BookPlayerWatch.app"
+            BlueprintName = "BookPlayerWatch"
             ReferencedContainer = "container:BookPlayer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
