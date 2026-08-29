@@ -506,7 +506,7 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Estalvia espai d'emmagatzematge!";
 "sync_invitation_learn_more_button" = "Més informació";
-"sync_invitation_description" = "Estàs a punt de %1 %2 elements. %3";
+"sync_invitation_description" = "Estàs a punt de %1$@ %2$d elements. %3$@";
 "sync_invitation_stream_description" = "En lloc d'ocupar espai, reprodueix-los directament des del teu servidor i mantén el teu progrés sincronitzat.";
 "sync_tasks_concurrent_count_title" = "Tasques simultànies (%d)";
 "sync_tasks_running_empty_title" = "No hi ha tasques en curs";

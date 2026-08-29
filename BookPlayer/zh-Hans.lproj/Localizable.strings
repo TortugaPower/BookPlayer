@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "节省您的存储空间！";
 "sync_invitation_learn_more_button" = "了解更多";
-"sync_invitation_description" = "您即将 %1 %2 个项目。%3";
+"sync_invitation_description" = "您即将 %1$@ %2$d 个项目。%3$@";
 "sync_invitation_stream_description" = "无需占用空间，直接从服务器流式传输并保持进度同步。";
 "sync_tasks_concurrent_count_title" = "并发任务 (%d)";
 "sync_tasks_running_empty_title" = "无正在运行的任务";

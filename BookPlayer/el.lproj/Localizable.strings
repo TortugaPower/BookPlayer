@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Εξοικονομήστε χώρο αποθήκευσης!";
 "sync_invitation_learn_more_button" = "Μάθετε περισσότερα";
-"sync_invitation_description" = "Πρόκειται να %1 %2 στοιχεία. %3";
+"sync_invitation_description" = "Πρόκειται να %1$@ %2$d στοιχεία. %3$@";
 "sync_invitation_stream_description" = "Αντί να καταλαμβάνουν χώρο, μεταδώστε τα απευθείας από τον διακομιστή σας και διατηρήστε την πρόοδό σας συγχρονισμένη.";
 "sync_tasks_concurrent_count_title" = "Ταυτόχρονες εργασίες (%d)";
 "sync_tasks_running_empty_title" = "Δεν υπάρχουν εργασίες σε εκτέλεση";

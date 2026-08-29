@@ -506,7 +506,7 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Šetrite svoje úložisko!";
 "sync_invitation_learn_more_button" = "Dozvedieť sa viac";
-"sync_invitation_description" = "Chystáte sa %1 %2 položiek. %3";
+"sync_invitation_description" = "Chystáte sa %1$@ %2$d položiek. %3$@";
 "sync_invitation_stream_description" = "Namiesto zaberania miesta ich streamujte priamo zo svojho servera a udržujte svoj pokrok synchronizovaný.";
 "sync_tasks_concurrent_count_title" = "Súbežné úlohy (%d)";
 "sync_tasks_running_empty_title" = "Žiadne bežiace úlohy";

@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Šetřete své úložiště!";
 "sync_invitation_learn_more_button" = "Dozvědět se více";
-"sync_invitation_description" = "Chystáte se %1 %2 položek. %3";
+"sync_invitation_description" = "Chystáte se %1$@ %2$d položek. %3$@";
 "sync_invitation_stream_description" = "Místo zabírání místa je streamujte přímo ze svého serveru a udržujte svůj pokrok synchronizovaný.";
 "sync_tasks_concurrent_count_title" = "Souběžné úkoly (%d)";
 "sync_tasks_running_empty_title" = "Žádné běžící úkoly";
