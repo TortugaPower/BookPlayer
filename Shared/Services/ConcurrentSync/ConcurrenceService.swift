@@ -303,11 +303,21 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
         Self.logger.error("Discarding externalUpdate task \(task.id): missing required parameters")
         return nil
       }
+      // The parameters are PERSISTED, so a poison value doesn't crash once — it
+      // crash-loops on every pop. Int(_:) traps on NaN/infinite AND on finite values
+      // beyond Int.max (CMTimeGetSeconds yields NaN for invalid CMTimes); drop the
+      // task instead.
+      let ticks = currentTime * 10_000_000
+      // Strict <: Double(Int.max) rounds UP to 2^63, so the boundary itself would trap
+      guard ticks.isFinite, ticks >= 0, ticks < Double(Int.max) else {
+        Self.logger.error("Discarding externalUpdate task \(task.id): non-finite or out-of-range currentTime \(currentTime)")
+        return nil
+      }
       let hostId = task.parameters["hostId"] as? String
       return ExternalUpdateProgressOperation(
         providerName: providerName,
         providerItemId: providerId,
-        positionTicks: Int(currentTime * 10_000_000),
+        positionTicks: Int(ticks),
         percentCompleted: percentCompleted,
         hostId: hostId
       )

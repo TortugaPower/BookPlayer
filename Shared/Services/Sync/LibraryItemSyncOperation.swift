@@ -80,11 +80,17 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   override func main() {
     executionTask = Task {
       do {
-        // Cooperative cancellation: cancel() cancels this Task, and the async
-        // URLSession calls below throw CancellationError at their next suspension
-        // point — an in-flight op must not finish a PUT or post confirmations under
-        // the NEXT signed-in account's token (NetworkClient reads the keychain token
-        // per request).
+        // Two flags cover every cancel interleaving — an in-flight op must not finish
+        // a PUT or post confirmations under the NEXT signed-in account's token
+        // (NetworkClient reads the keychain token per request):
+        // 1. cancel() ran BEFORE this Task existed (the start()→assignment window):
+        //    executionTask was nil there, so only the OPERATION flag catches it.
+        guard !isCancelled else {
+          finish()
+          return
+        }
+        // 2. cancel() ran after: the propertyLock guarantees it saw the Task and set
+        //    the TASK flag — checked here and at every URLSession suspension point.
         try Task.checkCancellation()
         switch jobType {
         case .upload:
