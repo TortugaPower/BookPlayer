@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "وفر مساحة التخزين الخاصة بك!";
 "sync_invitation_learn_more_button" = "معرفة المزيد";
-"sync_invitation_description" = "أنت على وشك %1 %2 من العناصر. %3";
+"sync_invitation_description" = "أنت على وشك %1$@ %2$d من العناصر. %3$@";
 "sync_invitation_stream_description" = "بدلاً من استهلاك المساحة، قم ببثها مباشرة من خادمك وحافظ على مزامنة تقدمك.";
 "sync_tasks_concurrent_count_title" = "المهام المتزامنة (%d)";
 "sync_tasks_running_empty_title" = "لا توجد مهام قيد التشغيل";

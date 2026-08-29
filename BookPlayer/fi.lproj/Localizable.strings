@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Säästä tallennustilaasi!";
 "sync_invitation_learn_more_button" = "Lue lisää";
-"sync_invitation_description" = "Olet aikeissa %1 %2 kohdetta. %3";
+"sync_invitation_description" = "Olet aikeissa %1$@ %2$d kohdetta. %3$@";
 "sync_invitation_stream_description" = "Tilan viemisen sijaan voit suoratoistaa ne suoraan palvelimeltasi ja pitää edistymisesi synkronoituna.";
 "sync_tasks_concurrent_count_title" = "Samanaikaiset tehtävät (%d)";
 "sync_tasks_running_empty_title" = "Ei käynnissä olevia tehtäviä";

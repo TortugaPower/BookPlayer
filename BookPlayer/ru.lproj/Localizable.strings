@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Экономьте место!";
 "sync_invitation_learn_more_button" = "Узнать больше";
-"sync_invitation_description" = "Вы собираетесь %1 %2 элементов. %3";
+"sync_invitation_description" = "Вы собираетесь %1$@ %2$d элементов. %3$@";
 "sync_invitation_stream_description" = "Вместо того чтобы занимать место, транслируйте их прямо со своего сервера и синхронизируйте прогресс.";
 "sync_tasks_concurrent_count_title" = "Параллельные задачи (%d)";
 "sync_tasks_running_empty_title" = "Нет запущенных задач";

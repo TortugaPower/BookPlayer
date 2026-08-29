@@ -506,7 +506,7 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Spar lagringsplass!";
 "sync_invitation_learn_more_button" = "Lær mer";
-"sync_invitation_description" = "Du er i ferd med å %1 %2 elementer. %3";
+"sync_invitation_description" = "Du er i ferd med å %1$@ %2$d elementer. %3$@";
 "sync_invitation_stream_description" = "I stedet for å ta opp plass, kan du strømme dem direkte fra serveren din og holde fremgangen din synkronisert.";
 "sync_tasks_concurrent_count_title" = "Samtidige oppgaver (%d)";
 "sync_tasks_running_empty_title" = "Ingen oppgaver kjører";

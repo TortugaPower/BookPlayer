@@ -506,7 +506,7 @@
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sync_invitation_save_storage_title" = "Spóroljon a tárhellyel!";
 "sync_invitation_learn_more_button" = "Tudjon meg többet";
-"sync_invitation_description" = "Éppen %1 %2 elemet. %3";
+"sync_invitation_description" = "Éppen %1$@ %2$d elemet. %3$@";
 "sync_invitation_stream_description" = "Ahelyett, hogy helyet foglalna, streamelje őket közvetlenül a szerveréről, és tartsa szinkronban a haladását.";
 "sync_tasks_concurrent_count_title" = "Párhuzamos feladatok (%d)";
 "sync_tasks_running_empty_title" = "Nincsenek futó feladatok";
