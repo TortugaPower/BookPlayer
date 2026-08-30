@@ -69,13 +69,17 @@ struct BookView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 12, height: 12)
                     .foregroundStyle(theme.secondaryColor)
+                    .accessibilityHidden(true)
                   Text(verbatim: externalResource.providerName.capitalized)
                     .foregroundStyle(theme.secondaryColor)
                     .bpFont(.caption)
                 }
                 Text("•")
-                  .foregroundColor(.gray)
-                  .font(.caption)
+                  .foregroundStyle(theme.secondaryColor)
+                  .bpFont(.caption)
+                  // VoiceOver: decorative separator — the provider name right before it
+                  // already announces the link
+                  .accessibilityHidden(true)
               }
             }
           }
@@ -116,7 +120,7 @@ struct BookView: View {
     let concurrenceService = ConcurrenceService()
     concurrenceService.setup(
       libraryService: libraryService,
-      accessLevel: accountService.accessLevel,
+      getAccessLevel: { accountService.getAccessLevel() },
       tasksDataManager: tasksDataManager,
       networkClient: NetworkClient(),
       dataManager: dataManager

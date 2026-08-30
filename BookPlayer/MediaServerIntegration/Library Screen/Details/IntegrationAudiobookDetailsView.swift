@@ -21,10 +21,7 @@ struct IntegrationAudiobookDetailsView<
   @ObservedObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
 
-  var showSubscribeButton: Bool = false
-  var allowStream: Bool = false
   var onDownloadTap: () -> Void
-  var onStreamTap: () -> Void
   @ViewBuilder let imageContent: () -> ImageContent
 
   var voiceOverBookInfo: String {
@@ -79,7 +76,7 @@ struct IntegrationAudiobookDetailsView<
         }
 
         HStack(spacing: 12) {
-          if allowStream || showSubscribeButton {
+          if viewModel.allowStream || viewModel.showSubscribeButton {
             SmallDownloadButton
             SynchronizeButton
           } else {
@@ -136,6 +133,17 @@ struct IntegrationAudiobookDetailsView<
     .task(id: ObjectIdentifier(viewModel)) {
       viewModel.fetchData()
     }
+    .sheet(item: $viewModel.pendingImportBatch) { batch in
+      ExternalImportView(
+        initModel: {
+          ExternalImportViewModel(batch: batch) { resources in
+            viewModel.confirmExternalImport(resources)
+          }
+        }
+      )
+      .presentationBackground(.clear)
+      .environmentObject(theme)
+    }
     .onDisappear {
       viewModel.cancelFetchData()
     }
@@ -145,11 +153,13 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var DownloadButton: some View {
     Button {
-      do {
-        try viewModel.handleImportAudiobook(viewModel.item)
-        onDownloadTap()
-      } catch {
-        viewModel.error = error
+      Task {
+        do {
+          try await viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
       }
     } label: {
       HStack {
@@ -169,11 +179,13 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var SmallDownloadButton: some View {
     Button {
-      do {
-        try viewModel.handleImportAudiobook(viewModel.item)
-        onDownloadTap()
-      } catch {
-        viewModel.error = error
+      Task {
+        do {
+          try await viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
       }
     } label: {
       HStack {
@@ -191,15 +203,17 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var SynchronizeButton: some View {
     Button {
-      if allowStream {
-        do {
-          try self.viewModel.handleImportAudiobook(viewModel.item)
-          onDownloadTap()
-        } catch {
-          viewModel.error = error
+      if viewModel.allowStream {
+        Task {
+          do {
+            try await self.viewModel.handleImportAudiobook(viewModel.item)
+            onDownloadTap()
+          } catch {
+            viewModel.error = error
+          }
         }
       } else {
-        onStreamTap()
+        viewModel.goToSubscribe()
       }
     } label: {
       HStack {

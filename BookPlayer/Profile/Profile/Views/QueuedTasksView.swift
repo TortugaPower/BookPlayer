@@ -90,11 +90,42 @@ struct QueuedTasksView: View {
 }
 
 // MARK: - Preview
-struct QueuedTasksView_Previews: PreviewProvider {
-  static var previews: some View {
-    ZStack {
-      Color(.secondarySystemBackground).edgesIgnoringSafeArea(.all)
-      QueuedTasksView()
-    }
+// Environment defaults are un-setup() placeholders whose count methods trap (see
+// CLAUDE.md's DI section) — previews must construct + setup() + inject, same as
+// ProfileSyncTasksSectionView's preview.
+#Preview {
+  @Previewable var services: (sync: SyncService, concurrence: ConcurrenceService) = {
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
+    let audioMetadataService = AudioMetadataService()
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+    let accountService = AccountService()
+    accountService.setup(dataManager: dataManager)
+    let tasksDataManager = TasksDataManager()
+    let concurrenceService = ConcurrenceService()
+    concurrenceService.setup(
+      libraryService: libraryService,
+      getAccessLevel: { accountService.getAccessLevel() },
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
+    let syncService = SyncService()
+    syncService.setup(
+      isActive: true,
+      libraryService: libraryService,
+      accountService: accountService,
+      concurrenceService: concurrenceService,
+      tasksDataManager: tasksDataManager
+    )
+    return (syncService, concurrenceService)
+  }()
+
+  ZStack {
+    Color(.secondarySystemBackground).edgesIgnoringSafeArea(.all)
+    QueuedTasksView()
   }
+  .environmentObject(ThemeViewModel())
+  .environment(\.syncService, services.sync)
+  .environment(\.concurrenceService, services.concurrence)
 }

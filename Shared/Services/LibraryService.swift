@@ -1339,6 +1339,26 @@ extension LibraryService {
       // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
       // without one cannot become a book row; skip it instead of crashing.
       guard let simpleItem = resource.libraryItem else { continue }
+      // Idempotent import: the (providerName, providerId) pair IS the book's identity
+      // on its server, so re-importing must reuse the existing row — inserting again
+      // creates a twin sharing the same relativePath, the library's de-facto primary
+      // key, which has NO store-level uniqueness constraint. Mirrors the file flow's
+      // hasExistingBook guard in ImportOperation and setExternalResource's dedup.
+      guard findResource(for: resource.providerId, providerName: resource.providerName) == nil else {
+        Self.logger.info(
+          "Virtual import skipped: \(resource.providerName)/\(resource.providerId) is already in the library"
+        )
+        continue
+      }
+      // Belt-and-suspenders: an unrelated row occupying the synthesized path (e.g. a
+      // file literally named "<providerId>-<name>") must not gain a twin either.
+      let plannedRelativePath = "\(resource.providerId)-\(simpleItem.originalFileName)"
+      guard getItemReference(with: plannedRelativePath, context: dataManager.getContext()) == nil else {
+        Self.logger.warning(
+          "Virtual import skipped: a row already exists at \(plannedRelativePath)"
+        )
+        continue
+      }
       let libraryItem: LibraryItem
       let book = await createExternalBook(simpleItem: simpleItem, externalResource: resource)
       libraryItem = book
@@ -1504,9 +1524,12 @@ extension LibraryService {
     fetchRequest.resultType = .dictionaryResultType
 
     let context = dataManager.getContext()
-    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-
-    return parseFetchedItems(from: results, context: context)?.first
+    // performAndWait like the sibling find* methods: safe on the main-thread callers
+    // of today, correct if a background caller ever appears
+    return context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      return parseFetchedItems(from: results, context: context)?.first
+    }
   }
 
   public func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef] {
@@ -1849,7 +1872,10 @@ extension LibraryService {
   /// @MainActor: creates/mutates managed objects on the main-queue viewContext — running
   /// this off the main thread is the CoreData threading violation the repo bans.
   @MainActor
-  public func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
+  /// Internal (not public, not on the protocol): returns a managed object, which must
+  /// never cross the service boundary — the sole caller insertItems(fromResources:)
+  /// snapshots it to SimpleLibraryItem on the same context.
+  func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
     let context = dataManager.getContext()
     
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
@@ -1860,7 +1886,11 @@ extension LibraryService {
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
-    book.title = title.isEmpty ? simpleItem.title.replacingOccurrences(of: "_", with: " ") : title
+    // The fallback must derive from the FILENAME — re-reading the same empty title
+    // made the underscore-replacement branch a no-op and showed a blank row
+    book.title = title.isEmpty
+      ? (simpleItem.originalFileName as NSString).deletingPathExtension.replacingOccurrences(of: "_", with: " ")
+      : title
     let artist = simpleItem.details
     book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
     book.duration = simpleItem.duration

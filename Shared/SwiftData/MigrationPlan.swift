@@ -58,7 +58,8 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
         var uuidsDict: [String: String] = [:]
         coreDataContext.performAndWait {
           let fetchRequest = NSFetchRequest<LibraryItem>(entityName: "LibraryItem")
-          // Fetch only items where the UUID hasn't been set yet
+          // Unfiltered paginated scan (offset/limit) — every item is visited; the
+          // per-item logic below decides what to write
           fetchRequest.fetchLimit = 200
           fetchRequest.fetchOffset = previousOffset
           fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LibraryItem.relativePath, ascending: true)]
@@ -182,6 +183,7 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
 
         guard let items = try? coreDataContext.fetch(fetchRequest) else { return }
 
+        var pageResources: [(uuid: String, relativePath: String, providerId: String)] = []
         for item in items {
           guard let hardcoverBook = item.hardcoverBook else { continue }
           let providerId = String(hardcoverBook.id)
@@ -203,17 +205,19 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
           )
           _ = ExternalResource.create(syncable, libraryItem: item, in: coreDataContext)
 
-          resourcesToUpload.append(
+          pageResources.append(
             (uuid: item.uuid, relativePath: item.relativePath, providerId: providerId)
           )
         }
 
         do {
           try coreDataContext.save()
+          // Enqueue ONLY rows that actually persisted: a save failure is self-healing
+          // (the resource returns on the next sync), but an upload task pointing at a
+          // resource that never persisted locally would fail/retry pointlessly.
+          resourcesToUpload.append(contentsOf: pageResources)
         } catch {
-          // Self-healing (the resource returns on the next sync), but a silent failure
-          // here leaves upload tasks pointing at resources that never persisted locally
-          Self.logger.error("v2ToV3 external-resource backfill save failed: \(error)")
+          Self.logger.error("v2ToV3 external-resource backfill save failed; skipping \(pageResources.count) enqueue(s): \(error)")
         }
       }
 

@@ -23,7 +23,7 @@ public protocol ConcurrenceServiceProtocol {
 
   func setup(
     libraryService: LibrarySyncProtocol,
-    accessLevel: AccessLevel,
+    getAccessLevel: @escaping () -> AccessLevel,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
@@ -43,7 +43,6 @@ public protocol ConcurrenceServiceProtocol {
 
   func scheduleFileUpload(params: [String: Any])
 
-  func updateConcurrentService(_ accessLevel: AccessLevel)
 
   /// Cancels in-flight BookPlayer-server operations (serial sync + S3 uploads) on a
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
@@ -101,25 +100,46 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
   deinit { listeningTask?.cancel() }
 
+  /// The service's ONLY account dependency — one read, so a closure instead of the
+  /// whole AccountServiceProtocol (same narrowing as the import bus). Internal for
+  /// @testable injection.
+  var getAccessLevel: (() -> AccessLevel)!
+
   public func setup(
     libraryService: LibrarySyncProtocol,
-    accessLevel: AccessLevel,
+    getAccessLevel: @escaping () -> AccessLevel,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
   ) {
     self.libraryService = libraryService
+    self.getAccessLevel = getAccessLevel
     self.networkClient = networkClient
     self.dataManager = dataManager
     self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
     startListeningForNewTasks()
     bindObservers()
+    bindAccountObserver()
     // Policy BEFORE workers: createOperation consults accessPolicy to decide whether a
     // persisted upload may run — waking workers first only worked because wakeUpWorkers
     // happens to suspend on the repository actor before any pop
-    updateConcurrentService(accessLevel)
+    updateConcurrentService(getAccessLevel())
     wakeUpWorkers()
+  }
+
+  /// Ownership norm (same as SyncService): the service re-derives its own per-job
+  /// policy on account changes — no per-platform coordinator wiring to forget.
+  /// RevenueCat updates post .accountUpdate; without this, a mid-session upgrade left
+  /// the launch-time policy (file uploads still gated off) until the next app start.
+  func bindAccountObserver() {
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.updateConcurrentService(self.getAccessLevel())
+      }
+      .store(in: &disposeBag)
   }
 
   func bindObservers() {
@@ -328,6 +348,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
       // lapse path gives the upload queue.
       guard accessPolicy[.uploadFile] == true else {
         Self.logger.info("Dropping persisted uploadFile task \(task.id): tier has no S3 upload access")
+        cleanUpDroppedUploadTempLink(task)
         return nil
       }
       guard let filePath = task.parameters["filePath"] as? String,
@@ -336,6 +357,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
             let remoteURL = URL(string: remotePath),
             let uuid = task.parameters["uuid"] as? String else {
         Self.logger.error("Discarding uploadFile task \(task.id): missing or malformed parameters")
+        cleanUpDroppedUploadTempLink(task)
         return nil
       }
       return FileUploadOperation(fileURL: fileURL, remoteURL: remoteURL, uuid: uuid)
@@ -474,7 +496,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     }
   }
 
-  public func updateConcurrentService(_ accessLevel: AccessLevel) {
+  func updateConcurrentService(_ accessLevel: AccessLevel) {
     switch accessLevel {
     case .lite:
       accessPolicy = [
@@ -502,6 +524,19 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
         operation.cancel()
       }
     }
+  }
+
+  /// A dropped uploadFile task never constructs its FileUploadOperation, so nobody else
+  /// removes the schedule-time temp hard link — same temp-dir-only guard as the
+  /// operation's own success/4xx/cancel cleanup paths (a real Processed-folder file
+  /// must never be deleted here).
+  private func cleanUpDroppedUploadTempLink(_ task: ConcurrentSyncTask) {
+    guard
+      let filePath = task.parameters["filePath"] as? String,
+      let fileURL = URL(string: filePath),
+      fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path)
+    else { return }
+    try? FileManager.default.removeItem(at: fileURL)
   }
 }
 

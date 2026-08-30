@@ -67,7 +67,7 @@ struct IntegrationLibraryView<
             subscription: viewModel.accountService.accessLevel,
             onDownload: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
-              viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
+              Task { await viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems) }
             },
             onSync: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
@@ -86,6 +86,17 @@ struct IntegrationLibraryView<
         // Ensure it sits above everything else in the ZStack
         .zIndex(1)
       }
+    }
+    .sheet(item: $viewModel.pendingImportBatch) { batch in
+      ExternalImportView(
+        initModel: {
+          ExternalImportViewModel(batch: batch) { resources in
+            viewModel.confirmExternalImport(resources)
+          }
+        }
+      )
+      .presentationBackground(.clear)
+      .environmentObject(theme)
     }
     .scrollDismissesKeyboard(.interactively)
     .background(theme.systemBackgroundColor)
@@ -133,7 +144,7 @@ struct IntegrationLibraryView<
             
             Button {
               if viewModel.accountService.hasLiteEnabled() {
-                viewModel.handleImportItems(useSelectedItems: false)
+                Task { await viewModel.handleImportItems(useSelectedItems: false) }
               } else {
                 // This toolbar action fires OUTSIDE edit mode where the selection is empty —
                 // it always means "everything", same as the lite branch above.
@@ -161,9 +172,9 @@ struct IntegrationLibraryView<
   var layoutPreferences: some View {
     if viewModel.showsLayoutPreferences {
       ThemedSection {
-        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-          Label("Grid".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
-          Label("List".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
+        Picker(selection: $viewModel.layout, label: Text("layout_options_title".localized)) {
+          Label("layout_grid_option".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
+          Label("layout_list_option".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
         }
       }
     }
@@ -184,7 +195,7 @@ struct IntegrationLibraryView<
 
     Button {
       if viewModel.accountService.hasLiteEnabled() {
-        viewModel.handleImportItems(useSelectedItems: true)
+        Task { await viewModel.handleImportItems(useSelectedItems: true) }
       } else {
         viewModel.useSelectedItems = true
         withAnimation { viewModel.showingDownloadConfirmation = true }

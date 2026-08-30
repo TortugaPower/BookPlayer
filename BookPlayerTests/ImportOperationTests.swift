@@ -8,6 +8,7 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import Combine
 import XCTest
 
 // MARK: - processFiles()
@@ -126,5 +127,210 @@ class ImportOperationTests: XCTestCase {
     operation.start()
 
     wait(for: [promise], timeout: 15)
+  }
+}
+
+// MARK: - Virtual import pipeline
+
+@MainActor
+final class VirtualImportPipelineTests: XCTestCase {
+  private struct StubItem {
+    let id: String
+  }
+
+  private func makeResource(id: String) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: nil
+    )
+  }
+
+  func testBuildsOnlyHydratedItemsInSelectionOrder() async throws {
+    let items = [StubItem(id: "a"), StubItem(id: "b"), StubItem(id: "c")]
+    let resources = try await VirtualImportPipeline.run(
+      items: items,
+      id: \.id,
+      hydrateExtensions: { ids in
+        XCTAssertEqual(ids, ["a", "b", "c"])
+        return ["a": "m4b", "c": "mp3"]  // "b" reports no audio-file metadata
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+    XCTAssertEqual(resources.map(\.providerId), ["a", "c"], "skips unhydrated items, keeps selection order")
+  }
+
+  func testEmptySelectionNeverHydrates() async throws {
+    var hydrateCalled = false
+    let resources = try await VirtualImportPipeline.run(
+      items: [StubItem](),
+      id: \.id,
+      hydrateExtensions: { _ in
+        hydrateCalled = true
+        return [:]
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+    XCTAssertTrue(resources.isEmpty)
+    XCTAssertFalse(hydrateCalled, "no selection means no network round-trip")
+  }
+
+  func testHydrationErrorsPropagate() async {
+    do {
+      _ = try await VirtualImportPipeline.run(
+        items: [StubItem(id: "a")],
+        id: \.id,
+        hydrateExtensions: { _ in throw URLError(.notConnectedToInternet) },
+        buildResource: { item, _ in self.makeResource(id: item.id) }
+      )
+      XCTFail("expected the hydration error to propagate to the caller's error state")
+    } catch {
+      XCTAssertEqual((error as? URLError)?.code, .notConnectedToInternet)
+    }
+  }
+}
+
+// MARK: - External import confirmation
+
+@MainActor
+final class ExternalImportViewModelTests: XCTestCase {
+  private func makeBatch(ids: [String]) -> ExternalImportBatch {
+    ExternalImportBatch(
+      resources: ids.map {
+        SimpleExternalResource(
+          providerName: "jellyfin",
+          providerId: $0,
+          syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+          lastSyncedAt: nil,
+          libraryItem: nil
+        )
+      }
+    )
+  }
+
+  func testRemovalMutatesOwnedStateAndPublishes() {
+    let sut = ExternalImportViewModel(batch: makeBatch(ids: ["a", "b"]), onConfirm: { _ in })
+    var published = false
+    let subscription = sut.objectWillChange.sink { published = true }
+
+    sut.removeResource(withId: "a")
+
+    XCTAssertEqual(sut.resources.map(\.providerId), ["b"])
+    XCTAssertTrue(published, "removal must republish — the old mailbox passthrough left the delete button visually dead")
+    subscription.cancel()
+  }
+
+  func testConfirmHandsBackTheEditedSelection() {
+    var confirmed: [SimpleExternalResource]?
+    let sut = ExternalImportViewModel(batch: makeBatch(ids: ["a", "b"]), onConfirm: { confirmed = $0 })
+
+    sut.removeResource(withId: "b")
+    sut.confirm()
+
+    XCTAssertEqual(confirmed?.map(\.providerId), ["a"], "confirm sends the batch as edited, not as staged")
+  }
+}
+
+// MARK: - Confirm destinations (bulk vs details)
+
+@MainActor
+final class ExternalImportConfirmDestinationTests: XCTestCase {
+  private func makeResources() -> [SimpleExternalResource] {
+    [SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "confirm-1",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: nil
+    )]
+  }
+
+  func testBulkConfirmSendsBatchThenDismissesBrowser() {
+    var sent: [SimpleExternalResource]?
+    var dismissed = false
+    let navigation = BPNavigation()
+    navigation.dismiss = { dismissed = true }
+
+    let sut = JellyfinLibraryViewModel(
+      folderID: "folder-1",
+      connectionService: JellyfinConnectionService(),
+      singleFileDownloadService: SingleFileDownloadService(networkClient: NetworkClient()),
+      onImportConfirmed: { sent = $0 },
+      accountService: AccountService(),
+      navigation: navigation,
+      navigationTitle: "Library"
+    )
+
+    sut.confirmExternalImport(makeResources())
+
+    XCTAssertEqual(sent?.map(\.providerId), ["confirm-1"])
+    XCTAssertTrue(dismissed, "bulk confirm closes the browser — the batch lands in the library")
+  }
+
+  func testDetailsConfirmSendsWithoutDismissing() {
+    var sent: [SimpleExternalResource]?
+    var dismissed = false
+    let navigation = BPNavigation()
+    navigation.dismiss = { dismissed = true }
+
+    let sut = JellyfinAudiobookDetailsViewModel(
+      item: JellyfinLibraryItem(id: "item-1", name: "Book", kind: .audiobook),
+      connectionService: JellyfinConnectionService(),
+      singleFileDownloadService: SingleFileDownloadService(networkClient: NetworkClient()),
+      accountService: AccountService(),
+      onImportConfirmed: { sent = $0 },
+      navigation: navigation,
+      navigationTitle: "Book"
+    )
+
+    sut.confirmExternalImport(makeResources())
+
+    XCTAssertEqual(sent?.map(\.providerId), ["confirm-1"])
+    XCTAssertFalse(dismissed, "details confirm keeps you in the browser for serial importing")
+  }
+}
+
+// MARK: - AudiobookShelf payload decoding
+
+@MainActor
+final class AudiobookShelfDecodingTests: XCTestCase {
+  /// Real-shaped expanded payload: the server's AudioFile.toJSON nests filename/ext
+  /// under `metadata`, and `ext` arrives dot-prefixed (".m4b"). Pinned as a JSON
+  /// fixture because the previous decoder expected top-level fields — it could never
+  /// decode a live server response, and builder-based tests couldn't catch that.
+  func testBatchGetPayloadDecodesNestedAudioFileMetadataAndStripsDot() throws {
+    let json = Data("""
+    {
+      "libraryItems": [
+        {
+          "id": "li_1",
+          "libraryId": "lib_1",
+          "mediaType": "book",
+          "media": {
+            "metadata": { "title": "Real Book" },
+            "audioFiles": [
+              {
+                "index": 1,
+                "ino": "123",
+                "metadata": {
+                  "filename": "Real Book.m4b",
+                  "ext": ".m4b",
+                  "path": "/audiobooks/Real Book.m4b"
+                },
+                "addedAt": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+    """.utf8)
+
+    let decoded = try JSONDecoder().decode(AudiobookShelfBatchItemsResponse.self, from: json)
+    let items = (decoded.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
+
+    XCTAssertEqual(items.first?.fileExtension, "m4b", "nested metadata decodes; leading dot is stripped")
   }
 }

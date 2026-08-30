@@ -2322,4 +2322,82 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(stored?.libraryItemUuid, inserted.first?.uuid)
     XCTAssertNil(sut.findResource(for: "insert-orphan", providerName: "jellyfin"))
   }
+
+  /// Re-importing the same provider identity must reuse the existing row: inserting
+  /// again would create a twin Book sharing one relativePath — the library's de-facto
+  /// primary key, which has no store-level uniqueness constraint.
+  @MainActor
+  func testInsertItemsIsIdempotentOnReimport() async {
+    let simpleItem = SimpleLibraryItem(
+      title: "twin-book",
+      details: "author",
+      speed: 1.0,
+      currentTime: 0,
+      duration: 300,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "jellyfin/twin-book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "twin-book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+    let resource = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "twin-1",
+      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: simpleItem
+    )
+
+    let first = await sut.insertItems(fromResources: [resource])
+    XCTAssertEqual(first.count, 1)
+
+    let second = await sut.insertItems(fromResources: [resource])
+    XCTAssertTrue(second.isEmpty, "re-import must be skipped, not create a twin row")
+
+    let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-1-twin-book.m4b" }
+    XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
+  }
+}
+
+// MARK: - Hardcover stub repair
+
+@MainActor
+final class SimpleHardcoverBookRepairTests: XCTestCase {
+  /// The merge rule behind the device-B stub repair: metadata comes from the fetched
+  /// copy, monotonic state stays local. getBook(id:) always returns status .local and
+  /// no userBookID (metadata-only query), so taking state from the fetch would regress
+  /// reading progress already pushed to Hardcover and break the unlink flow's
+  /// userBookID check.
+  func testRepairKeepsLocalMonotonicStateAndTakesFetchedMetadata() {
+    let stub = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: nil,
+      title: "",
+      author: "",
+      status: .reading,
+      userBookID: 99
+    )
+    let fetched = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: URL(string: "https://assets.hardcover.app/books/445742/cover.jpg"),
+      title: "Awaken Online: Catharsis",
+      author: "Travis Bagwell",
+      status: .local,
+      userBookID: nil
+    )
+
+    let repaired = stub.repairingMetadata(from: fetched)
+
+    XCTAssertEqual(repaired.title, "Awaken Online: Catharsis")
+    XCTAssertEqual(repaired.author, "Travis Bagwell")
+    XCTAssertNotNil(repaired.artworkURL)
+    XCTAssertEqual(repaired.status, .reading, "repair must not regress the pushed reading status")
+    XCTAssertEqual(repaired.userBookID, 99, "losing userBookID would break the unlink removal call")
+  }
 }

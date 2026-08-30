@@ -18,6 +18,7 @@ class MainCoordinator: NSObject {
   var mainController: UIViewController?
 
   let importManager: ImportManager
+  let externalImportBus: ExternalImportBus
   let playerManager: PlayerManager
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
@@ -48,6 +49,7 @@ class MainCoordinator: NSObject {
     self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
     self.importManager = ImportManager(libraryService: coreServices.libraryService)
+    self.externalImportBus = ExternalImportBus()
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
@@ -98,6 +100,7 @@ class MainCoordinator: NSObject {
       }
       .environmentObject(singleFileDownloadService)
       .environmentObject(importManager)
+      .environmentObject(externalImportBus)
       .environmentObject(playerManager)
       .environmentObject(listSyncRefreshService)
       .environment(\.libraryService, libraryService)
@@ -166,18 +169,6 @@ class MainCoordinator: NSObject {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         self?.playerState.loadedBookRelativePath = item?.relativePath
-      }
-      .store(in: &disposeBag)
-
-    // Keep the queue's per-job access policy current with the subscription: RevenueCat
-    // updates post .accountUpdate, and without this a mid-session upgrade leaves the
-    // launch-time policy (e.g. file uploads still gated off) until the next app start.
-    // The watch already does the equivalent in ExtensionDelegate.
-    NotificationCenter.default.publisher(for: .accountUpdate)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        self.concurrenceService.updateConcurrentService(self.accountService.getAccessLevel())
       }
       .store(in: &disposeBag)
   }

@@ -33,7 +33,6 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var showingDownloadConfirmation: Bool { get set }
   var useSelectedItems: Bool { get set }
   
-  var importManager: ImportManager? { get set }
   var accountService: AccountService { get set }
   
   var searchQuery: String { get set }
@@ -54,7 +53,12 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onEditToggleSelectTapped()
   @MainActor func onSelectTapped(for item: Item)
   @MainActor func onSelectAllTapped()
-  @MainActor func handleImportItems(useSelectedItems: Bool)
+  @MainActor func handleImportItems(useSelectedItems: Bool) async
+  /// Staged virtual-import selection awaiting confirmation (`.sheet(item:)`);
+  /// nil on the list-only screens that never import.
+  var pendingImportBatch: ExternalImportBatch? { get set }
+  /// Hands the confirmed (possibly edited) selection to the import bus.
+  @MainActor func confirmExternalImport(_ resources: [SimpleExternalResource])
   @MainActor func onDownloadTapped()
   @MainActor func onDownloadFolderTapped()
   @MainActor func confirmDownloadFolder()
@@ -69,5 +73,36 @@ extension IntegrationLibraryViewModelProtocol {
   var showingDownloadConfirmation: Bool {
     get { false }
     set {}
+  }
+}
+
+// MARK: - Virtual import pipeline
+
+/// Shared orchestration for virtual imports, used by every provider's bulk and
+/// details path: hydrate the selection for REAL file extensions (never guessed),
+/// build the import payloads, and skip items without audio-file metadata. Callers
+/// own the `isImporting` reentrancy guard, error surfacing, and staging the result
+/// as their `pendingImportBatch`; the two closures carry the only
+/// provider-specific parts.
+@MainActor
+enum VirtualImportPipeline {
+  /// - Returns: the import payloads for every item whose REAL file extension could
+  ///   be hydrated, in selection order — the caller stages them as its
+  ///   `pendingImportBatch`. Empty means nothing in the selection had audio-file
+  ///   metadata (callers surface the `import_no_audio_files_alert`); fewer than
+  ///   `items.count` means the remainder was skipped.
+  /// - Throws: hydration/network errors, for the caller's error state.
+  static func run<Item>(
+    items: [Item],
+    id: (Item) -> String,
+    hydrateExtensions: ([String]) async throws -> [String: String],
+    buildResource: (Item, String) -> SimpleExternalResource
+  ) async throws -> [SimpleExternalResource] {
+    guard !items.isEmpty else { return [] }
+
+    let extensionsByID = try await hydrateExtensions(items.map(id))
+    return items.compactMap { item in
+      extensionsByID[id(item)].map { buildResource(item, $0) }
+    }
   }
 }

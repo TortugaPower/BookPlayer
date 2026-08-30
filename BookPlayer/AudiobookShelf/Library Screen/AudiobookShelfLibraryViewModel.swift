@@ -19,7 +19,7 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
-  var importManager: ImportManager?
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   var accountService: AccountService
   
   enum Routes {
@@ -44,6 +44,8 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @Published var items: [AudiobookShelfLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
+  @Published private(set) var isImporting = false
+  @Published var pendingImportBatch: ExternalImportBatch?
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
@@ -128,7 +130,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -136,7 +138,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -232,9 +234,9 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     }
   }
   
-  func handleImportItems(useSelectedItems: Bool) {
+  func handleImportItems(useSelectedItems: Bool) async {
     if accountService.hasStreamingEnabled() {
-      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
         onDownloadTapped()
@@ -245,51 +247,50 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   }
   
   @MainActor
-  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
     let audiobooks = useSelectedItems
     ? selectedItems.compactMap({ id in
       self.items.first(where: { $0.id == id })
     })
     : self.items.filter { $0.kind == .audiobook }
     
-    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.fileExtension ?? "m4a"
-      let libraryItem = SimpleLibraryItem(
-        title: item.title,
-        details: item.authorName ?? "voiceover_unknown_author".localized,
-        speed: 1,
-        currentTime: Double(item.currentTime ?? 0),
-        duration: Double(item.duration ?? 0),
-        percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
-          ? Double(item.progress!) * 100 : 0,
-        isFinished: item.isFinished ?? false,
-        relativePath: "",
-        remoteURL: nil,
-        artworkURL: connectionService.createItemImageURL(item, size: CGSize(width: 300, height: 300)),
-        orderRank: 0,
-        parentFolder: nil,
-        originalFileName: "\(item.title).\(fileExt)",
-        lastPlayDate: nil,
-        type: .book,
-        uuid: UUID().uuidString
+    guard !audiobooks.isEmpty else { return }
+    isImporting = true
+    defer { isImporting = false }
+
+    do {
+      let resources = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          // batch/get returns EXPANDED items (list endpoints are minified without
+          // audioFiles); one round-trip for the whole selection
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 300, height: 300)
+          )
+        }
       )
-      
-      let externalItem = SimpleExternalResource(
-        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-        providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
-        providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-        lastSyncedAt: nil,
-        hostId: connectionService.connection?.stableHostId,
-        libraryItem: libraryItem
-      )
-      
-      return externalItem
+      guard !resources.isEmpty else {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+        return
+      }
+      if resources.count < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+      }
+      // Stage as a VALUE for this screen's own confirmation sheet — the browser
+      // stays open beneath it; dismissal happens on confirm
+      pendingImportBatch = ExternalImportBatch(resources: resources)
+    } catch {
+      self.error = error
     }
-    
-    navigation.dismiss?()
-    importManager?.externalFiles.append(contentsOf: libraryItems)
-    importManager?.isShowingExternalImportView = true
   }
   
   @MainActor
@@ -301,7 +302,10 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor
   func confirmDownloadFolder() {
    var requests = [URLRequest]()
-    for item in self.items {
+    // Same filter as virtualImportFolderAudiobooks: folder/collection rows at this
+    // level would each throw in createItemDownloadRequest (last error wins) while
+    // the rest of the loop proceeds — a confusing partial download
+    for item in self.items where item.kind == .audiobook {
       do {
         let request = try connectionService.createItemDownloadRequest(item)
         requests.append(request)
@@ -339,6 +343,14 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor
   func goToSubscribe() {
     self.navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+  }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Bulk imports land you in the library (today's destination): send the batch on
+    // the import bus, then close the browser
+    onImportConfirmed(resources)
+    navigation.dismiss?()
   }
 
   private func handleSortChanged() {

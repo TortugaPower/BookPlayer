@@ -23,7 +23,7 @@ struct JellyfinRootView: View {
   }
 
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
-  @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportBus: ExternalImportBus
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
@@ -57,20 +57,21 @@ struct JellyfinRootView: View {
         tabRootView
       }
       Tab("Authors", systemImage: "person.2.fill") {
-        JellyfinEntityTabRoot<JellyfinAuthorsListViewModel>(
+        JellyfinEntityTabRoot<JellyfinPersonsListViewModel>(
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           makeViewModel: { nav in
-            JellyfinAuthorsListViewModel(
+            JellyfinPersonsListViewModel(
+              role: .author,
               parentID: resolvedLibrary?.id,
               connectionService: connectionService,
               singleFileDownloadService: singleFileDownloadService,
-              importManager: importManager,
               accountService: accountService,
               navigation: nav,
-              navigationTitle: "Authors"
+              navigationTitle: "authors_title".localized
             )
           }
         )
@@ -172,7 +173,7 @@ struct JellyfinRootView: View {
       library: resolvedLibrary,
       connectionService: connectionService,
       singleFileDownloadService: singleFileDownloadService,
-      importManager: importManager,
+      onImportConfirmed: { externalImportBus.send($0) },
       accountService: accountService,
       onDismiss: { listState.activeIntegrationSheet = nil },
       onSwitchLibrary: switchLibraryAction,
@@ -267,7 +268,7 @@ struct JellyfinRootView: View {
 struct JellyfinTabRoot: View {
   let connectionService: JellyfinConnectionService
   let singleFileDownloadService: SingleFileDownloadService
-  let importManager: ImportManager?
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let accountService: AccountService
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
@@ -284,7 +285,7 @@ struct JellyfinTabRoot: View {
     library: JellyfinLibraryItem?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     accountService: AccountService,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
@@ -292,7 +293,7 @@ struct JellyfinTabRoot: View {
   ) {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.accountService = accountService
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
@@ -305,7 +306,7 @@ struct JellyfinTabRoot: View {
         folderID: library?.id,
         connectionService: connectionService,
         singleFileDownloadService: singleFileDownloadService,
-        importManager: importManager,
+        onImportConfirmed: onImportConfirmed,
         accountService: accountService,
         navigation: navigation,
         navigationTitle: library?.name ?? ""
@@ -357,7 +358,7 @@ struct JellyfinTabRoot: View {
           folderID: nil,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: libraryName
@@ -369,7 +370,7 @@ struct JellyfinTabRoot: View {
           folderID: item.id,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: item.name
@@ -377,12 +378,13 @@ struct JellyfinTabRoot: View {
       )
     case .authorBooks(let authorID, let authorName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinAuthorBooksViewModel(
-          authorID: authorID,
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .author,
+          personID: authorID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: authorName
@@ -390,12 +392,13 @@ struct JellyfinTabRoot: View {
       )
     case .narratorBooks(let personID, let personName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinNarratorBooksViewModel(
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .narrator,
           personID: personID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: personName
@@ -403,21 +406,19 @@ struct JellyfinTabRoot: View {
       )
     case .details(let item):
       JellyfinAudiobookDetailsView(
-        viewModel: JellyfinAudiobookDetailsViewModel(
-          item: item,
-          connectionService: connectionService,
-          singleFileDownloadService: singleFileDownloadService,
-          accountService: accountService,
-          importManager: importManager,
-          navigation: navigation,
-          navigationTitle: item.name
-        ),
-        showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasStreamingEnabled(),
+        initModel: {
+          JellyfinAudiobookDetailsViewModel(
+            item: item,
+            connectionService: connectionService,
+            singleFileDownloadService: singleFileDownloadService,
+            accountService: accountService,
+            onImportConfirmed: onImportConfirmed,
+            navigation: navigation,
+            navigationTitle: item.name
+          )
+        }
       ) {
         onDismiss()
-      } onStreamTap: {
-        navigation.path.append(JellyfinLibraryLevelData.subscribe)
       }
     case .subscribe:
       ExternalSyncIntroView()
@@ -481,6 +482,7 @@ struct JellyfinEntityTabRoot<ViewModel: IntegrationLibraryViewModelProtocol>: Vi
 where ViewModel.Item == JellyfinLibraryItem {
   let connectionService: JellyfinConnectionService
   let singleFileDownloadService: SingleFileDownloadService
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
   var dismissAll: DismissAction?
@@ -495,6 +497,7 @@ where ViewModel.Item == JellyfinLibraryItem {
   init(
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
     dismissAll: DismissAction? = nil,
@@ -502,6 +505,7 @@ where ViewModel.Item == JellyfinLibraryItem {
   ) {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.onImportConfirmed = onImportConfirmed
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
     self.dismissAll = dismissAll
@@ -521,7 +525,7 @@ where ViewModel.Item == JellyfinLibraryItem {
             for: destination,
             connectionService: connectionService,
             singleFileDownloadService: singleFileDownloadService,
-            importManager: viewModel.importManager,
+            onImportConfirmed: onImportConfirmed,
             accountService: viewModel.accountService,
             navigation: navigation,
             onDismiss: onDismiss
@@ -572,7 +576,7 @@ extension JellyfinTabRoot {
     for destination: JellyfinLibraryLevelData,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     accountService: AccountService,
     navigation: BPNavigation,
     onDismiss: @escaping () -> Void
@@ -584,7 +588,7 @@ extension JellyfinTabRoot {
           folderID: nil,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: libraryName
@@ -596,7 +600,7 @@ extension JellyfinTabRoot {
           folderID: item.id,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: item.name
@@ -604,12 +608,13 @@ extension JellyfinTabRoot {
       )
     case .authorBooks(let authorID, let authorName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinAuthorBooksViewModel(
-          authorID: authorID,
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .author,
+          personID: authorID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: authorName
@@ -617,12 +622,13 @@ extension JellyfinTabRoot {
       )
     case .narratorBooks(let personID, let personName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinNarratorBooksViewModel(
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .narrator,
           personID: personID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          importManager: importManager,
+          onImportConfirmed: onImportConfirmed,
           accountService: accountService,
           navigation: navigation,
           navigationTitle: personName
@@ -630,21 +636,19 @@ extension JellyfinTabRoot {
       )
     case .details(let item):
       JellyfinAudiobookDetailsView(
-        viewModel: JellyfinAudiobookDetailsViewModel(
-          item: item,
-          connectionService: connectionService,
-          singleFileDownloadService: singleFileDownloadService,
-          accountService: accountService,
-          importManager: importManager,
-          navigation: navigation,
-          navigationTitle: item.name
-        ),
-        showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasStreamingEnabled(),
+        initModel: {
+          JellyfinAudiobookDetailsViewModel(
+            item: item,
+            connectionService: connectionService,
+            singleFileDownloadService: singleFileDownloadService,
+            accountService: accountService,
+            onImportConfirmed: onImportConfirmed,
+            navigation: navigation,
+            navigationTitle: item.name
+          )
+        }
       ) {
         onDismiss()
-      } onStreamTap: {
-        navigation.path.append(JellyfinLibraryLevelData.subscribe)
       }
     case .subscribe:
       ExternalSyncIntroView()

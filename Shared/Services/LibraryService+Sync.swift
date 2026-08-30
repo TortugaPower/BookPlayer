@@ -176,37 +176,45 @@ extension LibraryService: LibrarySyncProtocol {
     }
     
     if let remoteExternalResources = item.externalResources {
-      let remoteIds = Set(remoteExternalResources.compactMap { $0.providerId })
-      let localIds = Set(storedItem.resourcesArray.compactMap { $0.providerId })
-      
-      let idsToAdd = remoteIds.subtracting(localIds)
-      let idsToRemove = localIds.subtracting(remoteIds)
-      let idsExisting = localIds.intersection(remoteIds)
-      
+      // Resource identity is the (providerName, providerId) PAIR — the contract
+      // everywhere else in this feature (setExternalResource dedup, findResource
+      // scoping): the same providerId can legitimately exist under BOTH providers,
+      // so diffing on providerId alone mis-reconciles cross-provider collisions.
+      struct ResourceKey: Hashable {
+        let providerName: String
+        let providerId: String
+      }
+      let remoteByKey = Dictionary(
+        remoteExternalResources.map {
+          (ResourceKey(providerName: $0.providerName, providerId: $0.providerId), $0)
+        },
+        uniquingKeysWith: { first, _ in first }
+      )
+      let localKeys = Set(storedItem.resourcesArray.map {
+        ResourceKey(providerName: $0.providerName, providerId: $0.providerId)
+      })
+      let keysToAdd = Set(remoteByKey.keys).subtracting(localKeys)
+
       for localResource in storedItem.resourcesArray {
-        // Only reconcile-away resources the server has SEEN: a locally-created link whose
-        // upload task hasn't run yet is legitimately absent from the server payload, and
-        // deleting it here loses the link before it ever syncs.
-        if idsToRemove.contains(localResource.providerId),
-           localResource.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue {
+        let key = ResourceKey(
+          providerName: localResource.providerName,
+          providerId: localResource.providerId
+        )
+        if let remoteData = remoteByKey[key] {
+          if remoteData.syncStatus != localResource.syncStatus {
+            localResource.syncStatus = remoteData.syncStatus
+          }
+        } else if localResource.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue {
+          // Only reconcile-away resources the server has SEEN: a locally-created link
+          // whose upload task hasn't run yet is legitimately absent from the server
+          // payload, and deleting it here loses the link before it ever syncs.
           storedItem.removeFromExternalResources(localResource)
           context.delete(localResource)
         }
       }
-      
-      for idExisting in idsExisting {
-        guard let localItem = storedItem.resourcesArray.first(where: { $0.providerId == idExisting }),
-              let remoteData = item.externalResources?.first(where: { $0.providerId == idExisting }),
-              remoteData.syncStatus != localItem.syncStatus
-           else {
-          continue
-        }
-        localItem.syncStatus = remoteData.syncStatus
-      }
-      
-      for idToAdd in idsToAdd {
-        // Find the original struct using the ID
-        guard let remoteData = item.externalResources?.first(where: { $0.providerId == idToAdd }) else {
+
+      for keyToAdd in keysToAdd {
+        guard let remoteData = remoteByKey[keyToAdd] else {
           continue
         }
         

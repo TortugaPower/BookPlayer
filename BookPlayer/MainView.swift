@@ -28,7 +28,6 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
-  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -128,14 +127,6 @@ struct MainView: View {
       Button("ignore_button".localized, role: .cancel) { }
     } message: {
       Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
-    }
-    .sheet(isPresented: $importManager.isShowingExternalImportView) {
-      ExternalImportView(
-        viewModel: ExternalImportViewModel(importManager: importManager)
-      )
-      .presentationBackground(.clear)
-      .environmentObject(importManager)
-      .environmentObject(theme)
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

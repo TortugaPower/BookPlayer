@@ -139,3 +139,51 @@ extension JellyfinLibraryItem {
               lastPlayedDate: narratorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil)
   }
 }
+
+// MARK: - Virtual import
+
+extension JellyfinLibraryItem {
+  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
+  /// callers hydrate it from the server (`fetchItems(ids:)` requests media sources) and
+  /// SKIP items that have none — an item without audio-file metadata has nothing to
+  /// stream, so the extension is never guessed.
+  @MainActor
+  public func asVirtualImportResource(
+    fileExtension: String,
+    detailsOverride: JellyfinAudiobookDetailsData?,
+    connectionService: JellyfinConnectionService,
+    artworkSize: CGSize
+  ) -> SimpleExternalResource {
+    let resolvedDetails = detailsOverride ?? details
+    let libraryItem = SimpleLibraryItem(
+      title: name,
+      details: resolvedDetails?.artist ?? "voiceover_unknown_author".localized,
+      speed: 1,
+      currentTime: Double(currentSeconds ?? 0),
+      duration: Double(durationSeconds ?? 0),
+      percentCompleted: (durationSeconds ?? 0) > 0 && (currentSeconds ?? 0) > 0
+        ? Double(currentSeconds!) / Double(durationSeconds!) * 100
+        : 0,
+      isFinished: isFinished ?? false,
+      relativePath: "",
+      remoteURL: nil,
+      artworkURL: try? connectionService.createItemImageURL(self, size: artworkSize),
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "\(name).\(fileExtension)",
+      lastPlayDate: lastPlayedDate,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+
+    return SimpleExternalResource(
+      id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
+      providerName: ExternalResource.ProviderName.jellyfin.rawValue,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: connectionService.connection?.stableHostId,
+      libraryItem: libraryItem
+    )
+  }
+}

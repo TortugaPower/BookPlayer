@@ -41,9 +41,15 @@ extension SyncableExternalResource: Decodable {
     self.providerName = try container.decode(String.self, forKey: .providerName)
     self.providerId = try container.decode(String.self, forKey: .providerId)
     self.syncStatus = try container.decode(String.self, forKey: .syncStatus)
-    self.lastSyncedAt = try? container.decode(Date.self, forKey: .lastSyncedAt)
-    self.processedFile = try container.decode(Bool.self, forKey: .processedFile)
-    self.hostId = try? container.decode(String.self, forKey: .hostId)
+    // decodeIfPresent, not try?: an ABSENT key is fine, but a TYPE MISMATCH should
+    // throw — LossyDecodableArray then drops (and logs) the malformed element instead
+    // of silently nil-ing the field.
+    self.lastSyncedAt = try container.decodeIfPresent(Date.self, forKey: .lastSyncedAt)
+    // Absent processedFile must not drop the whole resource element (losing the book's
+    // media-server link on this device); false is the conservative default — reprocess
+    // rather than skip processing.
+    self.processedFile = try container.decodeIfPresent(Bool.self, forKey: .processedFile) ?? false
+    self.hostId = try container.decodeIfPresent(String.self, forKey: .hostId)
   }
 }
 

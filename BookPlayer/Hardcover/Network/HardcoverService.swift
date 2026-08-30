@@ -55,7 +55,11 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
-  private var syncService: SyncServiceProtocol?
+  /// IUO like its siblings (two-step init()+setup() DI): always injected by
+  /// AppServices in production. Deliberately NOT optional — the schedule calls below
+  /// are the sync-up for Hardcover-driven changes, and optional chaining would turn a
+  /// missed injection into silently un-synced changes instead of a loud failure.
+  private var syncService: SyncServiceProtocol!
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
@@ -77,7 +81,7 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   func setup(
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol? = nil,
+    syncService: SyncServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
   ) {
@@ -280,22 +284,18 @@ extension HardcoverService {
     await updateExternalResources(for: relativePath, to: .read)
   }
 
-  /// Iterate the item's external resources and run the matching provider action for the new status.
+  /// Push the new status to the item's Hardcover link(s), if any — reading-status
+  /// actions only exist for Hardcover; other providers' progress rides the
+  /// externalUpdate queue instead.
   private func updateExternalResources(
     for relativePath: String,
     to status: HardcoverBook.Status
   ) async {
     let resources = await libraryService.getExternalResources(for: relativePath)
 
-    for resource in resources {
-      guard let provider = ExternalResource.ProviderName(rawValue: resource.providerName) else { continue }
-
-      switch provider {
-      case .hardcover:
-        await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
-      case .jellyfin, .audiobookshelf:
-        break
-      }
+    for resource in resources
+    where ExternalResource.ProviderName(rawValue: resource.providerName) == .hardcover {
+      await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
     }
   }
 
@@ -453,7 +453,7 @@ extension HardcoverService {
       )
     else { return }
 
-    syncService?.scheduleExternalResourceUpload(
+    syncService.scheduleExternalResourceUpload(
       syncable,
       relativePath: item.relativePath,
       uuid: item.uuid
@@ -471,7 +471,7 @@ extension HardcoverService {
       )
     else { return }
 
-    syncService?.scheduleExternalResourceDeletion(
+    syncService.scheduleExternalResourceDeletion(
       providerName: providerName,
       providerId: providerId,
       relativePath: item.relativePath,
@@ -488,14 +488,27 @@ extension HardcoverService {
   ) async {
     guard
       let artworkURL = book.artworkURL,
-      item.artworkURL == nil,
-      !ArtworkService.isCached(relativePath: item.relativePath)
+      item.artworkURL == nil
     else { return }
+
+    // item.artworkURL == nil can't see EMBEDDED artwork (it only tracks custom/remote),
+    // and the cache is populated lazily on first render — so a bare isCached check
+    // raced auto-match on import: a not-yet-rendered item's embedded art lost to the
+    // Hardcover cover PERMANENTLY (the cache key shadows the extractor forever) and
+    // scheduleUploadArtwork then propagated the wrong cover to every device. Run the
+    // canonical pipeline first: on a cache miss it extracts embedded artwork; only an
+    // item with genuinely no artwork of its own falls back to Hardcover's cover.
+    let hasOwnArtwork = await withCheckedContinuation { continuation in
+      ArtworkService.retrieveImageFromCache(for: item.relativePath) { result in
+        continuation.resume(returning: (try? result.get()) != nil)
+      }
+    }
+    guard !hasOwnArtwork else { return }
 
     do {
       let (data, _) = try await URLSession.shared.data(from: artworkURL)
       await ArtworkService.storeInCache(data, for: item.relativePath)
-      syncService?.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
+      syncService.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
       Self.logger.info("Set Hardcover artwork for '\(item.title)'")
     } catch {
       Self.logger.error("Failed to download Hardcover artwork for '\(item.title)': \(error)")
@@ -585,26 +598,3 @@ extension SimpleHardcoverBook {
   }
 }
 
-/// Response model for fetching a single book by its Hardcover id.
-private struct BookByIdData: Codable {
-  let books: [Book]
-
-  struct Book: Codable {
-    let id: Int
-    let title: String
-    let image: Artwork?
-    let contributions: [Contribution]?
-
-    struct Artwork: Codable {
-      let url: String?
-    }
-
-    struct Contribution: Codable {
-      let author: Author?
-
-      struct Author: Codable {
-        let name: String?
-      }
-    }
-  }
-}

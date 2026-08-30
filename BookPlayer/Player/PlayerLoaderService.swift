@@ -42,9 +42,14 @@ final class PlayerLoaderService: @unchecked Sendable {
   ) async throws {
     // The loader's contract is a RELATIVE PATH — every launch surface speaks paths (App
     // Intents, CarPlay, search, watch, last-book restore, deep links). Resolution to the
-    // item (and its uuid) happens here, in one place.
+    // item (and its uuid) happens here, in one place. A path that no longer resolves
+    // (stale last-book restore, CarPlay/watch reference to a deleted item) must THROW —
+    // develop surfaced fileMissing here, and a silent return leaves the tap doing
+    // nothing with no explanation.
     guard let libraryItem = self.libraryService.getSimpleItem(with: relativePath)
-    else { return }
+    else {
+      throw BPPlayerError.fileMissing(relativePath: relativePath)
+    }
     
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
     

@@ -50,6 +50,9 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   public let progress: Double?
   public let currentTime: TimeInterval?
   public let isFinished: Bool?
+  /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
+  /// prompt's date comparison, same as Jellyfin's lastPlayedDate
+  public let lastPlayedDate: Date?
 
   // Browse metadata
   public let browseCategory: AudiobookShelfBrowseCategory?
@@ -74,6 +77,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     progress: Double? = nil,
     currentTime: TimeInterval? = nil,
     isFinished: Bool? = nil,
+    lastPlayedDate: Date? = nil,
     browseCategory: AudiobookShelfBrowseCategory? = nil,
     filter: AudiobookShelfItemFilter? = nil
   ) {
@@ -95,6 +99,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.progress = progress
     self.currentTime = currentTime
     self.isFinished = isFinished
+    self.lastPlayedDate = lastPlayedDate
     self.browseCategory = browseCategory
     self.filter = filter
   }
@@ -216,7 +221,7 @@ extension AudiobookShelfLibraryItem {
       size: apiItem.size,
       series: apiItem.media.metadata.series,
       addedAt: apiItem.addedAt,
-      fileExtension: apiItem.media.audioFiles?.first?.ext ?? nil,
+      fileExtension: apiItem.media.audioFiles?.first?.normalizedExtension,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
@@ -233,7 +238,8 @@ extension AudiobookShelfLibraryItem {
       libraryId: "",
       progress: progressItem.progress,
       currentTime: progressItem.currentTime,
-      isFinished: progressItem.isFinished
+      isFinished: progressItem.isFinished,
+      lastPlayedDate: progressItem.lastUpdate.map { Date(timeIntervalSince1970: $0 / 1000) }
     )
   }
 }
@@ -307,8 +313,16 @@ public struct AudiobookShelfAPIItem: Codable {
     }
     
     public struct AudioFile: Codable {
-        let filename: String
-        let ext: String
+      // ABS nests file fields under metadata (AudioFile.toJSON in the server:
+      // { index, ino, metadata: { filename, ext, path, ... }, ... }) — a top-level
+      // filename/ext shape can never decode a real expanded payload.
+      public let metadata: FileMetadata
+
+      public struct FileMetadata: Codable {
+        public let filename: String
+        /// Dot-prefixed on the wire (".m4b") — normalize via `normalizedExtension`.
+        public let ext: String
+      }
     }
   }
 
@@ -316,6 +330,8 @@ public struct AudiobookShelfAPIItem: Codable {
     public let progress: Double
     public let currentTime: TimeInterval
     public let isFinished: Bool
+    /// Milliseconds since epoch of the last progress update
+    public let lastUpdate: Double?
   }
 }
 
@@ -324,6 +340,11 @@ public struct AudiobookShelfItemsResponse: Codable {
   public let total: Int
   public let limit: Int?
   public let page: Int?
+}
+
+/// Response of POST /api/items/batch/get — expanded items incl. media.audioFiles
+public struct AudiobookShelfBatchItemsResponse: Codable {
+  public let libraryItems: [AudiobookShelfAPIItem]?
 }
 
 public struct AudiobookShelfSearchResponse: Codable {
@@ -368,4 +389,61 @@ public struct AudiobookShelfCollection: Codable {
 
 public struct AudiobookShelfCollectionsResponse: Codable {
   public let results: [AudiobookShelfCollection]
+}
+
+// MARK: - Virtual import
+
+extension AudiobookShelfLibraryItem {
+  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
+  /// list endpoints return minified items without audio-file metadata, so callers
+  /// hydrate the selection via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP
+  /// items that have none — the extension is never guessed.
+  @MainActor
+  public func asVirtualImportResource(
+    fileExtension: String,
+    connectionService: AudiobookShelfConnectionService,
+    artworkSize: CGSize
+  ) -> SimpleExternalResource {
+    let libraryItem = SimpleLibraryItem(
+      title: title,
+      details: authorName ?? "voiceover_unknown_author".localized,
+      speed: 1,
+      currentTime: Double(currentTime ?? 0),
+      duration: Double(duration ?? 0),
+      percentCompleted: (progress ?? 0) > 0 && (duration ?? 0) > 0
+        ? Double(progress!) * 100
+        : 0,
+      isFinished: isFinished ?? false,
+      relativePath: "",
+      remoteURL: nil,
+      artworkURL: connectionService.createItemImageURL(self, size: artworkSize),
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "\(title).\(fileExtension)",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+
+    return SimpleExternalResource(
+      id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
+      providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: connectionService.connection?.stableHostId,
+      libraryItem: libraryItem
+    )
+  }
+}
+
+extension AudiobookShelfAPIItem.Media.AudioFile {
+  /// ABS's `metadata.ext` is dot-prefixed (".m4b", server FileMetadata semantics);
+  /// BookPlayer composes filenames as "title.ext", so the dot must be stripped or
+  /// every ABS virtual import is named "Title..m4b". Empty ext maps to nil so the
+  /// import pipeline's skip contract (no extension = not importable) still holds.
+  public var normalizedExtension: String? {
+    let trimmed = metadata.ext.hasPrefix(".") ? String(metadata.ext.dropFirst()) : metadata.ext
+    return trimmed.isEmpty ? nil : trimmed
+  }
 }
