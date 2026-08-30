@@ -22,6 +22,7 @@ struct SettingsPlayerControlsView: View {
       ListOptionsSectionView()
       ProgressLabelsSectionView()
       StartupPlayerSectionView()
+      VideoPlaybackSectionView()
     }
     .environmentObject(theme)
     .scrollContentBackground(.hidden)

@@ -483,12 +483,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-    // stop timer if the book is finished
-    if Int(currentTime) == Int(currentItem.duration) {
-      // Once book a book is finished, ask for a review
-      UserDefaults.standard.set(true, forKey: "ask_review")
-    }
-
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
   }
 

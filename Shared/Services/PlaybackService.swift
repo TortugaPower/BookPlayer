@@ -61,19 +61,17 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {
+    /// Walk the parent's children in their EFFECTIVE (visible) order — the
+    /// contract is "previous is whatever sits above this item in the list",
+    /// under automatic sorts and Custom alike. Rank cursors can't express the
+    /// Finder-style collation, so we index into the ordered sibling list
+    /// (lightweight navigation entries — no full-row materialization).
     guard
-      let orderRank = self.libraryService.getItemProperty(
-        #keyPath(LibraryItem.orderRank),
-        relativePath: relativePath
-      ) as? Int16
+      let siblings = self.libraryService.getOrderedSiblings(in: parentFolder),
+      let currentIndex = siblings.firstIndex(where: { $0.relativePath == relativePath })
     else { return nil }
 
-    guard
-      let previousItem = self.libraryService.findFirstItem(
-        in: parentFolder,
-        beforeRank: orderRank
-      )
-    else {
+    guard currentIndex > 0 else {
       if let parentFolderPath = parentFolder {
         let containerPathForParentFolder =
           self.libraryService.getItemProperty(
@@ -89,14 +87,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
       return nil
     }
 
-    if previousItem.type == .folder {
-      return try? getFirstPlayableItem(
-        in: previousItem,
-        isUnfinished: nil
-      )
-    }
-
-    return try? getPlayableItem(from: previousItem)
+    return resolvePlayableItem(from: siblings[currentIndex - 1], isUnfinished: nil)
   }
 
   public func getPlayableItem(
@@ -105,13 +96,6 @@ public final class PlaybackService: PlaybackServiceProtocol {
     autoplayed: Bool,
     restartFinished: Bool
   ) -> PlayableItem? {
-    guard
-      let orderRank = self.libraryService.getItemProperty(
-        #keyPath(LibraryItem.orderRank),
-        relativePath: relativePath
-      ) as? Int16
-    else { return nil }
-
     var isUnfinished: Bool?
 
     if autoplayed == true,
@@ -120,13 +104,24 @@ public final class PlaybackService: PlaybackServiceProtocol {
       isUnfinished = true
     }
 
+    /// Same visible-order walk as `getPlayableItem(before:)` — "next" is
+    /// whatever sits below this item in the list. The unfinished filter (set
+    /// only for autoplay without restart-finished) skips finished siblings,
+    /// folders included, matching the old rank-cursor predicate.
     guard
-      let nextItem = self.libraryService.findFirstItem(
-        in: parentFolder,
-        afterRank: orderRank,
-        isUnfinished: isUnfinished
-      )
+      let siblings = self.libraryService.getOrderedSiblings(in: parentFolder),
+      let currentIndex = siblings.firstIndex(where: { $0.relativePath == relativePath })
     else {
+      /// Current item unknown here (deleted/moved mid-playback): stop, same
+      /// as `getPlayableItem(before:)` — never hop out of a stale folder.
+      return nil
+    }
+
+    let nextItem = siblings[siblings.index(after: currentIndex)...].first { candidate in
+      isUnfinished == nil || !candidate.isFinished
+    }
+
+    guard let nextItem else {
       if let parentFolderPath = parentFolder {
         let containerPathForParentFolder =
           self.libraryService.getItemProperty(
@@ -144,14 +139,26 @@ public final class PlaybackService: PlaybackServiceProtocol {
       return nil
     }
 
-    if nextItem.type == .folder {
+    return resolvePlayableItem(from: nextItem, isUnfinished: isUnfinished)
+  }
+
+  /// Materializes a navigation entry into a `PlayableItem`, descending into
+  /// plain folders (matching the old cursor behavior: only `.folder` descends;
+  /// `.bound` plays as a single unit).
+  private func resolvePlayableItem(
+    from entry: SimpleNavigationItem,
+    isUnfinished: Bool?
+  ) -> PlayableItem? {
+    guard let item = self.libraryService.getSimpleItem(with: entry.relativePath) else { return nil }
+
+    if item.type == .folder {
       return try? getFirstPlayableItem(
-        in: nextItem,
+        in: item,
         isUnfinished: isUnfinished
       )
     }
 
-    return try? getPlayableItem(from: nextItem)
+    return try? getPlayableItem(from: item)
   }
 
   public func getFirstPlayableItem(in folder: SimpleLibraryItem, isUnfinished: Bool?) throws -> PlayableItem? {

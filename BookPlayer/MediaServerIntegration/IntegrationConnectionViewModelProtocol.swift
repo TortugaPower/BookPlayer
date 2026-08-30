@@ -19,6 +19,17 @@ enum SignInStep {
   case enteringCredentials
 }
 
+/// One pushed screen of the redesigned add-server flow. The address screen is the stack's root, so it
+/// has no case; everything after it is pushed by appending here.
+enum ConnectionFlowStep: Hashable {
+  /// "How do you want to sign in?" — rendered only when an alternative to the password exists.
+  case method
+  /// Username + password form.
+  case password
+  /// Read-only list of the custom headers carried by the pending connection.
+  case headersDetail
+}
+
 enum IntegrationViewMode {
   /// Bound to a live library session; pre-populates form from the active connection.
   case regular
@@ -33,6 +44,44 @@ struct IntegrationServerInfo: Identifiable {
   let serverName: String
   let serverUrl: String
   let userName: String
+}
+
+/// What the alternative-sign-in slot on the credentials step renders, when the validated server
+/// offers a way in besides typing a password.
+///
+/// One value instead of parallel `oidcSupported`/`quickConnectSupported` booleans: the slot shows at
+/// most one thing, and a single optional makes the invalid "both at once" state unrepresentable. The
+/// upcoming method-choice screen consumes exactly this value to decide which buttons exist.
+enum AlternativeSignInState: Equatable {
+  /// Native SSO through the server's identity provider (AudiobookShelf OIDC). The associated text is
+  /// the provider's own button label when the server supplied one; nil falls back to a generic string.
+  case oidc(buttonText: String?)
+
+  /// Out-of-band code flow (Jellyfin Quick Connect).
+  case quickConnect
+}
+
+/// Status of an out-of-band code-based authentication flow (Jellyfin Quick Connect).
+///
+/// The device asks the server for a short user-facing code, then polls until the user enters
+/// that code in an already-authenticated session of the server's web UI. While the device is
+/// waiting it sits in `.awaitingCode`; once the server marks the request authorized, the device
+/// enters `.authenticating` while it exchanges the secret for an access token. Failures are
+/// surfaced as `.failed`, with a localized message ready for display.
+enum QuickConnectStatus: Equatable {
+  /// The client has called the server's `/QuickConnect/Initiate` endpoint and is waiting for
+  /// the user-facing code to come back. Briefly visible while the network round-trip completes.
+  case retrievingCode
+
+  /// The server returned a short code and the client is polling. The user must enter this code
+  /// on the server's web UI (User menu → Quick Connect) to authorize the device.
+  case awaitingCode(String)
+
+  /// The user authorized the request. The client is exchanging the secret for an access token.
+  case authenticating
+
+  /// The flow ended in a failure. The associated value is a user-presentable message.
+  case failed(String)
 }
 
 @MainActor
@@ -74,6 +123,67 @@ protocol IntegrationConnectionViewModelProtocol: ObservableObject {
   /// Cancel adding a new server
   func handleCancelAddServerAction()
 
-  /// Persist any changes made to the custom-headers list while the connection is already live.
-  func handleCustomHeadersUpdate()
+  /// Put the form into a state the user can actually re-authenticate from, seeded with the saved
+  /// connection (URL, name, custom headers).
+  ///
+  /// The session-expired alert used to drop the user on the read-only connection-details screen, which
+  /// offers no sign-in affordance at all — the only button there is Log out. Routing through the
+  /// server-URL step instead means Connect re-validates the server and re-reads its capabilities, which
+  /// is what restores both password sign-in (it needs a freshly validated URL) and the SSO button (it
+  /// needs `/status`). Without that, an SSO-only user with no password has no way back in.
+  func prepareReauth()
+
+  // MARK: - Redesigned flow
+
+  /// Navigation path of the pushed add-server flow; the address screen is the root. Owned by the view
+  /// model so the *decision* of what follows Connect — method chooser, or straight to the password
+  /// form when nothing else exists — is plain testable logic, not view code.
+  var flowPath: [ConnectionFlowStep] { get set }
+
+  /// Whether the validated server accepts username/password sign-in at all. AudiobookShelf admins can
+  /// disable local auth (SSO-only servers); the method screen uses this to decide whether the password
+  /// button exists. Default: true — Jellyfin's core API always accepts it.
+  var supportsPasswordSignIn: Bool { get }
+
+  // MARK: - Alternative sign-in
+
+  /// What the alternative-sign-in slot offers for the server the user just validated — not merely
+  /// what the integration speaks. Nil when password is the only way in. Default: nil; concrete VMs
+  /// opt in (AudiobookShelf → `.oidc`, Jellyfin → `.quickConnect`).
+  var alternativeSignIn: AlternativeSignInState? { get }
+
+  /// Current state of an in-flight Quick Connect flow, or `nil` if none is running. Stays a separate
+  /// member rather than riding in `alternativeSignIn`: it is render state for the Quick Connect
+  /// sheet, mutating several times per flow, while `alternativeSignIn` is availability that holds
+  /// still once Connect has probed the server.
+  var quickConnectStatus: QuickConnectStatus? { get }
+
+  /// Begin whichever flow `alternativeSignIn` advertises. Throws on setup failure; user cancellation
+  /// surfaces as `CancellationError` so the host view can stay quiet.
+  func handleStartAlternativeSignIn() async throws
+
+  /// Cancel an in-flight alternative sign-in, dismiss any failure status, and free any underlying
+  /// poller. Safe to call when no flow is running.
+  func handleCancelAlternativeSignIn()
+}
+
+/// No-op defaults, so an integration without an alternative sign-in implements none of it.
+extension IntegrationConnectionViewModelProtocol {
+  var supportsPasswordSignIn: Bool { true }
+
+  /// The step Connect lands on: the method chooser when there is a choice to make, otherwise straight
+  /// to the password form. A server offering only an alternative still gets the method screen — a
+  /// single primary button beats auto-launching a browser the user didn't ask for.
+  ///
+  /// Callers must not route here when NO method can work (SSO-only over plaintext): the
+  /// AudiobookShelf view model fails Connect with `insecureTransport` in that configuration instead,
+  /// so the user lands back on the scheme control rather than on a doomed password form.
+  var stepAfterConnect: ConnectionFlowStep {
+    alternativeSignIn != nil ? .method : .password
+  }
+
+  var alternativeSignIn: AlternativeSignInState? { nil }
+  var quickConnectStatus: QuickConnectStatus? { nil }
+  func handleStartAlternativeSignIn() async throws {}
+  func handleCancelAlternativeSignIn() {}
 }

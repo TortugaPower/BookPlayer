@@ -84,10 +84,9 @@ struct ItemListView: View {
         }
       }
       .onReceive(preferencesService.preferencesChanged.receive(on: DispatchQueue.main)) { key in
-        // Server-driven sort change for the location currently on screen:
-        // PreferencesSyncService has already rewritten orderRank in CoreData
-        // via dispatchResort → sortContents. The cached `[SimpleLibraryItem]`
-        // in the view model is stale until we trigger a reload here.
+        // Server-driven sort change for the location currently on screen: the
+        // pulled pref value is already stored, and order is derived from it at
+        // query time — so a re-fetch here is the entire application step.
         guard model.libraryNode.matchesSortPrefKey(key) else { return }
         listState.reloadAll()
       }

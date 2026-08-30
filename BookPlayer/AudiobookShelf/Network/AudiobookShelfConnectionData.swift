@@ -55,6 +55,12 @@ struct AudiobookShelfConnectionData: Codable, Identifiable {
   }
 }
 
+extension AudiobookShelfConnectionData: IntegrationConnectionPayload {
+  /// Computed on purpose — see `IntegrationConnectionPayload`. Renaming or adding a stored property
+  /// here would change the `Codable` shape and stop existing Keychain records from decoding.
+  var token: String { apiToken }
+}
+
 extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
   var debugDescription: String {
     let apiTokenDebugDesc = apiToken.isEmpty ? "<empty>" : "<redacted>"

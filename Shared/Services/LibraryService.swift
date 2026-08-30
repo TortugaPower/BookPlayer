@@ -76,12 +76,12 @@ public protocol LibraryServiceProtocol: AnyObject {
     offset: Int?
   ) -> [SimpleLibraryItem]?
   /// Autoplay
-  /// Find first item that is unfinished in a folder
+  /// Find first item (optionally: first unfinished) in a folder, in the
+  /// location's effective (visible) order
   func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem?
-  /// Fetch first item before a specific position in a folder
-  func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem?
-  /// Fetch first item after a specific position in a folder considering if it's unfinished or not
-  func findFirstItem(in parentFolder: String?, afterRank: Int16?, isUnfinished: Bool?) -> SimpleLibraryItem?
+  /// The parent's children as lightweight navigation entries in the location's
+  /// effective (visible) order — the playback prev/next walk's data source
+  func getOrderedSiblings(in parentFolder: String?) -> [SimpleNavigationItem]?
   /// Get metadata chapters from item
   func getChapters(from relativePath: String) -> [SimpleChapter]?
 
@@ -107,20 +107,15 @@ public protocol LibraryServiceProtocol: AnyObject {
   func renameFolder(at relativePath: String, with newTitle: String) throws -> String
   /// Update item details
   func updateDetails(at relativePath: String, details: String)
-  /// Update item order to new rank
-  func reorderItem(
-    with relativePath: String,
-    inside folderRelativePath: String?,
-    sourceIndexPath: IndexPath,
-    destinationIndexPath: IndexPath
-  )
-  /// Sort entire list at the given path
+  /// Apply a sort to the list at the given path: persists the sticky preference
+  /// for resolvable locations (order is derived at query time); performs a
+  /// one-shot rank materialization for `.unresolved` locations
   func sortContents(at relativePath: String?, by type: SortType)
-  /// Sort entire list at the given location. `nil` represents the library root.
-  /// Convenience that resolves the relativePath from the ref and delegates.
-  func sortContents(in location: SortLocation, by type: SortType)
-  /// One-off reverse: flips the current order at the given path and transitions the
-  /// location's sticky sort to `.custom` (same transition as a manual drag-drop).
+  /// Freeze the location's currently-visible order into `orderRank` and
+  /// transition the sticky sort to `.custom` (the picker's "Custom" option)
+  func adoptCurrentOrderAsCustom(at relativePath: String?)
+  /// One-off reverse: flips the current visible order at the given path and transitions
+  /// the location's sticky sort to `.custom` (same transition as a manual drag-drop).
   func reverseContents(at relativePath: String?)
   /// Look up the relativePath for a library item by its uuid.
   /// Returns nil for placeholder uuids or if no matching item is found.
@@ -341,11 +336,45 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return result?["hasProperty"] ?? false
   }
 
+  /// How a contents fetch orders its results.
+  enum ContentsOrdering {
+    /// The location's effective sticky sort: an automatic rule becomes
+    /// fetch-time sort descriptors; `.custom` (and `.unresolved`/bound
+    /// locations, or when no preferences service is wired, e.g. watchOS)
+    /// falls back to `orderRank`.
+    case effective
+    /// Raw `orderRank` — for internal reconciliation reads whose consumers
+    /// are order-insensitive, and for rank mutations that operate on the
+    /// stored custom arrangement.
+    case byRank
+  }
+
+  /// Single choke point resolving the sort descriptors for a location.
+  /// `orderRank` means only the custom arrangement; every automatic rule is
+  /// applied here, at query time, never materialized into the rank column.
+  func resolveSortDescriptors(
+    forRelativePath relativePath: String?,
+    ordering: ContentsOrdering,
+    context: NSManagedObjectContext
+  ) -> [NSSortDescriptor] {
+    let byRank = [NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)]
+    guard case .effective = ordering, let prefs = preferencesService else {
+      return byRank
+    }
+    let location = makeLocation(forRelativePath: relativePath, context: context)
+    guard case .automatic(let sort) = prefs.effectiveSort(forLocation: location) else {
+      return byRank
+    }
+    return sort.sortDescriptors
+  }
+
   func buildListContentsFetchRequest(
     properties: [String],
     relativePath: String?,
     limit: Int?,
-    offset: Int?
+    offset: Int?,
+    ordering: ContentsOrdering,
+    context: NSManagedObjectContext
   ) -> NSFetchRequest<NSDictionary> {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = properties
@@ -355,8 +384,11 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
-    fetchRequest.sortDescriptors = [sort]
+    fetchRequest.sortDescriptors = resolveSortDescriptors(
+      forRelativePath: relativePath,
+      ordering: ordering,
+      context: context
+    )
 
     if let limit = limit {
       fetchRequest.fetchLimit = limit
@@ -722,14 +754,9 @@ extension LibraryService {
 
     dataManager.saveContext()
 
-    // Hook 2: if the parent has an automatic sort, re-rank to put new items in the right slot.
-    if let prefs = preferencesService {
-      let parentLocation = makeLocation(forRelativePath: parentPath)
-      if case .automatic(let sort) = prefs.effectiveSort(forLocation: parentLocation) {
-        sortContents(at: parentPath, by: sort)
-      }
-    }
-
+    // No re-sort needed: an automatically-sorted parent derives its order from
+    // the rule at query time, so the appended ranks have no visible effect there.
+    // (Custom parents intentionally keep new items appended at the end.)
     return processedFiles
   }
 
@@ -1133,14 +1160,6 @@ extension LibraryService {
       rebuildOrderRank(in: originalParentPath)
     }
 
-    // Hook 3: if the destination has an automatic sort, re-rank to put moved items in the right slot.
-    if let prefs = preferencesService {
-      let destLocation = makeLocation(forRelativePath: relativePath)
-      if case .automatic(let sort) = prefs.effectiveSort(forLocation: destLocation) {
-        sortContents(at: relativePath, by: sort)
-      }
-    }
-
     /// The moved items' stored relativePaths (and any folder descendants, via the
     /// path-prefix rule) are now stale, so prune them from the Last Played widget
     /// snapshot. They reappear once played again at the new location.
@@ -1249,12 +1268,14 @@ extension LibraryService {
   }
 
   func deleteFolderContents(_ folder: SimpleLibraryItem, context: NSManagedObjectContext) throws {
-    // Delete folder contents
+    // Delete folder contents — order-insensitive, and this runs on the sync
+    // background context, so skip the preference resolution.
     guard
       let items = fetchContents(
         at: folder.relativePath,
         limit: nil,
         offset: nil,
+        ordering: .byRank,
         context: context
       )
     else { return }
@@ -1291,17 +1312,20 @@ extension LibraryService {
     )
   }
 
-  public func fetchContents(
+  func fetchContents(
     at relativePath: String?,
     limit: Int?,
     offset: Int?,
+    ordering: ContentsOrdering = .effective,
     context: NSManagedObjectContext
   ) -> [SimpleLibraryItem]? {
     let fetchRequest = buildListContentsFetchRequest(
       properties: SimpleLibraryItem.fetchRequestProperties,
       relativePath: relativePath,
       limit: limit,
-      offset: offset
+      offset: offset,
+      ordering: ordering,
+      context: context
     )
 
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
@@ -1309,19 +1333,26 @@ extension LibraryService {
     return parseFetchedItems(from: results, context: context)
   }
 
+  /// Rank-ordered by the `sortedBy` default — internal reads of the stored
+  /// custom arrangement.
   func fetchRawContents(at relativePath: String?, propertiesToFetch: [String]) -> [LibraryItem]? {
-    let context = dataManager.getContext()
-
     return fetchRawContents(
       at: relativePath,
       propertiesToFetch: propertiesToFetch,
-      context: context
+      context: dataManager.getContext()
     )
   }
 
+  /// Managed-object contents fetch. Defaults to rank order (the stored custom
+  /// arrangement); the rank mutations (drag/reverse/freeze) resolve the
+  /// effective descriptors BEFORE flipping the sticky pref to `.custom` and
+  /// pass them in explicitly.
   func fetchRawContents(
     at relativePath: String?,
     propertiesToFetch: [String],
+    sortedBy sortDescriptors: [NSSortDescriptor] = [
+      NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
+    ],
     context: NSManagedObjectContext
   ) -> [LibraryItem]? {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
@@ -1332,8 +1363,7 @@ extension LibraryService {
     } else {
       fetchRequest.predicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
     }
-    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: true)
-    fetchRequest.sortDescriptors = [sort]
+    fetchRequest.sortDescriptors = sortDescriptors
 
     return try? context.fetch(fetchRequest)
   }
@@ -1507,7 +1537,9 @@ extension LibraryService {
       properties: ["relativePath", "uuid"],
       relativePath: parentFolder,
       limit: nil,
-      offset: nil
+      offset: nil,
+      ordering: .byRank,
+      context: context
     )
 
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
@@ -1519,7 +1551,9 @@ extension LibraryService {
       properties: ["relativePath"],
       relativePath: parentFolder,
       limit: nil,
-      offset: nil
+      offset: nil,
+      ordering: .byRank,
+      context: context
     )
 
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
@@ -1608,95 +1642,44 @@ extension LibraryService {
     return parseFetchedItems(from: results, context: context)
   }
 
-  func findFirstItem(
-    in parentFolder: String?,
-    rankPredicate: NSPredicate?,
-    sortAscending: Bool,
-    isUnfinished: Bool?
-  ) -> SimpleLibraryItem? {
-    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-
-    let pathPredicate: NSPredicate
-
-    if let parentFolder = parentFolder {
-      pathPredicate = NSPredicate(
-        format: "%K == %@",
-        #keyPath(LibraryItem.folder.relativePath),
-        parentFolder
-      )
-    } else {
-      pathPredicate = NSPredicate(format: "%K != nil", #keyPath(LibraryItem.library))
-    }
-
-    var predicates = [
-      pathPredicate
-    ]
-
-    if let rankPredicate = rankPredicate {
-      predicates.append(rankPredicate)
-    }
-
-    if isUnfinished != nil {
-      // TODO: Add default value for `isFinished`
-      predicates.append(
-        NSPredicate(
-          format: "%K == 0 || %K == nil",
-          #keyPath(LibraryItem.isFinished),
-          #keyPath(LibraryItem.isFinished)
-        )
-      )
-    }
-
-    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    let sort = NSSortDescriptor(key: #keyPath(LibraryItem.orderRank), ascending: sortAscending)
-    fetchRequest.sortDescriptors = [sort]
-    fetchRequest.fetchLimit = 1
-    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
-    fetchRequest.resultType = .dictionaryResultType
-
-    let context = dataManager.getContext()
-    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-
-    return parseFetchedItems(from: results, context: context)?.first
-  }
-
+  /// First child of the parent in its EFFECTIVE (visible) order.
+  /// Note: `isUnfinished` is nil-checked only (matching the pre-existing
+  /// contract) — passing `false` still filters for unfinished items.
   public func findFirstItem(in parentFolder: String?, isUnfinished: Bool?) -> SimpleLibraryItem? {
-    return findFirstItem(
-      in: parentFolder,
-      rankPredicate: nil,
-      sortAscending: true,
-      isUnfinished: isUnfinished
-    )
+    guard let siblings = getOrderedSiblings(in: parentFolder) else { return nil }
+    let first: SimpleNavigationItem?
+    if isUnfinished != nil {
+      first = siblings.first { !$0.isFinished }
+    } else {
+      first = siblings.first
+    }
+    guard let first else { return nil }
+    return getSimpleItem(with: first.relativePath)
   }
 
-  public func findFirstItem(in parentFolder: String?, beforeRank: Int16?) -> SimpleLibraryItem? {
-    var rankPredicate: NSPredicate?
-    if let beforeRank = beforeRank {
-      rankPredicate = NSPredicate(format: "%K < %d", #keyPath(LibraryItem.orderRank), beforeRank)
-    }
-    return findFirstItem(
-      in: parentFolder,
-      rankPredicate: rankPredicate,
-      sortAscending: false,
-      isUnfinished: nil
+  public func getOrderedSiblings(in parentFolder: String?) -> [SimpleNavigationItem]? {
+    let context = dataManager.getContext()
+    let fetchRequest = buildListContentsFetchRequest(
+      properties: [
+        #keyPath(LibraryItem.relativePath),
+        #keyPath(LibraryItem.isFinished),
+      ],
+      relativePath: parentFolder,
+      limit: nil,
+      offset: nil,
+      ordering: .effective,
+      context: context
     )
-  }
 
-  public func findFirstItem(
-    in parentFolder: String?,
-    afterRank: Int16?,
-    isUnfinished: Bool?
-  ) -> SimpleLibraryItem? {
-    var rankPredicate: NSPredicate?
-    if let afterRank = afterRank {
-      rankPredicate = NSPredicate(format: "%K > %d", #keyPath(LibraryItem.orderRank), afterRank)
+    guard let results = try? context.fetch(fetchRequest) as? [[String: Any]] else { return nil }
+
+    return results.compactMap { dictionary in
+      guard let relativePath = dictionary[#keyPath(LibraryItem.relativePath)] as? String else { return nil }
+      return SimpleNavigationItem(
+        relativePath: relativePath,
+        isFinished: dictionary[#keyPath(LibraryItem.isFinished)] as? Bool ?? false
+      )
     }
-    return findFirstItem(
-      in: parentFolder,
-      rankPredicate: rankPredicate,
-      sortAscending: true,
-      isUnfinished: isUnfinished
-    )
   }
 
   public func getChapters(from relativePath: String) -> [SimpleChapter]? {
@@ -2201,33 +2184,48 @@ extension LibraryService {
     return results["totalDuration"] ?? 0
   }
 
-  public func reorderItems(
-    inside folderRelativePath: String?,
-    fromOffsets source: IndexSet,
-    toOffset destination: Int
+  /// Shared core of the custom-arrangement mutations (drag, reverse,
+  /// Custom-freeze). Two ordering invariants live here so no caller can get
+  /// them wrong individually:
+  /// 1. Capture-before-flip: the effective (visible) descriptors are resolved
+  ///    BEFORE the pref flips to `.custom` — flipping first would resolve to
+  ///    rank order and the mutation would act on an order the user isn't
+  ///    looking at.
+  /// 2. The `.custom` pref write precedes the rank rebuild, so the next
+  ///    (query-time-sorted) fetch can't re-sort the arrangement away.
+  /// Emits one sync update per actually-changed rank; the whole arrangement
+  /// is user-made, so these always sync.
+  private func freezeVisibleOrder(
+    at relativePath: String?,
+    transform: ([LibraryItem]) -> [LibraryItem]
   ) {
-    // Hook 5: write .custom BEFORE rank rewrite so the orderRank-suppression check
-    // sees the location as custom *during* the rebuild — rank changes correctly DO sync (user-arranged data).
+    let context = dataManager.getContext()
+    let visibleOrder = resolveSortDescriptors(
+      forRelativePath: relativePath,
+      ordering: .effective,
+      context: context
+    )
+
     if let prefs = preferencesService {
-      let location = makeLocation(forRelativePath: folderRelativePath)
+      let location = makeLocation(forRelativePath: relativePath, context: context)
       prefs.setSort(.custom, forLocation: location)
     }
 
     guard
-      var contents = fetchRawContents(
-        at: folderRelativePath,
+      let contents = fetchRawContents(
+        at: relativePath,
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.orderRank),
           #keyPath(LibraryItem.uuid)
-        ]
-      )
+        ],
+        sortedBy: visibleOrder,
+        context: context
+      ),
+      !contents.isEmpty
     else { return }
 
-    contents.move(fromOffsets: source, toOffset: destination)
-
-    /// Rebuild order rank
-    for (index, item) in contents.enumerated() {
+    for (index, item) in transform(contents).enumerated() where item.orderRank != Int16(index) {
       item.orderRank = Int16(index)
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
@@ -2239,87 +2237,53 @@ extension LibraryService {
     dataManager.saveContext()
   }
 
-  public func reorderItem(
-    with relativePath: String,
+  public func reorderItems(
     inside folderRelativePath: String?,
-    sourceIndexPath: IndexPath,
-    destinationIndexPath: IndexPath
+    fromOffsets source: IndexSet,
+    toOffset destination: Int
   ) {
-    // Hook 5: write .custom BEFORE rank rewrite (see reorderItems above for rationale).
-    if let prefs = preferencesService {
-      let location = makeLocation(forRelativePath: folderRelativePath)
-      prefs.setSort(.custom, forLocation: location)
+    /// The drag offsets are positions in the visible order; the freeze helper
+    /// fetches in exactly that order before applying them.
+    freezeVisibleOrder(at: folderRelativePath) { contents in
+      var rearranged = contents
+      rearranged.move(fromOffsets: source, toOffset: destination)
+      return rearranged
     }
-
-    guard
-      var contents = fetchRawContents(
-        at: folderRelativePath,
-        propertiesToFetch: [
-          #keyPath(LibraryItem.relativePath),
-          #keyPath(LibraryItem.orderRank),
-        ]
-      )
-    else { return }
-
-    let movedItem = contents.remove(at: sourceIndexPath.row)
-    contents.insert(movedItem, at: destinationIndexPath.row)
-
-    /// Rebuild order rank
-    for (index, item) in contents.enumerated() {
-      item.orderRank = Int16(index)
-      metadataPassthroughPublisher.send([
-        #keyPath(LibraryItem.relativePath): item.relativePath!,
-        #keyPath(LibraryItem.orderRank): item.orderRank,
-        #keyPath(LibraryItem.uuid): item.uuid
-      ])
-    }
-
-    self.dataManager.saveContext()
   }
 
-  /// One-off reverse: flips the current order and transitions the location's sticky sort to `.custom`,
-  /// the same transition a manual drag-drop produces. Same Hook 5 ordering as `reorderItems` —
-  /// write `.custom` BEFORE rebuilding ranks so the orderRank-suppression check sees the new sort
-  /// during the rebuild and the rank changes correctly flow to sync.
+  /// Freezes the location's currently-visible order into `orderRank` and
+  /// transitions the sticky sort to `.custom` — the picker's "Custom" option.
+  /// WYSIWYG by design (Android parity), and it self-heals stale server ranks
+  /// the first time it runs. Idempotent: a repeat freeze changes no ranks and
+  /// emits no sync updates.
+  public func adoptCurrentOrderAsCustom(at relativePath: String?) {
+    freezeVisibleOrder(at: relativePath) { $0 }
+  }
+
+  /// One-off reverse: flips the current VISIBLE order and transitions the location's
+  /// sticky sort to `.custom`, the same transition a manual drag-drop produces.
+  /// Reversing an automatically-sorted list freezes the reversed rule order —
+  /// what the user sees, reversed.
   public func reverseContents(at relativePath: String?) {
-    if let prefs = preferencesService {
-      let location = makeLocation(forRelativePath: relativePath)
-      prefs.setSort(.custom, forLocation: location)
-    }
-
-    guard
-      var contents = fetchRawContents(
-        at: relativePath,
-        propertiesToFetch: [
-          #keyPath(LibraryItem.relativePath),
-          #keyPath(LibraryItem.orderRank),
-          #keyPath(LibraryItem.uuid)
-        ]
-      ),
-      !contents.isEmpty
-    else { return }
-
-    contents.reverse()
-
-    for (index, item) in contents.enumerated() {
-      item.orderRank = Int16(index)
-      metadataPassthroughPublisher.send([
-        #keyPath(LibraryItem.relativePath): item.relativePath!,
-        #keyPath(LibraryItem.orderRank): item.orderRank,
-        #keyPath(LibraryItem.uuid): item.uuid,
-      ])
-    }
-
-    self.dataManager.saveContext()
+    freezeVisibleOrder(at: relativePath) { $0.reversed() }
   }
 
   public func sortContents(at relativePath: String?, by type: SortType) {
-    // Hook 1: write pref BEFORE rank rewrite so the orderRank-suppression check sees the new sort.
-    if let prefs = preferencesService {
-      let location = makeLocation(forRelativePath: relativePath)
+    let context = dataManager.getContext()
+    let location = makeLocation(forRelativePath: relativePath, context: context)
+
+    // Resolvable location with a preferences service: the sort is a sticky
+    // preference applied at query time — persist it and let the next fetch
+    // order by it. No rank writes; `orderRank` keeps the custom arrangement.
+    if let prefs = preferencesService, location != .unresolved {
       prefs.setSort(.automatic(type), forLocation: location)
+      return
     }
 
+    // One-shot path (`.unresolved` locations, or no preferences service, e.g.
+    // watchOS): a bulk custom rearrangement — materialize the rule into
+    // `orderRank` once and sync the new arrangement like any manual reorder.
+    // No preference is (or can be) persisted.
     guard
       let results = fetchRawContents(at: relativePath, propertiesToFetch: type.fetchProperties()),
       !results.isEmpty
@@ -2327,7 +2291,6 @@ extension LibraryService {
 
     let sortedResults = type.sortItems(results)
 
-    /// Rebuild order rank
     for (index, item) in sortedResults.enumerated() {
       item.orderRank = Int16(index)
       metadataPassthroughPublisher.send([
@@ -2352,32 +2315,30 @@ extension LibraryService {
   ///   tried to write a sticky sort for the bound's UUID, this gate keeps
   ///   the children's `orderRank` stable.
   public func makeLocation(forRelativePath relativePath: String?) -> SortLocation {
+    makeLocation(forRelativePath: relativePath, context: dataManager.getContext())
+  }
+
+  /// Single-fetch resolution (uuid + type in one round trip): this runs on the
+  /// render path via `resolveSortDescriptors`, so per-call cost matters.
+  func makeLocation(forRelativePath relativePath: String?, context: NSManagedObjectContext) -> SortLocation {
     guard let relativePath else { return .libraryRoot }
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.uuid), #keyPath(LibraryItem.type)]
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.fetchLimit = 1
+
     guard
-      let uuid = getItemProperty(#keyPath(LibraryItem.uuid), relativePath: relativePath) as? String,
+      let row = (try? context.fetch(fetchRequest))?.first,
+      let uuid = row[#keyPath(LibraryItem.uuid)] as? String,
       Constants.isRealUuid(uuid)
     else { return .unresolved }
-    if let rawType = getItemProperty(#keyPath(LibraryItem.type), relativePath: relativePath) as? Int16,
+    if let rawType = row[#keyPath(LibraryItem.type)] as? Int16,
        rawType == ItemType.bound.rawValue {
       return .unresolved
     }
     return .folder(LibraryItemRef(relativePath: relativePath, uuid: uuid))
-  }
-
-  public func sortContents(in location: SortLocation, by type: SortType) {
-    let relativePath: String?
-    switch location {
-    case .libraryRoot:
-      relativePath = nil
-    case .folder(let ref):
-      relativePath = ref.relativePath
-    case .unresolved:
-      // Folder with placeholder UUID — pref writes are no-ops at the resolver,
-      // so re-sorting the underlying CoreData ranks would be a partial action.
-      // Skip until the UUID is materialized and the caller re-tries.
-      return
-    }
-    sortContents(at: relativePath, by: type)
   }
 
   public func getRelativePath(forUuid uuid: String) -> String? {
@@ -2396,27 +2357,6 @@ extension LibraryService {
     } catch {
       return nil
     }
-  }
-
-  /// Decision 9: returns true when the item's parent location has an automatic sticky sort.
-  /// The sync subscriber uses this to drop `orderRank`-only updates (other devices recompute).
-  public func isParentLocationAutoSorted(itemRelativePath: String) -> Bool {
-    guard let prefs = preferencesService else { return false }
-
-    // Derive parent path from the item's relativePath. Root-level items have no parent path.
-    let components = itemRelativePath.split(separator: "/")
-    let parentPath: String?
-    if components.count <= 1 {
-      parentPath = nil
-    } else {
-      parentPath = components.dropLast().joined(separator: "/")
-    }
-
-    let location = makeLocation(forRelativePath: parentPath)
-    if case .automatic = prefs.effectiveSort(forLocation: location) {
-      return true
-    }
-    return false
   }
 
   public func updatePlaybackTime(relativePath: String, time: Double, date: Date, scheduleSave: Bool) {

@@ -16,6 +16,13 @@ public enum Constants {
     public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"
 
+    /// Armed when a book finishes playing; consumed on the next review-prompt evaluation
+    public static let pendingReviewPrompt = "userPendingReviewPrompt"
+    /// Date of the last App Store review prompt request
+    public static let lastReviewRequestDate = "userLastReviewRequestDate"
+    /// App version of the last App Store review prompt request
+    public static let lastReviewRequestVersion = "userLastReviewRequestVersion"
+
     // User preferences
     public static let themeBrightnessEnabled = "userSettingsBrightnessEnabled"
     public static let themeBrightnessThreshold = "userSettingsBrightnessThreshold"
@@ -44,6 +51,10 @@ public enum Constants {
     public static let storageFilesSortOrder = "userSettingsStorageFilesSortOrder"
     public static let customSleepTimerDuration = "userSettingsCustomSleepTimerDuration"
     public static let autoTimerEnabled = "userSettingsAutoTimerEnabled"
+    /// Render video (the picture) for video files; off by default (audiobook-first)
+    public static let videoEnabled = "userSettingsVideoEnabled"
+    /// Continue video in Picture in Picture when leaving the app from the player screen
+    public static let videoPictureInPictureEnabled = "userSettingsVideoPictureInPicture"
     public static let lastEnabledTimer = "userSettingsLastEnabledTimer"
     public static let repeatEnabledSuffix = "_repeatEnabled"
     public static let isAutomaticBookmarksSectionCollapsed = "userSettingsIsAutomaticBookmarksSectionCollapsed"

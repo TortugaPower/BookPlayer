@@ -20,6 +20,38 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
   @Published private(set) var signInCompletedAt: Date?
   @Published var isAddingServer: Bool = false
 
+  /// What the validated server reported it supports. Probed in `handleConnectAction` rather than
+  /// assumed: AudiobookShelf-the-product speaks OIDC, but an individual server only offers it once an
+  /// admin has configured a provider, so a hardcoded `true` would show most users a button that
+  /// cannot possibly work.
+  @Published private(set) var capabilities = AudiobookShelfConnectionService.ServerCapabilities()
+
+  @Published var flowPath: [ConnectionFlowStep] = []
+
+  /// The connection a re-authentication started from, so a sign-in that lands on the same account at
+  /// an edited URL updates that row instead of orphaning it. Left in place after success on purpose:
+  /// the row it named was just replaced, so a stale value matches nothing.
+  private var reauthConnectionID: String?
+
+  var supportsPasswordSignIn: Bool { capabilities.supportsLocal }
+
+  /// SSO over plaintext is simply not offered — no explanatory state. The refusal reason (the
+  /// authorization code, PKCE verifier, and returned token all traverse the redirect chain,
+  /// RFC 6749 §10.9) lives in `isPingedURLSecure`'s doc; the scheme control on the address screen
+  /// makes the `http` choice visible enough to act on.
+  var alternativeSignIn: AlternativeSignInState? {
+    guard capabilities.supportsOIDC, isPingedURLSecure else { return nil }
+    return .oidc(buttonText: capabilities.oidcButtonText)
+  }
+
+  /// SSO is refused over plaintext: the authorization code, the PKCE verifier and the returned token
+  /// all traverse the redirect chain (RFC 6749 §10.9). Password sign-in over http stays the user's
+  /// own call.
+  private var isPingedURLSecure: Bool {
+    guard let pingedURL, let scheme = URL(string: pingedURL)?.scheme else { return false }
+    return scheme.lowercased() == "https"
+  }
+
   private var disposeBag = Set<AnyCancellable>()
 
   /// When non-nil, the VM operates on this specific connection (read its data on init,
@@ -95,7 +127,21 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       customHeaders: form.customHeadersDictionary()
     )
     pingedURL = normalizedURL
+    // Ask the server which sign-in methods it actually offers before showing the credentials step.
+    // Non-throwing by design — an unavailable probe just means no SSO button.
+    capabilities = await connectionService.fetchCapabilities(
+      at: normalizedURL,
+      customHeaders: form.customHeadersDictionary()
+    )
+    // A server that only offers SSO, reached over plaintext, has no usable sign-in method at all:
+    // we refuse SSO over http, and the password form cannot authenticate. Routing anywhere would be
+    // a silent dead-end — fail Connect instead, with the reason, while the user is still on the
+    // address screen where the https toggle that fixes it lives.
+    if !capabilities.supportsLocal, alternativeSignIn == nil, capabilities.supportsOIDC {
+      throw IntegrationError.insecureTransport
+    }
     signInFlow = .enteringCredentials
+    flowPath = [stepAfterConnect]
     form.serverName = serverName
   }
 
@@ -104,9 +150,6 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     guard let serverUrl = pingedURL else {
       throw IntegrationError.urlMalformed(nil)
     }
-    // Drop the captured URL after this method runs — on success the connection is
-    // persisted, on failure the user must re-validate via Connect anyway.
-    defer { pingedURL = nil }
     do {
       // ABS auth doesn't trim whitespace server-side, so iOS autocorrect inserting a trailing
       // space on the username is enough to silently reject otherwise-correct credentials.
@@ -117,21 +160,58 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
         password: password,
         serverUrl: serverUrl,
         serverName: form.serverName,
-        customHeaders: form.customHeadersDictionary()
+        customHeaders: form.customHeadersDictionary(),
+        replacingID: reauthConnectionID
       )
 
+      // Drop the captured URL only once the connection is persisted. Clearing it on every
+      // exit (an unconditional `defer`) stranded the user after a wrong password: the sheet
+      // stays on the credentials step, so the retry hit the `guard` above and threw
+      // `urlMalformed(nil)` instead of re-attempting sign-in. Keeping it across a failure
+      // preserves the safety property — credentials still only go to the pinged URL, and a
+      // form edit in between still can't redirect them.
+      pingedURL = nil
+      capabilities = .init()
       isAddingServer = false
 
       if let data = connectionService.connection {
-        form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+        form.setValues(
+          url: data.url.absoluteString,
+          serverName: data.serverName,
+          userName: data.userName,
+          customHeaders: data.customHeaders
+        )
       }
       signInFlow = nil
+      flowPath = []
       signInCompletedAt = Date()
     } catch let error as IntegrationError {
       throw error
     } catch {
       throw error
     }
+  }
+
+  @MainActor
+  func prepareReauth() {
+    let data = targetConnectionId.flatMap { id in
+      connectionService.connections.first(where: { $0.id == id })
+    } ?? connectionService.connection
+
+    if let data {
+      reauthConnectionID = data.id
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
+    }
+    // Anything captured for a previous attempt is stale now.
+    pingedURL = nil
+    capabilities = .init()
+    signInFlow = .enteringServerURL
+    flowPath = []
   }
 
   /// Normalize the user-typed server URL before we send a request:
@@ -159,9 +239,17 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
       connectionService.deleteConnection()
     }
     form = IntegrationConnectionFormViewModel()
-    signInFlow = connectionService.connections.isEmpty ? .enteringServerURL : nil
+    // Signing out never redraws a sign-in form in place — the presenting details screen dismisses,
+    // and reconnecting happens through Add Server.
+    signInFlow = nil
+    flowPath = []
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
@@ -169,43 +257,88 @@ final class AudiobookShelfConnectionViewModel: IntegrationConnectionViewModelPro
     connectionService.deleteConnection(id: id)
     if connectionService.connections.isEmpty {
       form = IntegrationConnectionFormViewModel()
-      signInFlow = .enteringServerURL
+      // Same rule as above: no in-place redraw; the presenter dismisses.
+      signInFlow = nil
+      flowPath = []
     } else if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
   func handleActivateAction(id: String) {
     connectionService.activateConnection(id: id)
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
   func handleAddServerAction() {
     isAddingServer = true
     signInFlow = .enteringServerURL
+    flowPath = []
     form = IntegrationConnectionFormViewModel()
   }
 
   func handleCancelAddServerAction() {
     isAddingServer = false
     signInFlow = nil
+    flowPath = []
     // Drop any URL captured from a half-finished Connect → Sign In flow so a stale
     // value can't get reused by a later sign-in attempt.
     pingedURL = nil
+    capabilities = .init()
     if let data = connectionService.connection {
-      form.setValues(url: data.url.absoluteString, serverName: data.serverName, userName: data.userName)
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
     }
   }
 
+
+  // MARK: - SSO (OpenID Connect)
+
+  /// Starts the native ABS OpenID Connect flow against the validated `pingedURL`, then
+  /// transitions form/state to match a successful password sign-in. The system web-auth sheet
+  /// drives the IdP handshake; on user cancellation the service throws `CancellationError`,
+  /// which the shared view swallows.
   @MainActor
-  func handleCustomHeadersUpdate() {
-    let headers = form.customHeadersDictionary()
-    if let targetId = targetConnectionId {
-      connectionService.updateCustomHeaders(id: targetId, headers)
-    } else {
-      connectionService.updateCustomHeaders(headers)
+  func handleStartAlternativeSignIn() async throws {
+    guard let serverUrl = pingedURL else {
+      throw IntegrationError.urlMalformed(nil)
     }
+    try await connectionService.signInWithOIDC(
+      serverUrl: serverUrl,
+      serverName: form.serverName,
+      customHeaders: form.customHeadersDictionary(),
+      replacingID: reauthConnectionID
+    )
+    // Only drop the validated URL once sign-in succeeded.
+    pingedURL = nil
+    capabilities = .init()
+    isAddingServer = false
+    if let data = connectionService.connection {
+      form.setValues(
+        url: data.url.absoluteString,
+        serverName: data.serverName,
+        userName: data.userName,
+        customHeaders: data.customHeaders
+      )
+    }
+    signInFlow = nil
+    flowPath = []
+    signInCompletedAt = Date()
   }
 }

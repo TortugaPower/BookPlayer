@@ -14,6 +14,7 @@ import SwiftUI
 struct IntegrationConnectedView<VM: IntegrationConnectionViewModelProtocol>: View {
   @ObservedObject var viewModel: VM
   @EnvironmentObject var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     ThemedSection {
@@ -31,6 +32,10 @@ struct IntegrationConnectedView<VM: IntegrationConnectionViewModelProtocol>: Vie
     ThemedSection {
       Button("logout_title".localized, role: .destructive) {
         viewModel.handleSignOutAction()
+        // Signing out is deletion: the connection this screen describes no longer exists, so the
+        // screen leaves with it — back to Media Servers (sheet) or the presenting stack (push).
+        // The old behavior redrew the details sheet into the sign-in form in place.
+        dismiss()
       }
       .frame(maxWidth: .infinity)
       .foregroundStyle(.red)

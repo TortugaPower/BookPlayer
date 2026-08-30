@@ -509,12 +509,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
 
-    // stop timer if the book is finished
-    if Int(currentTime) == Int(currentItem.duration) {
-      // Once book a book is finished, ask for a review
-      UserDefaults.standard.set(true, forKey: "ask_review")
-    }
-
     NotificationCenter.default.post(name: .bookPlaying, object: nil, userInfo: nil)
   }
 
@@ -1233,6 +1227,13 @@ extension PlayerManager {
     }
   }
 
+  /// Access to the underlying player for rendering video tracks.
+  /// Note: the instance can be recreated after a media-services reset, so
+  /// consumers should re-attach on view updates rather than caching it.
+  func getAVPlayer() -> AVPlayer {
+    return audioPlayer
+  }
+
   func stop() {
     stopPlayback()
 
@@ -1341,11 +1342,9 @@ extension PlayerManager {
       )
     else { return nil }
 
-    let fileExtension = nextBook.fileURL.pathExtension
-
-    /// Only check for audiovisual content if a file extension is present
-    if !fileExtension.isEmpty,
-      let fileType = UTType(filenameExtension: fileExtension),
+    /// Skip items whose type doesn't conform to audiovisual content. A file whose
+    /// extension maps to no `UTType` (or has none) is left as-is and played.
+    if let fileType = nextBook.fileURL.fileType,
       !fileType.isSubtype(of: .audiovisualContent)
     {
       return getNextPlayableBook(
@@ -1371,11 +1370,9 @@ extension PlayerManager {
       )
     else { return nil }
 
-    let fileExtension = nextChapter.fileURL.pathExtension
-
-    /// Only check for audiovisual content if a file extension is present
-    if !fileExtension.isEmpty,
-      let fileType = UTType(filenameExtension: fileExtension),
+    /// Skip chapters whose type doesn't conform to audiovisual content. A file whose
+    /// extension maps to no `UTType` (or has none) is left as-is and played.
+    if let fileType = nextChapter.fileURL.fileType,
       !fileType.isSubtype(of: .audiovisualContent)
     {
       return getNextPlayableChapter(
@@ -1405,6 +1402,9 @@ extension PlayerManager {
         self.libraryService.setLibraryLastBook(with: nil)
 
         self.markAsCompleted(true)
+
+        /// Arm the review prompt; `ReviewPromptService` evaluates eligibility when consumed
+        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.pendingReviewPrompt)
 
         self.playNextItem(autoPlayed: true, shouldAutoplay: !endOfChapterActive)
 

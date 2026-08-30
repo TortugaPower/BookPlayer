@@ -11,7 +11,6 @@ import BookPlayerKit
 import Combine
 import CoreData
 import Foundation
-import StoreKit
 import UIKit
 
 @MainActor
@@ -28,6 +27,8 @@ final class AppServices: BPLogger {
   var pendingURLActions = [Action]()
 
   let playerState = PlayerState()
+
+  let reviewPromptService = ReviewPromptService()
 
   private init() {}
 
@@ -157,14 +158,6 @@ final class AppServices: BPLogger {
     }
 
     playerState.showPlayer = true
-  }
-
-  func requestReview() {
-    if let scene = UIApplication.shared.connectedScenes.first(where: {
-      $0.activationState == .foregroundActive
-    }) as? UIWindowScene {
-      AppStore.requestReview(in: scene)
-    }
   }
 
   // MARK: - Background Playback

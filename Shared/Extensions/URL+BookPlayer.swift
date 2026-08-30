@@ -1,5 +1,13 @@
 import Foundation
+import UniformTypeIdentifiers
+
 public extension URL {
+  /// The `UTType` inferred from this URL's path extension, if the extension maps to one.
+  /// Nil when there's no extension or it doesn't correspond to a known type.
+  var fileType: UTType? {
+    UTType(filenameExtension: pathExtension)
+  }
+
   /// Isolates and returns a filename string from a `URL`
   var fileName: String {
     return self.deletingPathExtension().lastPathComponent

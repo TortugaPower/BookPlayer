@@ -38,10 +38,12 @@ final class PlayerViewModel: ObservableObject {
   @Published var sheetStyle: PlayerSheetStyle?
   @Published var displaySheet = false
   @Published var showButtonFreeScreen = false
-  
+  /// Whether the current chapter's file is a video (drives the video surface + fullscreen button)
+  @Published var isVideoItem = false
+
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let playerManager: PlayerManagerProtocol
+  let playerManager: PlayerManager
   let syncService: SyncServiceProtocol
   
   private var chapterBeforeSliderValueChange: PlayableChapter?
@@ -208,8 +210,11 @@ final class PlayerViewModel: ObservableObject {
         self?.currentChapterSubscriber?.cancel()
         guard let self = self,
               let item = item
-        else { return }
-        
+        else {
+          self?.isVideoItem = false
+          return
+        }
+
         bindCurrentChapter(for: item)
       }.store(in: &disposeBag)
     
@@ -265,11 +270,35 @@ final class PlayerViewModel: ObservableObject {
         } else {
           relativePath = item.relativePath
         }
-        
+
         self?.relativePath = relativePath
+        let renderVideo = (self?.isVideoEnabled ?? false) && (chapter?.isVideo ?? false)
+        self?.isVideoItem = renderVideo
+
+        /// A non-video item — or video rendering turned off — dismisses the PiP window
+        if !renderVideo {
+          VideoPiPCoordinator.shared.stop()
+        }
       }
   }
   
+  /// Whether video rendering is enabled in Settings (off by default — audiobook-first,
+  /// and keeping it off preserves the artwork + VoiceOver title/author label for video items)
+  private var isVideoEnabled: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.videoEnabled)
+  }
+
+  /// Re-evaluate whether to render video for the current chapter — e.g. after the
+  /// "Show Video" setting was toggled while away from the player screen.
+  func refreshVideoState() {
+    let chapter = playerManager.currentItem?.currentChapter
+    let renderVideo = isVideoEnabled && (chapter?.isVideo ?? false)
+    isVideoItem = renderVideo
+    if !renderVideo {
+      VideoPiPCoordinator.shared.stop()
+    }
+  }
+
   func displaySheet(style: PlayerSheetStyle) {
     self.sheetStyle = style
     self.displaySheet = true
@@ -414,17 +443,33 @@ final class PlayerViewModel: ObservableObject {
       sliderValue = Float(currentItem?.progressPercentage ?? 0)
     }
     
-    self.hasPreviousChapter = self.hasChapter(before: currentItem?.currentChapter)
-    self.hasNextChapter = self.hasChapter(after: currentItem?.currentChapter)
+    // This runs on every playback tick; writing a @Published property fires
+    // objectWillChange even when the value is unchanged, so skip no-op writes
+    // and collapse the progressData field updates into a single assignment.
+    let hasPreviousChapter = self.hasChapter(before: currentItem?.currentChapter)
+    let hasNextChapter = self.hasChapter(after: currentItem?.currentChapter)
+
+    if self.hasPreviousChapter != hasPreviousChapter {
+      self.hasPreviousChapter = hasPreviousChapter
+    }
+    if self.hasNextChapter != hasNextChapter {
+      self.hasNextChapter = hasNextChapter
+    }
     self.chapterBeforeSliderValueChange = currentItem?.currentChapter
-    
-    progressData.chapterTitle = currentItem?.currentChapter?.title
-      ?? currentItem?.title
-      ?? ""
-    progressData.progress = progress
-    progressData.maxTime = maxTimeInContext
-    progressData.currentTime = currentTime
-    progressData.sliderValue = Double(sliderValue)
+
+    let newProgressData = ProgressData(
+      currentTime: currentTime,
+      progress: progress,
+      maxTime: maxTimeInContext,
+      sliderValue: Double(sliderValue),
+      chapterTitle: currentItem?.currentChapter?.title
+        ?? currentItem?.title
+        ?? ""
+    )
+
+    if progressData != newProgressData {
+      progressData = newProgressData
+    }
   }
   
   func handleNextTap() {
@@ -564,17 +609,11 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func requestReview() {
-    // don't do anything if flag isn't true
-    guard UserDefaults.standard.bool(forKey: "ask_review") else { return }
-    
-    // request for review if app is active
+    /// Evaluate only while active, so the pending flag isn't consumed
+    /// when the prompt has no chance of being shown
     guard UIApplication.shared.applicationState == .active else { return }
-    
-#if RELEASE
-    AppServices.shared.requestReview()
-#endif
-    
-    UserDefaults.standard.set(false, forKey: "ask_review")
+
+    AppServices.shared.reviewPromptService.requestReviewIfEligible()
   }
   
   func handleAutolockStatus(forceDisable: Bool = false) {

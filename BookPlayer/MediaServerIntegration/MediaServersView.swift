@@ -45,6 +45,12 @@ struct MediaServersView: View {
   /// one `.sheet(item:)` modifier. Stacking multiple sibling `.sheet(item:)` lets
   /// the second presentation drop silently when state changes happen back-to-back.
   @State private var presentedSheet: SheetRoute?
+
+  /// Which integration finished signing in inside the Add Server sheet. Recorded there and consumed
+  /// in the sheet's `onDismiss`, so the freshly added library presents *after* the dismissal has
+  /// completed — presenting alongside it is the classic present-while-dismissing race, and the
+  /// library sheet would silently never appear.
+  @State private var completedSignInKind: IntegrationKind?
   @State private var editMode: EditMode = .inactive
 
   @EnvironmentObject private var theme: ThemeViewModel
@@ -82,7 +88,15 @@ struct MediaServersView: View {
     }
     .environment(\.editMode, $editMode)
     .tint(theme.linkColor)
-    .sheet(item: $presentedSheet) { route in
+    .sheet(
+      item: $presentedSheet,
+      onDismiss: {
+        if let kind = completedSignInKind {
+          completedSignInKind = nil
+          presentedSheet = .library(kind)
+        }
+      }
+    ) { route in
       switch route {
       case .addServer(let kind):
         addServerSheet(for: kind)
@@ -209,11 +223,15 @@ struct MediaServersView: View {
   private func addServerSheet(for kind: IntegrationKind) -> some View {
     switch kind {
     case .jellyfin:
-      AddServerJellyfinSheet(connectionService: jellyfinService)
-        .environmentObject(theme)
+      AddServerJellyfinSheet(connectionService: jellyfinService) {
+        completedSignInKind = .jellyfin
+      }
+      .environmentObject(theme)
     case .audiobookshelf:
-      AddServerAudiobookShelfSheet(connectionService: audiobookshelfService)
-        .environmentObject(theme)
+      AddServerAudiobookShelfSheet(connectionService: audiobookshelfService) {
+        completedSignInKind = .audiobookshelf
+      }
+      .environmentObject(theme)
     }
   }
 
@@ -298,8 +316,10 @@ private struct ServerRow: Identifiable {
 
 
 // MARK: - Add Server sheets
-// Each wraps `IntegrationConnectionView` with a fresh VM constructed in `.addServer` mode,
-// so its in-flight state is fully isolated from the active library session.
+// Each wraps the pushed flow with a fresh VM constructed in `.addServer` mode, so its in-flight
+// state is fully isolated from the active library session. `onSignedIn` fires BEFORE dismiss so the
+// parent can record which library to present once the dismissal completes — presenting alongside a
+// dismissal is the classic present-while-dismissing race, and the modal silently never appears.
 
 private struct AddServerJellyfinSheet: View {
   let connectionService: JellyfinConnectionService
@@ -307,8 +327,11 @@ private struct AddServerJellyfinSheet: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
-  init(connectionService: JellyfinConnectionService) {
+  var onSignedIn: () -> Void
+
+  init(connectionService: JellyfinConnectionService, onSignedIn: @escaping () -> Void) {
     self.connectionService = connectionService
+    self.onSignedIn = onSignedIn
     self._viewModel = .init(
       wrappedValue: JellyfinConnectionViewModel(
         connectionService: connectionService,
@@ -318,15 +341,13 @@ private struct AddServerJellyfinSheet: View {
   }
 
   var body: some View {
-    NavigationStack {
-      IntegrationConnectionView(viewModel: viewModel, integrationName: "Jellyfin")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-    .tint(theme.linkColor)
-    .environmentObject(theme)
-    .onChange(of: viewModel.signInCompletedAt) { _, newValue in
-      if newValue != nil { dismiss() }
-    }
+    IntegrationConnectionFlowView(viewModel: viewModel, kind: .jellyfin, integrationName: "Jellyfin")
+      .environmentObject(theme)
+      .onChange(of: viewModel.signInCompletedAt) { _, newValue in
+        guard newValue != nil else { return }
+        onSignedIn()
+        dismiss()
+      }
   }
 }
 
@@ -336,8 +357,11 @@ private struct AddServerAudiobookShelfSheet: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
-  init(connectionService: AudiobookShelfConnectionService) {
+  var onSignedIn: () -> Void
+
+  init(connectionService: AudiobookShelfConnectionService, onSignedIn: @escaping () -> Void) {
     self.connectionService = connectionService
+    self.onSignedIn = onSignedIn
     self._viewModel = .init(
       wrappedValue: AudiobookShelfConnectionViewModel(
         connectionService: connectionService,
@@ -347,15 +371,13 @@ private struct AddServerAudiobookShelfSheet: View {
   }
 
   var body: some View {
-    NavigationStack {
-      IntegrationConnectionView(viewModel: viewModel, integrationName: "AudiobookShelf")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-    .tint(theme.linkColor)
-    .environmentObject(theme)
-    .onChange(of: viewModel.signInCompletedAt) { _, newValue in
-      if newValue != nil { dismiss() }
-    }
+    IntegrationConnectionFlowView(viewModel: viewModel, kind: .audiobookshelf, integrationName: "AudiobookShelf")
+      .environmentObject(theme)
+      .onChange(of: viewModel.signInCompletedAt) { _, newValue in
+        guard newValue != nil else { return }
+        onSignedIn()
+        dismiss()
+      }
   }
 }
 

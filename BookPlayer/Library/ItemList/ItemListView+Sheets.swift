@@ -33,12 +33,13 @@ extension ItemListView {
       onSelectionChange: { effective in
         switch effective {
         case .automatic(let sort):
-          // Goes through `sortContents` which rewrites ranks and writes the pref via Hook 1.
+          // Persists the sticky pref; the list re-fetches with the rule's
+          // query-time sort descriptors.
           model.handleSort(by: sort)
         case .custom:
-          // No drag happened — just flip the pref. orderRanks stay where they are; from now
-          // on, sync will push rank changes since the location is no longer auto-sorted.
-          preferencesService.setSort(.custom, forLocation: location)
+          // Freezes the currently-visible order into orderRank (WYSIWYG) and
+          // flips the pref — the frozen arrangement syncs like a manual drag.
+          model.handleSetCustomSort()
         }
       },
       onReverseOrder: {

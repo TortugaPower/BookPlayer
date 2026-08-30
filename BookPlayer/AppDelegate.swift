@@ -58,7 +58,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Register fallback defaults before anything reads UserDefaults, so a fresh
     // install follows the system appearance instead of defaulting to light mode.
     UserDefaults.standard.register(defaults: [
-      Constants.UserDefaults.systemThemeVariantEnabled: true
+      Constants.UserDefaults.systemThemeVariantEnabled: true,
+      Constants.UserDefaults.videoEnabled: false,
+      Constants.UserDefaults.videoPictureInPictureEnabled: false,
     ])
 
     NotificationCenter.default.addObserver(
@@ -326,6 +328,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
 
     let sentryDSN: String = Bundle.main.configurationValue(for: .sentryDSN)
+    let apiDomain: String = Bundle.main.configurationValue(for: .apiDomain)
     // Create a Sentry client
     SentrySDK.start { options in
       options.dsn = "https://\(sentryDSN)"
@@ -334,7 +337,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       options.enableFileIOTracing = false
       options.enableAppHangTracking = false
       options.tracesSampleRate = 0.5
+      // Only turn OUR backend's 5xx into Sentry error events. The default
+      // failedRequestTargets ([".*"]) captures every failed request — users'
+      // self-hosted Jellyfin/AudiobookShelf servers, Hardcover, RevenueCat,
+      // archive.org, S3 downloads — flooding one issue with noise we can't
+      // act on. Scope it to the configured backend host so this stays a real
+      // "our API is failing" signal (root-cause still comes from server logs).
+      options.failedRequestTargets = [apiDomain]
+
+      // Strip query strings from third-party request telemetry.
+      //
+      // Sentry's URLSession instrumentation records the *sanitized* URL (query removed) but then adds
+      // the raw query back under `http.query`, on both network breadcrumbs and `http.client` spans.
+      // Only the userinfo portion is redacted for us. That leaks real secrets from hosts we don't
+      // control: AudiobookShelf's OIDC exchange has to carry `code` and `code_verifier` in the query
+      // (its endpoint is GET-only), and Jellyfin's download URLs still carry `api_key`. Either one
+      // would be uploaded verbatim alongside the user's self-hosted hostname on the next captured
+      // event.
+      //
+      // Our own backend authenticates with a bearer header and puts nothing sensitive in a query, so
+      // its query strings are kept — that's where this data actually helps debugging.
+      options.beforeBreadcrumb = { breadcrumb in
+        guard
+          var data = breadcrumb.data,
+          data["http.query"] != nil,
+          Self.isThirdPartyURL(data["url"] as? String, apiDomain: apiDomain)
+        else {
+          return breadcrumb
+        }
+        data["http.query"] = nil
+        breadcrumb.data = data
+        return breadcrumb
+      }
+      options.beforeSendSpan = { span in
+        if Self.isThirdPartyURL(span.data["url"] as? String, apiDomain: apiDomain) {
+          span.removeData(key: "http.query")
+        }
+        return span
+      }
     }
+  }
+
+  /// True when `urlString` is not our configured backend. Unknown or unparseable hosts count as
+  /// third-party, so the redaction fails closed.
+  private static func isThirdPartyURL(_ urlString: String?, apiDomain: String) -> Bool {
+    guard let urlString, let host = URL(string: urlString)?.host else { return true }
+    return host.caseInsensitiveCompare(apiDomain) != .orderedSame
   }
 }
 
