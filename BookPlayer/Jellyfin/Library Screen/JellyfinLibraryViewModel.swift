@@ -385,44 +385,43 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     })
     : self.items.filter { $0.kind == .audiobook }
     
-    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension ?? "m4a"
-      let libraryItem = SimpleLibraryItem(
-        title: item.name,
-        details: item.details?.artist ?? "voiceover_unknown_author".localized,
-        speed: 1, 
-        currentTime: Double(item.currentSeconds ?? 0),
-        duration: Double(item.durationSeconds ?? 0),
-        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-          ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
-        isFinished: item.isFinished ?? false,
-        relativePath: "",
-        remoteURL: nil,
-        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
-        orderRank: 0,
-        parentFolder: nil,
-        originalFileName: "\(item.name).\(fileExt)",
-        lastPlayDate: item.lastPlayedDate,
-        type: .book,
-        uuid: UUID().uuidString
-      )
-      
-      let externalItem = SimpleExternalResource(
-        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
-        providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-        lastSyncedAt: nil,
-        hostId: connectionService.connection?.stableHostId,
-        libraryItem: libraryItem
-      )
-      
-      return externalItem
+    guard !audiobooks.isEmpty else { return }
+
+    Task { @MainActor in
+      do {
+        // Hydrate the selection first (one chunked request): list items don't carry
+        // media sources, and import REQUIRES the real file extension — items without
+        // one have nothing to stream and are skipped, never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
+        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
+          result[item.id] = item.details?.fileExtension
+        }
+        let libraryItems = audiobooks.compactMap { item in
+          extensionsByID[item.id].map {
+            item.asVirtualImportResource(
+              fileExtension: $0,
+              detailsOverride: nil,
+              connectionService: connectionService,
+              artworkSize: CGSize(width: 200, height: 200)
+            )
+          }
+        }
+        let skipped = audiobooks.count - libraryItems.count
+        if skipped > 0 {
+          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
+        }
+        guard !libraryItems.isEmpty else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        navigation.dismiss?()
+        importManager?.externalFiles.append(contentsOf: libraryItems)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
     }
-    
-    navigation.dismiss?()
-    importManager?.externalFiles.append(contentsOf: libraryItems)
-    importManager?.isShowingExternalImportView = true
   }
   
   @MainActor
@@ -601,44 +600,43 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     })
     : self.items.filter { $0.kind == .audiobook }
     
-    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension ?? "m4a"
-      let libraryItem = SimpleLibraryItem(
-        title: item.name,
-        details: item.details?.artist ?? "voiceover_unknown_author".localized,
-        speed: 1,
-        currentTime: Double(item.currentSeconds ?? 0),
-        duration: Double(item.durationSeconds ?? 0),
-        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
-        isFinished: item.isFinished ?? false,
-        relativePath: "",
-        remoteURL: nil,
-        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
-        orderRank: 0,
-        parentFolder: nil,
-        originalFileName: "\(item.name).\(fileExt)",
-        lastPlayDate: item.lastPlayedDate,
-        type: .book,
-        uuid: UUID().uuidString
-      )
-      
-      let externalItem = SimpleExternalResource(
-        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
-        providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-        lastSyncedAt: nil,
-        hostId: connectionService.connection?.stableHostId,
-        libraryItem: libraryItem
-      )
-      
-      return externalItem
+    guard !audiobooks.isEmpty else { return }
+
+    Task { @MainActor in
+      do {
+        // Hydrate the selection first (one chunked request): list items don't carry
+        // media sources, and import REQUIRES the real file extension — items without
+        // one have nothing to stream and are skipped, never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
+        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
+          result[item.id] = item.details?.fileExtension
+        }
+        let libraryItems = audiobooks.compactMap { item in
+          extensionsByID[item.id].map {
+            item.asVirtualImportResource(
+              fileExtension: $0,
+              detailsOverride: nil,
+              connectionService: connectionService,
+              artworkSize: CGSize(width: 200, height: 200)
+            )
+          }
+        }
+        let skipped = audiobooks.count - libraryItems.count
+        if skipped > 0 {
+          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
+        }
+        guard !libraryItems.isEmpty else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        navigation.dismiss?()
+        importManager?.externalFiles.append(contentsOf: libraryItems)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
     }
-    
-    navigation.dismiss?()
-    importManager?.externalFiles.append(contentsOf: libraryItems)
-    importManager?.isShowingExternalImportView = true
   }
 
   @MainActor func onDownloadFolderTapped() {}
@@ -831,44 +829,43 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     })
     : self.items.filter { $0.kind == .audiobook }
     
-    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.details?.fileExtension ?? "m4a"
-      let libraryItem = SimpleLibraryItem(
-        title: item.name,
-        details: item.details?.artist ?? "voiceover_unknown_author".localized,
-        speed: 1,
-        currentTime: Double(item.currentSeconds ?? 0),
-        duration: Double(item.durationSeconds ?? 0),
-        percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
-        isFinished: item.isFinished ?? false,
-        relativePath: "",
-        remoteURL: nil,
-        artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
-        orderRank: 0,
-        parentFolder: nil,
-        originalFileName: "\(item.name).\(fileExt)",
-        lastPlayDate: item.lastPlayedDate,
-        type: .book,
-        uuid: UUID().uuidString
-      )
-      
-      let externalItem = SimpleExternalResource(
-        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
-        providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-        lastSyncedAt: nil,
-        hostId: connectionService.connection?.stableHostId,
-        libraryItem: libraryItem
-      )
-      
-      return externalItem
+    guard !audiobooks.isEmpty else { return }
+
+    Task { @MainActor in
+      do {
+        // Hydrate the selection first (one chunked request): list items don't carry
+        // media sources, and import REQUIRES the real file extension — items without
+        // one have nothing to stream and are skipped, never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
+        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
+          result[item.id] = item.details?.fileExtension
+        }
+        let libraryItems = audiobooks.compactMap { item in
+          extensionsByID[item.id].map {
+            item.asVirtualImportResource(
+              fileExtension: $0,
+              detailsOverride: nil,
+              connectionService: connectionService,
+              artworkSize: CGSize(width: 200, height: 200)
+            )
+          }
+        }
+        let skipped = audiobooks.count - libraryItems.count
+        if skipped > 0 {
+          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
+        }
+        guard !libraryItems.isEmpty else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        navigation.dismiss?()
+        importManager?.externalFiles.append(contentsOf: libraryItems)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
     }
-    
-    navigation.dismiss?()
-    importManager?.externalFiles.append(contentsOf: libraryItems)
-    importManager?.isShowingExternalImportView = true
   }
 
   @MainActor func onDownloadFolderTapped() {}

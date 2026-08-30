@@ -452,6 +452,31 @@ public class JellyfinConnectionService: BPLogger {
     return (items, nextStartItemIndex, maxNumItems)
   }
 
+  /// Hydrates the given item ids with their media sources (container/path), which list
+  /// responses don't carry. Virtual import requires the REAL file extension — items the
+  /// server reports without one are skipped by the importer, never guessed.
+  public func fetchItems(ids: [String]) async throws -> [JellyfinLibraryItem] {
+    guard !ids.isEmpty else { return [] }
+
+    var hydrated: [JellyfinLibraryItem] = []
+    // The ids travel in the query string — chunk so a whole-folder import can't
+    // overflow the URL length limit.
+    let chunkSize = 100
+    for start in stride(from: 0, to: ids.count, by: chunkSize) {
+      let chunk = Array(ids[start..<min(start + chunkSize, ids.count)])
+      var parameters = Paths.GetItemsParameters()
+      parameters.ids = chunk
+      parameters.fields = [.mediaSources, .path]
+      parameters.enableUserData = true
+      let response = try await send(Paths.getItems(parameters: parameters))
+      try Task.checkCancellation()
+      hydrated.append(
+        contentsOf: (response.value.items ?? []).compactMap { JellyfinLibraryItem(apiItem: $0) }
+      )
+    }
+    return hydrated
+  }
+
   /// Fetch audiobooks filtered by album artist ID.
   ///
   /// Current callers pass `limit: nil` to fetch all matches in a single response

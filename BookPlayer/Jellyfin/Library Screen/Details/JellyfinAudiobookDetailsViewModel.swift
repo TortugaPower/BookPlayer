@@ -93,38 +93,27 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   
   @MainActor
   func virtualImportAudiobook(_ item: JellyfinLibraryItem) {
-    let fileExt = self.details?.fileExtension ?? "m4a"
-    let libraryItem = SimpleLibraryItem(
-      title: item.name,
-      details: self.details?.artist ?? "voiceover_unknown_author".localized,
-      speed: 1,
-      currentTime: Double(item.currentSeconds ?? 0),
-      duration: Double(item.durationSeconds ?? 0),
-      percentCompleted: (item.durationSeconds ?? 0 > 0 && item.currentSeconds ?? 0 > 0)
-        ? Double(item.currentSeconds!) / Double(item.durationSeconds!) * 100 : 0,
-      isFinished: item.isFinished ?? false,
-      relativePath: "",
-      remoteURL: nil,
-      artworkURL: try? connectionService.createItemImageURL(item, size: CGSize(width: 200, height: 200)),
-      orderRank: 0,
-      parentFolder: nil,
-      originalFileName: "\(item.name).\(fileExt)",
-      lastPlayDate: item.lastPlayedDate,
-      type: .book,
-      uuid: UUID().uuidString
-    )
-    
-    let externalItem = SimpleExternalResource(
-      id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-      providerName: ExternalResource.ProviderName.jellyfin.rawValue,
-      providerId: item.id,
-      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-      lastSyncedAt: nil,
-      hostId: connectionService.connection?.stableHostId,
-      libraryItem: libraryItem
-    )
-    
-    importManager?.externalFiles.append(externalItem)
-    importManager?.isShowingExternalImportView = true
+    Task { @MainActor in
+      do {
+        // Same contract as the bulk paths: the file extension comes from the server's
+        // media sources or the item is not importable — never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: [item.id])
+        guard let fileExt = hydrated.first?.details?.fileExtension ?? self.details?.fileExtension else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        let externalItem = item.asVirtualImportResource(
+          fileExtension: fileExt,
+          detailsOverride: self.details,
+          connectionService: connectionService,
+          artworkSize: CGSize(width: 200, height: 200)
+        )
+        importManager?.externalFiles.append(externalItem)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
+    }
   }
 }
