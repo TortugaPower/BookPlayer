@@ -510,6 +510,37 @@ public class AudiobookShelfConnectionService: BPLogger {
     return (authorResponse.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
   }
 
+  /// Hydrates the given item ids via POST /api/items/batch/get (one round-trip): list
+  /// endpoints return MINIFIED items without `audioFiles`, and virtual import requires
+  /// the REAL file extension — items without one are skipped by the importer, never
+  /// guessed.
+  public func fetchItems(ids: [String]) async throws -> [AudiobookShelfLibraryItem] {
+    guard !ids.isEmpty else { return [] }
+    guard let connection else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let url = connection.url
+      .appendingPathComponent("api")
+      .appendingPathComponent("items")
+      .appendingPathComponent("batch")
+      .appendingPathComponent("get")
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.httpBody = try JSONEncoder().encode(["libraryItemIds": ids])
+    applyAuthenticatedHeaders(to: &request, connection: connection)
+    // After the auth headers: the integration's own values win on conflict, but
+    // Content-Type is ours to set
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let (data, response) = try await urlSession.data(for: request)
+    _ = try validateAuthenticatedResponse(response)
+
+    let decoded = try JSONDecoder().decode(AudiobookShelfBatchItemsResponse.self, from: data)
+    return (decoded.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
+  }
+
   public func fetchFilterData(in libraryId: String) async throws -> AudiobookShelfLibraryFilterData {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)

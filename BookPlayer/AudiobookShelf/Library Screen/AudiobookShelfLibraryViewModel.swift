@@ -252,44 +252,43 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     })
     : self.items.filter { $0.kind == .audiobook }
     
-    let libraryItems: [SimpleExternalResource] = audiobooks.map { item in
-      let fileExt = item.fileExtension ?? "m4a"
-      let libraryItem = SimpleLibraryItem(
-        title: item.title,
-        details: item.authorName ?? "voiceover_unknown_author".localized,
-        speed: 1,
-        currentTime: Double(item.currentTime ?? 0),
-        duration: Double(item.duration ?? 0),
-        percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
-          ? Double(item.progress!) * 100 : 0,
-        isFinished: item.isFinished ?? false,
-        relativePath: "",
-        remoteURL: nil,
-        artworkURL: connectionService.createItemImageURL(item, size: CGSize(width: 300, height: 300)),
-        orderRank: 0,
-        parentFolder: nil,
-        originalFileName: "\(item.title).\(fileExt)",
-        lastPlayDate: nil,
-        type: .book,
-        uuid: UUID().uuidString
-      )
-      
-      let externalItem = SimpleExternalResource(
-        id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
-        providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
-        providerId: item.id,
-        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-        lastSyncedAt: nil,
-        hostId: connectionService.connection?.stableHostId,
-        libraryItem: libraryItem
-      )
-      
-      return externalItem
+    guard !audiobooks.isEmpty else { return }
+
+    Task { @MainActor in
+      do {
+        // Hydrate the selection first (one batch/get round-trip): list endpoints return
+        // MINIFIED items without audioFiles, and import REQUIRES the real file
+        // extension — items without one have nothing to stream and are skipped,
+        // never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
+        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
+          result[item.id] = item.fileExtension
+        }
+        let libraryItems = audiobooks.compactMap { item in
+          extensionsByID[item.id].map {
+            item.asVirtualImportResource(
+              fileExtension: $0,
+              connectionService: connectionService,
+              artworkSize: CGSize(width: 300, height: 300)
+            )
+          }
+        }
+        let skipped = audiobooks.count - libraryItems.count
+        if skipped > 0 {
+          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
+        }
+        guard !libraryItems.isEmpty else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        navigation.dismiss?()
+        importManager?.externalFiles.append(contentsOf: libraryItems)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
     }
-    
-    navigation.dismiss?()
-    importManager?.externalFiles.append(contentsOf: libraryItems)
-    importManager?.isShowingExternalImportView = true
   }
   
   @MainActor

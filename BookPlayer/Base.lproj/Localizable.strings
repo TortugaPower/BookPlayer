@@ -531,6 +531,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "not_now_button" = "Not now";
 "quick_action_label" = "Quick Action %d";
 "apple_watch_beta_title" = "Apple Watch (Beta)";
+"import_no_audio_files_alert" = "The selected items have no audio files to import.";
 "import_title" = "Import";
 "files_title" = "%d Files";
 "sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";

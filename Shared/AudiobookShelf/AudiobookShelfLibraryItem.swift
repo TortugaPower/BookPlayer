@@ -326,6 +326,11 @@ public struct AudiobookShelfItemsResponse: Codable {
   public let page: Int?
 }
 
+/// Response of POST /api/items/batch/get — expanded items incl. media.audioFiles
+public struct AudiobookShelfBatchItemsResponse: Codable {
+  public let libraryItems: [AudiobookShelfAPIItem]?
+}
+
 public struct AudiobookShelfSearchResponse: Codable {
   public let book: [SearchResult]
 
@@ -368,4 +373,50 @@ public struct AudiobookShelfCollection: Codable {
 
 public struct AudiobookShelfCollectionsResponse: Codable {
   public let results: [AudiobookShelfCollection]
+}
+
+// MARK: - Virtual import
+
+extension AudiobookShelfLibraryItem {
+  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
+  /// list endpoints return minified items without audio-file metadata, so callers
+  /// hydrate the selection via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP
+  /// items that have none — the extension is never guessed.
+  @MainActor
+  public func asVirtualImportResource(
+    fileExtension: String,
+    connectionService: AudiobookShelfConnectionService,
+    artworkSize: CGSize
+  ) -> SimpleExternalResource {
+    let libraryItem = SimpleLibraryItem(
+      title: title,
+      details: authorName ?? "voiceover_unknown_author".localized,
+      speed: 1,
+      currentTime: Double(currentTime ?? 0),
+      duration: Double(duration ?? 0),
+      percentCompleted: (progress ?? 0) > 0 && (duration ?? 0) > 0
+        ? Double(progress!) * 100
+        : 0,
+      isFinished: isFinished ?? false,
+      relativePath: "",
+      remoteURL: nil,
+      artworkURL: connectionService.createItemImageURL(self, size: artworkSize),
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "\(title).\(fileExtension)",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+
+    return SimpleExternalResource(
+      id: abs(UUID().hashValue),  // unique per element — a shared timestamp collides Identifiable ids within a batch
+      providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: connectionService.connection?.stableHostId,
+      libraryItem: libraryItem
+    )
+  }
 }

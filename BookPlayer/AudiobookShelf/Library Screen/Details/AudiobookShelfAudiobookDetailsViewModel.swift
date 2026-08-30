@@ -82,38 +82,26 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   
   @MainActor
   func virtualImportAudiobook(_ item: AudiobookShelfLibraryItem) {
-    let fileExt = item.fileExtension ?? "m4a"
-    let libraryItem = SimpleLibraryItem(
-      title: item.title,
-      details: item.authorName ?? "voiceover_unknown_author".localized,
-      speed: 1,
-      currentTime: Double(item.currentTime ?? 0),
-      duration: Double(item.duration ?? 0),
-      percentCompleted: (item.progress ?? 0 > 0 && item.duration ?? 0 > 0)
-        ? Double(item.progress!) * 100 : 0,
-      isFinished: item.isFinished ?? false,
-      relativePath: "",
-      remoteURL: nil,
-      artworkURL: connectionService.createItemImageURL(item, size: CGSize(width: 300, height: 300)),
-      orderRank: 0,
-      parentFolder: nil,
-      originalFileName: "\(item.title).\(fileExt)",
-      lastPlayDate: nil,
-      type: .book,
-      uuid: UUID().uuidString
-    )
-    
-    let externalItem = SimpleExternalResource(
-      id: UUID().hashValue,
-      providerName: ExternalResource.ProviderName.audiobookshelf.rawValue,
-      providerId: item.id,
-      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
-      lastSyncedAt: nil,
-      hostId: connectionService.connection?.stableHostId,
-      libraryItem: libraryItem
-    )
-    
-    importManager?.externalFiles.append(externalItem)
-    importManager?.isShowingExternalImportView = true
+    Task { @MainActor in
+      do {
+        // Same contract as the bulk paths: list navigation hands us a MINIFIED item,
+        // so hydrate it for the real file extension — never guessed.
+        let hydrated = try await connectionService.fetchItems(ids: [item.id])
+        guard let fileExt = hydrated.first?.fileExtension ?? item.fileExtension else {
+          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          return
+        }
+
+        let externalItem = item.asVirtualImportResource(
+          fileExtension: fileExt,
+          connectionService: connectionService,
+          artworkSize: CGSize(width: 300, height: 300)
+        )
+        importManager?.externalFiles.append(externalItem)
+        importManager?.isShowingExternalImportView = true
+      } catch {
+        self.error = error
+      }
+    }
   }
 }
