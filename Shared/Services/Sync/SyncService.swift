@@ -125,9 +125,22 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public private(set) var isActive: Bool = false
   /// In-flight logout teardown, awaited before an initial library sync re-schedules,
   /// so a re-login can't begin scheduling until the queue reset has finished.
-  /// Main-actor isolated: assigned from the `.logout` sink and read from arbitrary
-  /// async contexts — without defined isolation the property access is a data race.
-  @MainActor private var teardownTask: Task<Void, Never>?
+  /// Lock-guarded rather than @MainActor: the `.logout` sink must assign SYNCHRONOUSLY
+  /// (a deferred main-actor hop reopens a window where the re-login gates read nil and
+  /// a late resetAllJobs wipes freshly-scheduled jobs), while reads come from arbitrary
+  /// async contexts.
+  private let teardownTaskLock = NSLock()
+  private var _teardownTask: Task<Void, Never>?
+  private var teardownTask: Task<Void, Never>? {
+    get {
+      teardownTaskLock.lock(); defer { teardownTaskLock.unlock() }
+      return _teardownTask
+    }
+    set {
+      teardownTaskLock.lock(); defer { teardownTaskLock.unlock() }
+      _teardownTask = newValue
+    }
+  }
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
   private var downloadTasksDictionary = [String: [URLSessionTask]]()
@@ -212,11 +225,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .sink(receiveValue: { [weak self] _ in
         /// Covers every logout path (iOS sign-out, account deletion, Watch), since
         /// they all post `.logout`. Tears down the queue, the flag, and `isActive`.
-        /// Held in `teardownTask` so a re-login's initial sync awaits it first.
-        Task { @MainActor [weak self] in
-          guard let self else { return }
-          self.teardownTask = Task { await self.logout() }
-        }
+        /// Held in `teardownTask` — assigned SYNCHRONOUSLY (lock-guarded) so a
+        /// re-login's initial sync can never observe a pre-assignment nil.
+        self?.teardownTask = Task { await self?.logout() }
       })
       .store(in: &disposeBag)
 
@@ -282,7 +293,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     /// Same gate as `syncLibraryContents()`: don't reconcile while a logout teardown
     /// is still clearing the queue, in case a fast re-login routed here before the
     /// `hasScheduledLibraryContents` flag was reset.
-    await MainActor.run { teardownTask }?.value
+    await teardownTask?.value
 
     let response = try await fetchContents(at: relativePath)
 
@@ -301,7 +312,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     /// Wait for any in-flight logout teardown to finish before scheduling, so a fast
     /// logout→login can't have a late `resetAllJobs()` wipe freshly-scheduled jobs.
-    await MainActor.run { teardownTask }?.value
+    await teardownTask?.value
 
     if await queuedJobsCount() > 0 {
       Self.logger.trace("Clearing orphaned tasks before initial library sync")

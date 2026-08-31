@@ -50,6 +50,9 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   public let progress: Double?
   public let currentTime: TimeInterval?
   public let isFinished: Bool?
+  /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
+  /// prompt's date comparison, same as Jellyfin's lastPlayedDate
+  public let lastPlayedDate: Date?
 
   // Browse metadata
   public let browseCategory: AudiobookShelfBrowseCategory?
@@ -74,6 +77,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     progress: Double? = nil,
     currentTime: TimeInterval? = nil,
     isFinished: Bool? = nil,
+    lastPlayedDate: Date? = nil,
     browseCategory: AudiobookShelfBrowseCategory? = nil,
     filter: AudiobookShelfItemFilter? = nil
   ) {
@@ -95,6 +99,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.progress = progress
     self.currentTime = currentTime
     self.isFinished = isFinished
+    self.lastPlayedDate = lastPlayedDate
     self.browseCategory = browseCategory
     self.filter = filter
   }
@@ -233,7 +238,8 @@ extension AudiobookShelfLibraryItem {
       libraryId: "",
       progress: progressItem.progress,
       currentTime: progressItem.currentTime,
-      isFinished: progressItem.isFinished
+      isFinished: progressItem.isFinished,
+      lastPlayedDate: progressItem.lastUpdate.map { Date(timeIntervalSince1970: $0 / 1000) }
     )
   }
 }
@@ -316,6 +322,8 @@ public struct AudiobookShelfAPIItem: Codable {
     public let progress: Double
     public let currentTime: TimeInterval
     public let isFinished: Bool
+    /// Milliseconds since epoch of the last progress update
+    public let lastUpdate: Double?
   }
 }
 
