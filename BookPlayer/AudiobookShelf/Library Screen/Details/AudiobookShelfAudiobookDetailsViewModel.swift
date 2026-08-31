@@ -13,7 +13,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   let item: AudiobookShelfLibraryItem
   let connectionService: AudiobookShelfConnectionService
   let accountService: AccountService
-  let importManager: ImportManager?
+  let importManager: ImportManager
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
   private var singleFileDownloadService: SingleFileDownloadService
@@ -25,7 +25,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
   ) {
     self.item = item
     self.connectionService = connectionService
@@ -97,8 +97,8 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
           connectionService: connectionService,
           artworkSize: CGSize(width: 300, height: 300)
         )
-        importManager?.externalFiles.append(externalItem)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(externalItem)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }

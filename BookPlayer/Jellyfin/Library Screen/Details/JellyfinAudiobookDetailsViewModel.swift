@@ -17,7 +17,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   let item: JellyfinLibraryItem
   let connectionService: JellyfinConnectionService
   let accountService: AccountService
-  let importManager: ImportManager?
+  let importManager: ImportManager
   let navigation: BPNavigation
   let navigationTitle: String
   @Published var details: JellyfinAudiobookDetailsData?
@@ -31,7 +31,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -109,8 +109,8 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
           connectionService: connectionService,
           artworkSize: CGSize(width: 200, height: 200)
         )
-        importManager?.externalFiles.append(externalItem)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(externalItem)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }

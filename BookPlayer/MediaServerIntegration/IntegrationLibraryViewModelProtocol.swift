@@ -33,7 +33,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   var showingDownloadConfirmation: Bool { get set }
   var useSelectedItems: Bool { get set }
   
-  var importManager: ImportManager? { get set }
+  var importManager: ImportManager { get set }
   var accountService: AccountService { get set }
   
   var searchQuery: String { get set }
