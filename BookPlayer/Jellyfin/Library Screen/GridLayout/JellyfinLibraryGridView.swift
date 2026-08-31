@@ -70,7 +70,7 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   var navigation = BPNavigation()
   var connectionService = JellyfinConnectionService()
   var accountService = AccountService()
-  var importManager: ImportManager?
+  var importManager = ImportManager(libraryService: LibraryService())
   
   let data: JellyfinLibraryLevelData
 

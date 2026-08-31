@@ -62,7 +62,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
   let folderID: String?
   let recursive: Bool
-  var importManager: ImportManager?
+  var importManager: ImportManager
   let connectionService: JellyfinConnectionService
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
@@ -84,7 +84,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     recursive: Bool = false,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -416,8 +416,8 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
         }
 
         navigation.dismiss?()
-        importManager?.externalFiles.append(contentsOf: libraryItems)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(contentsOf: libraryItems)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }
@@ -458,7 +458,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
 
   var isSearchable: Bool { true }
 
-  var importManager: ImportManager?
+  var importManager: ImportManager
   let connectionService: JellyfinConnectionService
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
@@ -471,7 +471,7 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -631,8 +631,8 @@ final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, B
         }
 
         navigation.dismiss?()
-        importManager?.externalFiles.append(contentsOf: libraryItems)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(contentsOf: libraryItems)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }
@@ -686,7 +686,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
 
   var isSearchable: Bool { true }
   
-  var importManager: ImportManager?
+  var importManager: ImportManager
   var accountService: AccountService
   let connectionService: JellyfinConnectionService
   private let singleFileDownloadService: SingleFileDownloadService
@@ -699,7 +699,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -860,8 +860,8 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
         }
 
         navigation.dismiss?()
-        importManager?.externalFiles.append(contentsOf: libraryItems)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(contentsOf: libraryItems)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }
@@ -915,7 +915,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
-  var importManager: ImportManager?
+  var importManager: ImportManager
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -926,7 +926,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -1019,7 +1019,7 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
-  var importManager: ImportManager?
+  var importManager: ImportManager
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -1030,7 +1030,7 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String

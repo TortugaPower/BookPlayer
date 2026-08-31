@@ -318,7 +318,7 @@ private struct AudiobookShelfTabRoot: View {
   let connectionService: AudiobookShelfConnectionService
   let singleFileDownloadService: SingleFileDownloadService
   let accountService: AccountService
-  let importManager: ImportManager?
+  let importManager: ImportManager
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
   var dismissAll: DismissAction?

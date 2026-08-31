@@ -19,7 +19,7 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
-  var importManager: ImportManager?
+  var importManager: ImportManager
   var accountService: AccountService
   
   enum Routes {
@@ -128,7 +128,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -283,8 +283,8 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
         }
 
         navigation.dismiss?()
-        importManager?.externalFiles.append(contentsOf: libraryItems)
-        importManager?.isShowingExternalImportView = true
+        importManager.externalFiles.append(contentsOf: libraryItems)
+        importManager.isShowingExternalImportView = true
       } catch {
         self.error = error
       }

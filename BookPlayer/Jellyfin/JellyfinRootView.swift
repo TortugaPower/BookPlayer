@@ -267,7 +267,7 @@ struct JellyfinRootView: View {
 struct JellyfinTabRoot: View {
   let connectionService: JellyfinConnectionService
   let singleFileDownloadService: SingleFileDownloadService
-  let importManager: ImportManager?
+  let importManager: ImportManager
   let accountService: AccountService
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
@@ -284,7 +284,7 @@ struct JellyfinTabRoot: View {
     library: JellyfinLibraryItem?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
@@ -572,7 +572,7 @@ extension JellyfinTabRoot {
     for destination: JellyfinLibraryLevelData,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager?,
+    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     onDismiss: @escaping () -> Void
