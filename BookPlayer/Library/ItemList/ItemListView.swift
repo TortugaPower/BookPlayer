@@ -32,7 +32,6 @@ struct ItemListView: View {
   @Environment(\.syncService) var syncService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
   @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
@@ -250,7 +249,7 @@ struct ItemListView: View {
     }
     .task {
       focus = .primary
-      await model.syncList(jellyfinService: jellyfinService)
+      await model.syncList()
     }
     .task(id: playerState.loadedBookRelativePath) {
       playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
@@ -259,7 +258,7 @@ struct ItemListView: View {
       guard scenePhase == .active else { return }
 
       Task {
-        await model.syncList(jellyfinService: jellyfinService)
+        await model.syncList()
       }
     }
     .onChange(of: listState.token(for: .all), initial: false) {

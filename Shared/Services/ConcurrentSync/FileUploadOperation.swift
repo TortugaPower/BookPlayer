@@ -191,6 +191,13 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           // task (with a fresh URL) can be scheduled later.
           Self.logger.error("Upload rejected for \(self.uuid): HTTP \(http.statusCode)")
           self.didSucceed = (400...499).contains(http.statusCode)
+          // A consumed 4xx is never retried, so its temp hard link would leak forever
+          // without the same temp-dir-only cleanup the success branch does. (The
+          // retryable-failure branch above deliberately KEEPS the link — retries
+          // re-read the file.)
+          if self.didSucceed, self.fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path) {
+            try? FileManager.default.removeItem(at: self.fileURL)
+          }
           self.finish()
         } else {
           self.invalidateCellularObserver()

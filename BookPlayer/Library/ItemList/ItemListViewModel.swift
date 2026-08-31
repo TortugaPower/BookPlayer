@@ -249,7 +249,7 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     return playbackService.processFoldersStaleProgress()
   }
 
-  func syncList(jellyfinService: JellyfinConnectionService? = nil) async {
+  func syncList() async {
     if processFoldersStaleProgress() {
       listState.reloadAll()
     }
@@ -268,9 +268,7 @@ final class ItemListViewModel: ObservableObject, BPLogger {
       contentsFetchTask = Task {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
-          if let jellyfinService {
-            await updateFromResource(jellyfinService: jellyfinService)
-          }
+          await updateFromResource()
           await MainActor.run {
             listState.reloadAll()
           }
@@ -871,7 +869,7 @@ extension ItemListViewModel {
     }
   }
   
-  func updateFromResource(jellyfinService _: JellyfinConnectionService) async {
+  func updateFromResource() async {
     let jellyfinResources = self.items.compactMap { item in
       item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
     }
@@ -959,7 +957,8 @@ extension ItemListViewModel: PlaybackSyncProgressDelegate {
             audiobookShelfService.useConnection(connection)
             if let audiobookShelfItem = try await audiobookShelfService.fetchItem(for: externalResource.providerId) {
               let threshold: TimeInterval = 15
-              let externalPlayDate = Date.distantPast
+              // From the progress payload's lastUpdate — same comparison as Jellyfin
+              let externalPlayDate = audiobookShelfItem.lastPlayedDate ?? Date.distantPast
               let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
               let isExternalSecondsFarther = TimeInterval(audiobookShelfItem.currentTime ?? 0) > (playableItem.currentTime + threshold)
               if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
