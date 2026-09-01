@@ -145,11 +145,13 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var DownloadButton: some View {
     Button {
-      do {
-        try viewModel.handleImportAudiobook(viewModel.item)
-        onDownloadTap()
-      } catch {
-        viewModel.error = error
+      Task {
+        do {
+          try await viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
       }
     } label: {
       HStack {
@@ -169,11 +171,13 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var SmallDownloadButton: some View {
     Button {
-      do {
-        try viewModel.handleImportAudiobook(viewModel.item)
-        onDownloadTap()
-      } catch {
-        viewModel.error = error
+      Task {
+        do {
+          try await viewModel.handleImportAudiobook(viewModel.item)
+          onDownloadTap()
+        } catch {
+          viewModel.error = error
+        }
       }
     } label: {
       HStack {
@@ -192,11 +196,13 @@ struct IntegrationAudiobookDetailsView<
   private var SynchronizeButton: some View {
     Button {
       if allowStream {
-        do {
-          try self.viewModel.handleImportAudiobook(viewModel.item)
-          onDownloadTap()
-        } catch {
-          viewModel.error = error
+        Task {
+          do {
+            try await self.viewModel.handleImportAudiobook(viewModel.item)
+            onDownloadTap()
+          } catch {
+            viewModel.error = error
+          }
         }
       } else {
         onStreamTap()

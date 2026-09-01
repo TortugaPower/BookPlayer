@@ -54,7 +54,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onEditToggleSelectTapped()
   @MainActor func onSelectTapped(for item: Item)
   @MainActor func onSelectAllTapped()
-  @MainActor func handleImportItems(useSelectedItems: Bool)
+  @MainActor func handleImportItems(useSelectedItems: Bool) async
   @MainActor func onDownloadTapped()
   @MainActor func onDownloadFolderTapped()
   @MainActor func confirmDownloadFolder()
@@ -69,5 +69,42 @@ extension IntegrationLibraryViewModelProtocol {
   var showingDownloadConfirmation: Bool {
     get { false }
     set {}
+  }
+}
+
+// MARK: - Virtual import pipeline
+
+/// Shared orchestration for virtual imports, used by every provider's bulk and
+/// details path: hydrate the selection for REAL file extensions (never guessed),
+/// build the import payloads, skip items without audio-file metadata, and hand
+/// the batch to the import sheet. Callers own the `isImporting` reentrancy guard
+/// and error surfacing; the two closures carry the only provider-specific parts.
+@MainActor
+enum VirtualImportPipeline {
+  /// - Returns: the number of items handed to the import sheet. Zero means
+  ///   nothing in the selection had audio-file metadata (callers surface the
+  ///   `import_no_audio_files_alert`); a value below `items.count` means the
+  ///   remainder was skipped.
+  /// - Throws: hydration/network errors, for the caller's error state.
+  static func run<Item>(
+    items: [Item],
+    id: (Item) -> String,
+    hydrateExtensions: ([String]) async throws -> [String: String],
+    buildResource: (Item, String) -> SimpleExternalResource,
+    importManager: ImportManager,
+    beforePresenting: (() -> Void)? = nil
+  ) async throws -> Int {
+    guard !items.isEmpty else { return 0 }
+
+    let extensionsByID = try await hydrateExtensions(items.map(id))
+    let resources = items.compactMap { item in
+      extensionsByID[id(item)].map { buildResource(item, $0) }
+    }
+    guard !resources.isEmpty else { return 0 }
+
+    beforePresenting?()
+    importManager.externalFiles.append(contentsOf: resources)
+    importManager.isShowingExternalImportView = true
+    return resources.count
   }
 }

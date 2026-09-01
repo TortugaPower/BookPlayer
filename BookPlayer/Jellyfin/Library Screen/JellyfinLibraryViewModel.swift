@@ -22,6 +22,13 @@ enum JellyfinLibraryLevelData: Equatable, Hashable {
   case subscribe
 }
 
+/// The author/narrator browse screens are the same VM with a different fetch +
+/// destination — parameterized by role instead of duplicated per class.
+enum JellyfinPersonRole {
+  case author
+  case narrator
+}
+
 @MainActor
 final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
   enum Routes {
@@ -50,6 +57,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   @Published var items: [JellyfinLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
+  @Published private(set) var isImporting = false
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
@@ -311,9 +319,9 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   }
   
   @MainActor
-  func handleImportItems(useSelectedItems: Bool) {
+  func handleImportItems(useSelectedItems: Bool) async {
     if accountService.hasStreamingEnabled() {
-      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
         onDownloadTapped()
@@ -378,7 +386,9 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   }
   
   @MainActor
-  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
     let audiobooks = useSelectedItems
     ? selectedItems.compactMap({ id in
       self.items.first(where: { $0.id == id })
@@ -386,41 +396,35 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     : self.items.filter { $0.kind == .audiobook }
     
     guard !audiobooks.isEmpty else { return }
+    isImporting = true
+    defer { isImporting = false }
 
-    Task { @MainActor in
-      do {
-        // Hydrate the selection first (one chunked request): list items don't carry
-        // media sources, and import REQUIRES the real file extension — items without
-        // one have nothing to stream and are skipped, never guessed.
-        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
-        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
-          result[item.id] = item.details?.fileExtension
-        }
-        let libraryItems = audiobooks.compactMap { item in
-          extensionsByID[item.id].map {
-            item.asVirtualImportResource(
-              fileExtension: $0,
-              detailsOverride: nil,
-              connectionService: connectionService,
-              artworkSize: CGSize(width: 200, height: 200)
-            )
-          }
-        }
-        let skipped = audiobooks.count - libraryItems.count
-        if skipped > 0 {
-          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
-        }
-        guard !libraryItems.isEmpty else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-          return
-        }
-
-        navigation.dismiss?()
-        importManager.externalFiles.append(contentsOf: libraryItems)
-        importManager.isShowingExternalImportView = true
-      } catch {
-        self.error = error
+    do {
+      let imported = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            detailsOverride: nil,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 200, height: 200)
+          )
+        },
+        importManager: importManager,
+        beforePresenting: { self.navigation.dismiss?() }
+      )
+      if imported == 0 {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+      } else if imported < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - imported) item(s) with no audio-file metadata")
       }
+    } catch {
+      self.error = error
     }
   }
   
@@ -433,235 +437,8 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 // MARK: - Author Books ViewModel
 
 @MainActor
-final class JellyfinAuthorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
-  let authorID: String
-  let parentID: String?
-
-  var navigation: BPNavigation
-  let navigationTitle: String
-
-  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: IntegrationLayout.Options = .grid
-
-  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
-  var sortBy: JellyfinLayout.SortBy = .smart
-
-  @Published var searchQuery = ""
-  @Published var items: [JellyfinLibraryItem] = []
-  @Published var totalItems = Int.max
-  @Published var error: Error?
-
-  @Published var editMode: EditMode = .inactive
-  @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
-  @Published var useSelectedItems: Bool = false
-  @Published var showingDownloadConfirmation = false
-
-  var isSearchable: Bool { true }
-
-  var importManager: ImportManager
-  let connectionService: JellyfinConnectionService
-  var accountService: AccountService
-  private let singleFileDownloadService: SingleFileDownloadService
-  private var fetchTask: Task<(), any Error>?
-  private var allItems: [JellyfinLibraryItem] = []
-  private var disposeBag = Set<AnyCancellable>()
-
-  init(
-    authorID: String,
-    parentID: String?,
-    connectionService: JellyfinConnectionService,
-    singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager,
-    accountService: AccountService,
-    navigation: BPNavigation,
-    navigationTitle: String
-  ) {
-    self.authorID = authorID
-    self.parentID = parentID
-    self.connectionService = connectionService
-    self.singleFileDownloadService = singleFileDownloadService
-    self.importManager = importManager
-    self.accountService = accountService
-    self.navigation = navigation
-    self.navigationTitle = navigationTitle
-
-    $searchQuery
-      .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
-      .removeDuplicates()
-      .dropFirst()
-      .sink { [weak self] _ in self?.applySearch() }
-      .store(in: &disposeBag)
-  }
-
-  func fetchInitialItems() {
-    guard items.isEmpty, fetchTask == nil else { return }
-    fetchTask = Task { @MainActor in
-      defer { self.fetchTask = nil }
-      do {
-        let (items, _, _) = try await connectionService.fetchItemsByArtist(
-          artistID: authorID,
-          parentID: parentID,
-          startIndex: 0,
-          limit: nil,
-          sortBy: sortBy
-        )
-        self.allItems = items
-        applySearch()
-      } catch is CancellationError {
-        // ignore
-      } catch {
-        self.error = error
-      }
-    }
-  }
-
-  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
-
-  func cancelFetchItems() {
-    fetchTask?.cancel()
-    fetchTask = nil
-  }
-
-  func destination(for item: JellyfinLibraryItem) -> JellyfinLibraryLevelData? {
-    switch item.kind {
-    case .audiobook: .details(data: item)
-    case .folder: .folder(data: item)
-    default: nil
-    }
-  }
-
-  @MainActor func handleDoneAction() {}
-
-  @MainActor
-  func onEditToggleSelectTapped() {
-    withAnimation {
-      editMode = editMode.isEditing ? .inactive : .active
-    }
-    if !editMode.isEditing { selectedItems.removeAll() }
-  }
-
-  @MainActor
-  func onSelectTapped(for item: JellyfinLibraryItem) {
-    guard item.isDownloadable else { return }
-    if selectedItems.contains(item.id) {
-      selectedItems.remove(item.id)
-    } else {
-      selectedItems.insert(item.id)
-    }
-  }
-
-  @MainActor
-  func onSelectAllTapped() {
-    if selectedItems.isEmpty {
-      selectedItems = Set(items.compactMap { $0.isDownloadable ? $0.id : nil })
-    } else {
-      selectedItems.removeAll()
-    }
-  }
-
-  @MainActor
-  func onDownloadTapped() {
-    let downloadItems = selectedItems.compactMap { id in
-      items.first(where: { $0.id == id && $0.isDownloadable })
-    }
-    guard !downloadItems.isEmpty else { return }
-    var requests = [URLRequest]()
-    for item in downloadItems {
-      do {
-        let request = try connectionService.createItemDownloadRequest(item)
-        requests.append(request)
-      } catch {
-        self.error = error
-      }
-    }
-    guard !requests.isEmpty else { return }
-    singleFileDownloadService.handleDownload(requests)
-    navigation.dismiss?()
-  }
-  
-  @MainActor
-  func handleImportItems(useSelectedItems: Bool) {
-    if accountService.hasStreamingEnabled() {
-      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
-    } else {
-      if useSelectedItems {
-        onDownloadTapped()
-      } else {
-        confirmDownloadFolder()
-      }
-    }
-  }
-  
-  @MainActor
-  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
-    let audiobooks = useSelectedItems
-    ? selectedItems.compactMap({ id in
-      self.items.first(where: { $0.id == id })
-    })
-    : self.items.filter { $0.kind == .audiobook }
-    
-    guard !audiobooks.isEmpty else { return }
-
-    Task { @MainActor in
-      do {
-        // Hydrate the selection first (one chunked request): list items don't carry
-        // media sources, and import REQUIRES the real file extension — items without
-        // one have nothing to stream and are skipped, never guessed.
-        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
-        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
-          result[item.id] = item.details?.fileExtension
-        }
-        let libraryItems = audiobooks.compactMap { item in
-          extensionsByID[item.id].map {
-            item.asVirtualImportResource(
-              fileExtension: $0,
-              detailsOverride: nil,
-              connectionService: connectionService,
-              artworkSize: CGSize(width: 200, height: 200)
-            )
-          }
-        }
-        let skipped = audiobooks.count - libraryItems.count
-        if skipped > 0 {
-          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
-        }
-        guard !libraryItems.isEmpty else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-          return
-        }
-
-        navigation.dismiss?()
-        importManager.externalFiles.append(contentsOf: libraryItems)
-        importManager.isShowingExternalImportView = true
-      } catch {
-        self.error = error
-      }
-    }
-  }
-
-  @MainActor func onDownloadFolderTapped() {}
-  @MainActor func confirmDownloadFolder() {}
-
-  private func applySearch() {
-    let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-    if query.isEmpty {
-      items = allItems
-    } else {
-      items = allItems.filter { $0.name.localizedCaseInsensitiveContains(query) }
-    }
-    totalItems = items.count
-  }
-  
-  @MainActor
-  func goToSubscribe() {
-    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
-  }
-}
-
-// MARK: - Narrator Books ViewModel
-
-@MainActor
-final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+  let role: JellyfinPersonRole
   let personID: String
   let parentID: String?
 
@@ -678,6 +455,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   @Published var items: [JellyfinLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
+  @Published private(set) var isImporting = false
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
@@ -685,16 +463,17 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   @Published var showingDownloadConfirmation = false
 
   var isSearchable: Bool { true }
-  
+
   var importManager: ImportManager
-  var accountService: AccountService
   let connectionService: JellyfinConnectionService
+  var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
   private var allItems: [JellyfinLibraryItem] = []
   private var disposeBag = Set<AnyCancellable>()
 
   init(
+    role: JellyfinPersonRole,
     personID: String,
     parentID: String?,
     connectionService: JellyfinConnectionService,
@@ -704,6 +483,7 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
+    self.role = role
     self.personID = personID
     self.parentID = parentID
     self.connectionService = connectionService
@@ -726,15 +506,27 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
       do {
-        let (items, _, _) = try await connectionService.fetchItemsByPerson(
-          personID: personID,
-          personName: navigationTitle,
-          parentID: parentID,
-          startIndex: 0,
-          limit: nil,
-          sortBy: sortBy
-        )
-        self.allItems = items
+        let result: ([JellyfinLibraryItem], Int, Int)
+        switch role {
+        case .author:
+          result = try await connectionService.fetchItemsByArtist(
+            artistID: personID,
+            parentID: parentID,
+            startIndex: 0,
+            limit: nil,
+            sortBy: sortBy
+          )
+        case .narrator:
+          result = try await connectionService.fetchItemsByPerson(
+            personID: personID,
+            personName: navigationTitle,
+            parentID: parentID,
+            startIndex: 0,
+            limit: nil,
+            sortBy: sortBy
+          )
+        }
+        self.allItems = result.0
         applySearch()
       } catch is CancellationError {
         // ignore
@@ -809,9 +601,9 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   }
   
   @MainActor
-  func handleImportItems(useSelectedItems: Bool) {
+  func handleImportItems(useSelectedItems: Bool) async {
     if accountService.hasStreamingEnabled() {
-      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
         onDownloadTapped()
@@ -822,7 +614,9 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   }
   
   @MainActor
-  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
     let audiobooks = useSelectedItems
     ? selectedItems.compactMap({ id in
       self.items.first(where: { $0.id == id })
@@ -830,41 +624,35 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
     : self.items.filter { $0.kind == .audiobook }
     
     guard !audiobooks.isEmpty else { return }
+    isImporting = true
+    defer { isImporting = false }
 
-    Task { @MainActor in
-      do {
-        // Hydrate the selection first (one chunked request): list items don't carry
-        // media sources, and import REQUIRES the real file extension — items without
-        // one have nothing to stream and are skipped, never guessed.
-        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
-        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
-          result[item.id] = item.details?.fileExtension
-        }
-        let libraryItems = audiobooks.compactMap { item in
-          extensionsByID[item.id].map {
-            item.asVirtualImportResource(
-              fileExtension: $0,
-              detailsOverride: nil,
-              connectionService: connectionService,
-              artworkSize: CGSize(width: 200, height: 200)
-            )
-          }
-        }
-        let skipped = audiobooks.count - libraryItems.count
-        if skipped > 0 {
-          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
-        }
-        guard !libraryItems.isEmpty else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-          return
-        }
-
-        navigation.dismiss?()
-        importManager.externalFiles.append(contentsOf: libraryItems)
-        importManager.isShowingExternalImportView = true
-      } catch {
-        self.error = error
+    do {
+      let imported = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            detailsOverride: nil,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 200, height: 200)
+          )
+        },
+        importManager: importManager,
+        beforePresenting: { self.navigation.dismiss?() }
+      )
+      if imported == 0 {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+      } else if imported < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - imported) item(s) with no audio-file metadata")
       }
+    } catch {
+      self.error = error
     }
   }
 
@@ -887,10 +675,11 @@ final class JellyfinNarratorBooksViewModel: IntegrationLibraryViewModelProtocol,
   }
 }
 
-// MARK: - Authors List ViewModel
+// MARK: - Persons List ViewModel (authors / narrators)
 
 @MainActor
-final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+final class JellyfinPersonsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+  let role: JellyfinPersonRole
   let parentID: String?
 
   var navigation: BPNavigation
@@ -923,6 +712,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
   private var disposeBag = Set<AnyCancellable>()
 
   init(
+    role: JellyfinPersonRole,
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
@@ -931,6 +721,7 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
     navigation: BPNavigation,
     navigationTitle: String
   ) {
+    self.role = role
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
@@ -952,7 +743,14 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
     fetchTask = Task { @MainActor in
       defer { self.fetchTask = nil }
       do {
-        let (items, _) = try await connectionService.fetchAlbumArtists(parentID: parentID)
+        let result: ([JellyfinLibraryItem], Int)
+        switch role {
+        case .author:
+          result = try await connectionService.fetchAlbumArtists(parentID: parentID)
+        case .narrator:
+          result = try await connectionService.fetchNarrators(parentID: parentID)
+        }
+        let items = result.0
         self.allItems = items
         applyLocalSearch()
       } catch is CancellationError {
@@ -966,114 +764,16 @@ final class JellyfinAuthorsListViewModel: IntegrationLibraryViewModelProtocol, B
   func cancelFetchItems() { fetchTask?.cancel(); fetchTask = nil }
 
   func destination(for item: JellyfinLibraryItem) -> JellyfinLibraryLevelData? {
-    guard item.kind == .author else { return nil }
-    return .authorBooks(authorID: item.id, authorName: item.name, parentID: parentID)
-  }
-
-  @MainActor func handleDoneAction() {}
-  @MainActor func onEditToggleSelectTapped() {}
-  @MainActor func onSelectTapped(for item: JellyfinLibraryItem) {}
-  @MainActor func onSelectAllTapped() {}
-  @MainActor func onDownloadTapped() {}
-  @MainActor func onDownloadFolderTapped() {}
-  @MainActor func confirmDownloadFolder() {}
-  @MainActor func handleImportItems(useSelectedItems: Bool) {}
-
-  private func applyLocalSearch() {
-    let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-    items = query.isEmpty ? allItems : allItems.filter { $0.name.localizedCaseInsensitiveContains(query) }
-    totalItems = items.count
-  }
-  
-  @MainActor
-  func goToSubscribe() {
-    self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
-  }
-}
-
-// MARK: - Narrators List ViewModel
-
-@MainActor
-final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
-  let parentID: String?
-
-  var navigation: BPNavigation
-  let navigationTitle: String
-
-  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayout)
-  var layout: IntegrationLayout.Options = .list
-
-  @AppStorage(Constants.UserDefaults.jellyfinLibraryLayoutSortBy)
-  var sortBy: JellyfinLayout.SortBy = .name
-
-  @Published var searchQuery = ""
-  @Published var items: [JellyfinLibraryItem] = []
-  @Published var totalItems = Int.max
-  @Published var error: Error?
-
-  @Published var editMode: EditMode = .inactive
-  @Published var selectedItems: Set<JellyfinLibraryItem.ID> = []
-  @Published var useSelectedItems: Bool = false
-  @Published var showingDownloadConfirmation = false
-
-  var isSearchable: Bool { true }
-
-  let connectionService: JellyfinConnectionService
-  var importManager: ImportManager
-  var accountService: AccountService
-  private let singleFileDownloadService: SingleFileDownloadService
-  private var fetchTask: Task<(), any Error>?
-  private var allItems: [JellyfinLibraryItem] = []
-  private var disposeBag = Set<AnyCancellable>()
-
-  init(
-    parentID: String?,
-    connectionService: JellyfinConnectionService,
-    singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager,
-    accountService: AccountService,
-    navigation: BPNavigation,
-    navigationTitle: String
-  ) {
-    self.parentID = parentID
-    self.connectionService = connectionService
-    self.singleFileDownloadService = singleFileDownloadService
-    self.importManager = importManager
-    self.accountService = accountService
-    self.navigation = navigation
-    self.navigationTitle = navigationTitle
-
-    $searchQuery
-      .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
-      .removeDuplicates()
-      .dropFirst()
-      .sink { [weak self] _ in self?.applyLocalSearch() }
-      .store(in: &disposeBag)
-  }
-
-  func fetchInitialItems() {
-    guard items.isEmpty, fetchTask == nil else { return }
-    fetchTask = Task { @MainActor in
-      defer { self.fetchTask = nil }
-      do {
-        let (items, _) = try await connectionService.fetchNarrators(parentID: parentID)
-        self.allItems = items
-        applyLocalSearch()
-      } catch is CancellationError {
-      } catch {
-        self.error = error
-      }
+    switch (role, item.kind) {
+    case (.author, .author):
+      return .authorBooks(authorID: item.id, authorName: item.name, parentID: parentID)
+    case (.narrator, .narrator):
+      return .narratorBooks(personID: item.id, personName: item.name, parentID: parentID)
+    default:
+      return nil
     }
   }
 
-  func fetchMoreItemsIfNeeded(currentItem: JellyfinLibraryItem) {}
-  func cancelFetchItems() { fetchTask?.cancel(); fetchTask = nil }
-
-  func destination(for item: JellyfinLibraryItem) -> JellyfinLibraryLevelData? {
-    guard item.kind == .narrator else { return nil }
-    return .narratorBooks(personID: item.id, personName: item.name, parentID: parentID)
-  }
-
   @MainActor func handleDoneAction() {}
   @MainActor func onEditToggleSelectTapped() {}
   @MainActor func onSelectTapped(for item: JellyfinLibraryItem) {}
@@ -1081,7 +781,7 @@ final class JellyfinNarratorsListViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor func onDownloadTapped() {}
   @MainActor func onDownloadFolderTapped() {}
   @MainActor func confirmDownloadFolder() {}
-  @MainActor func handleImportItems(useSelectedItems: Bool) {}
+  @MainActor func handleImportItems(useSelectedItems: Bool) async {}
 
   private func applyLocalSearch() {
     let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)

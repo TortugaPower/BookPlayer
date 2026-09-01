@@ -22,6 +22,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   let navigationTitle: String
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
+  @Published private(set) var isImporting = false
   private var singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -77,9 +78,9 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   }
   
   @MainActor
-  func handleImportAudiobook(_ item: JellyfinLibraryItem) throws {
+  func handleImportAudiobook(_ item: JellyfinLibraryItem) async throws {
     if accountService.hasStreamingEnabled() {
-      virtualImportAudiobook(item)
+      await virtualImportAudiobook(item)
     } else {
       try beginDownloadAudiobook(item)
     }
@@ -92,28 +93,39 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   }
   
   @MainActor
-  func virtualImportAudiobook(_ item: JellyfinLibraryItem) {
-    Task { @MainActor in
-      do {
-        // Same contract as the bulk paths: the file extension comes from the server's
-        // media sources or the item is not importable — never guessed.
-        let hydrated = try await connectionService.fetchItems(ids: [item.id])
-        guard let fileExt = hydrated.first?.details?.fileExtension ?? self.details?.fileExtension else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-          return
-        }
+  func virtualImportAudiobook(_ item: JellyfinLibraryItem) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
+    isImporting = true
+    defer { isImporting = false }
 
-        let externalItem = item.asVirtualImportResource(
-          fileExtension: fileExt,
-          detailsOverride: self.details,
-          connectionService: connectionService,
-          artworkSize: CGSize(width: 200, height: 200)
-        )
-        importManager.externalFiles.append(externalItem)
-        importManager.isShowingExternalImportView = true
-      } catch {
-        self.error = error
+    do {
+      let imported = try await VirtualImportPipeline.run(
+        items: [item],
+        id: \.id,
+        hydrateExtensions: { ids in
+          // Same contract as the bulk paths: the extension comes from the server's
+          // media sources or the item is not importable — never guessed
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          var extensions: [String: String] = [:]
+          extensions[item.id] = hydrated.first?.details?.fileExtension ?? self.details?.fileExtension
+          return extensions
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            detailsOverride: self.details,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 200, height: 200)
+          )
+        },
+        importManager: importManager
+      )
+      if imported == 0 {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
       }
+    } catch {
+      self.error = error
     }
   }
 }

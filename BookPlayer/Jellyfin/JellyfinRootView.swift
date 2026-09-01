@@ -57,13 +57,14 @@ struct JellyfinRootView: View {
         tabRootView
       }
       Tab("Authors", systemImage: "person.2.fill") {
-        JellyfinEntityTabRoot<JellyfinAuthorsListViewModel>(
+        JellyfinEntityTabRoot<JellyfinPersonsListViewModel>(
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           makeViewModel: { nav in
-            JellyfinAuthorsListViewModel(
+            JellyfinPersonsListViewModel(
+              role: .author,
               parentID: resolvedLibrary?.id,
               connectionService: connectionService,
               singleFileDownloadService: singleFileDownloadService,
@@ -377,8 +378,9 @@ struct JellyfinTabRoot: View {
       )
     case .authorBooks(let authorID, let authorName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinAuthorBooksViewModel(
-          authorID: authorID,
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .author,
+          personID: authorID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
@@ -390,7 +392,8 @@ struct JellyfinTabRoot: View {
       )
     case .narratorBooks(let personID, let personName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinNarratorBooksViewModel(
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .narrator,
           personID: personID,
           parentID: parentID,
           connectionService: connectionService,
@@ -604,8 +607,9 @@ extension JellyfinTabRoot {
       )
     case .authorBooks(let authorID, let authorName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinAuthorBooksViewModel(
-          authorID: authorID,
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .author,
+          personID: authorID,
           parentID: parentID,
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
@@ -617,7 +621,8 @@ extension JellyfinTabRoot {
       )
     case .narratorBooks(let personID, let personName, let parentID):
       JellyfinLibraryView(
-        viewModel: JellyfinNarratorBooksViewModel(
+        viewModel: JellyfinPersonBooksViewModel(
+          role: .narrator,
           personID: personID,
           parentID: parentID,
           connectionService: connectionService,
