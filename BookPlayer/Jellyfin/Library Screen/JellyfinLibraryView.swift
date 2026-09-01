@@ -35,10 +35,8 @@ where Model.Item == JellyfinLibraryItem {
 
   private var jellyfinConnectionService: JellyfinConnectionService {
     (viewModel as? JellyfinLibraryViewModel)?.connectionService
-      ?? (viewModel as? JellyfinAuthorBooksViewModel)?.connectionService
-      ?? (viewModel as? JellyfinNarratorBooksViewModel)?.connectionService
-      ?? (viewModel as? JellyfinAuthorsListViewModel)?.connectionService
-      ?? (viewModel as? JellyfinNarratorsListViewModel)?.connectionService
+      ?? (viewModel as? JellyfinPersonBooksViewModel)?.connectionService
+      ?? (viewModel as? JellyfinPersonsListViewModel)?.connectionService
       ?? .init()
   }
 

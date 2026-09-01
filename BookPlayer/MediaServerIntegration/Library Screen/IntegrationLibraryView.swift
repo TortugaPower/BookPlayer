@@ -67,7 +67,7 @@ struct IntegrationLibraryView<
             subscription: viewModel.accountService.accessLevel,
             onDownload: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
-              viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems)
+              Task { await viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems) }
             },
             onSync: {
               withAnimation { viewModel.showingDownloadConfirmation = false }
@@ -133,7 +133,7 @@ struct IntegrationLibraryView<
             
             Button {
               if viewModel.accountService.hasLiteEnabled() {
-                viewModel.handleImportItems(useSelectedItems: false)
+                Task { await viewModel.handleImportItems(useSelectedItems: false) }
               } else {
                 // This toolbar action fires OUTSIDE edit mode where the selection is empty —
                 // it always means "everything", same as the lite branch above.
@@ -184,7 +184,7 @@ struct IntegrationLibraryView<
 
     Button {
       if viewModel.accountService.hasLiteEnabled() {
-        viewModel.handleImportItems(useSelectedItems: true)
+        Task { await viewModel.handleImportItems(useSelectedItems: true) }
       } else {
         viewModel.useSelectedItems = true
         withAnimation { viewModel.showingDownloadConfirmation = true }

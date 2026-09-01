@@ -44,6 +44,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @Published var items: [AudiobookShelfLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
+  @Published private(set) var isImporting = false
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
@@ -232,9 +233,9 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     }
   }
   
-  func handleImportItems(useSelectedItems: Bool) {
+  func handleImportItems(useSelectedItems: Bool) async {
     if accountService.hasStreamingEnabled() {
-      virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
     } else {
       if useSelectedItems {
         onDownloadTapped()
@@ -245,7 +246,9 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   }
   
   @MainActor
-  func virtualImportFolderAudiobooks(useSelectedItems: Bool) {
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
     let audiobooks = useSelectedItems
     ? selectedItems.compactMap({ id in
       self.items.first(where: { $0.id == id })
@@ -253,41 +256,36 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     : self.items.filter { $0.kind == .audiobook }
     
     guard !audiobooks.isEmpty else { return }
+    isImporting = true
+    defer { isImporting = false }
 
-    Task { @MainActor in
-      do {
-        // Hydrate the selection first (one batch/get round-trip): list endpoints return
-        // MINIFIED items without audioFiles, and import REQUIRES the real file
-        // extension — items without one have nothing to stream and are skipped,
-        // never guessed.
-        let hydrated = try await connectionService.fetchItems(ids: audiobooks.map(\.id))
-        let extensionsByID: [String: String] = hydrated.reduce(into: [:]) { result, item in
-          result[item.id] = item.fileExtension
-        }
-        let libraryItems = audiobooks.compactMap { item in
-          extensionsByID[item.id].map {
-            item.asVirtualImportResource(
-              fileExtension: $0,
-              connectionService: connectionService,
-              artworkSize: CGSize(width: 300, height: 300)
-            )
-          }
-        }
-        let skipped = audiobooks.count - libraryItems.count
-        if skipped > 0 {
-          Self.logger.warning("Virtual import skipped \(skipped) item(s) with no audio-file metadata")
-        }
-        guard !libraryItems.isEmpty else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-          return
-        }
-
-        navigation.dismiss?()
-        importManager.externalFiles.append(contentsOf: libraryItems)
-        importManager.isShowingExternalImportView = true
-      } catch {
-        self.error = error
+    do {
+      let imported = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          // batch/get returns EXPANDED items (list endpoints are minified without
+          // audioFiles); one round-trip for the whole selection
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 300, height: 300)
+          )
+        },
+        importManager: importManager,
+        beforePresenting: { self.navigation.dismiss?() }
+      )
+      if imported == 0 {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+      } else if imported < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - imported) item(s) with no audio-file metadata")
       }
+    } catch {
+      self.error = error
     }
   }
   
