@@ -1819,7 +1819,11 @@ extension LibraryService {
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
-    book.title = title.isEmpty ? simpleItem.title.replacingOccurrences(of: "_", with: " ") : title
+    // The fallback must derive from the FILENAME — re-reading the same empty title
+    // made the underscore-replacement branch a no-op and showed a blank row
+    book.title = title.isEmpty
+      ? (simpleItem.originalFileName as NSString).deletingPathExtension.replacingOccurrences(of: "_", with: " ")
+      : title
     let artist = simpleItem.details
     book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
     book.duration = simpleItem.duration

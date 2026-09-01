@@ -32,7 +32,10 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
       return
     }
 
-    Task {
+    Task { [weak self] in
+      // weak: a cancelled op shouldn't be kept alive (with its queue slot) for the
+      // full debounce sleep just because this Task captured it
+      guard let self else { return }
       // 1. defer guarantees this runs at the very end of the Task's scope,
       // even if a crash or a throw happens inside.
       defer {
