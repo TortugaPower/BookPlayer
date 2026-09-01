@@ -365,7 +365,9 @@ public final class TasksDataManager: BPLogger {
     case .externalResourceToDownload:
       let task = ExternalResourceToDownloadTaskModel(
         id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
+        // The producer types uuid as String? and only inserts it `if let` — match
+        // storeTask's defensive read instead of trapping on a persisted absence
+        uuid: parameters["uuid"] as? String ?? "",
         uploaded: parameters["uploaded"] as? Bool ?? false
       )
       context.insert(task)

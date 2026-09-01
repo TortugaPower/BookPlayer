@@ -17,11 +17,11 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   private var _uploadCompleted = false
   private(set) var uploadCompleted: Bool {
     get {
-      stateLock.lock(); defer { stateLock.unlock() }
+      uploadStateLock.lock(); defer { uploadStateLock.unlock() }
       return _uploadCompleted
     }
     set {
-      stateLock.lock(); defer { stateLock.unlock() }
+      uploadStateLock.lock(); defer { uploadStateLock.unlock() }
       _uploadCompleted = newValue
     }
   }
@@ -40,7 +40,9 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   /// live upload survives logout. Either `cancel()` sees the published task and cancels it,
   /// or `startUploadTask` sees `isCancelled` and never resumes (resume on a cancelled
   /// URLSessionTask is a no-op, so the post-unlock resume can't revive it).
-  private let stateLock = NSLock()
+  /// Deliberately its OWN lock (the base class's stateLock is private and guards
+  /// state/didSucceed independently) — renamed so nothing reads as shared
+  private let uploadStateLock = NSLock()
   private var currentUploadTask: URLSessionTask?
   private var progressSubscriber: AnyCancellable?
   private var completionSubscriber: AnyCancellable?
@@ -88,14 +90,14 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       taskDescription: uuid,
       session: session
     )
-    stateLock.lock()
+    uploadStateLock.lock()
     guard !isCancelled else {
       // cancel() already ran (and finished the operation) — don't resume or rebind
-      stateLock.unlock()
+      uploadStateLock.unlock()
       return
     }
     self.currentUploadTask = uploadTask
-    stateLock.unlock()
+    uploadStateLock.unlock()
 
     // 3. Bind everything before resuming
     bindUploadObservers()
@@ -107,12 +109,12 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   /// The subscriber/observer refs are bound from the operation's Task thread, torn down
   /// by `cancel()` from whichever thread cancels (main via logout/lapse), and invalidated
   /// by the completion sink on the URLSession delegate thread — every touch goes through
-  /// `stateLock`, same as `currentUploadTask`.
+  /// `uploadStateLock`, same as `currentUploadTask`.
   private func invalidateCellularObserver() {
-    stateLock.lock()
+    uploadStateLock.lock()
     cellularDataObserver?.invalidate()
     cellularDataObserver = nil
-    stateLock.unlock()
+    uploadStateLock.unlock()
   }
 
   private func bindCellularObserver() {
@@ -126,19 +128,19 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
 
       // If the user toggles cellular data mid-flight, we cancel the current internal task.
       // (This triggers NSURLErrorCancelled in the completion subscriber).
-      self.stateLock.lock()
+      self.uploadStateLock.lock()
       self.currentUploadTask?.cancel()
-      self.stateLock.unlock()
+      self.uploadStateLock.unlock()
 
       // Recursively restart the upload using the new session!
       Task {
         await self.startUploadTask()
       }
     }
-    stateLock.lock()
+    uploadStateLock.lock()
     cellularDataObserver?.invalidate()
     cellularDataObserver = observer
-    stateLock.unlock()
+    uploadStateLock.unlock()
   }
 
   private func bindUploadObservers() {
@@ -151,10 +153,10 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.onProgress?(progress)
         }
       }
-    stateLock.lock()
+    uploadStateLock.lock()
     progressSubscriber?.cancel()
     progressSubscriber = progress
-    stateLock.unlock()
+    uploadStateLock.unlock()
 
     let completion = BPURLSession.shared.completionPublisher
       .sink { [weak self] (task, error) in
@@ -218,23 +220,23 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           self.finish()
         }
       }
-    stateLock.lock()
+    uploadStateLock.lock()
     completionSubscriber?.cancel()
     completionSubscriber = completion
-    stateLock.unlock()
+    uploadStateLock.unlock()
   }
   
   // MARK: - Cleanup
   // If the Orchestrator cancels the operation entirely, we must sever all ties.
   override func cancel() {
     super.cancel()
-    stateLock.lock()
+    uploadStateLock.lock()
     currentUploadTask?.cancel()
     cellularDataObserver?.invalidate()
     cellularDataObserver = nil
     progressSubscriber?.cancel()
     completionSubscriber?.cancel()
-    stateLock.unlock()
+    uploadStateLock.unlock()
     // A cancelled mid-flight upload leaks its temp hard link (only the success branch
     // cleans up) — same temp-dir guard so the user's real file is never touched.
     if fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path) {

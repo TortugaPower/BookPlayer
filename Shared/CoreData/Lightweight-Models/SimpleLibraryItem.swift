@@ -56,7 +56,9 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
     // Rows render provider icons from this — snapshots differing only in their
     // external resources must not compare equal, or removeDuplicates/onChange
     // paths skip refreshing a row that just gained or lost a media-server link
-    && lhs.externalResources == rhs.externalResources
+    // As Sets: the source is an unordered NSSet, so array comparison made two
+    // snapshots of the same multi-resource item compare unequal on element order
+    && Set(lhs.externalResources ?? []) == Set(rhs.externalResources ?? [])
   }
 
   static var fetchRequestProperties = [
