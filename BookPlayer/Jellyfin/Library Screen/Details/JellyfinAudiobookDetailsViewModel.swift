@@ -28,6 +28,11 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
 
   var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
+
+  @MainActor
+  func goToSubscribe() {
+    navigation.path.append(JellyfinLibraryLevelData.subscribe)
+  }
   private var singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
