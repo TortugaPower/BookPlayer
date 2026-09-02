@@ -391,8 +391,6 @@ private struct AudiobookShelfTabRoot: View {
                 accountService: accountService,
                 importManager: importManager
               ),
-              showSubscribeButton: !accountService.hasSyncEnabled(),
-              allowStream: accountService.hasStreamingEnabled(),
             ) {
               onDismiss()
             } onStreamTap: {

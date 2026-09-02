@@ -21,8 +21,6 @@ struct IntegrationAudiobookDetailsView<
   @ObservedObject var viewModel: Model
   @EnvironmentObject private var theme: ThemeViewModel
 
-  var showSubscribeButton: Bool = false
-  var allowStream: Bool = false
   var onDownloadTap: () -> Void
   var onStreamTap: () -> Void
   @ViewBuilder let imageContent: () -> ImageContent
@@ -79,7 +77,7 @@ struct IntegrationAudiobookDetailsView<
         }
 
         HStack(spacing: 12) {
-          if allowStream || showSubscribeButton {
+          if viewModel.allowStream || viewModel.showSubscribeButton {
             SmallDownloadButton
             SynchronizeButton
           } else {
@@ -195,7 +193,7 @@ struct IntegrationAudiobookDetailsView<
   @ViewBuilder
   private var SynchronizeButton: some View {
     Button {
-      if allowStream {
+      if viewModel.allowStream {
         Task {
           do {
             try await self.viewModel.handleImportAudiobook(viewModel.item)

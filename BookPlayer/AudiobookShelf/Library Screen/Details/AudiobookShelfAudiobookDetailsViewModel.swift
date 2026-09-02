@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 
 class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
@@ -17,6 +18,10 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
   @Published private(set) var isImporting = false
+  private var disposeBag = Set<AnyCancellable>()
+
+  var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
+  var allowStream: Bool { accountService.hasStreamingEnabled() }
   private var singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -33,6 +38,13 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
     self.importManager = importManager
+
+    // Entitlements can change while this screen is on the stack (the Stream CTA
+    // pushes the subscribe flow) — re-render on account updates so the CTAs flip
+    NotificationCenter.default.publisher(for: .accountUpdate)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in self?.objectWillChange.send() }
+      .store(in: &disposeBag)
   }
 
   @MainActor

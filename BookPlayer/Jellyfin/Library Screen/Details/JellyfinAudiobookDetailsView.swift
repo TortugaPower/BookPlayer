@@ -16,16 +16,12 @@ struct JellyfinAudiobookDetailsView<
 where Model.Item == JellyfinLibraryItem, Model.Details == JellyfinAudiobookDetailsData {
 
   @ObservedObject var viewModel: Model
-  var showSubscribeButton: Bool = false
-  var allowStream: Bool = false
   var onDownloadTap: () -> Void
   var onStreamTap: () -> Void
   
   var body: some View {
     IntegrationAudiobookDetailsView(
       viewModel: viewModel,
-      showSubscribeButton: showSubscribeButton,
-      allowStream: allowStream,
       onDownloadTap: onDownloadTap,
       onStreamTap: onStreamTap,
       imageContent: {
