@@ -2322,4 +2322,45 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(stored?.libraryItemUuid, inserted.first?.uuid)
     XCTAssertNil(sut.findResource(for: "insert-orphan", providerName: "jellyfin"))
   }
+
+  /// Re-importing the same provider identity must reuse the existing row: inserting
+  /// again would create a twin Book sharing one relativePath — the library's de-facto
+  /// primary key, which has no store-level uniqueness constraint.
+  @MainActor
+  func testInsertItemsIsIdempotentOnReimport() async {
+    let simpleItem = SimpleLibraryItem(
+      title: "twin-book",
+      details: "author",
+      speed: 1.0,
+      currentTime: 0,
+      duration: 300,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "jellyfin/twin-book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "twin-book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+    let resource = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "twin-1",
+      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: simpleItem
+    )
+
+    let first = await sut.insertItems(fromResources: [resource])
+    XCTAssertEqual(first.count, 1)
+
+    let second = await sut.insertItems(fromResources: [resource])
+    XCTAssertTrue(second.isEmpty, "re-import must be skipped, not create a twin row")
+
+    let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-1-twin-book.m4b" }
+    XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
+  }
 }

@@ -1326,6 +1326,26 @@ extension LibraryService {
       // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
       // without one cannot become a book row; skip it instead of crashing.
       guard let simpleItem = resource.libraryItem else { continue }
+      // Idempotent import: the (providerName, providerId) pair IS the book's identity
+      // on its server, so re-importing must reuse the existing row — inserting again
+      // creates a twin sharing the same relativePath, the library's de-facto primary
+      // key, which has NO store-level uniqueness constraint. Mirrors the file flow's
+      // hasExistingBook guard in ImportOperation and setExternalResource's dedup.
+      guard findResource(for: resource.providerId, providerName: resource.providerName) == nil else {
+        Self.logger.info(
+          "Virtual import skipped: \(resource.providerName)/\(resource.providerId) is already in the library"
+        )
+        continue
+      }
+      // Belt-and-suspenders: an unrelated row occupying the synthesized path (e.g. a
+      // file literally named "<providerId>-<name>") must not gain a twin either.
+      let plannedRelativePath = "\(resource.providerId)-\(simpleItem.originalFileName)"
+      guard getItemReference(with: plannedRelativePath, context: dataManager.getContext()) == nil else {
+        Self.logger.warning(
+          "Virtual import skipped: a row already exists at \(plannedRelativePath)"
+        )
+        continue
+      }
       let libraryItem: LibraryItem
       let book = await createExternalBook(simpleItem: simpleItem, externalResource: resource)
       libraryItem = book
