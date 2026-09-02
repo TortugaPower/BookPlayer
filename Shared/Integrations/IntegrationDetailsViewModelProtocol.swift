@@ -60,4 +60,9 @@ public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   func beginDownloadAudiobook(_ item: Item) throws
   func virtualImportAudiobook(_ item: Item) async
   func handleImportAudiobook(_ item: Item) async throws
+
+  /// Pushes the provider's subscribe screen onto the VM's OWN navigation stack.
+  /// In-stack navigation belongs to the VM (like the library VMs' goToSubscribe);
+  /// only container dismissal stays a presenter closure.
+  func goToSubscribe()
 }

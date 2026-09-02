@@ -389,12 +389,11 @@ private struct AudiobookShelfTabRoot: View {
                 connectionService: connectionService,
                 singleFileDownloadService: singleFileDownloadService,
                 accountService: accountService,
-                importManager: importManager
+                importManager: importManager,
+                navigation: navigation
               ),
             ) {
               onDismiss()
-            } onStreamTap: {
-              navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
             }
           case .subscribe:
             ExternalSyncIntroView()

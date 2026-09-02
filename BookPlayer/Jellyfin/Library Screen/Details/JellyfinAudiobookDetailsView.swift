@@ -17,13 +17,11 @@ where Model.Item == JellyfinLibraryItem, Model.Details == JellyfinAudiobookDetai
 
   @ObservedObject var viewModel: Model
   var onDownloadTap: () -> Void
-  var onStreamTap: () -> Void
   
   var body: some View {
     IntegrationAudiobookDetailsView(
       viewModel: viewModel,
       onDownloadTap: onDownloadTap,
-      onStreamTap: onStreamTap,
       imageContent: {
         JellyfinLibraryItemImageView(item: viewModel.item)
           .environment(\.jellyfinService, jellyfinConnectionService)

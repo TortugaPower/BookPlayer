@@ -15,6 +15,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   let connectionService: AudiobookShelfConnectionService
   let accountService: AccountService
   let importManager: ImportManager
+  let navigation: BPNavigation
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
   @Published private(set) var isImporting = false
@@ -22,6 +23,11 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
 
   var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
+
+  @MainActor
+  func goToSubscribe() {
+    navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+  }
   private var singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -32,12 +38,14 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
     importManager: ImportManager,
+    navigation: BPNavigation
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
     self.importManager = importManager
+    self.navigation = navigation
 
     // Entitlements can change while this screen is on the stack (the Stream CTA
     // pushes the subscribe flow) — re-render on account updates so the CTAs flip

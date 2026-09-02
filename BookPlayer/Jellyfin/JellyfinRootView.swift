@@ -417,8 +417,6 @@ struct JellyfinTabRoot: View {
         ),
       ) {
         onDismiss()
-      } onStreamTap: {
-        navigation.path.append(JellyfinLibraryLevelData.subscribe)
       }
     case .subscribe:
       ExternalSyncIntroView()
@@ -644,8 +642,6 @@ extension JellyfinTabRoot {
         ),
       ) {
         onDismiss()
-      } onStreamTap: {
-        navigation.path.append(JellyfinLibraryLevelData.subscribe)
       }
     case .subscribe:
       ExternalSyncIntroView()

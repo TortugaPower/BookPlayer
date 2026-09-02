@@ -22,7 +22,6 @@ struct IntegrationAudiobookDetailsView<
   @EnvironmentObject private var theme: ThemeViewModel
 
   var onDownloadTap: () -> Void
-  var onStreamTap: () -> Void
   @ViewBuilder let imageContent: () -> ImageContent
 
   var voiceOverBookInfo: String {
@@ -203,7 +202,7 @@ struct IntegrationAudiobookDetailsView<
           }
         }
       } else {
-        onStreamTap()
+        viewModel.goToSubscribe()
       }
     } label: {
       HStack {
