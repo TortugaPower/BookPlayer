@@ -415,8 +415,6 @@ struct JellyfinTabRoot: View {
           navigation: navigation,
           navigationTitle: item.name
         ),
-        showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasStreamingEnabled(),
       ) {
         onDismiss()
       } onStreamTap: {
@@ -644,8 +642,6 @@ extension JellyfinTabRoot {
           navigation: navigation,
           navigationTitle: item.name
         ),
-        showSubscribeButton: !accountService.hasSyncEnabled(),
-        allowStream: accountService.hasStreamingEnabled(),
       ) {
         onDismiss()
       } onStreamTap: {

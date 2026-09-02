@@ -48,6 +48,13 @@ public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   var details: Details? { get }
   var error: Error? { get set }
 
+  /// Entitlement-driven UI flags, computed LIVE from the account service (and
+  /// re-rendered via .accountUpdate): the Stream CTA pushes the subscribe flow,
+  /// so a purchase completed on the pushed screen must flip these on pop —
+  /// snapshot Bools captured at construction go stale exactly there.
+  var showSubscribeButton: Bool { get }
+  var allowStream: Bool { get }
+
   func fetchData()
   func cancelFetchData()
   func beginDownloadAudiobook(_ item: Item) throws

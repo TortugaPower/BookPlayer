@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import Foundation
 import JellyfinAPI
 
@@ -23,6 +24,10 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
   @Published private(set) var isImporting = false
+  private var disposeBag = Set<AnyCancellable>()
+
+  var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
+  var allowStream: Bool { accountService.hasStreamingEnabled() }
   private var singleFileDownloadService: SingleFileDownloadService
 
   private var fetchTask: Task<(), any Error>?
@@ -44,6 +49,13 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     self.navigation = navigation
     self.navigationTitle = navigationTitle
     self.details = nil
+
+    // Entitlements can change while this screen is on the stack (the Stream CTA
+    // pushes the subscribe flow) — re-render on account updates so the CTAs flip
+    NotificationCenter.default.publisher(for: .accountUpdate)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in self?.objectWillChange.send() }
+      .store(in: &disposeBag)
   }
 
   @MainActor
