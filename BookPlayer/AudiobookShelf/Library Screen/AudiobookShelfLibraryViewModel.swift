@@ -298,7 +298,10 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor
   func confirmDownloadFolder() {
    var requests = [URLRequest]()
-    for item in self.items {
+    // Same filter as virtualImportFolderAudiobooks: folder/collection rows at this
+    // level would each throw in createItemDownloadRequest (last error wins) while
+    // the rest of the loop proceeds — a confusing partial download
+    for item in self.items where item.kind == .audiobook {
       do {
         let request = try connectionService.createItemDownloadRequest(item)
         requests.append(request)
