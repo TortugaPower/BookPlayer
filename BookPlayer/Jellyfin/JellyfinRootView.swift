@@ -406,15 +406,17 @@ struct JellyfinTabRoot: View {
       )
     case .details(let item):
       JellyfinAudiobookDetailsView(
-        viewModel: JellyfinAudiobookDetailsViewModel(
-          item: item,
-          connectionService: connectionService,
-          singleFileDownloadService: singleFileDownloadService,
-          accountService: accountService,
-          importManager: importManager,
-          navigation: navigation,
-          navigationTitle: item.name
-        ),
+        initModel: {
+          JellyfinAudiobookDetailsViewModel(
+            item: item,
+            connectionService: connectionService,
+            singleFileDownloadService: singleFileDownloadService,
+            accountService: accountService,
+            importManager: importManager,
+            navigation: navigation,
+            navigationTitle: item.name
+          )
+        }
       ) {
         onDismiss()
       }
@@ -631,15 +633,17 @@ extension JellyfinTabRoot {
       )
     case .details(let item):
       JellyfinAudiobookDetailsView(
-        viewModel: JellyfinAudiobookDetailsViewModel(
-          item: item,
-          connectionService: connectionService,
-          singleFileDownloadService: singleFileDownloadService,
-          accountService: accountService,
-          importManager: importManager,
-          navigation: navigation,
-          navigationTitle: item.name
-        ),
+        initModel: {
+          JellyfinAudiobookDetailsViewModel(
+            item: item,
+            connectionService: connectionService,
+            singleFileDownloadService: singleFileDownloadService,
+            accountService: accountService,
+            importManager: importManager,
+            navigation: navigation,
+            navigationTitle: item.name
+          )
+        }
       ) {
         onDismiss()
       }

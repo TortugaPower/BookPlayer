@@ -384,14 +384,16 @@ private struct AudiobookShelfTabRoot: View {
             )
           case .details(let item):
             AudiobookShelfAudiobookDetailsView(
-              viewModel: AudiobookShelfAudiobookDetailsViewModel(
-                item: item,
-                connectionService: connectionService,
-                singleFileDownloadService: singleFileDownloadService,
-                accountService: accountService,
-                importManager: importManager,
-                navigation: navigation
-              ),
+              initModel: {
+                AudiobookShelfAudiobookDetailsViewModel(
+                  item: item,
+                  connectionService: connectionService,
+                  singleFileDownloadService: singleFileDownloadService,
+                  accountService: accountService,
+                  importManager: importManager,
+                  navigation: navigation
+                )
+              }
             ) {
               onDismiss()
             }
