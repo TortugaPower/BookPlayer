@@ -55,11 +55,19 @@ public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   var showSubscribeButton: Bool { get }
   var allowStream: Bool { get }
 
+  /// Staged virtual-import selection awaiting user confirmation; drives the
+  /// confirmation sheet via `.sheet(item:)`. Set by the import pipeline, cleared
+  /// by the sheet's dismissal.
+  var pendingImportBatch: ExternalImportBatch? { get set }
+
   func fetchData()
   func cancelFetchData()
   func beginDownloadAudiobook(_ item: Item) throws
   func virtualImportAudiobook(_ item: Item) async
   func handleImportAudiobook(_ item: Item) async throws
+
+  /// Hands the confirmed (possibly edited) selection to the import bus.
+  func confirmExternalImport(_ resources: [SimpleExternalResource])
 
   /// Pushes the provider's subscribe screen onto the VM's OWN navigation stack.
   /// In-stack navigation belongs to the VM (like the library VMs' goToSubscribe);

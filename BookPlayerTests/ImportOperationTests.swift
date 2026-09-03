@@ -8,6 +8,7 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import Combine
 import XCTest
 
 // MARK: - processFiles()
@@ -126,5 +127,108 @@ class ImportOperationTests: XCTestCase {
     operation.start()
 
     wait(for: [promise], timeout: 15)
+  }
+}
+
+// MARK: - Virtual import pipeline
+
+@MainActor
+final class VirtualImportPipelineTests: XCTestCase {
+  private struct StubItem {
+    let id: String
+  }
+
+  private func makeResource(id: String) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: nil
+    )
+  }
+
+  func testBuildsOnlyHydratedItemsInSelectionOrder() async throws {
+    let items = [StubItem(id: "a"), StubItem(id: "b"), StubItem(id: "c")]
+    let resources = try await VirtualImportPipeline.run(
+      items: items,
+      id: \.id,
+      hydrateExtensions: { ids in
+        XCTAssertEqual(ids, ["a", "b", "c"])
+        return ["a": "m4b", "c": "mp3"]  // "b" reports no audio-file metadata
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+    XCTAssertEqual(resources.map(\.providerId), ["a", "c"], "skips unhydrated items, keeps selection order")
+  }
+
+  func testEmptySelectionNeverHydrates() async throws {
+    var hydrateCalled = false
+    let resources = try await VirtualImportPipeline.run(
+      items: [StubItem](),
+      id: \.id,
+      hydrateExtensions: { _ in
+        hydrateCalled = true
+        return [:]
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+    XCTAssertTrue(resources.isEmpty)
+    XCTAssertFalse(hydrateCalled, "no selection means no network round-trip")
+  }
+
+  func testHydrationErrorsPropagate() async {
+    do {
+      _ = try await VirtualImportPipeline.run(
+        items: [StubItem(id: "a")],
+        id: \.id,
+        hydrateExtensions: { _ in throw URLError(.notConnectedToInternet) },
+        buildResource: { item, _ in self.makeResource(id: item.id) }
+      )
+      XCTFail("expected the hydration error to propagate to the caller's error state")
+    } catch {
+      XCTAssertEqual((error as? URLError)?.code, .notConnectedToInternet)
+    }
+  }
+}
+
+// MARK: - External import confirmation
+
+@MainActor
+final class ExternalImportViewModelTests: XCTestCase {
+  private func makeBatch(ids: [String]) -> ExternalImportBatch {
+    ExternalImportBatch(
+      resources: ids.map {
+        SimpleExternalResource(
+          providerName: "jellyfin",
+          providerId: $0,
+          syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+          lastSyncedAt: nil,
+          libraryItem: nil
+        )
+      }
+    )
+  }
+
+  func testRemovalMutatesOwnedStateAndPublishes() {
+    let sut = ExternalImportViewModel(batch: makeBatch(ids: ["a", "b"]), onConfirm: { _ in })
+    var published = false
+    let subscription = sut.objectWillChange.sink { published = true }
+
+    sut.removeResource(withId: "a")
+
+    XCTAssertEqual(sut.resources.map(\.providerId), ["b"])
+    XCTAssertTrue(published, "removal must republish — the old mailbox passthrough left the delete button visually dead")
+    subscription.cancel()
+  }
+
+  func testConfirmHandsBackTheEditedSelection() {
+    var confirmed: [SimpleExternalResource]?
+    let sut = ExternalImportViewModel(batch: makeBatch(ids: ["a", "b"]), onConfirm: { confirmed = $0 })
+
+    sut.removeResource(withId: "b")
+    sut.confirm()
+
+    XCTAssertEqual(confirmed?.map(\.providerId), ["a"], "confirm sends the batch as edited, not as staged")
   }
 }

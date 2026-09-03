@@ -58,3 +58,16 @@ extension SimpleExternalResource {
   }
 }
 
+
+/// A staged virtual-import selection traveling AS A VALUE from the integration
+/// screen that produced it to its confirmation sheet (`.sheet(item:)`), and on
+/// confirm to the import bus. Value semantics keep staging owned by whoever is
+/// editing it — there is no shared mutable mailbox to fall out of sync with.
+public struct ExternalImportBatch: Identifiable {
+  public let id = UUID()
+  public var resources: [SimpleExternalResource]
+
+  public init(resources: [SimpleExternalResource]) {
+    self.resources = resources
+  }
+}

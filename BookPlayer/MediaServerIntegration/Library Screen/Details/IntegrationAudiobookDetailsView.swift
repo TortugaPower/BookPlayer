@@ -133,6 +133,17 @@ struct IntegrationAudiobookDetailsView<
     .task(id: ObjectIdentifier(viewModel)) {
       viewModel.fetchData()
     }
+    .sheet(item: $viewModel.pendingImportBatch) { batch in
+      ExternalImportView(
+        initModel: {
+          ExternalImportViewModel(batch: batch) { resources in
+            viewModel.confirmExternalImport(resources)
+          }
+        }
+      )
+      .presentationBackground(.clear)
+      .environmentObject(theme)
+    }
     .onDisappear {
       viewModel.cancelFetchData()
     }
