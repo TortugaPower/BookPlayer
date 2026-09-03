@@ -19,10 +19,18 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
   @Published private(set) var isImporting = false
+  @Published var pendingImportBatch: ExternalImportBatch?
   private var disposeBag = Set<AnyCancellable>()
 
   var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Details imports keep you in the browser (today's flow — import another book
+    // without re-navigating): send on the import bus, no dismissal
+    importManager.externalOperationPublisher.send(resources)
+  }
 
   @MainActor
   func goToSubscribe() {
@@ -109,7 +117,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     defer { isImporting = false }
 
     do {
-      let imported = try await VirtualImportPipeline.run(
+      let resources = try await VirtualImportPipeline.run(
         items: [item],
         id: \.id,
         hydrateExtensions: { ids in
@@ -126,12 +134,14 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )
-        },
-        importManager: importManager
+        }
       )
-      if imported == 0 {
+      guard !resources.isEmpty else {
         self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+        return
       }
+      // Stage as a VALUE for this screen's own confirmation sheet
+      pendingImportBatch = ExternalImportBatch(resources: resources)
     } catch {
       self.error = error
     }

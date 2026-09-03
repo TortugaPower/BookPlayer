@@ -24,10 +24,18 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   @Published var details: JellyfinAudiobookDetailsData?
   @Published var error: Error?
   @Published private(set) var isImporting = false
+  @Published var pendingImportBatch: ExternalImportBatch?
   private var disposeBag = Set<AnyCancellable>()
 
   var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Details imports keep you in the browser (today's flow — import another book
+    // without re-navigating): send on the import bus, no dismissal
+    importManager.externalOperationPublisher.send(resources)
+  }
 
   @MainActor
   func goToSubscribe() {
@@ -117,7 +125,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     defer { isImporting = false }
 
     do {
-      let imported = try await VirtualImportPipeline.run(
+      let resources = try await VirtualImportPipeline.run(
         items: [item],
         id: \.id,
         hydrateExtensions: { ids in
@@ -135,12 +143,14 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 200, height: 200)
           )
-        },
-        importManager: importManager
+        }
       )
-      if imported == 0 {
+      guard !resources.isEmpty else {
         self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+        return
       }
+      // Stage as a VALUE for this screen's own confirmation sheet
+      pendingImportBatch = ExternalImportBatch(resources: resources)
     } catch {
       self.error = error
     }

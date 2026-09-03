@@ -87,6 +87,17 @@ struct IntegrationLibraryView<
         .zIndex(1)
       }
     }
+    .sheet(item: $viewModel.pendingImportBatch) { batch in
+      ExternalImportView(
+        initModel: {
+          ExternalImportViewModel(batch: batch) { resources in
+            viewModel.confirmExternalImport(resources)
+          }
+        }
+      )
+      .presentationBackground(.clear)
+      .environmentObject(theme)
+    }
     .scrollDismissesKeyboard(.interactively)
     .background(theme.systemBackgroundColor)
     .modifier(IntegrationSearchableModifier(

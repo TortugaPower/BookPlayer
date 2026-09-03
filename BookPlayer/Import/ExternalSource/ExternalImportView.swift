@@ -8,8 +8,14 @@
 import SwiftUI
 import BookPlayerKit
 
-struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
-  @ObservedObject var viewModel: Model
+struct ExternalImportView: View {
+  /// Owns the confirmation VM (initModel/@StateObject pattern): the VM is seeded
+  /// with the batch VALUE and survives re-renders of the presenting view.
+  @StateObject var viewModel: ExternalImportViewModel
+
+  init(initModel: @escaping () -> ExternalImportViewModel) {
+    self._viewModel = .init(wrappedValue: initModel())
+  }
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
   
@@ -21,7 +27,7 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
       VStack(alignment: .leading, spacing: 20) {
         HStack {
           Button {
-            viewModel.resources = []
+            // Dismissal alone is cancellation: .sheet(item:) nils the staged batch
             dismiss()
           } label: {
             Image(systemName: "xmark")
@@ -37,10 +43,8 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
           Spacer()
           
           Button {
-            Task {
-              await viewModel.handleImportResources()
-              dismiss()
-            }
+            viewModel.confirm()
+            dismiss()
           } label: {
             Image(systemName: "checkmark")
               .accessibilityLabel("import_button".localized)
@@ -110,20 +114,18 @@ struct ExternalImportView<Model: ExternalViewModelProtocol>: View {
       }
       .padding(.horizontal, 24)
     }
-    .onDisappear {
-      viewModel.resources = []
-    }
   }
 }
 
 struct ExternalImportView_Previews: PreviewProvider {
   static var previews: some View {
     ExternalImportView(
-      viewModel: ExternalImportViewModel(
-        importManager: ImportManager(
-          libraryService: LibraryService()
+      initModel: {
+        ExternalImportViewModel(
+          batch: ExternalImportBatch(resources: []),
+          onConfirm: { _ in }
         )
-      )
+      }
     )
   }
 }

@@ -123,14 +123,6 @@ struct MainView: View {
     } message: {
       Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
     }
-    .sheet(isPresented: $importManager.isShowingExternalImportView) {
-      ExternalImportView(
-        viewModel: ExternalImportViewModel(importManager: importManager)
-      )
-      .presentationBackground(.clear)
-      .environmentObject(importManager)
-      .environmentObject(theme)
-    }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
     }

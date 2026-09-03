@@ -103,7 +103,9 @@ final class MockJellyfinLibraryViewModel: JellyfinLibraryViewModelProtocol, Obse
   func onDownloadFolderTapped() {}
   func confirmDownloadFolder() {}
   func virtualImportFolderAudiobooks(useSelectedItems: Bool) {}
+  var pendingImportBatch: ExternalImportBatch?
   func handleImportItems(useSelectedItems: Bool) async { }
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) { }
 }
 
 #Preview("top level") {

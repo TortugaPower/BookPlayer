@@ -45,6 +45,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @Published var totalItems = Int.max
   @Published var error: Error?
   @Published private(set) var isImporting = false
+  @Published var pendingImportBatch: ExternalImportBatch?
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
@@ -260,7 +261,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     defer { isImporting = false }
 
     do {
-      let imported = try await VirtualImportPipeline.run(
+      let resources = try await VirtualImportPipeline.run(
         items: audiobooks,
         id: \.id,
         hydrateExtensions: { ids in
@@ -275,15 +276,18 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )
-        },
-        importManager: importManager,
-        beforePresenting: { self.navigation.dismiss?() }
+        }
       )
-      if imported == 0 {
+      guard !resources.isEmpty else {
         self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-      } else if imported < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - imported) item(s) with no audio-file metadata")
+        return
       }
+      if resources.count < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+      }
+      // Stage as a VALUE for this screen's own confirmation sheet — the browser
+      // stays open beneath it; dismissal happens on confirm
+      pendingImportBatch = ExternalImportBatch(resources: resources)
     } catch {
       self.error = error
     }
@@ -339,6 +343,14 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @MainActor
   func goToSubscribe() {
     self.navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+  }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Bulk imports land you in the library (today's destination): send the batch on
+    // the import bus, then close the browser
+    importManager.externalOperationPublisher.send(resources)
+    navigation.dismiss?()
   }
 
   private func handleSortChanged() {
