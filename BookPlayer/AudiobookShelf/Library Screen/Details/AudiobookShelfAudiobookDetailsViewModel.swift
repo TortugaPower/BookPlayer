@@ -14,7 +14,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   let item: AudiobookShelfLibraryItem
   let connectionService: AudiobookShelfConnectionService
   let accountService: AccountService
-  let importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let navigation: BPNavigation
   @Published var details: AudiobookShelfAudiobookDetailsData?
   @Published var error: Error?
@@ -29,7 +29,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
     // Details imports keep you in the browser (today's flow — import another book
     // without re-navigating): send on the import bus, no dismissal
-    importManager.externalOperationPublisher.send(resources)
+    onImportConfirmed(resources)
   }
 
   @MainActor
@@ -45,14 +45,14 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     navigation: BPNavigation
   ) {
     self.item = item
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.navigation = navigation
 
     // Entitlements can change while this screen is on the stack (the Stream CTA
