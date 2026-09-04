@@ -221,7 +221,7 @@ extension AudiobookShelfLibraryItem {
       size: apiItem.size,
       series: apiItem.media.metadata.series,
       addedAt: apiItem.addedAt,
-      fileExtension: apiItem.media.audioFiles?.first?.ext ?? nil,
+      fileExtension: apiItem.media.audioFiles?.first?.normalizedExtension,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
@@ -313,8 +313,16 @@ public struct AudiobookShelfAPIItem: Codable {
     }
     
     public struct AudioFile: Codable {
-        let filename: String
-        let ext: String
+      // ABS nests file fields under metadata (AudioFile.toJSON in the server:
+      // { index, ino, metadata: { filename, ext, path, ... }, ... }) — a top-level
+      // filename/ext shape can never decode a real expanded payload.
+      public let metadata: FileMetadata
+
+      public struct FileMetadata: Codable {
+        public let filename: String
+        /// Dot-prefixed on the wire (".m4b") — normalize via `normalizedExtension`.
+        public let ext: String
+      }
     }
   }
 
@@ -426,5 +434,16 @@ extension AudiobookShelfLibraryItem {
       hostId: connectionService.connection?.stableHostId,
       libraryItem: libraryItem
     )
+  }
+}
+
+extension AudiobookShelfAPIItem.Media.AudioFile {
+  /// ABS's `metadata.ext` is dot-prefixed (".m4b", server FileMetadata semantics);
+  /// BookPlayer composes filenames as "title.ext", so the dot must be stripped or
+  /// every ABS virtual import is named "Title..m4b". Empty ext maps to nil so the
+  /// import pipeline's skip contract (no extension = not importable) still holds.
+  public var normalizedExtension: String? {
+    let trimmed = metadata.ext.hasPrefix(".") ? String(metadata.ext.dropFirst()) : metadata.ext
+    return trimmed.isEmpty ? nil : trimmed
   }
 }
