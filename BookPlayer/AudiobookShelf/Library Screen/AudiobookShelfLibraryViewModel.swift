@@ -19,7 +19,7 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
-  var importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   var accountService: AccountService
   
   enum Routes {
@@ -130,7 +130,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -138,7 +138,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -349,7 +349,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
     // Bulk imports land you in the library (today's destination): send the batch on
     // the import bus, then close the browser
-    importManager.externalOperationPublisher.send(resources)
+    onImportConfirmed(resources)
     navigation.dismiss?()
   }
 

@@ -59,7 +59,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          importManager: importManager,
+          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -75,7 +75,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          importManager: importManager,
+          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -91,7 +91,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          importManager: importManager,
+          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -107,7 +107,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          importManager: importManager,
+          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -123,7 +123,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          importManager: importManager,
+          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -318,7 +318,7 @@ private struct AudiobookShelfTabRoot: View {
   let connectionService: AudiobookShelfConnectionService
   let singleFileDownloadService: SingleFileDownloadService
   let accountService: AccountService
-  let importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
   var dismissAll: DismissAction?
@@ -336,7 +336,7 @@ private struct AudiobookShelfTabRoot: View {
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
     dismissAll: DismissAction? = nil
@@ -344,7 +344,7 @@ private struct AudiobookShelfTabRoot: View {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.dismissAll = dismissAll
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
@@ -357,7 +357,7 @@ private struct AudiobookShelfTabRoot: View {
         connectionService: connectionService,
         singleFileDownloadService: singleFileDownloadService,
         accountService: accountService,
-        importManager: importManager,
+        onImportConfirmed: onImportConfirmed,
         navigation: navigation,
         navigationTitle: libraryTitle
       )
@@ -377,7 +377,7 @@ private struct AudiobookShelfTabRoot: View {
                 connectionService: connectionService,
                 singleFileDownloadService: singleFileDownloadService,
                 accountService: accountService,
-                importManager: importManager,
+                onImportConfirmed: onImportConfirmed,
                 navigation: navigation,
                 navigationTitle: title
               )
@@ -390,7 +390,7 @@ private struct AudiobookShelfTabRoot: View {
                   connectionService: connectionService,
                   singleFileDownloadService: singleFileDownloadService,
                   accountService: accountService,
-                  importManager: importManager,
+                  onImportConfirmed: onImportConfirmed,
                   navigation: navigation
                 )
               }

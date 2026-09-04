@@ -18,7 +18,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   let item: JellyfinLibraryItem
   let connectionService: JellyfinConnectionService
   let accountService: AccountService
-  let importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let navigation: BPNavigation
   let navigationTitle: String
   @Published var details: JellyfinAudiobookDetailsData?
@@ -34,7 +34,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
     // Details imports keep you in the browser (today's flow — import another book
     // without re-navigating): send on the import bus, no dismissal
-    importManager.externalOperationPublisher.send(resources)
+    onImportConfirmed(resources)
   }
 
   @MainActor
@@ -50,7 +50,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
     accountService: AccountService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
@@ -58,7 +58,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.navigation = navigation
     self.navigationTitle = navigationTitle
     self.details = nil

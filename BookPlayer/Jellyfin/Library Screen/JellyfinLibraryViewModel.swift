@@ -71,7 +71,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
 
   let folderID: String?
   let recursive: Bool
-  var importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let connectionService: JellyfinConnectionService
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
@@ -93,7 +93,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     recursive: Bool = false,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -101,7 +101,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     self.folderID = folderID
     self.recursive = recursive
     self.connectionService = connectionService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.singleFileDownloadService = singleFileDownloadService
     self.accountService = accountService
     self.navigation = navigation
@@ -441,7 +441,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
     // Bulk imports land you in the library (today's destination): send the batch on
     // the import bus, then close the browser
-    importManager.externalOperationPublisher.send(resources)
+    onImportConfirmed(resources)
     navigation.dismiss?()
   }
 }
@@ -477,7 +477,7 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
 
   var isSearchable: Bool { true }
 
-  var importManager: ImportManager
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let connectionService: JellyfinConnectionService
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
@@ -491,7 +491,7 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -501,7 +501,7 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
-    self.importManager = importManager
+    self.onImportConfirmed = onImportConfirmed
     self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
@@ -694,7 +694,7 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
     // Bulk imports land you in the library (today's destination): send the batch on
     // the import bus, then close the browser
-    importManager.externalOperationPublisher.send(resources)
+    onImportConfirmed(resources)
     navigation.dismiss?()
   }
 }
@@ -728,7 +728,6 @@ final class JellyfinPersonsListViewModel: IntegrationLibraryViewModelProtocol, B
   var isSearchable: Bool { true }
 
   let connectionService: JellyfinConnectionService
-  var importManager: ImportManager
   var accountService: AccountService
   private let singleFileDownloadService: SingleFileDownloadService
   private var fetchTask: Task<(), any Error>?
@@ -740,7 +739,6 @@ final class JellyfinPersonsListViewModel: IntegrationLibraryViewModelProtocol, B
     parentID: String?,
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
-    importManager: ImportManager,
     accountService: AccountService,
     navigation: BPNavigation,
     navigationTitle: String
@@ -749,7 +747,6 @@ final class JellyfinPersonsListViewModel: IntegrationLibraryViewModelProtocol, B
     self.parentID = parentID
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
-    self.importManager = importManager
     self.accountService = accountService
     self.navigation = navigation
     self.navigationTitle = navigationTitle
