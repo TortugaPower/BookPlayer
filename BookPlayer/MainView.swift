@@ -28,7 +28,6 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
-  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {

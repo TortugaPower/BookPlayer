@@ -74,8 +74,8 @@ struct BookView: View {
                     .bpFont(.caption)
                 }
                 Text("•")
-                  .foregroundColor(.gray)
-                  .font(.caption)
+                  .foregroundStyle(theme.secondaryColor)
+                  .bpFont(.caption)
               }
             }
           }
