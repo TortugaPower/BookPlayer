@@ -136,7 +136,10 @@ first. Reordering boot risks a launch crash.
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
-  `listSyncRefreshService`) via `.environmentObject`; the rest via `.environment(\.key, …)`. The environment keys
+  `listSyncRefreshService`, `externalImportBus`) via `.environmentObject`; the rest via `.environment(\.key, …)`.
+  `ExternalImportBus` is a stateless wire (integrations send confirmed virtual-import batches; `LibraryRootView`
+  consumes and inserts) that conforms to `ObservableObject` solely for the loud-injection contract — `ImportManager`
+  itself carries no external-import state or publishers. The environment keys
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
   throwaway placeholder (an un-`setup()` service).** A view that reads the environment default instead of the
   injected instance silently gets a non-functional service — verify real injection by `MainCoordinator`.

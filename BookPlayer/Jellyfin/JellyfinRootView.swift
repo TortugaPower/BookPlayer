@@ -23,7 +23,7 @@ struct JellyfinRootView: View {
   }
 
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
-  @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportBus: ExternalImportBus
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
@@ -60,7 +60,7 @@ struct JellyfinRootView: View {
         JellyfinEntityTabRoot<JellyfinPersonsListViewModel>(
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           makeViewModel: { nav in
@@ -173,7 +173,7 @@ struct JellyfinRootView: View {
       library: resolvedLibrary,
       connectionService: connectionService,
       singleFileDownloadService: singleFileDownloadService,
-      onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+      onImportConfirmed: { externalImportBus.send($0) },
       accountService: accountService,
       onDismiss: { listState.activeIntegrationSheet = nil },
       onSwitchLibrary: switchLibraryAction,

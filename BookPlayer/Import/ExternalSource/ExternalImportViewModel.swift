@@ -5,9 +5,25 @@
 //  Created by Pedro Iñiguez on 17/3/26.
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
+import Combine
 import Foundation
 import SwiftUI
 import BookPlayerKit
+
+/// The external-import bus: integration screens send their CONFIRMED virtual-import
+/// batches, LibraryRootView consumes and inserts. It carries no state — a
+/// PassthroughSubject is a wire, not a store — and conforms to ObservableObject
+/// solely to ride `.environmentObject`'s LOUD injection contract: a missed
+/// injection crashes at first read, instead of an @Entry throwaway default
+/// silently splitting producers and consumer onto different subjects.
+@MainActor
+final class ExternalImportBus: ObservableObject {
+  let confirmedBatches = PassthroughSubject<[SimpleExternalResource], Never>()
+
+  func send(_ resources: [SimpleExternalResource]) {
+    confirmedBatches.send(resources)
+  }
+}
 
 @MainActor
 final class ExternalImportViewModel: ObservableObject {

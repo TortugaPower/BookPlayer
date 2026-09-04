@@ -24,11 +24,6 @@ final class ImportManager: ObservableObject {
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
   
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
-  /// The external-import bus: integration screens send their CONFIRMED virtual-import
-  /// batches here; LibraryRootView consumes and inserts. Staging + confirmation live
-  /// with the integrations (value-typed ExternalImportBatch on each VM) — ImportManager
-  /// deliberately holds no external staging state.
-  public var externalOperationPublisher = PassthroughSubject<[SimpleExternalResource], Never>()
   
 
   init(libraryService: LibraryServiceProtocol) {
