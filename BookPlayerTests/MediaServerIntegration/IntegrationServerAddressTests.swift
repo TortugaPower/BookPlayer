@@ -233,4 +233,88 @@ final class IntegrationServerAddressTests: XCTestCase {
     XCTAssertEqual(address.host, "direct.example.com")
     XCTAssertEqual(address.path, "")
   }
+
+  // MARK: - Typing into the host field
+
+  /// The field shows what was typed; the model normalizes for assembly. Echoing the normalized form
+  /// back deleted the `/` a user had just typed, so a reverse-proxy subpath could only be pasted.
+  func testTypingASubpathKeepsTheSlashInTheFieldAndNormalizesOnlyTheModel() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("media.example.com/"), "media.example.com/")
+    XCTAssertEqual(address.path, "", "the model drops the trailing slash for assembly")
+    XCTAssertEqual(address.urlString, "https://media.example.com")
+
+    XCTAssertEqual(address.applyHostField("media.example.com/abs"), "media.example.com/abs")
+    XCTAssertEqual(address.path, "/abs")
+    XCTAssertEqual(address.urlString, "https://media.example.com/abs")
+  }
+
+  func testTypingAColonTowardAPortIsNeitherBracketedNorAssembled() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("media.example.com:"), "media.example.com:")
+    XCTAssertEqual(address.host, "media.example.com:", "a hostname with a colon is not an IPv6 literal")
+    XCTAssertNil(address.url, "Connect stays disabled until the text resolves")
+    XCTAssertNil(address.port)
+  }
+
+  /// Once a digit follows the colon it is a `host:port`, and the port moves to its own row — the
+  /// field text follows, so the port is not shown twice.
+  func testAPortTypedIntoTheHostFieldPeelsOffAndRewritesTheField() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("media.example.com:8096/abs"), "media.example.com/abs")
+    XCTAssertEqual(address.host, "media.example.com")
+    XCTAssertEqual(address.port, 8096)
+    XCTAssertEqual(address.path, "/abs")
+  }
+
+  func testTypingASchemeThroughIsNotMangledAndSnapsOnceItParses() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("http:"), "http:")
+    XCTAssertEqual(address.host, "http:", "not bracketed as IPv6")
+    XCTAssertNil(address.url)
+
+    XCTAssertEqual(address.applyHostField("http://"), "http://")
+    XCTAssertNil(address.url)
+
+    XCTAssertEqual(address.applyHostField("http://x"), "x", "a parseable URL distributes: the field keeps host + subpath")
+    XCTAssertEqual(address.scheme, .http)
+    XCTAssertEqual(address.host, "x")
+  }
+
+  func testAPastedFullURLRewritesTheFieldToHostAndSubpath() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("http://100.81.227.12:13378/abs"), "100.81.227.12/abs")
+    XCTAssertEqual(address.scheme, .http)
+    XCTAssertEqual(address.port, 13378)
+    XCTAssertEqual(address.urlString, "http://100.81.227.12:13378/abs")
+  }
+
+  func testABareIPv6LiteralStaysAsTypedInTheFieldButAssemblesBracketed() {
+    var address = IntegrationServerAddress(scheme: .http, host: "")
+
+    XCTAssertEqual(address.applyHostField("2001:db8::1"), "2001:db8::1")
+    XCTAssertEqual(address.host, "[2001:db8::1]")
+    XCTAssertEqual(address.urlString, "http://[2001:db8::1]")
+    XCTAssertEqual(address.applyHostField("fe80::1%25en0"), "fe80::1%25en0", "a zone id does not stop the literal being recognized")
+    XCTAssertEqual(address.host, "[fe80::1%25en0]")
+  }
+
+  func testATypedSpaceInASubpathIsEncodedInTheURLNotInTheField() {
+    var address = IntegrationServerAddress(scheme: .https, host: "")
+
+    XCTAssertEqual(address.applyHostField("x.example/audio books"), "x.example/audio books")
+    XCTAssertEqual(address.urlString, "https://x.example/audio%20books")
+  }
+
+  func testOnlyIPv6LookingHostsGainBrackets() {
+    XCTAssertEqual(IntegrationServerAddress(scheme: .http, host: "::1").host, "[::1]")
+    XCTAssertEqual(IntegrationServerAddress(scheme: .http, host: "myserver.com:").host, "myserver.com:")
+    XCTAssertEqual(IntegrationServerAddress(scheme: .http, host: "http:").host, "http:")
+    XCTAssertEqual(IntegrationServerAddress(scheme: .http, host: "my:host:name").host, "my:host:name", "letters beyond hex are not an IPv6 literal")
+  }
 }
