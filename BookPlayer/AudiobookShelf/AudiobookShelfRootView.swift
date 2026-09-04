@@ -23,7 +23,7 @@ struct AudiobookShelfRootView: View {
   }
 
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
-  @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportBus: ExternalImportBus
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
@@ -59,7 +59,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -75,7 +75,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -91,7 +91,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -107,7 +107,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
@@ -123,7 +123,7 @@ struct AudiobookShelfRootView: View {
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
-          onImportConfirmed: { importManager.externalOperationPublisher.send($0) },
+          onImportConfirmed: { externalImportBus.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
