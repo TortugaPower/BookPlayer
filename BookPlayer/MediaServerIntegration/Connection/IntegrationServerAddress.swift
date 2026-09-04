@@ -121,54 +121,79 @@ struct IntegrationServerAddress: Equatable, Sendable {
   /// `[http:]//100.81.227.12:13378` and assembled garbage.
   var hostField: String {
     get { host + path }
-    set {
-      // A full URL (pasted, or typed through): distribute across ALL the fields — the scheme
-      // control flips, the port moves to its row, the host keeps only the host and subpath.
-      if newValue.contains("://") {
-        if let pasted = IntegrationServerAddress(parsing: newValue) {
-          self = pasted
-        } else {
-          // Mid-typing through the scheme, or an unparseable paste: hold the raw text so nothing
-          // is mangled or lost. `url` stays nil (a colon-bearing host never assembles), which
-          // keeps Connect disabled until the text resolves into something real.
-          host = newValue
-          path = ""
-        }
-        return
+    set { applyHostField(newValue) }
+  }
+
+  /// Applies text typed or pasted into the Host row and returns what the row should display.
+  ///
+  /// The returned text is the input itself unless the edit moved something into *another* field — a
+  /// full URL whose scheme and port were distributed to their controls, or a scheme-less `host:port`
+  /// whose port was peeled off — in which case it is the remaining host + subpath, so the port is not
+  /// shown twice. Every other normalization (trailing and leading slash, percent-encoding, IPv6
+  /// brackets) applies to the model only. Echoing the normalized form back into a focused field
+  /// deleted the `/` the user had just typed — a reverse-proxy subpath could not be typed at all,
+  /// only pasted — and showed `myserver.com:` or `http:` as an IPv6 literal on the way to a port or
+  /// a scheme. The assembled URL in the footer is where the normalized form belongs.
+  @discardableResult
+  mutating func applyHostField(_ text: String) -> String {
+    // A full URL (pasted, or typed through): distribute across ALL the fields — the scheme
+    // control flips, the port moves to its row, the host keeps only the host and subpath.
+    if text.contains("://") {
+      if let pasted = IntegrationServerAddress(parsing: text) {
+        self = pasted
+        return hostField
       }
-      // Scheme-less: peel the subpath off first, then a trailing port off the host part —
-      // `host:port` and `host:port/path` are both the mockups' scheme-less paste.
-      var rawHost = newValue
-      var rawPath = ""
-      if let slash = newValue.firstIndex(of: "/") {
-        rawHost = String(newValue[..<slash])
-        rawPath = String(newValue[slash...])
-      }
-      // Exactly one colon with a valid port after it can't be an IPv6 literal (those carry two or
-      // more colons); a bracketed literal announces its port with `]:`.
-      let colonParts = rawHost.split(separator: ":", omittingEmptySubsequences: false)
-      if colonParts.count == 2, let pastedPort = Int(colonParts[1]),
-         (1...65535).contains(pastedPort), !colonParts[0].isEmpty, !colonParts[0].contains("[") {
-        port = pastedPort
-        rawHost = String(colonParts[0])
-      } else if rawHost.hasPrefix("["), let bracket = rawHost.range(of: "]:"),
-                let pastedPort = Int(rawHost[bracket.upperBound...]), (1...65535).contains(pastedPort) {
-        port = pastedPort
-        rawHost = String(rawHost[..<bracket.upperBound].dropLast())
-      }
-      host = Self.normalizedHost(rawHost)
-      path = Self.normalizedPath(rawPath)
+      // Mid-typing through the scheme, or an unparseable paste: hold the raw text so nothing
+      // is mangled or lost. `url` stays nil (a colon-bearing host never assembles), which
+      // keeps Connect disabled until the text resolves into something real.
+      host = text
+      path = ""
+      return text
     }
+    // Scheme-less: peel the subpath off first, then a trailing port off the host part —
+    // `host:port` and `host:port/path` are both the mockups' scheme-less paste.
+    var rawHost = text
+    var rawPath = ""
+    if let slash = text.firstIndex(of: "/") {
+      rawHost = String(text[..<slash])
+      rawPath = String(text[slash...])
+    }
+    // Exactly one colon with a valid port after it can't be an IPv6 literal (those carry two or
+    // more colons); a bracketed literal announces its port with `]:`.
+    var peeledPort = false
+    let colonParts = rawHost.split(separator: ":", omittingEmptySubsequences: false)
+    if colonParts.count == 2, let pastedPort = Int(colonParts[1]),
+       (1...65535).contains(pastedPort), !colonParts[0].isEmpty, !colonParts[0].contains("[") {
+      port = pastedPort
+      rawHost = String(colonParts[0])
+      peeledPort = true
+    } else if rawHost.hasPrefix("["), let bracket = rawHost.range(of: "]:"),
+              let pastedPort = Int(rawHost[bracket.upperBound...]), (1...65535).contains(pastedPort) {
+      port = pastedPort
+      rawHost = String(rawHost[..<bracket.upperBound].dropLast())
+      peeledPort = true
+    }
+    host = Self.normalizedHost(rawHost)
+    path = Self.normalizedPath(rawPath)
+    return peeledPort ? hostField : text
   }
 
   // MARK: - Helpers
 
   /// A bare IPv6 literal gains its brackets: `URLComponents` refuses to assemble a host containing
-  /// a colon without them, so a bare `"::1"` would make `url` silently nil. No other legitimate host
-  /// contains a colon — ports live in their own field — so the wrap cannot misfire.
+  /// a colon without them, so a bare `"::1"` would make `url` silently nil. Only text that *looks*
+  /// like an IPv6 literal is wrapped — two or more colons and nothing but hex digits, dots and colons
+  /// (a `%zone` suffix aside). A hostname with a stray colon (`myserver.com:` on the way to a port,
+  /// `http:` on the way to a scheme) is left as typed; `url` stays nil until the text resolves.
   private static func normalizedHost(_ raw: String) -> String {
-    guard raw.contains(":"), !raw.hasPrefix("[") else { return raw }
+    guard !raw.hasPrefix("["), looksLikeIPv6(raw) else { return raw }
     return "[" + raw + "]"
+  }
+
+  private static func looksLikeIPv6(_ text: String) -> Bool {
+    let literal = text.split(separator: "%", maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init) ?? text
+    return literal.filter { $0 == ":" }.count >= 2
+      && literal.allSatisfy { $0.isHexDigit || $0 == ":" || $0 == "." }
   }
 
   /// Empty stays empty; anything else gains a leading slash and loses trailing ones, so
