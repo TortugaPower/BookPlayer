@@ -536,7 +536,6 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
 "sort_by_title" = "Sort by";
-"sort_title_option" = "Title";
 "sort_default_option" = "Default";
 "sort_name_option" = "Name";
 "layout_options_title" = "Layout options";

@@ -42,7 +42,7 @@ where Model.Item == AudiobookShelfLibraryItem {
         set: { vm.sortBy = $0 }
       ), label: Text("sort_by_title".localized)) {
         Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-        Label("sort_title_option".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+        Label("title_button".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
       }
     }
   }
