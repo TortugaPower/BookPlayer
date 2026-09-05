@@ -223,6 +223,64 @@ public final class PlaybackService: PlaybackServiceProtocol {
     /// Ignore chapters that don't have the duration set properly
     chapters = chapters.filter { $0.duration > 0 }
 
+    // Resolve connection info once for the book
+    var externalUrl: URL?
+    var externalHeaders: [String: String] = [:]
+    
+    // Deterministic pick: the snapshot set is UNORDERED, so an item linked to two
+    // streaming providers would otherwise resolve to whichever the set yields first,
+    // varying between launches. Stable (providerName, providerId) order pins it.
+    let externalResource = book.externalResources?
+      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
+      .first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+    if let providerRaw = externalResource?.providerName,
+       let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
+      
+      let keychainService = KeychainService()
+      let hostId = externalResource?.hostId ?? ""
+      
+      switch provider {
+      case .jellyfin:
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+        // Resolved by stable host identity ONLY — no first-connection fallback. A resource whose
+        // host doesn't match any saved server must surface as missing (connect-your-server), not
+        // silently stream from whichever server happens to be configured (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          // Custom headers first (reverse-proxy gates like Cloudflare Access), then the
+          // integration's own Authorization so it always wins on conflict.
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          externalHeaders = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
+          externalHeaders["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
+        }
+        
+      case .audiobookshelf:
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
+        
+        if let connection = connection, let externalResource = externalResource {
+          let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
+          externalUrl = URL(string: urlString)
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          externalHeaders = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
+          externalHeaders["Authorization"] = "Bearer \(connection.apiToken)"
+        }
+        
+      default:
+        break
+      }
+    }
+
+    // If no chapters, create a single one using the book metadata
     guard !chapters.isEmpty else {
       return [
         PlayableChapter(
@@ -232,11 +290,14 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: 1
+          externalURL: externalUrl,
+          index: 1,
+          externalHeaders: externalHeaders
         )
       ]
     }
 
+    // Map existing chapters and apply resolved connection info
     return chapters.enumerated()
       .map({ (index, chapter) in
         return PlayableChapter(
@@ -246,7 +307,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: chapter.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: Int16(index + 1)
+          externalURL: externalUrl,
+          index: Int16(index + 1),
+          externalHeaders: externalHeaders
         )
       })
   }
@@ -327,8 +390,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: nestedChapter.relativePath,
           remoteURL: nestedChapter.remoteURL,
+          externalURL: nestedChapter.externalUrl,
           index: index,
-          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
+          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration,
+          // Without the headers a streamed chapter inside a bound book hits the media
+          // server unauthenticated and 401s.
+          externalHeaders: nestedChapter.externalHeaders
         )
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
         localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)

@@ -121,7 +121,8 @@ first. Reordering boot risks a launch crash.
 
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
-- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **10 services**: `accountService`,
+- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **11 services**: `accountService`,
+  `concurrenceService`,
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -135,10 +136,17 @@ first. Reordering boot risks a launch crash.
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
-  `listSyncRefreshService`) via `.environmentObject`; the rest via `.environment(\.key, …)`. The environment keys
+  `listSyncRefreshService`, `externalImportBus`) via `.environmentObject`; the rest via `.environment(\.key, …)`.
+  `ExternalImportBus` is a stateless wire (integrations send confirmed virtual-import batches; `LibraryRootView`
+  consumes and inserts) that conforms to `ObservableObject` solely for the loud-injection contract — `ImportManager`
+  itself carries no external-import state or publishers. The environment keys
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
   throwaway placeholder (an un-`setup()` service).** A view that reads the environment default instead of the
-  injected instance silently gets a non-functional service — verify real injection by `MainCoordinator`.
+  injected instance gets a non-functional service: stored-property reads return inert defaults, but METHODS that
+  touch un-`setup()` dependencies trap on their implicitly-unwrapped optionals (`SyncService.observeTasksCount`,
+  `ConcurrenceService.observeConcurrentTasksCount`, and siblings all behave this way — it is the pattern, not a
+  defect). Verify real injection by `MainCoordinator`; previews that exercise such views must construct and
+  inject set-up services (see `ProfileSyncTasksSectionView`'s preview), never rely on the defaults.
 - **App Intents DI:** only `playerLoaderService` and `libraryService` are registered via
   `AppDependencyManager.shared.add(...)` in `setupCoreServices()`. The **extension** targets consume them with
   `@Dependency` (under `#if !MAIN_APP`); the **main app** instead resolves via
@@ -207,8 +215,9 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   concrete subclasses `Book`/`Folder` must be used), plus `Library`, `Bookmark`, `Chapter`, `Account`, `Theme`,
   `PlaybackRecord`, `HardcoverBook`. `ItemType: Int16 { folder, bound, book }`.
 - **Migration is manual and staged** (`Shared/CoreData/Migrations/DataMigrationManager.swift` + `DBVersion.swift`,
-  currently `v1…v11`, current model `Audiobook Player 11`). It migrates **one version at a time** using explicit
-  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 hops rely on inference). A model
+  currently `v1…v12`, current model `Audiobook Player 12` — v12 adds the `ExternalResource` entity + the
+  `LibraryItem.externalResources` relationship for media-server items). It migrates **one version at a time** using explicit
+  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v11→v12`; the v4–v7 hops rely on inference). A model
   change requires: **(1)** new `.xcdatamodel` version + bump `.xccurrentversion`; **(2)** new `DBVersion` case +
   `model()`; **(3)** a mapping model registered in `mappingModelName()` (inference is OFF, so anything
   non-trivial fails without one); **(4)** any custom data population added to the post-migration step; **(5)**
@@ -219,16 +228,21 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - `TasksDataManager.swift` owns the `ModelContainer`. **Store is `applicationSupportDirectory/bp-synctasks.sqlite`
   — the app-support dir, NOT the App Group**, separate from the CoreData store. CloudKit disabled.
-  `container = try! ModelContainer(...)` — **`try!` crashes on any container/migration failure.**
-- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field).
-  App code always uses the V2 typealiases. `@Model` types: `SyncTasksContainer`, `SyncTaskReferenceModel`
-  (`@Attribute(.unique) id`), and per-job payload models.
+  Container-build failure with an incompatible-store code (cocoa 134504/134100) MOVES the store aside
+  (`.incompatible` suffix, never deleted) and retries fresh; any other failure — including a fresh-store
+  failure — still crashes (`fatalError`).
+- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field)
+  → `SchemaV3` (unified concurrent-task container: `ConcurrentTaskReferenceModel` with per-queue keys, plus
+  `ExternalUpdateTaskModel`/`ConcurrentUploadTaskModel` payloads). App code always uses the V3 typealiases.
 - `MigrationPlan.swift` (`SchemaMigrationPlan`) has a **custom `v1ToV2` stage that reads UUIDs out of the CoreData
   `LibraryItem` table** — it requires `MigrationPlan.injectedCoreDataContext` to be set first, else
-  **`fatalError`**. This is the one coupling between the two stores; set it before the `ModelContainer` is built.
+  **`fatalError`** (the `v2ToV3` stage also uses the injected context, but degrades gracefully when absent).
+  This is the coupling between the two stores; set it before the `ModelContainer` is built.
 - **`ModelContext` is per-actor and not `Sendable`.** All task-queue reads/writes go through
-  `public actor SyncTasksStorage: ModelActor` (`Shared/Services/Sync/SyncTasksStorage.swift`) with a single
-  confined `ModelContext`. Do not share/pass a `ModelContext` across actors or threads.
+  `public actor ConcurrentTasksRepository: ModelActor` (`Shared/Services/ConcurrentSync/`) with a single
+  confined `ModelContext` (it replaced the old `SyncTasksStorage` actor). Do not share/pass a `ModelContext`
+  across actors or threads. Execution lives in `ConcurrenceService` (OperationQueue): the `sync` queue key runs
+  BookPlayer-server jobs serially; provider-named keys (externalUpdate pushes) and `uploadFile` run concurrently.
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 
@@ -293,7 +307,10 @@ lines). It is the highest-risk file in the app.
   notifications. A `teardownTask` is **awaited** at the top of the sync-contents entry points so a fast
   logout→login can't let a late `resetAllJobs()` wipe freshly-scheduled jobs — preserve this ordering. Every
   `schedule*` method short-circuits on `guard isActive`.
-- **Sync = the `pro` entitlement only** (see below). Job types (`SyncJobType`): `upload, update, move,
+- **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
+  S3 file uploads are gated per-job via `ConcurrenceService.accessPolicy` (`.uploadFile` is pro-only,
+  `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
+  matching the Android app). Job types (`SyncJobType`): `upload, update, move,
   renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
@@ -333,8 +350,9 @@ lines). It is the highest-risk file in the app.
 
 ### Subscriptions & entitlements — `Shared/Services/Account/AccountService.swift`
 
-- RevenueCat entitlements `AccessLevel { free, plus, pro }`. `hasSyncEnabled()` = `pro` entitlement active;
-  `hasPlusAccess()` = `plus` OR `pro` (with a local `donationMade` fallback when cached info is nil).
+- RevenueCat entitlements `AccessLevel { free, plus, lite, pro }`. `hasSyncEnabled()` = `pro` OR `lite` active
+  (pro wins when both are held);
+  `hasPlusAccess()` = `plus` OR `pro` OR `lite` (all paid tiers unlock plus perks; local `donationMade` fallback when cached info is nil).
 - **These are client-side cached RevenueCat reads — UX gating only.** Never let `hasSyncEnabled()`/`isActive`
   become the sole gate for a server-billed resource; the server validates the entitlement. Purchases are guarded
   by `AppEnvironment.isPurchaseEnabled` (disabled on TestFlight).
@@ -452,8 +470,9 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
    so conflicts crash.
 2. **CoreData model change without the full 5-step manual-migration ritual** (auto-inference is OFF) → crashes
    existing installs.
-3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the `SyncTasksStorage`
-   actor; `MigrationPlan.injectedCoreDataContext` must be set before the container is built.
+3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the
+   `ConcurrentTasksRepository` actor; `MigrationPlan.injectedCoreDataContext` must be set before the container
+   is built.
 4. **Retain cycles / Combine leaks:** missing `[weak self]` in a sink; an `AnyCancellable` not stored; a named
    subscription not `.cancel()`'d before rebind (`PlayerManager` depends on this).
 5. **UI/state mutated off the main actor** without a `@MainActor` hop / `.receive(on: .main)`.

@@ -54,14 +54,42 @@ struct BookView: View {
       }
       .buttonStyle(.plain)
       .accessibilityLabel("voiceover_continue_playback_title")
-      VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: 2) {
         Text(verbatim: displayTitle)
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)
-        Text(verbatim: item.details)
-          .foregroundStyle(theme.secondaryColor)
-          .bpFont(.caption)
+        HStack {
+          if let resources = item.externalResources {
+            ForEach(resources, id: \.providerId) { externalResource in
+              Group {
+                HStack {
+                  Image((ExternalResource.ProviderName(rawValue: externalResource.providerName) ?? .jellyfin).icon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 12, height: 12)
+                    .foregroundStyle(theme.secondaryColor)
+                    .accessibilityHidden(true)
+                  Text(verbatim: externalResource.providerName.capitalized)
+                    .foregroundStyle(theme.secondaryColor)
+                    .bpFont(.caption)
+                }
+                Text("•")
+                  .foregroundStyle(theme.secondaryColor)
+                  .bpFont(.caption)
+                  // VoiceOver: decorative separator — the provider name right before it
+                  // already announces the link
+                  .accessibilityHidden(true)
+              }
+            }
+          }
+          // Outside the if-let: the author must render even when the item has no
+          // external resources (nil for locally-imported books on some construction paths).
+          Text(verbatim: item.details)
+            .foregroundStyle(theme.secondaryColor)
+            .bpFont(.caption)
+        }
+
         Text(verbatim: item.durationFormatted)
           .foregroundStyle(theme.secondaryColor)
           .bpFont(.caption)
@@ -88,11 +116,21 @@ struct BookView: View {
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
+    let tasksDataManager = TasksDataManager()
+    let concurrenceService = ConcurrenceService()
+    concurrenceService.setup(
+      libraryService: libraryService,
+      getAccessLevel: { accountService.getAccessLevel() },
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
     syncService.setup(
       isActive: true,
       libraryService: libraryService,
       accountService: accountService,
-      dataManager: dataManager
+      concurrenceService: concurrenceService,
+      tasksDataManager: tasksDataManager
     )
 
     return syncService

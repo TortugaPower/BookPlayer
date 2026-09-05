@@ -19,6 +19,9 @@ enum AudiobookShelfLayout {
 
 @MainActor
 final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+  let onImportConfirmed: ([SimpleExternalResource]) -> Void
+  var accountService: AccountService
+  
   enum Routes {
     case done
   }
@@ -41,10 +44,14 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   @Published var items: [AudiobookShelfLibraryItem] = []
   @Published var totalItems = Int.max
   @Published var error: Error?
+  @Published private(set) var isImporting = false
+  @Published var pendingImportBatch: ExternalImportBatch?
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
-
+  @Published var useSelectedItems: Bool = false
+  @Published var showingDownloadConfirmation = false
+  
   var onTransition: BPTransition<Routes>?
 
   let connectionService: AudiobookShelfConnectionService
@@ -122,12 +129,16 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     source: AudiobookShelfLibraryViewSource,
     connectionService: AudiobookShelfConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
+    onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     navigation: BPNavigation,
     navigationTitle: String
   ) {
     self.source = source
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
+    self.onImportConfirmed = onImportConfirmed
     self.navigation = navigation
     self.navigationTitle = navigationTitle
 
@@ -222,6 +233,91 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       selectedItems.removeAll()
     }
   }
+  
+  func handleImportItems(useSelectedItems: Bool) async {
+    if accountService.hasStreamingEnabled() {
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        confirmDownloadFolder()
+      }
+    }
+  }
+  
+  @MainActor
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
+    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    guard !isImporting else { return }
+    let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    guard !audiobooks.isEmpty else { return }
+    isImporting = true
+    defer { isImporting = false }
+
+    do {
+      let resources = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          // batch/get returns EXPANDED items (list endpoints are minified without
+          // audioFiles); one round-trip for the whole selection
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 300, height: 300)
+          )
+        }
+      )
+      guard !resources.isEmpty else {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+        return
+      }
+      if resources.count < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+      }
+      // Stage as a VALUE for this screen's own confirmation sheet — the browser
+      // stays open beneath it; dismissal happens on confirm
+      pendingImportBatch = ExternalImportBatch(resources: resources)
+    } catch {
+      self.error = error
+    }
+  }
+  
+  @MainActor
+  func onDownloadFolderTapped() {
+    useSelectedItems = false
+    showingDownloadConfirmation = true
+  }
+  
+  @MainActor
+  func confirmDownloadFolder() {
+   var requests = [URLRequest]()
+    // Same filter as virtualImportFolderAudiobooks: folder/collection rows at this
+    // level would each throw in createItemDownloadRequest (last error wins) while
+    // the rest of the loop proceeds — a confusing partial download
+    for item in self.items where item.kind == .audiobook {
+      do {
+        let request = try connectionService.createItemDownloadRequest(item)
+        requests.append(request)
+      } catch {
+        self.error = error
+      }
+    }
+
+    guard !requests.isEmpty else { return }
+    singleFileDownloadService.handleDownload(requests)
+    navigation.dismiss?()
+  }
 
   @MainActor
   func onDownloadTapped() {
@@ -241,6 +337,19 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
 
     guard !requests.isEmpty else { return }
     singleFileDownloadService.handleDownload(requests)
+    navigation.dismiss?()
+  }
+  
+  @MainActor
+  func goToSubscribe() {
+    self.navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+  }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Bulk imports land you in the library (today's destination): send the batch on
+    // the import bus, then close the browser
+    onImportConfirmed(resources)
     navigation.dismiss?()
   }
 

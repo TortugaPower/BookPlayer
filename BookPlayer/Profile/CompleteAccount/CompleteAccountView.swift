@@ -23,7 +23,8 @@ struct CompleteAccountView: View {
 
   @Environment(\.accountService) private var accountService
   @EnvironmentObject private var theme: ThemeViewModel
-
+  
+  var subType: AccessLevel = .pro
   var onDismiss: () -> Void
 
   var body: some View {
@@ -83,7 +84,7 @@ struct CompleteAccountView: View {
       showConfetti: showConfetti
     )
     .errorAlert(error: $loadingState.error)
-    .navigationTitle("BookPlayer Pro")
+    .navigationTitle(subType == .lite ? "BookPlayer Lite" : "BookPlayer Pro")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
@@ -105,7 +106,12 @@ struct CompleteAccountView: View {
         .foregroundStyle(theme.linkColor)
       }
     }
-    .alert("pro_welcome_title", isPresented: $showSuccessAlert) {
+    // The ternary yields String, so the alert takes the non-localizing StringProtocol
+    // overload — both branches must localize explicitly or the raw key renders verbatim
+    .alert(
+      subType == .lite ? "lite_welcome_title".localized : "pro_welcome_title".localized,
+      isPresented: $showSuccessAlert
+    ) {
       Button("ok_button") {
         onDismiss()
       }
@@ -138,7 +144,7 @@ struct CompleteAccountView: View {
   }
 
   func loadProducts() async throws {
-    let options = try await accountService.getSubscriptionOptions()
+    let options = subType == .lite ? try await accountService.getLiteSubscriptionOptions() : try await accountService.getSubscriptionOptions()
     pricingOptions = options
     selectedPricingOption = options.first
     isLoadingPricingOptions = false

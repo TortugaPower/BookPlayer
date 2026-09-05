@@ -71,12 +71,22 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let audioMetadataService = AudioMetadataService()
       let libraryService = LibraryService()
       libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+      let tasksDataManager = TasksDataManager()
+      let concurrenceService = ConcurrenceService()
+      concurrenceService.setup(
+        libraryService: libraryService,
+        getAccessLevel: { accountService.getAccessLevel() },
+        tasksDataManager: tasksDataManager,
+        networkClient: NetworkClient(),
+        dataManager: dataManager
+      )
       let syncService = SyncService()
       syncService.setup(
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService,
         accountService: accountService,
-        dataManager: dataManager
+        concurrenceService: concurrenceService,
+        tasksDataManager: tasksDataManager
       )
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
@@ -110,6 +120,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         dataManager: dataManager,
         accountService: accountService,
         syncService: syncService,
+        concurrenceService: concurrenceService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
@@ -302,6 +313,13 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
 
 extension ExtensionDelegate: PurchasesDelegate {
   func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-    coreServices?.updateSyncEnabled(customerInfo.entitlements.all["pro"]?.isActive == true)
+    let enableSync = customerInfo.entitlements.all["pro"]?.isActive == true
+    || customerInfo.entitlements.all["lite"]?.isActive == true
+    coreServices?.updateSyncEnabled(enableSync)
+
+    // Same route as iOS's MainCoordinator delegate: AccountService derives the level
+    // and posts .accountUpdate, which ConcurrenceService (and SyncService) observe —
+    // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
+    coreServices?.accountService.updateAccount(from: customerInfo)
   }
 }

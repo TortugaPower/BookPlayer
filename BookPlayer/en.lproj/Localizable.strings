@@ -301,6 +301,7 @@
 "subscribe_title" = "Subscribe now";
 "renewal_description" = "Renews automatically monthly";
 "pro_welcome_title" = "Welcome to BookPlayer Pro!";
+"lite_welcome_title" = "Welcome to BookPlayer Lite!";
 "pro_welcome_description" = "We'll start syncing your library when WiFi is available";
 "benefits_disclaimer_watch_description" = "- Stand-alone playback on the Apple Watch is not available yet. It will be included in a future version.";
 "privacy_policy_title" = "Privacy Policy";
@@ -312,11 +313,37 @@
 "choose_plan_title" = "Choose your plan";
 "tasks_title" = "Tasks";
 "queued_sync_tasks_title" = "Queued sync tasks (%d)";
+"sync_tasks_queued_count_title" = "Queued Tasks (%d)";
 "sync_tasks_alert_description" = "If there's a synchronization task that is stuck and doesn't clear out after having an active internet connection, you can log out and sign in to clear out the current tasks. This will revert your library to the last state synchronized to our servers.
 
-Keep in mind that upload tasks can take some time, and the progress will be periodically posted on the previous screen.
+Keep in mind that upload tasks can take some time, and the progress will be periodically posted on the previous screen.";
 
-We're working hard on providing a seamless experience, if possible, please contact us at support@bookplayer.app with a screenshot of this screen. Thanks!";
+"sync_invitation_save_storage_title" = "Save Your Storage!";
+"sync_invitation_learn_more_button" = "Learn more";
+"sync_invitation_description" = "You're about to %1$@ %2$d items. %3$@";
+"sync_invitation_stream_description" = "Instead of taking up space, stream them directly from your server and keep your progress synced.";
+"sync_tasks_concurrent_count_title" = "Concurrent Tasks (%d)";
+"sync_tasks_running_empty_title" = "No running tasks";
+"sync_tasks_empty_title" = "No queued tasks";
+"sync_tasks_empty_description" = "All your sync tasks are up to date.";
+"sync_task_update_progress_label" = "Updating progress for %@";
+"sync_task_upload_file_label" = "Uploading file";
+"audiobook_details_narrator_label" = "Narrated by %@";
+"stream_button" = "Stream";
+"integrations_title" = "Integrations";
+"import_verb" = "import";
+"download_verb" = "download";
+"passkey_title" = "Passkey";
+"create_profile_title" = "Create your profile";
+"create_profile_description" = "To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab";
+"not_now_button" = "Not now";
+"quick_action_label" = "Quick Action %d";
+"file_path_title" = "File Path";
+"genres_title" = "Genres";
+"overview_title" = "Overview";
+"tags_title" = "Tags";
+"series_title" = "Series";
+"apple_watch_beta_title" = "Apple Watch (Beta)";
 "sort_by_size_title" = "Size";
 "settings_storage_sync_deleted_description" = "Files removed (sync operations)";
 "storage_sync_deleted_recover_description" = "You can import back your local books and folders if they were deleted by a sync operation. This will move all of them back to the documents folder, triggering the import process. If folders are involved, this could mean that the originals are still in the library, and some renaming will have to take place, sorry about this inconvenience";
@@ -430,7 +457,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "voiceover_hardcover_navigation_hint" = "Navigate to select a book from Hardcover";
 "voiceover_book_cover" = "%@ by %@, book cover";
 "voiceover_loading_book_cover" = "Loading book cover";
-"integrations_title" = "Integrations";
 "File Path" = "File Path";
 "Genres" = "Genres";
 "Overview" = "Overview";
@@ -448,6 +474,11 @@ We're working hard on providing a seamless experience, if possible, please conta
 "settings_support_discord_title" = "Join our Discord server";
 "hours" = "Hours";
 "minutes" = "Minutes";
+
+"provider_title" = "Provider";
+"provider_id_title" = "Item ID";
+"host_title" = "Host";
+"external_resources_title" = "External Resources";
 
 // Passkey Authentication
 "passkey_continue_button" = "Continue with Passkey";
@@ -504,3 +535,42 @@ We're working hard on providing a seamless experience, if possible, please conta
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sort_by_title" = "Sort by";
+"sort_default_option" = "Default";
+"sort_name_option" = "Name";
+"layout_options_title" = "Layout options";
+"layout_grid_option" = "Grid";
+"layout_list_option" = "List";
+"authors_title" = "Authors";
+"import_no_audio_files_alert" = "The selected items have no audio files to import.";
+"import_title" = "Import";
+"files_title" = "%d Files";
+"sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";
+"task_uploading_file_label" = "Uploading file";
+"task_updating_progress_label" = "Updating progress for %@";
+"yes_button" = "Yes";
+"ignore_button" = "Ignore";
+"resume_playback_alert_title" = "Resume Playback";
+"resume_playback_alert_message" = "There is another source with current play time %@. Play from this time?";
+"queue_library_sync_title" = "Library Sync";
+"queue_file_uploads_title" = "File Uploads";
+"sync_invitation_download_label" = "Download Locally";
+"sync_invitation_import_hint" = "Import %d items to your library.";
+"sync_invitation_download_hint" = "Download %d items to your device storage.";
+"sync_invitation_close_hint" = "Dismisses the invitation card.";
+"close_title" = "Close";
+"external_sync_benefit_server_title" = "Bring Your Own Server";
+"external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";
+"external_sync_benefit_stream_title" = "Stream & Save Space";
+"external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
+"external_sync_benefit_sync_title" = "Two-Way Progress Sync";
+"external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
+"external_sync_info_title" = "Stream & Sync";
+"queued_tasks_title" = "Queued Tasks";
+"subscription_tier_free_title" = "Free";
+"subscription_tier_plus_title" = "Plus";
+"subscription_tier_lite_title" = "Lite";
+"subscription_tier_pro_title" = "Pro";
+"loading_title" = "Loading";
+"info_title" = "Info";
+"integration_error_missing_connection" = "This book streams from your media server. Connect it in Settings to download or play it.";

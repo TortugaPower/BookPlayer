@@ -42,6 +42,11 @@ protocol HardcoverServiceProtocol {
   /// Remove a book from the user's Hardcover library
   /// - Parameter book: The Hardcover book to remove from library
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws
+
+  /// Fetch a single book's info from Hardcover by its id
+  /// - Parameter id: The Hardcover book id (the external resource's providerId)
+  /// - Returns: The book info, or nil if not found
+  func getBook(id: Int) async throws -> SimpleHardcoverBook?
 }
 
 @Observable
@@ -50,6 +55,11 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
+  /// IUO like its siblings (two-step init()+setup() DI): always injected by
+  /// AppServices in production. Deliberately NOT optional — the schedule calls below
+  /// are the sync-up for Hardcover-driven changes, and optional chaining would turn a
+  /// missed injection into silently un-synced changes instead of a loud failure.
+  private var syncService: SyncServiceProtocol!
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
@@ -71,10 +81,12 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   func setup(
     libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
   ) {
     self.libraryService = libraryService
+    self.syncService = syncService
     self.keychain = keychain
     self.audioMetadataService = audioMetadataService
 
@@ -130,6 +142,38 @@ extension HardcoverService {
     )
 
     return result
+  }
+
+  func getBook(id: Int) async throws -> SimpleHardcoverBook? {
+    Self.logger.info("Fetching Hardcover book info for id \(id)")
+
+    let queryString = """
+        query GetBook($id: Int!) {
+          books(where: {id: {_eq: $id}}, limit: 1) {
+            id
+            title
+            image { url }
+            contributions { author { name } }
+          }
+        }
+        """
+
+    let result = try await graphQL.execute(
+      query: queryString,
+      variables: ["id": id],
+      authorization: authorization,
+      responseType: BookByIdData.self
+    )
+
+    guard let book = result.books.first else { return nil }
+
+    return SimpleHardcoverBook(
+      id: book.id,
+      artworkURL: book.image?.url.flatMap(URL.init(string:)),
+      title: book.title,
+      author: book.contributions?.first?.author?.name ?? "",
+      status: .local
+    )
   }
 
   private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> InsertUserBookData {
@@ -231,47 +275,63 @@ extension HardcoverService {
   }
 
   private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
-    guard
-      percentCompleted > readingThreshold,
-      var item = await libraryService.getHardcoverBook(for: relativePath),
-      item.status < .reading
-    else { return }
+    guard percentCompleted > readingThreshold else { return }
 
-    do {
-      Self.logger.info("Updating Hardcover API: book \(item.id) to 'reading' status")
-      _ = try await insertUserBook(
-        bookID: item.id,
-        status: .reading
-      )
-      Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
-
-      item.status = .reading
-      await libraryService.setHardcoverBook(item, for: relativePath)
-      Self.logger.info("Updated local status to 'reading' for \(relativePath)")
-    } catch {
-      Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
-    }
+    await updateExternalResources(for: relativePath, to: .reading)
   }
 
   private func handleBookFinished(relativePath: String) async {
-    guard
-      var item = await libraryService.getHardcoverBook(for: relativePath),
-      item.status != .read
-    else { return }
+    await updateExternalResources(for: relativePath, to: .read)
+  }
+
+  /// Push the new status to the item's Hardcover link(s), if any — reading-status
+  /// actions only exist for Hardcover; other providers' progress rides the
+  /// externalUpdate queue instead.
+  private func updateExternalResources(
+    for relativePath: String,
+    to status: HardcoverBook.Status
+  ) async {
+    let resources = await libraryService.getExternalResources(for: relativePath)
+
+    for resource in resources
+    where ExternalResource.ProviderName(rawValue: resource.providerName) == .hardcover {
+      await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
+    }
+  }
+
+  /// Push the given status to Hardcover for the book identified by `providerId`,
+  /// keeping the local reference in sync. No-op if it already reached `status`.
+  private func updateHardcoverStatus(
+    _ status: HardcoverBook.Status,
+    providerId: String,
+    for relativePath: String
+  ) async {
+    guard let bookID = Int(providerId) else { return }
+
+    let existing = await libraryService.getHardcoverBook(for: relativePath)
+    if let existing, existing.status >= status {
+      return
+    }
 
     do {
-      Self.logger.info("Updating Hardcover API: book \(item.id) to 'read' status")
-      _ = try await insertUserBook(
-        bookID: item.id,
-        status: .read
-      )
-      Self.logger.info("Successfully updated Hardcover API for book \(item.id)")
+      Self.logger.info("Updating Hardcover API: book \(bookID) to '\(String(describing: status))' status")
+      let response = try await insertUserBook(bookID: bookID, status: status)
 
-      item.status = .read
-      await libraryService.setHardcoverBook(item, for: relativePath)
-      Self.logger.info("Updated local status to 'read' for \(relativePath)")
+      var updated = existing ?? SimpleHardcoverBook(
+        id: bookID,
+        artworkURL: nil,
+        title: "",
+        author: "",
+        status: status
+      )
+      updated.status = status
+      if updated.userBookID == nil {
+        updated.userBookID = response.insertUserBook.id
+      }
+      await libraryService.setHardcoverBook(updated, for: relativePath)
+      Self.logger.info("Updated local Hardcover status to '\(String(describing: status))' for \(relativePath)")
     } catch {
-      Self.logger.error("Failed to update Hardcover status for book \(item.id): \(error)")
+      Self.logger.error("Failed to update Hardcover status for book \(bookID): \(error)")
     }
   }
 
@@ -325,6 +385,8 @@ extension HardcoverService {
         }
 
         await libraryService.setHardcoverBook(book, for: match.item.relativePath)
+        await uploadExternalResource(for: book, to: match.item)
+        await downloadArtworkIfNeeded(for: book, to: match.item)
         Self.logger.info("Auto-matched '\(match.item.title)' to Hardcover ID \(bookID)")
         processedCount += 1
       } catch {
@@ -343,6 +405,9 @@ extension HardcoverService {
     _ book: SimpleHardcoverBook?,
     to item: SimpleLibraryItem
   ) async {
+    /// Remove any existing hardcover resource first (handles both unlink and swap)
+    await deleteExternalResource(for: item)
+
     guard let book else {
       await libraryService.setHardcoverBook(nil, for: item.relativePath)
       Self.logger.info("Removed Hardcover assignment from '\(item.title)'")
@@ -351,25 +416,89 @@ extension HardcoverService {
 
     Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
 
-    guard autoAddWantToReadEnabled, authorization != nil else {
+    if autoAddWantToReadEnabled, authorization != nil {
+      do {
+        let response = try await insertUserBook(
+          bookID: book.id,
+          status: .library
+        )
+        Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+
+        var updated = book
+        updated.status = .library
+        updated.userBookID = response.insertUserBook.id
+        await libraryService.setHardcoverBook(updated, for: item.relativePath)
+      } catch {
+        Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
+        await libraryService.setHardcoverBook(book, for: item.relativePath)
+      }
+    } else {
       await libraryService.setHardcoverBook(book, for: item.relativePath)
-      return
     }
 
-    do {
-      let response = try await insertUserBook(
-        bookID: book.id,
-        status: .library
-      )
-      Self.logger.info("Added '\(item.title)' to Hardcover Want to Read list")
+    await uploadExternalResource(for: book, to: item)
+    await downloadArtworkIfNeeded(for: book, to: item)
+  }
 
-      var updated = book
-      updated.status = .library
-      updated.userBookID = response.insertUserBook.id
-      await libraryService.setHardcoverBook(updated, for: item.relativePath)
+  /// Create the hardcover external resource for the item and sync-upload it if a sync service is available.
+  private func uploadExternalResource(
+    for book: SimpleHardcoverBook,
+    to item: SimpleLibraryItem
+  ) async {
+    guard
+      let syncable = await libraryService.setExternalResource(
+        providerName: ExternalResource.ProviderName.hardcover.rawValue,
+        providerId: String(book.id),
+        for: item.uuid
+      )
+    else { return }
+
+    syncService.scheduleExternalResourceUpload(
+      syncable,
+      relativePath: item.relativePath,
+      uuid: item.uuid
+    )
+  }
+
+  /// Delete the hardcover external resource for the item and schedule a delete sync task if a sync service is available.
+  private func deleteExternalResource(for item: SimpleLibraryItem) async {
+    let providerName = ExternalResource.ProviderName.hardcover.rawValue
+
+    guard
+      let providerId = await libraryService.removeExternalResource(
+        providerName: providerName,
+        for: item.uuid
+      )
+    else { return }
+
+    syncService.scheduleExternalResourceDeletion(
+      providerName: providerName,
+      providerId: providerId,
+      relativePath: item.relativePath,
+      uuid: item.uuid
+    )
+  }
+
+  /// If the Hardcover book has artwork and the item has none, download it, set it as the
+  /// item's artwork, and run the artwork-upload process (which itself no-ops unless cloud
+  /// sync is active, i.e. the user is Pro/Lite).
+  private func downloadArtworkIfNeeded(
+    for book: SimpleHardcoverBook,
+    to item: SimpleLibraryItem
+  ) async {
+    guard
+      let artworkURL = book.artworkURL,
+      item.artworkURL == nil,
+      !ArtworkService.isCached(relativePath: item.relativePath)
+    else { return }
+
+    do {
+      let (data, _) = try await URLSession.shared.data(from: artworkURL)
+      await ArtworkService.storeInCache(data, for: item.relativePath)
+      syncService.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
+      Self.logger.info("Set Hardcover artwork for '\(item.title)'")
     } catch {
-      Self.logger.error("Failed to add '\(item.title)' to Hardcover Want to Read: \(error)")
-      await libraryService.setHardcoverBook(book, for: item.relativePath)
+      Self.logger.error("Failed to download Hardcover artwork for '\(item.title)': \(error)")
     }
   }
 
@@ -453,5 +582,29 @@ extension SimpleHardcoverBook {
       author: book.authorNames.first ?? "",
       status: status
     )
+  }
+}
+
+/// Response model for fetching a single book by its Hardcover id.
+private struct BookByIdData: Codable {
+  let books: [Book]
+
+  struct Book: Codable {
+    let id: Int
+    let title: String
+    let image: Artwork?
+    let contributions: [Contribution]?
+
+    struct Artwork: Codable {
+      let url: String?
+    }
+
+    struct Contribution: Codable {
+      let author: Author?
+
+      struct Author: Codable {
+        let name: String?
+      }
+    }
   }
 }

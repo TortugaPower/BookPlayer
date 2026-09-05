@@ -18,6 +18,7 @@ class MainCoordinator: NSObject {
   var mainController: UIViewController?
 
   let importManager: ImportManager
+  let externalImportBus: ExternalImportBus
   let playerManager: PlayerManager
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
@@ -29,6 +30,7 @@ class MainCoordinator: NSObject {
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
+  let concurrenceService: ConcurrenceService
   let hardcoverService: HardcoverService
   let preferencesService: PreferencesSyncService
 
@@ -47,6 +49,7 @@ class MainCoordinator: NSObject {
     self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
     self.importManager = ImportManager(libraryService: coreServices.libraryService)
+    self.externalImportBus = ExternalImportBus()
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
@@ -58,6 +61,7 @@ class MainCoordinator: NSObject {
       playerLoaderService: coreServices.playerLoaderService,
       preferencesService: coreServices.preferencesService
     )
+    self.concurrenceService = coreServices.concurrenceService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -96,6 +100,7 @@ class MainCoordinator: NSObject {
       }
       .environmentObject(singleFileDownloadService)
       .environmentObject(importManager)
+      .environmentObject(externalImportBus)
       .environmentObject(playerManager)
       .environmentObject(listSyncRefreshService)
       .environment(\.libraryService, libraryService)
@@ -108,6 +113,7 @@ class MainCoordinator: NSObject {
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
+      .environment(\.concurrenceService, concurrenceService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

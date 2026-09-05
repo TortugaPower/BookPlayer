@@ -7,48 +7,8 @@
 //
 
 import Foundation
-import Combine
 
-/// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
-class LibraryItemSyncOperation: Operation, BPLogger {
-  // MARK: - Async operation properties
-
-  private var cellularDataObserver: NSKeyValueObservation?
-  private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.synctask", attributes: .concurrent)
-  override var isAsynchronous: Bool { true }
-
-  private var _isExecuting: Bool = false
-  override private(set) var isExecuting: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isExecuting
-      }
-    }
-    set {
-      willChangeValue(forKey: "isExecuting")
-      lockQueue.sync(flags: [.barrier]) {
-        _isExecuting = newValue
-      }
-      didChangeValue(forKey: "isExecuting")
-    }
-  }
-
-  private var _isFinished: Bool = false
-  override private(set) var isFinished: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isFinished
-      }
-    }
-    set {
-      willChangeValue(forKey: "isFinished")
-      lockQueue.sync(flags: [.barrier]) {
-        _isFinished = newValue
-      }
-      didChangeValue(forKey: "isFinished")
-    }
-  }
-
+class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // MARK: - Library sync properties
 
   let client: NetworkClientProtocol
@@ -57,12 +17,34 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
-  var results: ApiResponse?
-  var error: Error?
-  
-  private var progressSubscriber: AnyCancellable?
-  private var completionSubscriber: AnyCancellable?
 
+  /// Written from the operation's detached Task (and `cancel()`), read from the
+  /// queue-thread completionBlock — lock-guarded like the base class's `didSucceed`
+  /// so the reads have a happens-before edge with the writes.
+  private let propertyLock = NSLock()
+  private var _results: ApiResponse?
+  var results: ApiResponse? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _results
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _results = newValue
+    }
+  }
+  private var _error: Error?
+  var error: Error? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _error
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _error = newValue
+    }
+  }
+  
   /// Initializer
   /// - Parameters:
   ///   - client: Network client
@@ -79,21 +61,37 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.uuid = task.uuid
   }
 
-  override func start() {
-    guard !isCancelled else {
-      finish()
-      return
+  /// Written in main() on the queue thread, read/cancelled by cancel() from any thread
+  /// (logout/lapse) — same lock discipline as error/results, or cancel() can read a
+  /// stale nil and skip cancelling the in-flight Task.
+  private var _executionTask: Task<Void, Never>?
+  private var executionTask: Task<Void, Never>? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _executionTask
     }
-
-    isFinished = false
-    isExecuting = true
-    main()
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _executionTask = newValue
+    }
   }
 
   // TODO: split into separate Operations
   override func main() {
-    Task {
+    executionTask = Task {
       do {
+        // Two flags cover every cancel interleaving — an in-flight op must not finish
+        // a PUT or post confirmations under the NEXT signed-in account's token
+        // (NetworkClient reads the keychain token per request):
+        // 1. cancel() ran BEFORE this Task existed (the start()→assignment window):
+        //    executionTask was nil there, so only the OPERATION flag catches it.
+        guard !isCancelled else {
+          finish()
+          return
+        }
+        // 2. cancel() ran after: the propertyLock guarantees it saw the Task and set
+        //    the TASK flag — checked here and at every URLSession suspension point.
+        try Task.checkCancellation()
         switch jobType {
         case .upload:
           guard
@@ -141,6 +139,26 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .matchUuid:
           try await handleMatchUuids()
           finish()
+        case .externalResource:
+          let _: Empty = try await self.provider.request(.externalResource(params: self.parameters))
+          finish()
+        case .externalResourceToDownload:
+          try await handleExternalResourceToDownload()
+          finish()
+        case .deleteExternalResource:
+          guard
+            let providerName = parameters["providerName"] as? String,
+            let providerId = parameters["providerId"] as? String
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for deleting an external resource")
+          }
+          let _: Empty = try await self.provider.request(
+            .deleteExternalResource(uuid: uuid, providerName: providerName, providerId: providerId)
+          )
+          finish()
+        case .externalUpdate, .uploadFile:
+          /// Handled by their dedicated operations, never routed here
+          throw BookPlayerError.runtimeError("Unsupported job type for sync operation: \(jobType.rawValue)")
         }
       } catch {
         self.error = error
@@ -149,9 +167,21 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     }
   }
 
-  func finish() {
-    isExecuting = false
-    isFinished = true
+  override func finish() {
+    didSucceed = error == nil
+    super.finish()
+  }
+
+  override func cancel() {
+    super.cancel()
+    // Mark failed BEFORE finishing so a logout-cancelled op can never be treated
+    // as succeeded, then release the queue slot; finish() is idempotent, so the
+    // cancelled Task's own finish() later is a no-op.
+    if error == nil {
+      error = BookPlayerError.cancelledTask
+    }
+    executionTask?.cancel()
+    if isExecuting { finish() }
   }
 }
 
@@ -159,8 +189,9 @@ class LibraryItemSyncOperation: Operation, BPLogger {
 
 extension LibraryItemSyncOperation {
   func handleUploadJob(type: SimpleItemType) async throws {
-    let response: UploadItemResponse = try await provider.request(.upload(params: parameters))
-
+    /// `provider` is client-side metadata (gates the follow-up file upload); keep it out of the request
+    let uploadParams = parameters.filter { $0.key != "provider" }
+    let response: UploadItemResponse = try await provider.request(.upload(params: uploadParams))
     guard let remoteURL = response.content.url else {
       /// The file is already present in the storage
       try await markUploadAsSynced(uuid: self.uuid)
@@ -196,114 +227,12 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    await uploadFile(
-      fileURL: fileURL,
-      remoteURL: remoteURL,
-      relativePath: self.relativePath
-    )
-  }
-
-  /// Upload file on a background thread
-  func uploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String
-  ) async {
-    let session: URLSession = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
-    ? BPURLSession.shared.backgroundCellularSession
-    : BPURLSession.shared.backgroundSession
-
-    let uploadTask = await self.client.uploadTask(
-      fileURL,
-      remoteURL: remoteURL,
-      taskDescription: relativePath,
-      session: session
-    )
-
-    bindUploadObservers()
-
-    cellularDataObserver?.invalidate()
-    cellularDataObserver = UserDefaults.standard.observe(
-      \.userSettingsAllowCellularData,
-       options: [.new]
-    ) { [weak self] _, change in
-      guard let newValue = change.newValue else { return }
-
-      let previousSession: URLSession = newValue
-      ? BPURLSession.shared.backgroundSession
-      : BPURLSession.shared.backgroundCellularSession
-
-      self?.rescheduleUploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath,
-        previousSession: previousSession
-      )
-    }
-
-    uploadTask.resume()
-  }
-
-  func bindUploadObservers() {
-    progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { [uuid, relativePath] (path, progress) in
-      guard path == relativePath else { return }
-      NotificationCenter.default.post(
-        name: .uploadProgressUpdated,
-        object: nil,
-        userInfo: [
-          "progress": progress,
-          "relativePath": path,
-          "uuid": uuid
-        ]
-      )
-    })
-
-    completionSubscriber?.cancel()
-    completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self] (task, error) in
-      self?.cellularDataObserver?.invalidate()
-      if let nserror = error as? NSError,
-         nserror.domain == NSURLErrorDomain,
-         nserror.code == NSURLErrorCancelled {
-        /// Do nothing, as the task is already being rescheduled
-      } else if let error {
-        self?.error = error
-        self?.finish()
-      } else {
-        self?.handleUploadFinished(task)
-      }
-    })
-  }
-
-  func rescheduleUploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String,
-    previousSession: URLSession
-  ) {
-    Task {
-      let task = await previousSession.allTasks.filter({ $0.taskDescription == relativePath }).first
-      task?.cancel()
-
-      await self.uploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath
-      )
-    }
-  }
-
-  func handleUploadFinished(_ task: URLSessionTask) {
-    Task { [task] in
-      do {
-        try await markUploadAsSynced(uuid: uuid)
-        NotificationCenter.default.post(name: .uploadCompleted, object: task)
-        finish()
-      } catch {
-        self.error = error
-        finish()
-      }
-    }
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, remotePath: remoteURL.absoluteString, relativePath: self.relativePath))
+    // Deliberately NOT handleUploadFinished() here: a backing file still has to be PUT by the
+    // FileUploadOperation this result schedules — confirming synced:true now lies to the server
+    // if that upload later fails permanently. The metadata-only branch above confirms
+    // immediately; this branch confirms from the file upload's completion.
+    finish()
   }
 
   func markUploadAsSynced(uuid: String) async throws {
@@ -374,6 +303,71 @@ extension LibraryItemSyncOperation {
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
     )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  func handleExternalResourceToDownload() async throws {
+    let response: UploadItemContent = try await self.provider.request(
+      .externalResourceToDownload(uuid: uuid, uploaded: false)
+    )
+    
+    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
+      ? hardLinkURL
+      : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+    
+    guard FileManager.default.fileExists(atPath: fileURL.path),
+    let remoteUrl = response.url else {
+      // Consuming on nil url is the server CONTRACT, not an accident: external_set answers
+      // url == null when the account tier has no S3 (lite) or the object already exists —
+      // both permanent for this task. A missing local file likewise can't heal by retrying.
+      return
+    }
+
+    // Streamed straight from disk — audiobooks run into the GBs and must never be
+    // materialized as a single in-memory Data. A failed upload THROWS so the task is
+    // retried and the server is never told the file exists when it doesn't.
+    // Foreground session by design (for now): this pipe upload runs inside the retrying
+    // sync operation while the app is in use, matching the Android app's current behavior;
+    // surviving app termination is the planned background-transfer follow-up on both
+    // platforms, which needs the BPURLSession delegate machinery, not just a session swap.
+    try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
+
+    // The bytes are on S3 now — failing the operation on a flaky confirmation would
+    // retry the uploaded:false branch and re-upload the entire (potentially multi-GB)
+    // file. Retry just the confirmation instead, mirroring the synced:true handling
+    // in ConcurrenceService.handleFinishedOperation.
+    var confirmationError: Error?
+    for attempt in 1...3 {
+      do {
+        let _: Empty = try await self.provider.request(
+          .externalResourceToDownload(uuid: uuid, uploaded: true)
+        )
+        return
+      } catch {
+        confirmationError = error
+        Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
+        // Space out the attempts (same 2s as the ConcurrenceService sibling): a single
+        // transient blip would otherwise burn all three back-to-back in under a second
+        // and re-upload the file anyway
+        if attempt < 3 {
+          try? await Task.sleep(for: .seconds(2))
+        }
+      }
+    }
+    // Exhausted: CONSUME rather than throw. A failed operation is retried from the
+    // top, which re-runs the uploaded:false branch and re-PUTs the whole file — the
+    // exact waste this loop exists to avoid. The bytes are safely on S3; the server
+    // still thinks the object isn't uploaded, so the next external_set round-trip
+    // heals cheaply (it answers url == null for an already-existing object, which the
+    // nil-url branch above consumes). Same bytes-are-on-S3 semantics as the
+    // FileUploadOperation confirmation in ConcurrenceService.handleFinishedOperation.
+    if let confirmationError {
+      Self.logger.error(
+        "uploaded:true confirmation exhausted for \(self.uuid), consuming (bytes on S3): \(confirmationError.localizedDescription)"
+      )
+    }
   }
 }
 

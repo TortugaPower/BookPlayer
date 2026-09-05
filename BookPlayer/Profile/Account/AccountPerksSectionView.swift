@@ -22,7 +22,7 @@ struct AccountPerksSectionView: View {
           .foregroundStyle(theme.primaryColor)
           .frame(maxWidth: .infinity)
         Label {
-          Text("benefits_cloudsync_title")
+          Text("benefits_cloudsync_title".localized)
             .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
@@ -30,7 +30,7 @@ struct AccountPerksSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
         Label {
-          Text("Apple Watch (Beta)")
+          Text("apple_watch_beta_title".localized)
             .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
@@ -38,7 +38,7 @@ struct AccountPerksSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
         Label {
-          Text("benefits_themesicons_title")
+          Text("benefits_themesicons_title".localized)
             .bpFont(.titleRegular)
             .foregroundStyle(theme.primaryColor)
         } icon: {
@@ -47,7 +47,7 @@ struct AccountPerksSectionView: View {
         }
 
         Button(action: action) {
-          Text("completeaccount_title")
+          Text("completeaccount_title".localized)
             .contentShape(Rectangle())
             .bpFont(.headline)
             .frame(height: 45)

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 /// Thin wrapper providing AudiobookShelf-specific cell, row, sort picker, and environment
 /// to the shared `IntegrationLibraryView`.
@@ -39,9 +40,9 @@ where Model.Item == AudiobookShelfLibraryItem {
       Picker(selection: Binding(
         get: { vm.sortBy },
         set: { vm.sortBy = $0 }
-      ), label: Text("Sort by".localized)) {
+      ), label: Text("sort_by_title".localized)) {
         Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-        Label("Title".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+        Label("title_button".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
       }
     }
   }

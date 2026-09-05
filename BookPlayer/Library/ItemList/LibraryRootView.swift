@@ -36,6 +36,7 @@ struct LibraryRootView: View {
 
   @EnvironmentObject private var playerManager: PlayerManager
   @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportBus: ExternalImportBus
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
@@ -55,6 +56,7 @@ struct LibraryRootView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
+          playerState: playerState,
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
           loadingState: loadingState,
@@ -69,6 +71,7 @@ struct LibraryRootView: View {
             libraryService: libraryService,
             playbackService: playbackService,
             playerManager: playerManager,
+            playerState: playerState,
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
             loadingState: loadingState,
@@ -119,11 +122,23 @@ struct LibraryRootView: View {
           DispatchQueue.main.async {
             self.importOperationState.isOperationActive = false
             self.importOperationState.processingTitle = ""
-            self.handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
+            self.handleOperationCompletion(.local(files: operation.processedFiles), suggestedFolderName: operation.suggestedFolderName)
           }
         }
 
         importManager.start(operation)
+      }
+      .onReceive(externalImportBus.confirmedBatches) { externalResources in
+        Task {
+          self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
+        // The media-servers sheet hangs off MainView UNDERNEATH the player's
+        // fullScreenCover — when this fires mid-playback (the common streaming-401
+        // path) the cover must come down first or the sheet never presents
+        playerState.isShowingPlayer = false
+        listState.activeIntegrationSheet = .mediaServers
       }
     }
     .tint(theme.linkColor)
@@ -183,15 +198,30 @@ struct LibraryRootView: View {
     }
   }
 
-  func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
-    guard !files.isEmpty else {
+  func handleOperationCompletion(_ importSource: ImportSource, suggestedFolderName: String?) {
+    let filesCount: Int
+    switch importSource {
+    case .local(let files):
+      filesCount = files.count
+    case .external(let externals):
+      filesCount = externals.count
+    }
+    
+    guard filesCount > 0 else {
       return
     }
 
     Task { @MainActor in
-      let processedItems = await libraryService.insertItems(from: files)
+      let processedItems: [SimpleLibraryItem]
+      switch importSource {
+      case .local(let files):
+        processedItems = await libraryService.insertItems(from: files)
+      case .external(let externals):
+        processedItems = await libraryService.insertItems(fromResources: externals)
+      }
+      
       var itemIdentifiers = processedItems.map({ $0.relativePath })
-      var itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
+      let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them

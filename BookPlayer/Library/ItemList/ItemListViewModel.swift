@@ -10,20 +10,21 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
   let playerManager: PlayerManager
+  let playerState: PlayerState
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  private var activeTasks: [String: Task<(), Error>] = [:]
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -104,6 +105,7 @@ final class ItemListViewModel: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
+    playerState: PlayerState,
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
     loadingState: LoadingOverlayState,
@@ -114,6 +116,7 @@ final class ItemListViewModel: ObservableObject {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
+    self.playerState = playerState
     self.syncService = syncService
     self.listSyncRefreshService = listSyncRefreshService
     self.loadingState = loadingState
@@ -265,6 +268,7 @@ final class ItemListViewModel: ObservableObject {
       contentsFetchTask = Task {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
+          await updateFromResource()
           await MainActor.run {
             listState.reloadAll()
           }
@@ -371,6 +375,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
     return nextPlayableItem?.relativePath
   }
 }
@@ -750,7 +755,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {
@@ -863,10 +868,111 @@ extension ItemListViewModel {
       loadingState.error = BookPlayerError.networkError("Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))")
     }
   }
+  
+  func updateFromResource() async {
+    let jellyfinResources = self.items.compactMap { item in
+      item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
+    }
+    guard !jellyfinResources.isEmpty else { return }
+
+    // A throwaway service instance: pinning connections on the SHARED environment service
+    // would silently repoint the UI's active connection after this refresh.
+    let jellyfinService = JellyfinConnectionService()
+    jellyfinService.setup()
+
+    // Resources can belong to DIFFERENT servers — group them by their resolved connection and
+    // query each server for its own items. Resources whose host doesn't match any saved
+    // connection are skipped (their provider ids mean nothing to another server).
+    let connections = jellyfinService.connections
+    var resourcesByConnectionID: [String: [SimpleExternalResource]] = [:]
+    for resource in jellyfinResources {
+      guard let connection = IntegrationHostResolver.connection(for: resource.hostId, in: connections) else { continue }
+      resourcesByConnectionID[connection.id, default: []].append(resource)
+    }
+
+    var results: [String: JellyfinLibraryItem] = [:]
+    for (connectionID, resources) in resourcesByConnectionID {
+      guard let connection = connections.first(where: { $0.id == connectionID }) else { continue }
+      jellyfinService.useConnection(connection)
+      guard let batch = try? await jellyfinService.updateItemsFromJellyfin(resources) else { continue }
+      results.merge(batch) { _, new in new }
+    }
+    guard !results.isEmpty else { return }
+
+    libraryService.handleSyncFromExternalResource(remoteItemsDictionary: results)
+  }
 }
 
 extension ItemListViewModel: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
+  }
+  
+  func fetchExternalResource(_ playableItem: PlayableItem) async {
+    activeTasks[playableItem.uuid]?.cancel()
+    
+    activeTasks[playableItem.uuid] = Task { [weak self] in
+      guard let self else { return }
+      // Only the LIVE task cleans its entry: the cancelled predecessor's defer runs after
+      // the replacement was stored and would clobber it.
+      defer { if !Task.isCancelled { self.activeTasks[playableItem.uuid] = nil } }
+      let lastPlayDate = playableItem.lastPlayDate ?? Date.distantPast
+      let jellyfinService = JellyfinConnectionService()
+      jellyfinService.setup()
+      
+      let audiobookShelfService = AudiobookShelfConnectionService()
+      audiobookShelfService.setup()
+      
+      guard let externalResources = libraryService.findResources(for: playableItem.uuid) else { return }
+            
+      for externalResource in externalResources {
+        switch ExternalResource.ProviderName(rawValue: externalResource.providerName) {
+        case .jellyfin:
+          do {
+            // Pin the resource's own server — the active connection may be a different instance
+            // where this provider id doesn't exist (or worse, names another book).
+            guard let connection = IntegrationHostResolver.connection(
+              for: externalResource.hostId, in: jellyfinService.connections
+            ) else { break }
+            jellyfinService.useConnection(connection)
+            if let jellyfinItem = try await jellyfinService.fetchItem(for: externalResource.providerId) {
+              let threshold: TimeInterval = 15
+              let externalPlayDate = jellyfinItem.lastPlayedDate ?? Date.distantPast
+              let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+              let isExternalSecondsFarther = TimeInterval(jellyfinItem.currentSeconds ?? 0) > (playableItem.currentTime + threshold)
+              if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+                playerState.remotePlayTime = Double(jellyfinItem.currentSeconds ?? 0)
+                playerState.showResumePopup = true
+              }
+            }
+          } catch {
+            Self.logger.error("Failed to fetch item from Jellyfin: \(error)")
+          }
+        case .audiobookshelf:
+          do {
+            // Same per-resource server pinning as the Jellyfin branch above.
+            guard let connection = IntegrationHostResolver.connection(
+              for: externalResource.hostId, in: audiobookShelfService.connections
+            ) else { break }
+            audiobookShelfService.useConnection(connection)
+            if let audiobookShelfItem = try await audiobookShelfService.fetchItem(for: externalResource.providerId) {
+              let threshold: TimeInterval = 15
+              // From the progress payload's lastUpdate — same comparison as Jellyfin
+              let externalPlayDate = audiobookShelfItem.lastPlayedDate ?? Date.distantPast
+              let isExternalDateNewer = externalPlayDate > lastPlayDate.addingTimeInterval(threshold)
+              let isExternalSecondsFarther = TimeInterval(audiobookShelfItem.currentTime ?? 0) > (playableItem.currentTime + threshold)
+              if !playerState.showResumePopup && (isExternalDateNewer || isExternalSecondsFarther) {
+                playerState.remotePlayTime = Double(audiobookShelfItem.currentTime ?? 0)
+                playerState.showResumePopup = true
+              }
+            }
+          } catch {
+            Self.logger.error("Failed to fetch item from AudiobookShelf: \(error)")
+          }
+        default:
+          break
+        }
+      }
+    }
   }
 }

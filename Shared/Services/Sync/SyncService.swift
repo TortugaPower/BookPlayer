@@ -83,7 +83,13 @@ public protocol SyncServiceProtocol {
   func scheduleDeleteBookmark(_ bookmark: SimpleBookmark)
 
   func scheduleUploadArtwork(relativePath: String, uuid: String)
-  
+
+  /// Upload a newly linked external resource
+  func scheduleExternalResourceUpload(_ resource: SyncableExternalResource, relativePath: String, uuid: String)
+
+  /// Delete an external resource on the server
+  func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String)
+
   /// Get all queued jobs
   func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
@@ -110,6 +116,7 @@ public protocol SyncServiceProtocol {
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
+  private var concurrenceService: ConcurrenceServiceProtocol!
   private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
@@ -118,7 +125,22 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public private(set) var isActive: Bool = false
   /// In-flight logout teardown, awaited before an initial library sync re-schedules,
   /// so a re-login can't begin scheduling until the queue reset has finished.
-  private var teardownTask: Task<Void, Never>?
+  /// Lock-guarded rather than @MainActor: the `.logout` sink must assign SYNCHRONOUSLY
+  /// (a deferred main-actor hop reopens a window where the re-login gates read nil and
+  /// a late resetAllJobs wipes freshly-scheduled jobs), while reads come from arbitrary
+  /// async contexts.
+  private let teardownTaskLock = NSLock()
+  private var _teardownTask: Task<Void, Never>?
+  private var teardownTask: Task<Void, Never>? {
+    get {
+      teardownTaskLock.lock(); defer { teardownTaskLock.unlock() }
+      return _teardownTask
+    }
+    set {
+      teardownTaskLock.lock(); defer { teardownTaskLock.unlock() }
+      _teardownTask = newValue
+    }
+  }
 
   /// Dictionary holding the initiating item relative path as key and the download tasks as value
   private var downloadTasksDictionary = [String: [URLSessionTask]]()
@@ -147,15 +169,16 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
-    client: NetworkClientProtocol = NetworkClient(),
-    dataManager: DataManager
+    concurrenceService: ConcurrenceServiceProtocol,
+    tasksDataManager: TasksDataManager,
+    client: NetworkClientProtocol = NetworkClient()
   ) {
     self.isActive = isActive
     self.libraryService = libraryService
     self.accountService = accountService
-    let tasksDataManager = TasksDataManager()
+    self.concurrenceService = concurrenceService
     self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
-    self.jobManager = SyncJobScheduler(tasksDataManager: tasksDataManager, dataManager: dataManager)
+    self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -202,7 +225,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .sink(receiveValue: { [weak self] _ in
         /// Covers every logout path (iOS sign-out, account deletion, Watch), since
         /// they all post `.logout`. Tears down the queue, the flag, and `isActive`.
-        /// Held in `teardownTask` so a re-login's initial sync awaits it first.
+        /// Held in `teardownTask` — assigned SYNCHRONOUSLY (lock-guarded) so a
+        /// re-login's initial sync can never observe a pre-assignment nil.
         self?.teardownTask = Task { await self?.logout() }
       })
       .store(in: &disposeBag)
@@ -339,8 +363,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     if let lastItemPlayed = response.lastItemPlayed {
       filteredItemsDict.removeValue(forKey: lastItemPlayed.relativePath)
     }
-    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
 
+    await libraryService.updateInfo(for: filteredItemsDict, parentFolder: parentFolder)
+    
     await libraryService.storeNewItems(from: completeItemsDict, parentFolder: parentFolder)
 
     if canDelete {
@@ -452,8 +477,68 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
-    let remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    var remoteURLs: [RemoteFileURL] = []
+    var isExternalItem = false
+    if item.type == .book,
+       let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+      isExternalItem = true
+      switch ExternalResource.ProviderName(rawValue: external.providerName) {
+      case .jellyfin:
+        let keychainService = KeychainService()
+        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
+        // Stable-host resolution only — downloading from a guessed server fetches the wrong
+        // file when provider item ids collide across instances (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
 
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
+          // Custom headers first (reverse-proxy gates), integration Authorization wins on conflict.
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          var headers = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
+          headers["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              headers: headers
+            )
+          ]
+        }
+      case .audiobookshelf:
+        let keychainService = KeychainService()
+        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
+        // Stable-host resolution only — downloading from a guessed server fetches the wrong
+        // file when provider item ids collide across instances (shared Android contract).
+        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
+
+        if let connection = connection,
+           let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
+          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
+          // fight the integration's own header (same rule as JellyfinHeaderInjector).
+          var headers = connection.customHeaders.filter {
+            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
+          }
+          headers["Authorization"] = "Bearer \(connection.apiToken)"
+          remoteURLs = [
+            RemoteFileURL(
+              url: downloadUrl,
+              relativePath: item.relativePath,
+              type: .book,
+              headers: headers
+            )
+          ]
+        }
+      default:
+        break
+      }
+    } else {
+      remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
+    }
+    
     let processedFolderURL = DataManager.getProcessedFolderURL()
     let folderURLs = remoteURLs.filter({ $0.type != .book })
 
@@ -465,22 +550,47 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       }
     }
 
+    // An external item that produced no URL means its media-server connection isn't
+    // resolvable on this device (deleted / never added) — completing silently with zero
+    // download tasks strands the user with no spinner and no explanation.
+    if isExternalItem, remoteURLs.isEmpty {
+      throw BookPlayerError.runtimeError("integration_error_missing_connection".localized)
+    }
+
     let bookURLs = remoteURLs.filter({ $0.type == .book })
 
     var tasks = [URLSessionTask]()
 
     for remoteURL in bookURLs {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
+      let downloadUrl = remoteURL.url
 
       guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
+      
+      if let headers = remoteURL.headers, !headers.isEmpty {
+        var request = URLRequest(url: downloadUrl)
+        // Forward EVERY header — the dict deliberately includes the connection's custom
+        // headers (reverse-proxy gates like Cloudflare Access), not just Authorization.
+        for (field, value) in headers {
+          request.setValue(value, forHTTPHeaderField: field)
+        }
+        
+        let task = await provider.client.download(
+          request: request,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      let task = await provider.client.download(
-        url: remoteURL.url,
-        taskDescription: remoteURL.relativePath,
-        session: downloadURLSession.backgroundSession
-      )
+        tasks.append(task)
+      } else {
+        let task = await provider.client.download(
+          url: downloadUrl,
+          taskDescription: remoteURL.relativePath,
+          session: downloadURLSession.backgroundSession
+        )
 
-      tasks.append(task)
+        tasks.append(task)
+      }
     }
 
     downloadTasksDictionary[item.relativePath] = tasks
@@ -502,6 +612,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
+  public func scheduleExternalResourceUpload(
+    _ resource: SyncableExternalResource,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleExternalResourceUpload(
+        for: resource,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
+    }
+  }
+
+  public func scheduleExternalResourceDeletion(
+    providerName: String,
+    providerId: String,
+    relativePath: String,
+    uuid: String
+  ) {
+    guard isActive else { return }
+
+    Task {
+      await jobManager.scheduleDeleteExternalResource(
+        providerName: providerName,
+        providerId: providerId,
+        itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
+      )
+    }
+  }
+
   public func getAllQueuedJobs() async -> [SyncTaskReference] {
     return await jobManager.getAllQueuedJobs()
   }
@@ -511,7 +653,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func getLastSyncError() -> SyncErrorInfo? {
-    return jobManager.lastSyncError
+    return concurrenceService.lastSyncError
   }
 
   public func cancelAllJobs() {
@@ -532,6 +674,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       self.isActive = enabled
       if !enabled {
         self.cancelAllJobs()
+        // Clearing the persisted rows isn't enough (develop parity): an operation
+        // already executing keeps uploading after the lapse without this. Scoped so
+        // in-flight externalUpdate pushes survive — they run on every tier.
+        self.concurrenceService.cancelServerQueueOperations()
       }
     }
   }
@@ -588,6 +734,12 @@ extension SyncService {
   func handleItemsToUpload(_ items: [SyncableItem]) async {
     for item in items {
       await jobManager.scheduleLibraryItemUploadJob(for: item)
+      
+      if let externalResources = item.externalResources {
+        for externalResource in externalResources {
+          await jobManager.scheduleExternalResourceUpload(for: externalResource, itemOrigin: LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid))
+        }
+      }
     }
 
     /// Handle bookmarks in separate loop, as the viewContext can be unreliable
@@ -786,6 +938,27 @@ extension SyncService {
     DispatchQueue.main.async {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
+
+    guard
+      let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath),
+      let externalResource = snapshot.resources.first(where: {
+        $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue
+      })
+    else { return }
+
+    let externalSyncItem = SyncableExternalResource(
+      providerName: externalResource.providerName,
+      providerId: externalResource.providerId,
+      syncStatus: externalResource.syncStatus,
+      lastSyncedAt: nil,
+      processedFile: true,
+      hostId: externalResource.hostId
+    )
+    await libraryService.updateExternalResource(for: externalSyncItem)
+    // Deliberately NOT gated on `isActive`: external-resource sync is tier-independent by
+    // design (the reference lives in the DB for every tier and the server validates
+    // entitlements) — matching getDownloadState, which permits these downloads when !isActive.
+    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid, uploaded: false)
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a
@@ -919,9 +1092,10 @@ extension SyncService {
 
   /// Get download state of an item
   public func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
-    /// Only process if subscription is active
-    guard isActive else { return .downloaded }
-
+    let hasExternalResources = !(item.externalResources?.isEmpty ?? true)
+    /// Only process if subscription is active or it has external resources
+    guard isActive || hasExternalResources else { return .downloaded }
+    
     if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
       return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
     }

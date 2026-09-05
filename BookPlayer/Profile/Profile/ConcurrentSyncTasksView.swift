@@ -1,0 +1,145 @@
+//
+//  ConcurrentSyncTasksView.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 24/3/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import BookPlayerKit
+import SwiftData
+import SwiftUI
+
+/// Task list for a single provider/upload queue
+struct ConcurrentSyncTasksView: View {
+  let queueKey: String
+
+  @AppStorage(Constants.UserDefaults.allowCellularData)
+  private var allowsCellularData: Bool = false
+  var monitor = ConcurrentTaskProgressMonitor.shared
+  @State private var queuedJobs = [ConcurrentSyncTask]()
+  /// Dedup for the GLOBAL count emissions only — never mixed with this queue's
+  /// filtered count, or a coincidental match skips a needed reload. -1 so the
+  /// first emission always reloads.
+  @State private var globalTasksCount = -1
+  @State private var showInfoAlert = false
+  @State private var networkMonitor = NetworkMonitor()
+
+  @Environment(\.concurrenceService) private var concurrenceService
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  var body: some View {
+    List {
+      ThemedSection {
+        if queuedJobs.isEmpty {
+          // MARK: - Empty State
+          VStack(spacing: 12) {
+            Image(systemName: "checkmark.icloud")
+              .font(.largeTitle)
+        .imageScale(.large)
+              .foregroundStyle(.secondary)
+            
+            Text("sync_tasks_empty_title".localized)
+              .bpFont(.headline)
+            
+            Text("sync_tasks_empty_description".localized)
+              .bpFont(.subheadline)
+              .foregroundStyle(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          .padding(.vertical, 40)
+          .frame(maxWidth: .infinity)
+          .listRowBackground(Color.clear)
+          
+        } else {
+          ForEach(queuedJobs) { job in
+            QueuedSyncTaskRowView(
+              imageName: .constant(parseImageName(job.jobType)),
+              title: .constant(parseLabel(job.jobType, job.queueKey)),
+              // The progress notification carries the per-item resolved key, not the
+              // queue key — and the sink is gated on isUpload, so upload rows built
+              // with the queue key froze at their onAppear snapshot
+              progressKey: SyncProgressKey.resolve(uuid: job.uuid, relativePath: job.relativePath),
+              initialProgress: monitor.getTaskProgress(taskID: job.id),
+              isUpload: job.jobType == .uploadFile
+            )
+          }
+        }
+      } header: {
+        if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {
+          HStack {
+            Spacer()
+            Image(systemName: "wifi")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 20, height: 20)
+              .foregroundStyle(theme.linkColor)
+              .padding([.trailing], 5)
+            Text("upload_wifi_required_title".localized)
+              .bpFont(.body)
+              .foregroundStyle(theme.secondaryColor)
+            Spacer()
+          }
+        }
+      }
+    }
+    .scrollContentBackground(.hidden)
+    .background(theme.systemBackgroundColor)
+    .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
+    .navigationTitle(QueueDisplay.name(for: queueKey))
+    .navigationBarTitleDisplayMode(.inline)
+    .alert("", isPresented: $showInfoAlert) {
+      Button("ok_button".localized, role: .cancel) {}
+    } message: {
+      Text("sync_tasks_alert_description".localized)
+    }
+    .onReceive(
+      concurrenceService.observeConcurrentTasksCount()
+    ) { count in
+      guard globalTasksCount != count else { return }
+
+      globalTasksCount = count
+      reloadQueuedJobs()
+    }
+    .onAppear {
+      reloadQueuedJobs()
+    }
+    .toolbar {
+      ToolbarItem(placement: .confirmationAction) {
+        Button {
+          showInfoAlert = true
+        } label: {
+          Image(systemName: "info.circle")
+        }
+        .accessibilityLabel("info_title".localized)
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+  }
+
+  func reloadQueuedJobs() {
+    Task { @MainActor in
+      let allJobs = await concurrenceService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
+        .filter { $0.queueKey == queueKey }
+      queuedJobs = allJobs
+    }
+  }
+
+  func parseImageName(_ jobType: SyncJobType) -> String {
+    switch jobType {
+    case .uploadFile:
+      return "square.and.arrow.up.badge.clock"
+    default:
+      return "arrow.2.circlepath"
+    }
+  }
+
+  func parseLabel(_ jobType: SyncJobType, _ queueKey: String) -> String {
+    switch jobType {
+    case .uploadFile:
+      return "task_uploading_file_label".localized
+    default:
+      return String(format: "task_updating_progress_label".localized, queueKey)
+    }
+  }
+}
