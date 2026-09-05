@@ -23,7 +23,7 @@ public protocol ConcurrenceServiceProtocol {
 
   func setup(
     libraryService: LibrarySyncProtocol,
-    accessLevel: AccessLevel,
+    getAccessLevel: @escaping () -> AccessLevel,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
@@ -43,7 +43,6 @@ public protocol ConcurrenceServiceProtocol {
 
   func scheduleFileUpload(params: [String: Any])
 
-  func updateConcurrentService(_ accessLevel: AccessLevel)
 
   /// Cancels in-flight BookPlayer-server operations (serial sync + S3 uploads) on a
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
@@ -101,25 +100,46 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
   deinit { listeningTask?.cancel() }
 
+  /// The service's ONLY account dependency — one read, so a closure instead of the
+  /// whole AccountServiceProtocol (same narrowing as the import bus). Internal for
+  /// @testable injection.
+  var getAccessLevel: (() -> AccessLevel)!
+
   public func setup(
     libraryService: LibrarySyncProtocol,
-    accessLevel: AccessLevel,
+    getAccessLevel: @escaping () -> AccessLevel,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
   ) {
     self.libraryService = libraryService
+    self.getAccessLevel = getAccessLevel
     self.networkClient = networkClient
     self.dataManager = dataManager
     self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
     self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
     startListeningForNewTasks()
     bindObservers()
+    bindAccountObserver()
     // Policy BEFORE workers: createOperation consults accessPolicy to decide whether a
     // persisted upload may run — waking workers first only worked because wakeUpWorkers
     // happens to suspend on the repository actor before any pop
-    updateConcurrentService(accessLevel)
+    updateConcurrentService(getAccessLevel())
     wakeUpWorkers()
+  }
+
+  /// Ownership norm (same as SyncService): the service re-derives its own per-job
+  /// policy on account changes — no per-platform coordinator wiring to forget.
+  /// RevenueCat updates post .accountUpdate; without this, a mid-session upgrade left
+  /// the launch-time policy (file uploads still gated off) until the next app start.
+  func bindAccountObserver() {
+    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.updateConcurrentService(self.getAccessLevel())
+      }
+      .store(in: &disposeBag)
   }
 
   func bindObservers() {
@@ -474,7 +494,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     }
   }
 
-  public func updateConcurrentService(_ accessLevel: AccessLevel) {
+  func updateConcurrentService(_ accessLevel: AccessLevel) {
     switch accessLevel {
     case .lite:
       accessPolicy = [

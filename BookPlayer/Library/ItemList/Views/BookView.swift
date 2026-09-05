@@ -116,7 +116,7 @@ struct BookView: View {
     let concurrenceService = ConcurrenceService()
     concurrenceService.setup(
       libraryService: libraryService,
-      accessLevel: accountService.accessLevel,
+      getAccessLevel: { accountService.getAccessLevel() },
       tasksDataManager: tasksDataManager,
       networkClient: NetworkClient(),
       dataManager: dataManager
