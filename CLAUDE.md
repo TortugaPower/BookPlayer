@@ -142,7 +142,11 @@ first. Reordering boot risks a launch crash.
   itself carries no external-import state or publishers. The environment keys
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
   throwaway placeholder (an un-`setup()` service).** A view that reads the environment default instead of the
-  injected instance silently gets a non-functional service — verify real injection by `MainCoordinator`.
+  injected instance gets a non-functional service: stored-property reads return inert defaults, but METHODS that
+  touch un-`setup()` dependencies trap on their implicitly-unwrapped optionals (`SyncService.observeTasksCount`,
+  `ConcurrenceService.observeConcurrentTasksCount`, and siblings all behave this way — it is the pattern, not a
+  defect). Verify real injection by `MainCoordinator`; previews that exercise such views must construct and
+  inject set-up services (see `ProfileSyncTasksSectionView`'s preview), never rely on the defaults.
 - **App Intents DI:** only `playerLoaderService` and `libraryService` are registered via
   `AppDependencyManager.shared.add(...)` in `setupCoreServices()`. The **extension** targets consume them with
   `@Dependency` (under `#if !MAIN_APP`); the **main app** instead resolves via
