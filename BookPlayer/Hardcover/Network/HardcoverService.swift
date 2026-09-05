@@ -55,7 +55,11 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
-  private var syncService: SyncServiceProtocol?
+  /// IUO like its siblings (two-step init()+setup() DI): always injected by
+  /// AppServices in production. Deliberately NOT optional — the schedule calls below
+  /// are the sync-up for Hardcover-driven changes, and optional chaining would turn a
+  /// missed injection into silently un-synced changes instead of a loud failure.
+  private var syncService: SyncServiceProtocol!
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
@@ -77,7 +81,7 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   func setup(
     libraryService: LibraryServiceProtocol,
-    syncService: SyncServiceProtocol? = nil,
+    syncService: SyncServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
   ) {
@@ -453,7 +457,7 @@ extension HardcoverService {
       )
     else { return }
 
-    syncService?.scheduleExternalResourceUpload(
+    syncService.scheduleExternalResourceUpload(
       syncable,
       relativePath: item.relativePath,
       uuid: item.uuid
@@ -471,7 +475,7 @@ extension HardcoverService {
       )
     else { return }
 
-    syncService?.scheduleExternalResourceDeletion(
+    syncService.scheduleExternalResourceDeletion(
       providerName: providerName,
       providerId: providerId,
       relativePath: item.relativePath,
@@ -495,7 +499,7 @@ extension HardcoverService {
     do {
       let (data, _) = try await URLSession.shared.data(from: artworkURL)
       await ArtworkService.storeInCache(data, for: item.relativePath)
-      syncService?.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
+      syncService.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
       Self.logger.info("Set Hardcover artwork for '\(item.title)'")
     } catch {
       Self.logger.error("Failed to download Hardcover artwork for '\(item.title)': \(error)")
