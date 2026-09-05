@@ -46,10 +46,10 @@ where Model.Item == JellyfinLibraryItem {
       Picker(selection: Binding(
         get: { vm.sortBy },
         set: { vm.sortBy = $0 }
-      ), label: Text("Sort by".localized)) {
-        Text("Default".localized).tag(JellyfinLayout.SortBy.smart)
+      ), label: Text("sort_by_title".localized)) {
+        Text("sort_default_option".localized).tag(JellyfinLayout.SortBy.smart)
         Label("sort_most_recent_button", systemImage: "clock").tag(JellyfinLayout.SortBy.recent)
-        Label("Name".localized, systemImage: "textformat.abc").tag(JellyfinLayout.SortBy.name)
+        Label("sort_name_option".localized, systemImage: "textformat.abc").tag(JellyfinLayout.SortBy.name)
       }
     }
   }

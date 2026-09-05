@@ -65,13 +65,25 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     }
     
     // Spin up the async context
-    Task {
-      await startUploadTask()
+    Task { [weak self] in
+      await self?.startUploadTask()
     }
   }
   
   // MARK: - Upload Logic
+  /// uploadStateLock-guarded: each (re)start claims a new generation, and only the
+  /// LATEST one may publish + resume — a rapid double-toggle of allowCellularData fires
+  /// two KVO restarts, and without this both passed `!isCancelled` (the operation isn't
+  /// cancelled, only the internal task was) and resumed two concurrent PUTs, the first
+  /// unreachable by cancel() after the second overwrote currentUploadTask.
+  private var restartGeneration = 0
+
   private func startUploadTask() async {
+    uploadStateLock.lock()
+    restartGeneration += 1
+    let generation = restartGeneration
+    uploadStateLock.unlock()
+
     // A missing local file is permanent — retrying can never succeed, and a failed task
     // blocks the serial upload queue forever. Consume it instead.
     guard FileManager.default.fileExists(atPath: fileURL.path) else {
@@ -91,8 +103,9 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       session: session
     )
     uploadStateLock.lock()
-    guard !isCancelled else {
-      // cancel() already ran (and finished the operation) — don't resume or rebind
+    guard !isCancelled, generation == restartGeneration else {
+      // cancel() already ran (and finished the operation), or a newer restart claimed
+      // the upload — don't resume or rebind; a stale resume would race the newer task
       uploadStateLock.unlock()
       return
     }

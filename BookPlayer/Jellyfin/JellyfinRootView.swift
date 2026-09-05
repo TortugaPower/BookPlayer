@@ -71,7 +71,7 @@ struct JellyfinRootView: View {
               singleFileDownloadService: singleFileDownloadService,
               accountService: accountService,
               navigation: nav,
-              navigationTitle: "Authors"
+              navigationTitle: "authors_title".localized
             )
           }
         )

@@ -227,7 +227,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var externalUrl: URL?
     var externalHeaders: [String: String] = [:]
     
-    let externalResource = book.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+    // Deterministic pick: the snapshot set is UNORDERED, so an item linked to two
+    // streaming providers would otherwise resolve to whichever the set yields first,
+    // varying between launches. Stable (providerName, providerId) order pins it.
+    let externalResource = book.externalResources?
+      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
+      .first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
     if let providerRaw = externalResource?.providerName,
        let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
       

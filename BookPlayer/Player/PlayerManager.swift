@@ -15,7 +15,7 @@ import Sentry
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BPLogger {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   private let syncService: SyncServiceProtocol
@@ -324,7 +324,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
         // Only load metadata if duration is unknown, to avoid network bottleneck
         if chapter.duration == 0 {
-          _ = try? await asset.load(.duration, .isPlayable)
+          do {
+            _ = try await asset.load(.duration, .isPlayable)
+          } catch {
+            // Deliberately non-fatal: a dead stream fails LOUDLY at the player-item
+            // level right after (the .failed -> session-expired alert path). The only
+            // silent case is a transient metadata-only failure — playback proceeds with
+            // duration 0 (degraded scrubber/progress), so log it for diagnosability.
+            Self.logger.warning("External stream metadata load failed; continuing with duration 0: \(error)")
+          }
 
           await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
           // The awaits above can outlive this load (user tapped another book) — applying the

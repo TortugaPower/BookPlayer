@@ -535,6 +535,14 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sort_by_title" = "Sort by";
+"sort_title_option" = "Title";
+"sort_default_option" = "Default";
+"sort_name_option" = "Name";
+"layout_options_title" = "Layout options";
+"layout_grid_option" = "Grid";
+"layout_list_option" = "List";
+"authors_title" = "Authors";
 "import_no_audio_files_alert" = "The selected items have no audio files to import.";
 "import_title" = "Import";
 "files_title" = "%d Files";

@@ -12,7 +12,7 @@ import SwiftUI
 struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   @ObservedObject var viewModel: Model
 
-  @ScaledMetric var accessabilityScale: CGFloat = 1
+  @ScaledMetric var accessibilityScale: CGFloat = 1
   @State private var availableSize: CGSize = .zero
   private let itemMinSizeBase = CGSize(width: 100, height: 100)
   private let itemMaxSizeBase = CGSize(width: 250, height: 250)
@@ -21,7 +21,7 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
   private func adjustSize(_ size: CGSize, availableSize: CGSize) -> CGSize {
     CGSize(
       width: min(size.width, availableSize.width),
-      height: min(size.height * accessabilityScale, availableSize.height)
+      height: min(size.height * accessibilityScale, availableSize.height)
     )
   }
 
@@ -31,7 +31,7 @@ struct JellyfinLibraryGridView<Model: JellyfinLibraryViewModelProtocol>: View {
         numItems: viewModel.items.count,
         itemMinSize: adjustSize(itemMinSizeBase, availableSize: geometry.size),
         itemMaxSize: adjustSize(itemMaxSizeBase, availableSize: geometry.size),
-        itemSpacing: itemSpacingBase * accessabilityScale
+        itemSpacing: itemSpacingBase * accessibilityScale
       ) {
         ForEach(viewModel.items, id: \.id) { item in
           JellyfinLibraryGridItemView(item: item, isSelected: viewModel.selectedItems.contains(item.id))

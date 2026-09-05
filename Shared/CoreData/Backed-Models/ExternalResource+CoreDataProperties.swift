@@ -33,7 +33,10 @@ public class ExternalResource: NSManagedObject {
     // swiftlint:disable:next force_cast
     let entity = NSEntityDescription.insertNewObject(forEntityName: "ExternalResource", into: context) as! ExternalResource
 
-    entity.id = Int32(item.id)
+    // truncatingIfNeeded: snapshot ids from the import builders are abs(UUID().hashValue)
+    // — almost always beyond Int32.max, and Int32(exactly-style init) would trap. The
+    // field is a local row marker, not identity (that's (providerName, providerId)).
+    entity.id = Int32(truncatingIfNeeded: item.id)
     entity.providerName = item.providerName
     entity.providerId = item.providerId
     entity.lastSyncedAt = item.lastSyncedAt

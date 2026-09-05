@@ -714,9 +714,6 @@ public class AudiobookShelfConnectionService: BPLogger {
       .appendingPathComponent("download")
   }
 
-  /// Returns a URLRequest for downloading a library item, carrying the bearer
-  /// token via the standard `Authorization: Bearer` header plus the user-defined
-  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
   /// Fetches the user's saved progress for one library item (`GET /api/me/progress/{id}`).
   public func fetchItem(for id: String) async throws -> AudiobookShelfLibraryItem? {
     guard let connection else {
@@ -767,6 +764,9 @@ public class AudiobookShelfConnectionService: BPLogger {
     _ = try validateAuthenticatedResponse(response)
   }
 
+  /// Returns a URLRequest for downloading a library item, carrying the bearer
+  /// token via the standard `Authorization: Bearer` header plus the user-defined
+  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
   public func createItemDownloadRequest(_ item: AudiobookShelfLibraryItem) throws -> URLRequest {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
