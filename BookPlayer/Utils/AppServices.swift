@@ -80,7 +80,7 @@ final class AppServices: BPLogger {
       let tasksDataManager = TasksDataManager()
       let concurrenceService = makeConcurrenceService(
         libraryService: libraryService,
-        accessLevel: accountService.accessLevel,
+        getAccessLevel: { accountService.getAccessLevel() },
         tasksDataManager: tasksDataManager,
         dataManager: dataManager
       )
@@ -248,14 +248,14 @@ final class AppServices: BPLogger {
 
   private func makeConcurrenceService(
     libraryService: LibraryService,
-    accessLevel: AccessLevel,
+    getAccessLevel: @escaping () -> AccessLevel,
     tasksDataManager: TasksDataManager,
     dataManager: DataManager
   ) -> ConcurrenceService {
     let service = ConcurrenceService()
     service.setup(
       libraryService: libraryService,
-      accessLevel: accessLevel,
+      getAccessLevel: getAccessLevel,
       tasksDataManager: tasksDataManager,
       networkClient: NetworkClient(),
       dataManager: dataManager

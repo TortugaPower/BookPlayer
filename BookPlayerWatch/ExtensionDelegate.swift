@@ -75,7 +75,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let concurrenceService = ConcurrenceService()
       concurrenceService.setup(
         libraryService: libraryService,
-        accessLevel: accountService.accessLevel,
+        getAccessLevel: { accountService.getAccessLevel() },
         tasksDataManager: tasksDataManager,
         networkClient: NetworkClient(),
         dataManager: dataManager
@@ -316,15 +316,10 @@ extension ExtensionDelegate: PurchasesDelegate {
     let enableSync = customerInfo.entitlements.all["pro"]?.isActive == true
     || customerInfo.entitlements.all["lite"]?.isActive == true
     coreServices?.updateSyncEnabled(enableSync)
-    
-    let accessLevel: AccessLevel = customerInfo.entitlements.all["pro"]?.isActive == true
-      ? .pro
-      : customerInfo.entitlements.all["lite"]?.isActive == true
-        ? .lite
-        : customerInfo.entitlements["plus"]?.isActive == true
-          ? .plus
-          : .free
-    
-    coreServices?.updateConcurrentService(accessLevel)
+
+    // Same route as iOS's MainCoordinator delegate: AccountService derives the level
+    // and posts .accountUpdate, which ConcurrenceService (and SyncService) observe —
+    // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
+    coreServices?.accountService.updateAccount(from: customerInfo)
   }
 }

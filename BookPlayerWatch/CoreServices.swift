@@ -53,15 +53,13 @@ class CoreServices: ObservableObject {
 
   func checkAndReloadIfSyncIsEnabled() {
     self.hasSyncEnabled = accountService.hasSyncEnabled()
-    self.updateConcurrentService(accountService.getAccessLevel())
+    // ConcurrenceService re-derives its own policy from .accountUpdate (posted by the
+    // Shared AccountService update this flow just ran) — no manual forwarding needed.
   }
 
   func updateSyncEnabled(_ enabled: Bool) {
     hasSyncEnabled = enabled
     syncService.updateSyncEnabled(enabled)
   }
-  
-  func updateConcurrentService(_ accessLevel: AccessLevel) {
-    concurrenceService.updateConcurrentService(accessLevel)
-  }
+
 }
