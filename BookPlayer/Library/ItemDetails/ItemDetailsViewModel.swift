@@ -109,7 +109,12 @@ final class ItemDetailsViewModel: ObservableObject {
   /// then fetching the real book info from Hardcover by its providerId.
   @MainActor
   private func resolveHardcoverSelection() async {
-    if let book = await libraryService.getHardcoverBook(for: item.relativePath) {
+    let stored = await libraryService.getHardcoverBook(for: item.relativePath)
+    // Only a row WITH metadata short-circuits: updateHardcoverStatus persists a
+    // status-only stub (empty title) when a synced-down link crosses the reading
+    // threshold before this device ever opened details — that stub must not shadow
+    // the fetch-repair below, or the row renders blank forever.
+    if let book = stored, !book.title.isEmpty {
       hardcoverBook = book
       hardcoverSectionViewModel?.pickerViewModel.selected = .init(
         id: book.id,
@@ -131,13 +136,16 @@ final class ItemDetailsViewModel: ObservableObject {
       let bookID = Int(resource.providerId)
     else { return }
 
-    /// Show at least the item's title so the row reflects a selection
+    /// Show at least the item's title so the row reflects a selection. The interim
+    /// carries the STUB's monotonic state when one exists — getBook() knows nothing
+    /// about user state, and the save flow reads userBookID off this property.
     hardcoverBook = SimpleHardcoverBook(
       id: bookID,
       artworkURL: nil,
       title: item.title,
       author: item.details,
-      status: .local
+      status: stored?.status ?? .local,
+      userBookID: stored?.userBookID
     )
     hardcoverSectionViewModel?.pickerViewModel.selected = .init(
       id: bookID,
@@ -157,7 +165,16 @@ final class ItemDetailsViewModel: ObservableObject {
       hardcoverSectionViewModel?.pickerViewModel.selected?.id == bookID
     else { return }
 
-    hardcoverBook = fetched
+    if let stub = stored {
+      // Repair the stub ONCE (metadata from Hardcover, state from the stub) so the
+      // row renders correctly everywhere without re-fetching per details visit.
+      let merged = stub.repairingMetadata(from: fetched)
+      await libraryService.setHardcoverBook(merged, for: item.relativePath)
+      hardcoverBook = merged
+    } else {
+      // Never linked locally: display-only, matching the pre-existing behavior.
+      hardcoverBook = fetched
+    }
     hardcoverSectionViewModel?.pickerViewModel.selected = .init(
       id: fetched.id,
       artworkURL: fetched.artworkURL,
