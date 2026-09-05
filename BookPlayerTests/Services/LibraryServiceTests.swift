@@ -2364,3 +2364,40 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
   }
 }
+
+// MARK: - Hardcover stub repair
+
+@MainActor
+final class SimpleHardcoverBookRepairTests: XCTestCase {
+  /// The merge rule behind the device-B stub repair: metadata comes from the fetched
+  /// copy, monotonic state stays local. getBook(id:) always returns status .local and
+  /// no userBookID (metadata-only query), so taking state from the fetch would regress
+  /// reading progress already pushed to Hardcover and break the unlink flow's
+  /// userBookID check.
+  func testRepairKeepsLocalMonotonicStateAndTakesFetchedMetadata() {
+    let stub = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: nil,
+      title: "",
+      author: "",
+      status: .reading,
+      userBookID: 99
+    )
+    let fetched = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: URL(string: "https://assets.hardcover.app/books/445742/cover.jpg"),
+      title: "Awaken Online: Catharsis",
+      author: "Travis Bagwell",
+      status: .local,
+      userBookID: nil
+    )
+
+    let repaired = stub.repairingMetadata(from: fetched)
+
+    XCTAssertEqual(repaired.title, "Awaken Online: Catharsis")
+    XCTAssertEqual(repaired.author, "Travis Bagwell")
+    XCTAssertNotNil(repaired.artworkURL)
+    XCTAssertEqual(repaired.status, .reading, "repair must not regress the pushed reading status")
+    XCTAssertEqual(repaired.userBookID, 99, "losing userBookID would break the unlink removal call")
+  }
+}
