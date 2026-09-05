@@ -284,22 +284,18 @@ extension HardcoverService {
     await updateExternalResources(for: relativePath, to: .read)
   }
 
-  /// Iterate the item's external resources and run the matching provider action for the new status.
+  /// Push the new status to the item's Hardcover link(s), if any — reading-status
+  /// actions only exist for Hardcover; other providers' progress rides the
+  /// externalUpdate queue instead.
   private func updateExternalResources(
     for relativePath: String,
     to status: HardcoverBook.Status
   ) async {
     let resources = await libraryService.getExternalResources(for: relativePath)
 
-    for resource in resources {
-      guard let provider = ExternalResource.ProviderName(rawValue: resource.providerName) else { continue }
-
-      switch provider {
-      case .hardcover:
-        await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
-      case .jellyfin, .audiobookshelf:
-        break
-      }
+    for resource in resources
+    where ExternalResource.ProviderName(rawValue: resource.providerName) == .hardcover {
+      await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
     }
   }
 
