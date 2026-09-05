@@ -834,11 +834,7 @@ public class JellyfinConnectionService: BPLogger {
     }
 
     let request = Paths.getDownload(itemID: item.id)
-    var components = try createUrlComponentsForApiRequest(request)
-
-    var queryItems = components.queryItems ?? []
-    queryItems.append(URLQueryItem(name: "api_key", value: client.accessToken))
-    components.queryItems = queryItems
+    let components = try createUrlComponentsForApiRequest(request)
 
     guard let url = components.url else {
       throw IntegrationError.urlFromComponents(components)
@@ -851,7 +847,14 @@ public class JellyfinConnectionService: BPLogger {
   /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
   public func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
     let url = try createItemDownloadUrl(item)
-    return wrapWithCustomHeaders(url)
+    var request = wrapWithCustomHeaders(url)
+    // Token rides Jellyfin's native header, NOT the query string: URLs land in server
+    // logs, proxy logs, and download-manager UI, and the caller builds a URLRequest
+    // anyway. Background URLSession preserves request headers across app relaunches.
+    if let token = client?.accessToken {
+      request.setValue(token, forHTTPHeaderField: "X-Emby-Token")
+    }
+    return request
   }
 
   /// Wraps an arbitrary URL (e.g. a cover image) in a URLRequest carrying the current

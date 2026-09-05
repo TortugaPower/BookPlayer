@@ -34,7 +34,7 @@ struct SyncInvitationCard: View {
         }
       }
         
-      Text(String(format: "sync_invitation_description".localized, 
+      Text(String.localizedStringWithFormat("sync_invitation_description".localized, 
                   (subscription == .lite ? "import_verb" : "download_verb").localized, 
                   totalItems, 
                   ((subscription == .pro || subscription == .lite) ? "" : "sync_invitation_stream_description".localized)))

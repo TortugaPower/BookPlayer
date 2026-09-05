@@ -172,9 +172,9 @@ struct IntegrationLibraryView<
   var layoutPreferences: some View {
     if viewModel.showsLayoutPreferences {
       ThemedSection {
-        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-          Label("Grid".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
-          Label("List".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
+        Picker(selection: $viewModel.layout, label: Text("layout_options_title".localized)) {
+          Label("layout_grid_option".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
+          Label("layout_list_option".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
         }
       }
     }

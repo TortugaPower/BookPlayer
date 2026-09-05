@@ -29,6 +29,10 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public let lastPlayDate: Date?
   public let type: SimpleItemType
   public let uuid: String
+  /// Mutually recursive with SimpleExternalResource.libraryItem. The synthesized
+  /// Equatable/Hashable only terminate because back-pointers are built with
+  /// ignoreLibraryItem (resources held HERE carry libraryItem == nil) — preserve that
+  /// invariant when constructing snapshots.
   public let externalResources: [SimpleExternalResource]?
   
   public var progress: Double {

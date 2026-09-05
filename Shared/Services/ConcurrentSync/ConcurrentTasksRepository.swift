@@ -77,7 +77,13 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
         /// Drop dangling references (payload missing) instead of stalling the queue
         tasksContainer.tasks.removeAll(where: { $0.id == reference.id })
         modelContext.delete(reference)
-        try? modelContext.save()
+        do {
+          try modelContext.save()
+        } catch {
+          // Unsaved = the dangling reference resurfaces on the next getNextTask pass;
+          // log like every other save site so repeats are diagnosable
+          Self.logger.error("Failed to persist dangling-reference cleanup: \(error)")
+        }
         tasksDataManager.notifyTasksChanged(context: modelContext)
         continue
       }

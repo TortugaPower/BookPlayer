@@ -1511,9 +1511,12 @@ extension LibraryService {
     fetchRequest.resultType = .dictionaryResultType
 
     let context = dataManager.getContext()
-    let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-
-    return parseFetchedItems(from: results, context: context)?.first
+    // performAndWait like the sibling find* methods: safe on the main-thread callers
+    // of today, correct if a background caller ever appears
+    return context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      return parseFetchedItems(from: results, context: context)?.first
+    }
   }
 
   func getItem(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
@@ -1828,7 +1831,10 @@ extension LibraryService {
   /// @MainActor: creates/mutates managed objects on the main-queue viewContext — running
   /// this off the main thread is the CoreData threading violation the repo bans.
   @MainActor
-  public func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
+  /// Internal (not public, not on the protocol): returns a managed object, which must
+  /// never cross the service boundary — the sole caller insertItems(fromResources:)
+  /// snapshots it to SimpleLibraryItem on the same context.
+  func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
     let context = dataManager.getContext()
     
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
