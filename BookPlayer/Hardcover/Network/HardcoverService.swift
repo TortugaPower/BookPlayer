@@ -488,9 +488,22 @@ extension HardcoverService {
   ) async {
     guard
       let artworkURL = book.artworkURL,
-      item.artworkURL == nil,
-      !ArtworkService.isCached(relativePath: item.relativePath)
+      item.artworkURL == nil
     else { return }
+
+    // item.artworkURL == nil can't see EMBEDDED artwork (it only tracks custom/remote),
+    // and the cache is populated lazily on first render — so a bare isCached check
+    // raced auto-match on import: a not-yet-rendered item's embedded art lost to the
+    // Hardcover cover PERMANENTLY (the cache key shadows the extractor forever) and
+    // scheduleUploadArtwork then propagated the wrong cover to every device. Run the
+    // canonical pipeline first: on a cache miss it extracts embedded artwork; only an
+    // item with genuinely no artwork of its own falls back to Hardcover's cover.
+    let hasOwnArtwork = await withCheckedContinuation { continuation in
+      ArtworkService.retrieveImageFromCache(for: item.relativePath) { result in
+        continuation.resume(returning: (try? result.get()) != nil)
+      }
+    }
+    guard !hasOwnArtwork else { return }
 
     do {
       let (data, _) = try await URLSession.shared.data(from: artworkURL)
