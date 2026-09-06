@@ -219,13 +219,15 @@ struct IntegrationAudiobookDetailsView<
       HStack {
         Image(systemName: "arrow.down.circle.dotted")
         Text("stream_button".localized)
-          .foregroundStyle(theme.primaryColor)
           .bpFont(.title)
       }
       .frame(height: 24)
       .frame(maxWidth: .infinity)
       .padding()
-      .foregroundStyle(theme.primaryColor)
+      // Set once for the label AND the symbol: systemBackgroundColor on linkColor is the
+      // app's accent-filled button treatment (what the Download button this replaced used).
+      // primaryColor is the main foreground colour and reads low-contrast on the accent.
+      .foregroundStyle(theme.systemBackgroundColor)
       .background(theme.linkColor)
       .cornerRadius(10)
     }

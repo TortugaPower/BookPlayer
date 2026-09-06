@@ -29,8 +29,97 @@ enum JellyfinPersonRole {
   case narrator
 }
 
+// MARK: - Shared folder-import flow
+
+/// The two Jellyfin book-listing VMs share the identical import flow verbatim; the
+/// persons-list VM never imports and deliberately does not conform. handleImportItems
+/// and confirmExternalImport are witnessed by the extension defaults below;
+/// virtualImportFolderAudiobooks stays a per-VM wrapper so the isImporting reentrancy
+/// guard keeps its @Published private(set) access.
 @MainActor
-final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+protocol JellyfinFolderImporting: AnyObject, BPLogger {
+  var items: [JellyfinLibraryItem] { get }
+  var selectedItems: Set<JellyfinLibraryItem.ID> { get }
+  var connectionService: JellyfinConnectionService { get }
+  var accountService: AccountService { get }
+  var navigation: BPNavigation { get }
+  var onImportConfirmed: ([SimpleExternalResource]) -> Void { get }
+  var error: Error? { get set }
+  var pendingImportBatch: ExternalImportBatch? { get set }
+
+  func virtualImportFolderAudiobooks(useSelectedItems: Bool) async
+  func onDownloadTapped()
+  func confirmDownloadFolder()
+}
+
+extension JellyfinFolderImporting {
+  @MainActor
+  func handleImportItems(useSelectedItems: Bool) async {
+    if accountService.hasStreamingEnabled() {
+      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
+    } else {
+      if useSelectedItems {
+        onDownloadTapped()
+      } else {
+        confirmDownloadFolder()
+      }
+    }
+  }
+
+  @MainActor
+  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
+    // Bulk imports land you in the library (today's destination): send the batch on
+    // the import bus, then close the browser
+    onImportConfirmed(resources)
+    navigation.dismiss?()
+  }
+
+  /// The shared import body — callers hold the isImporting guard.
+  func runFolderImport(useSelectedItems: Bool) async {
+        let audiobooks = useSelectedItems
+    ? selectedItems.compactMap({ id in
+      self.items.first(where: { $0.id == id })
+    })
+    : self.items.filter { $0.kind == .audiobook }
+    
+    
+    guard !audiobooks.isEmpty else { return }
+
+    do {
+      let resources = try await VirtualImportPipeline.run(
+        items: audiobooks,
+        id: \.id,
+        hydrateExtensions: { ids in
+          let hydrated = try await self.connectionService.fetchItems(ids: ids)
+          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
+        },
+        buildResource: { item, fileExtension in
+          item.asVirtualImportResource(
+            fileExtension: fileExtension,
+            detailsOverride: nil,
+            connectionService: self.connectionService,
+            artworkSize: CGSize(width: 200, height: 200)
+          )
+        }
+      )
+      guard !resources.isEmpty else {
+        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+        return
+      }
+      if resources.count < audiobooks.count {
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+      }
+      // Stage as a VALUE for this screen's own confirmation sheet — the browser
+      // stays open beneath it; dismissal happens on confirm
+      pendingImportBatch = ExternalImportBatch(resources: resources)
+    } catch {
+      self.error = error
+    }
+  }
+}
+
+@MainActor
+final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, JellyfinFolderImporting, BPLogger {
   enum Routes {
     case done
   }
@@ -320,19 +409,6 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   }
   
   @MainActor
-  func handleImportItems(useSelectedItems: Bool) async {
-    if accountService.hasStreamingEnabled() {
-      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
-    } else {
-      if useSelectedItems {
-        onDownloadTapped()
-      } else {
-        confirmDownloadFolder()
-      }
-    }
-  }
-
-  @MainActor
   func onDownloadTapped() {
     let items = selectedItems.compactMap({ id in
       self.items.first(where: { $0.id == id })
@@ -388,48 +464,12 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
   
   @MainActor
   func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
-    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    // Reentrancy guard stays per-VM (isImporting keeps private(set)); the shared
+    // body lives in JellyfinFolderImporting.runFolderImport
     guard !isImporting else { return }
-    let audiobooks = useSelectedItems
-    ? selectedItems.compactMap({ id in
-      self.items.first(where: { $0.id == id })
-    })
-    : self.items.filter { $0.kind == .audiobook }
-    
-    guard !audiobooks.isEmpty else { return }
     isImporting = true
     defer { isImporting = false }
-
-    do {
-      let resources = try await VirtualImportPipeline.run(
-        items: audiobooks,
-        id: \.id,
-        hydrateExtensions: { ids in
-          let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
-        },
-        buildResource: { item, fileExtension in
-          item.asVirtualImportResource(
-            fileExtension: fileExtension,
-            detailsOverride: nil,
-            connectionService: self.connectionService,
-            artworkSize: CGSize(width: 200, height: 200)
-          )
-        }
-      )
-      guard !resources.isEmpty else {
-        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-        return
-      }
-      if resources.count < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
-      }
-      // Stage as a VALUE for this screen's own confirmation sheet — the browser
-      // stays open beneath it; dismissal happens on confirm
-      pendingImportBatch = ExternalImportBatch(resources: resources)
-    } catch {
-      self.error = error
-    }
+    await runFolderImport(useSelectedItems: useSelectedItems)
   }
   
   @MainActor
@@ -437,19 +477,12 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, BPLog
     self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
   }
 
-  @MainActor
-  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
-    // Bulk imports land you in the library (today's destination): send the batch on
-    // the import bus, then close the browser
-    onImportConfirmed(resources)
-    navigation.dismiss?()
-  }
 }
 
 // MARK: - Author Books ViewModel
 
 @MainActor
-final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, BPLogger {
+final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, JellyfinFolderImporting, BPLogger {
   let role: JellyfinPersonRole
   let personID: String
   let parentID: String?
@@ -613,63 +646,15 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
     navigation.dismiss?()
   }
   
-  @MainActor
-  func handleImportItems(useSelectedItems: Bool) async {
-    if accountService.hasStreamingEnabled() {
-      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
-    } else {
-      if useSelectedItems {
-        onDownloadTapped()
-      } else {
-        confirmDownloadFolder()
-      }
-    }
-  }
   
   @MainActor
   func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
-    // Reentrancy guard: a double-tap mid-hydration must not run two imports
+    // Reentrancy guard stays per-VM (isImporting keeps private(set)); the shared
+    // body lives in JellyfinFolderImporting.runFolderImport
     guard !isImporting else { return }
-    let audiobooks = useSelectedItems
-    ? selectedItems.compactMap({ id in
-      self.items.first(where: { $0.id == id })
-    })
-    : self.items.filter { $0.kind == .audiobook }
-    
-    guard !audiobooks.isEmpty else { return }
     isImporting = true
     defer { isImporting = false }
-
-    do {
-      let resources = try await VirtualImportPipeline.run(
-        items: audiobooks,
-        id: \.id,
-        hydrateExtensions: { ids in
-          let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
-        },
-        buildResource: { item, fileExtension in
-          item.asVirtualImportResource(
-            fileExtension: fileExtension,
-            detailsOverride: nil,
-            connectionService: self.connectionService,
-            artworkSize: CGSize(width: 200, height: 200)
-          )
-        }
-      )
-      guard !resources.isEmpty else {
-        self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
-        return
-      }
-      if resources.count < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
-      }
-      // Stage as a VALUE for this screen's own confirmation sheet — the browser
-      // stays open beneath it; dismissal happens on confirm
-      pendingImportBatch = ExternalImportBatch(resources: resources)
-    } catch {
-      self.error = error
-    }
+    await runFolderImport(useSelectedItems: useSelectedItems)
   }
 
   @MainActor func onDownloadFolderTapped() {}
@@ -690,13 +675,6 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, B
     self.navigation.path.append(JellyfinLibraryLevelData.subscribe)
   }
 
-  @MainActor
-  func confirmExternalImport(_ resources: [SimpleExternalResource]) {
-    // Bulk imports land you in the library (today's destination): send the batch on
-    // the import bus, then close the browser
-    onImportConfirmed(resources)
-    navigation.dismiss?()
-  }
 }
 
 // MARK: - Persons List ViewModel (authors / narrators)

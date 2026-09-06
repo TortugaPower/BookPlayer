@@ -47,4 +47,39 @@ public enum IntegrationHostResolver {
     }
     return connections.first(where: { $0.url.canonicalDedupKey == hostId })
   }
+
+  /// Display strings for each resource's host, keyed by providerId: the saved connection's
+  /// URL when the host resolves, else the raw `hostId` — which is all a device that never
+  /// added the server knows about it.
+  ///
+  /// Each provider decodes its own connection type from its own keychain key; the generic
+  /// `hostURL` is what lets one switch cover them all.
+  public static func hostDisplayStrings(
+    for resources: [SimpleExternalResource],
+    keychain: KeychainServiceProtocol
+  ) -> [String: String] {
+    resources.reduce(into: [:]) { hosts, resource in
+      let hostId = resource.hostId ?? ""
+      let url: URL? =
+        switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+        case .jellyfin:
+          hostURL(for: hostId, key: .jellyfinConnection, of: [JellyfinConnectionData].self, keychain: keychain)
+        case .audiobookshelf:
+          hostURL(for: hostId, key: .audiobookshelfConnection, of: [AudiobookShelfConnectionData].self, keychain: keychain)
+        default:
+          nil
+        }
+      hosts[resource.providerId] = url?.absoluteString ?? hostId
+    }
+  }
+
+  private static func hostURL<T: IntegrationHostIdentifiable & Decodable>(
+    for hostId: String,
+    key: KeychainKeys,
+    of type: [T].Type,
+    keychain: KeychainServiceProtocol
+  ) -> URL? {
+    let connections: [T] = (try? keychain.get(key)) ?? []
+    return connection(for: hostId, in: connections)?.url
+  }
 }

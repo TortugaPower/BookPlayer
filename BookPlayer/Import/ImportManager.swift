@@ -22,13 +22,12 @@ final class ImportManager: ObservableObject {
   private var subscription: AnyCancellable?
   private var timer: Timer?
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
-  
+
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
   /// The import screen is up, from when it starts appearing until it has disappeared, however it
   /// closes (set by the screen). The library's placement prompt waits for it: a presentation
   /// started under it is dropped.
   @Published var isImportScreenShown = false
-
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -159,6 +158,4 @@ final class ImportManager: ObservableObject {
       }
     }
   }
-  
-
 }

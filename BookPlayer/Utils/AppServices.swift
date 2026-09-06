@@ -97,7 +97,8 @@ final class AppServices: BPLogger {
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
         shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
+        widgetReloadService: WidgetReloadService(),
+        hasStreamingEnabled: { accountService.hasStreamingEnabled() }
       )
       let watchService = PhoneWatchConnectivityService(
         libraryService: libraryService,

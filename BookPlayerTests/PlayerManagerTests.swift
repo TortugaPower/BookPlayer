@@ -35,7 +35,10 @@ class PlayerManagerTests: XCTestCase {
       syncService: SyncServiceProtocolMock(),
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock(),
-      widgetReloadService: WidgetReloadService()
+      widgetReloadService: WidgetReloadService(),
+      // Entitled, so nothing here is suppressed by tier; the item half of the rule is
+      // covered by MediaServersShortcutTests against PlayableChapter.
+      hasStreamingEnabled: { true }
     )
   }
 
@@ -112,6 +115,44 @@ class PlayerManagerTests: XCTestCase {
       lastPlayDate: nil,
       isFinished: false,
       isBoundBook: false
+    )
+  }
+
+  /// The tier half of the Media Servers shortcut. The item half lives on PlayableChapter
+  /// (MediaServersShortcutTests); this pins the wiring — that the entitlement closure is
+  /// actually consulted — against a real PlayerManager.
+  private func makeUnplayableExternalChapter() -> PlayableChapter {
+    PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 50,
+      relativePath: "no-such-file.m4b",
+      remoteURL: URL(string: "https://s3.example.com/presigned"),
+      externalURL: nil,
+      index: 0,
+      hasUnresolvedExternalHost: true
+    )
+  }
+
+  func testMediaServersShortcutOfferedWhenStreamingIsEnabled() {
+    XCTAssertTrue(self.sut.offersMediaServers(for: makeUnplayableExternalChapter()))
+  }
+
+  func testMediaServersShortcutSuppressedWithoutStreaming() {
+    let unentitled = PlayerManager(
+      libraryService: LibraryServiceProtocolMock(),
+      playbackService: playbackServiceMock,
+      syncService: SyncServiceProtocolMock(),
+      speedService: SpeedServiceProtocolMock(),
+      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      widgetReloadService: WidgetReloadService(),
+      hasStreamingEnabled: { false }
+    )
+
+    XCTAssertFalse(
+      unentitled.offersMediaServers(for: makeUnplayableExternalChapter()),
+      "a tier that can't stream has nothing to gain from the shortcut"
     )
   }
 

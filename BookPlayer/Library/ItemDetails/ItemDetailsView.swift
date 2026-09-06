@@ -54,9 +54,19 @@ struct ItemDetailsView: View {
         lastPlayedDate: viewModel.lastPlayedDate
       )
 
-      if let externalResources = viewModel.item.externalResources {
-        ItemDetailsExternalResourceSectionView(externalResources: externalResources)
+      // The gate lives HERE: the view renders unconditional content, the caller
+      // decides presence. Hardcover-only items have no hosted resources, so an item
+      // linked to Hardcover alone shows just the section above.
+      let hostedResources = viewModel.hostedExternalResources
+      if !hostedResources.isEmpty {
+        ItemDetailsExternalResourceSectionView(
+          externalResources: hostedResources,
+          resolvedHosts: viewModel.resolvedExternalHosts
+        )
       }
+    }
+    .task {
+      await viewModel.load()
     }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true
@@ -130,88 +140,6 @@ struct ItemDetailsView: View {
     .navigationBarTitleDisplayMode(.inline)
     .listSectionSpacing(Spacing.S2)
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-  }
-}
-
-struct ItemDetailsExternalResourceSectionView: View {
-  let externalResources: [SimpleExternalResource]
-
-  /// Resolved once on appear, keyed by providerId: resolving inside the body did a
-  /// synchronous keychain read + JSON decode on every render.
-  @State private var resolvedHosts: [String: String] = [:]
-
-  @EnvironmentObject private var theme: ThemeViewModel
-
-  var body: some View {
-    if !externalResources.isEmpty {
-      ThemedSection {
-        // Sync-created resources never populate the numeric id (all default to 0),
-        // so keying on Identifiable collides for multi-resource items; providerId
-        // is the stable key (same pattern as BookView).
-        ForEach(externalResources, id: \.providerId) { resource in
-          VStack(alignment: .leading, spacing: Spacing.S1) {
-            HStack {
-              Text("provider_title".localized)
-                .bold()
-              Spacer()
-              Text(resource.providerName.capitalized)
-                .lineLimit(1)
-            }
-
-            HStack {
-              Text("provider_id_title".localized)
-                .bold()
-              Spacer()
-              Text(resource.providerId)
-                .lineLimit(1)
-            }
-
-            if let hostId = resource.hostId, !hostId.isEmpty {
-              HStack {
-                Text("host_title".localized)
-                  .bold()
-                Spacer()
-                Text(resolvedHosts[resource.providerId] ?? "")
-                  .lineLimit(1)
-                  .truncationMode(.tail)
-              }
-            }
-          }
-          .bpFont(.body)
-          .padding(.vertical, Spacing.S1)
-        }
-      } header: {
-        Text("external_resources_title".localized)
-      }
-      .onAppear {
-        guard resolvedHosts.isEmpty else { return }
-        resolvedHosts = externalResources.reduce(into: [:]) { hosts, resource in
-          hosts[resource.providerId] = resolveHost(resource)
-        }
-      }
-    }
-  }
-
-  private func resolveHost(_ resource: SimpleExternalResource) -> String {
-    let keychainService = KeychainService()
-    let hostId = resource.hostId ?? ""
-
-    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
-    case .jellyfin:
-      let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    case .audiobookshelf:
-      let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    default:
-      break
-    }
-
-    return hostId
   }
 }
 

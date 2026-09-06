@@ -151,6 +151,7 @@ class PlayableItemTests: XCTestCase {
       duration: duration,
       relativePath: "book.m4b",
       remoteURL: nil,
+      externalURL: nil,
       index: index
     )
   }
