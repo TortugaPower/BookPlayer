@@ -186,23 +186,35 @@ public final class PlayableItem: NSObject, Identifiable {
   }
 
   public func nextChapter(after chapter: PlayableChapter) -> PlayableChapter? {
-    guard !self.chapters.isEmpty else {
-      return nil
-    }
+    guard let position = self.position(of: chapter) else { return nil }
 
-    if chapter == self.chapters.last { return nil }
+    let next = self.chapters.index(after: position)
 
-    return self.chapters[Int(chapter.index)]
+    return next < self.chapters.endIndex ? self.chapters[next] : nil
   }
 
   public func previousChapter(before chapter: PlayableChapter) -> PlayableChapter? {
-    guard !self.chapters.isEmpty else {
-      return nil
+    guard
+      let position = self.position(of: chapter),
+      position > self.chapters.startIndex
+    else { return nil }
+
+    return self.chapters[self.chapters.index(before: position)]
+  }
+
+  /// Where `chapter` sits in `chapters`.
+  ///
+  /// `PlayableChapter.index` is display metadata produced by several sources (embedded chapter
+  /// tracks, folder walks, media servers) and is not guaranteed to be 1-based, unique, or in step
+  /// with this list, so it is never used as an array offset. A chapter that is not in the list
+  /// (for example one captured before "reload chapters" rebuilt the item) is placed by the
+  /// chapter that now covers its start time; a chapter outside this book's timeline has no position.
+  private func position(of chapter: PlayableChapter) -> Int? {
+    if let exact = self.chapters.firstIndex(of: chapter) {
+      return exact
     }
 
-    if chapter == self.chapters.first { return nil }
-
-    return self.chapters[Int(chapter.index) - 2]
+    return self.chapters.firstIndex { chapter.start < $0.end && $0.start <= chapter.start }
   }
 }
 
