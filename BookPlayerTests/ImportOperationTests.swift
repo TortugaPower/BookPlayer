@@ -231,6 +231,54 @@ final class ExternalImportViewModelTests: XCTestCase {
 
     XCTAssertEqual(confirmed?.map(\.providerId), ["a"], "confirm sends the batch as edited, not as staged")
   }
+
+  /// The shell-row mapping: id carries the provider identity (removal is keyed on
+  /// it), the title is the real filename, and a resource with no library item falls
+  /// back to the unknown-title copy instead of rendering empty.
+  func testConfirmationRowsMapIdentityFilenameAndFallback() {
+    let named = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "row-1",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: SimpleLibraryItem(
+        title: "Book",
+        details: "Author",
+        speed: 1.0,
+        currentTime: 0,
+        duration: 10,
+        percentCompleted: 0,
+        isFinished: false,
+        relativePath: "row-1-book.m4b",
+        remoteURL: nil,
+        artworkURL: nil,
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: "book.m4b",
+        lastPlayDate: nil,
+        type: .book,
+        uuid: "uuid-1"
+      )
+    )
+    let orphan = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "row-2",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: nil
+    )
+    let sut = ExternalImportViewModel(
+      batch: ExternalImportBatch(resources: [named, orphan]),
+      onConfirm: { _ in }
+    )
+
+    let rows = sut.confirmationRows
+
+    XCTAssertEqual(rows.map(\.id), ["row-1", "row-2"])
+    XCTAssertEqual(rows.first?.title, "book.m4b")
+    XCTAssertEqual(rows.last?.title, "voiceover_unknown_title".localized)
+    XCTAssertEqual(rows.map(\.icon), ["waveform", "waveform"])
+  }
 }
 
 // MARK: - Confirm destinations (bulk vs details)

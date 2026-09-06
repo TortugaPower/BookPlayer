@@ -42,6 +42,18 @@ final class ExternalImportViewModel: ObservableObject {
     self.onConfirm = onConfirm
   }
 
+  /// The confirmation-shell rows for the current batch. Pure mapping, kept on the
+  /// VM (not in the view body) so the identity/filename/fallback rules are testable.
+  var confirmationRows: [ImportConfirmationRow] {
+    resources.map { resource in
+      ImportConfirmationRow(
+        id: resource.providerId,
+        icon: "waveform",
+        title: resource.libraryItem?.originalFileName ?? "voiceover_unknown_title".localized
+      )
+    }
+  }
+
   func removeResource(withId id: String) {
     resources.removeAll { $0.providerId == id }
   }

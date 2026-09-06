@@ -23,13 +23,7 @@ struct ExternalImportView: View {
 
   var body: some View {
     ImportConfirmationView(
-      rows: viewModel.resources.map { resource in
-        ImportConfirmationRow(
-          id: resource.providerId,
-          icon: "waveform",
-          title: resource.libraryItem?.originalFileName ?? "voiceover_unknown_title".localized
-        )
-      },
+      rows: viewModel.confirmationRows,
       onRemove: { viewModel.removeResource(withId: $0) },
       onConfirm: {
         viewModel.confirm()
