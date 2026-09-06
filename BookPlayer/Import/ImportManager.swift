@@ -22,9 +22,8 @@ final class ImportManager: ObservableObject {
   private var subscription: AnyCancellable?
   private var timer: Timer?
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
-  
+
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
-  
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -151,6 +150,4 @@ final class ImportManager: ObservableObject {
       }
     }
   }
-  
-
 }
