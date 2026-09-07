@@ -45,7 +45,10 @@ struct ItemDetailsExternalResourceSectionView: View {
               Text("host_title".localized)
                 .bold()
               Spacer()
-              Text(resolvedHosts[resource.providerId] ?? "")
+              // The raw hostId is what resolution itself falls back to for a host
+              // with no saved connection, so showing it until (or instead of) a
+              // resolved URL keeps the field from ever rendering empty.
+              Text(resolvedHosts[resource.providerId] ?? hostId)
                 .lineLimit(1)
                 .truncationMode(.tail)
             }

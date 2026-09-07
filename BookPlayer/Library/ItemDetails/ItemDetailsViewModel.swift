@@ -104,8 +104,11 @@ final class ItemDetailsViewModel: ObservableObject {
     )
 
     Task {
-      await resolveHardcoverSelection()
+      // Hosts first: it is a local keychain read feeding a row that has no loading
+      // state, while the hardcover path can await a network fetch (and shows a
+      // spinner for it) — the reverse order left the host field waiting on it.
       await resolveExternalHosts()
+      await resolveHardcoverSelection()
     }
   }
 
