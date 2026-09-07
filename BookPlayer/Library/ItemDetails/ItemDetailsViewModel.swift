@@ -109,8 +109,25 @@ final class ItemDetailsViewModel: ObservableObject {
     }
   }
 
+  /// The resources the external-resources section renders: media-server links only.
+  /// Hardcover has its own section with a book picker, so including its resource here
+  /// would repeat the same link as a bare provider/id pair with no host.
+  var hostedExternalResources: [SimpleExternalResource] {
+    Self.hostedResources(from: item.externalResources)
+  }
+
+  /// A deny rule rather than an allowlist: a provider added later shows up in the
+  /// section (this is diagnostic detail) instead of silently disappearing from it.
+  /// Static, like the host resolution below, so the rule is testable on its own.
+  static func hostedResources(from resources: [SimpleExternalResource]?) -> [SimpleExternalResource] {
+    (resources ?? []).filter {
+      ExternalResource.ProviderName(rawValue: $0.providerName) != .hardcover
+    }
+  }
+
   private func resolveExternalHosts() async {
-    guard let resources = item.externalResources, !resources.isEmpty else { return }
+    let resources = hostedExternalResources
+    guard !resources.isEmpty else { return }
     // Off-main: the section view used to do these reads synchronously on appear
     let resolved = await Task.detached(priority: .utility) {
       Self.resolveExternalHosts(for: resources, keychain: KeychainService())

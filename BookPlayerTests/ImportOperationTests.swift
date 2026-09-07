@@ -438,4 +438,35 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
     XCTAssertEqual(resolved["r1"], "https://jelly.example.com", "GUID match is case-insensitive")
     XCTAssertEqual(resolved["r2"], "unknown-guid", "unknown host falls back to the raw hostId")
   }
+
+  /// The section shows media-server links only: Hardcover has its own section, and
+  /// repeating its link here would render a bare provider/id pair with no host. The
+  /// rule denies hardcover rather than allowlisting known providers, so a provider
+  /// added later still appears.
+  func testHostedResourcesDropsHardcoverAndKeepsUnknownProviders() {
+    let hosted = ItemDetailsViewModel.hostedResources(
+      from: [
+        makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
+        makeResource(provider: "hardcover", id: "12345", hostId: nil),
+        makeResource(provider: "audiobookshelf", id: "r2", hostId: "https://abs.example.com"),
+        makeResource(provider: "somethingnew", id: "r3", hostId: "guid-new"),
+      ]
+    )
+
+    XCTAssertEqual(
+      hosted.map(\.providerId),
+      ["r1", "r2", "r3"],
+      "hardcover is dropped; every other provider — including an unknown one — is kept"
+    )
+  }
+
+  /// A Hardcover-only item must render no external-resources section at all.
+  func testHostedResourcesIsEmptyForHardcoverOnlyAndForNoResources() {
+    XCTAssertTrue(
+      ItemDetailsViewModel.hostedResources(
+        from: [makeResource(provider: "hardcover", id: "12345", hostId: nil)]
+      ).isEmpty
+    )
+    XCTAssertTrue(ItemDetailsViewModel.hostedResources(from: nil).isEmpty)
+  }
 }

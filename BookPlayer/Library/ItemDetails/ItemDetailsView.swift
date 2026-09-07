@@ -54,12 +54,13 @@ struct ItemDetailsView: View {
         lastPlayedDate: viewModel.lastPlayedDate
       )
 
-      // Both gates live HERE (SimpleLibraryItem(from:) always builds a non-nil array,
-      // so isEmpty is the check that actually hides the section): the view renders
-      // unconditional content, the caller decides presence.
-      if let externalResources = viewModel.item.externalResources, !externalResources.isEmpty {
+      // The gate lives HERE: the view renders unconditional content, the caller
+      // decides presence. Hardcover-only items have no hosted resources, so an item
+      // linked to Hardcover alone shows just the section above.
+      let hostedResources = viewModel.hostedExternalResources
+      if !hostedResources.isEmpty {
         ItemDetailsExternalResourceSectionView(
-          externalResources: externalResources,
+          externalResources: hostedResources,
           resolvedHosts: viewModel.resolvedExternalHosts
         )
       }
