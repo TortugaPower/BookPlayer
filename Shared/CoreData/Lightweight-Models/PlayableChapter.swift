@@ -44,6 +44,17 @@ public struct PlayableChapter: Codable, Identifiable {
     URL(fileURLWithPath: relativePath).fileType?.conforms(to: .movie) ?? false
   }
 
+  /// The file isn't on disk and only a media server can supply it: either its stream URL
+  /// resolved (and the load still failed, so the token or the server is the problem) or no
+  /// saved connection matches its host, meaning the server was never added here.
+  ///
+  /// A function rather than a property because it stats the filesystem.
+  public func needsMediaServer() -> Bool {
+    guard !FileManager.default.fileExists(atPath: fileURL.path) else { return false }
+
+    return externalUrl != nil || hasUnresolvedExternalHost
+  }
+
   public init(
     title: String,
     author: String,

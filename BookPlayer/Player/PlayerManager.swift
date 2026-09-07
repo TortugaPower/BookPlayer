@@ -517,34 +517,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     SharedWidgetStore.store(item)
   }
 
-  /// Whether a failed load should offer the Media Servers shortcut, for this chapter.
-  private func offersMediaServers(for chapter: PlayableChapter) -> Bool {
-    Self.shouldOfferMediaServers(
-      fileExists: FileManager.default.fileExists(atPath: chapter.fileURL.path),
-      chapter: chapter,
-      isStreamingEnabled: hasStreamingEnabled()
-    )
-  }
-
-  /// Offer the shortcut only when going to Media Servers could actually fix the failure:
-  /// the tier can stream at all, the file isn't on disk, and the item is backed by a media
-  /// server that either failed to stream (expired token, server down) or isn't configured
-  /// on this device. An item with no media-server resource never qualifies — its missing
-  /// file has nothing to do with a server.
-  ///
-  /// Deliberately does NOT consider `remoteURL`: the API returns a presigned URL for every
-  /// synced item even when no object is behind it, so a nil remoteURL only ever meant
-  /// "this account doesn't sync", which pointed the shortcut at free users (including for
-  /// plain local files) while withholding it from the paying users who hit the missing-server
-  /// case.
-  static func shouldOfferMediaServers(
-    fileExists: Bool,
-    chapter: PlayableChapter,
-    isStreamingEnabled: Bool
-  ) -> Bool {
-    guard isStreamingEnabled, !fileExists else { return false }
-
-    return chapter.externalUrl != nil || chapter.hasUnresolvedExternalHost
+  /// Whether a failed load should offer the Media Servers shortcut: the tier can stream at
+  /// all, and going to Media Servers could actually fix this chapter's failure. Not private
+  /// so the entitlement wiring itself is testable, and shared by both alert sites so the
+  /// rule can't drift between them.
+  func offersMediaServers(for chapter: PlayableChapter) -> Bool {
+    hasStreamingEnabled() && chapter.needsMediaServer()
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {

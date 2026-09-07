@@ -112,20 +112,10 @@ final class ItemDetailsViewModel: ObservableObject {
     }
   }
 
-  /// The resources the external-resources section renders: media-server links only.
-  /// Hardcover has its own section with a book picker, so including its resource here
-  /// would repeat the same link as a bare provider/id pair with no host.
+  /// The resources the external-resources section renders: media-server links only, since
+  /// Hardcover has its own section with a book picker right above it.
   var hostedExternalResources: [SimpleExternalResource] {
-    Self.hostedResources(from: item.externalResources)
-  }
-
-  /// A deny rule rather than an allowlist: a provider added later shows up in the
-  /// section (this is diagnostic detail) instead of silently disappearing from it.
-  /// Static, like the host resolution below, so the rule is testable on its own.
-  static func hostedResources(from resources: [SimpleExternalResource]?) -> [SimpleExternalResource] {
-    (resources ?? []).filter {
-      ExternalResource.ProviderName(rawValue: $0.providerName) != .hardcover
-    }
+    item.externalResources?.mediaServerResources ?? []
   }
 
   private func resolveExternalHosts() async {
@@ -133,41 +123,9 @@ final class ItemDetailsViewModel: ObservableObject {
     guard !resources.isEmpty else { return }
     // Off-main: the section view used to do these reads synchronously on appear
     let resolved = await Task.detached(priority: .utility) {
-      Self.resolveExternalHosts(for: resources, keychain: KeychainService())
+      IntegrationHostResolver.hostDisplayStrings(for: resources, keychain: KeychainService())
     }.value
     await MainActor.run { resolvedExternalHosts = resolved }
-  }
-
-  /// Pure resolution, static with an injected keychain so it's testable without
-  /// constructing the view model. Each provider decodes its own connection type from
-  /// its own keychain key — the generic `hostURL` is what lets one switch cover both.
-  static func resolveExternalHosts(
-    for resources: [SimpleExternalResource],
-    keychain: KeychainServiceProtocol
-  ) -> [String: String] {
-    resources.reduce(into: [:]) { hosts, resource in
-      let hostId = resource.hostId ?? ""
-      let url: URL? =
-        switch ExternalResource.ProviderName(rawValue: resource.providerName) {
-        case .jellyfin:
-          hostURL(for: hostId, key: .jellyfinConnection, of: [JellyfinConnectionData].self, keychain: keychain)
-        case .audiobookshelf:
-          hostURL(for: hostId, key: .audiobookshelfConnection, of: [AudiobookShelfConnectionData].self, keychain: keychain)
-        default:
-          nil
-        }
-      hosts[resource.providerId] = url?.absoluteString ?? hostId
-    }
-  }
-
-  private static func hostURL<T: IntegrationHostIdentifiable & Decodable>(
-    for hostId: String,
-    key: KeychainKeys,
-    of type: [T].Type,
-    keychain: KeychainServiceProtocol
-  ) -> URL? {
-    let connections: [T] = (try? keychain.get(key)) ?? []
-    return IntegrationHostResolver.connection(for: hostId, in: connections)?.url
   }
 
   /// Populate the Hardcover picker selection. Prefers the full local reference; otherwise

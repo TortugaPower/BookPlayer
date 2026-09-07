@@ -398,7 +398,7 @@ private final class KeychainStub: KeychainServiceProtocol, @unchecked Sendable {
   func remove(_ key: KeychainKeys) throws { storage[key] = nil }
 }
 
-final class ItemDetailsHostResolutionTests: XCTestCase {
+final class ExternalResourceResolutionTests: XCTestCase {
   private func makeResource(provider: String, id: String, hostId: String?) -> SimpleExternalResource {
     SimpleExternalResource(
       providerName: provider,
@@ -427,7 +427,7 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
       key: .jellyfinConnection
     )
 
-    let resolved = ItemDetailsViewModel.resolveExternalHosts(
+    let resolved = IntegrationHostResolver.hostDisplayStrings(
       for: [
         makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
         makeResource(provider: "jellyfin", id: "r2", hostId: "unknown-guid"),
@@ -440,23 +440,21 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
   }
 
   /// The section shows media-server links only: Hardcover has its own section, and
-  /// repeating its link here would render a bare provider/id pair with no host. The
-  /// rule denies hardcover rather than allowlisting known providers, so a provider
-  /// added later still appears.
-  func testHostedResourcesDropsHardcoverAndKeepsUnknownProviders() {
-    let hosted = ItemDetailsViewModel.hostedResources(
-      from: [
-        makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
-        makeResource(provider: "hardcover", id: "12345", hostId: nil),
-        makeResource(provider: "audiobookshelf", id: "r2", hostId: "https://abs.example.com"),
-        makeResource(provider: "somethingnew", id: "r3", hostId: "guid-new"),
-      ]
-    )
+  /// repeating its link here would render a bare provider/id pair with no host. The rule
+  /// allowlists known media servers, and its switch is exhaustive, so adding a provider
+  /// is a compile error at the one place the question is answered.
+  func testMediaServerResourcesKeepsOnlyKnownMediaServers() {
+    let hosted = [
+      makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
+      makeResource(provider: "hardcover", id: "12345", hostId: nil),
+      makeResource(provider: "audiobookshelf", id: "r2", hostId: "https://abs.example.com"),
+      makeResource(provider: "somethingnew", id: "r3", hostId: "guid-new"),
+    ].mediaServerResources
 
     XCTAssertEqual(
       hosted.map(\.providerId),
-      ["r1", "r2", "r3"],
-      "hardcover is dropped; every other provider — including an unknown one — is kept"
+      ["r1", "r2"],
+      "hardcover and unknown providers are both dropped — only known media servers stream"
     )
   }
 
@@ -464,11 +462,11 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
   /// relationship and "hardcover" sorts between "audiobookshelf" and "jellyfin", so a
   /// hardcover row whose syncStatus came back from sync as anything but not_synced would
   /// otherwise win the pick and leave a streamable item with no external URL.
-  func testMediaServerResourceIgnoresHardcoverEvenWhenItSortsFirst() {
-    let picked = PlaybackService.mediaServerResource(from: [
+  func testStreamingResourceIgnoresHardcoverEvenWhenItSortsFirst() {
+    let picked = [
       makeResource(provider: "hardcover", id: "12345", hostId: nil),
       makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
-    ])
+    ].streamingResource
 
     XCTAssertEqual(picked?.providerName, "jellyfin")
     XCTAssertEqual(picked?.providerId, "r1")
@@ -476,18 +474,18 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
 
   /// Two streaming providers on one item resolve to a stable pick across launches, since
   /// the underlying snapshot set is unordered.
-  func testMediaServerResourceIsDeterministicAcrossProviders() {
+  func testStreamingResourceIsDeterministicAcrossProviders() {
     let jellyfin = makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly")
     let abs = makeResource(provider: "audiobookshelf", id: "r2", hostId: "guid-abs")
 
     XCTAssertEqual(
-      PlaybackService.mediaServerResource(from: [jellyfin, abs])?.providerId,
-      PlaybackService.mediaServerResource(from: [abs, jellyfin])?.providerId,
+      [jellyfin, abs].streamingResource?.providerId,
+      [abs, jellyfin].streamingResource?.providerId,
       "the pick must not depend on the order the set yields"
     )
   }
 
-  func testMediaServerResourceSkipsNotSyncedAndEmptyInput() {
+  func testStreamingResourceSkipsNotSyncedAndEmptyInput() {
     let notSynced = SimpleExternalResource(
       providerName: "jellyfin",
       providerId: "r1",
@@ -497,23 +495,21 @@ final class ItemDetailsHostResolutionTests: XCTestCase {
       libraryItem: nil
     )
 
-    XCTAssertNil(PlaybackService.mediaServerResource(from: [notSynced]))
-    XCTAssertNil(PlaybackService.mediaServerResource(from: []))
-    XCTAssertNil(PlaybackService.mediaServerResource(from: nil))
+    XCTAssertNil([notSynced].streamingResource)
+    XCTAssertNil([SimpleExternalResource]().streamingResource)
   }
 
   /// A Hardcover-only item must render no external-resources section at all.
-  func testHostedResourcesIsEmptyForHardcoverOnlyAndForNoResources() {
+  func testMediaServerResourcesIsEmptyForHardcoverOnly() {
     XCTAssertTrue(
-      ItemDetailsViewModel.hostedResources(
-        from: [makeResource(provider: "hardcover", id: "12345", hostId: nil)]
-      ).isEmpty
+      [makeResource(provider: "hardcover", id: "12345", hostId: nil)].mediaServerResources.isEmpty
     )
-    XCTAssertTrue(ItemDetailsViewModel.hostedResources(from: nil).isEmpty)
+    XCTAssertTrue([SimpleExternalResource]().mediaServerResources.isEmpty)
   }
 }
 
-/// The rule behind the "Media Servers" button on a playback-failure alert.
+/// The item-side half of the "Media Servers" button rule on a playback-failure alert.
+/// The entitlement half is exercised against a real PlayerManager in PlayerManagerTests.
 final class MediaServersShortcutTests: XCTestCase {
   private func makeChapter(externalUrl: URL?, hasUnresolvedExternalHost: Bool) -> PlayableChapter {
     PlayableChapter(
@@ -521,7 +517,7 @@ final class MediaServersShortcutTests: XCTestCase {
       author: "Author",
       start: 0,
       duration: 100,
-      relativePath: "book.m4b",
+      relativePath: "missing-book.m4b",
       remoteURL: URL(string: "https://s3.example.com/presigned"),
       externalURL: externalUrl,
       index: 1,
@@ -532,61 +528,47 @@ final class MediaServersShortcutTests: XCTestCase {
   /// The case the old condition got wrong: on a device where the item's media server was
   /// never added, nothing resolves the host, so there is no external URL — but the API
   /// still hands back a presigned remoteURL, which is what used to suppress the button.
-  func testOfferedWhenTheServerIsNotConfiguredOnThisDevice() {
+  func testNeedsMediaServerWhenTheServerIsNotConfiguredOnThisDevice() {
     XCTAssertTrue(
-      PlayerManager.shouldOfferMediaServers(
-        fileExists: false,
-        chapter: makeChapter(externalUrl: nil, hasUnresolvedExternalHost: true),
-        isStreamingEnabled: true
-      )
+      makeChapter(externalUrl: nil, hasUnresolvedExternalHost: true).needsMediaServer()
     )
   }
 
-  func testOfferedWhenTheStreamItselfFailed() {
+  func testNeedsMediaServerWhenTheStreamItselfFailed() {
     XCTAssertTrue(
-      PlayerManager.shouldOfferMediaServers(
-        fileExists: false,
-        chapter: makeChapter(externalUrl: URL(string: "https://jelly.example.com/stream"), hasUnresolvedExternalHost: false),
-        isStreamingEnabled: true
-      )
+      makeChapter(
+        externalUrl: URL(string: "https://jelly.example.com/stream"),
+        hasUnresolvedExternalHost: false
+      ).needsMediaServer()
     )
-  }
-
-  /// A tier that can't stream has nothing to gain from the shortcut.
-  func testNeverOfferedWithoutTheStreamingEntitlement() {
-    for chapter in [
-      makeChapter(externalUrl: URL(string: "https://jelly.example.com/stream"), hasUnresolvedExternalHost: false),
-      makeChapter(externalUrl: nil, hasUnresolvedExternalHost: true),
-    ] {
-      XCTAssertFalse(
-        PlayerManager.shouldOfferMediaServers(
-          fileExists: false,
-          chapter: chapter,
-          isStreamingEnabled: false
-        )
-      )
-    }
   }
 
   /// A plain local file that went missing has nothing to do with a media server.
-  func testNotOfferedForAnItemWithNoMediaServerResource() {
+  func testDoesNotNeedMediaServerWithoutAMediaServerResource() {
     XCTAssertFalse(
-      PlayerManager.shouldOfferMediaServers(
-        fileExists: false,
-        chapter: makeChapter(externalUrl: nil, hasUnresolvedExternalHost: false),
-        isStreamingEnabled: true
-      )
+      makeChapter(externalUrl: nil, hasUnresolvedExternalHost: false).needsMediaServer()
     )
   }
 
   /// The file is on disk, so whatever failed, a missing server isn't it.
-  func testNotOfferedWhenTheFileExists() {
-    XCTAssertFalse(
-      PlayerManager.shouldOfferMediaServers(
-        fileExists: true,
-        chapter: makeChapter(externalUrl: nil, hasUnresolvedExternalHost: true),
-        isStreamingEnabled: true
-      )
+  func testDoesNotNeedMediaServerWhenTheFileExists() throws {
+    let folder = DataManager.getProcessedFolderURL()
+    let onDisk = folder.appendingPathComponent("present-book.m4b")
+    try Data("audio".utf8).write(to: onDisk)
+    defer { try? FileManager.default.removeItem(at: onDisk) }
+
+    let chapter = PlayableChapter(
+      title: "Chapter",
+      author: "Author",
+      start: 0,
+      duration: 100,
+      relativePath: "present-book.m4b",
+      remoteURL: nil,
+      externalURL: nil,
+      index: 1,
+      hasUnresolvedExternalHost: true
     )
+
+    XCTAssertFalse(chapter.needsMediaServer())
   }
 }
