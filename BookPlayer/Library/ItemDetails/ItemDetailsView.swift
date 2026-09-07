@@ -65,6 +65,9 @@ struct ItemDetailsView: View {
         )
       }
     }
+    .task {
+      await viewModel.load()
+    }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true
     }

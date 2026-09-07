@@ -33,6 +33,10 @@ final class ItemDetailsViewModel: ObservableObject {
   let listState: ListStateManager
 
   private var hardcoverBook: SimpleHardcoverBook?
+  /// Guards `load()` so a re-appear doesn't refetch. Meaningful only because the view owns
+  /// this model with @StateObject — under the old per-render recreation it would have been
+  /// wiped along with the instance.
+  private var didLoad = false
 
   /// File name
   @Published var originalFileName: String
@@ -63,8 +67,10 @@ final class ItemDetailsViewModel: ObservableObject {
 
   init(
     item: SimpleLibraryItem,
-    libraryService: LibraryService,
-    syncService: SyncService,
+    // The protocol types the stored properties already use: the concrete ones here were
+    // the last thing keeping this model out of a test, since no mock could be injected.
+    libraryService: LibraryServiceProtocol,
+    syncService: SyncServiceProtocol,
     hardcoverService: HardcoverServiceProtocol,
     listState: ListStateManager
   ) {
@@ -103,12 +109,31 @@ final class ItemDetailsViewModel: ObservableObject {
       hardcoverService: hardcoverService
     )
 
-    Task {
-      // Hosts first: it is a local keychain read feeding a row that has no loading
-      // state, while the hardcover path can await a network fetch (and shows a
-      // spinner for it) — the reverse order left the host field waiting on it.
-      await resolveExternalHosts()
-      await resolveHardcoverSelection()
+  }
+
+  /// Populate what has to be fetched. Driven by the view's `.task` rather than `init` so
+  /// SwiftUI owns the lifetime: the work is cancelled on dismissal — a hardcover fetch can
+  /// no longer land its stub repair after the sheet is gone — and a test can await it
+  /// instead of racing a task that construction started on its own.
+  ///
+  /// The call site deliberately passes no `id:`. `item` is fixed at construction, so nothing
+  /// should re-trigger this, and keying on the model's ObjectIdentifier would re-fire the
+  /// whole load every time the model were recreated.
+  @MainActor
+  func load() async {
+    guard !didLoad else { return }
+    didLoad = true
+
+    // Hosts first: it is a local keychain read feeding a row that has no loading state,
+    // while the hardcover path can await a network fetch (and shows a spinner for it) —
+    // the reverse order left the host field waiting on it.
+    await resolveExternalHosts()
+    await resolveHardcoverSelection()
+
+    // A load cancelled midway (sheet dismissed during the fetch) has to stay retryable, or
+    // re-presenting the screen would skip it and leave the rows half-populated.
+    if Task.isCancelled {
+      didLoad = false
     }
   }
 

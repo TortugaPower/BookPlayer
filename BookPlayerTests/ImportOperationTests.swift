@@ -572,3 +572,128 @@ final class MediaServersShortcutTests: XCTestCase {
     XCTAssertFalse(chapter.needsMediaServer())
   }
 }
+
+/// Construction-time work moved out of `ItemDetailsViewModel.init` into `load()`, which is
+/// what makes the view model constructible in a test at all: `init` no longer starts an
+/// unstructured task that reaches the network.
+@MainActor
+final class ItemDetailsLoadTests: XCTestCase {
+  /// HardcoverServiceProtocol isn't AutoMockable, and its seven members are few enough to
+  /// stub by hand rather than pull Sourcery into the change.
+  private final class HardcoverServiceStub: HardcoverServiceProtocol {
+    var authorization: String?
+    var getBookCallCount = 0
+    var bookToReturn: SimpleHardcoverBook?
+
+    func getBook(id: Int) async throws -> SimpleHardcoverBook? {
+      getBookCallCount += 1
+      return bookToReturn
+    }
+
+    func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData {
+      throw BookPlayerError.runtimeError("not used")
+    }
+    func searchBooks(query: String, perPage: Int) async throws -> BooksData {
+      throw BookPlayerError.runtimeError("not used")
+    }
+    func processAutoMatch(for items: [SimpleLibraryItem]) async {}
+    func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem) async {}
+    func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {}
+  }
+
+  private func makeSUT() -> (ItemDetailsViewModel, LibraryServiceProtocolMock, HardcoverServiceStub) {
+    let hardcoverResource = SimpleExternalResource(
+      providerName: ExternalResource.ProviderName.hardcover.rawValue,
+      providerId: "12345",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: nil
+    )
+    let item = SimpleLibraryItem(
+      title: "Local Title",
+      details: "Local Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID",
+      externalResources: [hardcoverResource]
+    )
+
+    let libraryService = LibraryServiceProtocolMock()
+    // No local Hardcover row on this device: the synced-down link is all we have, which is
+    // the path that fetches.
+    libraryService.getHardcoverBookForReturnValue = nil
+    libraryService.getExternalResourcesForReturnValue = [hardcoverResource]
+
+    let hardcoverService = HardcoverServiceStub()
+    // ItemDetailsHardcoverSectionViewModel.init? returns nil without a token, and the whole
+    // hardcover resolve path is gated on that section existing — so an unconnected account
+    // resolves nothing, by design.
+    hardcoverService.authorization = "test-token"
+    hardcoverService.bookToReturn = SimpleHardcoverBook(
+      id: 12345,
+      artworkURL: nil,
+      title: "Fetched Title",
+      author: "Fetched Author",
+      status: .reading
+    )
+
+    let sut = ItemDetailsViewModel(
+      item: item,
+      libraryService: libraryService,
+      syncService: SyncServiceProtocolMock(),
+      hardcoverService: hardcoverService,
+      listState: ListStateManager()
+    )
+
+    return (sut, libraryService, hardcoverService)
+  }
+
+  /// The regression this guards: `.task` fires again whenever the view re-appears, and the
+  /// load must not refetch (or re-clobber the picker selection) when it does.
+  func testLoadRunsOnlyOnceAcrossRepeatedCalls() async {
+    let (sut, libraryService, hardcoverService) = makeSUT()
+
+    await sut.load()
+    await sut.load()
+    await sut.load()
+
+    XCTAssertEqual(hardcoverService.getBookCallCount, 1, "a re-appear must not refetch")
+    XCTAssertEqual(libraryService.getHardcoverBookForCallsCount, 1)
+  }
+
+  /// Behavior that had no coverage before, because the view model couldn't be constructed:
+  /// with no local row, the picker is seeded from the synced resource and then upgraded to
+  /// the metadata Hardcover returns.
+  func testLoadResolvesTheSelectionFromASyncedResource() async {
+    let (sut, _, _) = makeSUT()
+
+    XCTAssertNil(sut.hardcoverSectionViewModel?.pickerViewModel.selected)
+
+    await sut.load()
+
+    let selected = sut.hardcoverSectionViewModel?.pickerViewModel.selected
+    XCTAssertEqual(selected?.id, 12345)
+    XCTAssertEqual(selected?.title, "Fetched Title", "the interim title upgrades to the fetch")
+    XCTAssertEqual(sut.hardcoverSectionViewModel?.isFetchingBook, false, "spinner is cleared")
+  }
+
+  /// Nothing is fetched off the main path during construction any more.
+  func testInitDoesNotResolveAnything() {
+    let (sut, libraryService, hardcoverService) = makeSUT()
+
+    XCTAssertEqual(hardcoverService.getBookCallCount, 0)
+    XCTAssertEqual(libraryService.getHardcoverBookForCallsCount, 0)
+    XCTAssertTrue(sut.resolvedExternalHosts.isEmpty)
+  }
+}
