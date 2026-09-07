@@ -611,6 +611,7 @@
 		63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */; };
 		63E1FF8D2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */; };
 		63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */; };
+		234660AA5CF5435784D5AB09 /* ItemDetailsExternalResourceSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45535E22CB7445EB5DCAA5F /* ItemDetailsExternalResourceSectionView.swift */; };
 		63E1FF912E6C8C2000F2E003 /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */; };
 		63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */; };
 		63E54C322D494E110040355D /* RemoteItemListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C312D494E110040355D /* RemoteItemListViewModel.swift */; };
@@ -1701,6 +1702,7 @@
 		63E15DA32D932695005B42E5 /* SleepTimerCommandsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerCommandsView.swift; sourceTree = "<group>"; };
 		63E1FF8C2E6C835400F2E003 /* ItemDetailsFooterSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsFooterSectionView.swift; sourceTree = "<group>"; };
 		63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsTitleSectionView.swift; sourceTree = "<group>"; };
+		F45535E22CB7445EB5DCAA5F /* ItemDetailsExternalResourceSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsExternalResourceSectionView.swift; sourceTree = "<group>"; };
 		63E1FF902E6C8C2000F2E003 /* SyncJobType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobType.swift; sourceTree = "<group>"; };
 		63E54C312D494E110040355D /* RemoteItemListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteItemListViewModel.swift; sourceTree = "<group>"; };
 		63E54C332D50576C0040355D /* TipJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarView.swift; sourceTree = "<group>"; };
@@ -3695,6 +3697,7 @@
 				9F00A6232951F2F3005EA316 /* ItemDetailsViewModel.swift */,
 				9F00A5FB294F9B9A005EA316 /* ItemDetailsView.swift */,
 				63E1FF8E2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift */,
+				F45535E22CB7445EB5DCAA5F /* ItemDetailsExternalResourceSectionView.swift */,
 			);
 			path = ItemDetails;
 			sourceTree = "<group>";
@@ -4864,6 +4867,7 @@
 				63E893982CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */,
 				631908B82E3718F8009249C1 /* AppIconView.swift in Sources */,
 				63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */,
+				234660AA5CF5435784D5AB09 /* ItemDetailsExternalResourceSectionView.swift in Sources */,
 				632119D72E543973005B3E10 /* ItemListViewModel.swift in Sources */,
 				4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */,
 				63F8BDE92E421C3B0088FB66 /* CircularProgressView.swift in Sources */,
