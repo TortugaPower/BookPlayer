@@ -11,10 +11,9 @@ import SwiftUI
 
 struct ItemDetailsExternalResourceSectionView: View {
   let externalResources: [SimpleExternalResource]
-
-  /// Resolved once on appear, keyed by providerId: resolving inside the body did a
-  /// synchronous keychain read + JSON decode on every render.
-  @State private var resolvedHosts: [String: String] = [:]
+  /// Keyed by providerId; resolved by ItemDetailsViewModel off the main thread —
+  /// this view renders data and holds no keychain dependency.
+  let resolvedHosts: [String: String]
 
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -59,34 +58,7 @@ struct ItemDetailsExternalResourceSectionView: View {
       } header: {
         Text("external_resources_title".localized)
       }
-      .onAppear {
-        guard resolvedHosts.isEmpty else { return }
-        resolvedHosts = externalResources.reduce(into: [:]) { hosts, resource in
-          hosts[resource.providerId] = resolveHost(resource)
-        }
-      }
     }
   }
 
-  private func resolveHost(_ resource: SimpleExternalResource) -> String {
-    let keychainService = KeychainService()
-    let hostId = resource.hostId ?? ""
-
-    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
-    case .jellyfin:
-      let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    case .audiobookshelf:
-      let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    default:
-      break
-    }
-
-    return hostId
-  }
 }

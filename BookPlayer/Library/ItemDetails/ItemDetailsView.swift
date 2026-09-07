@@ -55,7 +55,10 @@ struct ItemDetailsView: View {
       )
 
       if let externalResources = viewModel.item.externalResources {
-        ItemDetailsExternalResourceSectionView(externalResources: externalResources)
+        ItemDetailsExternalResourceSectionView(
+          externalResources: externalResources,
+          resolvedHosts: viewModel.resolvedExternalHosts
+        )
       }
     }
     .onChange(of: viewModel.selectedImage) {

@@ -56,6 +56,10 @@ final class ItemDetailsViewModel: ObservableObject {
   var showAuthor: Bool { item.type != .folder }
 
   @Published var hardcoverSectionViewModel: ItemDetailsHardcoverSectionView.Model?
+  /// Host display strings for the external-resources section, keyed by providerId.
+  /// Resolved off the main thread (keychain read + JSON decode per provider) — the
+  /// section view just renders this map.
+  @Published private(set) var resolvedExternalHosts: [String: String] = [:]
 
   init(
     item: SimpleLibraryItem,
@@ -101,7 +105,52 @@ final class ItemDetailsViewModel: ObservableObject {
 
     Task {
       await resolveHardcoverSelection()
+      await resolveExternalHosts()
     }
+  }
+
+  private func resolveExternalHosts() async {
+    guard let resources = item.externalResources, !resources.isEmpty else { return }
+    // Off-main: the section view used to do these reads synchronously on appear
+    let resolved = await Task.detached(priority: .utility) {
+      Self.resolveExternalHosts(for: resources, keychain: KeychainService())
+    }.value
+    await MainActor.run { resolvedExternalHosts = resolved }
+  }
+
+  /// Pure resolution, static with an injected keychain so it's testable without
+  /// constructing the view model.
+  static func resolveExternalHosts(
+    for resources: [SimpleExternalResource],
+    keychain: KeychainServiceProtocol
+  ) -> [String: String] {
+    resources.reduce(into: [:]) { hosts, resource in
+      hosts[resource.providerId] = resolveHost(resource, keychain: keychain)
+    }
+  }
+
+  private static func resolveHost(
+    _ resource: SimpleExternalResource,
+    keychain: KeychainServiceProtocol
+  ) -> String {
+    let hostId = resource.hostId ?? ""
+
+    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+    case .jellyfin:
+      let connections: [JellyfinConnectionData] = (try? keychain.get(.jellyfinConnection)) ?? []
+      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
+        return connection.url.absoluteString
+      }
+    case .audiobookshelf:
+      let connections: [AudiobookShelfConnectionData] = (try? keychain.get(.audiobookshelfConnection)) ?? []
+      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
+        return connection.url.absoluteString
+      }
+    default:
+      break
+    }
+
+    return hostId
   }
 
   /// Populate the Hardcover picker selection. Prefers the full local reference; otherwise

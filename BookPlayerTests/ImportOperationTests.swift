@@ -382,3 +382,60 @@ final class AudiobookShelfDecodingTests: XCTestCase {
     XCTAssertEqual(items.first?.fileExtension, "m4b", "nested metadata decodes; leading dot is stripped")
   }
 }
+
+// MARK: - External-resource host resolution
+
+/// KeychainServiceProtocol has no generated mock (generic requirements); a local
+/// dictionary-backed stub is enough for the resolver's read path.
+private final class KeychainStub: KeychainServiceProtocol, @unchecked Sendable {
+  let valueUpdatedPublisher = PassthroughSubject<KeychainUpdateValue, Never>()
+  var storage: [KeychainKeys: Any] = [:]
+
+  func set(_ value: String, key: KeychainKeys) throws { storage[key] = value }
+  func set<T: Encodable>(_ value: T, key: KeychainKeys) throws { storage[key] = value }
+  func get(_ key: KeychainKeys) throws -> String? { storage[key] as? String }
+  func get<T: Decodable>(_ key: KeychainKeys) throws -> T? { storage[key] as? T }
+  func remove(_ key: KeychainKeys) throws { storage[key] = nil }
+}
+
+final class ItemDetailsHostResolutionTests: XCTestCase {
+  private func makeResource(provider: String, id: String, hostId: String?) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: provider,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: hostId,
+      libraryItem: nil
+    )
+  }
+
+  /// The pure resolver behind the details section: a hostId matching a saved
+  /// connection (GUID, case-insensitive per IntegrationHostResolver) renders the
+  /// server URL; an unknown host falls back to the raw hostId.
+  func testResolvesSavedConnectionsAndFallsBackToRawHostId() throws {
+    let keychain = KeychainStub()
+    try keychain.set(
+      [JellyfinConnectionData(
+        serverId: "GUID-JELLY",
+        url: URL(string: "https://jelly.example.com")!,
+        serverName: "Jelly",
+        userID: "u1",
+        userName: "user",
+        accessToken: "t"
+      )],
+      key: .jellyfinConnection
+    )
+
+    let resolved = ItemDetailsViewModel.resolveExternalHosts(
+      for: [
+        makeResource(provider: "jellyfin", id: "r1", hostId: "guid-jelly"),
+        makeResource(provider: "jellyfin", id: "r2", hostId: "unknown-guid"),
+      ],
+      keychain: keychain
+    )
+
+    XCTAssertEqual(resolved["r1"], "https://jelly.example.com", "GUID match is case-insensitive")
+    XCTAssertEqual(resolved["r2"], "unknown-guid", "unknown host falls back to the raw hostId")
+  }
+}
