@@ -119,38 +119,35 @@ final class ItemDetailsViewModel: ObservableObject {
   }
 
   /// Pure resolution, static with an injected keychain so it's testable without
-  /// constructing the view model.
+  /// constructing the view model. Each provider decodes its own connection type from
+  /// its own keychain key — the generic `hostURL` is what lets one switch cover both.
   static func resolveExternalHosts(
     for resources: [SimpleExternalResource],
     keychain: KeychainServiceProtocol
   ) -> [String: String] {
     resources.reduce(into: [:]) { hosts, resource in
-      hosts[resource.providerId] = resolveHost(resource, keychain: keychain)
+      let hostId = resource.hostId ?? ""
+      let url: URL? =
+        switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+        case .jellyfin:
+          hostURL(for: hostId, key: .jellyfinConnection, of: [JellyfinConnectionData].self, keychain: keychain)
+        case .audiobookshelf:
+          hostURL(for: hostId, key: .audiobookshelfConnection, of: [AudiobookShelfConnectionData].self, keychain: keychain)
+        default:
+          nil
+        }
+      hosts[resource.providerId] = url?.absoluteString ?? hostId
     }
   }
 
-  private static func resolveHost(
-    _ resource: SimpleExternalResource,
+  private static func hostURL<T: IntegrationHostIdentifiable & Decodable>(
+    for hostId: String,
+    key: KeychainKeys,
+    of type: [T].Type,
     keychain: KeychainServiceProtocol
-  ) -> String {
-    let hostId = resource.hostId ?? ""
-
-    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
-    case .jellyfin:
-      let connections: [JellyfinConnectionData] = (try? keychain.get(.jellyfinConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    case .audiobookshelf:
-      let connections: [AudiobookShelfConnectionData] = (try? keychain.get(.audiobookshelfConnection)) ?? []
-      if let connection = IntegrationHostResolver.connection(for: hostId, in: connections) {
-        return connection.url.absoluteString
-      }
-    default:
-      break
-    }
-
-    return hostId
+  ) -> URL? {
+    let connections: [T] = (try? keychain.get(key)) ?? []
+    return IntegrationHostResolver.connection(for: hostId, in: connections)?.url
   }
 
   /// Populate the Hardcover picker selection. Prefers the full local reference; otherwise
