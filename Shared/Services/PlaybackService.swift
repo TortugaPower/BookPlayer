@@ -206,6 +206,28 @@ public final class PlaybackService: PlaybackServiceProtocol {
     )
   }
 
+  /// The resource that decides streaming for an item, or nil if it has none.
+  ///
+  /// Filters to the MEDIA-SERVER providers explicitly: Hardcover links live in the same
+  /// relationship and sort between "audiobookshelf" and "jellyfin", so a hardcover row
+  /// that came back from sync with a non-`not_synced` status would otherwise win the pick
+  /// and leave a streamable item with no external URL at all.
+  ///
+  /// Deterministic: the snapshot set is UNORDERED, so an item linked to two streaming
+  /// providers would otherwise resolve to whichever the set yields first, varying between
+  /// launches. Stable (providerName, providerId) order pins it.
+  static func mediaServerResource(from resources: [SimpleExternalResource]?) -> SimpleExternalResource? {
+    resources?
+      .filter {
+        switch ExternalResource.ProviderName(rawValue: $0.providerName) {
+        case .jellyfin, .audiobookshelf: true
+        default: false
+        }
+      }
+      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
+      .first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+  }
+
   func getPlayableChapters(book: SimpleLibraryItem) throws -> [PlayableChapter] {
     guard
       var chapters = self.libraryService.getChapters(from: book.relativePath)
@@ -225,12 +247,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var externalUrl: URL?
     var externalHeaders: [String: String] = [:]
     
-    // Deterministic pick: the snapshot set is UNORDERED, so an item linked to two
-    // streaming providers would otherwise resolve to whichever the set yields first,
-    // varying between launches. Stable (providerName, providerId) order pins it.
-    let externalResource = book.externalResources?
-      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
-      .first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue })
+    let externalResource = Self.mediaServerResource(from: book.externalResources)
     if let providerRaw = externalResource?.providerName,
        let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
       
@@ -278,6 +295,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
       }
     }
 
+    // The resource exists but nothing matched its host, which is the only way the switch
+    // above leaves externalUrl nil for a media-server item: the file can't be streamed or
+    // re-downloaded on this device until its server is added.
+    let hasUnresolvedExternalHost = externalResource != nil && externalUrl == nil
+
     // If no chapters, create a single one using the book metadata
     guard !chapters.isEmpty else {
       return [
@@ -290,7 +312,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
           remoteURL: book.remoteURL,
           externalURL: externalUrl,
           index: 1,
-          externalHeaders: externalHeaders
+          externalHeaders: externalHeaders,
+          hasUnresolvedExternalHost: hasUnresolvedExternalHost
         )
       ]
     }
@@ -307,7 +330,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
           remoteURL: book.remoteURL,
           externalURL: externalUrl,
           index: Int16(index + 1),
-          externalHeaders: externalHeaders
+          externalHeaders: externalHeaders,
+          hasUnresolvedExternalHost: hasUnresolvedExternalHost
         )
       })
   }
@@ -393,7 +417,8 @@ public final class PlaybackService: PlaybackServiceProtocol {
           chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration,
           // Without the headers a streamed chapter inside a bound book hits the media
           // server unauthenticated and 401s.
-          externalHeaders: nestedChapter.externalHeaders
+          externalHeaders: nestedChapter.externalHeaders,
+          hasUnresolvedExternalHost: nestedChapter.hasUnresolvedExternalHost
         )
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
         localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)

@@ -18,6 +18,9 @@ import Sentry
 final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BPLogger {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
+  /// Narrow read of the streaming entitlement (pro or lite), not the whole account
+  /// service — the media-servers shortcut is only actionable for a tier that can stream.
+  private let hasStreamingEnabled: () -> Bool
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
@@ -86,7 +89,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
     shakeMotionService: ShakeMotionServiceProtocol,
-    widgetReloadService: WidgetReloadServiceProtocol
+    widgetReloadService: WidgetReloadServiceProtocol,
+    hasStreamingEnabled: @escaping () -> Bool
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -95,6 +99,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     self.shakeMotionService = shakeMotionService
     self.widgetReloadService = widgetReloadService
+    self.hasStreamingEnabled = hasStreamingEnabled
     super.init()
 
     setupPlayerInstance()
@@ -512,6 +517,36 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     SharedWidgetStore.store(item)
   }
 
+  /// Whether a failed load should offer the Media Servers shortcut, for this chapter.
+  private func offersMediaServers(for chapter: PlayableChapter) -> Bool {
+    Self.shouldOfferMediaServers(
+      fileExists: FileManager.default.fileExists(atPath: chapter.fileURL.path),
+      chapter: chapter,
+      isStreamingEnabled: hasStreamingEnabled()
+    )
+  }
+
+  /// Offer the shortcut only when going to Media Servers could actually fix the failure:
+  /// the tier can stream at all, the file isn't on disk, and the item is backed by a media
+  /// server that either failed to stream (expired token, server down) or isn't configured
+  /// on this device. An item with no media-server resource never qualifies — its missing
+  /// file has nothing to do with a server.
+  ///
+  /// Deliberately does NOT consider `remoteURL`: the API returns a presigned URL for every
+  /// synced item even when no object is behind it, so a nil remoteURL only ever meant
+  /// "this account doesn't sync", which pointed the shortcut at free users (including for
+  /// plain local files) while withholding it from the paying users who hit the missing-server
+  /// case.
+  static func shouldOfferMediaServers(
+    fileExists: Bool,
+    chapter: PlayableChapter,
+    isStreamingEnabled: Bool
+  ) -> Bool {
+    guard isStreamingEnabled, !fileExists else { return false }
+
+    return chapter.externalUrl != nil || chapter.hasUnresolvedExternalHost
+  }
+
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
     if let autoplay {
       playbackQueued = autoplay
@@ -526,13 +561,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       } catch {
         var actions = [BPActionItem.okAction]
         
-        // Offer the Media Servers shortcut when streaming is the missing piece: either an
-        // external URL resolved and failed (auth/network), or — the cross-device case — the
-        // item has NO local file and NO cloud copy, which for an errored load means its
-        // media-server connection isn't configured on this device (externalUrl stays nil
-        // precisely because no saved server matched the resource's host).
-        if !FileManager.default.fileExists(atPath: chapter.fileURL.path),
-           chapter.externalUrl != nil || chapter.remoteURL == nil {
+        if offersMediaServers(for: chapter) {
           actions.append(
             BPActionItem(title: "media_servers_title".localized) {
               NotificationCenter.default.post(name: .showMediaServers, object: nil)
@@ -1335,10 +1364,7 @@ extension PlayerManager {
         if playbackQueued == true {
           var actions = [BPActionItem.okAction]
           
-          // Same missing-source rule as the chapter-load failure path (see loadChapterTask).
-          if let chapter = currentItem?.currentChapter,
-             !FileManager.default.fileExists(atPath: chapter.fileURL.path),
-             chapter.externalUrl != nil || chapter.remoteURL == nil {
+          if let chapter = currentItem?.currentChapter, offersMediaServers(for: chapter) {
             actions.append(
               BPActionItem(title: "media_servers_title".localized) {
                 NotificationCenter.default.post(name: .showMediaServers, object: nil)

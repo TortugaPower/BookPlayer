@@ -35,7 +35,10 @@ class PlayerManagerTests: XCTestCase {
       syncService: SyncServiceProtocolMock(),
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock(),
-      widgetReloadService: WidgetReloadService()
+      widgetReloadService: WidgetReloadService(),
+      // Entitled, so nothing here is suppressed by tier; the media-servers rule itself is
+      // covered by MediaServersShortcutTests against the pure decision function.
+      hasStreamingEnabled: { true }
     )
   }
 
