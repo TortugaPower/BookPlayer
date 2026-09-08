@@ -27,12 +27,16 @@ function headers(tok) {
   };
 }
 
+// A stalled GitHub call should fail into the harness's degrade paths, not sit until the job timeout.
+const API_TIMEOUT_MS = 30_000;
+
 async function rest(method, path, body) {
   const url = path.startsWith('http') ? path : `${REST}${path}`;
   const res = await fetch(url, {
     method,
     headers: headers(),
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -46,12 +50,69 @@ async function graphql(queryStr, variables, tok) {
     method: 'POST',
     headers: headers(tok),
     body: JSON.stringify({ query: queryStr, variables }),
+    signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok || json.errors) {
     throw new Error(`GitHub GraphQL -> ${res.status}: ${JSON.stringify(json.errors || json)}`);
   }
   return json.data;
+}
+
+// ---------- Pull request metadata + diff (fetched by the harness so the agent needs no token) ----------
+
+export async function getPullRequest(prNumber) {
+  const { owner, name } = repo();
+  const pr = await rest('GET', `/repos/${owner}/${name}/pulls/${prNumber}`);
+  return { title: pr.title || '', body: pr.body || '', author: pr.user?.login || '' };
+}
+
+export async function fetchPullRequestDiff(prNumber) {
+  const { owner, name } = repo();
+  const res = await fetch(`${REST}/repos/${owner}/${name}/pulls/${prNumber}`, {
+    headers: { ...headers(), Accept: 'application/vnd.github.diff' },
+    // A longer cap than the JSON calls: this one streams the whole diff body, and AbortSignal.timeout bounds the
+    // entire exchange rather than idle time, so a big PR on a slow link would otherwise abort mid-download.
+    signal: AbortSignal.timeout(API_TIMEOUT_MS * 4),
+  });
+  if (res.ok) return res.text();
+  // GitHub answers 406 for a diff it will not render (very large PRs). The per-file endpoint still serves the
+  // patches, so stitch them together rather than failing the whole review.
+  if (res.status === 406) {
+    console.warn('Diff endpoint refused this PR (406); rebuilding it from the per-file patches');
+    return fetchDiffFromFiles(prNumber);
+  }
+  const text = await res.text().catch(() => '');
+  throw new Error(`GitHub GET diff -> ${res.status}: ${text}`);
+}
+
+// A unified diff assembled from `pulls/{n}/files`. Each file carries its own `patch`; a file GitHub omits a patch
+// for (binary, or too large on its own) is named so the agent knows it changed and was not shown.
+export async function fetchDiffFromFiles(prNumber, maxPages = 30) {
+  const { owner, name } = repo();
+  const parts = [];
+  let page = 1;
+  for (; page <= maxPages; page++) {
+    const files = await rest('GET', `/repos/${owner}/${name}/pulls/${prNumber}/files?per_page=100&page=${page}`);
+    if (!Array.isArray(files) || files.length === 0) break;
+    for (const f of files) {
+      const header = `diff --git a/${f.previous_filename || f.filename} b/${f.filename}`;
+      parts.push(f.patch ? `${header}\n--- a/${f.previous_filename || f.filename}\n+++ b/${f.filename}\n${f.patch}` : `${header}\n[no patch returned by the API: binary or too large — ${f.status}, +${f.additions}/-${f.deletions}]`);
+    }
+    if (files.length < 100) break;
+  }
+  if (!parts.length) throw new Error('GitHub returned no files for this PR');
+  if (page > maxPages) {
+    // Only claim truncation once another page is known to exist: a change set that is an exact multiple of the
+    // cap fetches every file and would otherwise be reported as incomplete, telling the agent to distrust a whole
+    // diff. Say it in the diff itself, not just the log, since that is what the agent reads.
+    const beyond = await rest('GET', `/repos/${owner}/${name}/pulls/${prNumber}/files?per_page=1&page=${maxPages * 100 + 1}`).catch(() => []);
+    if (Array.isArray(beyond) && beyond.length) {
+      console.warn(`Diff rebuilt from files was truncated at ${maxPages} pages`);
+      parts.push(`[diff truncated: more than ${maxPages * 100} files changed — the rest was not fetched]`);
+    }
+  }
+  return `${parts.join('\n')}\n`;
 }
 
 // ---------- Summary (issue-level) comments ----------
@@ -98,7 +159,8 @@ export async function postInlineComment({ prNumber, commitId, path, line, body }
 
 // ---------- Review threads (dedup source + resolve) ----------
 
-// Returns [{ id, isResolved, firstCommentBody }] for every review thread on the PR.
+// Every review thread on the PR: identity, resolution state, where it is anchored, and its full comment list
+// (author login + association, so the harness can tell a maintainer's reply from anyone else's).
 export async function listReviewThreads(prNumber) {
   const { owner, name } = repo();
   const threads = [];
@@ -113,7 +175,15 @@ export async function listReviewThreads(prNumber) {
               nodes{
                 id
                 isResolved
-                comments(first:1){ nodes{ body } }
+                path
+                line
+                originalLine
+                # Three selections, because they answer three different questions and a long thread makes them
+                # disagree: the opening comment (which carries the fingerprint marker), the newest 30 (whose
+                # marker came after whose reply), and the newest one (is our note the last word).
+                first: comments(first:1){ nodes{ databaseId body author { login } } }
+                comments(last:30){ nodes{ databaseId body author { login } authorAssociation createdAt } }
+                last: comments(last:1){ nodes{ body author { login } createdAt } }
               }
             }
           }
@@ -123,16 +193,56 @@ export async function listReviewThreads(prNumber) {
     );
     const conn = data.repository.pullRequest.reviewThreads;
     for (const node of conn.nodes) {
+      const comments = (node.comments?.nodes || []).map((c) => ({
+        id: c.databaseId ?? null,
+        body: c.body || '',
+        author: c.author?.login || '',
+        association: c.authorAssociation || 'NONE',
+        createdAt: c.createdAt || '',
+      }));
       threads.push({
         id: node.id,
         isResolved: node.isResolved,
-        firstCommentBody: node.comments?.nodes?.[0]?.body || '',
+        path: node.path || '',
+        // Distinct on purpose: `line` is null exactly when the thread is outdated, and `originalLine` then points
+        // into the commit the finding was raised on — a stale anchor the caller must not present as current.
+        line: node.line ?? null,
+        originalLine: node.originalLine ?? null,
+        comments,
+        // From the `first` selection: on a thread past 30 comments, comments[0] is no longer the opening one,
+        // and the fingerprint marker lives in the opening comment.
+        firstCommentId: node.first?.nodes?.[0]?.databaseId ?? null,
+        firstCommentBody: node.first?.nodes?.[0]?.body || '',
+        firstCommentAuthor: node.first?.nodes?.[0]?.author?.login || '',
+        // From its own selection, not the capped list: a thread with >30 comments would otherwise report the 30th.
+        // The author comes with it: the harness's markers are public strings, so a marker only counts as ours
+        // when we wrote the comment carrying it.
+        lastCommentBody: node.last?.nodes?.[0]?.body || '',
+        lastCommentAuthor: node.last?.nodes?.[0]?.author?.login || '',
+        lastCommentAt: node.last?.nodes?.[0]?.createdAt || '',
       });
     }
     if (!conn.pageInfo.hasNextPage) break;
     cursor = conn.pageInfo.endCursor;
   }
   return threads;
+}
+
+// Reply inside an existing review thread (used to leave the auto-resolve marker).
+export async function replyToReviewComment(prNumber, commentId, body) {
+  const { owner, name } = repo();
+  return rest('POST', `/repos/${owner}/${name}/pulls/${prNumber}/comments/${commentId}/replies`, { body });
+}
+
+export async function unresolveReviewThread(threadId) {
+  const tok = process.env.REVIEW_RESOLVE_TOKEN || process.env.GITHUB_TOKEN;
+  return graphql(
+    `mutation($threadId:ID!){
+      unresolveReviewThread(input:{threadId:$threadId}){ thread{ id isResolved } }
+    }`,
+    { threadId },
+    tok,
+  );
 }
 
 export async function resolveReviewThread(threadId) {

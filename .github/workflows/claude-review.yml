@@ -13,19 +13,26 @@ concurrency:
 jobs:
   review:
     # Skip draft PRs; they review on "ready_for_review".
-    # Skip fork PRs: pull_request runs from a fork don't receive repo secrets
-    # (ANTHROPIC_API_KEY), so the reviewer can't run — skip to keep the check
-    # neutral instead of a hard failure.
+    # Skip fork PRs: a `pull_request` run from a fork receives no repository secrets (ANTHROPIC_API_KEY), so the
+    # reviewer could not run — skip to keep the check neutral instead of a hard failure.
+    # Skip Dependabot for the same reason: its runs get a read-only token and no repository secrets.
     if: >-
       github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    # Ubuntu on purpose: the reviewer only reads the diff/source, it does NOT build the app,
-    # so there's no need for an (expensive, slow) macOS runner.
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    # Ubuntu on purpose: the reviewer only reads the diff and the source, it does NOT build the app,
+    # so there is no need for an (expensive, slow) macOS runner.
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
       pull-requests: write   # post inline + summary comments and resolve review threads
+    # Accepted residual: for a same-repo `pull_request` event GitHub runs the workflow file, the harness and the
+    # lockfile as they exist on the PR head, so anyone who can push a branch here can already reach the secrets
+    # below by editing this file. Checking the harness out from the base ref would close one path and not the
+    # class, since the workflow itself is still PR-authored. What limits the exposure is push access plus branch
+    # protection on develop; the allowlist and env-stripping in review.mjs constrain the *model*, which is a
+    # different threat. Revisit with an environment protection rule if outside contributors ever get push access.
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v5
@@ -34,15 +41,23 @@ jobs:
           # match the commit_id we anchor inline comments to.
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
+          # The agent may `cat .git/config`; don't leave the checkout token in it.
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # --ignore-scripts: the lockfile comes from the PR head, so an install hook would be PR-authored code
+      # running before anything else in this job.
       - name: Install reviewer deps
         working-directory: .github/claude/reviewer
-        run: npm install --no-audit --no-fund --silent
+        run: npm ci --ignore-scripts --no-audit --no-fund --silent
+
+      - name: Test the agent's tool allowlist and redaction
+        working-directory: .github/claude/reviewer
+        run: node --test test/
 
       - name: Run Claude review
         env:
@@ -50,15 +65,16 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # PAT/App token used ONLY to resolve review threads (GITHUB_TOKEN can't — "Resource not
           # accessible by integration"). Optional: if unset, stale comments only show as "Outdated".
+          # Prefer a fine-grained PAT scoped to this repo with "Pull requests: read & write" — this step
+          # runs PR-branch code, so a classic repo-scope PAT would over-reach if it ever leaked.
           REVIEW_RESOLVE_TOKEN: ${{ secrets.REVIEW_RESOLVE_TOKEN }}
-          GH_TOKEN: ${{ github.token }}              # for `gh pr diff` inside the agent
-          GH_REPO: ${{ github.repository }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REVIEW_MODEL: claude-opus-4-8
-          REVIEW_MAX_TURNS: '50'   # agent only reads/reports (posting is done by the script), so turns go far
-          IS_SANDBOX: '1'
+          # Model is NOT pinned: review.mjs asks the Models API for the newest Opus-tier model on
+          # every run. To pin (e.g. while diagnosing a regression), set REVIEW_MODEL to an exact id.
+          # REVIEW_MODEL: claude-opus-5
+          REVIEW_MAX_TURNS: '50'   # a coarse guard only; the real bound is REVIEW_DEADLINE_MS (14 min) in review.mjs
         run: node .github/claude/reviewer/review.mjs

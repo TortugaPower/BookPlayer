@@ -11,7 +11,8 @@ auth/entitlement** bugs are the highest-priority findings.
 
 ## How to review
 
-1. Get the diff: `gh pr diff <number>`. The branch is checked out in the working directory.
+1. Read the unified diff the harness wrote for you; its path is in the task prompt. The PR branch is
+   checked out in the working directory.
 2. **Do not review the diff in isolation.** For each non-trivial change, open the surrounding code and its
    callers with `Read`/`Grep`/`Glob` before judging. Diff-only opinions are not acceptable.
 3. Respect the layout: app source is under nested `BookPlayer/BookPlayer/`; shared/framework code is in
@@ -24,7 +25,7 @@ auth/entitlement** bugs are the highest-priority findings.
 - `BookPlayer/Generated/` (Sourcery output, incl. `AutoMockable.generated.swift`), `Assets.xcassets`,
   `build/`, and any generated files.
 - `.lproj` translation files: flag a **missing `Base.lproj/Localizable.strings` key**, but do not nitpick the
-  wording of existing translations.
+  wording of existing translations (Lokalise-managed).
 - `project.pbxproj` merge noise — only comment on a genuine structural problem (wrong target membership,
   broken build setting), not diff churn.
 - **Style the tools already own — do NOT flag:** `force_try` / `try!` in general, long lines, short/`identifier_name`,

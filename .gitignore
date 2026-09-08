@@ -81,3 +81,6 @@ fastlane/test_output
 
 # OSX
 .DS_Store
+
+# The PR reviewer harness installs its SDK here; the lockfile is committed, the tree is not.
+.github/claude/reviewer/node_modules/
