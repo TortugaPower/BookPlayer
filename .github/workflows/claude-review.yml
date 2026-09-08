@@ -76,5 +76,5 @@ jobs:
           # Model is NOT pinned: review.mjs asks the Models API for the newest Opus-tier model on
           # every run. To pin (e.g. while diagnosing a regression), set REVIEW_MODEL to an exact id.
           # REVIEW_MODEL: claude-opus-5
-          REVIEW_MAX_TURNS: '50'   # a coarse guard only; the real bound is REVIEW_DEADLINE_MS (14 min) in review.mjs
+          REVIEW_MAX_TURNS: '200'  # a runaway guard only; the real bound is REVIEW_DEADLINE_MS (14 min) in review.mjs
         run: node .github/claude/reviewer/review.mjs

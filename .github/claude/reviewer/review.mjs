@@ -47,6 +47,9 @@ const MARKER_FAILURE_NOTE = '<!-- bp-ai-review-failed -->';
 // only knows a maintainer replied, not that they dismissed it. If the human resolves it again themselves, their
 // resolution carries no marker and is respected from then on.
 const HARNESS_RESOLVED_MARKERS = [MARKER_AUTO_RESOLVED, MARKER_VERIFIED, MARKER_HUMAN_ACCEPTED];
+const SUPERSEDED_NOTE =
+  'Reported again at a different line on the newest commit; the new comment carries it. ' +
+  `<!-- bp-ai-review-auto-resolved -->`;
 const AUTO_RESOLVED_NOTE = `Not reported in the latest run — resolved automatically. ${MARKER_AUTO_RESOLVED}`;
 // Posted when we reopen, so the auto-resolve marker is no longer the last comment: if a human then resolves
 // the thread themselves, that decision is respected on later runs.
@@ -124,7 +127,7 @@ function requireEnv(name) {
 // Read here, validated in main() — importing this module (e.g. from a test) must not throw.
 const PR_NUMBER = Number(process.env.PR_NUMBER || 0);
 const COMMIT = process.env.COMMIT || ''; // PR head SHA — anchors inline comments
-const BASE = process.env.BASE_REF || 'main';
+const BASE = process.env.BASE_REF || 'develop';
 
 // Fingerprint identifies "the same issue at the same spot" across runs.
 // Intentionally EXCLUDES the comment text so a re-wording doesn't create a duplicate.
@@ -275,9 +278,15 @@ const BASH_DENY_MESSAGE = `Bash is restricted to read-only commands: ${BASH_RULE
 // (`cat \/proc\/self\/environ` and `cat "docs"/host/x` normalise to the paths the shell sees). Constructs that
 // would write or expand are flagged: redirects and process substitution outside quotes, and any `$` or backtick
 // outside single quotes. A backslash-escaped `$` is literal and therefore not flagged.
+// `2>/dev/null` and `2>&1` only route stderr, so they are not the redirects the walk refuses. They are recognised
+// INSIDE the walk, outside quotes only: stripping them up front also stripped them from inside a quoted argument
+// (`grep "log 2>/dev/null here" f`), which left the analysed string no longer matching the command bash would run.
+// No bypass came of that — removal only ever deletes text — but the two must agree, or a later change here is
+// reasoning about a string the shell never sees.
+const STDERR_REDIRECT = /^2>(&1|\/dev\/null)(?=\s|$)/;
+
 export function analyzeShell(command) {
-  // `2>/dev/null` and `2>&1` only route stderr; drop them before looking for real redirects.
-  const cmd = String(command || '').replace(/\s2>(&1|\/dev\/null)(?=\s|$)/g, '');
+  const cmd = String(command || '');
   const segments = [];
   let current = '';
   let quote = null;
@@ -308,6 +317,12 @@ export function analyzeShell(command) {
     // `cat {/etc/hostname,x}` is the same shape, and bash expands braces BEFORE `~`, so `{~/.aws/credentials,x}`
     // would slip past the tilde rule too. No read-only command needs any of these: a regex quantifier or a literal
     // `<` goes inside quotes, and file arguments are passed as arguments.
+    if (ch === '2' && STDERR_REDIRECT.test(cmd.slice(i))) {
+      // stderr routing, not a redirect to a file: skip it whole, and drop the space that preceded it.
+      i += STDERR_REDIRECT.exec(cmd.slice(i))[0].length - 1;
+      current = current.replace(/\s+$/, '');
+      continue;
+    }
     if (ch === '`' || ch === '>' || ch === '<' || ch === '$' || ch === '{' || ch === '}') unsafe = true;
     if (ch === '|' || ch === '&' || ch === ';' || ch === '\n') {
       segments.push(current);
@@ -790,7 +805,7 @@ async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTE
   return { finalText, lastAnswer, turns, resultSubtype };
 }
 
-export function renderSummary(result, stats, unpostable, { provisional = false, provisionalCause = '', previously = [], priorState = 'unknown' } = {}) {
+export function renderSummary(result, stats, unpostable, { provisional = false, provisionalCause = 'turns', previously = [], priorState = 'unknown' } = {}) {
   const emoji = result.verdict === 'fail' ? '🔴' : result.verdict === 'warn' ? '🟡' : '✅';
   const counts = result.findings.reduce(
     (a, f) => ({ ...a, [f.severity]: (a[f.severity] || 0) + 1 }),
@@ -831,12 +846,19 @@ export function renderSummary(result, stats, unpostable, { provisional = false, 
   }
 
   if (provisional) {
-    // Which limit it was decides which knob a maintainer should reach for, so the banner may not guess.
-    const timedOut = provisionalCause === 'error_deadline';
-    lines.push(
-      '',
-      `> ⚠️ The reviewer hit its ${timedOut ? 'time limit' : 'turn limit'} before it had finished; the result is the last complete answer it produced and may be provisional, so no earlier finding was resolved from it. ${timedOut ? 'Raise `REVIEW_DEADLINE_MS` (and `timeout-minutes`)' : 'Bump `REVIEW_MAX_TURNS`'} or split the PR if this repeats.`,
-    );
+    // Three different causes, and the knob differs for each — the wrong knob is worse than no knob.
+    const BANNER = {
+      truncated:
+        'The reviewer\'s answer was cut off mid-JSON and the harness closed it, so this finding list is partial: ' +
+        'no earlier finding was resolved from it. If it repeats, ask for fewer findings or split the PR.',
+      deadline:
+        'The reviewer hit its time limit before finishing; this is the last complete answer it produced, so no ' +
+        'earlier finding was resolved from it. Raise `REVIEW_DEADLINE_MS` (and `timeout-minutes`) or split the PR.',
+      turns:
+        'The reviewer hit its turn limit before finishing; this is the last complete answer it produced, so no ' +
+        'earlier finding was resolved from it. Bump `REVIEW_MAX_TURNS` or split the PR.',
+    };
+    lines.push('', `> ⚠️ ${BANNER[provisionalCause] || BANNER.turns}`);
   }
 
   if (unpostable.length) {
@@ -904,7 +926,7 @@ export function buildVerifyPrompt(entries, headSha, prAuthor = '') {
     // author, who is usually OWNER on a same-repo PR) meant that on a solo repo the verifier saw every thread as
     // having no replies at all, so an explanation like "the value only exists in SSM" could never be taken into
     // account and the finding was reported present on every push until a human resolved it by hand.
-    const replies = t.comments
+    const replies = (Array.isArray(t.comments) ? t.comments : [])
       .filter((c) => !isHarnessComment(c.author) && (isMaintainerReply(c, prAuthor) || (prAuthor && c.author === prAuthor)))
       .slice(-5)
       .map((c) => `  <reply author_role="${escapeAttr(prAuthor && c.author === prAuthor ? 'AUTHOR' : c.association)}">${escapePrText(c.body.slice(0, MAX_VERIFY_CHARS))}</reply>`)
@@ -998,17 +1020,20 @@ export function harnessClosed(t, markers = HARNESS_RESOLVED_MARKERS) {
   return maintainerAt === null || maintainerAt <= ours.at;
 }
 
-export async function applyVerification(verdicts, entries, io, { commit = '', prAuthor = '' } = {}) {
+export async function applyVerification(verdicts, entries, io, { commit = '', prAuthor = '', handledIds = new Set() } = {}) {
   const rows = [];
   const stats = { verifiedFixed: 0, stillOpen: 0, closedByHuman: 0, dropped: 0 };
   for (const { id, thread: t } of entries) {
+    // Recorded before anything can throw: a thread this pass touched must not also be judged by the "was not
+    // re-reported" loop, which would reply a second time on top of whatever this pass already said.
+    handledIds.add(t.id);
     const v = verdicts.get(id) || {};
     const status = VERIFY_STATUSES.has(v.status) ? v.status : 'present';
     const evidence = neutralizeMarkup(String(v.evidence || '').slice(0, 400));
     const anchor = threadAnchor(t);
     const severity = findingSeverity(t.firstCommentBody);
     const label = `\`${mdPath(t.path)}:${anchor.line ?? '?'}\`${severity ? ` (${severity})` : ''}${anchor.stale ? ' ⚠︎ moved' : ''}`;
-    const hasMaintainerReply = t.comments.some((c) => isMaintainerReply(c, prAuthor));
+    const hasMaintainerReply = (Array.isArray(t.comments) ? t.comments : []).some((c) => isMaintainerReply(c, prAuthor));
     if (status === 'accepted' && !hasMaintainerReply) {
       // The model may not close a thread on its own opinion: without a maintainer reply this is just "still open".
       rows.push({ label, status: 'open', note: 'still open' });
@@ -1059,7 +1084,7 @@ export async function applyVerification(verdicts, entries, io, { commit = '', pr
 // four outcomes — post new, keep open, reopen auto-resolved, leave human-dismissed, resolve stale — are unit-tested.
 const SEVERITY_RANK = { error: 0, warn: 1, info: 2 };
 
-export async function reconcile(currentByFp, threads, io, { provisional = false, verifiedIds = null } = {}) {
+export async function reconcile(currentByFp, threads, io, { provisional = false, verifiedIds = null, supersededIds = null } = {}) {
   // Errors first: with MAX_INLINE in play, the findings a human most needs in context must get the slots.
   currentByFp = new Map([...currentByFp].sort(([, a], [, b]) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]));
   const existingByFp = new Map();
@@ -1128,8 +1153,10 @@ export async function reconcile(currentByFp, threads, io, { provisional = false,
       await io.resolve(t);
       stats.resolved++;
       // Marker only after a successful resolve — otherwise a run without a resolve token would add a
-      // "resolved automatically" reply on every push while the thread stays open.
-      await io.reply(t, AUTO_RESOLVED_NOTE).catch((e) => console.warn(`auto-resolve note failed (fp:${fp}) — ${e.message}`));
+      // "resolved automatically" reply on every push while the thread stays open. The note says which of the two
+      // reasons it was: gone from the run, or moved and re-posted at its new line.
+      const note = supersededIds && supersededIds.has(t.id) ? SUPERSEDED_NOTE : AUTO_RESOLVED_NOTE;
+      await io.reply(t, note).catch((e) => console.warn(`auto-resolve note failed (fp:${fp}) — ${e.message}`));
     } catch (e) {
       console.warn(`resolve failed (fp:${fp}) — ${e.message}`);
     }
@@ -1153,7 +1180,12 @@ export function summaryWithNote(previousBody, note, heading) {
     .replace(/\n*---\s*$/, '')
     .trimEnd();
   const body = `${MARKER_FAILURE_NOTE}\n\n${note}`;
-  return kept ? `${kept.slice(0, MAX_COMMENT)}\n\n---\n\n${body}\n\n${MARKER_SUMMARY}` : [heading, '', body, '', MARKER_SUMMARY].join('\n');
+  if (!kept) return [heading, '', body, '', MARKER_SUMMARY].join('\n');
+  // Room is reserved for the note and the markers before the old review is trimmed. Trimming the whole thing
+  // afterwards would cut from the end, which is where the note lives: the run would then look like a stale review
+  // with a "trimmed" line and no explanation at all — the invisible failure this function exists to prevent.
+  const room = Math.max(0, MAX_COMMENT - body.length - MARKER_SUMMARY.length - 16);
+  return `${kept.slice(0, room)}\n\n---\n\n${body}\n\n${MARKER_SUMMARY}`;
 }
 
 // Both degrade routes use this: the deadline route is the likely one on a large PR.
@@ -1194,7 +1226,23 @@ async function upsertSummary(rawBody) {
   return postIssueComment(PR_NUMBER, body);
 }
 
+// `--setup-failed <reason>`: the workflow calls this when a step BEFORE the review failed (the install, or the
+// harness's own tests). Those run outside main(), so nothing would otherwise reach the PR and the check would go
+// red with no comment — the invisible failure the rest of this file exists to avoid. Note only: no agent, no
+// review, no reconciliation, and it needs nothing but a token and a PR number.
+async function reportSetupFailure(reason) {
+  const note = `> ⚠️ **The reviewer did not run:** ${boundedDump(reason || 'a step before the review failed', 400)}${RUN_URL ? ` See the [run log](${RUN_URL}).` : ''}`;
+  await appendNoteToSummary(note, '## ⚠️ Claude PR Review — did not run');
+}
+
 async function main() {
+  const setupFailedAt = process.argv.indexOf('--setup-failed');
+  if (setupFailedAt !== -1) {
+    requireEnv('GITHUB_TOKEN');
+    requireEnv('PR_NUMBER');
+    await reportSetupFailure(process.argv.slice(setupFailedAt + 1).join(' '));
+    return;
+  }
   requireEnv('ANTHROPIC_API_KEY');
   requireEnv('GITHUB_TOKEN');
   requireEnv('PR_NUMBER');
@@ -1242,6 +1290,7 @@ async function main() {
   // than hard-failing the check with nothing.
   let parsed;
   let provisional = false;
+  let provisionalCause = 'turns';
   try {
     if (!finalText) throw new Error('agent produced no text output');
     // assertResultShape throws before the assignment, so `parsed` stays unset and the degrade path below
@@ -1253,6 +1302,7 @@ async function main() {
     // tolerant as the parser too, so what it kept may be a result-shaped block quoted from the diff rather than
     // the agent's own conclusion. Post it, say so, and resolve nothing on its authority.
     provisional = DEGRADABLE_SUBTYPES.has(resultSubtype) || wasTruncationRepaired(parsed);
+    if (provisional) provisionalCause = wasTruncationRepaired(parsed) ? 'truncated' : resultSubtype === 'error_deadline' ? 'deadline' : 'turns';
   } catch (e) {
     // Turn-limit fallback: the agent finished an answer, made one more tool call (with or without trailing prose)
     // and was cut off. Use the remembered terminal answer, flagged provisional: it may have been superseded by
@@ -1261,6 +1311,7 @@ async function main() {
       try {
         parsed = assertResultShape(extractJson(lastAnswer));
         provisional = true;
+        provisionalCause = resultSubtype === 'error_deadline' ? 'deadline' : 'turns';
         console.warn(`${resultSubtype === 'error_deadline' ? 'Time' : 'Turn'} limit hit after a tool call; using the last complete answer (provisional): ${e.message}`);
         if (finalText) logAgentOutput('Agent output, superseded by the last complete answer', finalText);
       } catch {
@@ -1352,11 +1403,22 @@ async function main() {
   // fresh run did not re-report (a re-report is already an answer). Skipped on a provisional result or a thin budget.
   let previously = [];
   let verified = false;
-  const openUnreported = threads
+  const handledIds = new Set(); // filled in by applyVerification, so a throw mid-pass does not lose what it did
+  // A finding whose line drifted (the usual outcome of fixing something above it) gets a NEW fingerprint, so the
+  // fresh run posts a new thread while the old one is neither re-reported nor stale-resolved — two open threads for
+  // one issue. Those are separated out here and resolved as superseded, which is what happened before the
+  // verification pass existed. The match is file + severity, so two same-severity findings in one file can be
+  // confused for one that moved; the cost of that is a thread resolved without verification, which is exactly the
+  // old behaviour, while the cost of not doing it is a duplicate thread on almost every follow-up push.
+  const reportedFileSeverities = new Set([...currentByFp.values()].map((f) => `${f.file}|${f.severity}`));
+  const openUnreportedAll = threads
     .filter((t) => !t.isResolved && isHarnessComment(t.firstCommentAuthor))
     .map((t) => ({ t, fp: (FP_REGEX.exec(t.firstCommentBody || '') || [])[1] }))
     .filter(({ fp }) => fp && !currentByFp.has(fp))
     .map(({ t }) => t);
+  const superseded = openUnreportedAll.filter((t) => reportedFileSeverities.has(`${t.path}|${findingSeverity(t.firstCommentBody)}`));
+  const supersededIds = new Set(superseded.map((t) => t.id));
+  const openUnreported = openUnreportedAll.filter((t) => !supersededIds.has(t.id));
   const toVerify = openUnreported.slice(0, MAX_VERIFY_THREADS);
   const overflow = openUnreported.slice(MAX_VERIFY_THREADS); // left open for the next run, never resolved unverified
   const verifyBudget = Math.min(VERIFY_BUDGET_MS, DEADLINE_MS - (Date.now() - startedAt) - 30_000);
@@ -1373,7 +1435,7 @@ async function main() {
       // result — usable when the deadline landed after a complete list but before the run ended.
       const parsedThreads = parseVerifyResult(run.finalText || run.lastAnswer || '');
       if (!parsedThreads) throw new Error('no parseable {threads:[...]} in the verifier output');
-      const applied = await applyVerification(verdictsById(parsedThreads), numbered, io, { commit: COMMIT, prAuthor: pr.author });
+      const applied = await applyVerification(verdictsById(parsedThreads), numbered, io, { commit: COMMIT, prAuthor: pr.author, handledIds });
       previously = applied.rows.concat(
         overflow.map((t) => ({ label: `\`${mdPath(t.path)}:${threadAnchor(t).line ?? '?'}\``, status: 'open', note: 'not checked this round' })),
       );
@@ -1385,14 +1447,26 @@ async function main() {
     }
   }
 
+  if (superseded.length) {
+    console.log(`${superseded.length} earlier thread(s) re-reported at a new line; resolving them as superseded`);
+    previously = previously.concat(
+      superseded.map((t) => ({ label: `\`${mdPath(t.path)}:${threadAnchor(t).line ?? '?'}\``, status: 'resolved', note: 'reported again at a new line' })),
+    );
+  }
+
   const { stats, unpostable } = await reconcile(currentByFp, threads, io, {
     provisional,
-    verifiedIds: verified ? new Set([...toVerify, ...overflow].map((t) => t.id)) : null,
+    // Threads the second pass judged, plus the ones it deliberately left for the next run: "was not re-reported"
+    // must not overrule either. `handledIds` is filled in as applyVerification goes, so a throw halfway through
+    // does not hand the threads it already resolved back to the stale loop, which would reply again on top of its
+    // own "verified fixed" note.
+    verifiedIds: verified || handledIds.size ? new Set([...handledIds, ...toVerify, ...overflow].map((t) => (typeof t === 'object' ? t.id : t))) : null,
+    supersededIds,
   });
 
   // The review itself succeeded by this point; a flaky comments API must not turn the check red.
   const priorState = verified ? 'verified' : toVerify.length === 0 ? 'none-open' : 'unknown';
-  await upsertSummary(renderSummary(parsed, stats, unpostable, { provisional, provisionalCause: resultSubtype, previously, priorState })).catch((e) =>
+  await upsertSummary(renderSummary(parsed, stats, unpostable, { provisional, provisionalCause, previously, priorState })).catch((e) =>
     console.warn(`Could not post the summary comment: ${e.message}`),
   );
   console.log(

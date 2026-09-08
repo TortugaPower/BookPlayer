@@ -30,17 +30,52 @@ function headers(tok) {
 // A stalled GitHub call should fail into the harness's degrade paths, not sit until the job timeout.
 const API_TIMEOUT_MS = 30_000;
 
+// Retried only for reads, and only for the failures that pass on their own: a 5xx, a secondary-rate-limit 403,
+// a 429, or a timeout. One transient 502 from the thread listing otherwise costs every inline comment on that push
+// (the harness skips them rather than risk duplicates), and one on the diff costs the whole run. Writes are never
+// retried: a repeated POST would post a second comment.
+const RETRY_TRIES = 3;
+const isRetryableStatus = (status) => status >= 500 || status === 429 || status === 403; // 406 is deliberate: not retried
+const retryableError = (e) => e?.name === 'TimeoutError' || e?.name === 'AbortError' || e?.code === 'ECONNRESET' || e instanceof TypeError;
+const backoffMs = (attempt) => 500 * 2 ** attempt + Math.floor(Math.random() * 250);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function fetchRead(url, options, label) {
+  let lastError;
+  for (let attempt = 0; attempt < RETRY_TRIES; attempt++) {
+    if (attempt) await sleep(backoffMs(attempt - 1));
+    try {
+      const res = await fetch(url, options());
+      // A plain 403 is usually "not permitted" and will not pass, but the secondary rate limit uses 403 too and
+      // says so; retrying a permission error three times only costs a second.
+      if (!res.ok && isRetryableStatus(res.status) && attempt < RETRY_TRIES - 1) {
+        lastError = new Error(`${label} -> ${res.status}`);
+        console.warn(`${label} -> ${res.status}; retrying (${attempt + 1}/${RETRY_TRIES - 1})`);
+        continue;
+      }
+      return res;
+    } catch (e) {
+      if (!retryableError(e) || attempt === RETRY_TRIES - 1) throw e;
+      lastError = e;
+      console.warn(`${label} failed (${e.name || e.message}); retrying (${attempt + 1}/${RETRY_TRIES - 1})`);
+    }
+  }
+  throw lastError;
+}
+
 async function rest(method, path, body) {
   const url = path.startsWith('http') ? path : `${REST}${path}`;
-  const res = await fetch(url, {
+  const options = () => ({
     method,
     headers: headers(),
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
+  const label = `GitHub ${method} ${path}`;
+  const res = method === 'GET' ? await fetchRead(url, options, label) : await fetch(url, options());
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`GitHub ${method} ${path} -> ${res.status}: ${text}`);
+    throw new Error(`${label} -> ${res.status}: ${text}`);
   }
   return res.status === 204 ? null : res.json();
 }
@@ -69,12 +104,16 @@ export async function getPullRequest(prNumber) {
 
 export async function fetchPullRequestDiff(prNumber) {
   const { owner, name } = repo();
-  const res = await fetch(`${REST}/repos/${owner}/${name}/pulls/${prNumber}`, {
-    headers: { ...headers(), Accept: 'application/vnd.github.diff' },
-    // A longer cap than the JSON calls: this one streams the whole diff body, and AbortSignal.timeout bounds the
-    // entire exchange rather than idle time, so a big PR on a slow link would otherwise abort mid-download.
-    signal: AbortSignal.timeout(API_TIMEOUT_MS * 4),
-  });
+  const res = await fetchRead(
+    `${REST}/repos/${owner}/${name}/pulls/${prNumber}`,
+    () => ({
+      headers: { ...headers(), Accept: 'application/vnd.github.diff' },
+      // A longer cap than the JSON calls: this one streams the whole diff body, and AbortSignal.timeout bounds the
+      // entire exchange rather than idle time, so a big PR on a slow link would otherwise abort mid-download.
+      signal: AbortSignal.timeout(API_TIMEOUT_MS * 4),
+    }),
+    `GitHub GET diff #${prNumber}`,
+  );
   if (res.ok) return res.text();
   // GitHub answers 406 for a diff it will not render (very large PRs). The per-file endpoint still serves the
   // patches, so stitch them together rather than failing the whole review.

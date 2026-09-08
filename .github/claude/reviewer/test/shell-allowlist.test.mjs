@@ -908,6 +908,8 @@ test('a hostile filename cannot break the summary table', async () => {
 test('a diff rebuilt from per-file patches is stitched, marked and bounded', async () => {
   const { fetchDiffFromFiles } = await import('../github.mjs');
   const realFetch = globalThis.fetch;
+  const prevRepo = process.env.GITHUB_REPOSITORY;
+  const prevToken = process.env.GITHUB_TOKEN;
   process.env.GITHUB_REPOSITORY = 'TortugaPower/BookPlayer';
   process.env.GITHUB_TOKEN = 'x';
   const page = (n, count, extra = []) => [
@@ -951,6 +953,10 @@ test('a diff rebuilt from per-file patches is stitched, marked and bounded', asy
     assert.ok(!exact.includes('diff truncated')); // ...and stays quiet when none does
   } finally {
     globalThis.fetch = realFetch;
+    // Restored, so test order can never matter: another test reading GITHUB_REPOSITORY would otherwise see this
+    // one's value.
+    if (prevRepo === undefined) delete process.env.GITHUB_REPOSITORY; else process.env.GITHUB_REPOSITORY = prevRepo;
+    if (prevToken === undefined) delete process.env.GITHUB_TOKEN; else process.env.GITHUB_TOKEN = prevToken;
   }
 });
 
@@ -1065,11 +1071,16 @@ test('a degrade note replaces the previous one instead of stacking', () => {
 test('the provisional banner names the limit that was actually hit', () => {
   const result = { verdict: 'warn', summary: 's', findings: [{ severity: 'info', file: 'a.swift', line: 1, comment: 'c' }] };
   const stats = { posted: 1, kept: 0, reopened: 0, dismissed: 0, resolved: 0 };
-  const turns = renderSummary(result, stats, [], { provisional: true, provisionalCause: 'error_max_turns' });
+  const turns = renderSummary(result, stats, [], { provisional: true, provisionalCause: 'turns' });
   assert.ok(turns.includes('turn limit') && turns.includes('REVIEW_MAX_TURNS'));
-  const clock = renderSummary(result, stats, [], { provisional: true, provisionalCause: 'error_deadline' });
+  const clock = renderSummary(result, stats, [], { provisional: true, provisionalCause: 'deadline' });
   assert.ok(clock.includes('time limit') && clock.includes('REVIEW_DEADLINE_MS'));
   assert.equal(clock.includes('turn limit'), false); // the wrong knob is worse than no knob
+  // A truncation-repaired answer on a run that finished is the third cause: neither limit was hit, and neither
+  // knob would change anything.
+  const cut = renderSummary(result, stats, [], { provisional: true, provisionalCause: 'truncated' });
+  assert.ok(cut.includes('cut off mid-JSON') && cut.includes('partial'));
+  assert.equal(cut.includes('REVIEW_MAX_TURNS') || cut.includes('REVIEW_DEADLINE_MS'), false);
 });
 
 test('an answer the parser had to close itself is provisional', () => {
@@ -1082,4 +1093,49 @@ test('an answer the parser had to close itself is provisional', () => {
   assert.equal(repaired.verdict, 'warn'); // still used...
   assert.equal(wasTruncationRepaired(repaired), true); // ...but flagged
   assert.equal(JSON.stringify(repaired).includes('truncation'), false); // the flag cannot reach a comment
+});
+
+test('a finding that only moved line leaves one open thread, not two', async () => {
+  // The line drifts whenever something above it is fixed, which changes the fingerprint: the fresh run posts a new
+  // thread, and before this the old one was neither re-reported nor stale-resolved, so both stayed open.
+  const moved = { file: 'a.swift', line: 7, severity: 'warn', comment: 'same issue, new line' };
+  const old = {
+    id: 't-old', isResolved: false, firstCommentId: 1, firstCommentAuthor: 'github-actions[bot]',
+    path: 'a.swift', line: 3, comments: [],
+    firstCommentBody: `🟡 **WARN** — same issue <!-- bp-ai-review-fp:${reconcileFp({ file: 'a.swift', line: 3, severity: 'warn' })} -->`,
+  };
+  const calls = { post: [], resolve: [], reply: [] };
+  const io = {
+    post: async (f, body) => calls.post.push({ f, body }),
+    reply: async (t, body) => calls.reply.push({ t, body }),
+    resolve: async (t) => calls.resolve.push(t.id),
+    unresolve: async () => {},
+  };
+  const { stats } = await reconcile(new Map([[reconcileFp(moved), moved]]), [old], io, { supersededIds: new Set(['t-old']) });
+  assert.equal(stats.posted, 1); // the finding is posted where the code is now...
+  assert.deepEqual(calls.resolve, ['t-old']); // ...and the stale anchor is closed, so one thread is open
+  assert.match(calls.reply[0].body, /different line/); // and it says why, not "not reported in the latest run"
+});
+
+test('a degrade note survives the trim of an oversized summary', () => {
+  const HEADING = '## ⚠️ Claude PR Review — incomplete';
+  const huge = `## ✅ Claude PR Review — \`PASS\`\n\n${'x'.repeat(120000)}\n\n<!-- bp-ai-review-summary -->`;
+  const body = summaryWithNote(huge, 'ran out of time', HEADING);
+  assert.ok(body.length <= 60000, `body was ${body.length}`);
+  assert.ok(body.includes('ran out of time')); // the note is the point of the comment; it may not be what is cut
+  assert.ok(body.trimEnd().endsWith('<!-- bp-ai-review-summary -->')); // and the upsert can still find the comment
+});
+
+test('stderr routing is recognised where bash would see it, and nowhere else', () => {
+  // Allowed: routing stderr is not a redirect to a file.
+  assert.equal(isAllowedBash('grep -rn foo . 2>/dev/null'), true);
+  assert.equal(isAllowedBash('git log --oneline -5 2>&1'), true);
+  // A quoted occurrence is part of the argument, not a redirect: the analysed segment must still contain it, or the
+  // string the checks run against is not the command bash would run.
+  const { segments } = analyzeShell('grep -rn "log 2>/dev/null here" src');
+  assert.ok(segments[0].includes('2>/dev/null'));
+  assert.equal(isAllowedBash('grep -rn "log 2>/dev/null here" src'), true);
+  // And a real redirect is still refused, whichever way it points.
+  assert.equal(isAllowedBash('grep -rn foo . > out.txt'), false);
+  assert.equal(isAllowedBash('grep -rn foo . 2>out.txt'), false);
 });
