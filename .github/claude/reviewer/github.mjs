@@ -80,13 +80,18 @@ async function rest(method, path, body) {
   return res.status === 204 ? null : res.json();
 }
 
-async function graphql(queryStr, variables, tok) {
-  const res = await fetch(GQL, {
+// `retry` is set for the read query only. It is a POST like every GraphQL call, so it cannot be inferred from the
+// method: a retried resolve/unresolve would be a second mutation. The thread listing is the one that matters —
+// a transient 502 there costs every inline comment on that push, since the harness skips them rather than
+// risk duplicates.
+async function graphql(queryStr, variables, tok, { retry = false, label = 'GitHub GraphQL' } = {}) {
+  const options = () => ({
     method: 'POST',
     headers: headers(tok),
     body: JSON.stringify({ query: queryStr, variables }),
     signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
+  const res = retry ? await fetchRead(GQL, options, label) : await fetch(GQL, options());
   const json = await res.json().catch(() => ({}));
   if (!res.ok || json.errors) {
     throw new Error(`GitHub GraphQL -> ${res.status}: ${JSON.stringify(json.errors || json)}`);
@@ -229,6 +234,8 @@ export async function listReviewThreads(prNumber) {
         }
       }`,
       { owner, name, number: prNumber, cursor },
+      undefined,
+      { retry: true, label: 'GitHub GraphQL reviewThreads' },
     );
     const conn = data.repository.pullRequest.reviewThreads;
     for (const node of conn.nodes) {

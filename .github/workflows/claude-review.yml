@@ -52,10 +52,12 @@ jobs:
       # --ignore-scripts: the lockfile comes from the PR head, so an install hook would be PR-authored code
       # running before anything else in this job.
       - name: Install reviewer deps
+        id: install
         working-directory: .github/claude/reviewer
         run: npm ci --ignore-scripts --no-audit --no-fund --silent
 
       - name: Test the agent's tool allowlist and redaction
+        id: harness-tests
         working-directory: .github/claude/reviewer
         run: node --test test/
 
@@ -78,3 +80,13 @@ jobs:
           # REVIEW_MODEL: claude-opus-5
           REVIEW_MAX_TURNS: '200'  # a runaway guard only; the real bound is REVIEW_DEADLINE_MS (14 min) in review.mjs
         run: node .github/claude/reviewer/review.mjs
+
+      # A failure in the two steps above happens outside review.mjs, so nothing would reach the PR and the check
+      # would go red with no comment. The review step explains itself, hence the step-scoped condition.
+      - name: Say on the PR that the harness did not run
+        if: failure() && (steps.install.outcome == 'failure' || steps.harness-tests.outcome == 'failure')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node .github/claude/reviewer/review.mjs --setup-failed "the harness's own install or tests failed, so no review ran on this commit"

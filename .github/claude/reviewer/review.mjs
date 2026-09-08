@@ -10,7 +10,9 @@ import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { query } from '@anthropic-ai/claude-agent-sdk';
+// The agent SDK is imported lazily, inside runAgent: `npm ci` wipes node_modules before it installs, so a failed
+// install would otherwise make `--setup-failed` (which never reaches runAgent) die on ERR_MODULE_NOT_FOUND —
+// exactly the silent red check that mode exists to prevent. Nothing else here needs a dependency.
 import {
   getPullRequest,
   fetchPullRequestDiff,
@@ -68,6 +70,10 @@ let RANKED_MODELS = []; // from the Models API, newest first; the retry prefers 
 // immediately, which would degrade every run to the "incomplete" note with no hint why.
 const num = (v, fallback) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : fallback);
 const MAX_TURNS = num(process.env.REVIEW_MAX_TURNS, 40);
+// The agent's answer is one JSON object holding every finding, so it is far longer than a chat reply and the
+// default output cap cut it off mid-object on two real runs: the summary named two problems and only the first
+// finding survived the truncation repair. The SDK reads this from the subprocess environment.
+const MAX_OUTPUT_TOKENS = num(process.env.REVIEW_MAX_OUTPUT_TOKENS, 32_000);
 // Wall-clock bound for the agent, under the job's timeout-minutes: hitting it degrades to the "incomplete"
 // note instead of a cancelled job that may have half-reconciled the PR.
 const DEADLINE_MS = num(process.env.REVIEW_DEADLINE_MS, 14 * 60 * 1000);
@@ -187,6 +193,10 @@ You have read-only tools: Read, Grep, Glob, and a Bash that accepts ONLY read-on
 ${BASH_RULES} Anything else is denied. Do NOT post comments,
 create reviews, push, or modify anything — an automated harness posts your findings, de-duplicates them
 against previous runs, and resolves stale ones. Your job is only to investigate and report.
+
+Report at most ${MAX_INLINE} findings, most consequential first, and keep each \`comment\` under about 1200
+characters. The whole answer has to fit in one response: a JSON object cut off mid-object costs the findings that
+came after the cut, so prefer the findings that matter over a complete catalogue of small ones.
 
 After investigating, your FINAL assistant message MUST end with a single fenced \`\`\`json block of
 exactly this shape, with NOTHING after it:
@@ -722,6 +732,7 @@ const reviewAnswerParses = (t) => {
 };
 
 async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTEM_PROMPT, isFinished = isTerminalResult, isSalvageable = reviewAnswerParses) {
+  const { query } = await import('@anthropic-ai/claude-agent-sdk');
   let finalText = '';
   let lastAnswer = ''; // the most recent complete answer that a later tool call reset; a fallback for the turn-limit case
   let turns = 0;
@@ -748,7 +759,8 @@ async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTE
       canUseTool,
       maxTurns: MAX_TURNS,
       abortController: abort,
-      env: agentEnv(),
+      // Set after agentEnv(), which strips anything matching /TOKEN/ — including this one.
+      env: { ...agentEnv(), CLAUDE_CODE_MAX_OUTPUT_TOKENS: String(MAX_OUTPUT_TOKENS) },
       cwd: process.env.GITHUB_WORKSPACE || process.cwd(),
       stderr: (d) => {
         stderrChunks.push(d);
@@ -786,8 +798,10 @@ async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTE
         if (resultSubtype) break;
         console.warn(`Deadline of ${Math.round(budgetMs / 60000)} min reached after ${turns} turns; stopping the agent`);
         resultSubtype = 'error_deadline';
-        // Keep an answer the parser can actually read; anything else is a partial thought.
-        if (!isSalvageable(finalText)) finalText = '';
+        // What to keep, in order of how much it can be trusted: a strictly terminal answer in the buffer; else a
+        // strictly terminal earlier answer, which the fallback path will use; else whatever the parser can read,
+        // which is better than nothing but may be a result-shaped block the agent quoted from the diff.
+        if (!isFinished(finalText) && (lastAnswer || !isSalvageable(finalText))) finalText = '';
         if (typeof iterator.interrupt === 'function') await iterator.interrupt().catch(() => {});
         break; // closes the generator (and with it the agent subprocess)
       }
@@ -1096,6 +1110,7 @@ export async function reconcile(currentByFp, threads, io, { provisional = false,
 
   const stats = { posted: 0, kept: 0, reopened: 0, dismissed: 0, resolved: 0 };
   const unpostable = [];
+  const resolvedIds = new Set(); // what was actually resolved, for a caller that reports it to a human
   for (const [fp, f] of currentByFp) {
     const existing = existingByFp.get(fp);
     if (existing) {
@@ -1143,7 +1158,7 @@ export async function reconcile(currentByFp, threads, io, { provisional = false,
   if (provisional) {
     // A fallback answer is less complete than what the agent was about to check: judge nothing on it.
     console.log('Provisional result: stale threads left for the next run');
-    return { stats, unpostable };
+    return { stats, unpostable, resolvedIds };
   }
   for (const [fp, t] of existingByFp) {
     if (currentByFp.has(fp) || t.isResolved) continue;
@@ -1152,6 +1167,7 @@ export async function reconcile(currentByFp, threads, io, { provisional = false,
     try {
       await io.resolve(t);
       stats.resolved++;
+      resolvedIds.add(t.id);
       // Marker only after a successful resolve — otherwise a run without a resolve token would add a
       // "resolved automatically" reply on every push while the thread stays open. The note says which of the two
       // reasons it was: gone from the run, or moved and re-posted at its new line.
@@ -1161,7 +1177,7 @@ export async function reconcile(currentByFp, threads, io, { provisional = false,
       console.warn(`resolve failed (fp:${fp}) — ${e.message}`);
     }
   }
-  return { stats, unpostable };
+  return { stats, unpostable, resolvedIds };
 }
 
 // Say why on the PR before failing the check — the run log alone is easy to miss. Returns the error for rethrow.
@@ -1416,7 +1432,11 @@ async function main() {
     .map((t) => ({ t, fp: (FP_REGEX.exec(t.firstCommentBody || '') || [])[1] }))
     .filter(({ fp }) => fp && !currentByFp.has(fp))
     .map(({ t }) => t);
-  const superseded = openUnreportedAll.filter((t) => reportedFileSeverities.has(`${t.path}|${findingSeverity(t.firstCommentBody)}`));
+  // Never on a provisional result: reconcile resolves nothing then, so calling a thread superseded would be a
+  // claim about a resolve that was never attempted.
+  const superseded = provisional
+    ? []
+    : openUnreportedAll.filter((t) => reportedFileSeverities.has(`${t.path}|${findingSeverity(t.firstCommentBody)}`));
   const supersededIds = new Set(superseded.map((t) => t.id));
   const openUnreported = openUnreportedAll.filter((t) => !supersededIds.has(t.id));
   const toVerify = openUnreported.slice(0, MAX_VERIFY_THREADS);
@@ -1447,14 +1467,9 @@ async function main() {
     }
   }
 
-  if (superseded.length) {
-    console.log(`${superseded.length} earlier thread(s) re-reported at a new line; resolving them as superseded`);
-    previously = previously.concat(
-      superseded.map((t) => ({ label: `\`${mdPath(t.path)}:${threadAnchor(t).line ?? '?'}\``, status: 'resolved', note: 'reported again at a new line' })),
-    );
-  }
+  if (superseded.length) console.log(`${superseded.length} earlier thread(s) re-reported at a new line; resolving them as superseded`);
 
-  const { stats, unpostable } = await reconcile(currentByFp, threads, io, {
+  const { stats, unpostable, resolvedIds } = await reconcile(currentByFp, threads, io, {
     provisional,
     // Threads the second pass judged, plus the ones it deliberately left for the next run: "was not re-reported"
     // must not overrule either. `handledIds` is filled in as applyVerification goes, so a throw halfway through
@@ -1463,6 +1478,17 @@ async function main() {
     verifiedIds: verified || handledIds.size ? new Set([...handledIds, ...toVerify, ...overflow].map((t) => (typeof t === 'object' ? t.id : t))) : null,
     supersededIds,
   });
+
+  // Written from what reconcile actually resolved, never from what it was asked to: without a resolve token the
+  // resolve throws and is only logged, and every other row in this table is written after a successful one.
+  previously = previously.concat(
+    superseded.map((t) => {
+      const label = `\`${mdPath(t.path)}:${threadAnchor(t).line ?? '?'}\``;
+      return resolvedIds.has(t.id)
+        ? { label, status: 'resolved', note: 'reported again at a new line' }
+        : { label, status: 'open', note: 'reported again at a new line (this thread could not be resolved)' };
+    }),
+  );
 
   // The review itself succeeded by this point; a flaky comments API must not turn the check red.
   const priorState = verified ? 'verified' : toVerify.length === 0 ? 'none-open' : 'unknown';

@@ -1139,3 +1139,31 @@ test('stderr routing is recognised where bash would see it, and nowhere else', (
   assert.equal(isAllowedBash('grep -rn foo . > out.txt'), false);
   assert.equal(isAllowedBash('grep -rn foo . 2>out.txt'), false);
 });
+
+test('a superseded thread is only reported resolved when the resolve worked', async () => {
+  // Without a resolve token the resolve throws and is only logged; the row must then say the thread is still open
+  // rather than claim ✅ on a thread a human can see is not closed.
+  const moved = { file: 'a.swift', line: 7, severity: 'warn', comment: 'same issue, new line' };
+  const stale = {
+    id: 't-old', isResolved: false, firstCommentId: 1, firstCommentAuthor: 'github-actions[bot]',
+    path: 'a.swift', line: 3, comments: [],
+    firstCommentBody: `🟡 **WARN** — same issue <!-- bp-ai-review-fp:${reconcileFp({ file: 'a.swift', line: 3, severity: 'warn' })} -->`,
+  };
+  const current = new Map([[reconcileFp(moved), moved]]);
+  const ok = await reconcile(current, [stale], { post: async () => {}, reply: async () => {}, resolve: async () => {}, unresolve: async () => {} }, { supersededIds: new Set(['t-old']) });
+  assert.deepEqual([...ok.resolvedIds], ['t-old']);
+  const failed = await reconcile(current, [stale], {
+    post: async () => {}, reply: async () => {}, unresolve: async () => {},
+    resolve: async () => { throw new Error('Resource not accessible by integration'); },
+  }, { supersededIds: new Set(['t-old']) });
+  assert.equal(failed.resolvedIds.size, 0); // ...so the caller writes "could not be resolved", not ✅
+  assert.equal(failed.stats.resolved, 0);
+});
+
+test('at the deadline a strictly finished earlier answer beats a loosely parsed buffer', () => {
+  // The loose gate exists so a complete review is not thrown away, but it accepts a result-shaped block the agent
+  // quoted from the diff. When an earlier answer was strictly terminal, that is the better evidence.
+  const quoted = 'Let me check one more caller. The contract looks like\n```json\n{"verdict":"pass","summary":"x","findings":[]}\n```\nso now I will';
+  assert.equal(isTerminalResult(quoted), false); // not a finished answer...
+  assert.equal(extractJson(quoted).verdict, 'pass'); // ...but the loose parser reads it, which is the trap
+});
