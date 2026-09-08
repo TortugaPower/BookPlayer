@@ -156,7 +156,10 @@ export function redact(text) {
     // This repo's own secret shapes: a Sentry DSN, a RevenueCat SDK key, an App Store Connect / APNs signing key,
     // and a bearer JWT. The values in `Release.xcconfig` are gitignored and never reach CI, but a diff or a log
     // line can still quote one, and this comment is posted to a public PR.
-    .replace(/https:\/\/[0-9a-f]{16,}@[\w.-]*ingest[\w.-]*sentry\.io\/\d+/gi, 'https://[redacted]@sentry.io/[redacted]')
+    // The scheme is optional on purpose: BuildConfiguration/*.xcconfig cannot contain `//`, so this repo stores
+    // the DSN as `<key>@o12345.ingest.sentry.io/6789` and prepends `https://` at runtime. The stored shape is the
+    // one a diff or a log line would quote into a public comment, and it was the one slipping through.
+    .replace(/(https:\/\/)?[0-9a-f]{16,}@[\w.-]*ingest[\w.-]*sentry\.io\/\d+/gi, '[redacted sentry dsn]')
     .replace(/\b(goog|appl|amzn|strp|rcb)_[A-Za-z0-9]{20,}\b/g, '[redacted]')
     .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, '[redacted private key]')
     .replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, '[redacted jwt]');
@@ -479,13 +482,21 @@ export function extractJson(text) {
   const s = String(text);
   const candidates = [...s.matchAll(/```[^\n]*\n?([\s\S]*?)```/g)].map((m) => m[1]).reverse();
   candidates.push(s);
+  // A COMPLETE object anywhere beats a repaired one, and the whole message is always a candidate. Fence pairing is
+  // unreliable by construction: the model is asked for concrete fixes, so a finding's comment routinely contains a
+  // fenced snippet of its own, and the non-greedy fence regex then pairs the opening ```json with the snippet's
+  // ```. The first fragment ends mid-object, the truncation repair closes it, and every finding after the snippet
+  // is dropped — silently, and reported as the model's truncation. That is what was actually happening whenever a
+  // review came back "cut off mid-JSON" with a complete summary; balancedEnd is string-aware, so the whole-message
+  // candidate parses the real object correctly.
+  let repaired = null;
   for (const candidate of candidates) {
     const found = findResultObject(candidate);
-    if (found) {
-      const out = normaliseResult(found);
-      return wasTruncationRepaired(found) ? markRepaired(out) : out;
-    }
+    if (!found) continue;
+    if (!wasTruncationRepaired(found)) return normaliseResult(found);
+    repaired = repaired || found;
   }
+  if (repaired) return markRepaired(normaliseResult(repaired));
   throw new Error('No parseable JSON object with verdict/summary/findings in agent output');
 }
 
@@ -1005,6 +1016,27 @@ function isMaintainerReply(c, prAuthor = '') {
   return MAINTAINER_ASSOCIATIONS.has(c.association);
 }
 
+// Which still-open threads a fresh run supersedes: the finding moved to a new line, so its fingerprint changed and
+// it is about to be posted as a new thread. Only findings this run will actually POST are candidates (a finding
+// whose fingerprint already has a thread did not move), and each may supersede at most one old thread. Matching
+// against every current finding instead closed an untouched thread whenever any same-severity finding existed for
+// that file — a still-valid finding retired unverified, under a note claiming it had moved.
+export function pickSuperseded(openThreads, currentByFp, existingFps) {
+  const unclaimed = new Map();
+  for (const [fp, f] of currentByFp) {
+    if (existingFps.has(fp)) continue;
+    const key = `${f.file}|${f.severity}`;
+    unclaimed.set(key, (unclaimed.get(key) || 0) + 1);
+  }
+  return openThreads.filter((t) => {
+    const key = `${t.path}|${findingSeverity(t.firstCommentBody)}`;
+    const left = unclaimed.get(key) || 0;
+    if (left <= 0) return false;
+    unclaimed.set(key, left - 1);
+    return true;
+  });
+}
+
 // Decide what to do with each verified thread. Pure apart from `io`, so the trust rules are unit-tested:
 // a human's "accepted" needs a maintainer reply on the thread, and the model may never invent one.
 // The newest comment comes from listReviewThreads' own `last` selection: `comments` is capped, so its tail is not
@@ -1423,10 +1455,15 @@ async function main() {
   // A finding whose line drifted (the usual outcome of fixing something above it) gets a NEW fingerprint, so the
   // fresh run posts a new thread while the old one is neither re-reported nor stale-resolved — two open threads for
   // one issue. Those are separated out here and resolved as superseded, which is what happened before the
-  // verification pass existed. The match is file + severity, so two same-severity findings in one file can be
-  // confused for one that moved; the cost of that is a thread resolved without verification, which is exactly the
-  // old behaviour, while the cost of not doing it is a duplicate thread on almost every follow-up push.
-  const reportedFileSeverities = new Set([...currentByFp.values()].map((f) => `${f.file}|${f.severity}`));
+  // verification pass existed.
+  //
+  // The candidates are only the findings this run will POST (no existing thread carries their fingerprint), and
+  // each one may supersede at most one old thread. Matching against every current finding instead would close an
+  // untouched thread whenever any same-severity finding existed for that file — a still-valid finding retired
+  // unverified, with a note claiming it moved when it did not.
+  const existingFps = new Set(
+    threads.map((t) => (FP_REGEX.exec(t.firstCommentBody || '') || [])[1]).filter(Boolean),
+  );
   const openUnreportedAll = threads
     .filter((t) => !t.isResolved && isHarnessComment(t.firstCommentAuthor))
     .map((t) => ({ t, fp: (FP_REGEX.exec(t.firstCommentBody || '') || [])[1] }))
@@ -1434,9 +1471,7 @@ async function main() {
     .map(({ t }) => t);
   // Never on a provisional result: reconcile resolves nothing then, so calling a thread superseded would be a
   // claim about a resolve that was never attempted.
-  const superseded = provisional
-    ? []
-    : openUnreportedAll.filter((t) => reportedFileSeverities.has(`${t.path}|${findingSeverity(t.firstCommentBody)}`));
+  const superseded = provisional ? [] : pickSuperseded(openUnreportedAll, currentByFp, existingFps);
   const supersededIds = new Set(superseded.map((t) => t.id));
   const openUnreported = openUnreportedAll.filter((t) => !supersededIds.has(t.id));
   const toVerify = openUnreported.slice(0, MAX_VERIFY_THREADS);

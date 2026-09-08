@@ -141,7 +141,12 @@ export async function fetchDiffFromFiles(prNumber, maxPages = 30) {
     if (!Array.isArray(files) || files.length === 0) break;
     for (const f of files) {
       const header = `diff --git a/${f.previous_filename || f.filename} b/${f.filename}`;
-      parts.push(f.patch ? `${header}\n--- a/${f.previous_filename || f.filename}\n+++ b/${f.filename}\n${f.patch}` : `${header}\n[no patch returned by the API: binary or too large — ${f.status}, +${f.additions}/-${f.deletions}]`);
+      // /dev/null on the missing side, as a real unified diff has it: the rubric leans on "is this file new"
+      // (a committed .env, an endpoint added without validation), and naming both sides made every added file
+      // read as a modification.
+      const from = f.status === 'added' ? '/dev/null' : `a/${f.previous_filename || f.filename}`;
+      const to = f.status === 'removed' ? '/dev/null' : `b/${f.filename}`;
+      parts.push(f.patch ? `${header}\n--- ${from}\n+++ ${to}\n${f.patch}` : `${header}\n[no patch returned by the API: binary or too large — ${f.status}, +${f.additions}/-${f.deletions}]`);
     }
     if (files.length < 100) break;
   }

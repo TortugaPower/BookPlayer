@@ -62,6 +62,7 @@ jobs:
         run: node --test test/
 
       - name: Run Claude review
+        id: review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -84,9 +85,11 @@ jobs:
       # A failure in the two steps above happens outside review.mjs, so nothing would reach the PR and the check
       # would go red with no comment. The review step explains itself, hence the step-scoped condition.
       - name: Say on the PR that the harness did not run
-        if: failure() && (steps.install.outcome == 'failure' || steps.harness-tests.outcome == 'failure')
+        # Every step before the review, not just the two named ones: a failed checkout or Node setup left the
+        # same silent red check. The review step is excluded because it explains itself.
+        if: failure() && steps.review.outcome != 'failure'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node .github/claude/reviewer/review.mjs --setup-failed "the harness's own install or tests failed, so no review ran on this commit"
+        run: node .github/claude/reviewer/review.mjs --setup-failed "a step before the review failed (checkout, Node, install or the harness's own tests), so no review ran on this commit"

@@ -3,7 +3,7 @@
 // Run with `node --test test/` from .github/claude/reviewer (after `npm ci`).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summaryWithNote, wasTruncationRepaired, isReadOnlyShell, isAllowedBash, isPathAllowed, analyzeShell, redact, reconcile, rankOpusModels, extractJson, accumulateFinalText, escapeControlCharsInStrings, boundedDump, isTerminalResult, agentEnv, parseVerifyResult, verdictsById, shouldHardFail, findingSeverity, threadAnchor, applyVerification, buildVerifyPrompt, FORBIDDEN_PATH, renderSummary } from '../review.mjs';
+import { summaryWithNote, wasTruncationRepaired, pickSuperseded, isReadOnlyShell, isAllowedBash, isPathAllowed, analyzeShell, redact, reconcile, rankOpusModels, extractJson, accumulateFinalText, escapeControlCharsInStrings, boundedDump, isTerminalResult, agentEnv, parseVerifyResult, verdictsById, shouldHardFail, findingSeverity, threadAnchor, applyVerification, buildVerifyPrompt, FORBIDDEN_PATH, renderSummary } from '../review.mjs';
 
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, realpathSync } from 'node:fs';
@@ -196,7 +196,9 @@ test('key-shaped strings are redacted at the post boundary', () => {
   assert.equal(redact('token github_pat_' + 'd'.repeat(30)), 'token [redacted]');
   assert.equal(redact('ordinary review text with sk-ant mention'), 'ordinary review text with sk-ant mention');
   // This repo's own shapes: a Sentry DSN, a RevenueCat-style key, and a Play service-account private key.
-  assert.equal(redact('dsn https://0123456789abcdef0123456789abcdef@o12345.ingest.sentry.io/6789 set'), 'dsn https://[redacted]@sentry.io/[redacted] set');
+  assert.equal(redact('dsn https://0123456789abcdef0123456789abcdef@o12345.ingest.sentry.io/6789 set'), 'dsn [redacted sentry dsn] set');
+  // The shape this repo actually stores: xcconfig cannot hold `//`, so the DSN is written without its scheme.
+  assert.equal(redact('BP_SENTRY_DSN = 0123456789abcdef0123456789abcdef@o12345.ingest.sentry.io/6789'), 'BP_SENTRY_DSN = [redacted sentry dsn]');
   assert.equal(redact('rc appl_' + 'A'.repeat(24) + ' set'), 'rc [redacted] set');
   assert.equal(redact('-----BEGIN PRIVATE KEY-----\nMIIabc\n-----END PRIVATE KEY-----'), '[redacted private key]');
   assert.equal(redact('bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk'), 'bearer [redacted jwt]');
@@ -1166,4 +1168,99 @@ test('at the deadline a strictly finished earlier answer beats a loosely parsed 
   const quoted = 'Let me check one more caller. The contract looks like\n```json\n{"verdict":"pass","summary":"x","findings":[]}\n```\nso now I will';
   assert.equal(isTerminalResult(quoted), false); // not a finished answer...
   assert.equal(extractJson(quoted).verdict, 'pass'); // ...but the loose parser reads it, which is the trap
+});
+
+test('a finding whose comment contains a fenced snippet does not truncate the answer', () => {
+  // The rubric asks for concrete fixes, so the model routinely puts a ```suggestion block inside a comment. The
+  // non-greedy fence regex then pairs the opening ```json with THAT fence, the first fragment ends mid-object, and
+  // the truncation repair closes it — dropping every finding after the snippet and blaming the model for it.
+  const answer = JSON.stringify({
+    verdict: 'warn',
+    summary: 'Two problems: A and B.',
+    findings: [
+      { severity: 'warn', file: 'a.swift', line: 1, comment: 'Problem A. Fix:\n\n```suggestion\nconst x = 1;\n```\n' },
+      { severity: 'info', file: 'b.swift', line: 2, comment: 'Problem B, the one that used to go missing.' },
+    ],
+  });
+  const parsed = extractJson(`Here is my review.\n\n\`\`\`json\n${answer}\n\`\`\``);
+  assert.equal(parsed.findings.length, 2);
+  assert.match(parsed.findings[0].comment, /const x = 1;/); // the snippet survives inside the comment
+  assert.equal(wasTruncationRepaired(parsed), false); // and nothing is blamed on a truncation that never happened
+});
+
+test('the network layer retries a read, and never a write', async () => {
+  const { fetchDiffFromFiles, fetchPullRequestDiff } = await import('../github.mjs');
+  const realFetch = globalThis.fetch;
+  const prevRepo = process.env.GITHUB_REPOSITORY;
+  const prevToken = process.env.GITHUB_TOKEN;
+  process.env.GITHUB_REPOSITORY = 'TortugaPower/repo';
+  process.env.GITHUB_TOKEN = 'x';
+  try {
+    // A 502 then success: the read is retried and the caller never sees the blip.
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      if (calls === 1) return { ok: false, status: 502, text: async () => 'bad gateway', json: async () => ({}) };
+      return { ok: true, status: 200, text: async () => 'diff --git a/x b/x\n', json: async () => [] };
+    };
+    assert.match(await fetchPullRequestDiff(1), /diff --git/);
+    assert.equal(calls, 2);
+
+    // A 404 is not retryable: one attempt, and the error names the status.
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      return { ok: false, status: 404, text: async () => 'nope', json: async () => ({}) };
+    };
+    await assert.rejects(() => fetchPullRequestDiff(1), /404/);
+    assert.equal(calls, 1);
+
+    // A timeout is retried too, and a persistent one still throws rather than hanging the run.
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      const e = new Error('timed out');
+      e.name = 'TimeoutError';
+      throw e;
+    };
+    await assert.rejects(() => fetchPullRequestDiff(1), /timed out/);
+    assert.equal(calls, 3); // RETRY_TRIES
+
+    // The per-file fallback marks an added file as new and a removed one as gone, the way a real diff does.
+    globalThis.fetch = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => [
+        { filename: 'new.swift', status: 'added', additions: 2, deletions: 0, patch: '@@ -0,0 +1,2 @@\n+a\n+b' },
+        { filename: 'gone.swift', status: 'removed', additions: 0, deletions: 1, patch: '@@ -1 +0,0 @@\n-a' },
+      ],
+      text: async () => '',
+    });
+    const diff = await fetchDiffFromFiles(1);
+    assert.match(diff, /--- \/dev\/null\n\+\+\+ b\/new.swift/);
+    assert.match(diff, /--- a\/gone.swift\n\+\+\+ \/dev\/null/);
+  } finally {
+    globalThis.fetch = realFetch;
+    if (prevRepo === undefined) delete process.env.GITHUB_REPOSITORY; else process.env.GITHUB_REPOSITORY = prevRepo;
+    if (prevToken === undefined) delete process.env.GITHUB_TOKEN; else process.env.GITHUB_TOKEN = prevToken;
+  }
+});
+
+test('a thread is superseded only by a finding this run actually posts, one for one', () => {
+  const thread = (id, path, sev, fp) => ({ id, path, firstCommentBody: `${sev === 'warn' ? '🟡 **WARN**' : '🔵 **INFO**'} — x <!-- bp-ai-review-fp:${fp} -->` });
+  const moved = thread('t-moved', 'a.swift', 'warn', 'oldfp');
+  const untouched = thread('t-untouched', 'a.swift', 'warn', 'keptfp');
+  const currentByFp = new Map([
+    ['keptfp', { file: 'a.swift', line: 10, severity: 'warn', comment: 'still reported, has its own thread' }],
+    ['newfp', { file: 'a.swift', line: 42, severity: 'warn', comment: 'the one that moved' }],
+  ]);
+  const existingFps = new Set(['keptfp', 'oldfp']);
+
+  // Only the finding with no thread of its own can supersede, and it takes exactly one.
+  assert.deepEqual(pickSuperseded([moved, untouched], currentByFp, existingFps).map((t) => t.id), ['t-moved']);
+  // With nothing new to post, nothing is superseded: an unreported thread goes to the verifier instead.
+  assert.deepEqual(pickSuperseded([moved], new Map([['keptfp', currentByFp.get('keptfp')]]), existingFps), []);
+  // Severity is part of the match: an info finding does not close a warn thread.
+  const info = new Map([['newinfo', { file: 'a.swift', line: 42, severity: 'info', comment: 'different severity' }]]);
+  assert.deepEqual(pickSuperseded([moved], info, existingFps), []);
 });
