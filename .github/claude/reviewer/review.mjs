@@ -159,7 +159,7 @@ export function redact(text) {
     // The scheme is optional on purpose: BuildConfiguration/*.xcconfig cannot contain `//`, so this repo stores
     // the DSN as `<key>@o12345.ingest.sentry.io/6789` and prepends `https://` at runtime. The stored shape is the
     // one a diff or a log line would quote into a public comment, and it was the one slipping through.
-    .replace(/(https:\/\/)?[0-9a-f]{16,}@[\w.-]*ingest[\w.-]*sentry\.io\/\d+/gi, '[redacted sentry dsn]')
+    .replace(/(https:\/\/)?[0-9a-zA-Z]{16,}@[\w.-]*sentry\.io\/\d+/gi, '[redacted sentry dsn]')
     .replace(/\b(goog|appl|amzn|strp|rcb)_[A-Za-z0-9]{20,}\b/g, '[redacted]')
     .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, '[redacted private key]')
     .replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, '[redacted jwt]');
@@ -222,7 +222,7 @@ exactly this shape, with NOTHING after it:
   the severity or drop it. No prose after the JSON block.
 `;
 
-const SYSTEM_PROMPT =
+const buildSystemPrompt = () =>
   readFileSync(join(__dirname, '..', 'review-guide.md'), 'utf8') + '\n' + OUTPUT_CONTRACT;
 
 const MAX_PR_BODY = 4000;
@@ -330,8 +330,11 @@ export function analyzeShell(command) {
     // `cat {/etc/hostname,x}` is the same shape, and bash expands braces BEFORE `~`, so `{~/.aws/credentials,x}`
     // would slip past the tilde rule too. No read-only command needs any of these: a regex quantifier or a literal
     // `<` goes inside quotes, and file arguments are passed as arguments.
-    if (ch === '2' && STDERR_REDIRECT.test(cmd.slice(i))) {
-      // stderr routing, not a redirect to a file: skip it whole, and drop the space that preceded it.
+    if (ch === '2' && (current === '' || /\s$/.test(current)) && STDERR_REDIRECT.test(cmd.slice(i))) {
+      // stderr routing, not a redirect to a file: skip it whole, and drop the space that preceded it. The `2` has
+      // to BEGIN a token, as it does for bash — a digit is an fd only when the token so far is all digits. Without
+      // that anchor `cat secrets2>&1` was analysed as `cat secrets` while bash read `secrets2`, so a symlink
+      // committed under that name pointed anywhere it liked and the realpath check never saw it.
       i += STDERR_REDIRECT.exec(cmd.slice(i))[0].length - 1;
       current = current.replace(/\s+$/, '');
       continue;
@@ -359,6 +362,10 @@ export function isReadOnlyShell(command) {
 // helper config actions/checkout may leave behind, and home-directory tool configs.
 export const FORBIDDEN_PATH =
   /(^|[\s"'=:])~|\/proc\/|\/dev\/(fd|stdin)|\.git\/config|(^|[\s/"'=:])\.(git-credentials|config|claude|npmrc|netrc|ssh|env|aws|gnupg|docker|kube|gradle|m2)(\b|$)/;
+
+// This repo's own secret files: the xcconfigs hold the real Sentry DSN and RevenueCat key. Gitignored, so this
+// is defence in depth — and the diff still shows any change to them.
+const REPO_SECRET_PATH = /(^|[\s"'=:\/])(Debug\.xcconfig|Release\.xcconfig)(\b|$)/;
 
 // Where the agent may read: the checkout and the runner temp dir (which holds the diff). Anything absolute
 // outside these, any `..`, or any existing path whose *real* location (symlinks resolved) is outside them is
@@ -397,7 +404,7 @@ export function isAllowedBash(command, roots = READ_ROOTS, cwd = AGENT_CWD) {
   if (!isReadOnlyShell(cmd)) return false;
   // From here on, look only at the normalised segments — the strings bash would execute — never the raw text.
   const { segments } = analyzeShell(cmd);
-  if (segments.some((segment) => FORBIDDEN_PATH.test(segment))) return false;
+  if (segments.some((segment) => FORBIDDEN_PATH.test(segment) || REPO_SECRET_PATH.test(segment))) return false;
   // Every token that could name a path is checked — including a value attached to a flag, whether written
   // `--file=/p` or `-f/p`. Bare flags are skipped; everything else goes through isPathAllowed, which resolves
   // symlinks for names that exist, so a relative path through a committed symlink is confined like an absolute one.
@@ -439,7 +446,7 @@ async function canUseTool(toolName, input) {
     // `path`, so it is not a path and is not checked; Glob's `pattern` is a path glob and is.
     const pathFields = toolName === 'Grep' ? ['file_path', 'path', 'glob'] : ['file_path', 'path', 'pattern', 'glob'];
     const targets = pathFields.map((k) => input[k]).filter(Boolean).map(String);
-    if (targets.some((t) => FORBIDDEN_PATH.test(t) || !isPathAllowed(t))) {
+    if (targets.some((t) => FORBIDDEN_PATH.test(t) || REPO_SECRET_PATH.test(t) || !isPathAllowed(t))) {
       console.log(`  [denied] ${toolName}: forbidden path`);
       return { behavior: 'deny', message: 'That location is off-limits in this review (process/credential data).' };
     }
@@ -719,12 +726,21 @@ export function isTerminalResult(text) {
 // know about would only ever be "we remembered to delete it"; the pattern makes adding a secret to this workflow
 // unable to widen the agent's environment by accident. ANTHROPIC_API_KEY is kept: the SDK needs it.
 const SECRET_ENV_RE = /(TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|PRIVATE_KEY|_KEY|KEYSTORE|API_KEY|WEBHOOK|DSN|SESSION)/i;
-const AGENT_ENV_KEEP = new Set(['ANTHROPIC_API_KEY']);
+// An allowlist, because a denylist of name shapes is only as good as the names someone thought of: a secret called
+// PLAY_SERVICE_ACCOUNT_JSON or FOO_PAT matches nothing in the pattern above and would have gone straight through.
+// The agent needs its own API key, enough of a POSIX environment for the SDK's subprocess, and the runner's temp
+// and workspace paths — nothing else. The pattern stays as a backstop for names a prefix admits (NODE_AUTH_TOKEN).
+const AGENT_ENV_ALLOW = new Set([
+  'ANTHROPIC_API_KEY', 'PATH', 'HOME', 'SHELL', 'USER', 'LOGNAME', 'PWD', 'TZ', 'TERM', 'LANG', 'CI',
+  'TMPDIR', 'TEMP', 'TMP', 'RUNNER_TEMP', 'RUNNER_OS', 'RUNNER_ARCH', 'GITHUB_WORKSPACE',
+]);
+const AGENT_ENV_ALLOW_PREFIX = ['LC_', 'XDG_', 'NODE_', 'CLAUDE_CODE_'];
 export function agentEnv(source = process.env) {
   const env = {};
   for (const [k, v] of Object.entries(source)) {
-    if (AGENT_ENV_KEEP.has(k)) env[k] = v;
-    else if (!SECRET_ENV_RE.test(k)) env[k] = v;
+    if (!AGENT_ENV_ALLOW.has(k) && !AGENT_ENV_ALLOW_PREFIX.some((prefix) => k.startsWith(prefix))) continue;
+    if (k !== 'ANTHROPIC_API_KEY' && SECRET_ENV_RE.test(k)) continue;
+    env[k] = v;
   }
   return env;
 }
@@ -742,8 +758,11 @@ const reviewAnswerParses = (t) => {
   }
 };
 
-async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTEM_PROMPT, isFinished = isTerminalResult, isSalvageable = reviewAnswerParses) {
+async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = '', isFinished = isTerminalResult, isSalvageable = reviewAnswerParses) {
   const { query } = await import('@anthropic-ai/claude-agent-sdk');
+  // Read here, not at module load: review-guide.md is PR-authored, and a PR that renames it used to kill the
+  // module during evaluation — taking the --setup-failed reporter, which needs neither, down with it.
+  const system = systemPrompt || buildSystemPrompt();
   let finalText = '';
   let lastAnswer = ''; // the most recent complete answer that a later tool call reset; a fallback for the turn-limit case
   let turns = 0;
@@ -757,7 +776,7 @@ async function runAgent(userPrompt, budgetMs = DEADLINE_MS, systemPrompt = SYSTE
     prompt: userPrompt,
     options: {
       model: MODEL,
-      systemPrompt,
+      systemPrompt: system,
       // The base tool set is exactly these four (native builds otherwise omit Grep/Glob and expect Bash
       // find/grep). Nothing is pre-approved: every permission check goes through canUseTool so FORBIDDEN_PATH
       // is consulted for reads outside the checkout too.
@@ -1021,18 +1040,54 @@ function isMaintainerReply(c, prAuthor = '') {
 // whose fingerprint already has a thread did not move), and each may supersede at most one old thread. Matching
 // against every current finding instead closed an untouched thread whenever any same-severity finding existed for
 // that file — a still-valid finding retired unverified, under a note claiming it had moved.
+// Same file and severity is not identity: a run that reports a NEW warn in Foo while an older, still-valid warn in
+// Foo simply went unmentioned would otherwise close the old one under a note saying it had moved. The texts have to
+// look like the same finding as well, which is cheap to judge — a finding that moved is usually re-reported in
+// nearly the same words — and anything below the bar goes to the verification pass instead, which judges it
+// against the code.
+const SUPERSEDE_SIMILARITY = 0.5;
+const contentWords = (text) =>
+  new Set(
+    String(text || '')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .toLowerCase()
+      .replace(/[^a-z0-9_.`/]+/g, ' ')
+      .split(' ')
+      .filter((w) => w.length > 3),
+  );
+export function findingSimilarity(a, b) {
+  const A = contentWords(a);
+  const B = contentWords(b);
+  if (!A.size || !B.size) return 0;
+  let shared = 0;
+  for (const w of A) if (B.has(w)) shared++;
+  return (2 * shared) / (A.size + B.size); // Dice: symmetric, and forgiving of one side being longer
+}
+
 export function pickSuperseded(openThreads, currentByFp, existingFps) {
-  const unclaimed = new Map();
+  const candidates = new Map(); // file|severity -> findings this run will post there
   for (const [fp, f] of currentByFp) {
     if (existingFps.has(fp)) continue;
     const key = `${f.file}|${f.severity}`;
-    unclaimed.set(key, (unclaimed.get(key) || 0) + 1);
+    if (!candidates.has(key)) candidates.set(key, []);
+    candidates.get(key).push(f);
   }
   return openThreads.filter((t) => {
     const key = `${t.path}|${findingSeverity(t.firstCommentBody)}`;
-    const left = unclaimed.get(key) || 0;
-    if (left <= 0) return false;
-    unclaimed.set(key, left - 1);
+    const pool = candidates.get(key);
+    if (!pool || !pool.length) return false;
+    const text = stripHarnessMarkup(t.firstCommentBody || '');
+    let best = -1;
+    let bestScore = 0;
+    pool.forEach((f, i) => {
+      const score = findingSimilarity(text, f.comment);
+      if (score > bestScore) {
+        bestScore = score;
+        best = i;
+      }
+    });
+    if (best === -1 || bestScore < SUPERSEDE_SIMILARITY) return false;
+    pool.splice(best, 1); // claimed: one new finding can supersede at most one old thread
     return true;
   });
 }
@@ -1284,6 +1339,9 @@ async function reportSetupFailure(reason) {
 }
 
 async function main() {
+  // Before the --setup-failed branch too: NaN would otherwise reach listIssueComments(NaN), whose failure
+  // appendNoteToSummary swallows — leaving exactly the silent red check that mode exists to prevent.
+  if (!Number.isInteger(PR_NUMBER) || PR_NUMBER < 1) throw new Error(`PR_NUMBER must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
   const setupFailedAt = process.argv.indexOf('--setup-failed');
   if (setupFailedAt !== -1) {
     requireEnv('GITHUB_TOKEN');
@@ -1294,9 +1352,6 @@ async function main() {
   requireEnv('ANTHROPIC_API_KEY');
   requireEnv('GITHUB_TOKEN');
   requireEnv('PR_NUMBER');
-  // Everything downstream — the diff path, every REST call, the prompt — assumes a real number; a non-numeric
-  // value would otherwise reach GitHub as `/pulls/NaN` and read as their problem rather than a bad input.
-  if (!Number.isInteger(PR_NUMBER) || PR_NUMBER < 1) throw new Error(`PR_NUMBER must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
   requireEnv('COMMIT');
   const diffPath = DIFF_PATH;
   const startedAt = Date.now();
@@ -1310,7 +1365,10 @@ async function main() {
 
   let agentRun;
   try {
-    agentRun = await runAgent(buildUserPrompt(pr, diffPath));
+    // The time that is left, not the whole budget: fetching the PR, the diff (up to 4x the API timeout, retried)
+    // and writing it to disk all happen first, and a deadline measured from here could outlast the job's own
+    // timeout — a cancelled job is the half-reconciled, comment-less outcome the deadline exists to prevent.
+    agentRun = await runAgent(buildUserPrompt(pr, diffPath), Math.max(60_000, DEADLINE_MS - (Date.now() - startedAt)));
     if (shouldHardFail(agentRun)) {
       throw new Error(`agent ended with ${agentRun.resultSubtype} and no output`);
     }
@@ -1461,8 +1519,13 @@ async function main() {
   // each one may supersede at most one old thread. Matching against every current finding instead would close an
   // untouched thread whenever any same-severity finding existed for that file — a still-valid finding retired
   // unverified, with a note claiming it moved when it did not.
+  // Harness-authored threads only, like openUnreportedAll below and reconcile's own map: the marker is a public
+  // string, so a comment from anyone else carrying one must not decide which findings count as new.
   const existingFps = new Set(
-    threads.map((t) => (FP_REGEX.exec(t.firstCommentBody || '') || [])[1]).filter(Boolean),
+    threads
+      .filter((t) => isHarnessComment(t.firstCommentAuthor))
+      .map((t) => (FP_REGEX.exec(t.firstCommentBody || '') || [])[1])
+      .filter(Boolean),
   );
   const openUnreportedAll = threads
     .filter((t) => !t.isResolved && isHarnessComment(t.firstCommentAuthor))

@@ -3,7 +3,7 @@
 // Run with `node --test test/` from .github/claude/reviewer (after `npm ci`).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summaryWithNote, wasTruncationRepaired, pickSuperseded, isReadOnlyShell, isAllowedBash, isPathAllowed, analyzeShell, redact, reconcile, rankOpusModels, extractJson, accumulateFinalText, escapeControlCharsInStrings, boundedDump, isTerminalResult, agentEnv, parseVerifyResult, verdictsById, shouldHardFail, findingSeverity, threadAnchor, applyVerification, buildVerifyPrompt, FORBIDDEN_PATH, renderSummary } from '../review.mjs';
+import { summaryWithNote, wasTruncationRepaired, pickSuperseded, findingSimilarity, isReadOnlyShell, isAllowedBash, isPathAllowed, analyzeShell, redact, reconcile, rankOpusModels, extractJson, accumulateFinalText, escapeControlCharsInStrings, boundedDump, isTerminalResult, agentEnv, parseVerifyResult, verdictsById, shouldHardFail, findingSeverity, threadAnchor, applyVerification, buildVerifyPrompt, FORBIDDEN_PATH, renderSummary } from '../review.mjs';
 
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, realpathSync } from 'node:fs';
@@ -19,7 +19,7 @@ const ALLOWED = [
   'cat AppDelegate.swift', 'cat AppDelegate.swift | head -50', 'ls -la .github/claude', 'head -n 40 BookPlayerKit/Services/SyncService.swift',
   'tail -20 BookPlayerTests/PlayerManagerTests.swift', 'wc -l BookPlayerTests/*.swift', 'stat AppDelegate.swift', 'file build/BookPlayer.app', 'du -sh .', 'pwd',
   'grep -rn "AVAudioSession" --include=*.swift .', 'grep -n "1024\\|AVAudioSession\\|trace" .github/claude/review-guide.md',
-  'grep -rn "->" core/src/', "grep -rn '>' AppDelegate.swift", "grep -n '$(' Scripts/build.sh", "grep -n 'foo$' AppDelegate.swift", 'grep -c func AppDelegate.swift && wc -l AppDelegate.swift',
+  'grep -rn "->" services/', "grep -rn '>' AppDelegate.swift", "grep -n '$(' Scripts/build.sh", "grep -n 'foo$' AppDelegate.swift", 'grep -c func AppDelegate.swift && wc -l AppDelegate.swift',
   'find . -name "*.swift" -not -path "./node_modules/*"',
 ];
 
@@ -199,6 +199,8 @@ test('key-shaped strings are redacted at the post boundary', () => {
   assert.equal(redact('dsn https://0123456789abcdef0123456789abcdef@o12345.ingest.sentry.io/6789 set'), 'dsn [redacted sentry dsn] set');
   // The shape this repo actually stores: xcconfig cannot hold `//`, so the DSN is written without its scheme.
   assert.equal(redact('BP_SENTRY_DSN = 0123456789abcdef0123456789abcdef@o12345.ingest.sentry.io/6789'), 'BP_SENTRY_DSN = [redacted sentry dsn]');
+  // A legacy DSN has no `ingest` host and its key is not necessarily hex.
+  assert.equal(redact('dsn https://Abc123Def456Ghi789Jkl@sentry.io/42 here'), 'dsn [redacted sentry dsn] here');
   assert.equal(redact('rc appl_' + 'A'.repeat(24) + ' set'), 'rc [redacted] set');
   assert.equal(redact('-----BEGIN PRIVATE KEY-----\nMIIabc\n-----END PRIVATE KEY-----'), '[redacted private key]');
   assert.equal(redact('bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk'), 'bearer [redacted jwt]');
@@ -734,7 +736,7 @@ test('a path attached to a short flag is confined too', () => {
   assert.equal(isAllowedBash(`grep -f${outside} .`), false);
   assert.equal(isAllowedBash(`grep --file=${outside} .`), false);
   // ...and ordinary flags still work.
-  assert.equal(isAllowedBash('grep -rn "PlaybackManager" core/src'), true);
+  assert.equal(isAllowedBash('grep -rn "imaplib" services'), true);
   assert.equal(isAllowedBash('git blame -L 10,20 AppDelegate.swift'), true);
 });
 
@@ -750,9 +752,9 @@ test('a finished answer that lands just before the deadline is not thrown away',
 
 test("a grep pattern is not treated as a path, but an existing file always is", () => {
   // Searching for a route or URL literal is routine on this repo and must not read as an absolute path.
-  assert.equal(isAllowedBash('grep -rn "/auth/openid" core/src'), true);
+  assert.equal(isAllowedBash('grep -rn "/auth/openid" BookPlayerKit'), true);
   assert.equal(isAllowedBash('grep -rn /v1/library BookPlayerKit'), true);
-  assert.equal(isAllowedBash('grep -e "/v1/library" -rn core/src'), true);
+  assert.equal(isAllowedBash('grep -e "/v1/library" -rn services'), true);
   // ...but anything that exists is checked, including a file an attached pattern pushes into first place —
   // `grep -eFOO /etc/passwd` has no separate pattern token, so the first positional is the file itself.
   assert.equal(isAllowedBash('grep -eFOO /etc/passwd'), false);
@@ -777,7 +779,7 @@ test('no allowlisted command may follow symlinks while walking', () => {
   // ...and the ordinary forms still work.
   assert.equal(isAllowedBash('du -sh .'), true);
   assert.equal(isAllowedBash('ls -la BookPlayerKit'), true);
-  assert.equal(isAllowedBash('grep -rn "PlaybackManager" core/src'), true);
+  assert.equal(isAllowedBash('grep -rn "imaplib" services'), true);
   assert.equal(isAllowedBash('find . -name "*.swift"'), true);
 });
 
@@ -836,7 +838,7 @@ test('brace expansion cannot smuggle a path past the read roots', () => {
   assert.ok(FORBIDDEN_PATH.test('cat .gnupg/secring.gpg'));
   assert.ok(FORBIDDEN_PATH.test('cat .aws/credentials'));
   // Quoted braces are literal to bash, so a regex quantifier still works.
-  assert.equal(isAllowedBash('grep -rn "a{2}" core/src'), true);
+  assert.equal(isAllowedBash('grep -rn "a{2}" services'), true);
   assert.equal(isAllowedBash("grep -rn 'id{3,4}' BookPlayerKit"), true);
 });
 
@@ -972,9 +974,16 @@ test('the agent inherits nothing that looks like a credential', () => {
     MATCH_PASSWORD: 'x', REVIEW_RESOLVE_TOKEN: 'x', GITHUB_TOKEN: 'x', GH_TOKEN: 'x',
   });
   assert.deepEqual(Object.keys(env).sort(), ['ANTHROPIC_API_KEY', 'HOME', 'LANG', 'PATH', 'RUNNER_TEMP']);
-  // The guarantee is the pattern, not a list we maintain: a secret added to the workflow later is dropped too.
+  // The guarantee is an allowlist, not a list of forbidden shapes: these three match nothing in SECRET_ENV_RE and
+  // would have been handed to the agent by a denylist.
   assert.equal(agentEnv({ SOME_NEW_TOKEN: 'x' }).SOME_NEW_TOKEN, undefined);
   assert.equal(agentEnv({ MY_SERVICE_PASSWORD: 'x' }).MY_SERVICE_PASSWORD, undefined);
+  assert.equal(agentEnv({ PLAY_SERVICE_ACCOUNT_JSON: 'x' }).PLAY_SERVICE_ACCOUNT_JSON, undefined);
+  assert.equal(agentEnv({ SERVICE_ACCOUNT_JSON: 'x' }).SERVICE_ACCOUNT_JSON, undefined);
+  assert.equal(agentEnv({ DEPLOY_PAT: 'x' }).DEPLOY_PAT, undefined);
+  // ...and the backstop still applies inside an allowed prefix.
+  assert.equal(agentEnv({ NODE_AUTH_TOKEN: 'x' }).NODE_AUTH_TOKEN, undefined);
+  assert.equal(agentEnv({ NODE_OPTIONS: '--max-old-space-size=4096' }).NODE_OPTIONS, '--max-old-space-size=4096');
 });
 
 
@@ -1140,6 +1149,12 @@ test('stderr routing is recognised where bash would see it, and nowhere else', (
   // And a real redirect is still refused, whichever way it points.
   assert.equal(isAllowedBash('grep -rn foo . > out.txt'), false);
   assert.equal(isAllowedBash('grep -rn foo . 2>out.txt'), false);
+  // The `2` has to BEGIN a token, as it does for bash: a digit is an fd only when the token so far is all digits.
+  // Unanchored, `cat secrets2>&1` was analysed as `cat secrets` while bash read `secrets2` — so a symlink
+  // committed under that name escaped the realpath check entirely.
+  assert.equal(isAllowedBash('cat secrets2>&1'), false);
+  assert.equal(isAllowedBash('cat file2>/dev/null'), false);
+  assert.ok(analyzeShell('cat secrets2>&1').segments.some((seg) => seg.includes('secrets2')));
 });
 
 test('a superseded thread is only reported resolved when the resolve worked', async () => {
@@ -1246,21 +1261,67 @@ test('the network layer retries a read, and never a write', async () => {
   }
 });
 
-test('a thread is superseded only by a finding this run actually posts, one for one', () => {
-  const thread = (id, path, sev, fp) => ({ id, path, firstCommentBody: `${sev === 'warn' ? '🟡 **WARN**' : '🔵 **INFO**'} — x <!-- bp-ai-review-fp:${fp} -->` });
-  const moved = thread('t-moved', 'a.swift', 'warn', 'oldfp');
-  const untouched = thread('t-untouched', 'a.swift', 'warn', 'keptfp');
+test('a thread is superseded only by the same finding, moved, and only once', () => {
+  const MOVED_TEXT = 'the deadline is read before the message in hand, so a finished run is relabelled error_deadline';
+  const thread = (id, path, sev, fp, text) => ({
+    id, path,
+    firstCommentBody: `${sev === 'warn' ? '🟡 **WARN**' : '🔵 **INFO**'} — ${text} <!-- bp-ai-review-fp:${fp} -->`,
+  });
+  const moved = thread('t-moved', 'a.swift', 'warn', 'oldfp', MOVED_TEXT);
+  const untouched = thread('t-untouched', 'a.swift', 'warn', 'keptfp', 'a completely unrelated concern about logging');
   const currentByFp = new Map([
-    ['keptfp', { file: 'a.swift', line: 10, severity: 'warn', comment: 'still reported, has its own thread' }],
-    ['newfp', { file: 'a.swift', line: 42, severity: 'warn', comment: 'the one that moved' }],
+    ['keptfp', { file: 'a.swift', line: 10, severity: 'warn', comment: 'a completely unrelated concern about logging' }],
+    ['newfp', { file: 'a.swift', line: 42, severity: 'warn', comment: `${MOVED_TEXT} (still, at its new line)` }],
   ]);
   const existingFps = new Set(['keptfp', 'oldfp']);
 
-  // Only the finding with no thread of its own can supersede, and it takes exactly one.
+  // The finding that moved is recognised by its text, and takes exactly one thread with it.
   assert.deepEqual(pickSuperseded([moved, untouched], currentByFp, existingFps).map((t) => t.id), ['t-moved']);
-  // With nothing new to post, nothing is superseded: an unreported thread goes to the verifier instead.
+
+  // A genuinely different warn in the same file must NOT close a still-valid thread: it goes to the verifier.
+  const different = new Map([['otherfp', { file: 'a.swift', line: 42, severity: 'warn', comment: 'an entirely different problem: the artwork cache never evicts' }]]);
+  assert.deepEqual(pickSuperseded([moved], different, existingFps), []);
+
+  // Nothing new to post, nothing superseded; and severity is part of the match.
   assert.deepEqual(pickSuperseded([moved], new Map([['keptfp', currentByFp.get('keptfp')]]), existingFps), []);
-  // Severity is part of the match: an info finding does not close a warn thread.
-  const info = new Map([['newinfo', { file: 'a.swift', line: 42, severity: 'info', comment: 'different severity' }]]);
-  assert.deepEqual(pickSuperseded([moved], info, existingFps), []);
+  const asInfo = new Map([['newfp', { ...currentByFp.get('newfp'), severity: 'info' }]]);
+  assert.deepEqual(pickSuperseded([moved], asInfo, existingFps), []);
+
+  // The similarity measure itself: symmetric, and blind to the harness's own markup.
+  assert.ok(findingSimilarity(MOVED_TEXT, `${MOVED_TEXT} (still, at its new line)`) > 0.5);
+  assert.ok(findingSimilarity(MOVED_TEXT, 'the artwork cache never evicts') < 0.5);
+  assert.equal(findingSimilarity('', 'anything'), 0);
+});
+
+test('a 403 is retried only when it looks like a rate limit', async () => {
+  const { fetchPullRequestDiff } = await import('../github.mjs');
+  const realFetch = globalThis.fetch;
+  const prevRepo = process.env.GITHUB_REPOSITORY;
+  const prevToken = process.env.GITHUB_TOKEN;
+  process.env.GITHUB_REPOSITORY = 'TortugaPower/repo';
+  process.env.GITHUB_TOKEN = 'x';
+  try {
+    // "Resource not accessible by integration" is permanent: trying it three times only delays the real error.
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      return { ok: false, status: 403, headers: { get: () => null }, text: async () => 'not accessible', json: async () => ({}) };
+    };
+    await assert.rejects(() => fetchPullRequestDiff(1), /403/);
+    assert.equal(calls, 1);
+
+    // The secondary rate limit answers 403 too, and says so.
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      if (calls === 1) return { ok: false, status: 403, headers: { get: (h) => (h === 'retry-after' ? '1' : null) }, text: async () => 'slow down', json: async () => ({}) };
+      return { ok: true, status: 200, headers: { get: () => null }, text: async () => 'diff --git a/x b/x\n', json: async () => [] };
+    };
+    assert.match(await fetchPullRequestDiff(1), /diff --git/);
+    assert.equal(calls, 2);
+  } finally {
+    globalThis.fetch = realFetch;
+    if (prevRepo === undefined) delete process.env.GITHUB_REPOSITORY; else process.env.GITHUB_REPOSITORY = prevRepo;
+    if (prevToken === undefined) delete process.env.GITHUB_TOKEN; else process.env.GITHUB_TOKEN = prevToken;
+  }
 });

@@ -35,7 +35,10 @@ const API_TIMEOUT_MS = 30_000;
 // (the harness skips them rather than risk duplicates), and one on the diff costs the whole run. Writes are never
 // retried: a repeated POST would post a second comment.
 const RETRY_TRIES = 3;
-const isRetryableStatus = (status) => status >= 500 || status === 429 || status === 403; // 406 is deliberate: not retried
+// 406 is deliberate (the diff is too large to render), and a bare 403 is usually "not permitted", which will not
+// pass however often it is tried. The secondary rate limit also answers 403, and says so in its headers.
+const rateLimited = (res) => Boolean(res.headers?.get?.('retry-after')) || res.headers?.get?.('x-ratelimit-remaining') === '0';
+const isRetryableResponse = (res) => res.status >= 500 || res.status === 429 || (res.status === 403 && rateLimited(res));
 const retryableError = (e) => e?.name === 'TimeoutError' || e?.name === 'AbortError' || e?.code === 'ECONNRESET' || e instanceof TypeError;
 const backoffMs = (attempt) => 500 * 2 ** attempt + Math.floor(Math.random() * 250);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -46,9 +49,7 @@ async function fetchRead(url, options, label) {
     if (attempt) await sleep(backoffMs(attempt - 1));
     try {
       const res = await fetch(url, options());
-      // A plain 403 is usually "not permitted" and will not pass, but the secondary rate limit uses 403 too and
-      // says so; retrying a permission error three times only costs a second.
-      if (!res.ok && isRetryableStatus(res.status) && attempt < RETRY_TRIES - 1) {
+      if (!res.ok && isRetryableResponse(res) && attempt < RETRY_TRIES - 1) {
         lastError = new Error(`${label} -> ${res.status}`);
         console.warn(`${label} -> ${res.status}; retrying (${attempt + 1}/${RETRY_TRIES - 1})`);
         continue;
@@ -84,6 +85,9 @@ async function rest(method, path, body) {
 // method: a retried resolve/unresolve would be a second mutation. The thread listing is the one that matters —
 // a transient 502 there costs every inline comment on that push, since the harness skips them rather than
 // risk duplicates.
+// GraphQL answers 200 with an `errors` array for its most common transient failures, so status alone does not
+// decide: those are retried here, after parsing, and everything else throws on the first answer.
+const TRANSIENT_GQL_ERROR = /RATE_LIMITED|SERVICE_UNAVAILABLE|INTERNAL|TIMEOUT/i;
 async function graphql(queryStr, variables, tok, { retry = false, label = 'GitHub GraphQL' } = {}) {
   const options = () => ({
     method: 'POST',
@@ -91,12 +95,19 @@ async function graphql(queryStr, variables, tok, { retry = false, label = 'GitHu
     body: JSON.stringify({ query: queryStr, variables }),
     signal: AbortSignal.timeout(API_TIMEOUT_MS),
   });
-  const res = retry ? await fetchRead(GQL, options, label) : await fetch(GQL, options());
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || json.errors) {
-    throw new Error(`GitHub GraphQL -> ${res.status}: ${JSON.stringify(json.errors || json)}`);
+  for (let attempt = 0; ; attempt++) {
+    const res = retry ? await fetchRead(GQL, options, label) : await fetch(GQL, options());
+    const json = await res.json().catch(() => ({}));
+    if (res.ok && !json.errors) return json.data;
+    const transient =
+      retry &&
+      attempt < RETRY_TRIES - 1 &&
+      Array.isArray(json.errors) &&
+      json.errors.some((e) => TRANSIENT_GQL_ERROR.test(`${e?.type || ''} ${e?.message || ''}`));
+    if (!transient) throw new Error(`${label} -> ${res.status}: ${JSON.stringify(json.errors || json)}`);
+    console.warn(`${label} -> transient GraphQL error; retrying (${attempt + 1}/${RETRY_TRIES - 1})`);
+    await sleep(backoffMs(attempt));
   }
-  return json.data;
 }
 
 // ---------- Pull request metadata + diff (fetched by the harness so the agent needs no token) ----------

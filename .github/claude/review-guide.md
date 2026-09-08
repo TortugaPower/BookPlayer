@@ -7,12 +7,13 @@ concurrency, and secrets conventions. Judge changes against it. This app handles
 per-user cloud sync, auth, and subscriptions**, so **memory/concurrency, player lifecycle, threading, and
 auth/entitlement** bugs are the highest-priority findings.
 
-**Base branch is `develop`.** Diff against `origin/develop`.
+**Base branch is `develop`.** The harness hands you the unified diff as a file — the checkout is shallow
+(`fetch-depth: 1`), so there is no `origin/develop` ref and no `gh` access inside the review, and `git log`
+and `git blame` see only the head commit.
 
 ## How to review
 
-1. Read the unified diff the harness wrote for you; its path is in the task prompt. The PR branch is
-   checked out in the working directory.
+1. Get the diff: `gh pr diff <number>`. The branch is checked out in the working directory.
 2. **Do not review the diff in isolation.** For each non-trivial change, open the surrounding code and its
    callers with `Read`/`Grep`/`Glob` before judging. Diff-only opinions are not acceptable.
 3. Respect the layout: app source is under nested `BookPlayer/BookPlayer/`; shared/framework code is in
