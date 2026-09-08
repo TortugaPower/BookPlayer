@@ -113,6 +113,14 @@ struct MainView: View {
         Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
       }
     }
+    // Posted by PlayerManager when a book can't play because its media server isn't
+    // configured here. Lives at this level because both pieces of state it writes are
+    // owned above: the cover has to come down before the sheet can present, since the
+    // sheet is attached underneath it.
+    .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
+      playerState.isShowingPlayer = false
+      listState.activeIntegrationSheet = .mediaServers
+    }
     // Sibling copy of the resume alert (see showResumePopupBinding): playback also starts
     // with the player CLOSED — mini-player, CarPlay, remote commands, last-book restore —
     // and the copy inside the cover isn't in the hierarchy then, silently dropping the prompt

@@ -133,13 +133,6 @@ struct LibraryRootView: View {
           self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
         }
       }
-      .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
-        // The media-servers sheet hangs off MainView UNDERNEATH the player's
-        // fullScreenCover — when this fires mid-playback (the common streaming-401
-        // path) the cover must come down first or the sheet never presents
-        playerState.isShowingPlayer = false
-        listState.activeIntegrationSheet = .mediaServers
-      }
     }
     .tint(theme.linkColor)
     .environmentObject(theme)
