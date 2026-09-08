@@ -24,7 +24,7 @@ auth/entitlement** bugs are the highest-priority findings.
 - `BookPlayer/Generated/` (Sourcery output, incl. `AutoMockable.generated.swift`), `Assets.xcassets`,
   `build/`, and any generated files.
 - `.lproj` translation files: flag a **missing `Base.lproj/Localizable.strings` key**, but do not nitpick the
-  wording of existing translations (Lokalise-managed).
+  wording of existing translations.
 - `project.pbxproj` merge noise — only comment on a genuine structural problem (wrong target membership,
   broken build setting), not diff churn.
 - **Style the tools already own — do NOT flag:** `force_try` / `try!` in general, long lines, short/`identifier_name`,

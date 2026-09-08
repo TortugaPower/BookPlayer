@@ -420,7 +420,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 - **Prefer native Apple / SwiftUI APIs** over custom implementations.
 - **Localization:** every user-facing string via `"key".localized`
   (`Shared/Extensions/String+BookPlayer.swift` → `NSLocalizedString`; no SwiftGen/`L10n`). New keys go in
-  `BookPlayer/Base.lproj/Localizable.strings`; ~27 locales are Lokalise-managed — flag a **missing Base key** or a
+  `BookPlayer/Base.lproj/Localizable.strings`; ~27 locales are community-translated — flag a **missing Base key** or a
   hardcoded literal, but do **not** nitpick the wording of existing translations.
 - **Accessibility is first-class** (audiobook app, many low-vision users). New interactive SwiftUI controls need
   `accessibilityLabel` (and `accessibilityValue` where stateful) and must respect Dynamic Type — use the
