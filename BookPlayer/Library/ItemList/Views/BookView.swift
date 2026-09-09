@@ -43,6 +43,30 @@ struct BookView: View {
       : theme.primaryColor
   }
 
+  /// Provider links then the author, as ONE `Text` rather than a stack of them.
+  ///
+  /// Concatenation buys three things a stack can't: an interpolated `Image` is sized from the
+  /// font, so the provider icon grows with Dynamic Type instead of sitting at a fixed 12pt;
+  /// the enclosing VStack keeps its font-derived default spacing, which SwiftUI applies only
+  /// between adjacent `Text` views (an `HStack` child forfeits it, and needed a hardcoded gap
+  /// to look right); and the subtitle truncates once at the end instead of each piece
+  /// competing for width and truncating on its own.
+  ///
+  /// The row is a single accessibility element (`children: .ignore` +
+  /// `dynamicAccessibilityLabel`), so nothing here reaches VoiceOver — the icon and the
+  /// separator need no `accessibilityHidden`.
+  private var subtitle: Text {
+    (item.externalResources ?? [])
+      .reduce(Text(verbatim: "")) { partial, resource in
+        let provider = ExternalResource.ProviderName(rawValue: resource.providerName) ?? .jellyfin
+
+        return partial + Text("\(Image(provider.icon)) \(resource.providerName.capitalized) • ")
+      }
+      // Appended outside the reduce: the author renders even when the item has no external
+      // resources (nil for locally-imported books on some construction paths).
+      + Text(verbatim: item.details)
+  }
+
   var body: some View {
     HStack(spacing: 0) {
       Button(action: artworkTap) {
@@ -54,42 +78,14 @@ struct BookView: View {
       }
       .buttonStyle(.plain)
       .accessibilityLabel("voiceover_continue_playback_title")
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading) {
         Text(verbatim: displayTitle)
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)
-        HStack {
-          if let resources = item.externalResources {
-            ForEach(resources, id: \.providerId) { externalResource in
-              Group {
-                HStack {
-                  Image((ExternalResource.ProviderName(rawValue: externalResource.providerName) ?? .jellyfin).icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 12, height: 12)
-                    .foregroundStyle(theme.secondaryColor)
-                    .accessibilityHidden(true)
-                  Text(verbatim: externalResource.providerName.capitalized)
-                    .foregroundStyle(theme.secondaryColor)
-                    .bpFont(.caption)
-                }
-                Text("•")
-                  .foregroundStyle(theme.secondaryColor)
-                  .bpFont(.caption)
-                  // VoiceOver: decorative separator — the provider name right before it
-                  // already announces the link
-                  .accessibilityHidden(true)
-              }
-            }
-          }
-          // Outside the if-let: the author must render even when the item has no
-          // external resources (nil for locally-imported books on some construction paths).
-          Text(verbatim: item.details)
-            .foregroundStyle(theme.secondaryColor)
-            .bpFont(.caption)
-        }
-
+        subtitle
+          .foregroundStyle(theme.secondaryColor)
+          .bpFont(.caption)
         Text(verbatim: item.durationFormatted)
           .foregroundStyle(theme.secondaryColor)
           .bpFont(.caption)
