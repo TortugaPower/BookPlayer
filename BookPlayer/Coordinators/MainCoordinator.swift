@@ -18,8 +18,8 @@ class MainCoordinator: NSObject {
   var mainController: UIViewController?
 
   let importManager: ImportManager
-  let externalImportBus: ExternalImportBus
   let playerManager: PlayerManager
+  let externalProgressService: ExternalProgressService
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryService
@@ -49,7 +49,6 @@ class MainCoordinator: NSObject {
     self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
     self.importManager = ImportManager(libraryService: coreServices.libraryService)
-    self.externalImportBus = ExternalImportBus()
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
@@ -62,6 +61,7 @@ class MainCoordinator: NSObject {
       preferencesService: coreServices.preferencesService
     )
     self.concurrenceService = coreServices.concurrenceService
+    self.externalProgressService = coreServices.externalProgressService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -100,7 +100,6 @@ class MainCoordinator: NSObject {
       }
       .environmentObject(singleFileDownloadService)
       .environmentObject(importManager)
-      .environmentObject(externalImportBus)
       .environmentObject(playerManager)
       .environmentObject(listSyncRefreshService)
       .environment(\.libraryService, libraryService)
@@ -114,6 +113,7 @@ class MainCoordinator: NSObject {
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
       .environment(\.concurrenceService, concurrenceService)
+      .environment(\.externalProgressService, externalProgressService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

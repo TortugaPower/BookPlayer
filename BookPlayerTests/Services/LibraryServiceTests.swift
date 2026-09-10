@@ -2221,19 +2221,11 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     sut.dataManager.saveContext()
 
     let remoteDate = Date(timeIntervalSince1970: 2_000)
-    let remote = JellyfinLibraryItem(
-      id: "jelly-5",
-      name: "external-5",
-      kind: .audiobook,
-      durationSeconds: 200,
-      currentSeconds: 100,
-      isFinished: false,
-      lastPlayedDate: remoteDate,
-      blurHash: nil,
-      imageAspectRatio: nil,
-      details: nil
+    let remote = ExternalPlaybackProgress(currentTime: 100, lastPlayedDate: remoteDate, isFinished: false)
+    sut.handleSyncFromExternalResource(
+      providerName: "jellyfin",
+      progressByProviderId: ["jelly-5": remote]
     )
-    sut.handleSyncFromExternalResource(remoteItemsDictionary: ["jelly-5": remote])
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
     XCTAssertEqual(book.currentTime, 100, accuracy: 0.01)
@@ -2254,24 +2246,48 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     book.lastPlayDate = localDate
     sut.dataManager.saveContext()
 
-    let remote = JellyfinLibraryItem(
-      id: "jelly-6",
-      name: "external-6",
-      kind: .audiobook,
-      durationSeconds: 200,
-      currentSeconds: 20,
-      isFinished: false,
+    let remote = ExternalPlaybackProgress(
+      currentTime: 20,
       lastPlayedDate: Date(timeIntervalSince1970: 1_000),
-      blurHash: nil,
-      imageAspectRatio: nil,
-      details: nil
+      isFinished: false
     )
-    sut.handleSyncFromExternalResource(remoteItemsDictionary: ["jelly-6": remote])
+    sut.handleSyncFromExternalResource(
+      providerName: "jellyfin",
+      progressByProviderId: ["jelly-6": remote]
+    )
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
     // Local progress is newer — the stale remote push must not clobber it
     XCTAssertEqual(book.currentTime, 150, accuracy: 0.01)
     XCTAssertEqual(book.lastPlayDate, localDate)
+  }
+
+  /// The predicate now filters on the provider name it was handed, so one provider's answers
+  /// can never land on another provider's rows — a provider id only means something to the
+  /// server that issued it.
+  @MainActor
+  func testHandleSyncFromExternalResourceOnlyTouchesTheNamedProvider() async {
+    let book = makeBook("external-7", duration: 200)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "shared-id", for: book.uuid)
+    sut.dataManager.getContext().refreshAllObjects()
+
+    book.currentTime = 10
+    book.lastPlayDate = Date(timeIntervalSince1970: 1_000)
+    sut.dataManager.saveContext()
+
+    // Same providerId, different provider: an ABS batch must not move the Jellyfin-linked row.
+    sut.handleSyncFromExternalResource(
+      providerName: "audiobookshelf",
+      progressByProviderId: [
+        "shared-id": ExternalPlaybackProgress(
+          currentTime: 180,
+          lastPlayedDate: Date(timeIntervalSince1970: 9_000)
+        )
+      ]
+    )
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(book.currentTime, 10, accuracy: 0.01, "another provider's answer is not ours")
   }
 
   @MainActor

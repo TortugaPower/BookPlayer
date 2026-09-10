@@ -697,3 +697,622 @@ final class ItemDetailsLoadTests: XCTestCase {
     XCTAssertTrue(sut.resolvedExternalHosts.isEmpty)
   }
 }
+
+// MARK: - External progress pull
+
+/// The inbound half of media-server progress sync, extracted out of ItemListViewModel.
+///
+/// Waits are expectations fulfilled by the publisher, never fixed sleeps: the service's timing
+/// is what's under test, and a fixed wait either flakes on a slow runner or hides a real
+/// delay. Notifications go through a private center so nothing here can reach a real
+/// service alive elsewhere in the test process.
+@MainActor
+final class ExternalProgressServiceTests: XCTestCase {
+  /// Records what it was asked and answers from a script, so a test can assert the fan-out
+  /// without a server, a keychain, or a network. A slow answer sleeps WITHOUT swallowing
+  /// cancellation, so a cancelled refresh provably reaches the provider.
+  private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _requested: [String] = []
+    private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+
+    var requested: [String] {
+      lock.lock()
+      defer { lock.unlock() }
+      return _requested
+    }
+
+    init(answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?) {
+      self.answer = answer
+    }
+
+    func progress(for resource: SimpleExternalResource) async throws -> ExternalPlaybackProgress? {
+      lock.lock()
+      _requested.append(resource.providerId)
+      lock.unlock()
+      return try await answer(resource)
+    }
+
+    func progress(
+      forBatch resources: [SimpleExternalResource]
+    ) async throws -> [String: ExternalPlaybackProgress] {
+      var out: [String: ExternalPlaybackProgress] = [:]
+      for resource in resources {
+        if let progress = try await progress(for: resource) {
+          out[resource.providerId] = progress
+        }
+      }
+      return out
+    }
+  }
+
+  private var notificationCenter: NotificationCenter!
+  private var received: [ExternalPlaybackProgress] = []
+  private var cancellable: AnyCancellable?
+
+  override func setUp() {
+    super.setUp()
+    notificationCenter = NotificationCenter()
+    received = []
+  }
+
+  override func tearDown() {
+    cancellable?.cancel()
+    cancellable = nil
+    super.tearDown()
+  }
+
+  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: provider,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "guid-host",
+      libraryItem: nil
+    )
+  }
+
+  private func makeLibraryItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 1000,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book-\(resources?.first?.providerId ?? "none").m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID-\(resources?.first?.providerId ?? "none")",
+      externalResources: resources
+    )
+  }
+
+  private func makeItem(uuid: String, currentTime: TimeInterval, lastPlayDate: Date?) -> PlayableItem {
+    PlayableItem(
+      title: "Book",
+      author: "Author",
+      chapters: [
+        PlayableChapter(
+          title: "Chapter",
+          author: "Author",
+          start: 0,
+          duration: 1000,
+          relativePath: "book.m4b",
+          remoteURL: nil,
+          externalURL: nil,
+          index: 1
+        )
+      ],
+      currentTime: currentTime,
+      duration: 1000,
+      relativePath: "book.m4b",
+      uuid: uuid,
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: lastPlayDate,
+      isFinished: false,
+      isBoundBook: false
+    )
+  }
+
+  private func makeSUT(
+    resources: [SimpleExternalResource],
+    providers: [ExternalResource.ProviderName: ExternalProgressProviding]
+  ) -> (ExternalProgressService, LibraryServiceProtocolMock) {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = resources
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: providers, notificationCenter: notificationCenter)
+    return (sut, libraryService)
+  }
+
+  /// Subscribes and returns an expectation that fulfils once per published position.
+  private func expectPublish(from sut: ExternalProgressService, count: Int = 1, inverted: Bool = false) -> XCTestExpectation {
+    let expectation = expectation(description: inverted ? "nothing published" : "position published")
+    expectation.isInverted = inverted
+    if !inverted {
+      expectation.expectedFulfillmentCount = count
+      expectation.assertForOverFulfill = true
+    }
+    cancellable = sut.promptablePositionPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] position in
+        self?.received.append(position)
+        expectation.fulfill()
+      }
+    return expectation
+  }
+
+  private func slowStub(_ progress: ExternalPlaybackProgress) -> ProviderStub {
+    ProviderStub { _ in
+      try await Task.sleep(nanoseconds: 250_000_000)
+      return progress
+    }
+  }
+
+  // MARK: the decision rule
+
+  func testPromptsWhenTheRemoteDateIsNewerBeyondTheThreshold() {
+    let position = [ExternalPlaybackProgress(currentTime: 90, lastPlayedDate: Date(timeIntervalSince1970: 1100))]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
+
+    XCTAssertEqual(position?.currentTime, 90, "a newer date prompts even when the position is behind")
+  }
+
+  func testDoesNotPromptInsideTheThreshold() {
+    let position = [ExternalPlaybackProgress(currentTime: 110, lastPlayedDate: Date(timeIntervalSince1970: 1005))]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
+
+    XCTAssertNil(position, "10s of drift on the book you are listening to is not another device")
+  }
+
+  func testPromptsWhenTheRemotePositionIsFartherWithoutADate() {
+    let position = [ExternalPlaybackProgress(currentTime: 400, lastPlayedDate: nil)]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
+
+    XCTAssertEqual(position?.currentTime, 400, "a server reporting no date still counts on position")
+  }
+
+  /// The rule SyncService.handleSyncedLastPlayed uses for our own cloud: newest date wins.
+  func testNewestCandidateWinsAcrossServers() {
+    let older = ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 1100))
+    let newer = ExternalPlaybackProgress(currentTime: 300, lastPlayedDate: Date(timeIntervalSince1970: 2000))
+
+    let position = [older, newer]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
+
+    XCTAssertEqual(position, newer, "the most recently played server wins, not the farthest position")
+  }
+
+  func testNoCandidatesMeansNoPrompt() {
+    XCTAssertNil(
+      [ExternalPlaybackProgress]().promptable(localTime: 100, localDate: nil)
+    )
+  }
+
+  // MARK: the service
+
+  func testAsksEveryLinkedServerConcurrentlyAndPublishesTheNewest() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 800, lastPlayedDate: Date(timeIntervalSince1970: 1100))
+    }
+    let abs = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 200, lastPlayedDate: Date(timeIntervalSince1970: 5000))
+    }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+      providers: [.jellyfin: jellyfin, .audiobookshelf: abs]
+    )
+    let published = expectPublish(from: sut)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 100, lastPlayDate: Date(timeIntervalSince1970: 1000)))
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"], "both servers are asked")
+    XCTAssertEqual(abs.requested, ["abs-1"])
+    XCTAssertEqual(received.map(\.currentTime), [200], "the newest date wins across providers")
+  }
+
+  func testOneFailingServerDoesNotSilenceTheOther() async {
+    let failing = ProviderStub { _ in throw URLError(.timedOut) }
+    let working = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 700, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+      providers: [.jellyfin: failing, .audiobookshelf: working]
+    )
+    let published = expectPublish(from: sut)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(received.map(\.currentTime), [700], "a thrown error takes out only its own provider")
+  }
+
+  /// Hardcover shares the resource relationship but hosts nothing, so it must never be asked.
+  func testSkipsResourcesWithNoMediaServerProvider() async {
+    let jellyfin = ProviderStub { _ in XCTFail("hardcover must not reach a provider"); return nil }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "hardcover", id: "12345")],
+      providers: [.jellyfin: jellyfin]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    await fulfillment(of: [nothing], timeout: 0.3)
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+  }
+
+  /// The bug that started the extraction: a slow answer for a book the user already left
+  /// must not raise a prompt carrying that book's position. With cancellation propagating
+  /// into the stub, the superseded refresh never even completes.
+  func testAnswerForASupersededItemIsDiscarded() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let published = expectPublish(from: sut, count: 1)
+
+    sut.refreshProgress(for: makeItem(uuid: "FIRST", currentTime: 0, lastPlayDate: nil))
+    // A different book starts before the first answer lands.
+    sut.refreshProgress(for: makeItem(uuid: "SECOND", currentTime: 0, lastPlayDate: nil))
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(received.count, 1, "only the item that is playing now can prompt")
+    XCTAssertEqual(slow.requested, ["jf-1", "jf-1"], "both refreshes reached the provider; only one survived")
+  }
+
+  /// The point of the extraction: the pull is driven by the notification the player posts for
+  /// EVERY playback start, so it no longer depends on which UI holds a delegate slot.
+  func testRefreshesFromTheBookPlayedNotification() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 600, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: jellyfin]
+    )
+    let published = expectPublish(from: sut)
+
+    notificationCenter.post(
+      name: .bookPlayed,
+      object: nil,
+      userInfo: ["book": makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil)]
+    )
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"], "playback start alone drives the pull")
+    XCTAssertEqual(received.map(\.currentTime), [600])
+  }
+
+  func testLogoutNotificationCancelsInFlightWork() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    notificationCenter.post(name: .logout, object: nil)
+    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
+    await fulfillment(of: [nothing], timeout: 0.6)
+  }
+
+  func testTeardownCancelsAnInFlightRefresh() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    sut.teardown()
+    await fulfillment(of: [nothing], timeout: 0.6)
+  }
+
+  // MARK: the list refresh
+
+  /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
+  /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
+  func testRefreshItemsFoldsInBothProviders() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let abs = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+
+    await sut.refreshItems([
+      makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")]),
+      makeLibraryItem(resources: [makeResource(provider: "audiobookshelf", id: "abs-1")]),
+      makeLibraryItem(resources: [makeResource(provider: "hardcover", id: "12345")]),
+    ])
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"])
+    XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      Set(ingested.map(\.providerName)),
+      ["jellyfin", "audiobookshelf"],
+      "each provider folds its own answers in, under its own provider name"
+    )
+    XCTAssertFalse(
+      ingested.contains { $0.providerName == "hardcover" },
+      "hardcover hosts nothing, so it is never batched"
+    )
+  }
+
+  func testRefreshItemsDoesNothingWithoutMediaServerResources() async {
+    let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+
+    await sut.refreshItems([makeLibraryItem(resources: nil)])
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+  }
+}
+
+// MARK: - External stream resolution
+
+/// Stream URLs, auth headers and the unresolved-host flag. None of this could be tested while
+/// the logic sat inside PlaybackService.getPlayableChapters with its own KeychainService().
+final class ExternalStreamResolverTests: XCTestCase {
+  private func makeResource(provider: String, id: String, hostId: String?) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: provider,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: hostId,
+      libraryItem: nil
+    )
+  }
+
+  private func makeKeychain(customHeaders: [String: String] = [:]) throws -> KeychainStub {
+    let keychain = KeychainStub()
+    try keychain.set(
+      [
+        JellyfinConnectionData(
+          serverId: "GUID-JELLY",
+          url: URL(string: "https://jelly.example.com")!,
+          serverName: "Jelly",
+          userID: "u1",
+          userName: "user",
+          accessToken: "jelly-token",
+          customHeaders: customHeaders
+        )
+      ],
+      key: .jellyfinConnection
+    )
+    return keychain
+  }
+
+  func testResolvesTheResourcesOwnServerWithItsAuthHeader() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    let source = sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-jelly"))
+
+    XCTAssertEqual(source?.url.host, "jelly.example.com")
+    XCTAssertEqual(
+      source?.headers["Authorization"],
+      "MediaBrowser Token=\"jelly-token\"",
+      "the integration's own token authorises the stream, never the BookPlayer JWT"
+    )
+  }
+
+  /// The contract shared with the Android app: an unmatched host resolves to nothing rather
+  /// than streaming from whichever server happens to be configured.
+  func testDoesNotFallBackToAnotherServer() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    XCTAssertNil(
+      sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-somewhere-else"))
+    )
+  }
+
+  /// Custom headers exist for reverse-proxy gates; the integration's Authorization must win,
+  /// and a lowercase user-configured key must not fight it.
+  func testIntegrationAuthorizationWinsOverACustomHeader() throws {
+    let keychain = try makeKeychain(customHeaders: [
+      "CF-Access-Client-Id": "cf-id",
+      "authorization": "Bearer user-configured",
+    ])
+    let sut = ExternalStreamResolver(keychain: keychain)
+
+    let source = sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-jelly"))
+
+    XCTAssertEqual(source?.headers["CF-Access-Client-Id"], "cf-id", "proxy gates survive")
+    XCTAssertEqual(source?.headers["Authorization"], "MediaBrowser Token=\"jelly-token\"")
+    XCTAssertEqual(
+      source?.headers.filter { $0.key.caseInsensitiveCompare("Authorization") == .orderedSame }.count,
+      1,
+      "one Authorization header, not two spellings of it"
+    )
+  }
+
+  func testHardcoverStreamsFromNowhere() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    XCTAssertNil(sut.streamSource(for: makeResource(provider: "hardcover", id: "12345", hostId: nil)))
+  }
+}
+
+/// The flag PlaybackService puts on every chapter, now reachable because resolution is injected.
+final class PlayableChapterExternalHostTests: XCTestCase {
+  private struct ResolverStub: ExternalStreamResolving {
+    let source: ExternalStreamSource?
+    func streamSource(for resource: SimpleExternalResource) -> ExternalStreamSource? { source }
+  }
+
+  private func makeItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID",
+      externalResources: resources
+    )
+  }
+
+  private func makeSUT(resolved: Bool) -> PlaybackService {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.getChaptersFromReturnValue = [
+      SimpleChapter(title: "Chapter", start: 0, duration: 100, index: 1)
+    ]
+
+    let sut = PlaybackService()
+    sut.setup(
+      libraryService: libraryService,
+      streamResolver: ResolverStub(
+        source: resolved
+          ? ExternalStreamSource(
+            url: URL(string: "https://jelly.example.com/stream")!,
+            headers: ["Authorization": "MediaBrowser Token=\"t\""]
+          )
+          : nil
+      )
+    )
+    return sut
+  }
+
+  private func mediaServerResource() -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "item-1",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "guid-jelly",
+      libraryItem: nil
+    )
+  }
+
+  func testResolvedResourceCarriesTheStreamUrlAndNoUnresolvedFlag() throws {
+    let chapters = try makeSUT(resolved: true).getPlayableChapters(book: makeItem(resources: [mediaServerResource()]))
+
+    XCTAssertEqual(chapters.first?.externalUrl?.host, "jelly.example.com")
+    XCTAssertEqual(chapters.first?.externalHeaders["Authorization"], "MediaBrowser Token=\"t\"")
+    XCTAssertFalse(chapters.first?.hasUnresolvedExternalHost ?? true)
+  }
+
+  /// The case the Media Servers shortcut depends on: a media-server item whose host resolves
+  /// to nothing on this device.
+  func testUnresolvedHostSetsTheFlagWithNoStreamUrl() throws {
+    let chapters = try makeSUT(resolved: false).getPlayableChapters(book: makeItem(resources: [mediaServerResource()]))
+
+    XCTAssertNil(chapters.first?.externalUrl)
+    XCTAssertTrue(chapters.first?.hasUnresolvedExternalHost ?? false)
+  }
+
+  /// A plain local book has no media server, so a missing file is not a server problem.
+  func testItemWithoutResourcesNeverSetsTheFlag() throws {
+    let chapters = try makeSUT(resolved: false).getPlayableChapters(book: makeItem(resources: nil))
+
+    XCTAssertNil(chapters.first?.externalUrl)
+    XCTAssertFalse(chapters.first?.hasUnresolvedExternalHost ?? true)
+  }
+}
+
+// MARK: - Resume offer routing
+
+/// One surface asks, never two: the arbiter is the single subscriber to the service.
+@MainActor
+final class ResumeOfferArbiterTests: XCTestCase {
+  private final class PresenterSpy: ResumeOfferPresenting {
+    var presentedTimes: [TimeInterval] = []
+    func presentResumeOffer(at remoteTime: TimeInterval) { presentedTimes.append(remoteTime) }
+  }
+
+  private let position = ExternalPlaybackProgress(currentTime: 480, lastPlayedDate: Date())
+
+  func testWithoutCarPlayThePhoneGetsTheOffer() {
+    let playerState = PlayerState()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+
+    sut.route(position)
+
+    XCTAssertTrue(playerState.showResumePopup)
+    XCTAssertEqual(playerState.remotePlayTime, 480)
+  }
+
+  /// The driving case: phone in a pocket, car connected. The car asks and the phone's flag is
+  /// never raised, so unlocking the phone later cannot ask the same question again.
+  func testCarPlayGetsTheOfferWhenTheAppIsInactive() {
+    let playerState = PlayerState()
+    let car = PresenterSpy()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+    sut.carPlayPresenter = car
+
+    sut.route(position)
+
+    XCTAssertEqual(car.presentedTimes, [480])
+    XCTAssertFalse(playerState.showResumePopup, "an offer routed to the car leaves no phone flag behind")
+    XCTAssertNil(playerState.remotePlayTime)
+  }
+
+  /// Phone in hand with the car connected: the SwiftUI alert is the better surface, and the
+  /// car must stay quiet rather than ask in parallel.
+  func testThePhoneWinsWhenTheAppIsActiveEvenWithCarPlayConnected() {
+    let playerState = PlayerState()
+    let car = PresenterSpy()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
+    sut.carPlayPresenter = car
+
+    sut.route(position)
+
+    XCTAssertTrue(car.presentedTimes.isEmpty)
+    XCTAssertTrue(playerState.showResumePopup)
+  }
+
+  func testAnOfferAlreadyShowingIsNotClobbered() {
+    let playerState = PlayerState()
+    playerState.showResumePopup = true
+    playerState.remotePlayTime = 120
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
+
+    sut.route(position)
+
+    XCTAssertEqual(playerState.remotePlayTime, 120, "the prompt the user is looking at keeps its position")
+  }
+
+  /// Disconnecting the car must hand the next offer back to the phone.
+  func testAReleasedPresenterFallsBackToThePhone() {
+    let playerState = PlayerState()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+    var car: PresenterSpy? = PresenterSpy()
+    sut.carPlayPresenter = car
+    car = nil
+
+    sut.route(position)
+
+    XCTAssertTrue(playerState.showResumePopup, "a weak presenter that went away is the same as none")
+  }
+}

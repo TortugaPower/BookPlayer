@@ -165,15 +165,21 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public init() {}
 
+  /// Where an external item downloads from — the same resolution PlaybackService uses to
+  /// stream it, so the two paths cannot disagree about server, URL or auth headers.
+  private var streamResolver: ExternalStreamResolving!
+
   public func setup(
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
     concurrenceService: ConcurrenceServiceProtocol,
     tasksDataManager: TasksDataManager,
-    client: NetworkClientProtocol = NetworkClient()
+    client: NetworkClientProtocol = NetworkClient(),
+    streamResolver: ExternalStreamResolving = ExternalStreamResolver()
   ) {
     self.isActive = isActive
+    self.streamResolver = streamResolver
     self.libraryService = libraryService
     self.accountService = accountService
     self.concurrenceService = concurrenceService
@@ -479,61 +485,23 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     var remoteURLs: [RemoteFileURL] = []
     var isExternalItem = false
-    if item.type == .book,
-       let external = item.externalResources?.first(where: { $0.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue }) {
+    // streamingResource, not first(where:) over an unordered set: it is provider-filtered.
+    // The API's markExternalSourceUploaded marks EVERY provider row 'downloaded' for an
+    // item, so a dual-linked book's Hardcover row can pass a syncStatus check — and Hardcover
+    // has no files. Picking it here threw integration_error_missing_connection on a book
+    // whose Jellyfin connection was fine.
+    if item.type == .book, let external = item.externalResources?.streamingResource {
       isExternalItem = true
-      switch ExternalResource.ProviderName(rawValue: external.providerName) {
-      case .jellyfin:
-        let keychainService = KeychainService()
-        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-        // Stable-host resolution only — downloading from a guessed server fetches the wrong
-        // file when provider item ids collide across instances (shared Android contract).
-        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
 
-        if let connection = connection,
-           let downloadUrl = URL(string: connection.buildDownloadUrl(providerId: external.providerId)) {
-          // Custom headers first (reverse-proxy gates), integration Authorization wins on conflict.
-          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
-          // fight the integration's own header (same rule as JellyfinHeaderInjector).
-          var headers = connection.customHeaders.filter {
-            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
-          }
-          headers["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
-          remoteURLs = [
-            RemoteFileURL(
-              url: downloadUrl,
-              relativePath: item.relativePath,
-              type: .book,
-              headers: headers
-            )
-          ]
-        }
-      case .audiobookshelf:
-        let keychainService = KeychainService()
-        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-        // Stable-host resolution only — downloading from a guessed server fetches the wrong
-        // file when provider item ids collide across instances (shared Android contract).
-        let connection = IntegrationHostResolver.connection(for: external.hostId, in: connections)
-
-        if let connection = connection,
-           let downloadUrl = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: external.providerId)) {
-          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
-          // fight the integration's own header (same rule as JellyfinHeaderInjector).
-          var headers = connection.customHeaders.filter {
-            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
-          }
-          headers["Authorization"] = "Bearer \(connection.apiToken)"
-          remoteURLs = [
-            RemoteFileURL(
-              url: downloadUrl,
-              relativePath: item.relativePath,
-              type: .book,
-              headers: headers
-            )
-          ]
-        }
-      default:
-        break
+      if let source = streamResolver.streamSource(for: external) {
+        remoteURLs = [
+          RemoteFileURL(
+            url: source.url,
+            relativePath: item.relativePath,
+            type: .book,
+            headers: source.headers
+          )
+        ]
       }
     } else {
       remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)

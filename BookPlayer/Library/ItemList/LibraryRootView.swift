@@ -38,7 +38,7 @@ struct LibraryRootView: View {
 
   @EnvironmentObject private var playerManager: PlayerManager
   @EnvironmentObject private var importManager: ImportManager
-  @EnvironmentObject private var externalImportBus: ExternalImportBus
+  @EnvironmentObject private var externalImportEvents: ExternalImportEvents
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
@@ -48,6 +48,7 @@ struct LibraryRootView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
+  @Environment(\.externalProgressService) private var externalProgressService
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
@@ -58,9 +59,9 @@ struct LibraryRootView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
-          playerState: playerState,
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
+          externalProgressService: externalProgressService,
           loadingState: loadingState,
           listState: listState,
           singleFileDownloadService: singleFileDownloadService
@@ -73,9 +74,9 @@ struct LibraryRootView: View {
             libraryService: libraryService,
             playbackService: playbackService,
             playerManager: playerManager,
-            playerState: playerState,
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
+            externalProgressService: externalProgressService,
             loadingState: loadingState,
             listState: listState,
             singleFileDownloadService: singleFileDownloadService
@@ -130,7 +131,7 @@ struct LibraryRootView: View {
 
         importManager.start(operation)
       }
-      .onReceive(externalImportBus.confirmedBatches) { externalResources in
+      .onReceive(externalImportEvents.confirmedBatches) { externalResources in
         Task {
           self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
         }

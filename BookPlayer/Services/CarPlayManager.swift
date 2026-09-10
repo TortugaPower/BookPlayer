@@ -40,6 +40,9 @@ class CarPlayManager: NSObject {
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
+    // The arbiter exists from launch, so this can't race CoreServices on a cold start into
+    // the car — the subscription this replaced lived in init and silently never bound there.
+    AppServices.shared.resumeOfferArbiter.carPlayPresenter = self
     /// Reset connect-scoped state so a re-connect without a paired disconnect doesn't act on a stale flag
     self.shouldShowPlayerOnConnect = false
     self.setupNowPlayingTemplate()
@@ -106,6 +109,7 @@ class CarPlayManager: NSObject {
   }
 
   func disconnect() {
+    AppServices.shared.resumeOfferArbiter.carPlayPresenter = nil
     self.interfaceController = nil
     self.recentTemplate = nil
     self.libraryTemplate = nil
@@ -748,10 +752,30 @@ extension CarPlayManager: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
   }
-  
-  // Deliberately empty: CarPlay playback is local/cloud-only — media-server progress
-  // refresh happens on the phone UI paths, not while driving.
-  func fetchExternalResource(_ playableItem: PlayableItem) async {
-    
+}
+
+extension CarPlayManager: ResumeOfferPresenting {
+  /// The car's half of the resume offer. ResumeOfferArbiter decides that the car — and only
+  /// the car — asks; this only presents. No shared flag to clear: the phone never raised one
+  /// for an offer routed here.
+  func presentResumeOffer(at remoteTime: TimeInterval) {
+    guard interfaceController != nil else { return }
+
+    showAlert(
+      BPAlertContent(
+        title: "resume_playback_alert_title".localized,
+        message: String(
+          format: "resume_playback_alert_message".localized,
+          TimeParser.formatTime(remoteTime)
+        ),
+        style: .alert,
+        actionItems: [
+          BPActionItem(title: "yes_button".localized) {
+            AppServices.shared.coreServices?.playerManager.jumpTo(remoteTime)
+          },
+          BPActionItem(title: "ignore_button".localized) {},
+        ]
+      )
+    )
   }
 }
