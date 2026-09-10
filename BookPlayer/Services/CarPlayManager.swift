@@ -216,6 +216,13 @@ class CarPlayManager: NSObject {
       })
       .store(in: &disposeBag)
 
+    AppServices.shared.coreServices?.externalProgressService.promptablePositionPublisher
+      .receive(on: RunLoop.main)
+      .sink(receiveValue: { [weak self] position in
+        self?.presentResumeOffer(at: position.currentTime)
+      })
+      .store(in: &disposeBag)
+
     self.boostVolumeItem.handler = { [weak self] (_, completion) in
       let flag = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
 
@@ -701,6 +708,43 @@ extension CarPlayManager: AlertPresenter {
     let alertTemplate = CPAlertTemplate(titleVariants: [completeMessage], actions: [okAction])
 
     self.interfaceController?.presentTemplate(alertTemplate, animated: true, completion: nil)
+  }
+
+  /// The car's half of the resume offer: a media server says another device got further, so
+  /// ask, rather than the empty implementation this replaced — which meant a car-only session
+  /// silently dropped the decision even though CarPlay has always been able to present it.
+  ///
+  /// Only when the phone can't ask. An active app shows the SwiftUI alert, and two prompts for
+  /// one decision is worse than either; answering here clears the shared flag so the phone
+  /// doesn't re-ask a question the driver already answered.
+  @MainActor
+  private func presentResumeOffer(at remoteTime: TimeInterval) {
+    guard
+      interfaceController != nil,
+      UIApplication.shared.applicationState != .active
+    else { return }
+
+    let playerState = AppServices.shared.playerState
+
+    showAlert(
+      BPAlertContent(
+        title: "resume_playback_alert_title".localized,
+        message: String(
+          format: "resume_playback_alert_message".localized,
+          TimeParser.formatTime(remoteTime)
+        ),
+        style: .alert,
+        actionItems: [
+          BPActionItem(title: "yes_button".localized) {
+            AppServices.shared.coreServices?.playerManager.jumpTo(remoteTime)
+            playerState.showResumePopup = false
+          },
+          BPActionItem(title: "ignore_button".localized) {
+            playerState.showResumePopup = false
+          },
+        ]
+      )
+    )
   }
 
   public func showAlert(_ content: BPAlertContent) {
