@@ -56,7 +56,9 @@ struct BookView: View {
   /// `dynamicAccessibilityLabel`), so nothing here reaches VoiceOver — the icon and the
   /// separator need no `accessibilityHidden`.
   private var subtitle: Text {
-    (item.externalResources ?? [])
+    // Media-server links only, same rule the details section uses: Hardcover is
+    // progress-sync, not a source the book streams from, so it earns no badge here.
+    (item.externalResources?.mediaServerResources ?? [])
       .reduce(Text(verbatim: "")) { partial, resource in
         let provider = ExternalResource.ProviderName(rawValue: resource.providerName) ?? .jellyfin
 
