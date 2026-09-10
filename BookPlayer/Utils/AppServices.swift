@@ -121,6 +121,9 @@ final class AppServices: BPLogger {
       libraryService.preferencesService = preferencesService
       Task { await preferencesService.bootstrap() }
 
+      let externalProgressService = ExternalProgressService()
+      externalProgressService.setup(libraryService: libraryService)
+
       let coreServices = CoreServices(
         accountService: accountService,
         dataManager: dataManager,
@@ -132,6 +135,7 @@ final class AppServices: BPLogger {
         preferencesService: preferencesService,
         syncService: syncService,
         concurrenceService: concurrenceService,
+        externalProgressService: externalProgressService,
         watchService: watchService
       )
 

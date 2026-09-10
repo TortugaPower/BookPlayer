@@ -1235,9 +1235,9 @@ extension PlayerManager {
 
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
+      // ExternalProgressService self-subscribes to this: the media-server progress pull no
+      // longer depends on which UI happens to hold the delegate slot.
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
-      
-      await syncProgressDelegate?.fetchExternalResource(currentItem)
     }
   }
 

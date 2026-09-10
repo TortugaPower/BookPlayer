@@ -20,6 +20,7 @@ class MainCoordinator: NSObject {
   let importManager: ImportManager
   let externalImportBus: ExternalImportBus
   let playerManager: PlayerManager
+  let externalProgressService: ExternalProgressService
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryService
@@ -62,6 +63,7 @@ class MainCoordinator: NSObject {
       preferencesService: coreServices.preferencesService
     )
     self.concurrenceService = coreServices.concurrenceService
+    self.externalProgressService = coreServices.externalProgressService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -169,6 +171,18 @@ class MainCoordinator: NSObject {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] item in
         self?.playerState.loadedBookRelativePath = item?.relativePath
+      }
+      .store(in: &disposeBag)
+
+    // The service decides WHETHER a remote position is worth offering; this only decides
+    // where the offer lands. PlayerState is app-layer, so a Shared service can't write it.
+    externalProgressService.promptablePositionPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] position in
+        guard let self, !playerState.showResumePopup else { return }
+
+        playerState.remotePlayTime = position.currentTime
+        playerState.showResumePopup = true
       }
       .store(in: &disposeBag)
   }

@@ -121,8 +121,9 @@ first. Reordering boot risks a launch crash.
 
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
-- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **11 services**: `accountService`,
-  `concurrenceService`,
+- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
+  `concurrenceService`, `externalProgressService` (pulls media-server playback positions; self-subscribes to
+  `.bookPlayed` so the pull never depends on which UI is attached),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.

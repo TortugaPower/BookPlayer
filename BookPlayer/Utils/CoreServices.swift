@@ -20,5 +20,6 @@ struct CoreServices {
   let preferencesService: PreferencesSyncService
   let syncService: SyncService
   let concurrenceService: ConcurrenceService
+  let externalProgressService: ExternalProgressService
   let watchService: PhoneWatchConnectivityService
 }

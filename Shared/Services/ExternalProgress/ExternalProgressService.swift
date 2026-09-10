@@ -34,6 +34,7 @@ public final class ExternalProgressService {
   private let stateLock = NSLock()
   private var refreshTask: Task<Void, Never>?
   private var requestedUuid: String?
+  private var disposeBag = Set<AnyCancellable>()
 
   public init() {}
 
@@ -46,6 +47,26 @@ public final class ExternalProgressService {
   ) {
     self.libraryService = libraryService
     self.providers = providers
+
+    bindObservers()
+  }
+
+  /// Self-subscribed rather than called by the player, so nothing about which UI is attached
+  /// can decide whether a refresh happens — the point of moving this off a view model.
+  /// `.bookPlayed` is posted by PlayerManager for every playback start, phone or CarPlay.
+  private func bindObservers() {
+    NotificationCenter.default.publisher(for: .bookPlayed)
+      .compactMap { $0.userInfo?["book"] as? PlayableItem }
+      .sink { [weak self] item in
+        self?.refreshProgress(for: item)
+      }
+      .store(in: &disposeBag)
+
+    NotificationCenter.default.publisher(for: .logout)
+      .sink { [weak self] _ in
+        self?.teardown()
+      }
+      .store(in: &disposeBag)
   }
 
   /// Ask every media server this item is linked to where the user is, and publish the answer

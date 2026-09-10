@@ -923,6 +923,58 @@ final class ExternalProgressServiceTests: XCTestCase {
     XCTAssertEqual(received.count, 1, "only the item that is playing now can prompt")
   }
 
+  /// The point of the extraction: the pull is driven by the notification the player posts for
+  /// EVERY playback start, so it no longer depends on which UI holds a delegate slot — a
+  /// car-only session used to get an empty implementation and never pull at all.
+  func testRefreshesFromTheBookPlayedNotification() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 600, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    NotificationCenter.default.post(
+      name: .bookPlayed,
+      object: nil,
+      userInfo: ["book": makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil)]
+    )
+    try? await Task.sleep(nanoseconds: 400_000_000)
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"], "playback start alone drives the pull")
+    XCTAssertEqual(received.first?.currentTime, 600)
+  }
+
+  func testLogoutNotificationCancelsInFlightWork() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    let slow = ProviderStub { _ in
+      try? await Task.sleep(nanoseconds: 250_000_000)
+      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    NotificationCenter.default.post(name: .logout, object: nil)
+    try? await Task.sleep(nanoseconds: 600_000_000)
+
+    XCTAssertTrue(received.isEmpty, "signing out stops a refresh already in flight")
+  }
+
   func testTeardownCancelsAnInFlightRefresh() async {
     let libraryService = LibraryServiceProtocolMock()
     libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
