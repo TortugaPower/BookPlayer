@@ -804,31 +804,22 @@ final class ExternalProgressServiceTests: XCTestCase {
   // MARK: the decision rule
 
   func testPromptsWhenTheRemoteDateIsNewerBeyondTheThreshold() {
-    let position = ExternalProgressService.promptablePosition(
-      localTime: 100,
-      localDate: Date(timeIntervalSince1970: 1000),
-      candidates: [ExternalPlaybackProgress(currentTime: 90, lastPlayedDate: Date(timeIntervalSince1970: 1100))]
-    )
+    let position = [ExternalPlaybackProgress(currentTime: 90, lastPlayedDate: Date(timeIntervalSince1970: 1100))]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
 
     XCTAssertEqual(position?.currentTime, 90, "a newer date prompts even when the position is behind")
   }
 
   func testDoesNotPromptInsideTheThreshold() {
-    let position = ExternalProgressService.promptablePosition(
-      localTime: 100,
-      localDate: Date(timeIntervalSince1970: 1000),
-      candidates: [ExternalPlaybackProgress(currentTime: 110, lastPlayedDate: Date(timeIntervalSince1970: 1005))]
-    )
+    let position = [ExternalPlaybackProgress(currentTime: 110, lastPlayedDate: Date(timeIntervalSince1970: 1005))]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
 
     XCTAssertNil(position, "10s of drift on the book you are listening to is not another device")
   }
 
   func testPromptsWhenTheRemotePositionIsFartherWithoutADate() {
-    let position = ExternalProgressService.promptablePosition(
-      localTime: 100,
-      localDate: Date(timeIntervalSince1970: 1000),
-      candidates: [ExternalPlaybackProgress(currentTime: 400, lastPlayedDate: nil)]
-    )
+    let position = [ExternalPlaybackProgress(currentTime: 400, lastPlayedDate: nil)]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
 
     XCTAssertEqual(position?.currentTime, 400, "a server reporting no date still counts on position")
   }
@@ -838,18 +829,15 @@ final class ExternalProgressServiceTests: XCTestCase {
     let older = ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 1100))
     let newer = ExternalPlaybackProgress(currentTime: 300, lastPlayedDate: Date(timeIntervalSince1970: 2000))
 
-    let position = ExternalProgressService.promptablePosition(
-      localTime: 100,
-      localDate: Date(timeIntervalSince1970: 1000),
-      candidates: [older, newer]
-    )
+    let position = [older, newer]
+      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
 
     XCTAssertEqual(position, newer, "the most recently played server wins, not the farthest position")
   }
 
   func testNoCandidatesMeansNoPrompt() {
     XCTAssertNil(
-      ExternalProgressService.promptablePosition(localTime: 100, localDate: nil, candidates: [])
+      [ExternalPlaybackProgress]().promptable(localTime: 100, localDate: nil)
     )
   }
 

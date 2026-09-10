@@ -98,11 +98,7 @@ public final class ExternalProgressService {
       guard
         !Task.isCancelled,
         self.isStillRequested(uuid),
-        let position = Self.promptablePosition(
-          localTime: localTime,
-          localDate: localDate,
-          candidates: candidates
-        )
+        let position = candidates.promptable(localTime: localTime, localDate: localDate)
       else { return }
 
       self.promptablePositionPublisher.send(position)
@@ -188,31 +184,4 @@ public final class ExternalProgressService {
     return requestedUuid == uuid
   }
 
-  /// The position worth prompting for, or nil when the servers have nothing newer to offer.
-  ///
-  /// Two steps. A candidate qualifies only if it is ahead of the local state by more than
-  /// `threshold` — either a newer play date or a farther position — which keeps the prompt
-  /// from firing on the rounding drift of a book the user is actively listening to. Among the
-  /// qualifiers the NEWEST date wins, the same strictly-newer rule
-  /// `SyncService.handleSyncedLastPlayed` and `handleSyncFromExternalResource` already use for
-  /// our own cloud, with position breaking ties for servers that report no date.
-  static func promptablePosition(
-    localTime: TimeInterval,
-    localDate: Date?,
-    candidates: [ExternalPlaybackProgress],
-    threshold: TimeInterval = 15
-  ) -> ExternalPlaybackProgress? {
-    let localDate = localDate ?? .distantPast
-
-    return candidates
-      .filter { candidate in
-        let isDateNewer = (candidate.lastPlayedDate ?? .distantPast) > localDate.addingTimeInterval(threshold)
-        let isPositionFarther = candidate.currentTime > localTime + threshold
-
-        return isDateNewer || isPositionFarther
-      }
-      .max {
-        ($0.lastPlayedDate ?? .distantPast, $0.currentTime) < ($1.lastPlayedDate ?? .distantPast, $1.currentTime)
-      }
-  }
 }

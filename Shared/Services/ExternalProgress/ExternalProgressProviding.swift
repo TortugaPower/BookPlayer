@@ -24,6 +24,38 @@ public struct ExternalPlaybackProgress: Equatable, Sendable {
   }
 }
 
+extension [ExternalPlaybackProgress] {
+  /// The candidate worth prompting the user about, or nil when no server has anything newer.
+  ///
+  /// Two steps. A candidate qualifies only if it is ahead of the local state by more than
+  /// `threshold` — either a newer play date or a farther position — which keeps the prompt from
+  /// firing on the rounding drift of a book the user is actively listening to. Among the
+  /// qualifiers the NEWEST date wins, the same strictly-newer rule
+  /// `SyncService.handleSyncedLastPlayed` and `handleSyncFromExternalResource` already use for
+  /// our own cloud, with position breaking ties for servers that report no date.
+  ///
+  /// Lives on the collection rather than on the service: it reasons about these values and
+  /// nothing else, so a service instance has no say in the answer.
+  func promptable(
+    localTime: TimeInterval,
+    localDate: Date?,
+    threshold: TimeInterval = 15
+  ) -> ExternalPlaybackProgress? {
+    let localDate = localDate ?? .distantPast
+
+    return
+      filter { candidate in
+        let isDateNewer = (candidate.lastPlayedDate ?? .distantPast) > localDate.addingTimeInterval(threshold)
+        let isPositionFarther = candidate.currentTime > localTime + threshold
+
+        return isDateNewer || isPositionFarther
+      }
+      .max {
+        ($0.lastPlayedDate ?? .distantPast, $0.currentTime) < ($1.lastPlayedDate ?? .distantPast, $1.currentTime)
+      }
+  }
+}
+
 /// Reads one provider's playback position for a resource.
 ///
 /// `Sendable` so the service can fan the providers out concurrently: an item linked to two
